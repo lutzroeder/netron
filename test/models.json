@@ -460,6 +460,18 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
+    "target": "caffe/yolov3-tiny.prototxt",
+    "source": "https://raw.githubusercontent.com/eric612/MobileNet-YOLO/master/models/darknet_yolov3/yolov3-tiny.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/eric612/MobileNet-YOLO/tree/master/models/darknet_yolov3"
+  },
+  {
+    "target": "caffe/yolov3-spp.prototxt",
+    "source": "https://raw.githubusercontent.com/eric612/MobileNet-YOLO/master/models/darknet_yolov3/yolov3-spp.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/eric612/MobileNet-YOLO/tree/master/models/darknet_yolov3"
+  },
+  {
     "target": "caffe/zynqnet.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/zynqnet.prototxt",
     "format": "Caffe v2",
@@ -580,8 +592,20 @@
     "link":   "https://github.com/caffe2/models"
   },
   {
+    "target": "keras/mimo.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2565761/mimo.h5.zip[mimo.h5]",
+    "format": "Keras v2.2.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/138"
+  },
+  {
     "target": "keras/tiny-yolo-voc.h5",
     "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5"
+  },
+  {
+    "target": "keras/tiramisu_fc_dense103_model.json",
+    "source": "https://raw.githubusercontent.com/0bserver07/One-Hundred-Layers-Tiramisu/master/tiramisu_fc_dense103_model.json",
+    "format": "Keras",
+    "link":   "https://github.com/0bserver07/One-Hundred-Layers-Tiramisu"
   },
   {
     "target": "cntk/v1/AlexNet.model",

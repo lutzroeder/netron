@@ -3015,6 +3015,8 @@
             LayerParameter.prototype.split_param = null;
             LayerParameter.prototype.region_loss_param = null;
             LayerParameter.prototype.eval_detection_param = null;
+            LayerParameter.prototype.yolo_detection_output_param = null;
+            LayerParameter.prototype.yolov3_detection_output_param = null;
             LayerParameter.prototype.roi_pooling_param_2 = null;
             LayerParameter.prototype.normalize_bbox_param = null;
             LayerParameter.prototype.bn_param = null;
@@ -3321,6 +3323,12 @@
                         break;
                     case 301:
                         message.eval_detection_param = $root.caffe.EvalDetectionParameter.decode(reader, reader.uint32());
+                        break;
+                    case 601:
+                        message.yolo_detection_output_param = $root.caffe.YoloDetectionOutputParameter.decode(reader, reader.uint32());
+                        break;
+                    case 602:
+                        message.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.decode(reader, reader.uint32());
                         break;
                     case 8266711:
                         message.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.decode(reader, reader.uint32());
@@ -3668,6 +3676,12 @@
                         break;
                     case "eval_detection_param":
                         message.eval_detection_param = $root.caffe.EvalDetectionParameter.decodeText(reader, true);
+                        break;
+                    case "yolo_detection_output_param":
+                        message.yolo_detection_output_param = $root.caffe.YoloDetectionOutputParameter.decodeText(reader, true);
+                        break;
+                    case "yolov3_detection_output_param":
+                        message.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.decodeText(reader, true);
                         break;
                     case "roi_pooling_param_2":
                         message.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.decodeText(reader, true);
@@ -4179,6 +4193,16 @@
                     var error = $root.caffe.EvalDetectionParameter.verify(message.eval_detection_param);
                     if (error)
                         return "eval_detection_param." + error;
+                }
+                if (message.yolo_detection_output_param != null && message.hasOwnProperty("yolo_detection_output_param")) {
+                    var error = $root.caffe.YoloDetectionOutputParameter.verify(message.yolo_detection_output_param);
+                    if (error)
+                        return "yolo_detection_output_param." + error;
+                }
+                if (message.yolov3_detection_output_param != null && message.hasOwnProperty("yolov3_detection_output_param")) {
+                    var error = $root.caffe.Yolov3DetectionOutputParameter.verify(message.yolov3_detection_output_param);
+                    if (error)
+                        return "yolov3_detection_output_param." + error;
                 }
                 if (message.roi_pooling_param_2 != null && message.hasOwnProperty("roi_pooling_param_2")) {
                     var error = $root.caffe.ROIPoolingParameter.verify(message.roi_pooling_param_2);
@@ -4732,6 +4756,16 @@
                         throw TypeError(".caffe.LayerParameter.eval_detection_param: object expected");
                     message.eval_detection_param = $root.caffe.EvalDetectionParameter.fromObject(object.eval_detection_param);
                 }
+                if (object.yolo_detection_output_param != null) {
+                    if (typeof object.yolo_detection_output_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.yolo_detection_output_param: object expected");
+                    message.yolo_detection_output_param = $root.caffe.YoloDetectionOutputParameter.fromObject(object.yolo_detection_output_param);
+                }
+                if (object.yolov3_detection_output_param != null) {
+                    if (typeof object.yolov3_detection_output_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.yolov3_detection_output_param: object expected");
+                    message.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.fromObject(object.yolov3_detection_output_param);
+                }
                 if (object.roi_pooling_param_2 != null) {
                     if (typeof object.roi_pooling_param_2 !== "object")
                         throw TypeError(".caffe.LayerParameter.roi_pooling_param_2: object expected");
@@ -4933,6 +4967,8 @@
                     object.split_param = null;
                     object.region_loss_param = null;
                     object.eval_detection_param = null;
+                    object.yolo_detection_output_param = null;
+                    object.yolov3_detection_output_param = null;
                     object.bn_param = null;
                     object.interp_param = null;
                     object.coeff_schedule_param = null;
@@ -5145,6 +5181,10 @@
                     object.region_loss_param = $root.caffe.RegionLossParameter.toObject(message.region_loss_param, options);
                 if (message.eval_detection_param != null && message.hasOwnProperty("eval_detection_param"))
                     object.eval_detection_param = $root.caffe.EvalDetectionParameter.toObject(message.eval_detection_param, options);
+                if (message.yolo_detection_output_param != null && message.hasOwnProperty("yolo_detection_output_param"))
+                    object.yolo_detection_output_param = $root.caffe.YoloDetectionOutputParameter.toObject(message.yolo_detection_output_param, options);
+                if (message.yolov3_detection_output_param != null && message.hasOwnProperty("yolov3_detection_output_param"))
+                    object.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.toObject(message.yolov3_detection_output_param, options);
                 if (message.bn_param != null && message.hasOwnProperty("bn_param"))
                     object.bn_param = $root.caffe.BNParameter.toObject(message.bn_param, options);
                 if (message.interp_param != null && message.hasOwnProperty("interp_param"))
@@ -26845,6 +26885,485 @@
             };
     
             return BoxOutputParameter;
+        })();
+    
+        caffe.YoloDetectionOutputParameter = (function() {
+    
+            function YoloDetectionOutputParameter(properties) {
+                this.biases = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            YoloDetectionOutputParameter.prototype.side = 13;
+            YoloDetectionOutputParameter.prototype.num_classes = 20;
+            YoloDetectionOutputParameter.prototype.num_box = 5;
+            YoloDetectionOutputParameter.prototype.coords = 4;
+            YoloDetectionOutputParameter.prototype.confidence_threshold = 0.01;
+            YoloDetectionOutputParameter.prototype.nms_threshold = 0.45;
+            YoloDetectionOutputParameter.prototype.biases = $util.emptyArray;
+            YoloDetectionOutputParameter.prototype.label_map_file = "";
+    
+            YoloDetectionOutputParameter.create = function create(properties) {
+                return new YoloDetectionOutputParameter(properties);
+            };
+    
+            YoloDetectionOutputParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.YoloDetectionOutputParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.side = reader.uint32();
+                        break;
+                    case 2:
+                        message.num_classes = reader.uint32();
+                        break;
+                    case 3:
+                        message.num_box = reader.uint32();
+                        break;
+                    case 4:
+                        message.coords = reader.uint32();
+                        break;
+                    case 5:
+                        message.confidence_threshold = reader.float();
+                        break;
+                    case 6:
+                        message.nms_threshold = reader.float();
+                        break;
+                    case 7:
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.biases.push(reader.float());
+                        } else
+                            message.biases.push(reader.float());
+                        break;
+                    case 8:
+                        message.label_map_file = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            YoloDetectionOutputParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.YoloDetectionOutputParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "side":
+                        message.side = reader.uint32();
+                        break;
+                    case "num_classes":
+                        message.num_classes = reader.uint32();
+                        break;
+                    case "num_box":
+                        message.num_box = reader.uint32();
+                        break;
+                    case "coords":
+                        message.coords = reader.uint32();
+                        break;
+                    case "confidence_threshold":
+                        message.confidence_threshold = reader.float();
+                        break;
+                    case "nms_threshold":
+                        message.nms_threshold = reader.float();
+                        break;
+                    case "biases":
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        message.biases.push(reader.float());
+                        break;
+                    case "label_map_file":
+                        message.label_map_file = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            YoloDetectionOutputParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.side != null && message.hasOwnProperty("side"))
+                    if (!$util.isInteger(message.side))
+                        return "side: integer expected";
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    if (!$util.isInteger(message.num_classes))
+                        return "num_classes: integer expected";
+                if (message.num_box != null && message.hasOwnProperty("num_box"))
+                    if (!$util.isInteger(message.num_box))
+                        return "num_box: integer expected";
+                if (message.coords != null && message.hasOwnProperty("coords"))
+                    if (!$util.isInteger(message.coords))
+                        return "coords: integer expected";
+                if (message.confidence_threshold != null && message.hasOwnProperty("confidence_threshold"))
+                    if (typeof message.confidence_threshold !== "number")
+                        return "confidence_threshold: number expected";
+                if (message.nms_threshold != null && message.hasOwnProperty("nms_threshold"))
+                    if (typeof message.nms_threshold !== "number")
+                        return "nms_threshold: number expected";
+                if (message.biases != null && message.hasOwnProperty("biases")) {
+                    if (!Array.isArray(message.biases))
+                        return "biases: array expected";
+                    for (var i = 0; i < message.biases.length; ++i)
+                        if (typeof message.biases[i] !== "number")
+                            return "biases: number[] expected";
+                }
+                if (message.label_map_file != null && message.hasOwnProperty("label_map_file"))
+                    if (!$util.isString(message.label_map_file))
+                        return "label_map_file: string expected";
+                return null;
+            };
+    
+            YoloDetectionOutputParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.YoloDetectionOutputParameter)
+                    return object;
+                var message = new $root.caffe.YoloDetectionOutputParameter();
+                if (object.side != null)
+                    message.side = object.side >>> 0;
+                if (object.num_classes != null)
+                    message.num_classes = object.num_classes >>> 0;
+                if (object.num_box != null)
+                    message.num_box = object.num_box >>> 0;
+                if (object.coords != null)
+                    message.coords = object.coords >>> 0;
+                if (object.confidence_threshold != null)
+                    message.confidence_threshold = Number(object.confidence_threshold);
+                if (object.nms_threshold != null)
+                    message.nms_threshold = Number(object.nms_threshold);
+                if (object.biases) {
+                    if (!Array.isArray(object.biases))
+                        throw TypeError(".caffe.YoloDetectionOutputParameter.biases: array expected");
+                    message.biases = [];
+                    for (var i = 0; i < object.biases.length; ++i)
+                        message.biases[i] = Number(object.biases[i]);
+                }
+                if (object.label_map_file != null)
+                    message.label_map_file = String(object.label_map_file);
+                return message;
+            };
+    
+            YoloDetectionOutputParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.biases = [];
+                if (options.defaults) {
+                    object.side = 13;
+                    object.num_classes = 20;
+                    object.num_box = 5;
+                    object.coords = 4;
+                    object.confidence_threshold = 0.01;
+                    object.nms_threshold = 0.45;
+                    object.label_map_file = "";
+                }
+                if (message.side != null && message.hasOwnProperty("side"))
+                    object.side = message.side;
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    object.num_classes = message.num_classes;
+                if (message.num_box != null && message.hasOwnProperty("num_box"))
+                    object.num_box = message.num_box;
+                if (message.coords != null && message.hasOwnProperty("coords"))
+                    object.coords = message.coords;
+                if (message.confidence_threshold != null && message.hasOwnProperty("confidence_threshold"))
+                    object.confidence_threshold = options.json && !isFinite(message.confidence_threshold) ? String(message.confidence_threshold) : message.confidence_threshold;
+                if (message.nms_threshold != null && message.hasOwnProperty("nms_threshold"))
+                    object.nms_threshold = options.json && !isFinite(message.nms_threshold) ? String(message.nms_threshold) : message.nms_threshold;
+                if (message.biases && message.biases.length) {
+                    object.biases = [];
+                    for (var j = 0; j < message.biases.length; ++j)
+                        object.biases[j] = options.json && !isFinite(message.biases[j]) ? String(message.biases[j]) : message.biases[j];
+                }
+                if (message.label_map_file != null && message.hasOwnProperty("label_map_file"))
+                    object.label_map_file = message.label_map_file;
+                return object;
+            };
+    
+            YoloDetectionOutputParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return YoloDetectionOutputParameter;
+        })();
+    
+        caffe.Yolov3DetectionOutputParameter = (function() {
+    
+            function Yolov3DetectionOutputParameter(properties) {
+                this.biases = [];
+                this.anchors_scale = [];
+                this.mask = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            Yolov3DetectionOutputParameter.prototype.num_classes = 20;
+            Yolov3DetectionOutputParameter.prototype.num_box = 3;
+            Yolov3DetectionOutputParameter.prototype.confidence_threshold = 0.01;
+            Yolov3DetectionOutputParameter.prototype.nms_threshold = 0.45;
+            Yolov3DetectionOutputParameter.prototype.biases = $util.emptyArray;
+            Yolov3DetectionOutputParameter.prototype.anchors_scale = $util.emptyArray;
+            Yolov3DetectionOutputParameter.prototype.mask_group_num = 2;
+            Yolov3DetectionOutputParameter.prototype.mask = $util.emptyArray;
+    
+            Yolov3DetectionOutputParameter.create = function create(properties) {
+                return new Yolov3DetectionOutputParameter(properties);
+            };
+    
+            Yolov3DetectionOutputParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.Yolov3DetectionOutputParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.num_classes = reader.uint32();
+                        break;
+                    case 2:
+                        message.num_box = reader.uint32();
+                        break;
+                    case 3:
+                        message.confidence_threshold = reader.float();
+                        break;
+                    case 4:
+                        message.nms_threshold = reader.float();
+                        break;
+                    case 5:
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.biases.push(reader.float());
+                        } else
+                            message.biases.push(reader.float());
+                        break;
+                    case 6:
+                        if (!(message.anchors_scale && message.anchors_scale.length))
+                            message.anchors_scale = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.anchors_scale.push(reader.uint32());
+                        } else
+                            message.anchors_scale.push(reader.uint32());
+                        break;
+                    case 7:
+                        message.mask_group_num = reader.uint32();
+                        break;
+                    case 8:
+                        if (!(message.mask && message.mask.length))
+                            message.mask = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.mask.push(reader.uint32());
+                        } else
+                            message.mask.push(reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            Yolov3DetectionOutputParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.Yolov3DetectionOutputParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_classes":
+                        message.num_classes = reader.uint32();
+                        break;
+                    case "num_box":
+                        message.num_box = reader.uint32();
+                        break;
+                    case "confidence_threshold":
+                        message.confidence_threshold = reader.float();
+                        break;
+                    case "nms_threshold":
+                        message.nms_threshold = reader.float();
+                        break;
+                    case "biases":
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        message.biases.push(reader.float());
+                        break;
+                    case "anchors_scale":
+                        if (!(message.anchors_scale && message.anchors_scale.length))
+                            message.anchors_scale = [];
+                        message.anchors_scale.push(reader.uint32());
+                        break;
+                    case "mask_group_num":
+                        message.mask_group_num = reader.uint32();
+                        break;
+                    case "mask":
+                        if (!(message.mask && message.mask.length))
+                            message.mask = [];
+                        message.mask.push(reader.uint32());
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            Yolov3DetectionOutputParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    if (!$util.isInteger(message.num_classes))
+                        return "num_classes: integer expected";
+                if (message.num_box != null && message.hasOwnProperty("num_box"))
+                    if (!$util.isInteger(message.num_box))
+                        return "num_box: integer expected";
+                if (message.confidence_threshold != null && message.hasOwnProperty("confidence_threshold"))
+                    if (typeof message.confidence_threshold !== "number")
+                        return "confidence_threshold: number expected";
+                if (message.nms_threshold != null && message.hasOwnProperty("nms_threshold"))
+                    if (typeof message.nms_threshold !== "number")
+                        return "nms_threshold: number expected";
+                if (message.biases != null && message.hasOwnProperty("biases")) {
+                    if (!Array.isArray(message.biases))
+                        return "biases: array expected";
+                    for (var i = 0; i < message.biases.length; ++i)
+                        if (typeof message.biases[i] !== "number")
+                            return "biases: number[] expected";
+                }
+                if (message.anchors_scale != null && message.hasOwnProperty("anchors_scale")) {
+                    if (!Array.isArray(message.anchors_scale))
+                        return "anchors_scale: array expected";
+                    for (var i = 0; i < message.anchors_scale.length; ++i)
+                        if (!$util.isInteger(message.anchors_scale[i]))
+                            return "anchors_scale: integer[] expected";
+                }
+                if (message.mask_group_num != null && message.hasOwnProperty("mask_group_num"))
+                    if (!$util.isInteger(message.mask_group_num))
+                        return "mask_group_num: integer expected";
+                if (message.mask != null && message.hasOwnProperty("mask")) {
+                    if (!Array.isArray(message.mask))
+                        return "mask: array expected";
+                    for (var i = 0; i < message.mask.length; ++i)
+                        if (!$util.isInteger(message.mask[i]))
+                            return "mask: integer[] expected";
+                }
+                return null;
+            };
+    
+            Yolov3DetectionOutputParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.Yolov3DetectionOutputParameter)
+                    return object;
+                var message = new $root.caffe.Yolov3DetectionOutputParameter();
+                if (object.num_classes != null)
+                    message.num_classes = object.num_classes >>> 0;
+                if (object.num_box != null)
+                    message.num_box = object.num_box >>> 0;
+                if (object.confidence_threshold != null)
+                    message.confidence_threshold = Number(object.confidence_threshold);
+                if (object.nms_threshold != null)
+                    message.nms_threshold = Number(object.nms_threshold);
+                if (object.biases) {
+                    if (!Array.isArray(object.biases))
+                        throw TypeError(".caffe.Yolov3DetectionOutputParameter.biases: array expected");
+                    message.biases = [];
+                    for (var i = 0; i < object.biases.length; ++i)
+                        message.biases[i] = Number(object.biases[i]);
+                }
+                if (object.anchors_scale) {
+                    if (!Array.isArray(object.anchors_scale))
+                        throw TypeError(".caffe.Yolov3DetectionOutputParameter.anchors_scale: array expected");
+                    message.anchors_scale = [];
+                    for (var i = 0; i < object.anchors_scale.length; ++i)
+                        message.anchors_scale[i] = object.anchors_scale[i] >>> 0;
+                }
+                if (object.mask_group_num != null)
+                    message.mask_group_num = object.mask_group_num >>> 0;
+                if (object.mask) {
+                    if (!Array.isArray(object.mask))
+                        throw TypeError(".caffe.Yolov3DetectionOutputParameter.mask: array expected");
+                    message.mask = [];
+                    for (var i = 0; i < object.mask.length; ++i)
+                        message.mask[i] = object.mask[i] >>> 0;
+                }
+                return message;
+            };
+    
+            Yolov3DetectionOutputParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.biases = [];
+                    object.anchors_scale = [];
+                    object.mask = [];
+                }
+                if (options.defaults) {
+                    object.num_classes = 20;
+                    object.num_box = 3;
+                    object.confidence_threshold = 0.01;
+                    object.nms_threshold = 0.45;
+                    object.mask_group_num = 2;
+                }
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    object.num_classes = message.num_classes;
+                if (message.num_box != null && message.hasOwnProperty("num_box"))
+                    object.num_box = message.num_box;
+                if (message.confidence_threshold != null && message.hasOwnProperty("confidence_threshold"))
+                    object.confidence_threshold = options.json && !isFinite(message.confidence_threshold) ? String(message.confidence_threshold) : message.confidence_threshold;
+                if (message.nms_threshold != null && message.hasOwnProperty("nms_threshold"))
+                    object.nms_threshold = options.json && !isFinite(message.nms_threshold) ? String(message.nms_threshold) : message.nms_threshold;
+                if (message.biases && message.biases.length) {
+                    object.biases = [];
+                    for (var j = 0; j < message.biases.length; ++j)
+                        object.biases[j] = options.json && !isFinite(message.biases[j]) ? String(message.biases[j]) : message.biases[j];
+                }
+                if (message.anchors_scale && message.anchors_scale.length) {
+                    object.anchors_scale = [];
+                    for (var j = 0; j < message.anchors_scale.length; ++j)
+                        object.anchors_scale[j] = message.anchors_scale[j];
+                }
+                if (message.mask_group_num != null && message.hasOwnProperty("mask_group_num"))
+                    object.mask_group_num = message.mask_group_num;
+                if (message.mask && message.mask.length) {
+                    object.mask = [];
+                    for (var j = 0; j < message.mask.length; ++j)
+                        object.mask[j] = message.mask[j];
+                }
+                return object;
+            };
+    
+            Yolov3DetectionOutputParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return Yolov3DetectionOutputParameter;
         })();
     
         return caffe;

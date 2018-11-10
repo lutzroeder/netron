@@ -61,6 +61,8 @@ update(
   optional SplitParameter split_param = 208;
   optional RegionLossParameter region_loss_param = 209;
   optional EvalDetectionParameter eval_detection_param = 301;
+  optional YoloDetectionOutputParameter yolo_detection_output_param = 601; // eric612/MobileNet-YOLO
+  optional Yolov3DetectionOutputParameter yolov3_detection_output_param = 602; // eric612/MobileNet-YOLO
   optional ROIPoolingParameter roi_pooling_param_2 = 8266711;
   optional NormalizeBBoxParameter normalize_bbox_param = 8266712; // 149
   optional BNParameter bn_param = 1137; // 41 in ChenglongChen/batch_normalization, 137 in yjxiong/caffe
@@ -1119,6 +1121,30 @@ message BoxOutputParameter {
   optional float min_size = 11 [default = 15]; 
   optional uint32 num_param_set = 12 [default = 1];
   optional bool ringpad = 13 [default = false];
+}
+
+message YoloDetectionOutputParameter {
+  // Yolo detection output layer
+  optional uint32 side = 1 [default = 13];
+  optional uint32 num_classes = 2 [default = 20];
+  optional uint32 num_box = 3 [default = 5];
+  optional uint32 coords = 4 [default = 4];
+  optional float confidence_threshold = 5 [default = 0.01];
+  optional float nms_threshold = 6 [default = 0.45];
+  repeated float biases = 7;
+  optional string label_map_file = 8;
+}
+
+message Yolov3DetectionOutputParameter {
+  // Yolo detection output layer
+  optional uint32 num_classes = 1 [default = 20];
+  optional uint32 num_box = 2 [default = 3];
+  optional float confidence_threshold = 3 [default = 0.01];
+  optional float nms_threshold = 4 [default = 0.45];
+  repeated float biases = 5;
+  repeated uint32 anchors_scale = 6 ;
+  optional uint32 mask_group_num = 7 [default = 2];
+  repeated uint32 mask = 8;
 }
 `);
 
