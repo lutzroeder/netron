@@ -2563,12 +2563,13 @@
             TypeProto.prototype.sequence_type = null;
             TypeProto.prototype.map_type = null;
             TypeProto.prototype.opaque_type = null;
+            TypeProto.prototype.sparse_tensor_type = null;
             TypeProto.prototype.denotation = "";
     
             var $oneOfFields;
     
             Object.defineProperty(TypeProto.prototype, "value", {
-                get: $util.oneOfGetter($oneOfFields = ["tensor_type", "sequence_type", "map_type", "opaque_type"]),
+                get: $util.oneOfGetter($oneOfFields = ["tensor_type", "sequence_type", "map_type", "opaque_type", "sparse_tensor_type"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -2594,6 +2595,9 @@
                         break;
                     case 7:
                         message.opaque_type = $root.onnx.TypeProto.Opaque.decode(reader, reader.uint32());
+                        break;
+                    case 8:
+                        message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decode(reader, reader.uint32());
                         break;
                     case 6:
                         message.denotation = reader.string();
@@ -2625,6 +2629,9 @@
                         break;
                     case "opaque_type":
                         message.opaque_type = $root.onnx.TypeProto.Opaque.decodeText(reader, true);
+                        break;
+                    case "sparse_tensor_type":
+                        message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decodeText(reader, true);
                         break;
                     case "denotation":
                         message.denotation = reader.string();
@@ -2679,6 +2686,16 @@
                             return "opaque_type." + error;
                     }
                 }
+                if (message.sparse_tensor_type != null && message.hasOwnProperty("sparse_tensor_type")) {
+                    if (properties.value === 1)
+                        return "value: multiple values";
+                    properties.value = 1;
+                    {
+                        var error = $root.onnx.TypeProto.SparseTensor.verify(message.sparse_tensor_type);
+                        if (error)
+                            return "sparse_tensor_type." + error;
+                    }
+                }
                 if (message.denotation != null && message.hasOwnProperty("denotation"))
                     if (!$util.isString(message.denotation))
                         return "denotation: string expected";
@@ -2708,6 +2725,11 @@
                     if (typeof object.opaque_type !== "object")
                         throw TypeError(".onnx.TypeProto.opaque_type: object expected");
                     message.opaque_type = $root.onnx.TypeProto.Opaque.fromObject(object.opaque_type);
+                }
+                if (object.sparse_tensor_type != null) {
+                    if (typeof object.sparse_tensor_type !== "object")
+                        throw TypeError(".onnx.TypeProto.sparse_tensor_type: object expected");
+                    message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.fromObject(object.sparse_tensor_type);
                 }
                 if (object.denotation != null)
                     message.denotation = String(object.denotation);
@@ -2741,6 +2763,11 @@
                     object.opaque_type = $root.onnx.TypeProto.Opaque.toObject(message.opaque_type, options);
                     if (options.oneofs)
                         object.value = "opaque_type";
+                }
+                if (message.sparse_tensor_type != null && message.hasOwnProperty("sparse_tensor_type")) {
+                    object.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.toObject(message.sparse_tensor_type, options);
+                    if (options.oneofs)
+                        object.value = "sparse_tensor_type";
                 }
                 return object;
             };
@@ -3338,6 +3365,203 @@
                 };
     
                 return Opaque;
+            })();
+    
+            TypeProto.SparseTensor = (function() {
+    
+                function SparseTensor(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SparseTensor.prototype.elem_type = 0;
+                SparseTensor.prototype.shape = null;
+    
+                SparseTensor.create = function create(properties) {
+                    return new SparseTensor(properties);
+                };
+    
+                SparseTensor.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TypeProto.SparseTensor();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.elem_type = reader.int32();
+                            break;
+                        case 2:
+                            message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                SparseTensor.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.onnx.TypeProto.SparseTensor();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "elem_type":
+                            message.elem_type = reader.enum($root.onnx.TensorProto.DataType);
+                            break;
+                        case "shape":
+                            message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                SparseTensor.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.elem_type != null && message.hasOwnProperty("elem_type"))
+                        switch (message.elem_type) {
+                        default:
+                            return "elem_type: enum value expected";
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                        case 10:
+                        case 11:
+                        case 12:
+                        case 13:
+                        case 14:
+                        case 15:
+                        case 16:
+                            break;
+                        }
+                    if (message.shape != null && message.hasOwnProperty("shape")) {
+                        var error = $root.onnx.TensorShapeProto.verify(message.shape);
+                        if (error)
+                            return "shape." + error;
+                    }
+                    return null;
+                };
+    
+                SparseTensor.fromObject = function fromObject(object) {
+                    if (object instanceof $root.onnx.TypeProto.SparseTensor)
+                        return object;
+                    var message = new $root.onnx.TypeProto.SparseTensor();
+                    switch (object.elem_type) {
+                    case "UNDEFINED":
+                    case 0:
+                        message.elem_type = 0;
+                        break;
+                    case "FLOAT":
+                    case 1:
+                        message.elem_type = 1;
+                        break;
+                    case "UINT8":
+                    case 2:
+                        message.elem_type = 2;
+                        break;
+                    case "INT8":
+                    case 3:
+                        message.elem_type = 3;
+                        break;
+                    case "UINT16":
+                    case 4:
+                        message.elem_type = 4;
+                        break;
+                    case "INT16":
+                    case 5:
+                        message.elem_type = 5;
+                        break;
+                    case "INT32":
+                    case 6:
+                        message.elem_type = 6;
+                        break;
+                    case "INT64":
+                    case 7:
+                        message.elem_type = 7;
+                        break;
+                    case "STRING":
+                    case 8:
+                        message.elem_type = 8;
+                        break;
+                    case "BOOL":
+                    case 9:
+                        message.elem_type = 9;
+                        break;
+                    case "FLOAT16":
+                    case 10:
+                        message.elem_type = 10;
+                        break;
+                    case "DOUBLE":
+                    case 11:
+                        message.elem_type = 11;
+                        break;
+                    case "UINT32":
+                    case 12:
+                        message.elem_type = 12;
+                        break;
+                    case "UINT64":
+                    case 13:
+                        message.elem_type = 13;
+                        break;
+                    case "COMPLEX64":
+                    case 14:
+                        message.elem_type = 14;
+                        break;
+                    case "COMPLEX128":
+                    case 15:
+                        message.elem_type = 15;
+                        break;
+                    case "BFLOAT16":
+                    case 16:
+                        message.elem_type = 16;
+                        break;
+                    }
+                    if (object.shape != null) {
+                        if (typeof object.shape !== "object")
+                            throw TypeError(".onnx.TypeProto.SparseTensor.shape: object expected");
+                        message.shape = $root.onnx.TensorShapeProto.fromObject(object.shape);
+                    }
+                    return message;
+                };
+    
+                SparseTensor.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.elem_type = options.enums === String ? "UNDEFINED" : 0;
+                        object.shape = null;
+                    }
+                    if (message.elem_type != null && message.hasOwnProperty("elem_type"))
+                        object.elem_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.elem_type] : message.elem_type;
+                    if (message.shape != null && message.hasOwnProperty("shape"))
+                        object.shape = $root.onnx.TensorShapeProto.toObject(message.shape, options);
+                    return object;
+                };
+    
+                SparseTensor.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return SparseTensor;
             })();
     
             return TypeProto;
