@@ -17118,6 +17118,43 @@
     }
   },
   {
+    "name": "FixedLengthRecordDatasetV2",
+    "schema": {
+      "inputs": [
+        {
+          "name": "filenames",
+          "type": 7
+        },
+        {
+          "name": "header_bytes",
+          "type": 9
+        },
+        {
+          "name": "record_bytes",
+          "type": 9
+        },
+        {
+          "name": "footer_bytes",
+          "type": 9
+        },
+        {
+          "name": "buffer_size",
+          "type": 9
+        },
+        {
+          "name": "compression_type",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "FixedLengthRecordReader",
     "schema": {
       "attributes": [
