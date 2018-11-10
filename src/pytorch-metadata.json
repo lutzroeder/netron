@@ -214,6 +214,13 @@
     }
   },
   {
+    "name": "MaxPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
     "name": "MaxPool2d",
     "schema": {
       "attributes": [
@@ -243,6 +250,20 @@
     }
   },
   {
+    "name": "MaxPool3d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AvgPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
     "name": "AvgPool2d",
     "schema": {
       "attributes": [
@@ -263,6 +284,34 @@
           "visible": false
         }
       ],
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AvgPool3d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveAvgPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveAvgPool2d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveAvgPool3d",
+    "schema": {
       "category": "Pool",
       "package": "torch.nn.modules.pooling"
     }

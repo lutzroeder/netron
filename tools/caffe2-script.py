@@ -4,15 +4,11 @@ from __future__ import print_function
 
 import io
 import json
+import logging
 import pydoc
 import os
 import re
 import sys
-import caffe2.python.core
-
-json_file = '../src/caffe2-metadata.json'
-json_data = open(json_file).read()
-json_root = json.loads(json_data)
 
 def get_support_level(dir):
     if 'caffe2/caffe2/operators' in dir:
@@ -145,36 +141,55 @@ def update_output(schema, output_desc):
     if len(output_desc) > 2:
         return
 
-schema_map = {}
+class Caffe2Filter(logging.Filter):
+    def filter(self, record):
+        return record.getMessage().startswith('WARNING:root:This caffe2 python run does not have GPU support.')
 
-for entry in json_root:
-    name = entry['name']
-    schema = entry['schema']
-    schema_map[name] = schema
+def metadata():
 
-for name in caffe2.python.core._GetRegisteredOperators():
-    op_schema = caffe2.python.workspace.C.OpSchema.get(name)
-    if op_schema:
-        if name in schema_map:
-            schema = schema_map[name]
-        else:
-            schema = {}
-            schema_map[name] = { 'name': name, 'schema': schema }
-        schema['description'] = op_schema.doc
-        for arg in op_schema.args:
-            update_argument(schema, arg)
-        for input_desc in op_schema.input_desc:
-            update_input(schema, input_desc)
-        if name != 'Int8ConvRelu' and name != 'Int8AveragePoolRelu':
-            for output_desc in op_schema.output_desc:
-                update_output(schema, output_desc)
-        schema['support_level'] = get_support_level(os.path.dirname(op_schema.file))
+    logging.getLogger('').addFilter(Caffe2Filter())
 
-with io.open(json_file, 'w', newline='') as fout:
-    json_data = json.dumps(json_root, sort_keys=True, indent=2)
-    for line in json_data.splitlines():
-        line = line.rstrip()
-        if sys.version_info[0] < 3:
-            line = unicode(line)
-        fout.write(line)
-        fout.write('\n')
+    import caffe2.python.core
+
+    json_file = '../src/caffe2-metadata.json'
+    json_data = open(json_file).read()
+    json_root = json.loads(json_data)
+
+    schema_map = {}
+
+    for entry in json_root:
+        name = entry['name']
+        schema = entry['schema']
+        schema_map[name] = schema
+
+    for name in caffe2.python.core._GetRegisteredOperators():
+        op_schema = caffe2.python.workspace.C.OpSchema.get(name)
+        if op_schema:
+            if name in schema_map:
+                schema = schema_map[name]
+            else:
+                schema = {}
+                schema_map[name] = { 'name': name, 'schema': schema }
+            schema['description'] = op_schema.doc
+            for arg in op_schema.args:
+                update_argument(schema, arg)
+            for input_desc in op_schema.input_desc:
+                update_input(schema, input_desc)
+            if name != 'Int8ConvRelu' and name != 'Int8AveragePoolRelu':
+                for output_desc in op_schema.output_desc:
+                    update_output(schema, output_desc)
+            schema['support_level'] = get_support_level(os.path.dirname(op_schema.file))
+
+    with io.open(json_file, 'w', newline='') as fout:
+        json_data = json.dumps(json_root, sort_keys=True, indent=2)
+        for line in json_data.splitlines():
+            line = line.rstrip()
+            if sys.version_info[0] < 3:
+                line = unicode(line)
+            fout.write(line)
+            fout.write('\n')
+
+if __name__ == '__main__':
+    command_table = { 'metadata': metadata }
+    command = sys.argv[1];
+    command_table[command]()

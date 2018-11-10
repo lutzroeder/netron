@@ -60,9 +60,9 @@ metadata() {
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
     echo "Generate 'caffe2-metadata.json'"
-    ${python} caffe2-script.py
+    ${python} caffe2-script.py metadata
     echo "Generate 'pytorch-metadata.json'"
-    ${python} pytorch-script.py
+    ${python} pytorch-script.py metadata
     popd > /dev/null
     deactivate
 }

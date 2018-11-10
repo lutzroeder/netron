@@ -9,6 +9,11 @@ import pydoc
 import re
 import sys
 
+stderr = sys.stderr
+sys.stderr = open(os.devnull, 'w')
+import keras
+sys.stderr = stderr
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def count_leading_spaces(s):
@@ -279,50 +284,50 @@ def update_output(schema, description):
     if entry:
         entry['description'] = description
 
-json_file = '../src/keras-metadata.json'
-json_data = open(json_file).read()
-json_root = json.loads(json_data)
-
-for entry in json_root:
-    name = entry['name']
-    schema = entry['schema']
-    if 'package' in schema:
-        class_name = schema['package'] + '.' + name
-        class_definition = pydoc.locate(class_name)
-        if not class_definition:
-            raise Exception('\'' + class_name + '\' not found.')
-        docstring = class_definition.__doc__
-        if not docstring:
-            raise Exception('\'' + class_name + '\' missing __doc__.')
-        docstring = process_docstring(docstring)
-        headers = split_docstring(docstring)
-        if '' in headers:
-            schema['description'] = '\n'.join(headers[''])
-            del headers['']
-        if 'Arguments' in headers:
-            update_arguments(schema, headers['Arguments'])
-            del headers['Arguments']
-        if 'Input shape' in headers:
-            update_input(schema, '\n'.join(headers['Input shape']))
-            del headers['Input shape']
-        if 'Output shape' in headers:
-            update_output(schema, '\n'.join(headers['Output shape']))
-            del headers['Output shape']
-        if 'Examples' in headers:
-            update_examples(schema, headers['Examples'])
-            del headers['Examples']
-        if 'Example' in headers:
-            update_examples(schema, headers['Example'])
-            del headers['Example']
-        if 'References' in headers:
-            update_references(schema, headers['References'])
-            del headers['References']
-        if 'Raises' in headers:
-            del headers['Raises']
-        if len(headers) > 0:
-            raise Exception('\'' + class_name + '.__doc__\' contains unprocessed headers.')
- 
 def metadata():
+    json_file = '../src/keras-metadata.json'
+    json_data = open(json_file).read()
+    json_root = json.loads(json_data)
+
+    for entry in json_root:
+        name = entry['name']
+        schema = entry['schema']
+        if 'package' in schema:
+            class_name = schema['package'] + '.' + name
+            class_definition = pydoc.locate(class_name)
+            if not class_definition:
+                raise Exception('\'' + class_name + '\' not found.')
+            docstring = class_definition.__doc__
+            if not docstring:
+                raise Exception('\'' + class_name + '\' missing __doc__.')
+            docstring = process_docstring(docstring)
+            headers = split_docstring(docstring)
+            if '' in headers:
+                schema['description'] = '\n'.join(headers[''])
+                del headers['']
+            if 'Arguments' in headers:
+                update_arguments(schema, headers['Arguments'])
+                del headers['Arguments']
+            if 'Input shape' in headers:
+                update_input(schema, '\n'.join(headers['Input shape']))
+                del headers['Input shape']
+            if 'Output shape' in headers:
+                update_output(schema, '\n'.join(headers['Output shape']))
+                del headers['Output shape']
+            if 'Examples' in headers:
+                update_examples(schema, headers['Examples'])
+                del headers['Examples']
+            if 'Example' in headers:
+                update_examples(schema, headers['Example'])
+                del headers['Example']
+            if 'References' in headers:
+                update_references(schema, headers['References'])
+                del headers['References']
+            if 'Raises' in headers:
+                del headers['Raises']
+            if len(headers) > 0:
+                raise Exception('\'' + class_name + '.__doc__\' contains unprocessed headers.')
+
     with io.open(json_file, 'w', newline='') as fout:
         json_data = json.dumps(json_root, sort_keys=True, indent=2)
         for line in json_data.splitlines():

@@ -42,7 +42,7 @@ metadata() {
     source ${virtualenv}/bin/activate
     echo "Update 'keras-metadata.json'"
     pushd ${tools} > /dev/null
-    ${python} keras-script.py
+    ${python} keras-script.py metadata
     popd > /dev/null
     deactivate
 }
