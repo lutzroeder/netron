@@ -8,7 +8,7 @@ var base = base || require('./base');
 pytorch.ModelFactory = class {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'pt' || extension == 'pth' || extension == 'pkl') {
             var buffer = context.buffer;
             var torch = [ 0x80, 0x02, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
@@ -73,6 +73,7 @@ pytorch.ModelFactory = class {
             constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
             constructorTable['torch.nn.modules.activation.LeakyReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
+            constructorTable['torch.nn.modules.activation.ReLU6'] = function () {};
             constructorTable['torch.nn.modules.activation.PReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.Sigmoid'] = function () {};
             constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
@@ -90,6 +91,9 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.dropout.Dropout'] = function () {};
             constructorTable['torch.nn.modules.dropout.Dropout2d'] = function () {};
             constructorTable['torch.nn.modules.dropout.Dropout3d'] = function () {};
+            constructorTable['torch.nn.modules.instancenorm.InstanceNorm1d'] = function() {};
+            constructorTable['torch.nn.modules.instancenorm.InstanceNorm2d'] = function() {};
+            constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool1d'] = function () {};
@@ -119,7 +123,15 @@ pytorch.ModelFactory = class {
             constructorTable['torchvision.models.inception.InceptionC'] = function () {};
             constructorTable['torchvision.models.inception.InceptionD'] = function () {};
             constructorTable['torchvision.models.inception.InceptionE'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function () {};
             constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad1d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad3d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ZeroPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ConstantPad1d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ConstantPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ConstantPad3d'] = function () {};
             constructorTable['torchvision.models.resnet.Bottleneck'] = function () {};
             constructorTable['torchvision.models.resnet.BasicBlock'] = function() {};
             constructorTable['torchvision.models.resnet.ResNet'] = function () {};
@@ -190,7 +202,7 @@ pytorch.ModelFactory = class {
                 if (constructor) {
                     constructor.apply(obj, args);
                 }
-                else {
+                else if (!name.startsWith('__main__.') && !name.startsWith('modeling.') && !name.startsWith('networks.') && !name.startsWith('Layers.') && !name.startsWith('Sublayers.') && !name.startsWith('parts.') && !name.startsWith('model.') && !name.startsWith('Embed.')) {
                     debugger;
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
@@ -250,7 +262,7 @@ pytorch.ModelFactory = class {
             }
 
             if (!root._modules) {
-                callback(new pytorch.Error('Root object does not contain modules.'), null);
+                callback(new pytorch.Error("Root object does not contain modules in '" + identifier + "'."), null);
                 return;
             }
 
@@ -486,6 +498,40 @@ pytorch.Node = class {
     get category() {
         var schema = pytorch.OperatorMetadata.operatorMetadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : null;
+    }
+
+    get documentation() {
+        var schema = pytorch.OperatorMetadata.operatorMetadata.getSchema(this._operator);
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this._operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            return schema;
+        }
+        return null;
     }
 
     get attributes() {

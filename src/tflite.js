@@ -7,7 +7,7 @@ var base = base || require('./base');
 tflite.ModelFactory = class {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop().toLowerCase();
         return extension == 'tflite' || extension == 'lite';
     }
 

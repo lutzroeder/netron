@@ -75,7 +75,7 @@ class Application {
         if (argv.length > 1) {
             argv.slice(1).forEach((arg) => {
                 if (!arg.startsWith('-')) {
-                    var extension = arg.split('.').pop();
+                    var extension = arg.split('.').pop().toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
                         this._openFile(arg);
                         open = true;

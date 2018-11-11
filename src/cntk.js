@@ -9,7 +9,7 @@ var cntk_v2 = null;
 cntk.ModelFactory = class {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'model') {
             var buffer = context.buffer;
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {

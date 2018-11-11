@@ -10,7 +10,7 @@ tf.ModelFactory = class {
 
     match(context, host) {
         var identifier = context.identifier;
-        var extension = identifier.split('.').pop();
+        var extension = identifier.split('.').pop().toLowerCase();
         switch (identifier) {
             case 'predict_net.pb':
             case 'init_net.pb':
@@ -43,7 +43,7 @@ tf.ModelFactory = class {
             var savedModel = null;
             var format = null;
             var identifier = context.identifier; 
-            var extension = identifier.split('.').pop();
+            var extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 var tags = context.tags;
                 if (tags.saved_model_schema_version || tags.meta_graphs) {

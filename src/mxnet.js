@@ -11,7 +11,7 @@ mxnet.ModelFactory = class {
         if (context.identifier.endsWith('-symbol.json')) {
             return true;
         }
-        var extension = context.identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'model') {
             var buffer = context.buffer;
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
@@ -28,7 +28,7 @@ mxnet.ModelFactory = class {
     }
 
     open(context, host, callback) {
-        var extension = context.identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'json':
                 mxnet.OperatorMetadata.open(host, (err, metadata) => {

@@ -188,6 +188,13 @@
     }
   },
   {
+    "name": "ReLU6",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "PReLU",
     "schema": {
       "attributes": [
@@ -474,10 +481,84 @@
     }
   },
   {
+    "name": "ReflectionPad1d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
     "name": "ReflectionPad2d",
     "schema": {
       "category": "Tensor",
       "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ReplicationPad1d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ReplicationPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ReplicationPad3d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ZeroPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ConstantPad1d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ConstantPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ConstantPad3d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "InstanceNorm1d",
+    "schema": {
+      "package": "torch.nn.modules.instancenorm"
+    }
+  },
+  {
+    "name": "InstanceNorm2d",
+    "schema": {
+      "package": "torch.nn.modules.instancenorm"
+    }
+  },
+  {
+    "name": "InstanceNorm3d",
+    "schema": {
+      "package": "torch.nn.modules.instancenorm"
     }
   }
 ]

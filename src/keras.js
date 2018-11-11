@@ -7,7 +7,7 @@ var hdf5 = hdf5 || require('./hdf5');
 keras.ModelFactory = class {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
             return true;
         }
@@ -36,7 +36,7 @@ keras.ModelFactory = class {
         var rootGroup = null;
         var rootJson = null;
         try {
-            var extension = context.identifier.split('.').pop();
+            var extension = context.identifier.split('.').pop().toLowerCase();
             if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
                 var file = new hdf5.File(context.buffer);
                 rootGroup = file.rootGroup;

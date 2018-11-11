@@ -174,7 +174,7 @@ function loadModel(target, item, callback) {
 
 function decompress(buffer, identifier) {
     var archive = null;
-    extension = identifier.split('.').pop();
+    extension = identifier.split('.').pop().toLowerCase();
     if (extension == 'gz' || extension == 'tgz') {
         archive = new gzip.Archive(buffer);
         if (archive.entries.length == 1) {
@@ -193,7 +193,7 @@ function decompress(buffer, identifier) {
         }
     }
 
-    switch (identifier.split('.').pop()) {
+    switch (identifier.split('.').pop().toLowerCase()) {
         case 'tar':
             archive = new tar.Archive(buffer);
             break;

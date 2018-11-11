@@ -988,7 +988,7 @@ view.ModelFactoryService = class {
             var identifier = context.identifier;
             var buffer = context.buffer;
 
-            extension = identifier.split('.').pop();
+            extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'gz' || extension == 'tgz') {
                 archive = new gzip.Archive(buffer);
                 if (archive.entries.length == 1) {
@@ -1007,7 +1007,7 @@ view.ModelFactoryService = class {
                 }
             }
 
-            switch (identifier.split('.').pop()) {
+            switch (identifier.split('.').pop().toLowerCase()) {
                 case 'tar':
                     archive = new tar.Archive(buffer);
                     break;
@@ -1080,7 +1080,7 @@ view.ModelFactoryService = class {
                 });
             }
             else {
-                var extension = context.identifier.split('.').pop();
+                var extension = context.identifier.split('.').pop().toLowerCase();
                 switch (extension) {
                     case 'json':
                     case 'pb':

@@ -315,7 +315,7 @@ host.BrowserHost = class {
                 Object.keys(json.files).forEach((key) => {
                     var file = json.files[key];
                     identifier = file.filename;
-                    var extension = identifier.split('.').pop();
+                    var extension = identifier.split('.').pop().toLowerCase();
                     if (extension == 'json' || extension == 'pbtxt' || extension == 'prototxt') {
                         var encoder = new TextEncoder();
                         buffer = encoder.encode(file.content);

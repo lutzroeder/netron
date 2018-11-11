@@ -51,8 +51,10 @@
     .sidebar-view-item-value-dark { background-color: #3c3c3c; }
 
     .sidebar-view-title { border-bottom-color: #424242; color: #dfdfdf; }
+    .sidebar-view-title-button { color: #888888; border-color: #888888; }
+    .sidebar-view-title-button:hover { color: #dfdfdf; border-color: #dfdfdf; }
     .sidebar-view-header { border-bottom-color: #424242; color: #dfdfdf; }
-
+    
     .sidebar-view-documentation h1 { border-bottom: 1px solid #424242; color: #dfdfdf; }
     .sidebar-view-documentation h2 { border-bottom: 1px solid #424242; color: #dfdfdf; }
     .sidebar-view-documentation p { color: #aaaaaa; }
@@ -72,6 +74,10 @@
 .dark-mode .sidebar-view-item-value-dark { background-color: #3c3c3c; }
 
 .dark-mode .sidebar-view-title { border-bottom-color: #424242; color: #dfdfdf; }
+.dark-mode .sidebar-view-title-button { color: #888888; border-color: #888888; }
+.dark-mode .sidebar-view-title-button:hover { color: #dfdfdf; border-color: #dfdfdf; }
+.dark-mode .sidebar-view-header { border-bottom-color: #424242; color: #dfdfdf; }
+
 .dark-mode .sidebar-view-header { border-bottom-color: #424242; color: #dfdfdf; }
 
 .dark-mode .sidebar-view-documentation h1 { border-bottom: 1px solid #424242; color: #dfdfdf; }

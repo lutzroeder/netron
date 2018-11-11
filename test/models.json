@@ -1573,5 +1573,11 @@
   {
     "target": "tflite/speech_terse_am_model_2017_11_14.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_terse_am_model_2017_11_14.tflite"
+  },
+  {
+    "target": "tflite/xorGate.lite",
+    "source": "https://raw.githubusercontent.com/kosslab-kr/Tizen-NN-Runtime/master/Xor/xorGate.lite",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/kosslab-kr/Tizen-NN-Runtime"
   }
 ]

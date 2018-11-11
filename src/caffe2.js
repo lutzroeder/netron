@@ -27,7 +27,7 @@ caffe2.ModelFactory = class {
                 return;
             }
             var netDef = null;
-            var extension = context.identifier.split('.').pop();
+            var extension = context.identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
                     caffe2.proto = protobuf.roots.caffe2.caffe2;

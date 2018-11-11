@@ -8,7 +8,7 @@ caffe.ModelFactory = class {
 
     match(context, host) {
         var identifier = context.identifier;
-        var extension = identifier.split('.').pop();
+        var extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'caffemodel') {
             return true;
         }
