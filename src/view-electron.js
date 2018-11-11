@@ -162,22 +162,12 @@ host.ElectronHost = class {
     }
 
     require(id, callback) {
-        var script = document.scripts.namedItem(id);
-        if (script) {
-            callback(null);
-            return;
+        try {
+            callback(null, require(id));
         }
-        script = document.createElement('script');
-        script.setAttribute('id', id);
-        script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', path.join(__dirname, id + '.js'));
-        script.onload = () => {
-            callback(null);
-        };
-        script.onerror = (e) => {
-            callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
-        };
-        document.head.appendChild(script);
+        catch (err) {
+            callback(err, null);
+        }
     }
 
     save(name, extension, defaultPath, callback) {

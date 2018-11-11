@@ -10,6 +10,10 @@ third_party=${root}/third_party
 
 identifier=caffe
 
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
@@ -22,12 +26,18 @@ git_sync() {
     git submodule update --init
 }
 
+clean() {
+    bold "caffe clean"
+    rm -tf ${third_party}/caffe
+}
+
 sync() {
+    bold "caffe sync"
     git_sync caffe https://github.com/BVLC/caffe.git
 }
 
 schema() {
-    echo "Generate 'caffe.js'"
+    bold "caffe schema"
     cp ${third_party}/${identifier}/src/caffe/proto/caffe.proto ${tools}/caffe.proto
     node ${tools}/caffe-schema.js ${tools}/caffe.proto
     ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe -o ${src}/caffe-proto.js ${tools}/caffe.proto
@@ -38,6 +48,7 @@ schema() {
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
+        "clean") clean;;
         "sync") sync;;
         "schema") schema;;
     esac

@@ -14,6 +14,10 @@ pip="pip"
 identifier=keras
 virtualenv=${build}/virtualenv/${identifier}
 
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
@@ -26,11 +30,19 @@ git_sync() {
     git submodule update --init
 }
 
+clean() {
+    bold "keras clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/${identifier}
+}
+
 sync() {
+    bold "keras sync"
     git_sync keras https://github.com/keras-team/keras.git
 }
 
 install() {
+    bold "keras install"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     ${pip} install --quiet tensorflow
@@ -39,8 +51,8 @@ install() {
 }
 
 metadata() {
+    bold "keras metadata"
     source ${virtualenv}/bin/activate
-    echo "Update 'keras-metadata.json'"
     pushd ${tools} > /dev/null
     ${python} keras-script.py metadata
     popd > /dev/null
@@ -48,6 +60,7 @@ metadata() {
 }
 
 zoo() {
+    bold "keras zoo"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
     ${python} keras-script.py zoo keras.applications.densenet.DenseNet121 ${test}/data/keras/DenseNet121.h5
@@ -68,6 +81,7 @@ zoo() {
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
+        "clean") clean;;
         "sync") sync;;
         "install") install;;
         "metadata") metadata;;

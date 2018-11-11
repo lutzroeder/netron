@@ -2,40 +2,17 @@
 
 set -e
 
-if [ $(which python3) ] && [ $(which pip3) ]; then
-    export python=python3
-    export pip=pip3
-fi
+tools=$(cd $(dirname ${0})/..; pwd)/tools
 
-root=$(cd $(dirname ${0})/..; pwd)
-tools=${root}/tools
-
-echo "Update TensorFlow"
 ${tools}/tf sync install schema metadata
-
-echo "Update Keras"
 ${tools}/keras sync install metadata
 
-echo "Update CoreML"
-${tools}/coreml sync install schema
-
-echo "Update Caffe"
 ${tools}/caffe sync schema
-
-echo "Update MXNet"
+${tools}/coreml sync install schema
+${tools}/cntk sync schema
 ${tools}/mxnet sync metadata
-
-echo "Update ONNX"
 ${tools}/onnx sync install schema metadata
-
-echo "Update TensorFlow Lite"
-${tools}/tflite sync install schema
-
-echo "Update scikit-learn"
+${tools}/pytorch sync install schema metadata
 ${tools}/sklearn sync install metadata
 
-echo "Update CNTK"
-${tools}/cntk sync schema
-
-echo "Update PyTorch"
-${tools}/pytorch sync install metadata schema
+${tools}/tflite sync install schema

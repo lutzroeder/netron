@@ -22,18 +22,18 @@ pytorch.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('pickle', (err) => {
+        host.require('./pickle', (err, pickle) => {
             if (err) {
                 callback(err, null);
                 return;
             }
             pytorch.OperatorMetadata.open(host, (err, metadata) => {
-                this._openModel(context, host, callback);
-            });
+                this._openModel(context, host, pickle, callback);
+            });        
         });
     }
 
-    _openModel(context, host, callback) {
+    _openModel(context, host, pickle, callback) {
         try {
             var identifier = context.identifier;
             var unpickler = new pickle.Unpickler(context.buffer);
@@ -103,6 +103,8 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool3d'] = function() {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
+            constructorTable['torchvision.models.squeezenet.Fire'] = function () {};
+            constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function () {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
             constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
             constructorTable['torchvision.models.densenet.DenseNet'] = function () {};

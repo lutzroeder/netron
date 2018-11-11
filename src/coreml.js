@@ -12,7 +12,7 @@ coreml.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('coreml-proto', (err) => {
+        host.require('./coreml-proto', (err, module) => {
             if (err) {
                 callback(err, null);
                 return;

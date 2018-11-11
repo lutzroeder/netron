@@ -802,7 +802,7 @@ view.View = class {
                 this.showOperatorDocumentation(node);
             });
             view.on('export-tensor', (sender, tensor) => {
-                this._host.require('numpy', (err) => {
+                this._host.require('./numpy', (err, numpy) => {
                     if (!err) {
                         var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                         this._host.save('NumPy Array', 'npy', defaultPath, (file) => {

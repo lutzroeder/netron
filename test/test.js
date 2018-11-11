@@ -15,6 +15,7 @@ const gzip = require('../src/gzip');
 const tar = require('../src/tar');
 
 global.TextDecoder = require('util').TextDecoder;
+global.protobuf = protobuf;
 
 var models = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 var folder = __dirname + '/data';
@@ -22,10 +23,13 @@ var folder = __dirname + '/data';
 class TestHost {
 
     require(id, callback) {
-        var filename = path.join(path.join(__dirname, '../src'), id + '.js');
-        var data = fs.readFileSync(filename, 'utf-8');
-        eval(data);
-        callback(null);
+        try {
+            var file = path.join(path.join(__dirname, '../src'), id + '.js');
+            callback(null, require(file));
+        }
+        catch (err) {
+            callback(err, null);
+        }
     }
 
     request(base, file, encoding, callback) {

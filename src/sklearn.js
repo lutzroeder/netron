@@ -24,7 +24,7 @@ sklearn.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('pickle', (err) => {
+        host.require('./pickle', (err, pickle) => {
             if (err) {
                 callback(err, null);
                 return;

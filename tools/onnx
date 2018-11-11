@@ -12,8 +12,17 @@ tools=${root}/tools
 identifier=onnx
 virtualenv=${build}/virtualenv/${identifier}
 
-python=${python:-python}
-pip=${pip:-pip}
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
 
 git_sync() {
     mkdir -p "${third_party}"
@@ -27,13 +36,21 @@ git_sync() {
     git submodule update --init
 }
 
+clean() {
+    bold "onnx clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/${identifier}
+    rm -rf ${third_party}/onnxmltools
+}
+
 sync() {
+    bold "onnx sync"
     git_sync onnx https://github.com/onnx/onnx.git
     git_sync onnxmltools https://github.com/onnx/onnxmltools.git
 }
 
 install() {
-    echo "Install ONNX"
+    bold "onnx install"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     export ONNX_ML=1
@@ -43,7 +60,7 @@ install() {
 }
 
 schema() {
-    echo "Generate 'onnx-proto.js'"
+    bold "onnx schema"
     source ${virtualenv}/bin/activate
     ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx-proto.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
     node ${tools}/update_pbjs.js array ${src}/onnx-proto.js float_data float 1
@@ -52,7 +69,7 @@ schema() {
 }
 
 metadata() {
-    echo "Generate 'onnx-metadata.json'"
+    bold "onnx metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
     ${python} onnx-script.py metadata
@@ -61,6 +78,7 @@ metadata() {
 }
 
 convert() {
+    bold "onnx convert"
     source ${virtualenv}/bin/activate
     ${pip} install --quiet coremltools
     ${pip} install --quiet tensorflow
@@ -73,12 +91,14 @@ convert() {
 }
 
 infer() {
+    bold "onnx infer"
     source ${virtualenv}/bin/activate
     ${python} ${tools}/onnx-script.py infer ${1}
     deactivate
 }
 
 optimize() {
+    bold "onnx optimize"
     source ${virtualenv}/bin/activate
     ${python} ${tools}/onnx-script.py optimize ${1}
     deactivate
@@ -87,6 +107,7 @@ optimize() {
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
+        "clean") clean;;
         "sync") sync;;
         "install") install;;
         "schema") schema;;

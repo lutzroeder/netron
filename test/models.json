@@ -1228,6 +1228,66 @@
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
   },
   {
+    "target": "pytorch/alexnet.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/densenet161.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/densenet121.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/inception_v3.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/resnet18.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/resnet50.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/resnet50.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/squeezenet1_0.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/vgg11_bn.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "pytorch/vgg16.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
     "target": "tf/densenet.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.pb]"
   },

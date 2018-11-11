@@ -35,7 +35,7 @@ onnx.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('onnx-proto', (err) => {
+        host.require('./onnx-proto', (err, module) => {
             if (err) {
                 callback(err, null);
                 return;

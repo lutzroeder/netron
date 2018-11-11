@@ -32,7 +32,7 @@ tf.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('tf-proto', (err) => {
+        host.require('./tf-proto', (err, module) => {
             if (err) {
                 callback(err, null);
                 return;

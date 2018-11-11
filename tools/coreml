@@ -11,8 +11,17 @@ third_party=${root}/third_party
 identifier=coremltools
 virtualenv=${root}/build/virtualenv/${identifier}
 
-python=${python:-python}
-pip=${pip:-pip}
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
 
 git_sync () {
     mkdir -p "${third_party}"
@@ -25,12 +34,18 @@ git_sync () {
     fi
 }
 
+clean() {
+    bold "coreml clean"
+    rm -tf ${third_party}/coremltools
+}
+
 sync() {
+    bold "coreml sync"
     git_sync coremltools https://github.com/apple/coremltools.git
 }
 
 install() {
-    echo "Install coremltools"
+    bold "coreml install"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     ${pip} install --quiet ${third_party}/${identifier}
@@ -38,12 +53,13 @@ install() {
 }
 
 schema() {
-    echo "Generate 'coreml.js'"
+    bold "coreml schema"
     ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r coreml -o ${src}/coreml-proto.js ${third_party}/${identifier}/mlmodel/format/Model.proto
     node ${tools}/update_pbjs.js array ${src}/coreml-proto.js floatValue float 2
 }
 
 convert() {
+    bold "coreml convert"
     source ${virtualenv}/bin/activate
     ${pip} install --quiet onnx
     ${pip} install --quiet sklearn
@@ -54,6 +70,7 @@ convert() {
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
+        "clean") clean;;
         "sync") sync;;
         "install") install;;
         "schema") schema;;

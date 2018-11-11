@@ -7,8 +7,17 @@ virtualenv=${root}/build/virtualenv/scikit-learn
 tools=${root}/tools
 third_party=${root}/third_party
 
-python=${python:-python}
-pip=${pip:-pip}
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
 
 git_sync() {
     mkdir -p "${third_party}"
@@ -23,12 +32,14 @@ git_sync() {
 }
 
 sync() {
+    bold "sklearn clean"
     git_sync scikit-learn https://github.com/scikit-learn/scikit-learn.git
     git_sync lightgbm https://github.com/Microsoft/LightGBM.git
     git_sync xgboost https://github.com/dmlc/xgboost.git
 }
 
 install() {
+    bold "sklearn install"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     echo "Install scikit-learn"
@@ -39,6 +50,7 @@ install() {
 }
 
 metadata() {
+    bold "sklearn metadata"
     source ${virtualenv}/bin/activate
     echo "Update 'sklearn-metadata.json'"
     pushd ${tools} > /dev/null

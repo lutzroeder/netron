@@ -338,13 +338,12 @@ def metadata():
             fout.write('\n')
 
 def zoo():
-    from pydoc import locate
     type = sys.argv[2];
     file = sys.argv[3];
     directory = os.path.dirname(file);
     if not os.path.exists(directory):
         os.makedirs(directory)
-    model = locate(type)()
+    model = pydoc.locate(type)()
     model.save(file);
 
 if __name__ == '__main__':

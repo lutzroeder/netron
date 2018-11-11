@@ -3,7 +3,6 @@
 var tflite = tflite || {};
 var flatbuffers = flatbuffers || require('flatbuffers').flatbuffers;
 var base = base || require('./base');
-var tflite_schema = tflite_schema || require('./tflite-schema');
 
 tflite.ModelFactory = class {
 
@@ -13,32 +12,38 @@ tflite.ModelFactory = class {
     }
 
     open(context, host, callback) {
-        var model = null;
-        try {
-            var buffer = context.buffer;
-            var byteBuffer = new flatbuffers.ByteBuffer(buffer);
-            tflite.schema = tflite_schema;
-            if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
-            {
-                var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
-                callback(new tflite.Error("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
+        host.require('./tflite-schema', (err, tflite_schema) => {
+            if (err) {
+                callback(err, null);
                 return;
             }
-            model = tflite.schema.Model.getRootAsModel(byteBuffer);
-        }
-        catch (error) {
-            host.exception(error, false);
-            callback(new tflite.Error(error.message), null);
-        }
-
-        tflite.OperatorMetadata.open(host, (err, metadata) => {
+            var model = null;
             try {
-                callback(null, new tflite.Model(model));
+                var buffer = context.buffer;
+                var byteBuffer = new flatbuffers.ByteBuffer(buffer);
+                tflite.schema = tflite_schema;
+                if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
+                {
+                    var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
+                    callback(new tflite.Error("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
+                    return;
+                }
+                model = tflite.schema.Model.getRootAsModel(byteBuffer);
             }
             catch (error) {
                 host.exception(error, false);
                 callback(new tflite.Error(error.message), null);
             }
+    
+            tflite.OperatorMetadata.open(host, (err, metadata) => {
+                try {
+                    callback(null, new tflite.Model(model));
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new tflite.Error(error.message), null);
+                }
+            });
         });
     }
 };

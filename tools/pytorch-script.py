@@ -44,7 +44,18 @@ def metadata():
             fout.write(line)
             fout.write('\n')
 
+def zoo():
+    import torch
+    type = sys.argv[2];
+    file = sys.argv[3];
+    directory = os.path.dirname(file);
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    print(type)
+    model = pydoc.locate(type)(pretrained=True)
+    torch.save(model, file);
+
 if __name__ == '__main__':
-    command_table = { 'metadata': metadata }
+    command_table = { 'metadata': metadata, 'zoo': zoo }
     command = sys.argv[1];
     command_table[command]()

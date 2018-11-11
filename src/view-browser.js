@@ -117,6 +117,7 @@ host.BrowserHost = class {
     }
 
     require(id, callback) {
+        window.module = { exports: {} };
         var script = document.scripts.namedItem(id);
         if (script) {
             callback(null);
@@ -127,10 +128,13 @@ host.BrowserHost = class {
         script.setAttribute('type', 'text/javascript');
         script.setAttribute('src', this._url(id + '.js'));
         script.onload = () => {
-            callback(null);
+            var exports = window.module.exports;
+            delete window.module;
+            callback(null, exports);
         };
         script.onerror = (e) => {
-            callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
+            delete window.module;
+            callback(new Error('The script \'' + e.target.src + '\' failed to load.'), null);
         };
         document.head.appendChild(script);
     }

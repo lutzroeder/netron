@@ -6,14 +6,24 @@ root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
+test=${root}/test
 tools=${root}/tools
 third_party=${root}/third_party
 
 identifier=pytorch
 virtualenv=${build}/virtualenv/${identifier}
 
-python="python"
-pip="pip"
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
 
 git_sync() {
     mkdir -p "${third_party}"
@@ -27,12 +37,19 @@ git_sync() {
     git submodule update --init
 }
 
+clean() {
+    bold "pytorch clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/${identifier}
+}
+
 sync() {
+    bold "pytorch sync"
     git_sync pytorch https://github.com/pytorch/pytorch.git
 }
 
 install() {
-echo "Install Caffe2"
+    bold "pytorch install"
 if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
 brew bundle --file=- <<-EOS
 brew "automake"
@@ -43,26 +60,46 @@ EOS
 fi
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
     pushd "${third_party}/pytorch" > /dev/null
-    ${python} setup.py install
+    ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
+    ${python} setup.py install --quiet
+    ${pip} install --quiet torchvision
     popd > /dev/null
     deactivate
 }
 
 schema() {
-    echo "Generate 'caffe2.js'"
+    bold "caffe2 schema"
     ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2-proto.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
     node ${tools}/update_pbjs.js enumeration ${src}/caffe2-proto.js floats float 1
 }
 
 metadata() {
+    bold "pytorch metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    echo "Generate 'caffe2-metadata.json'"
-    ${python} caffe2-script.py metadata
-    echo "Generate 'pytorch-metadata.json'"
     ${python} pytorch-script.py metadata
+    bold "caffe2 metadata"
+    ${python} caffe2-script.py metadata
+    popd > /dev/null
+    deactivate
+}
+
+zoo() {
+    bold "pytorch zoo"
+    source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
+    ${python} pytorch-script.py zoo torchvision.models.alexnet ${test}/data/pytorch/alexnet.pth
+    ${python} pytorch-script.py zoo torchvision.models.densenet121 ${test}/data/pytorch/densenet121.pth
+    ${python} pytorch-script.py zoo torchvision.models.densenet161 ${test}/data/pytorch/densenet161.pth
+    ${python} pytorch-script.py zoo torchvision.models.inception_v3 ${test}/data/pytorch/inception_v3.pth
+    ${python} pytorch-script.py zoo torchvision.models.resnet101 ${test}/data/pytorch/resnet101.pth
+    ${python} pytorch-script.py zoo torchvision.models.resnet18 ${test}/data/pytorch/resnet18.pth
+    ${python} pytorch-script.py zoo torchvision.models.resnet50 ${test}/data/pytorch/resnet50.pth
+    ${python} pytorch-script.py zoo torchvision.models.squeezenet1_0 ${test}/data/pytorch/squeezenet1_0.pth
+    ${python} pytorch-script.py zoo torchvision.models.vgg11_bn ${test}/data/pytorch/vgg11_bn.pth
+    ${python} pytorch-script.py zoo torchvision.models.vgg16 ${test}/data/pytorch/vgg16.pth
+    rm -rf ~/.torch/models
     popd > /dev/null
     deactivate
 }
@@ -70,9 +107,11 @@ metadata() {
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
+        "clean") clean;;
         "sync") sync;;
         "install") install;;
         "schema") schema;;
         "metadata") metadata;;
+        "zoo") zoo;;
     esac
 done

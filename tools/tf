@@ -12,8 +12,17 @@ third_party=${root}/third_party
 identifier=tensorflow
 virtualenv=${build}/virtualenv/${identifier}
 
-python=${python:-python}
-pip=${pip:-pip}
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
 
 git_sync () {
     mkdir -p "${third_party}"
@@ -26,20 +35,27 @@ git_sync () {
     fi
 }
 
+clean() {
+    bold "tf clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/${identifier}
+}
+
 sync() {
+    bold "tf sync"
     git_sync tensorflow https://github.com/tensorflow/tensorflow.git
 }
 
 install() {
+    bold "tf install"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
-    echo "Install protobuf"
     ${pip} install --quiet protobuf
     deactivate
 }
 
 schema() {
-    echo "Generate 'tf-proto.js'"
+    bold "tf schema"
     ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r tf -o ${src}/tf-proto.js \
         ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
         ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
@@ -57,8 +73,9 @@ schema() {
 }
 
 metadata() {
-    echo "Generate 'tf-metadata.json'"
+    bold "tf metadata"
     source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
     protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}
     protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor.proto --python_out=${tools}
     protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/types.proto --python_out=${tools}
@@ -69,16 +86,16 @@ metadata() {
     touch ${tools}/tensorflow/__init__.py
     touch ${tools}/tensorflow/core/__init__.py
     touch ${tools}/tensorflow/core/framework/__init__.py
-    pushd ${tools} > /dev/null
     ${python} tf-script.py
-    popd > /dev/null
     rm -rf ${tools}/tensorflow
+    popd > /dev/null
     deactivate
 }
 
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
+        "clean") clean;;
         "sync") sync;;
         "install") install;;
         "schema") schema;;

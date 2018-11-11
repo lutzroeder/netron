@@ -10,8 +10,12 @@ third_party=${root}/third_party
 identifier=tflite
 virtualenv=${build}/virtualenv/${identifier}
 
-python=${python:-python}
-pip=${pip:-pip}
+python="python"
+pip="pip"
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
 
 git_sync () {
     mkdir -p "${third_party}"
@@ -24,12 +28,20 @@ git_sync () {
     fi
 }
 
+clean() {
+    bold "tflite clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/tensorflow
+}
+
 sync() {
+    bold "tflite sync"
     git_sync flatbuffers https://github.com/google/flatbuffers.git
     git_sync tensorflow https://github.com/tensorflow/tensorflow.git
 }
 
-build() {
+install() {
+    bold "flatbuffers install"
     echo "Build flatbuffers..."
     pushd "${third_party}/flatbuffers" > /dev/null
     cmake -G "Unix Makefiles"
@@ -39,7 +51,7 @@ build() {
 }
 
 schema() {
-    echo "Generate '../src/tflite-schema.js'"
+    bold "tflite schema"
     cp ${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs ${tools}/tflite.schema.fbs
     sed -i 's/namespace tflite\;/namespace tflite_schema\;/' ${tools}/tflite.schema.fbs
     ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/tflite.schema.fbs
@@ -53,17 +65,19 @@ EOT
 }
 
 visualize() {
+    bold "tflite visualize"
     source ${virtualenv}/bin/activate
     ${pip} install --quiet tensorflow
-    python ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
+    ${python} ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
     deactivate
 }
 
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
+        "clean") clean;;
         "sync") sync;;
-        "build") build;;
+        "install") install;;
         "schema") schema;;
         "visualize") visualize ${1} ${2} && shift && shift;;
     esac

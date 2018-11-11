@@ -21,7 +21,7 @@ cntk.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('cntk-proto', (err) => {
+        host.require('./cntk-proto', (err, module) => {
             if (err) {
                 callback(err, null);
                 return;
