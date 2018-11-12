@@ -919,6 +919,7 @@ tf.Tensor = class {
                 key = key.startsWith('DT_') ? key.substring(3) : key;
                 tf.Tensor.dataType[value] = key.toLowerCase();
             });
+            tf.Tensor.dataType[tf.proto.DataType.DT_HALF] = 'float16';
             tf.Tensor.dataType[tf.proto.DataType.DT_FLOAT] = 'float32';
             tf.Tensor.dataType[tf.proto.DataType.DT_DOUBLE] = 'float64';
         }

@@ -80,9 +80,6 @@ metadata() {
 convert() {
     bold "onnx convert"
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet coremltools
-    ${pip} install --quiet tensorflow
-    ${pip} install --quiet keras
     ${pip} install --quiet sklearn
     ${pip} install --quiet lightgbm
     ${pip} install --quiet ${third_party}/onnxmltools

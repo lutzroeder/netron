@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import onnx
-print(onnx.__file__)
 
 import json
 import io
@@ -194,6 +193,16 @@ def generate_json(schemas, json_file):
             fout.write(line)
             fout.write('\n')
 
+def pip_import(package):
+    import importlib
+    try:
+        importlib.import_module(package)
+    except ImportError:
+        import pip
+        pip.main([ 'install', package ])
+    finally:
+        globals()[package] = importlib.import_module(package)
+
 def metadata():
     schemas = defs.get_all_schemas_with_history()
     schemas = sorted(schemas, key=lambda schema: schema.name)
@@ -203,13 +212,14 @@ def convert():
     file = sys.argv[2];
     base, extension = os.path.splitext(file)
     if extension == '.mlmodel':
-        import coremltools
+        pip_import('coremltools')
         import onnxmltools
         coreml_model = coremltools.utils.load_spec(file)
         onnx_model = onnxmltools.convert.convert_coreml(coreml_model)
         onnxmltools.utils.save_model(onnx_model, base + '.onnx')
     elif extension == '.h5':
-        import keras
+        pip_import('tensorflow')
+        pip_import('keras')
         import onnxmltools
         keras_model = keras.models.load_model(file)
         onnx_model = onnxmltools.convert.convert_keras(keras_model)
@@ -238,7 +248,6 @@ def optimize():
     passes = optimizer.get_available_passes()
     optimized_model = optimizer.optimize(onnx_model, passes)
     onnx.save(optimized_model, base + '.optimized.onnx')
-
 
 def infer():
     import onnx

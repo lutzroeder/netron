@@ -1,4 +1,3 @@
-
 [
   {
     "target": "onnx/arcface-resnet100.onnx",
@@ -20,6 +19,12 @@
     "target": "onnx/bvlc_alexnet_opset_9.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
     "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
+  },
+  {
+    "target": "onnx/bvlc_alexnet_opset_9.shape.onnx",
+    "status": "script",
+    "script": [ "${root}/tools/onnx", "sync install infer ${root}/test/data/onnx/bvlc_alexnet_opset_9.onnx" ],
+    "format": "ONNX v3"
   },
   {
     "target": "onnx/bvlc_googlenet_opset_9.onnx",
@@ -49,7 +54,8 @@
   },
   {
     "target": "onnx/FastStyleNet.onnx",
-    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/chainer-fast-neuralstyle/FastStyleNet.onnx"
+    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/chainer-fast-neuralstyle/FastStyleNet.onnx",
+    "format": "ONNX v1", "producer": "Chainer 3.2.0"
   },
   {
     "target": "onnx/inception_v1_opset_9.onnx",
@@ -72,6 +78,12 @@
     "source": "https://raw.githubusercontent.com/dotnet/machinelearning/master/test/BaselineOutput/Common/Onnx/Cluster/BreastCancer/Kmeans.onnx",
     "format": "ONNX v3", "producer": "ML.NET 0.7.27009.0",
     "link":   "https://github.com/dotnet/machinelearning/tree/master/test/BaselineOutput/Common/Onnx/Cluster/BreastCancer"
+  },
+  {
+    "target": "onnx/Kmeans.pbtxt",
+    "status": "script",
+    "script": [ "${root}/tools/onnx", "sync install convert ${root}/test/data/onnx/Kmeans.onnx" ],
+    "format": "ONNX v3"
   },
   {
     "target": "onnx/mnist_opset_9.onnx",
@@ -170,6 +182,12 @@
     "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet"
   },
   {
+    "target": "caffe/bvlc_caffenet_full_conv.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/net_surgery/bvlc_caffenet_full_conv.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/tree/master/examples/net_surgery"
+  },
+  {
     "target": "caffe/bvlc_alexnet_deploy.prototxt",
     "source": "https://raw.githubusercontent.com/BVLC/caffe/master/models/bvlc_alexnet/deploy.prototxt",
     "format": "Caffe v2",
@@ -198,6 +216,24 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/caffenet.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/cifar10_full_sigmoid_solver_bn.prototxt,caffe/cifar10_full_sigmoid_train_test_bn.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/cifar10/cifar10_full_sigmoid_solver_bn.prototxt,https://raw.githubusercontent.com/BVLC/caffe/master/examples/cifar10/cifar10_full_sigmoid_train_test_bn.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/tree/master/examples/cifar10"
+  },
+  {
+    "target": "caffe/conv.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/net_surgery/conv.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/tree/master/examples/net_surgery"
+  },
+  {
+    "target": "caffe/deepyeast.caffemodel",
+    "source": "https://kodu.ut.ee/~leopoldp/2016_DeepYeast/code/caffe_model/HOwt_png_vgg_A_bn_iter_130000.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/wiki/Model-Zoo#deepyeast"
   },
   {
     "target": "caffe/DenseNet_121.caffemodel",
@@ -288,6 +324,12 @@
     "link":   "https://github.com/shelhamer/fcn.berkeleyvision.org"
   },
   {
+    "target": "caffe/fcn-8s-pascal-deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/HyeonwooNoh/DeconvNet/master/model/FCN/fcn-8s-pascal-deploy.prototxt",
+    "format": "Caffe v1",
+    "link":   "https://github.com/HyeonwooNoh/DeconvNet"
+  },
+  {
     "target": "caffe/finetune_flickr_style.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/finetune_flickr_style.caffemodel",
     "format": "Caffe v1",
@@ -366,10 +408,58 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
+    "target": "caffe/lenet_consolidated_solver.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/mnist/lenet_consolidated_solver.prototxt",
+    "format": "Caffe v1",
+    "link":   "https://github.com/BVLC/caffe/tree/master/examples/mnist"
+  },
+  {
+    "target": "caffe/lenet.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/mnist/lenet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/tree/master/examples/mnist"
+  },
+  {
+    "target": "caffe/linreg.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/pycaffe/linreg.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/tree/master/examples/pycaffe"
+  },
+  {
     "target": "caffe/lstm.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/lstm.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/mobilenet.caffemodel",
+    "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/MobileNet-Caffe"
+  },
+  {
+    "target": "caffe/mobilenet_deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/MobileNet-Caffe"
+  },
+  {
+    "target": "caffe/mobilenet_v2.caffemodel",
+    "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/MobileNet-Caffe"
+  },
+  {
+    "target": "caffe/mobilenet_v2_deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2_deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/MobileNet-Caffe"
+  },
+  {
+    "target": "caffe/mnist_siamese_solver.prototxt,caffe/mnist_siamese_train_test.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/siamese/mnist_siamese_solver.prototxt,https://raw.githubusercontent.com/BVLC/caffe/master/examples/siamese/mnist_siamese_train_test.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/tree/master/examples/siamese"
   },
   {
     "target": "caffe/nin.prototxt",
@@ -378,9 +468,21 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
+    "target": "caffe/nin_imagenet.caffemodel",
+    "source": "https://www.dropbox.com/s/0cidxafrb2wuwxw/nin_imagenet.caffemodel?dl=1",
+    "format": "Caffe v1",
+    "link":   "https://github.com/natanielruiz/net-archive/tree/master/nin_imagenet"
+  },
+  {
     "target": "caffe/pascalcontext-fcn32s-heavy.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/pascalcontext-fcn32s-heavy.caffemodel",
     "format": "Caffe v2"
+  },
+  {
+    "target": "caffe/panoramic_object_detection_deploy_crop.prototxt.prototxt",
+    "source": "https://raw.githubusercontent.com/gdlg/panoramic-object-detection/master/examples/inference/deploy_crop.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/gdlg/panoramic-object-detection/tree/master/examples/inference"
   },
   {
     "target": "caffe/places205CNN_iter_300000_upgraded.caffemodel",
@@ -438,10 +540,22 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
+    "target": "caffe/ssd_16nodes_512_batch_train.prototxt",
+    "source": "https://raw.githubusercontent.com/intel/caffe/master/models/intel_optimized_models/multinode/ssd_16nodes_512_batch/train.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/intel/caffe"
+  },
+  {
     "target": "caffe/SSD300.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/SSD300.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/tsn_bn_inception_flow_deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/yjxiong/temporal-segment-networks/master/models/hmdb51/tsn_bn_inception_flow_deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/yjxiong/temporal-segment-networks"
   },
   {
     "target": "caffe/vanillaCNN.caffemodel",
@@ -619,19 +733,19 @@
   {
     "target": "keras/DenseNet121.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "../tools/keras", "sync install zoo" ],
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "keras/InceptionResNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "../tools/keras", "sync install zoo" ],
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "keras/InceptionV3.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "../tools/keras", "sync install zoo" ],
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -643,13 +757,13 @@
   {
     "target": "keras/MobileNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "../tools/keras", "sync install zoo" ],
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "keras/NASNetMobile.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "../tools/keras", "sync install zoo" ],
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -667,13 +781,13 @@
   {
     "target": "keras/VGG16.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "../tools/keras", "sync install zoo" ],
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "keras/VGG19.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "../tools/keras", "sync install zoo" ],
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -977,6 +1091,12 @@
     "link":   "https://deepdetect.com/models/resnet/"
   },
   {
+    "target": "caffe/ResNet-50_merged.qconv.winograd.cwl.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-50_merged.qconv.winograd.cwl.prototxt",
+    "error":  "File text format is not caffe.NetParameter (Unknown field 'evaluation_method' at 13:3) in 'ResNet-50_merged.qconv.winograd.cwl.prototxt'.",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
     "target": "caffe/ResNet-101-deploy.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
     "format": "Caffe v2",
@@ -1255,62 +1375,80 @@
   {
     "target": "pytorch/alexnet.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/densenet161.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/densenet121.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/inception_v3.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/resnet18.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/resnet50.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/resnet50.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/squeezenet1_0.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/vgg11_bn.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "target": "pytorch/vgg16.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "../tools/pytorch", "sync install zoo" ],
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "target": "tf/chessbot.pb",
+    "source": "https://raw.githubusercontent.com/srom/chessbot/master/model/chessbot.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/srom/chessbot"
+  },
+  {
+    "target": "tf/chessbot_estimator.pb",
+    "source": "https://raw.githubusercontent.com/srom/chessbot/master/model/estimator.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/srom/chessbot"
+  },
+  {
+    "target": "tf/chessbot_classifier.pb",
+    "source": "https://raw.githubusercontent.com/srom/chessbot/master/model/classifier.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/srom/chessbot"
   },
   {
     "target": "tf/densenet.pb",
@@ -1335,12 +1473,33 @@
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
+    "target": "tf/inception_v1_2016_08_28_frozen.pb",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_resnet_v2_2016_08_30_frozen.pb.tar.gz[inception_resnet_v2_2016_08_30_frozen.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
+  },
+  {
+    "target": "tf/inception_v1_2016_08_28_frozen.pb",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_v1_2016_08_28_frozen.pb.tar.gz[inception_v1_2016_08_28_frozen.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
+  },
+  {
+    "target": "tf/inception_v2_2016_08_28_frozen.pb",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_v2_2016_08_28_frozen.pb.tar.gz[inception_v2_2016_08_28_frozen.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
+  },
+  {
     "target": "tf/inception_v3.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.pb]"
   },
   {
     "target": "tf/inception_v3_2016_08_28_frozen.pb",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz[inception_v3_2016_08_28_frozen.pb]"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz[inception_v3_2016_08_28_frozen.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
+
   },
   {
     "target": "tf/inception_v4.pb",
@@ -1419,6 +1578,12 @@
     "link":   "https://deepdetect.com/models/tf"
   },
   {
+    "target": "tf/resnet_v2_fp16_savedmodel_NHWC_saved_model.pb",
+    "source": "http://download.tensorflow.org/models/official/20181001_resnet/savedmodels/resnet_v2_fp16_savedmodel_NHWC.tar.gz[./resnet_v2_fp16_savedmodel_NHWC/1538686978/saved_model.pb]",
+    "format": "TensorFlow Saved Model v1",
+    "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
+  },
+  {
     "target": "tf/squeezenet.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.pb]"
   },
@@ -1451,6 +1616,30 @@
     "source": "https://deepdetect.com/models/tf/vgg_19/vgg_19.pb",
     "format": "TensorFlow Graph",
     "link":   "https://deepdetect.com/models/tf"
+  },
+  {
+    "target": "tfjs/mobilenet_v1_0.25_224/model.json",
+    "source": "https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json",
+    "format": "TensorFlow.js Keras v2.1.4",
+    "link":   "https://github.com/tensorflow/tfjs-examples"
+  },
+  {
+    "target": "tfjs/mnist_transfer_cnn_v1/model.json,tfjs/mnist_transfer_cnn_v1/group1-shard1of1,tfjs/mnist_transfer_cnn_v1/group2-shard1of1,tfjs/mnist_transfer_cnn_v1/group3-shard1of1,tfjs/mnist_transfer_cnn_v1/group4-shard1of1",
+    "source": "https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/model.json,https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/group1-shard1of1,https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/group2-shard1of1,https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/group3-shard1of1,https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/group3-shard1of1,https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/group4-shard1of1",
+    "format": "TensorFlow.js Keras v2.1.4",
+    "link":   "https://github.com/tensorflow/tfjs-examples"
+  },
+  {
+    "target": "tfjs/sentiment_cnn_v1/model.json",
+    "source": "https://storage.googleapis.com/tfjs-models/tfjs/sentiment_cnn_v1/model.json",
+    "format": "TensorFlow.js Keras v2.1.4",
+    "link":   "https://github.com/tensorflow/tfjs-examples"
+  },
+  {
+    "target": "tfjs/translation_en_fr_v1/model.json",
+    "source": "https://storage.googleapis.com/tfjs-models/tfjs/translation_en_fr_v1/model.json",
+    "format": "TensorFlow.js Keras v2.1.4",
+    "link":   "https://github.com/tensorflow/tfjs-examples"
   },
   {
     "target": "tflite/densenet.tflite",

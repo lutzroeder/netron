@@ -52,7 +52,7 @@ class TestHost {
     }
 
     exception(err, fatal) {
-        console.log(err.toString());
+        console.log('HOST: ' + err.toString());
     }
 }
 
@@ -361,10 +361,12 @@ function next() {
     download(folder, targets, sources, [], (err, completed) => {
         if (err) {
             if (item.status == 'script' && item.script) {
-                try { 
-                    var command = path.join(__dirname, item.script[0]) + ' ' + item.script[1];
-                    console.log('  ' + command);
-                    child_process.execSync(command, { stdio: [ 0, 1 , 2] });
+                try {
+                    var root = path.dirname(__dirname);
+                    var command = item.script[0].replace('${root}', root);
+                    var arguments = item.script[1].replace('${root}', root);
+                    console.log('  ' + command + ' ' + arguments);
+                    child_process.execSync(command + ' ' + arguments, { stdio: [ 0, 1 , 2] });
                     completed = targets;
                 }
                 catch (err) {
@@ -379,8 +381,10 @@ function next() {
         }
         loadModel(folder + '/' + completed[0], item, (err, model) => {
             if (err) {
-                console.log(err);
-                return;
+                if (!item.error && item.error != err.message) {
+                    console.log(err);
+                    return;
+                }
             }
             next();
         });
