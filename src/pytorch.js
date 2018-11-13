@@ -202,7 +202,11 @@ pytorch.ModelFactory = class {
                 if (constructor) {
                     constructor.apply(obj, args);
                 }
-                else if (!name.startsWith('__main__.') && !name.startsWith('modeling.') && !name.startsWith('networks.') && !name.startsWith('Layers.') && !name.startsWith('Sublayers.') && !name.startsWith('parts.') && !name.startsWith('model.') && !name.startsWith('Embed.')) {
+                else if (!name.startsWith('__main__.') && !name.startsWith('networks.') && 
+                         !name.startsWith('model.') && !name.startsWith('models.') &&
+                         !name.startsWith('modeling.') && !name.startsWith('src.model.') &&
+                         !name.startsWith('Layers.') && !name.startsWith('Sublayers.') && !name.startsWith('parts.') &&
+                         !name.startsWith('Embed.') && !name.startsWith('fpn.') && !name.startsWith('retinanet.')) {
                     debugger;
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
