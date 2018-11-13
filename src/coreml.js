@@ -763,13 +763,13 @@ coreml.Tensor = class {
                 switch (context.dataType) {
                     case 'float32':
                         results.push(this._data[context.index]);
+                        context.index++;
                         break;
                     case 'float16':
                         results.push(context.data.getFloat16(context.index, true));
                         context.index += 2;
                         break;
                 }
-                context.index++;
                 context.count++;
             }
         }

@@ -971,6 +971,174 @@
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Food101.mlmodel"
   },
   {
+    "target": "coreml/food.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food.mlmodel",
+    "format": "CoreML v1",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_1.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_1.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_2.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_2.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_3.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_3.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_4.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_4.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_5.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_5.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_6.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_6.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_7.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_7.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_8.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_8.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_kmeans_16.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_16.mlmodel",
+    "format": "CoreML v2",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_1.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_1.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_2.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_2.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_3.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_3.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_4.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_4.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_5.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_5.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_6.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_6.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_7.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_7.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_8.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_8.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_16.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_16.mlmodel",
+    "format": "CoreML v2",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_1.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_1.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_2.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_2.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_3.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_3.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_4.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_4.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_5.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_5.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_6.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_6.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_7.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_7.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_8.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_8.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
+    "target": "coreml/food_linear_lut_16.mlmodel",
+    "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_16.mlmodel",
+    "format": "CoreML v2",
+    "link":   "https://github.com/kingreza/quantization"
+  },
+  {
     "target": "coreml/FlickrStyle.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FlickrStyle.mlmodel"
   },
