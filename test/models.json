@@ -961,6 +961,12 @@
     "source": "https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel"
   },
   {
+    "target": "coreml/faces_model.mlmodel",
+    "source": "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/files/1526806/faces_model.mlmodel.zip[faces_model.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/issues/3"
+  },
+  {
     "target": "coreml/Food101.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Food101.mlmodel"
   },
@@ -1013,6 +1019,12 @@
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_fuse.mlmodel"
   },
   {
+    "target": "coreml/iris.mlmodel",
+    "source": "https://raw.githubusercontent.com/gavi/Iris/master/Iris/iris.mlmodel",
+    "format": "CoreML v1",
+    "link":   "https://github.com/gavi/Iris"
+  },
+  {
     "target": "coreml/MessageClassifier.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/MessageClassifier.mlmodel"
   },
@@ -1055,6 +1067,12 @@
   {
     "target": "coreml/Inceptionv3.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel"
+  },
+  {
+    "target": "coreml/mobilenet_v2_1.4_224.mlmodel",
+    "source": "https://github.com/tf-coreml/tf-coreml/files/2575260/mobilenet_v2_1.4_224.mlmodel.zip[mobilenet_v2_1.4_224.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/tf-coreml/tf-coreml/issues/252"
   },
   {
     "target": "coreml/Oxford102.mlmodel",
@@ -1129,6 +1147,84 @@
   {
     "target": "coreml/RN1015k500.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/RN1015k500.mlmodel"
+  },
+  {
+    "target": "coreml/test_categorical_imputer.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_categorical_imputer.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_keras_embedding_model.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_keras_embedding_model.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_linear_regressor.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_linear_regressor.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_normalizer_boston.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_normalizer_boston.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_normalizer_random.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_normalizer_random.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_one_hot_encoder_many_columns.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_many_columns.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_one_hot_encoder_one_column_of_several.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_one_column_of_several.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_one_hot_encoder_pipeline.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_pipeline.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_random_forest_classifier.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_random_forest_classifier.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_random_forest_regressor.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_random_forest_regressor.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_support_vector_classifier.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_support_vector_classifier.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_support_vector_regressor.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_support_vector_regressor.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "target": "coreml/test_tree_regressor.mlmodel",
+    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_tree_regressor.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "target": "coreml/TinyYOLO.mlmodel",

@@ -267,7 +267,7 @@ coreml.Graph = class {
         }
         else if (model.featureVectorizer) {
             this._createNode(scope, group, 'featureVectorizer', null, model.featureVectorizer, 
-            coreml.Graph.formatFeatureDescriptionList(model.description.input),
+            coreml.Graph._formatFeatureDescriptionList(model.description.input),
             [ model.description.output[0].name ]);
             return 'Feature Vectorizer';
         }
@@ -374,58 +374,47 @@ coreml.Graph = class {
         var result = '';
         switch (type.Type) {
             case 'multiArrayType':
-                result = coreml.Graph.formatArrayDataType(type.multiArrayType.dataType);
+                var shape = new coreml.TensorShape(null);
                 if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
-                    result += '[' + type.multiArrayType.shape.map(dimension => dimension.toString()).join(',') + ']';
+                    shape = new coreml.TensorShape(type.multiArrayType.shape);
                 }
-                break;
-            case 'imageType':
-                result = 'image(' + coreml.Graph.formatColorSpace(type.imageType.colorSpace) + ',' + type.imageType.width.toString() + 'x' + type.imageType.height.toString() + ')';
-                break;
-            case 'dictionaryType':
-                result = 'map<' + type.dictionaryType.KeyType.replace('KeyType', '') + ',float64>';
+                var dataType = '?';
+                switch (type.multiArrayType.dataType) {
+                    case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
+                        dataType = 'float32';
+                        break;
+                    case coreml.proto.ArrayFeatureType.ArrayDataType.INT32:
+                        dataType = 'int32';
+                        break;
+                    case coreml.proto.ArrayFeatureType.ArrayDataType.DOUBLE:
+                        dataType = 'float64';
+                        break;
+                }
+                result = new coreml.TensorType(dataType, shape);
                 break;
             case 'stringType':
-                result = 'string';
+                result = new coreml.TensorType('string');
                 break;
             case 'doubleType':
-                result = 'float64';
+                result = new coreml.TensorType('float64');
                 break;
             case 'int64Type':
-                result = 'int64';
+                result = new coreml.TensorType('int64');
+                break;
+            case 'dictionaryType':
+                result = new coreml.MapType(type.dictionaryType.KeyType.replace('KeyType', ''), 'float64');
+                break;
+            case 'imageType':
+                result = new coreml.ImageType(type.imageType.colorSpace, type.imageType.width, type.imageType.height);
                 break;
         }
         if (type.isOptional) {
-            result += '?';
+            result = new coreml.OptionalType(result);
         }
         return result;
     }
 
-    static formatArrayDataType(dataType) {
-        switch (dataType) {
-            case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
-                return 'float32';
-            case coreml.proto.ArrayFeatureType.ArrayDataType.INT32:
-                return 'int32';
-            case coreml.proto.ArrayFeatureType.ArrayDataType.DOUBLE:
-                return 'float64';
-        }
-        return '?';
-    }
-
-    static formatColorSpace(colorSpace) {
-        switch (colorSpace) {
-            case coreml.proto.ImageFeatureType.ColorSpace.GRAYSCALE:
-                return 'Grayscale';
-            case coreml.proto.ImageFeatureType.ColorSpace.RGB:
-                return 'RGB';
-            case coreml.proto.ImageFeatureType.ColorSpace.BGR:
-                return 'BGR';
-        }
-        return '?';
-    }
-
-    static formatFeatureDescriptionList(list) {
+    static _formatFeatureDescriptionList(list) {
         return list.map((item) => item.name);
     }
 };
@@ -801,7 +790,7 @@ coreml.TensorType = class {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
-        this._shape = shape;
+        this._shape = shape || new coreml.TensorShape(null);
     }
 
     get dataType() {
@@ -831,6 +820,61 @@ coreml.TensorShape = class {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
 };
+
+coreml.MapType = class {
+
+    constructor(keyType, valueType, denotation) {
+        this._keyType = keyType;
+        this._valueType = valueType;
+    }
+
+    get keyType() {
+        return this._keyType;
+    }
+
+    get valueType() {
+        return this._valueType;
+    }
+
+    toString() {
+        return 'map<' + this._keyType + ',' + this._valueType.toString() + '>';
+    }
+};
+
+coreml.ImageType = class {
+
+    constructor(colorSpace, width, height) {
+        this._colorSpace = '?';
+        switch (colorSpace) {
+            case coreml.proto.ImageFeatureType.ColorSpace.GRAYSCALE:
+                this._colorSpace = 'Grayscale';
+                break;
+            case coreml.proto.ImageFeatureType.ColorSpace.RGB:
+                    this._colorSpace = 'RGB';
+                break;
+            case coreml.proto.ImageFeatureType.ColorSpace.BGR:
+                this._colorSpace = 'BGR';
+                break;
+        }
+        this._width = width;
+        this._height = height;
+    }
+
+    toString() {
+        return 'image<' + this._colorSpace + ',' + this._width. toString() + 'x' + this._height.toString() + '>';
+    }
+};
+
+coreml.OptionalType = class {
+
+    constructor(type) {
+        this._type = type;
+    }
+
+    toString() {
+        return this._type.toString() + '?';
+    }
+}
 
 coreml.OperatorMetadata = class {
 

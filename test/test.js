@@ -140,8 +140,18 @@ function loadModel(target, item, callback) {
         try {
             model.graphs.forEach((graph) => {
                 graph.inputs.forEach((input) => {
+                    input.connections.forEach((connection) => {
+                        if (connection.type) {
+                            connection.type.toString();
+                        }
+                    });
                 });
                 graph.outputs.forEach((output) => {
+                    output.connections.forEach((connection) => {
+                        if (connection.type) {
+                            connection.type.toString();
+                        }
+                    });
                 });
                 graph.nodes.forEach((node) => {
                     node.attributes.forEach((attribute) => {
@@ -152,6 +162,9 @@ function loadModel(target, item, callback) {
                     });
                     node.inputs.forEach((input) => {
                         input.connections.forEach((connection) => {
+                            if (connection.type) {
+                                connection.type.toString();
+                            }
                             if (connection.initializer) {
                                 var value = connection.initializer.toString();
                             }
@@ -159,6 +172,9 @@ function loadModel(target, item, callback) {
                     });
                     node.outputs.forEach((output) => {
                         output.connections.forEach((connection) => {
+                            if (connection.type) {
+                                connection.type.toString();
+                            }
                         });
                     });
                 });
