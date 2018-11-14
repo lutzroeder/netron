@@ -18,7 +18,16 @@ tflite_schema.TensorType = {
   STRING: 5, 5: 'STRING',
   BOOL: 6, 6: 'BOOL',
   INT16: 7, 7: 'INT16',
-  COMPLEX64: 8, 8: 'COMPLEX64'
+  COMPLEX64: 8, 8: 'COMPLEX64',
+  INT8: 9, 9: 'INT8'
+};
+
+/**
+ * @enum
+ */
+tflite_schema.QuantizationDetails = {
+  NONE: 0, 0: 'NONE',
+  CustomQuantization: 1, 1: 'CustomQuantization'
 };
 
 /**
@@ -269,6 +278,111 @@ tflite_schema.CustomOptionsFormat = {
 /**
  * @constructor
  */
+tflite_schema.CustomQuantization = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.CustomQuantization}
+ */
+tflite_schema.CustomQuantization.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.CustomQuantization=} obj
+ * @returns {tflite_schema.CustomQuantization}
+ */
+tflite_schema.CustomQuantization.getRootAsCustomQuantization = function(bb, obj) {
+  return (obj || new tflite_schema.CustomQuantization).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite_schema.CustomQuantization.prototype.custom = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.CustomQuantization.prototype.customLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int8Array}
+ */
+tflite_schema.CustomQuantization.prototype.customArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.CustomQuantization.startCustomQuantization = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} customOffset
+ */
+tflite_schema.CustomQuantization.addCustom = function(builder, customOffset) {
+  builder.addFieldOffset(0, customOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.CustomQuantization.createCustomVector = function(builder, data) {
+  builder.startVector(1, data.length, 1);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_schema.CustomQuantization.startCustomVector = function(builder, numElems) {
+  builder.startVector(1, numElems, 1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.CustomQuantization.endCustomQuantization = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite_schema.QuantizationParameters = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -394,10 +508,27 @@ tflite_schema.QuantizationParameters.prototype.zeroPointLength = function() {
 };
 
 /**
+ * @returns {tflite_schema.QuantizationDetails}
+ */
+tflite_schema.QuantizationParameters.prototype.detailsType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? /** @type {tflite_schema.QuantizationDetails} */ (this.bb.readUint8(this.bb_pos + offset)) : tflite_schema.QuantizationDetails.NONE;
+};
+
+/**
+ * @param {flatbuffers.Table} obj
+ * @returns {?flatbuffers.Table}
+ */
+tflite_schema.QuantizationParameters.prototype.details = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_schema.QuantizationParameters.startQuantizationParameters = function(builder) {
-  builder.startObject(4);
+  builder.startObject(6);
 };
 
 /**
@@ -514,6 +645,22 @@ tflite_schema.QuantizationParameters.createZeroPointVector = function(builder, d
  */
 tflite_schema.QuantizationParameters.startZeroPointVector = function(builder, numElems) {
   builder.startVector(8, numElems, 8);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.QuantizationDetails} detailsType
+ */
+tflite_schema.QuantizationParameters.addDetailsType = function(builder, detailsType) {
+  builder.addFieldInt8(4, detailsType, tflite_schema.QuantizationDetails.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} detailsOffset
+ */
+tflite_schema.QuantizationParameters.addDetails = function(builder, detailsOffset) {
+  builder.addFieldOffset(5, detailsOffset, 0);
 };
 
 /**
