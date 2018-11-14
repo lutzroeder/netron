@@ -197,9 +197,9 @@ def pip_import(package):
     import importlib
     try:
         importlib.import_module(package)
-    except ImportError:
-        import pip
-        pip.main([ 'install', package ])
+    except:
+        import subprocess
+        subprocess.call([ 'pip', 'install', '--quiet', package ])
     finally:
         globals()[package] = importlib.import_module(package)
 
@@ -225,9 +225,9 @@ def convert():
         onnx_model = onnxmltools.convert.convert_keras(keras_model)
         onnxmltools.utils.save_model(onnx_model, base + '.onnx')
     elif extension == '.pkl':
-        from sklearn.externals import joblib
+        pip_import('sklearn')
         import onnxmltools
-        sklearn_model = joblib.load(file)
+        sklearn_model = sklearn.externals.joblib.load(file)
         onnx_model = onnxmltools.convert.convert_sklearn(sklearn_model)
         onnxmltools.utils.save_model(onnx_model, base + '.onnx')
     base, extension = os.path.splitext(file)

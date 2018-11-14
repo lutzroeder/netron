@@ -33,7 +33,7 @@ git_sync() {
         echo "Clone ${2}..."
         git -C "${third_party}" clone --recursive ${2}
     fi
-    git submodule update --init
+    git -C "${third_party}" submodule update --init
 }
 
 clean() {
@@ -80,8 +80,6 @@ metadata() {
 convert() {
     bold "onnx convert"
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet sklearn
-    ${pip} install --quiet lightgbm
     ${pip} install --quiet ${third_party}/onnxmltools
     ${python} ${tools}/onnx-script.py convert ${1}
     deactivate

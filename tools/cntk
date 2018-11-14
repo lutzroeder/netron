@@ -23,7 +23,7 @@ git_sync() {
         echo "Clone ${2}..."
         git -C "${third_party}" clone --recursive ${2} ${1}
     fi
-    git submodule update --init
+    git -C "${third_party}" submodule update --init
 }
 
 clean() {
