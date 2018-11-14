@@ -33,6 +33,7 @@ tflite.ModelFactory = class {
             catch (error) {
                 host.exception(error, false);
                 callback(new tflite.Error(error.message), null);
+                return;
             }
     
             tflite.OperatorMetadata.open(host, (err, metadata) => {
