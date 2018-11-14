@@ -9218,12 +9218,12 @@
         {
           "description": "Scalar specifying the number of classes in one-hot tensor. This is also the size of the one-hot dimension (specified by 'axis' attribute) added on in the output tensor and the values in the 'indices' input tensor are expected to be in the range [0, depth). TheIn case 'depth' is of non-integer type, it will be casted to int64 before use.",
           "name": "depth",
-          "type": "T1"
+          "type": "T2"
         },
         {
           "description": "Rank 1 tensor containing exactly two elements, in the format [off_value, on_value], where 'on_value' is the value used for filling locations specified in 'indices' input tensor, and 'off_value' is the value used for filling locations other than those specified in 'indices' input tensor. ",
           "name": "values",
-          "type": "T2"
+          "type": "T3"
         }
       ],
       "max_input": 3,
@@ -9234,7 +9234,7 @@
         {
           "description": "Tensor of rank one greater than input tensor 'indices', i.e. rank(output) = rank(indices) + 1. The data type for the elements of the output tensor is the same as the type of input 'values' is used.",
           "name": "output",
-          "type": "T2"
+          "type": "T3"
         }
       ],
       "since_version": 9,
@@ -9269,6 +9269,23 @@
             "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrains input to only numeric types.",
+          "type_param_str": "T2"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
             "tensor(double)",
             "tensor(string)",
             "tensor(bool)",
@@ -9276,7 +9293,7 @@
             "tensor(complex128)"
           ],
           "description": "Constrain to any tensor type.",
-          "type_param_str": "T2"
+          "type_param_str": "T3"
         }
       ]
     }
