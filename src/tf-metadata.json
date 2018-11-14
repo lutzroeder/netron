@@ -15797,6 +15797,54 @@
     }
   },
   {
+    "name": "ExperimentalMapDataset",
+    "schema": {
+      "attributes": [
+        {
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": true,
+          "name": "use_inter_op_parallelism",
+          "type": "bool"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that applies `f` to the outputs of `input_dataset`."
+    }
+  },
+  {
     "name": "ExperimentalMaterializedIndexDatasetHandle",
     "schema": {
       "attributes": [
@@ -56790,6 +56838,67 @@
         }
       ],
       "summary": "Gradient of Unbatch."
+    }
+  },
+  {
+    "name": "UnicodeDecodeWithOffsets",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Text encoding of the input strings. This is any of the encodings supported\nby ICU ucnv algorithmic converters. Examples: `\"UTF-16\", \"US ASCII\", \"UTF-8\"`.",
+          "name": "input_encoding",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "strict",
+            "replace",
+            "ignore"
+          ],
+          "default": "replace",
+          "description": "Error handling policy when there is invalid formatting found in the input.\nThe value of 'strict' will cause the operation to produce a InvalidArgument\nerror on any invalid input formatting. A value of 'replace' (the default) will\ncause the operation to replace any invalid formatting in the input with the\n`replacement_char` codepoint. A value of 'ignore' will cause the operation to\nskip any invalid formatting in the input and produce no corresponding output\ncharacter.",
+          "name": "errors",
+          "type": "string"
+        },
+        {
+          "default": 65533,
+          "description": "The replacement character codepoint to be used in place of any invalid\nformatting in the input when `errors='replace'`. Any valid unicode codepoint may\nbe used. The default value is the default unicode replacement character is\n0xFFFD or U+65533.)",
+          "name": "replacement_char",
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Whether to replace the C0 control characters (00-1F) with the\n`replacement_char`. Default is false.",
+          "name": "replace_control_characters",
+          "type": "bool"
+        }
+      ],
+      "description": "The character codepoints for all strings are returned using a single vector\n`char_values`, with strings expanded to characters in row-major order.\nSimilarly, the character start byte offsets are returned using a single vector\n`char_to_byte_starts`, with strings expanded in row-major order.\n\nThe `row_splits` tensor indicates where the codepoints and start offsets for\neach input string begin and end within the `char_values` and\n`char_to_byte_starts` tensors.  In particular, the values for the `i`th\nstring (in row-major order) are stored in the slice\n`[row_splits[i]:row_splits[i+1]]`. Thus:\n\n* `char_values[row_splits[i]+j]` is the Unicode codepoint for the `j`th\n  character in the `i`th string (in row-major order).\n* `char_to_bytes_starts[row_splits[i]+j]` is the start byte offset for the `j`th\n  character in the `i`th string (in row-major order).\n* `row_splits[i+1] - row_splits[i]` is the number of characters in the `i`th\n  string (in row-major order).",
+      "inputs": [
+        {
+          "description": "The text to be decoded. Can have any shape. Note that the output is flattened\nto a vector of char values.",
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 1D int32 tensor containing the row splits.",
+          "name": "row_splits",
+          "type": 9
+        },
+        {
+          "description": "A 1D int32 Tensor containing the decoded codepoints.",
+          "name": "char_values",
+          "type": 22
+        },
+        {
+          "description": "A 1D int32 Tensor containing the byte index in the input string where each\ncharacter in `char_values` starts.",
+          "name": "char_to_byte_starts",
+          "type": 9
+        }
+      ],
+      "summary": "Decodes each string in `input` into a sequence of Unicode code points."
     }
   },
   {
