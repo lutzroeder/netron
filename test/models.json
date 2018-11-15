@@ -957,6 +957,12 @@
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/CNNEmotions.mlmodel"
   },
   {
+    "target": "coreml/digit_recognizer.mlmodel",
+    "source": "https://media.githubusercontent.com/media/erkandiken/mnist-scikit-svm-to-coreml/master/digit_recognizer.mlmodel",
+    "format": "CoreML v1",
+    "link":   "https://github.com/erkandiken/mnist-scikit-svm-to-coreml"
+  },
+  {
     "target": "coreml/Exermote.mlmodel",
     "source": "https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel"
   },
