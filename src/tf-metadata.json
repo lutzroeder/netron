@@ -30032,6 +30032,11 @@
         },
         {
           "default": "",
+          "name": "config_proto",
+          "type": "string"
+        },
+        {
+          "default": "",
           "name": "executor_type",
           "type": "string"
         }
@@ -52103,6 +52108,11 @@
         {
           "default": "",
           "name": "config",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "config_proto",
           "type": "string"
         },
         {
