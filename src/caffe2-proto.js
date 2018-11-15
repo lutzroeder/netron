@@ -22,6 +22,7 @@
     
             ExternalDataProto.prototype.source_type = 0;
             ExternalDataProto.prototype.record_id = "";
+            ExternalDataProto.prototype.record_size = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
             ExternalDataProto.prototype.offset = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
             ExternalDataProto.prototype.strides = $util.emptyArray;
     
@@ -41,6 +42,9 @@
                         break;
                     case 2:
                         message.record_id = reader.string();
+                        break;
+                    case 5:
+                        message.record_size = reader.uint64();
                         break;
                     case 3:
                         message.offset = reader.int64();
@@ -77,6 +81,9 @@
                     case "record_id":
                         message.record_id = reader.string();
                         break;
+                    case "record_size":
+                        message.record_size = reader.uint64();
+                        break;
                     case "offset":
                         message.offset = reader.int64();
                         break;
@@ -107,6 +114,9 @@
                 if (message.record_id != null && message.hasOwnProperty("record_id"))
                     if (!$util.isString(message.record_id))
                         return "record_id: string expected";
+                if (message.record_size != null && message.hasOwnProperty("record_size"))
+                    if (!$util.isInteger(message.record_size) && !(message.record_size && $util.isInteger(message.record_size.low) && $util.isInteger(message.record_size.high)))
+                        return "record_size: integer|Long expected";
                 if (message.offset != null && message.hasOwnProperty("offset"))
                     if (!$util.isInteger(message.offset) && !(message.offset && $util.isInteger(message.offset.low) && $util.isInteger(message.offset.high)))
                         return "offset: integer|Long expected";
@@ -136,6 +146,15 @@
                 }
                 if (object.record_id != null)
                     message.record_id = String(object.record_id);
+                if (object.record_size != null)
+                    if ($util.Long)
+                        (message.record_size = $util.Long.fromValue(object.record_size)).unsigned = true;
+                    else if (typeof object.record_size === "string")
+                        message.record_size = parseInt(object.record_size, 10);
+                    else if (typeof object.record_size === "number")
+                        message.record_size = object.record_size;
+                    else if (typeof object.record_size === "object")
+                        message.record_size = new $util.LongBits(object.record_size.low >>> 0, object.record_size.high >>> 0).toNumber(true);
                 if (object.offset != null)
                     if ($util.Long)
                         (message.offset = $util.Long.fromValue(object.offset)).unsigned = false;
@@ -176,6 +195,11 @@
                         object.offset = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
                         object.offset = options.longs === String ? "0" : 0;
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, true);
+                        object.record_size = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.record_size = options.longs === String ? "0" : 0;
                 }
                 if (message.source_type != null && message.hasOwnProperty("source_type"))
                     object.source_type = options.enums === String ? $root.caffe2.ExternalDataProto.SourceType[message.source_type] : message.source_type;
@@ -194,6 +218,11 @@
                         else
                             object.strides[j] = options.longs === String ? $util.Long.prototype.toString.call(message.strides[j]) : options.longs === Number ? new $util.LongBits(message.strides[j].low >>> 0, message.strides[j].high >>> 0).toNumber() : message.strides[j];
                 }
+                if (message.record_size != null && message.hasOwnProperty("record_size"))
+                    if (typeof message.record_size === "number")
+                        object.record_size = options.longs === String ? String(message.record_size) : message.record_size;
+                    else
+                        object.record_size = options.longs === String ? $util.Long.prototype.toString.call(message.record_size) : options.longs === Number ? new $util.LongBits(message.record_size.low >>> 0, message.record_size.high >>> 0).toNumber(true) : message.record_size;
                 return object;
             };
     
