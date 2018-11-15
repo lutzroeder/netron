@@ -84,6 +84,19 @@
     }
   },
   {
+    "name": "ReLU",
+    "schema": {
+      "category": "Activation",
+      "package": "keras.layers",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "LeakyReLU",
     "schema": {
       "attributes": [
@@ -3299,6 +3312,10 @@
           },
           "name": "depthwise_initializer",
           "visible": false
+        },
+        { 
+          "default": 1,
+          "name": "depth_multiplier" 
         }
       ],
       "category": "Layer",
