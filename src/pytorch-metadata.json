@@ -156,6 +156,13 @@
     }
   },
   {
+    "name": "Softmax",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "Tanh",
     "schema": {
       "category": "Activation",

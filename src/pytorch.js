@@ -76,6 +76,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.activation.ReLU6'] = function () {};
             constructorTable['torch.nn.modules.activation.PReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.Sigmoid'] = function () {};
+            constructorTable['torch.nn.modules.activation.Softmax'] = function () {};
             constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm1d'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
