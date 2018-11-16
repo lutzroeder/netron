@@ -238,6 +238,7 @@ sklearn.ModelFactory = class {
                         constructor.apply(obj, args);
                     }
                     else {
+                        debugger;
                         host.exception(new sklearn.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                     }
                     return obj;
@@ -252,6 +253,7 @@ sklearn.ModelFactory = class {
                 }
             }
             catch (error) {
+                host.exception(error, false);
                 callback(error);
                 return;
             }

@@ -9,11 +9,12 @@ pytorch.ModelFactory = class {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'pt' || extension == 'pth' || extension == 'pkl') {
+        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5') {
             var buffer = context.buffer;
-            var torch = [ 0x80, 0x02, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > torch.length) {
-                if (torch.every((value, index) => value == buffer[index])) {
+            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            if (buffer && buffer.length > torch.length + 2 && 
+                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
+                if (torch.every((value, index) => value == buffer[index + 2])) {
                     return true;
                 }
             }
@@ -108,6 +109,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool3d'] = function() {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
+            constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
             constructorTable['torchvision.models.squeezenet.Fire'] = function () {};
             constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function () {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
@@ -248,7 +250,7 @@ pytorch.ModelFactory = class {
                         }
                         return storage;
                 }
-                throw new pickle.Error("Unknown persistent load type '" + typename + "'.");
+                throw new pytorch.Error("Unknown persistent load type '" + typename + "'.");
             };
 
             var root = unpickler.load(function_call, persistent_load);
@@ -260,7 +262,7 @@ pytorch.ModelFactory = class {
                 }
             });
 
-            if ((Array.isArray(root) && root.__setitem__ && root.every((item) => item.value.__type__ == 'torch.FloatTensor')) ||
+            if ((Array.isArray(root) && root.__setitem__ && root.every((item) => item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) ||
                 (root != null && root.state_dict && Array.isArray(root.state_dict))) {
                 callback(new pytorch.Error("File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data."), null);
                 return;
@@ -321,7 +323,7 @@ pytorch.Graph = class {
         if (parent.__type__ &&
             !parent.__type__.startsWith('torch.nn.modules.container.') &&
             (!parent._modules || parent._modules.length == 0)) {
-            var node = new pytorch.Node(parent, groups, inputs, this._littleEndian);
+            var node = new pytorch.Node('', parent, groups, inputs, this._littleEndian);
             this._nodes.push(node);
             return [];
         }
@@ -353,7 +355,7 @@ pytorch.Graph = class {
                     groups.pop(module.key);
                     break; 
                 default:
-                    var node = new pytorch.Node(module, groups, inputs, this._littleEndian);
+                    var node = new pytorch.Node(module.key, module.value, groups, inputs, this._littleEndian);
                     this._nodes.push(node);
                     inputs = [ node.name ];
                     break;
@@ -365,7 +367,7 @@ pytorch.Graph = class {
 
     _loadSource(parent, groups, inputs) {
 
-        var node = new pytorch.Node(parent, groups, inputs);
+        var node = new pytorch.Node(parent.key, parent.value, groups, inputs);
         this._nodes.push(node);
         inputs = [ node.name ];
 
@@ -438,12 +440,9 @@ pytorch.Connection = class {
 
 pytorch.Node = class {
 
-    constructor(module, groups, connections, littleEndian) {
+    constructor(key, obj, groups, connections, littleEndian) {
         this._group = groups.join('/');
-        groups.push(module.key);
-        this._name = groups.join('/');
-        groups.pop();
-        var obj = module.value;
+        this._name = this._group + '/' + key;
         this._operator = obj.__type__.split('.').pop();
 
         this._inputs = [];
@@ -581,7 +580,7 @@ pytorch.Attribute = class {
     }
 
     get visible() {
-        return this._visible == false ? false : true;
+        return (this._visible == false || this.name == 'training') ? false : true;
     }
 };
 

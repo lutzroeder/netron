@@ -22,10 +22,6 @@
           "visible": false
         },
         {
-          "name": "training",
-          "visible": false
-        },
-        {
           "name": "in_channels",
           "visible": false
         },
@@ -73,10 +69,6 @@
       "attributes": [
         {
           "name": "output_padding",
-          "visible": false
-        },
-        {
-          "name": "training",
           "visible": false
         },
         {
@@ -139,10 +131,6 @@
     "name": "Linear",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        }
       ],
       "category": "Layer",
       "package": "torch.nn.modules.linear"
@@ -184,10 +172,6 @@
         {
           "default": 0,
           "name": "value"
-        },
-        {
-          "name": "training",
-          "visible": false
         }
       ],
       "category": "Activation",
@@ -205,10 +189,6 @@
     "name": "PReLU",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        }
       ],
       "category": "Activation",
       "package": "torch.nn.modules.activation"
@@ -218,10 +198,6 @@
     "name": "LeakyReLU",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        }
       ],
       "category": "Activation",
       "package": "torch.nn.modules.activation"
@@ -238,10 +214,6 @@
     "name": "MaxPool2d",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 0,
           "name": "padding"
@@ -281,10 +253,6 @@
     "name": "AvgPool2d",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 0,
           "name": "padding"
@@ -334,10 +302,6 @@
     "name": "BatchNorm1d",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        }
       ],
       "category": "Normalization",
       "package": "torch.nn.modules.batchnorm"
@@ -347,10 +311,6 @@
     "name": "BatchNorm2d",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 1e-05,
           "name": "eps"
@@ -390,10 +350,6 @@
         {
           "default": 0.5,
           "name": "p"
-        },
-        {
-          "name": "training",
-          "visible": false
         }
       ],
       "category": "Dropout",
@@ -411,10 +367,6 @@
         {
           "default": 0.5,
           "name": "p"
-        },
-        {
-          "name": "training",
-          "visible": false
         }
       ],
       "category": "Dropout",
@@ -425,10 +377,6 @@
     "name": "LSTM",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 0,
           "name": "dropout"
@@ -448,6 +396,10 @@
         {
           "name": "bidirectional",
           "visible": false
+        },
+        {
+          "name": "bias",
+          "visible": false
         }
       ],
       "category": "Layer",
@@ -458,10 +410,6 @@
     "name": "Embedding",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 2,
           "name": "norm_type"

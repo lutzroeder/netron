@@ -7,11 +7,21 @@ var hdf5 = hdf5 || require('./hdf5');
 keras.ModelFactory = class {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
+        var identifier = context.identifier;
+        var extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
+            // Filter PyTorch models published with incorrect .h5 file extension.
+            var buffer = context.buffer;
+            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            if (buffer && buffer.length > torch.length + 2 && 
+                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
+                if (torch.every((value, index) => value == buffer[index + 2])) {
+                    return false;
+                }
+            }
             return true;
         }
-        if (extension == 'json' && !context.identifier.endsWith('-symbol.json')) {
+        if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
             var json = context.text;
             if (json.indexOf('\"mxnet_version\":', 0) == -1) {
                 try {
@@ -35,10 +45,18 @@ keras.ModelFactory = class {
         var model_config = null;
         var rootGroup = null;
         var rootJson = null;
+        var identifier = context.identifier;
         try {
-            var extension = context.identifier.split('.').pop().toLowerCase();
+            var extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
-                var file = new hdf5.File(context.buffer);
+                var file = null;
+                try {
+                    file = new hdf5.File(context.buffer);
+                }
+                catch (error) {
+                    callback(new keras.Error(error.name + ": " + error.message.replace(/\.$/, '') + " in '" + identifier + "'."), null);
+                    return;
+                }
                 rootGroup = file.rootGroup;
                 if (!rootGroup.attributes.model_config) {
                     callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
