@@ -1,5 +1,5 @@
 
-<p align='center'><img width='400' src='media/logo.png'/></p>
+<p align='center'><a href='https://github.com/lutzroeder/netron'><img width='400' src='media/logo.png'/></a></p>
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
