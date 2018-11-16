@@ -48,6 +48,8 @@ update(
   optional MnParamGradCompressParameter mn_grad_compress_param = 156;
   optional QuantizationParameter quantization_param = 158;
   optional ReorgParameter reorg_param = 159;
+  optional SqueezeConvolutionParameter squeeze_convolution_param = 187; // synopsys-caffe
+  optional SqueezeInnerProductParameter squeeze_inner_product_param = 188; // synopsys-caffe
   optional BatchReductionParameter batch_reduction_param = 162;
   optional ShuffleChannelParameter shuffle_channel_param = 164;
   optional AnnotatedDataParameter annotated_data_param = 200;
@@ -1145,6 +1147,107 @@ message Yolov3DetectionOutputParameter {
   repeated uint32 anchors_scale = 6 ;
   optional uint32 mask_group_num = 7 [default = 2];
   repeated uint32 mask = 8;
+}
+
+// ***************** MulticoreWare_Modified - Feature: Pruning / Splicing ******************
+// Convolution with pruning
+message SqueezeConvolutionParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+
+  // Pad, kernel size, and stride are all given as a single value for equal
+  // dimensions in all spatial dimensions, or once per spatial dimension.
+  repeated uint32 pad = 3; // The padding size; defaults to 0
+  repeated uint32 kernel_size = 4; // The kernel size
+  repeated uint32 stride = 6; // The stride; defaults to 1
+  // Factor used to dilate the kernel, (implicitly) zero-filling the resulting
+  // holes. (Kernel dilation is sometimes referred to by its use in the
+  // algorithme à trous from Holschneider et al. 1987.)
+  repeated uint32 dilation = 24; // The dilation; defaults to 1
+
+  // For 2D convolution only, the *_h and *_w versions may also be used to
+  // specify both spatial dimensions.
+  optional uint32 pad_h = 9 [default = 0]; // The padding height (2D only)
+  optional uint32 pad_w = 10 [default = 0]; // The padding width (2D only)
+  optional uint32 pad_type = 29 [default = 0]; //CUSTOMIZATION
+  optional uint32 pad_l = 36 [default = 0]; //CUSTOMIZATION
+  optional uint32 pad_r = 37 [default = 0]; //CUSTOMIZATION
+  optional uint32 pad_t = 38 [default = 0]; //CUSTOMIZATION
+  optional uint32 pad_b = 39 [default = 0]; //CUSTOMIZATION
+  optional uint32 kernel_h = 11; // The kernel height (2D only)
+  optional uint32 kernel_w = 12; // The kernel width (2D only)
+  optional uint32 stride_h = 13; // The stride height (2D only)
+  optional uint32 stride_w = 14; // The stride width (2D only)
+
+  optional double input_scale = 46 [default = 1]; //CUSTOMIZATION, act as dummy param in squeeze_conv layer now
+  optional double output_scale = 47 [default = 1]; //CUSTOMIZATION, act as dummy param in squeeze_conv layer now
+  optional bool signed_saturate = 48 [default = false]; //CUSTOMIZATION, act as dummy param in squeeze_conv layer now
+
+  optional uint32 group = 5 [default = 1]; // The group size for group conv
+
+  optional FillerParameter weight_filler = 7; // The filler for the weight
+  optional FillerParameter bias_filler = 8; // The filler for the bias
+  enum Engine {
+    DEFAULT = 0;
+    CAFFE = 1;
+    CUDNN = 2;
+  }
+  optional Engine engine = 15 [default = DEFAULT];
+
+  // The axis to interpret as "channels" when performing convolution.
+  // Preceding dimensions are treated as independent inputs;
+  // succeeding dimensions are treated as "spatial".
+  // With (N, C, H, W) inputs, and axis == 1 (the default), we perform
+  // N independent 2D convolutions, sliding C-channel (or (C/g)-channels, for
+  // groups g>1) filters across the spatial axes (H, W) of the input.
+  // With (N, C, D, H, W) inputs, and axis == 1, we perform
+  // N independent 3D convolutions, sliding (C/g)-channels
+  // filters across the spatial axes (D, H, W) of the input.
+  optional int32 axis = 16 [default = 1];
+
+  // Whether to force use of the general ND convolution, even if a specific
+  // implementation for blobs of the appropriate number of spatial dimensions
+  // is available. (Currently, there is only a 2D-specific convolution
+  // implementation; for input blobs with num_axes != 2, this option is
+  // ignored and the ND implementation will be used.)
+  optional bool force_nd_im2col = 17 [default = false];
+  optional float gamma = 18 [default = 0.001]; // The compress parameter of current layer
+  optional float power = 19 [default = 1];
+  optional float iter_stop = 20 [default = 10000];
+  optional float c_rate = 21 [default = 3];
+  optional FillerParameter weight_mask_filler = 22; // The filler for the weight
+  optional FillerParameter bias_mask_filler = 23;   // The filler for the bias
+  optional bool dynamicsplicing = 25[default = false];
+  optional float splicing_rate = 26 [default = 0.0001];
+}
+// *****************************************************************************************
+
+// **************** MulticoreWare_Modified - Feature: Pruning / Splicing ***************
+// InnerProduct with pruning
+message SqueezeInnerProductParameter {
+
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+  optional FillerParameter weight_filler = 3; // The filler for the weight
+  optional FillerParameter bias_filler = 4; // The filler for the bias
+
+  // The first axis to be lumped into a single inner product computation;
+  // all preceding axes are retained in the output.
+  // May be negative to index from the end (e.g., -1 for the last axis).
+  optional int32 axis = 5 [default = 1];
+  // Specify whether to transpose the weight matrix or not.
+  // If transpose == true, any operations will be performed on the transpose
+  // of the weight matrix. The weight matrix itself is not going to be transposed
+  // but rather the transfer flag of operations will be toggled accordingly.
+  optional bool transpose = 6 [default = false];
+  optional float gamma = 7 [default = 0.001]; // The compress parameter of current layer
+  optional float power = 8 [default = 1];
+  optional float iter_stop = 9 [default = 8000];
+  optional float c_rate = 10 [default = 3];
+  optional FillerParameter weight_mask_filler = 11; // The filler for the weight
+  optional FillerParameter bias_mask_filler = 12;   // The filler for the bias
+  optional bool dynamicsplicing = 13[default = false];
+  optional float splicing_rate = 14 [default = 0.001];
 }
 `);
 

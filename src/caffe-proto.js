@@ -3002,6 +3002,8 @@
             LayerParameter.prototype.mn_grad_compress_param = null;
             LayerParameter.prototype.quantization_param = null;
             LayerParameter.prototype.reorg_param = null;
+            LayerParameter.prototype.squeeze_convolution_param = null;
+            LayerParameter.prototype.squeeze_inner_product_param = null;
             LayerParameter.prototype.batch_reduction_param = null;
             LayerParameter.prototype.shuffle_channel_param = null;
             LayerParameter.prototype.annotated_data_param = null;
@@ -3284,6 +3286,12 @@
                         break;
                     case 159:
                         message.reorg_param = $root.caffe.ReorgParameter.decode(reader, reader.uint32());
+                        break;
+                    case 187:
+                        message.squeeze_convolution_param = $root.caffe.SqueezeConvolutionParameter.decode(reader, reader.uint32());
+                        break;
+                    case 188:
+                        message.squeeze_inner_product_param = $root.caffe.SqueezeInnerProductParameter.decode(reader, reader.uint32());
                         break;
                     case 162:
                         message.batch_reduction_param = $root.caffe.BatchReductionParameter.decode(reader, reader.uint32());
@@ -3637,6 +3645,12 @@
                         break;
                     case "reorg_param":
                         message.reorg_param = $root.caffe.ReorgParameter.decodeText(reader, true);
+                        break;
+                    case "squeeze_convolution_param":
+                        message.squeeze_convolution_param = $root.caffe.SqueezeConvolutionParameter.decodeText(reader, true);
+                        break;
+                    case "squeeze_inner_product_param":
+                        message.squeeze_inner_product_param = $root.caffe.SqueezeInnerProductParameter.decodeText(reader, true);
                         break;
                     case "batch_reduction_param":
                         message.batch_reduction_param = $root.caffe.BatchReductionParameter.decodeText(reader, true);
@@ -4128,6 +4142,16 @@
                     var error = $root.caffe.ReorgParameter.verify(message.reorg_param);
                     if (error)
                         return "reorg_param." + error;
+                }
+                if (message.squeeze_convolution_param != null && message.hasOwnProperty("squeeze_convolution_param")) {
+                    var error = $root.caffe.SqueezeConvolutionParameter.verify(message.squeeze_convolution_param);
+                    if (error)
+                        return "squeeze_convolution_param." + error;
+                }
+                if (message.squeeze_inner_product_param != null && message.hasOwnProperty("squeeze_inner_product_param")) {
+                    var error = $root.caffe.SqueezeInnerProductParameter.verify(message.squeeze_inner_product_param);
+                    if (error)
+                        return "squeeze_inner_product_param." + error;
                 }
                 if (message.batch_reduction_param != null && message.hasOwnProperty("batch_reduction_param")) {
                     var error = $root.caffe.BatchReductionParameter.verify(message.batch_reduction_param);
@@ -4691,6 +4715,16 @@
                         throw TypeError(".caffe.LayerParameter.reorg_param: object expected");
                     message.reorg_param = $root.caffe.ReorgParameter.fromObject(object.reorg_param);
                 }
+                if (object.squeeze_convolution_param != null) {
+                    if (typeof object.squeeze_convolution_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.squeeze_convolution_param: object expected");
+                    message.squeeze_convolution_param = $root.caffe.SqueezeConvolutionParameter.fromObject(object.squeeze_convolution_param);
+                }
+                if (object.squeeze_inner_product_param != null) {
+                    if (typeof object.squeeze_inner_product_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.squeeze_inner_product_param: object expected");
+                    message.squeeze_inner_product_param = $root.caffe.SqueezeInnerProductParameter.fromObject(object.squeeze_inner_product_param);
+                }
                 if (object.batch_reduction_param != null) {
                     if (typeof object.batch_reduction_param !== "object")
                         throw TypeError(".caffe.LayerParameter.batch_reduction_param: object expected");
@@ -4956,6 +4990,8 @@
                     object.reorg_param = null;
                     object.batch_reduction_param = null;
                     object.shuffle_channel_param = null;
+                    object.squeeze_convolution_param = null;
+                    object.squeeze_inner_product_param = null;
                     object.annotated_data_param = null;
                     object.multibox_loss_param = null;
                     object.permute_param = null;
@@ -5159,6 +5195,10 @@
                     object.batch_reduction_param = $root.caffe.BatchReductionParameter.toObject(message.batch_reduction_param, options);
                 if (message.shuffle_channel_param != null && message.hasOwnProperty("shuffle_channel_param"))
                     object.shuffle_channel_param = $root.caffe.ShuffleChannelParameter.toObject(message.shuffle_channel_param, options);
+                if (message.squeeze_convolution_param != null && message.hasOwnProperty("squeeze_convolution_param"))
+                    object.squeeze_convolution_param = $root.caffe.SqueezeConvolutionParameter.toObject(message.squeeze_convolution_param, options);
+                if (message.squeeze_inner_product_param != null && message.hasOwnProperty("squeeze_inner_product_param"))
+                    object.squeeze_inner_product_param = $root.caffe.SqueezeInnerProductParameter.toObject(message.squeeze_inner_product_param, options);
                 if (message.annotated_data_param != null && message.hasOwnProperty("annotated_data_param"))
                     object.annotated_data_param = $root.caffe.AnnotatedDataParameter.toObject(message.annotated_data_param, options);
                 if (message.multibox_loss_param != null && message.hasOwnProperty("multibox_loss_param"))
@@ -27364,6 +27404,1030 @@
             };
     
             return Yolov3DetectionOutputParameter;
+        })();
+    
+        caffe.SqueezeConvolutionParameter = (function() {
+    
+            function SqueezeConvolutionParameter(properties) {
+                this.pad = [];
+                this.kernel_size = [];
+                this.stride = [];
+                this.dilation = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SqueezeConvolutionParameter.prototype.num_output = 0;
+            SqueezeConvolutionParameter.prototype.bias_term = true;
+            SqueezeConvolutionParameter.prototype.pad = $util.emptyArray;
+            SqueezeConvolutionParameter.prototype.kernel_size = $util.emptyArray;
+            SqueezeConvolutionParameter.prototype.stride = $util.emptyArray;
+            SqueezeConvolutionParameter.prototype.dilation = $util.emptyArray;
+            SqueezeConvolutionParameter.prototype.pad_h = 0;
+            SqueezeConvolutionParameter.prototype.pad_w = 0;
+            SqueezeConvolutionParameter.prototype.pad_type = 0;
+            SqueezeConvolutionParameter.prototype.pad_l = 0;
+            SqueezeConvolutionParameter.prototype.pad_r = 0;
+            SqueezeConvolutionParameter.prototype.pad_t = 0;
+            SqueezeConvolutionParameter.prototype.pad_b = 0;
+            SqueezeConvolutionParameter.prototype.kernel_h = 0;
+            SqueezeConvolutionParameter.prototype.kernel_w = 0;
+            SqueezeConvolutionParameter.prototype.stride_h = 0;
+            SqueezeConvolutionParameter.prototype.stride_w = 0;
+            SqueezeConvolutionParameter.prototype.input_scale = 1;
+            SqueezeConvolutionParameter.prototype.output_scale = 1;
+            SqueezeConvolutionParameter.prototype.signed_saturate = false;
+            SqueezeConvolutionParameter.prototype.group = 1;
+            SqueezeConvolutionParameter.prototype.weight_filler = null;
+            SqueezeConvolutionParameter.prototype.bias_filler = null;
+            SqueezeConvolutionParameter.prototype.engine = 0;
+            SqueezeConvolutionParameter.prototype.axis = 1;
+            SqueezeConvolutionParameter.prototype.force_nd_im2col = false;
+            SqueezeConvolutionParameter.prototype.gamma = 0.001;
+            SqueezeConvolutionParameter.prototype.power = 1;
+            SqueezeConvolutionParameter.prototype.iter_stop = 10000;
+            SqueezeConvolutionParameter.prototype.c_rate = 3;
+            SqueezeConvolutionParameter.prototype.weight_mask_filler = null;
+            SqueezeConvolutionParameter.prototype.bias_mask_filler = null;
+            SqueezeConvolutionParameter.prototype.dynamicsplicing = false;
+            SqueezeConvolutionParameter.prototype.splicing_rate = 0.0001;
+    
+            SqueezeConvolutionParameter.create = function create(properties) {
+                return new SqueezeConvolutionParameter(properties);
+            };
+    
+            SqueezeConvolutionParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.SqueezeConvolutionParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.num_output = reader.uint32();
+                        break;
+                    case 2:
+                        message.bias_term = reader.bool();
+                        break;
+                    case 3:
+                        if (!(message.pad && message.pad.length))
+                            message.pad = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.pad.push(reader.uint32());
+                        } else
+                            message.pad.push(reader.uint32());
+                        break;
+                    case 4:
+                        if (!(message.kernel_size && message.kernel_size.length))
+                            message.kernel_size = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.kernel_size.push(reader.uint32());
+                        } else
+                            message.kernel_size.push(reader.uint32());
+                        break;
+                    case 6:
+                        if (!(message.stride && message.stride.length))
+                            message.stride = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.stride.push(reader.uint32());
+                        } else
+                            message.stride.push(reader.uint32());
+                        break;
+                    case 24:
+                        if (!(message.dilation && message.dilation.length))
+                            message.dilation = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.dilation.push(reader.uint32());
+                        } else
+                            message.dilation.push(reader.uint32());
+                        break;
+                    case 9:
+                        message.pad_h = reader.uint32();
+                        break;
+                    case 10:
+                        message.pad_w = reader.uint32();
+                        break;
+                    case 29:
+                        message.pad_type = reader.uint32();
+                        break;
+                    case 36:
+                        message.pad_l = reader.uint32();
+                        break;
+                    case 37:
+                        message.pad_r = reader.uint32();
+                        break;
+                    case 38:
+                        message.pad_t = reader.uint32();
+                        break;
+                    case 39:
+                        message.pad_b = reader.uint32();
+                        break;
+                    case 11:
+                        message.kernel_h = reader.uint32();
+                        break;
+                    case 12:
+                        message.kernel_w = reader.uint32();
+                        break;
+                    case 13:
+                        message.stride_h = reader.uint32();
+                        break;
+                    case 14:
+                        message.stride_w = reader.uint32();
+                        break;
+                    case 46:
+                        message.input_scale = reader.double();
+                        break;
+                    case 47:
+                        message.output_scale = reader.double();
+                        break;
+                    case 48:
+                        message.signed_saturate = reader.bool();
+                        break;
+                    case 5:
+                        message.group = reader.uint32();
+                        break;
+                    case 7:
+                        message.weight_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 8:
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 15:
+                        message.engine = reader.int32();
+                        break;
+                    case 16:
+                        message.axis = reader.int32();
+                        break;
+                    case 17:
+                        message.force_nd_im2col = reader.bool();
+                        break;
+                    case 18:
+                        message.gamma = reader.float();
+                        break;
+                    case 19:
+                        message.power = reader.float();
+                        break;
+                    case 20:
+                        message.iter_stop = reader.float();
+                        break;
+                    case 21:
+                        message.c_rate = reader.float();
+                        break;
+                    case 22:
+                        message.weight_mask_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 23:
+                        message.bias_mask_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 25:
+                        message.dynamicsplicing = reader.bool();
+                        break;
+                    case 26:
+                        message.splicing_rate = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SqueezeConvolutionParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SqueezeConvolutionParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "bias_term":
+                        message.bias_term = reader.bool();
+                        break;
+                    case "pad":
+                        if (!(message.pad && message.pad.length))
+                            message.pad = [];
+                        message.pad.push(reader.uint32());
+                        break;
+                    case "kernel_size":
+                        if (!(message.kernel_size && message.kernel_size.length))
+                            message.kernel_size = [];
+                        message.kernel_size.push(reader.uint32());
+                        break;
+                    case "stride":
+                        if (!(message.stride && message.stride.length))
+                            message.stride = [];
+                        message.stride.push(reader.uint32());
+                        break;
+                    case "dilation":
+                        if (!(message.dilation && message.dilation.length))
+                            message.dilation = [];
+                        message.dilation.push(reader.uint32());
+                        break;
+                    case "pad_h":
+                        message.pad_h = reader.uint32();
+                        break;
+                    case "pad_w":
+                        message.pad_w = reader.uint32();
+                        break;
+                    case "pad_type":
+                        message.pad_type = reader.uint32();
+                        break;
+                    case "pad_l":
+                        message.pad_l = reader.uint32();
+                        break;
+                    case "pad_r":
+                        message.pad_r = reader.uint32();
+                        break;
+                    case "pad_t":
+                        message.pad_t = reader.uint32();
+                        break;
+                    case "pad_b":
+                        message.pad_b = reader.uint32();
+                        break;
+                    case "kernel_h":
+                        message.kernel_h = reader.uint32();
+                        break;
+                    case "kernel_w":
+                        message.kernel_w = reader.uint32();
+                        break;
+                    case "stride_h":
+                        message.stride_h = reader.uint32();
+                        break;
+                    case "stride_w":
+                        message.stride_w = reader.uint32();
+                        break;
+                    case "input_scale":
+                        message.input_scale = reader.double();
+                        break;
+                    case "output_scale":
+                        message.output_scale = reader.double();
+                        break;
+                    case "signed_saturate":
+                        message.signed_saturate = reader.bool();
+                        break;
+                    case "group":
+                        message.group = reader.uint32();
+                        break;
+                    case "weight_filler":
+                        message.weight_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.SqueezeConvolutionParameter.Engine);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "force_nd_im2col":
+                        message.force_nd_im2col = reader.bool();
+                        break;
+                    case "gamma":
+                        message.gamma = reader.float();
+                        break;
+                    case "power":
+                        message.power = reader.float();
+                        break;
+                    case "iter_stop":
+                        message.iter_stop = reader.float();
+                        break;
+                    case "c_rate":
+                        message.c_rate = reader.float();
+                        break;
+                    case "weight_mask_filler":
+                        message.weight_mask_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_mask_filler":
+                        message.bias_mask_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "dynamicsplicing":
+                        message.dynamicsplicing = reader.bool();
+                        break;
+                    case "splicing_rate":
+                        message.splicing_rate = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SqueezeConvolutionParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    if (typeof message.bias_term !== "boolean")
+                        return "bias_term: boolean expected";
+                if (message.pad != null && message.hasOwnProperty("pad")) {
+                    if (!Array.isArray(message.pad))
+                        return "pad: array expected";
+                    for (var i = 0; i < message.pad.length; ++i)
+                        if (!$util.isInteger(message.pad[i]))
+                            return "pad: integer[] expected";
+                }
+                if (message.kernel_size != null && message.hasOwnProperty("kernel_size")) {
+                    if (!Array.isArray(message.kernel_size))
+                        return "kernel_size: array expected";
+                    for (var i = 0; i < message.kernel_size.length; ++i)
+                        if (!$util.isInteger(message.kernel_size[i]))
+                            return "kernel_size: integer[] expected";
+                }
+                if (message.stride != null && message.hasOwnProperty("stride")) {
+                    if (!Array.isArray(message.stride))
+                        return "stride: array expected";
+                    for (var i = 0; i < message.stride.length; ++i)
+                        if (!$util.isInteger(message.stride[i]))
+                            return "stride: integer[] expected";
+                }
+                if (message.dilation != null && message.hasOwnProperty("dilation")) {
+                    if (!Array.isArray(message.dilation))
+                        return "dilation: array expected";
+                    for (var i = 0; i < message.dilation.length; ++i)
+                        if (!$util.isInteger(message.dilation[i]))
+                            return "dilation: integer[] expected";
+                }
+                if (message.pad_h != null && message.hasOwnProperty("pad_h"))
+                    if (!$util.isInteger(message.pad_h))
+                        return "pad_h: integer expected";
+                if (message.pad_w != null && message.hasOwnProperty("pad_w"))
+                    if (!$util.isInteger(message.pad_w))
+                        return "pad_w: integer expected";
+                if (message.pad_type != null && message.hasOwnProperty("pad_type"))
+                    if (!$util.isInteger(message.pad_type))
+                        return "pad_type: integer expected";
+                if (message.pad_l != null && message.hasOwnProperty("pad_l"))
+                    if (!$util.isInteger(message.pad_l))
+                        return "pad_l: integer expected";
+                if (message.pad_r != null && message.hasOwnProperty("pad_r"))
+                    if (!$util.isInteger(message.pad_r))
+                        return "pad_r: integer expected";
+                if (message.pad_t != null && message.hasOwnProperty("pad_t"))
+                    if (!$util.isInteger(message.pad_t))
+                        return "pad_t: integer expected";
+                if (message.pad_b != null && message.hasOwnProperty("pad_b"))
+                    if (!$util.isInteger(message.pad_b))
+                        return "pad_b: integer expected";
+                if (message.kernel_h != null && message.hasOwnProperty("kernel_h"))
+                    if (!$util.isInteger(message.kernel_h))
+                        return "kernel_h: integer expected";
+                if (message.kernel_w != null && message.hasOwnProperty("kernel_w"))
+                    if (!$util.isInteger(message.kernel_w))
+                        return "kernel_w: integer expected";
+                if (message.stride_h != null && message.hasOwnProperty("stride_h"))
+                    if (!$util.isInteger(message.stride_h))
+                        return "stride_h: integer expected";
+                if (message.stride_w != null && message.hasOwnProperty("stride_w"))
+                    if (!$util.isInteger(message.stride_w))
+                        return "stride_w: integer expected";
+                if (message.input_scale != null && message.hasOwnProperty("input_scale"))
+                    if (typeof message.input_scale !== "number")
+                        return "input_scale: number expected";
+                if (message.output_scale != null && message.hasOwnProperty("output_scale"))
+                    if (typeof message.output_scale !== "number")
+                        return "output_scale: number expected";
+                if (message.signed_saturate != null && message.hasOwnProperty("signed_saturate"))
+                    if (typeof message.signed_saturate !== "boolean")
+                        return "signed_saturate: boolean expected";
+                if (message.group != null && message.hasOwnProperty("group"))
+                    if (!$util.isInteger(message.group))
+                        return "group: integer expected";
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_filler);
+                    if (error)
+                        return "weight_filler." + error;
+                }
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
+                    if (error)
+                        return "bias_filler." + error;
+                }
+                if (message.engine != null && message.hasOwnProperty("engine"))
+                    switch (message.engine) {
+                    default:
+                        return "engine: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                        break;
+                    }
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    if (!$util.isInteger(message.axis))
+                        return "axis: integer expected";
+                if (message.force_nd_im2col != null && message.hasOwnProperty("force_nd_im2col"))
+                    if (typeof message.force_nd_im2col !== "boolean")
+                        return "force_nd_im2col: boolean expected";
+                if (message.gamma != null && message.hasOwnProperty("gamma"))
+                    if (typeof message.gamma !== "number")
+                        return "gamma: number expected";
+                if (message.power != null && message.hasOwnProperty("power"))
+                    if (typeof message.power !== "number")
+                        return "power: number expected";
+                if (message.iter_stop != null && message.hasOwnProperty("iter_stop"))
+                    if (typeof message.iter_stop !== "number")
+                        return "iter_stop: number expected";
+                if (message.c_rate != null && message.hasOwnProperty("c_rate"))
+                    if (typeof message.c_rate !== "number")
+                        return "c_rate: number expected";
+                if (message.weight_mask_filler != null && message.hasOwnProperty("weight_mask_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_mask_filler);
+                    if (error)
+                        return "weight_mask_filler." + error;
+                }
+                if (message.bias_mask_filler != null && message.hasOwnProperty("bias_mask_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_mask_filler);
+                    if (error)
+                        return "bias_mask_filler." + error;
+                }
+                if (message.dynamicsplicing != null && message.hasOwnProperty("dynamicsplicing"))
+                    if (typeof message.dynamicsplicing !== "boolean")
+                        return "dynamicsplicing: boolean expected";
+                if (message.splicing_rate != null && message.hasOwnProperty("splicing_rate"))
+                    if (typeof message.splicing_rate !== "number")
+                        return "splicing_rate: number expected";
+                return null;
+            };
+    
+            SqueezeConvolutionParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.SqueezeConvolutionParameter)
+                    return object;
+                var message = new $root.caffe.SqueezeConvolutionParameter();
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
+                if (object.bias_term != null)
+                    message.bias_term = Boolean(object.bias_term);
+                if (object.pad) {
+                    if (!Array.isArray(object.pad))
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.pad: array expected");
+                    message.pad = [];
+                    for (var i = 0; i < object.pad.length; ++i)
+                        message.pad[i] = object.pad[i] >>> 0;
+                }
+                if (object.kernel_size) {
+                    if (!Array.isArray(object.kernel_size))
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.kernel_size: array expected");
+                    message.kernel_size = [];
+                    for (var i = 0; i < object.kernel_size.length; ++i)
+                        message.kernel_size[i] = object.kernel_size[i] >>> 0;
+                }
+                if (object.stride) {
+                    if (!Array.isArray(object.stride))
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.stride: array expected");
+                    message.stride = [];
+                    for (var i = 0; i < object.stride.length; ++i)
+                        message.stride[i] = object.stride[i] >>> 0;
+                }
+                if (object.dilation) {
+                    if (!Array.isArray(object.dilation))
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.dilation: array expected");
+                    message.dilation = [];
+                    for (var i = 0; i < object.dilation.length; ++i)
+                        message.dilation[i] = object.dilation[i] >>> 0;
+                }
+                if (object.pad_h != null)
+                    message.pad_h = object.pad_h >>> 0;
+                if (object.pad_w != null)
+                    message.pad_w = object.pad_w >>> 0;
+                if (object.pad_type != null)
+                    message.pad_type = object.pad_type >>> 0;
+                if (object.pad_l != null)
+                    message.pad_l = object.pad_l >>> 0;
+                if (object.pad_r != null)
+                    message.pad_r = object.pad_r >>> 0;
+                if (object.pad_t != null)
+                    message.pad_t = object.pad_t >>> 0;
+                if (object.pad_b != null)
+                    message.pad_b = object.pad_b >>> 0;
+                if (object.kernel_h != null)
+                    message.kernel_h = object.kernel_h >>> 0;
+                if (object.kernel_w != null)
+                    message.kernel_w = object.kernel_w >>> 0;
+                if (object.stride_h != null)
+                    message.stride_h = object.stride_h >>> 0;
+                if (object.stride_w != null)
+                    message.stride_w = object.stride_w >>> 0;
+                if (object.input_scale != null)
+                    message.input_scale = Number(object.input_scale);
+                if (object.output_scale != null)
+                    message.output_scale = Number(object.output_scale);
+                if (object.signed_saturate != null)
+                    message.signed_saturate = Boolean(object.signed_saturate);
+                if (object.group != null)
+                    message.group = object.group >>> 0;
+                if (object.weight_filler != null) {
+                    if (typeof object.weight_filler !== "object")
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.weight_filler: object expected");
+                    message.weight_filler = $root.caffe.FillerParameter.fromObject(object.weight_filler);
+                }
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
+                }
+                switch (object.engine) {
+                case "DEFAULT":
+                case 0:
+                    message.engine = 0;
+                    break;
+                case "CAFFE":
+                case 1:
+                    message.engine = 1;
+                    break;
+                case "CUDNN":
+                case 2:
+                    message.engine = 2;
+                    break;
+                }
+                if (object.axis != null)
+                    message.axis = object.axis | 0;
+                if (object.force_nd_im2col != null)
+                    message.force_nd_im2col = Boolean(object.force_nd_im2col);
+                if (object.gamma != null)
+                    message.gamma = Number(object.gamma);
+                if (object.power != null)
+                    message.power = Number(object.power);
+                if (object.iter_stop != null)
+                    message.iter_stop = Number(object.iter_stop);
+                if (object.c_rate != null)
+                    message.c_rate = Number(object.c_rate);
+                if (object.weight_mask_filler != null) {
+                    if (typeof object.weight_mask_filler !== "object")
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.weight_mask_filler: object expected");
+                    message.weight_mask_filler = $root.caffe.FillerParameter.fromObject(object.weight_mask_filler);
+                }
+                if (object.bias_mask_filler != null) {
+                    if (typeof object.bias_mask_filler !== "object")
+                        throw TypeError(".caffe.SqueezeConvolutionParameter.bias_mask_filler: object expected");
+                    message.bias_mask_filler = $root.caffe.FillerParameter.fromObject(object.bias_mask_filler);
+                }
+                if (object.dynamicsplicing != null)
+                    message.dynamicsplicing = Boolean(object.dynamicsplicing);
+                if (object.splicing_rate != null)
+                    message.splicing_rate = Number(object.splicing_rate);
+                return message;
+            };
+    
+            SqueezeConvolutionParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.pad = [];
+                    object.kernel_size = [];
+                    object.stride = [];
+                    object.dilation = [];
+                }
+                if (options.defaults) {
+                    object.num_output = 0;
+                    object.bias_term = true;
+                    object.group = 1;
+                    object.weight_filler = null;
+                    object.bias_filler = null;
+                    object.pad_h = 0;
+                    object.pad_w = 0;
+                    object.kernel_h = 0;
+                    object.kernel_w = 0;
+                    object.stride_h = 0;
+                    object.stride_w = 0;
+                    object.engine = options.enums === String ? "DEFAULT" : 0;
+                    object.axis = 1;
+                    object.force_nd_im2col = false;
+                    object.gamma = 0.001;
+                    object.power = 1;
+                    object.iter_stop = 10000;
+                    object.c_rate = 3;
+                    object.weight_mask_filler = null;
+                    object.bias_mask_filler = null;
+                    object.dynamicsplicing = false;
+                    object.splicing_rate = 0.0001;
+                    object.pad_type = 0;
+                    object.pad_l = 0;
+                    object.pad_r = 0;
+                    object.pad_t = 0;
+                    object.pad_b = 0;
+                    object.input_scale = 1;
+                    object.output_scale = 1;
+                    object.signed_saturate = false;
+                }
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    object.bias_term = message.bias_term;
+                if (message.pad && message.pad.length) {
+                    object.pad = [];
+                    for (var j = 0; j < message.pad.length; ++j)
+                        object.pad[j] = message.pad[j];
+                }
+                if (message.kernel_size && message.kernel_size.length) {
+                    object.kernel_size = [];
+                    for (var j = 0; j < message.kernel_size.length; ++j)
+                        object.kernel_size[j] = message.kernel_size[j];
+                }
+                if (message.group != null && message.hasOwnProperty("group"))
+                    object.group = message.group;
+                if (message.stride && message.stride.length) {
+                    object.stride = [];
+                    for (var j = 0; j < message.stride.length; ++j)
+                        object.stride[j] = message.stride[j];
+                }
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler"))
+                    object.weight_filler = $root.caffe.FillerParameter.toObject(message.weight_filler, options);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
+                if (message.pad_h != null && message.hasOwnProperty("pad_h"))
+                    object.pad_h = message.pad_h;
+                if (message.pad_w != null && message.hasOwnProperty("pad_w"))
+                    object.pad_w = message.pad_w;
+                if (message.kernel_h != null && message.hasOwnProperty("kernel_h"))
+                    object.kernel_h = message.kernel_h;
+                if (message.kernel_w != null && message.hasOwnProperty("kernel_w"))
+                    object.kernel_w = message.kernel_w;
+                if (message.stride_h != null && message.hasOwnProperty("stride_h"))
+                    object.stride_h = message.stride_h;
+                if (message.stride_w != null && message.hasOwnProperty("stride_w"))
+                    object.stride_w = message.stride_w;
+                if (message.engine != null && message.hasOwnProperty("engine"))
+                    object.engine = options.enums === String ? $root.caffe.SqueezeConvolutionParameter.Engine[message.engine] : message.engine;
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    object.axis = message.axis;
+                if (message.force_nd_im2col != null && message.hasOwnProperty("force_nd_im2col"))
+                    object.force_nd_im2col = message.force_nd_im2col;
+                if (message.gamma != null && message.hasOwnProperty("gamma"))
+                    object.gamma = options.json && !isFinite(message.gamma) ? String(message.gamma) : message.gamma;
+                if (message.power != null && message.hasOwnProperty("power"))
+                    object.power = options.json && !isFinite(message.power) ? String(message.power) : message.power;
+                if (message.iter_stop != null && message.hasOwnProperty("iter_stop"))
+                    object.iter_stop = options.json && !isFinite(message.iter_stop) ? String(message.iter_stop) : message.iter_stop;
+                if (message.c_rate != null && message.hasOwnProperty("c_rate"))
+                    object.c_rate = options.json && !isFinite(message.c_rate) ? String(message.c_rate) : message.c_rate;
+                if (message.weight_mask_filler != null && message.hasOwnProperty("weight_mask_filler"))
+                    object.weight_mask_filler = $root.caffe.FillerParameter.toObject(message.weight_mask_filler, options);
+                if (message.bias_mask_filler != null && message.hasOwnProperty("bias_mask_filler"))
+                    object.bias_mask_filler = $root.caffe.FillerParameter.toObject(message.bias_mask_filler, options);
+                if (message.dilation && message.dilation.length) {
+                    object.dilation = [];
+                    for (var j = 0; j < message.dilation.length; ++j)
+                        object.dilation[j] = message.dilation[j];
+                }
+                if (message.dynamicsplicing != null && message.hasOwnProperty("dynamicsplicing"))
+                    object.dynamicsplicing = message.dynamicsplicing;
+                if (message.splicing_rate != null && message.hasOwnProperty("splicing_rate"))
+                    object.splicing_rate = options.json && !isFinite(message.splicing_rate) ? String(message.splicing_rate) : message.splicing_rate;
+                if (message.pad_type != null && message.hasOwnProperty("pad_type"))
+                    object.pad_type = message.pad_type;
+                if (message.pad_l != null && message.hasOwnProperty("pad_l"))
+                    object.pad_l = message.pad_l;
+                if (message.pad_r != null && message.hasOwnProperty("pad_r"))
+                    object.pad_r = message.pad_r;
+                if (message.pad_t != null && message.hasOwnProperty("pad_t"))
+                    object.pad_t = message.pad_t;
+                if (message.pad_b != null && message.hasOwnProperty("pad_b"))
+                    object.pad_b = message.pad_b;
+                if (message.input_scale != null && message.hasOwnProperty("input_scale"))
+                    object.input_scale = options.json && !isFinite(message.input_scale) ? String(message.input_scale) : message.input_scale;
+                if (message.output_scale != null && message.hasOwnProperty("output_scale"))
+                    object.output_scale = options.json && !isFinite(message.output_scale) ? String(message.output_scale) : message.output_scale;
+                if (message.signed_saturate != null && message.hasOwnProperty("signed_saturate"))
+                    object.signed_saturate = message.signed_saturate;
+                return object;
+            };
+    
+            SqueezeConvolutionParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            SqueezeConvolutionParameter.Engine = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "DEFAULT"] = 0;
+                values[valuesById[1] = "CAFFE"] = 1;
+                values[valuesById[2] = "CUDNN"] = 2;
+                return values;
+            })();
+    
+            return SqueezeConvolutionParameter;
+        })();
+    
+        caffe.SqueezeInnerProductParameter = (function() {
+    
+            function SqueezeInnerProductParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SqueezeInnerProductParameter.prototype.num_output = 0;
+            SqueezeInnerProductParameter.prototype.bias_term = true;
+            SqueezeInnerProductParameter.prototype.weight_filler = null;
+            SqueezeInnerProductParameter.prototype.bias_filler = null;
+            SqueezeInnerProductParameter.prototype.axis = 1;
+            SqueezeInnerProductParameter.prototype.transpose = false;
+            SqueezeInnerProductParameter.prototype.gamma = 0.001;
+            SqueezeInnerProductParameter.prototype.power = 1;
+            SqueezeInnerProductParameter.prototype.iter_stop = 8000;
+            SqueezeInnerProductParameter.prototype.c_rate = 3;
+            SqueezeInnerProductParameter.prototype.weight_mask_filler = null;
+            SqueezeInnerProductParameter.prototype.bias_mask_filler = null;
+            SqueezeInnerProductParameter.prototype.dynamicsplicing = false;
+            SqueezeInnerProductParameter.prototype.splicing_rate = 0.001;
+    
+            SqueezeInnerProductParameter.create = function create(properties) {
+                return new SqueezeInnerProductParameter(properties);
+            };
+    
+            SqueezeInnerProductParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.SqueezeInnerProductParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.num_output = reader.uint32();
+                        break;
+                    case 2:
+                        message.bias_term = reader.bool();
+                        break;
+                    case 3:
+                        message.weight_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 4:
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 5:
+                        message.axis = reader.int32();
+                        break;
+                    case 6:
+                        message.transpose = reader.bool();
+                        break;
+                    case 7:
+                        message.gamma = reader.float();
+                        break;
+                    case 8:
+                        message.power = reader.float();
+                        break;
+                    case 9:
+                        message.iter_stop = reader.float();
+                        break;
+                    case 10:
+                        message.c_rate = reader.float();
+                        break;
+                    case 11:
+                        message.weight_mask_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 12:
+                        message.bias_mask_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 13:
+                        message.dynamicsplicing = reader.bool();
+                        break;
+                    case 14:
+                        message.splicing_rate = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SqueezeInnerProductParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SqueezeInnerProductParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "bias_term":
+                        message.bias_term = reader.bool();
+                        break;
+                    case "weight_filler":
+                        message.weight_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "transpose":
+                        message.transpose = reader.bool();
+                        break;
+                    case "gamma":
+                        message.gamma = reader.float();
+                        break;
+                    case "power":
+                        message.power = reader.float();
+                        break;
+                    case "iter_stop":
+                        message.iter_stop = reader.float();
+                        break;
+                    case "c_rate":
+                        message.c_rate = reader.float();
+                        break;
+                    case "weight_mask_filler":
+                        message.weight_mask_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_mask_filler":
+                        message.bias_mask_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "dynamicsplicing":
+                        message.dynamicsplicing = reader.bool();
+                        break;
+                    case "splicing_rate":
+                        message.splicing_rate = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SqueezeInnerProductParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    if (typeof message.bias_term !== "boolean")
+                        return "bias_term: boolean expected";
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_filler);
+                    if (error)
+                        return "weight_filler." + error;
+                }
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
+                    if (error)
+                        return "bias_filler." + error;
+                }
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    if (!$util.isInteger(message.axis))
+                        return "axis: integer expected";
+                if (message.transpose != null && message.hasOwnProperty("transpose"))
+                    if (typeof message.transpose !== "boolean")
+                        return "transpose: boolean expected";
+                if (message.gamma != null && message.hasOwnProperty("gamma"))
+                    if (typeof message.gamma !== "number")
+                        return "gamma: number expected";
+                if (message.power != null && message.hasOwnProperty("power"))
+                    if (typeof message.power !== "number")
+                        return "power: number expected";
+                if (message.iter_stop != null && message.hasOwnProperty("iter_stop"))
+                    if (typeof message.iter_stop !== "number")
+                        return "iter_stop: number expected";
+                if (message.c_rate != null && message.hasOwnProperty("c_rate"))
+                    if (typeof message.c_rate !== "number")
+                        return "c_rate: number expected";
+                if (message.weight_mask_filler != null && message.hasOwnProperty("weight_mask_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_mask_filler);
+                    if (error)
+                        return "weight_mask_filler." + error;
+                }
+                if (message.bias_mask_filler != null && message.hasOwnProperty("bias_mask_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_mask_filler);
+                    if (error)
+                        return "bias_mask_filler." + error;
+                }
+                if (message.dynamicsplicing != null && message.hasOwnProperty("dynamicsplicing"))
+                    if (typeof message.dynamicsplicing !== "boolean")
+                        return "dynamicsplicing: boolean expected";
+                if (message.splicing_rate != null && message.hasOwnProperty("splicing_rate"))
+                    if (typeof message.splicing_rate !== "number")
+                        return "splicing_rate: number expected";
+                return null;
+            };
+    
+            SqueezeInnerProductParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.SqueezeInnerProductParameter)
+                    return object;
+                var message = new $root.caffe.SqueezeInnerProductParameter();
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
+                if (object.bias_term != null)
+                    message.bias_term = Boolean(object.bias_term);
+                if (object.weight_filler != null) {
+                    if (typeof object.weight_filler !== "object")
+                        throw TypeError(".caffe.SqueezeInnerProductParameter.weight_filler: object expected");
+                    message.weight_filler = $root.caffe.FillerParameter.fromObject(object.weight_filler);
+                }
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.SqueezeInnerProductParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
+                }
+                if (object.axis != null)
+                    message.axis = object.axis | 0;
+                if (object.transpose != null)
+                    message.transpose = Boolean(object.transpose);
+                if (object.gamma != null)
+                    message.gamma = Number(object.gamma);
+                if (object.power != null)
+                    message.power = Number(object.power);
+                if (object.iter_stop != null)
+                    message.iter_stop = Number(object.iter_stop);
+                if (object.c_rate != null)
+                    message.c_rate = Number(object.c_rate);
+                if (object.weight_mask_filler != null) {
+                    if (typeof object.weight_mask_filler !== "object")
+                        throw TypeError(".caffe.SqueezeInnerProductParameter.weight_mask_filler: object expected");
+                    message.weight_mask_filler = $root.caffe.FillerParameter.fromObject(object.weight_mask_filler);
+                }
+                if (object.bias_mask_filler != null) {
+                    if (typeof object.bias_mask_filler !== "object")
+                        throw TypeError(".caffe.SqueezeInnerProductParameter.bias_mask_filler: object expected");
+                    message.bias_mask_filler = $root.caffe.FillerParameter.fromObject(object.bias_mask_filler);
+                }
+                if (object.dynamicsplicing != null)
+                    message.dynamicsplicing = Boolean(object.dynamicsplicing);
+                if (object.splicing_rate != null)
+                    message.splicing_rate = Number(object.splicing_rate);
+                return message;
+            };
+    
+            SqueezeInnerProductParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.num_output = 0;
+                    object.bias_term = true;
+                    object.weight_filler = null;
+                    object.bias_filler = null;
+                    object.axis = 1;
+                    object.transpose = false;
+                    object.gamma = 0.001;
+                    object.power = 1;
+                    object.iter_stop = 8000;
+                    object.c_rate = 3;
+                    object.weight_mask_filler = null;
+                    object.bias_mask_filler = null;
+                    object.dynamicsplicing = false;
+                    object.splicing_rate = 0.001;
+                }
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    object.bias_term = message.bias_term;
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler"))
+                    object.weight_filler = $root.caffe.FillerParameter.toObject(message.weight_filler, options);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    object.axis = message.axis;
+                if (message.transpose != null && message.hasOwnProperty("transpose"))
+                    object.transpose = message.transpose;
+                if (message.gamma != null && message.hasOwnProperty("gamma"))
+                    object.gamma = options.json && !isFinite(message.gamma) ? String(message.gamma) : message.gamma;
+                if (message.power != null && message.hasOwnProperty("power"))
+                    object.power = options.json && !isFinite(message.power) ? String(message.power) : message.power;
+                if (message.iter_stop != null && message.hasOwnProperty("iter_stop"))
+                    object.iter_stop = options.json && !isFinite(message.iter_stop) ? String(message.iter_stop) : message.iter_stop;
+                if (message.c_rate != null && message.hasOwnProperty("c_rate"))
+                    object.c_rate = options.json && !isFinite(message.c_rate) ? String(message.c_rate) : message.c_rate;
+                if (message.weight_mask_filler != null && message.hasOwnProperty("weight_mask_filler"))
+                    object.weight_mask_filler = $root.caffe.FillerParameter.toObject(message.weight_mask_filler, options);
+                if (message.bias_mask_filler != null && message.hasOwnProperty("bias_mask_filler"))
+                    object.bias_mask_filler = $root.caffe.FillerParameter.toObject(message.bias_mask_filler, options);
+                if (message.dynamicsplicing != null && message.hasOwnProperty("dynamicsplicing"))
+                    object.dynamicsplicing = message.dynamicsplicing;
+                if (message.splicing_rate != null && message.hasOwnProperty("splicing_rate"))
+                    object.splicing_rate = options.json && !isFinite(message.splicing_rate) ? String(message.splicing_rate) : message.splicing_rate;
+                return object;
+            };
+    
+            SqueezeInnerProductParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SqueezeInnerProductParameter;
         })();
     
         return caffe;
