@@ -86,14 +86,35 @@
   {
     "name": "ReLU",
     "schema": {
+      "attributes": [
+        {
+          "description": "float >= 0. Maximum activation value.",
+          "name": "max_value"
+        },
+        {
+          "description": "float >= 0. Negative slope coefficient.",
+          "name": "negative_slope"
+        },
+        {
+          "description": "float. Threshold value for thresholded activation.\n",
+          "name": "threshold"
+        }
+      ],
       "category": "Activation",
-      "package": "keras.layers",
+      "description": "Rectified Linear Unit activation function.\n\nWith default values, it returns element-wise `max(x, 0)`.\n\nOtherwise, it follows:\n`f(x) = max_value` for `x >= max_value`,\n`f(x) = x` for `threshold <= x < max_value`,\n`f(x) = negative_slope * (x - threshold)` otherwise.\n",
       "inputs": [
-        { "name": "input" }
+        {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "description": "\nSame shape as the input.\n",
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
@@ -3313,9 +3334,9 @@
           "name": "depthwise_initializer",
           "visible": false
         },
-        { 
+        {
           "default": 1,
-          "name": "depth_multiplier" 
+          "name": "depth_multiplier"
         }
       ],
       "category": "Layer",
