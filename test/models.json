@@ -41,6 +41,30 @@
     "link":   "https://github.com/onnx/models/tree/master/bvlc_reference_rcnn_ilsvrc13"
   },
   {
+    "target": "onnx/denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
+    "target": "onnx/denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
+    "target": "onnx/denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
+    "target": "onnx/denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
     "target": "onnx/densenet121_opset_9.tar.gz",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz"
   },
@@ -1244,7 +1268,8 @@
   },
   {
     "target": "coreml/onehot_simple.mlmodel",
-    "source": "https://raw.githubusercontent.com/onnx/onnxmltools/master/tests/data/onehot_simple.mlmodel"
+    "source": "https://raw.githubusercontent.com/onnx/onnxmltools/master/tests/data/onehot_simple.mlmodel",
+    "link":   "https://github.com/onnx/onnxmltools/tree/master/tests/data"
   },
   {
     "target": "coreml/SentimentPolarity.mlmodel",
@@ -1782,6 +1807,18 @@
     "status": "script"
   },
   {
+    "target": "sklearn/binarizer.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.pkl]",
+    "format": "scikit-learn 0.19.1",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "target": "sklearn/binarizer.joblib",
+    "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.joblib]",
+    "format": "scikit-learn 0.19.1",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
     "target": "tf/chessbot.pb",
     "source": "https://raw.githubusercontent.com/srom/chessbot/master/model/chessbot.pb",
     "format": "TensorFlow Graph",
@@ -1820,6 +1857,21 @@
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
+  },
+  {
+    "target": "tf/faster_rcnn_resnet50_lowproposals_coco_2017_11_08_frozen_inference_graph.pb",
+    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/frozen_inference_graph.pb]",
+    "format": "TensorFlow Graph"
+  },
+  {
+    "target": "tf/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.ckpt.meta",
+    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/model.ckpt.meta]",
+    "format": "TensorFlow MetaGraph"
+  },
+  {
+    "target": "tf/faster_rcnn_resnet50_lowproposals_coco_2017_11_08_saved_model.pb",
+    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/saved_model/saved_model.pb]",
+    "format": "TensorFlow Saved Model v1"
   },
   {
     "target": "tf/inception_v1_2016_08_28_frozen.pb",
@@ -1861,6 +1913,21 @@
   {
     "target": "tf/inception_resnet_v2.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_resnet_v2_2018_04_27.tgz[./inception_resnet_v2.pb]"
+  },
+  {
+    "target": "tf/mask_rcnn_resnet50_atrous_coco_2018_01_28_saved_model.pb",
+    "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/saved_model/saved_model.pb]",
+    "format": "TensorFlow Saved Model v1"
+  },
+  {
+    "target": "tf/mask_rcnn_resnet50_atrous_coco_2018_01_28_frozen_inference_graph.pb",
+    "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/frozen_inference_graph.pb]",
+    "format": "TensorFlow Graph"
+  },
+  {
+    "target": "tf/mask_rcnn_resnet50_atrous_coco_2018_01_28.ckpt.meta",
+    "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/model.ckpt.meta]",
+    "format": "TensorFlow MetaGraph"
   },
   {
     "target": "tf/mobilenet_v1_1.0_224_frozen.pb",
@@ -1908,7 +1975,13 @@
     "format": "TensorFlow Graph",
     "link":   "https://www.tensorflow.org/lite/models"
   },
- {
+  {
+    "target": "tf/nasnet_mobile.pb",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_mobile_2018_04_27.tgz[./nasnet_mobile.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
     "target": "tf/resnet_v1_50.pb",
     "source": "https://deepdetect.com/models/tf/resnet_v1_50/resnet_v1_50.pb",
     "format": "TensorFlow Graph",
@@ -1935,6 +2008,12 @@
   {
     "target": "tf/squeezenet.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.pb]"
+  },
+  {
+    "target": "tf/ssd_mobilenet_v1_android_export.pb",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_android_export.zip[ssd_mobilenet_v1_android_export.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://www.tensorflow.org/lite/models"
   },
   {
     "target": "tf/ssd_mobilenet_v1_coco_11_06_2017_graph.pbtxt",
