@@ -134,6 +134,30 @@
     "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx"
   },
   {
+    "target": "onnx/test_operator_rnn.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
+    "target": "onnx/test_operator_rnn_single_layer.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn_single_layer/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
+    "target": "onnx/test_operator_lstm.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_lstm/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
+    "target": "onnx/test_lstm_with_peepholes.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/node/test_lstm_with_peepholes/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
     "target": "onnx/tiny_yolov2_opset_8.onnx",
     "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/tiny_yolov2/tiny_yolov2.tar.gz[tiny_yolov2/model.onnx]"
   },
