@@ -731,6 +731,24 @@
     "link":   "https://github.com/caffe2/models"
   },
   {
+    "target": "keras/cats_and_dogs_small_1.h5",
+    "source": "https://raw.githubusercontent.com/wwells/CUNY_DATA_698/master/DL_Coursework/DLR/cats_and_dogs_small_1.h5",
+    "format": "Keras v2.1.5",
+    "link":   "https://github.com/wwells/CUNY_DATA_698/tree/master/DL_Coursework/DLR"
+  },
+  {
+    "target": "keras/cats_and_dogs_small_2.h5",
+    "source": "https://raw.githubusercontent.com/kylehamilton/deep-learning-with-r-notebooks/master/cats_and_dogs_small_2.h5",
+    "format": "Keras v2.0.9",
+    "link":   "https://github.com/kylehamilton/deep-learning-with-r-notebooks"
+  },
+  {
+    "target": "keras/CNN_SN_flaw1_v1.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2452413/CNN_SN_flaw1_v1.h5.zip[CNN_SN_flaw1_v1.h5]",
+    "format": "Keras v2.2.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/157"
+  },
+  {
     "target": "keras/DenseNet121.h5",
     "link":   "https://keras.io/applications",
     "script": [ "${root}/tools/keras", "sync install zoo" ],
@@ -753,6 +771,12 @@
     "source": "https://github.com/lutzroeder/netron/files/2565761/mimo.h5.zip[mimo.h5]",
     "format": "Keras v2.2.0",
     "link":   "https://github.com/lutzroeder/netron/issues/138"
+  },
+  {
+    "target": "keras/mobilenet.h5",
+    "source": "https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5",
+    "format": "Keras v2.2.2",
+    "link":   "https://github.com/aio-libs/aiohttp-demos/tree/master/demos/imagetagger/tests/data"
   },
   {
     "target": "keras/MobileNetV2.h5",
@@ -1689,6 +1713,61 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "target": "pytorch/tutorial_bidirectional_recurrent_neural_network.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_bidirectional_recurrent_neural_network.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/tutorial_convolutional_neural_network.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_convolutional_neural_network.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/tutorial_deep_residual_network.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_deep_residual_network.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/tutorial_feedforward_neural_network.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_feedforward_neural_network.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/tutorial_logistic_regression.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_logistic_regression.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/tutorial_mnist.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_mnist.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/tutorial_recurrent_neural_network.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_recurrent_neural_network.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/tutorial_variational_autoencoder.pth",
+    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_variational_autoencoder.pth]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "target": "pytorch/vgg_conv.pth",
+    "source": "https://bethgelab.org/media/uploads/pytorch_models/vgg_conv.pth",
+    "error":  "File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data.",
+    "format": "PyTorch",
+    "link":   "https://github.com/leongatys/PytorchNeuralStyleTransfer"
   },
   {
     "target": "pytorch/vgg11_bn.pth",

@@ -226,7 +226,9 @@ function request(location, cookie, callback) {
     var protocol = url.parse(location).protocol;
     var httpModules = { 'http:': http, 'https:': https };
     var httpModule = httpModules[protocol];
-    var httpRequest = httpModule.request(location);
+    var httpRequest = httpModule.request(location, {
+        rejectUnauthorized: false
+    });
     if (cookie.length > 0) {
         httpRequest.setHeader('Cookie', cookie);
     }
