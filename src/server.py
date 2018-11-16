@@ -113,13 +113,15 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 class HTTPServerThread(threading.Thread):
     def __init__(self, data, file, verbose, browse, port, host):
         threading.Thread.__init__(self)
+        folder = os.path.dirname(file)
+        folder = folder if folder else '.'
         self.file = file
         self.port = port
         self.host = host
         self.url = 'http://' + self.host + ':' + str(self.port)
         self.browse = browse
         self.server = ThreadedHTTPServer((host, port), HTTPRequestHandler)
-        self.server.RequestHandlerClass.folder = os.path.dirname(file) if file else ''
+        self.server.RequestHandlerClass.folder = folder
         self.server.RequestHandlerClass.file = os.path.basename(file) if file else ''
         self.server.RequestHandlerClass.data = data
         self.server.RequestHandlerClass.verbose = verbose
