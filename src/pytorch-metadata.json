@@ -130,8 +130,7 @@
   {
     "name": "Linear",
     "schema": {
-      "attributes": [
-      ],
+      "attributes": [],
       "category": "Layer",
       "package": "torch.nn.modules.linear"
     }
@@ -188,8 +187,7 @@
   {
     "name": "PReLU",
     "schema": {
-      "attributes": [
-      ],
+      "attributes": [],
       "category": "Activation",
       "package": "torch.nn.modules.activation"
     }
@@ -197,8 +195,7 @@
   {
     "name": "LeakyReLU",
     "schema": {
-      "attributes": [
-      ],
+      "attributes": [],
       "category": "Activation",
       "package": "torch.nn.modules.activation"
     }
@@ -301,8 +298,7 @@
   {
     "name": "BatchNorm1d",
     "schema": {
-      "attributes": [
-      ],
+      "attributes": [],
       "category": "Normalization",
       "package": "torch.nn.modules.batchnorm"
     }

@@ -130,7 +130,8 @@ tflite_schema.BuiltinOperator = {
   FILL: 94, 94: 'FILL',
   FLOOR_MOD: 95, 95: 'FLOOR_MOD',
   RANGE: 96, 96: 'RANGE',
-  RESIZE_NEAREST_NEIGHBOR: 97, 97: 'RESIZE_NEAREST_NEIGHBOR'
+  RESIZE_NEAREST_NEIGHBOR: 97, 97: 'RESIZE_NEAREST_NEIGHBOR',
+  LEAKY_RELU: 98, 98: 'LEAKY_RELU'
 };
 
 /**
@@ -211,7 +212,8 @@ tflite_schema.BuiltinOptions = {
   UnidirectionalSequenceLSTMOptions: 71, 71: 'UnidirectionalSequenceLSTMOptions',
   FloorModOptions: 72, 72: 'FloorModOptions',
   RangeOptions: 73, 73: 'RangeOptions',
-  ResizeNearestNeighborOptions: 74, 74: 'ResizeNearestNeighborOptions'
+  ResizeNearestNeighborOptions: 74, 74: 'ResizeNearestNeighborOptions',
+  LeakyReluOptions: 75, 75: 'LeakyReluOptions'
 };
 
 /**
@@ -6269,6 +6271,73 @@ tflite_schema.RangeOptions.startRangeOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.RangeOptions.endRangeOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.LeakyReluOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.LeakyReluOptions}
+ */
+tflite_schema.LeakyReluOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.LeakyReluOptions=} obj
+ * @returns {tflite_schema.LeakyReluOptions}
+ */
+tflite_schema.LeakyReluOptions.getRootAsLeakyReluOptions = function(bb, obj) {
+  return (obj || new tflite_schema.LeakyReluOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.LeakyReluOptions.prototype.alpha = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.LeakyReluOptions.startLeakyReluOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} alpha
+ */
+tflite_schema.LeakyReluOptions.addAlpha = function(builder, alpha) {
+  builder.addFieldFloat32(0, alpha, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LeakyReluOptions.endLeakyReluOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
