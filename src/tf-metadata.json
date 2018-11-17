@@ -56900,7 +56900,7 @@
         {
           "description": "A 1D int32 Tensor containing the decoded codepoints.",
           "name": "char_values",
-          "type": 22
+          "type": 3
         },
         {
           "description": "A 1D int32 Tensor containing the byte index in the input string where each\ncharacter in `char_values` starts.",
