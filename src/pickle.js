@@ -19,7 +19,7 @@ pickle.Unpickler = class {
             switch (opcode) {
                 case pickle.OpCode.PROTO:
                     var version = reader.byte();
-                    if (version > 3) {
+                    if (version > 4) {
                         throw new pickle.Error("Unsupported protocol version '" + version + "'.");
                     }
                     break;
