@@ -198,8 +198,7 @@ def serve(file, data, verbose=False, browse=False, port=8080, host='localhost'):
         host (string, optional): Host to serve. Default: localhost
     '''
     global thread_list
-    assert type(file) != None
-    if not data and not os.path.exists(file):
+    if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
     stop(port, host)
     thread = HTTPServerThread(data, file, verbose, browse, port, host)
