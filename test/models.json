@@ -995,6 +995,30 @@
     "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
   },
   {
+    "target": "cntk/v2/tutorial_103b_mnist.model",
+    "source": "https://github.com/lutzroeder/netron/files/2591620/tutorial_models.zip[tutorial_103b_mnist.model]",
+    "format": "CNTK v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/153"
+  },
+  {
+    "target": "cntk/v2/tutorial_103c_mnist.model",
+    "source": "https://github.com/lutzroeder/netron/files/2591620/tutorial_models.zip[tutorial_103c_mnist.model]",
+    "format": "CNTK v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/153"
+  },
+  {
+    "target": "cntk/v2/tutorial_103d_mnist.model",
+    "source": "https://github.com/lutzroeder/netron/files/2591620/tutorial_models.zip[tutorial_103d_mnist.model]",
+    "format": "CNTK v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/153"
+  },
+  {
+    "target": "cntk/v2/tutorial_106a_lstm.model",
+    "source": "https://github.com/lutzroeder/netron/files/2591620/tutorial_models.zip[tutorial_106a_lstm.model]",
+    "format": "CNTK v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/153"
+  },
+  {
     "target": "cntk/v2/VGG16_ImageNet_Caffe.model",
     "source": "https://www.cntk.ai/Models/Caffe_Converted/VGG16_ImageNet_Caffe.model"
   },
@@ -1043,6 +1067,12 @@
     "source": "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/files/1526806/faces_model.mlmodel.zip[faces_model.mlmodel]",
     "format": "CoreML v1",
     "link":   "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/issues/3"
+  },
+  {
+    "target": "coreml/float16.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/2382815/model.zip[model.mlmodel]",
+    "format": "CoreML v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/149"
   },
   {
     "target": "coreml/Food101.mlmodel",
@@ -1265,6 +1295,18 @@
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_fuse.mlmodel"
   },
   {
+    "target": "coreml/imdb_lstm.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/2591614/imdb_lstm.mlmodel.zip[imdb_lstm.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/149"
+  },
+  {
+    "target": "coreml/imdb_bidirectional_lstm.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/2591615/imdb_bidirectional_lstm.mlmodel.zip[imdb_bidirectional_lstm.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/149"
+  },
+  {
     "target": "coreml/iris.mlmodel",
     "source": "https://raw.githubusercontent.com/gavi/Iris/master/Iris/iris.mlmodel",
     "format": "CoreML v1",
@@ -1298,6 +1340,12 @@
   {
     "target": "coreml/SentimentPolarity.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/SentimentPolarity.mlmodel"
+  },
+  {
+    "target": "coreml/sentiment_model.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/2591618/sentiment_model.mlmodel.zip[sentiment_model.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/149"
   },
   {
     "target": "coreml/SqueezeNet.mlmodel",
