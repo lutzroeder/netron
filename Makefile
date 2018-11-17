@@ -27,7 +27,7 @@ start:
 publish_pip:
 	@[ -d node_modules ] || npm install
 	rm -rf ./build/python
-	python ./setup.py build bdist_wheel upload
+	python ./setup.py build --version bdist_wheel upload
 
 publish_github_electron:
 	@[ -d node_modules ] || npm install

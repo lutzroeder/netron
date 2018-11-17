@@ -39,7 +39,7 @@ node_dependencies = [
 ]
 
 class build(distutils.command.build.build):
-    user_options = distutils.command.build.build.user_options + [ ('version', None, 'lalala' ) ]
+    user_options = distutils.command.build.build.user_options + [ ('version', None, 'version' ) ]
     def initialize_options(self):
         distutils.command.build.build.initialize_options(self)
         self.version = None
@@ -53,7 +53,7 @@ class build(distutils.command.build.build):
         return distutils.command.build.build.run(self)
 
 class build_py(setuptools.command.build_py.build_py):
-    user_options = setuptools.command.build_py.build_py.user_options + [ ('version', None, 'lalala' ) ]
+    user_options = setuptools.command.build_py.build_py.user_options + [ ('version', None, 'version' ) ]
     def initialize_options(self):
         setuptools.command.build_py.build_py.initialize_options(self)
         self.version = None
