@@ -1,5 +1,6 @@
 
 import codecs
+import errno
 import os
 import platform
 import sys
@@ -113,16 +114,16 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 class HTTPServerThread(threading.Thread):
     def __init__(self, data, file, verbose, browse, port, host):
         threading.Thread.__init__(self)
-        folder = os.path.dirname(file)
-        folder = folder if folder else '.'
         self.file = file
-        self.port = port
-        self.host = host
-        self.url = 'http://' + self.host + ':' + str(self.port)
+        self.url = 'http://' + host + ':' + str(port)
         self.browse = browse
         self.server = ThreadedHTTPServer((host, port), HTTPRequestHandler)
-        self.server.RequestHandlerClass.folder = folder
-        self.server.RequestHandlerClass.file = os.path.basename(file) if file else ''
+        if file:
+            self.server.RequestHandlerClass.folder = os.path.dirname(file) if os.path.dirname(file) else '.'
+            self.server.RequestHandlerClass.file = os.path.basename(file)
+        else:
+            self.server.RequestHandlerClass.folder = ''
+            self.server.RequestHandlerClass.file = ''
         self.server.RequestHandlerClass.data = data
         self.server.RequestHandlerClass.verbose = verbose
         self.terminate_event = threading.Event()
@@ -136,10 +137,11 @@ class HTTPServerThread(threading.Thread):
             sys.stdout.write("Serving '" + self.file + "' at " + self.url + "\n")
         else:
             sys.stdout.write("Serving at " + self.url + "\n")
-        if self.browse:
-            threading.Timer(1, webbrowser.open, args=(self.url,)).start()
         try:
-            while True:
+            while not self.stop_event.is_set():
+                if self.browse:
+                    self.browse = False
+                    threading.Timer(1, webbrowser.open, args=(self.url,)).start()
                 sys.stdout.flush()
                 self.server.handle_request()
         except Exception as e:
@@ -196,6 +198,9 @@ def serve(file, data, verbose=False, browse=False, port=8080, host='localhost'):
         host (string, optional): Host to serve. Default: localhost
     '''
     global thread_list
+    assert type(file) != None
+    if not data and not os.path.exists(file):
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
     stop(port, host)
     thread = HTTPServerThread(data, file, verbose, browse, port, host)
     thread.start()
