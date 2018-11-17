@@ -578,18 +578,77 @@ keras.Node = class {
     }
 
     get inputs() {
-        var inputs = keras.OperatorMetadata.operatorMetadata.getInputs(this, this._inputs);
-        return inputs.map((input) => {
-            return new keras.Argument(input.name, input.visible != false, input.connections.map((connection) => {
-                return new keras.Connection(connection.id, null, this._initializers[connection.id]);
-            }));
-        });
+        var operator = this.operator;
+        var schema = keras.OperatorMetadata.operatorMetadata.getSchema(operator);
+        var innerOperator = this.inner ? this.inner.operator : null;
+        var innerSchema = innerOperator ? keras.OperatorMetadata.operatorMetadata.getSchema(innerOperator) : null;
+        var args = [];
+        var index = 0;
+        while (index < this._inputs.length) {
+            var count = 1;
+            var name = null;
+            var visible = true;
+            if (!innerSchema || index == 0)
+            {
+                if (schema && schema.inputs && index < schema.inputs.length) {
+                    var input = schema.inputs[index];
+                    name = input.name;
+                    visible = input.visible == false ? false : true; 
+                    if (schema.inputs[index].option == 'variadic') {
+                        count = this._inputs.length - index;
+                    }
+                }
+            }
+            else {
+                switch (operator) {
+                    case 'Bidirectional':
+                        var innerIndex = index;
+                        if (innerSchema && innerSchema.inputs) {
+                            if (innerIndex < innerSchema.inputs.length) {
+                                name = 'forward_' + innerSchema.inputs[innerIndex].name;
+                            }
+                            else {
+                                innerIndex = innerIndex - innerSchema.inputs.length + 1;
+                                if (innerIndex < innerSchema.inputs.length) {
+                                    name = 'backward_' + innerSchema.inputs[innerIndex].name;
+                                }
+                            }
+                        }
+                        visible = false;
+                        break;
+                    case 'TimeDistributed':
+                        if (innerSchema && innerSchema.inputs && index < innerSchema.inputs.length) {
+                            name = innerSchema.inputs[index].name;
+                        }
+                        break;
+                }
+            }
+            var argumentName = name ? name : index.toString();
+            var connections = [];
+            var array = this._inputs.slice(index, index + count);
+            for (var j = 0; j < array.length; j++) {
+                var id = array[j];
+                connections.push(new keras.Connection(id, null, this._initializers[id]));
+            }
+            index += count;
+            args.push(new keras.Argument(argumentName, visible, connections));
+        }
+        return args;
     }
 
+
+    getInputs(node, inputs) {
+    }
+
+
     get outputs() {
+        var schema = keras.OperatorMetadata.operatorMetadata.getSchema(this.operator);
         return this._outputs.map((output, index) => {
-            var result = { connections: [] };
-            var outputName = keras.OperatorMetadata.operatorMetadata.getOutputName(this.operator, index);
+            var outputName = index.toString();
+            if (schema && schema.outputs && index < schema.outputs.length && 
+                schema.outputs[index] && schema.outputs[index].name) {
+                outputName = output.name;
+            }
             return new keras.Argument(outputName, true, [ new keras.Connection(output, null, null) ]);            
         });
     }
@@ -925,80 +984,6 @@ keras.OperatorMetadata = class {
 
     getSchema(operator) {
         return this._map[operator] || null;
-    }
-
-    getInputs(node, inputs) {
-        var results = [];
-        var operator = node.operator;
-        var schema = this.getSchema(operator);
-        var inner = node.inner;
-        var innerOperator = inner ? inner.operator : null;
-        var innerSchema = innerOperator ? this._map[innerOperator] : null;
-        var index = 0;
-        while (index < inputs.length) {
-            var result = { connections: [] };
-            var count = 1;
-            var name = null;
-            if (!innerSchema || index == 0)
-            {
-                if (schema && schema.inputs && index < schema.inputs.length) {
-                    var input = schema.inputs[index];
-                    name = input.name;
-                    if (schema.inputs[index].option == 'variadic') {
-                        count = inputs.length - index;
-                    }
-                }
-            }
-            else {
-                switch (operator) {
-                    case 'Bidirectional':
-                        var innerIndex = index;
-                        if (innerSchema && innerSchema.inputs) {
-                            if (innerIndex < innerSchema.inputs.length) {
-                                name = 'forward_' + innerSchema.inputs[innerIndex].name;
-                            }
-                            else {
-                                innerIndex = innerIndex - innerSchema.inputs.length + 1;
-                                if (innerIndex < innerSchema.inputs.length) {
-                                    name = 'backward_' + innerSchema.inputs[innerIndex].name;
-                                }
-                            }
-                        }
-                        result.visible = false;
-                        break;
-                    case 'TimeDistributed':
-                        if (innerSchema && innerSchema.inputs && index < innerSchema.inputs.length) {
-                            name = innerSchema.inputs[index].name;
-                        }
-                        break;
-                }
-            }
-            result.name = name ? name : '(' + index.toString() + ')';
-            var array = inputs.slice(index, index + count);
-            for (var j = 0; j < array.length; j++) {
-                result.connections.push({ id: array[j] });
-            }
-            index += count;
-            results.push(result);
-        }
-        return results;
-    }
-
-    getOutputName(operator, index) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var outputs = schema.outputs;
-            if (outputs && index < outputs.length) {
-                var output = outputs[index];
-                if (output) {
-                    var name = output.name;
-                    if (name) {
-                        return name;
-                    }
-                } 
-            }
-        }
-        return '(' + index.toString() + ')';
     }
 
     getAttributeSchema(operator, name) {
