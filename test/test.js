@@ -252,6 +252,10 @@ function request(location, cookie, callback) {
             request(location, cookie, callback);
             return;
         }
+        if (response.statusCode != 200) {
+            callback(new Error(response.statusCode.toString() + ' ' + location), null);
+            return;
+        }
         var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
         response.on("data", (chunk) => {
             position += chunk.length;
