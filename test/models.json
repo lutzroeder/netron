@@ -1958,6 +1958,13 @@
     "status": "script"
   },
   {
+    "target": "pytorch/SiamRPNBIG.model",
+    "source": "https://drive.google.com/uc?export=docswnload&id=1-vNVZxfbIplXHrqMHiJJYWXYWsOIvGsf",
+    "format": "PyTorch",
+    "error":  "File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data.",
+    "link":   "https://github.com/foolwood/DaSiamRPN"
+  },
+  {
     "target": "pytorch/squeezenet1_0.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],

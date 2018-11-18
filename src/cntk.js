@@ -15,6 +15,14 @@ cntk.ModelFactory = class {
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
                 return false;
             }
+            // Filter PyTorch models published with incorrect .h5 file extension.
+            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            if (buffer && buffer.length > torch.length + 2 && 
+                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
+                if (torch.every((value, index) => value == buffer[index + 2])) {
+                    return false;
+                }
+            }
             return true;
         }
         return false;
