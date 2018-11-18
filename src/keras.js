@@ -636,11 +636,6 @@ keras.Node = class {
         return args;
     }
 
-
-    getInputs(node, inputs) {
-    }
-
-
     get outputs() {
         var schema = keras.OperatorMetadata.operatorMetadata.getSchema(this.operator);
         return this._outputs.map((output, index) => {
