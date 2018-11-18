@@ -805,6 +805,72 @@
     "link":   "https://github.com/lutzroeder/netron/issues/168"
   },
   {
+    "target": "caffe/ResNet-18-deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-18-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/ResNet-34.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-34.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/resnet-50.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-50.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/ResNet-50-model.caffemodel",
+    "source": "https://deepdetect.com/models/resnet/ResNet-50-model.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/ResNet-50-deploy.prototxt",
+    "source": "https://deepdetect.com/models/resnet/ResNet-50-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/ResNet-50_merged.qconv.winograd.cwl.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-50_merged.qconv.winograd.cwl.prototxt",
+    "error":  "File text format is not caffe.NetParameter (Unknown field 'evaluation_method' at 13:3) in 'ResNet-50_merged.qconv.winograd.cwl.prototxt'.",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/ResNet-101-deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/ResNet-101-model.caffemodel",
+    "source": "https://deepdetect.com/models/resnet/ResNet-101-model.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/ResNet-152-model.caffemodel",
+    "source": "https://deepdetect.com/models/resnet/ResNet-152-model.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/ResNet-152-deploy.prototxt",
+    "source": "https://deepdetect.com/models/resnet/ResNet-152-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/resnet-152.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },  
+  {
     "target": "caffe2/resnet50/predict_net.pb,caffe2/resnet50/init_net.pb",
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/resnet50/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/resnet50/init_net.pb",
     "format": "Caffe2",
@@ -833,186 +899,6 @@
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/zfnet512/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/zfnet512/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/caffe2/models"
-  },
-  {
-    "target": "keras/babi_rnn.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[babi_rnn.h5]",
-    "format": "Keras v2.1.2",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/bidirectional_lstm.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[bidirectional_lstm.h5]",
-    "format": "Keras v2.1.2",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/cats_and_dogs_small_1.h5",
-    "source": "https://raw.githubusercontent.com/wwells/CUNY_DATA_698/master/DL_Coursework/DLR/cats_and_dogs_small_1.h5",
-    "format": "Keras v2.1.5",
-    "link":   "https://github.com/wwells/CUNY_DATA_698/tree/master/DL_Coursework/DLR"
-  },
-  {
-    "target": "keras/cats_and_dogs_small_2.h5",
-    "source": "https://raw.githubusercontent.com/kylehamilton/deep-learning-with-r-notebooks/master/cats_and_dogs_small_2.h5",
-    "format": "Keras v2.0.9",
-    "link":   "https://github.com/kylehamilton/deep-learning-with-r-notebooks"
-  },
-  {
-    "target": "keras/cats_and_dogs_2_activation.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[cats_and_dogs_2_activation.h5]",
-    "format": "Keras v2.1.3",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/CNN_SN_flaw1_v1.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2452413/CNN_SN_flaw1_v1.h5.zip[CNN_SN_flaw1_v1.h5]",
-    "format": "Keras v2.2.3",
-    "link":   "https://github.com/lutzroeder/netron/issues/157"
-  },
-  {
-    "target": "keras/DenseNet121.h5",
-    "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "target": "keras/generating_images_with_vaes.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592326/generating_images_with_vaes.h5.zip[generating_images_with_vaes.h5]  ",
-    "format": "Keras v2.1.3",
-    "link":   "https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/8.4-generating-images-with-vaes.ipynb"
-  },
-  {
-    "target": "keras/imdb_embedding.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[imdb_embedding.h5]",
-    "format": "Keras v2.1.3",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-    {
-    "target": "keras/imdb_simplernn.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[imdb_simplernn.h5]",
-    "format": "Keras v2.1.3",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/InceptionResNetV2.h5",
-    "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "target": "keras/InceptionV3.h5",
-    "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "target": "keras/lstm_seq2seq.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592328/lstm_seq2seq.zip[lstm_seq2seq.h5]  ",
-    "format": "Keras v2.1.2",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/lstm_seq2seq.json",
-    "source": "https://github.com/lutzroeder/netron/files/2592328/lstm_seq2seq.zip[lstm_seq2seq.json]  ",
-    "format": "Keras",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/mimo.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2565761/mimo.h5.zip[mimo.h5]",
-    "format": "Keras v2.2.0",
-    "link":   "https://github.com/lutzroeder/netron/issues/138"
-  },
-  {
-    "target": "keras/mnist_float16.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592324/mnist.zip[mnist_float16.h5]",
-    "format": "Keras v2.1.2",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/mnist_float32.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592324/mnist.zip[mnist_float32.h5]",
-    "format": "Keras v2.1.2",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/mnist_float64.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592324/mnist.zip[mnist_float64.h5]",
-    "format": "Keras v2.1.2",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/mobilenet.h5",
-    "source": "https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5",
-    "format": "Keras v2.2.2",
-    "link":   "https://github.com/aio-libs/aiohttp-demos/tree/master/demos/imagetagger/tests/data"
-  },
-  {
-    "target": "keras/MobileNetV2.h5",
-    "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "target": "keras/NASNetMobile.h5",
-    "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "target": "keras/nietzsche.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[nietzsche.h5]",
-    "format": "Keras v2.1.3",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/residual_cnn.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[residual_cnn.h5]",
-    "format": "Keras v2.1.2",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/sentiment_model.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[sentiment_model.h5]",
-    "format": "Keras v2.1.3",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/siamese_net.json",
-    "source": "https://github.com/lutzroeder/netron/files/2592353/siamese_net.json.zip[siamese_net.json]",
-    "format": "Keras",
-    "link":   "https://github.com/lutzroeder/netron/issues/130"
-  },
-  {
-    "target": "keras/time_distributed.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[time_distributed.h5]",
-    "format": "Keras v2.1.3",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "target": "keras/tiny-yolo-voc.h5",
-    "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5",
-    "format": "Keras v1.2.2",
-    "link":   "https://github.com/hollance/YOLO-CoreML-MPSNNGraph/tree/master/Convert/yad2k/model_data"
-  },
-  {
-    "target": "keras/tiramisu_fc_dense103_model.json",
-    "source": "https://raw.githubusercontent.com/0bserver07/One-Hundred-Layers-Tiramisu/master/tiramisu_fc_dense103_model.json",
-    "format": "Keras",
-    "link":   "https://github.com/0bserver07/One-Hundred-Layers-Tiramisu"
-  },
-  {
-    "target": "keras/VGG16.h5",
-    "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "target": "keras/VGG19.h5",
-    "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
-    "status": "script"
   },
   {
     "target": "cntk/v1/AlexNet.model",
@@ -1526,72 +1412,6 @@
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Oxford102.mlmodel"
   },
   {
-    "target": "caffe/ResNet-18-deploy.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-18-deploy.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "target": "caffe/ResNet-34.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-34.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "target": "caffe/resnet-50.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-50.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "target": "caffe/ResNet-50-model.caffemodel",
-    "source": "https://deepdetect.com/models/resnet/ResNet-50-model.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
-  },
-  {
-    "target": "caffe/ResNet-50-deploy.prototxt",
-    "source": "https://deepdetect.com/models/resnet/ResNet-50-deploy.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
-  },
-  {
-    "target": "caffe/ResNet-50_merged.qconv.winograd.cwl.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-50_merged.qconv.winograd.cwl.prototxt",
-    "error":  "File text format is not caffe.NetParameter (Unknown field 'evaluation_method' at 13:3) in 'ResNet-50_merged.qconv.winograd.cwl.prototxt'.",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "target": "caffe/ResNet-101-deploy.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "target": "caffe/ResNet-101-model.caffemodel",
-    "source": "https://deepdetect.com/models/resnet/ResNet-101-model.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
-  },
-  {
-    "target": "caffe/ResNet-152-model.caffemodel",
-    "source": "https://deepdetect.com/models/resnet/ResNet-152-model.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
-  },
-  {
-    "target": "caffe/ResNet-152-deploy.prototxt",
-    "source": "https://deepdetect.com/models/resnet/ResNet-152-deploy.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
-  },
-  {
-    "target": "caffe/resnet-152.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
     "target": "coreml/RN1015k500.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/RN1015k500.mlmodel"
   },
@@ -1684,6 +1504,186 @@
   {
     "target": "coreml/VisualSentimentCNN.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/VisualSentimentCNN.mlmodel"
+  },
+  {
+    "target": "keras/babi_rnn.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[babi_rnn.h5]",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/bidirectional_lstm.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[bidirectional_lstm.h5]",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/cats_and_dogs_small_1.h5",
+    "source": "https://raw.githubusercontent.com/wwells/CUNY_DATA_698/master/DL_Coursework/DLR/cats_and_dogs_small_1.h5",
+    "format": "Keras v2.1.5",
+    "link":   "https://github.com/wwells/CUNY_DATA_698/tree/master/DL_Coursework/DLR"
+  },
+  {
+    "target": "keras/cats_and_dogs_small_2.h5",
+    "source": "https://raw.githubusercontent.com/kylehamilton/deep-learning-with-r-notebooks/master/cats_and_dogs_small_2.h5",
+    "format": "Keras v2.0.9",
+    "link":   "https://github.com/kylehamilton/deep-learning-with-r-notebooks"
+  },
+  {
+    "target": "keras/cats_and_dogs_2_activation.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[cats_and_dogs_2_activation.h5]",
+    "format": "Keras v2.1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/CNN_SN_flaw1_v1.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2452413/CNN_SN_flaw1_v1.h5.zip[CNN_SN_flaw1_v1.h5]",
+    "format": "Keras v2.2.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/157"
+  },
+  {
+    "target": "keras/DenseNet121.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/generating_images_with_vaes.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592326/generating_images_with_vaes.h5.zip[generating_images_with_vaes.h5]  ",
+    "format": "Keras v2.1.3",
+    "link":   "https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/8.4-generating-images-with-vaes.ipynb"
+  },
+  {
+    "target": "keras/imdb_embedding.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[imdb_embedding.h5]",
+    "format": "Keras v2.1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+    {
+    "target": "keras/imdb_simplernn.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[imdb_simplernn.h5]",
+    "format": "Keras v2.1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/InceptionResNetV2.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/InceptionV3.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/lstm_seq2seq.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592328/lstm_seq2seq.zip[lstm_seq2seq.h5]  ",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/lstm_seq2seq.json",
+    "source": "https://github.com/lutzroeder/netron/files/2592328/lstm_seq2seq.zip[lstm_seq2seq.json]  ",
+    "format": "Keras",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/mimo.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2565761/mimo.h5.zip[mimo.h5]",
+    "format": "Keras v2.2.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/138"
+  },
+  {
+    "target": "keras/mnist_float16.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592324/mnist.zip[mnist_float16.h5]",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/mnist_float32.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592324/mnist.zip[mnist_float32.h5]",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/mnist_float64.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592324/mnist.zip[mnist_float64.h5]",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/mobilenet.h5",
+    "source": "https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5",
+    "format": "Keras v2.2.2",
+    "link":   "https://github.com/aio-libs/aiohttp-demos/tree/master/demos/imagetagger/tests/data"
+  },
+  {
+    "target": "keras/MobileNetV2.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/NASNetMobile.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/nietzsche.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[nietzsche.h5]",
+    "format": "Keras v2.1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/residual_cnn.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[residual_cnn.h5]",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/sentiment_model.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[sentiment_model.h5]",
+    "format": "Keras v2.1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/siamese_net.json",
+    "source": "https://github.com/lutzroeder/netron/files/2592353/siamese_net.json.zip[siamese_net.json]",
+    "format": "Keras",
+    "link":   "https://github.com/lutzroeder/netron/issues/130"
+  },
+  {
+    "target": "keras/time_distributed.h5",
+    "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[time_distributed.h5]",
+    "format": "Keras v2.1.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "target": "keras/tiny-yolo-voc.h5",
+    "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5",
+    "format": "Keras v1.2.2",
+    "link":   "https://github.com/hollance/YOLO-CoreML-MPSNNGraph/tree/master/Convert/yad2k/model_data"
+  },
+  {
+    "target": "keras/tiramisu_fc_dense103_model.json",
+    "source": "https://raw.githubusercontent.com/0bserver07/One-Hundred-Layers-Tiramisu/master/tiramisu_fc_dense103_model.json",
+    "format": "Keras",
+    "link":   "https://github.com/0bserver07/One-Hundred-Layers-Tiramisu"
+  },
+  {
+    "target": "keras/VGG16.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/VGG19.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "status": "script"
   },
   {
     "target": "mxnet/arcface-resnet100.model",
