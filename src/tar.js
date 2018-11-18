@@ -18,19 +18,31 @@ tar.Archive = class {
     get entries() {
         return this._entries;
     }
-
 };
 
 tar.Entry = class {
 
     constructor(reader) {
+        var position = reader.position;
+        var header = reader.bytes(512);
+        reader.position = position;
+        var sum = 0;
+        for (var i = 0; i < header.length; i++) {
+            sum += (i >= 148 && i < 156) ? 32 : header[i];
+        }
         this._name = reader.string(100);
         reader.string(8); // file mode
         reader.string(8); // owner
         reader.string(8); // group
-        var size = parseInt(reader.string(12), 8); // size
+        var size = parseInt(reader.string(12).trim(), 8); // size
+        if (isNaN(size)) {
+            throw new tar.Error('Invalid size.');
+        }
         reader.string(12); // timestamp
-        reader.string(8); // checksum
+        var checksum = parseInt(reader.string(8).trim(), 8); // checksum
+        if (isNaN(checksum) || sum != checksum) {
+            throw new tar.Error('Invalid checksum.');
+        }
         reader.string(1); // link indicator
         reader.string(100); // name of linked file
         reader.bytes(255);
@@ -53,6 +65,14 @@ tar.Reader = class {
         this._buffer = buffer;
         this._position = 0;
         this._end = buffer.length;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    set position(value) {
+        this._position = value;
     }
 
     peek() {

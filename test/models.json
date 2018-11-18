@@ -1922,6 +1922,13 @@
     "status": "script"
   },
   {
+    "target": "pytorch/alexnet-owt-4df8aa71.pth",
+    "source": "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
+    "format": "PyTorch",
+    "error":  "PyTorch legacy tar format not supported.",
+    "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py"
+  },
+  {
     "target": "pytorch/densenet161.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
@@ -2138,7 +2145,7 @@
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
-    "target": "tf/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference_graph.pb",
+    "target": "tf/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
@@ -2150,7 +2157,7 @@
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
-    "target": "tf/faster_rcnn_resnet50_lowproposals_coco_2017_11_08_frozen_inference_graph.pb",
+    "target": "tf/faster_rcnn_resnet50_lowproposals_coco_2017_11_08_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph"
   },
@@ -2240,7 +2247,7 @@
     "format": "TensorFlow Saved Model v1"
   },
   {
-    "target": "tf/mask_rcnn_resnet50_atrous_coco_2018_01_28_frozen_inference_graph.pb",
+    "target": "tf/mask_rcnn_resnet50_atrous_coco_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph"
   },
@@ -2372,7 +2379,7 @@
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
-    "target": "tf/ssd_mobilenet_v1_coco_11_06_2017_frozen_inference_graph.pb",
+    "target": "tf/ssd_mobilenet_v1_coco_11_06_2017_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"

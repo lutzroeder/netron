@@ -4,6 +4,7 @@
 
 var pytorch = pytorch || {};
 var base = base || require('./base');
+var tar = tar || require('./tar');
 
 pytorch.ModelFactory = class {
 
@@ -17,6 +18,9 @@ pytorch.ModelFactory = class {
                 if (torch.every((value, index) => value == buffer[index + 2])) {
                     return true;
                 }
+            }
+            if (this._isLegacyFormat(buffer)) {
+                return true;
             }
         }
         return false;
@@ -37,7 +41,8 @@ pytorch.ModelFactory = class {
     _openModel(context, host, pickle, callback) {
         try {
             var identifier = context.identifier;
-            var unpickler = new pickle.Unpickler(context.buffer);
+            var buffer = context.buffer;
+            var unpickler = new pickle.Unpickler(buffer);
 
             var signature = [ 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             var magic_number = unpickler.load();
@@ -45,6 +50,10 @@ pytorch.ModelFactory = class {
                 signature.length != magic_number.length ||
                 !signature.every((value, index) => value == magic_number[index])) 
             {
+                if (this._isLegacyFormat(buffer)) {
+                    callback(new pytorch.Error('PyTorch legacy tar format not supported.', null));
+                    return;
+                }
                 callback(new pytorch.Error('Invalid signature.', null));
                 return;
             }
@@ -205,11 +214,12 @@ pytorch.ModelFactory = class {
                 if (constructor) {
                     constructor.apply(obj, args);
                 }
-                else if (!name.startsWith('__main__.') && !name.startsWith('networks.') && 
+                else if (!name.startsWith('__main__.') && !name.startsWith('networks.') && !name.startsWith('nets.') && 
                          !name.startsWith('model.') && !name.startsWith('models.') &&
-                         !name.startsWith('modeling.') && !name.startsWith('src.model.') &&
+                         !name.startsWith('modeling.') && !name.startsWith('src.model.') && !name.startsWith('resnet.') &&
                          !name.startsWith('Layers.') && !name.startsWith('Sublayers.') && !name.startsWith('parts.') &&
-                         !name.startsWith('Embed.') && !name.startsWith('fpn.') && !name.startsWith('retinanet.')) {
+                         !name.startsWith('Embed.') && !name.startsWith('fpn.') && !name.startsWith('retinanet.') &&
+                         !name.startsWith('darknet.') && !name.startsWith('self_attn.') && !name.startsWith('base.')) {
                     debugger;
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
@@ -281,6 +291,20 @@ pytorch.ModelFactory = class {
             callback(new pytorch.Error(error.message), null);
             return;
         }
+    }
+
+    _isLegacyFormat(buffer) {
+        try {
+            var archive = new tar.Archive(buffer);
+            if (archive.entries.some((entry) => entry.name == 'pickle') &&
+                archive.entries.some((entry) => entry.name == 'storages') &&
+                archive.entries.some((entry) => entry.name == 'tensors')) {
+                return true;
+            }
+        }
+        catch (err) {
+        }
+        return false;
     }
 };
 
