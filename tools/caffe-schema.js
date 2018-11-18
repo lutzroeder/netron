@@ -88,6 +88,7 @@ update(
   optional BoxOutputParameter box_output_param = 4151; // 151 in gdlg/panoramic-object-detection
   optional RingPadParameter ring_pad_param = 4158; // 158 in gdlg/panoramic-object-detection
   optional bool force_backward = 4000; // ???
+  optional SmoothL1LossParameter smooth_l1_loss_param = 5148; // 148 in mahyarnajibi/caffe-ssh
 }`);
 
 update(
@@ -1248,6 +1249,13 @@ message SqueezeInnerProductParameter {
   optional FillerParameter bias_mask_filler = 12;   // The filler for the bias
   optional bool dynamicsplicing = 13[default = false];
   optional float splicing_rate = 14 [default = 0.001];
+}
+
+message SmoothL1LossParameter {
+  // SmoothL1Loss(x) =
+  //   0.5 * (sigma * x) ** 2    -- if x < 1.0 / sigma / sigma
+  //   |x| - 0.5 / sigma / sigma -- otherwise
+  optional float sigma = 1 [default = 1];
 }
 `);
 

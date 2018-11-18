@@ -3042,6 +3042,7 @@
             LayerParameter.prototype.box_output_param = null;
             LayerParameter.prototype.ring_pad_param = null;
             LayerParameter.prototype.force_backward = false;
+            LayerParameter.prototype.smooth_l1_loss_param = null;
     
             LayerParameter.create = function create(properties) {
                 return new LayerParameter(properties);
@@ -3407,6 +3408,9 @@
                     case 4000:
                         message.force_backward = reader.bool();
                         break;
+                    case 5148:
+                        message.smooth_l1_loss_param = $root.caffe.SmoothL1LossParameter.decode(reader, reader.uint32());
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -3765,6 +3769,9 @@
                         break;
                     case "force_backward":
                         message.force_backward = reader.bool();
+                        break;
+                    case "smooth_l1_loss_param":
+                        message.smooth_l1_loss_param = $root.caffe.SmoothL1LossParameter.decodeText(reader, true);
                         break;
                     default:
                         reader.handle(tag);
@@ -4339,6 +4346,11 @@
                 if (message.force_backward != null && message.hasOwnProperty("force_backward"))
                     if (typeof message.force_backward !== "boolean")
                         return "force_backward: boolean expected";
+                if (message.smooth_l1_loss_param != null && message.hasOwnProperty("smooth_l1_loss_param")) {
+                    var error = $root.caffe.SmoothL1LossParameter.verify(message.smooth_l1_loss_param);
+                    if (error)
+                        return "smooth_l1_loss_param." + error;
+                }
                 return null;
             };
     
@@ -4909,6 +4921,11 @@
                 }
                 if (object.force_backward != null)
                     message.force_backward = Boolean(object.force_backward);
+                if (object.smooth_l1_loss_param != null) {
+                    if (typeof object.smooth_l1_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.smooth_l1_loss_param: object expected");
+                    message.smooth_l1_loss_param = $root.caffe.SmoothL1LossParameter.fromObject(object.smooth_l1_loss_param);
+                }
                 return message;
             };
     
@@ -5026,6 +5043,7 @@
                     object.force_backward = false;
                     object.box_output_param = null;
                     object.ring_pad_param = null;
+                    object.smooth_l1_loss_param = null;
                     object.roi_pooling_param_2 = null;
                     object.normalize_bbox_param = null;
                 }
@@ -5267,6 +5285,8 @@
                     object.box_output_param = $root.caffe.BoxOutputParameter.toObject(message.box_output_param, options);
                 if (message.ring_pad_param != null && message.hasOwnProperty("ring_pad_param"))
                     object.ring_pad_param = $root.caffe.RingPadParameter.toObject(message.ring_pad_param, options);
+                if (message.smooth_l1_loss_param != null && message.hasOwnProperty("smooth_l1_loss_param"))
+                    object.smooth_l1_loss_param = $root.caffe.SmoothL1LossParameter.toObject(message.smooth_l1_loss_param, options);
                 if (message.roi_pooling_param_2 != null && message.hasOwnProperty("roi_pooling_param_2"))
                     object.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.toObject(message.roi_pooling_param_2, options);
                 if (message.normalize_bbox_param != null && message.hasOwnProperty("normalize_bbox_param"))
@@ -28428,6 +28448,94 @@
             };
     
             return SqueezeInnerProductParameter;
+        })();
+    
+        caffe.SmoothL1LossParameter = (function() {
+    
+            function SmoothL1LossParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SmoothL1LossParameter.prototype.sigma = 1;
+    
+            SmoothL1LossParameter.create = function create(properties) {
+                return new SmoothL1LossParameter(properties);
+            };
+    
+            SmoothL1LossParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.SmoothL1LossParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.sigma = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SmoothL1LossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SmoothL1LossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "sigma":
+                        message.sigma = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SmoothL1LossParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.sigma != null && message.hasOwnProperty("sigma"))
+                    if (typeof message.sigma !== "number")
+                        return "sigma: number expected";
+                return null;
+            };
+    
+            SmoothL1LossParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.SmoothL1LossParameter)
+                    return object;
+                var message = new $root.caffe.SmoothL1LossParameter();
+                if (object.sigma != null)
+                    message.sigma = Number(object.sigma);
+                return message;
+            };
+    
+            SmoothL1LossParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.sigma = 1;
+                if (message.sigma != null && message.hasOwnProperty("sigma"))
+                    object.sigma = options.json && !isFinite(message.sigma) ? String(message.sigma) : message.sigma;
+                return object;
+            };
+    
+            SmoothL1LossParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SmoothL1LossParameter;
         })();
     
         return caffe;
