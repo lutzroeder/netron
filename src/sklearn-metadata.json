@@ -196,7 +196,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -285,7 +286,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -371,7 +373,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -500,7 +503,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -579,7 +583,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -687,7 +692,8 @@
           "option": "optional"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n\n",
           "name": "min_impurity_split",
           "type": "float32"
         },

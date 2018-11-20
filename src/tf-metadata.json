@@ -55444,6 +55444,158 @@
     }
   },
   {
+    "name": "TensorForestCreateTreeVariable",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource to be created.",
+          "name": "tree_handle",
+          "type": 20
+        },
+        {
+          "description": "Serialized proto string of the boosted_trees.Tree.",
+          "name": "tree_config",
+          "type": 7
+        }
+      ],
+      "summary": "Creates a tree resource and returns a handle to it."
+    }
+  },
+  {
+    "name": "TensorForestTreeDeserialize",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource to be restored.",
+          "name": "tree_handle",
+          "type": 20
+        },
+        {
+          "description": "Serialied proto string of the boosted_trees.Tree proto.",
+          "name": "tree_config",
+          "type": 7
+        }
+      ],
+      "summary": "Deserializes a proto into the tree handle"
+    }
+  },
+  {
+    "name": "TensorForestTreeIsInitializedOp",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree.",
+          "name": "tree_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Whether the tree is initialized.",
+          "name": "is_initialized",
+          "type": 10
+        }
+      ],
+      "summary": "Checks whether a tree has been initialized."
+    }
+  },
+  {
+    "name": "TensorForestTreePredict",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Scalar, dimension of the logits.",
+          "name": "logits_dimension",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Handle to the tree resource.",
+          "name": "tree_handle",
+          "type": 20
+        },
+        {
+          "description": "Rank 2 dense features tensor.",
+          "name": "dense_features",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The logits predictions from the tree for each instance in the batch.",
+          "name": "logits",
+          "type": 1
+        }
+      ],
+      "summary": "Output the logits for the given input data"
+    }
+  },
+  {
+    "name": "TensorForestTreeResourceHandleOp",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "resource",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a handle to a TensorForestTreeResource"
+    }
+  },
+  {
+    "name": "TensorForestTreeSerialize",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource to be serialized.",
+          "name": "tree_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Serialied proto string of the tree resource.",
+          "name": "tree_config",
+          "type": 7
+        }
+      ],
+      "summary": "Serializes the tree handle to a proto"
+    }
+  },
+  {
+    "name": "TensorForestTreeSize",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource.",
+          "name": "tree_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The size of the tree.",
+          "name": "tree_size",
+          "type": 3
+        }
+      ],
+      "summary": "Get the number of nodes in a tree"
+    }
+  },
+  {
     "name": "TensorListConcatLists",
     "schema": {
       "attributes": [
