@@ -56,6 +56,8 @@ fileAssociations:
     ext: bin
   - name: "OpenVINO Xdot Model"
     ext: xdot
+  - name: "PyTorch Model"
+    ext: pth
 publish:
   - provider: github
     releaseType: release
@@ -64,6 +66,8 @@ mac:
   target: 
   - dmg
   - zip
+  extendInfo:
+    NSRequiresAquaSystemAppearance: false
 linux:
   target:
   - AppImage

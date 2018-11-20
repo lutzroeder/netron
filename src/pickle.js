@@ -13,21 +13,21 @@ pickle.Unpickler = class {
         var stack = [];
         var marker = [];
         var table = {};    
-        while (reader.offset < reader.length) {
-            var opcode = reader.readByte();
-            // console.log(reader.offset.toString() + ': ' + opcode + ' ' + String.fromCharCode(opcode));
+        while (reader.position < reader.length) {
+            var opcode = reader.byte();
+            // console.log(reader.position.toString() + ': ' + opcode + ' ' + String.fromCharCode(opcode));
             switch (opcode) {
                 case pickle.OpCode.PROTO:
-                    var version = reader.readByte();
-                    if (version > 3) {
+                    var version = reader.byte();
+                    if (version > 4) {
                         throw new pickle.Error("Unsupported protocol version '" + version + "'.");
                     }
                     break;
                 case pickle.OpCode.GLOBAL:
-                    stack.push([ reader.readLine(), reader.readLine() ].join('.'));
+                    stack.push([ reader.line(), reader.line() ].join('.'));
                     break;
                 case pickle.OpCode.PUT:
-                    table[reader.readLine()] = stack[stack.length - 1];
+                    table[reader.line()] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.OBJ:
                     var obj = new (stack.pop())();
@@ -39,7 +39,7 @@ pickle.Unpickler = class {
                     stack.push(obj);
                     break;
                 case pickle.OpCode.GET:
-                    stack.push(table[reader.readLine()]);
+                    stack.push(table[reader.line()]);
                     break;
                 case pickle.OpCode.POP:
                     stack.pop();
@@ -52,7 +52,8 @@ pickle.Unpickler = class {
                     stack.push(value);
                     break;
                 case pickle.OpCode.PERSID:
-                    throw new pickle.Error("Unknown opcode 'PERSID'.");
+                    stack.push(persistent_load(reader.line()));
+                    break;
                 case pickle.OpCode.BINPERSID:
                     stack.push(persistent_load(stack.pop()));
                     break;
@@ -67,43 +68,43 @@ pickle.Unpickler = class {
                     stack.push(function_call(type, args));
                     break;
                 case pickle.OpCode.BINGET:
-                    stack.push(table[reader.readByte()]);
+                    stack.push(table[reader.byte()]);
                     break;
                 case pickle.OpCode.LONG_BINGET:
-                    stack.push(table[reader.readUInt32()]);
+                    stack.push(table[reader.uint32()]);
                     break;
                 case pickle.OpCode.BINPUT:
-                    table[reader.readByte()] = stack[stack.length - 1];
+                    table[reader.byte()] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.LONG_BINPUT:
-                    table[reader.readUInt32()] = stack[stack.length - 1];
+                    table[reader.uint32()] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.BININT:
-                    stack.push(reader.readInt32());
+                    stack.push(reader.int32());
                     break;
                 case pickle.OpCode.BININT1:
-                    stack.push(reader.readByte());
+                    stack.push(reader.byte());
                     break;
                 case pickle.OpCode.LONG:
-                    stack.push(parseInt(reader.readLine()));
+                    stack.push(parseInt(reader.line()));
                     break;
                 case pickle.OpCode.BININT2:
-                    stack.push(reader.readUInt16());
+                    stack.push(reader.uint16());
                     break;
                 case pickle.OpCode.BINBYTES:
-                    stack.push(reader.readBytes(reader.readInt32()));
+                    stack.push(reader.bytes(reader.int32()));
                     break;
                 case pickle.OpCode.SHORT_BINBYTES:
-                    stack.push(reader.readBytes(reader.readByte()));
+                    stack.push(reader.bytes(reader.byte()));
                     break;
                 case pickle.OpCode.FLOAT:
-                    stack.push(parseFloat(reader.readLine()));
+                    stack.push(parseFloat(reader.line()));
                     break;
                 case pickle.OpCode.BINFLOAT:
-                    stack.push(reader.readFloat64());
+                    stack.push(reader.float64());
                     break;
                 case pickle.OpCode.INT:
-                    var value = reader.readLine();
+                    var value = reader.line();
                     if (value == '01') {
                         stack.push(true);
                     }
@@ -139,13 +140,25 @@ pickle.Unpickler = class {
                     var value = stack.pop();
                     var key = stack.pop();
                     var obj = stack[stack.length - 1];
-                    obj[key] = value;
+                    if (obj.__setitem__) {
+                        obj.__setitem__(key, value);
+                    }
+                    else {
+                        obj[key] = value;
+                    }
                     break;
                 case pickle.OpCode.SETITEMS:
                     var index = marker.pop();
                     var obj = stack[index - 1];
-                    for (var position = index; position < stack.length; position += 2) {
-                        obj[stack[position]] = stack[position + 1];
+                    if (obj.__setitem__) {
+                        for (var position = index; position < stack.length; position += 2) {
+                            obj.__setitem__(stack[position], stack[position + 1]);
+                        }
+                    }
+                    else {
+                        for (var position = index; position < stack.length; position += 2) {
+                            obj[stack[position]] = stack[position + 1];
+                        }
                     }
                     stack = stack.slice(0, index);
                     break;
@@ -162,31 +175,34 @@ pickle.Unpickler = class {
                     list.push.apply(list, appends);
                     break;
                 case pickle.OpCode.STRING:
-                    var value = reader.readLine();
+                    var value = reader.line();
                     stack.push(value.substr(1, value.length - 2));
                     break;
                 case pickle.OpCode.BINSTRING:
-                    stack.push(reader.readString(reader.readUInt32()));
+                    stack.push(reader.string(reader.uint32()));
                     break;
                 case pickle.OpCode.SHORT_BINSTRING:
-                    stack.push(reader.readString(reader.readByte()));
+                    stack.push(reader.string(reader.byte()));
                     break;
                 case pickle.OpCode.UNICODE:
-                    stack.push(reader.readLine());
+                    stack.push(reader.line());
                     break;
                 case pickle.OpCode.BINUNICODE:
-                    stack.push(reader.readString(reader.readUInt32(), 'utf-8'));
+                    stack.push(reader.string(reader.uint32(), 'utf-8'));
                     break;
                 case pickle.OpCode.BUILD:
                     var dict = stack.pop();
                     var obj = stack.pop();
                     if (obj.__setstate__) {
-                        obj.__setstate__(dict, reader);
+                        obj.__setstate__(dict);
                     }
                     else {
                         for (var p in dict) {
                             obj[p] = dict[p];
                         }
+                    }
+                    if (obj.__read__) {
+                        obj = obj.__read__(this);
                     }
                     stack.push(obj);
                     break;
@@ -200,7 +216,7 @@ pickle.Unpickler = class {
                     stack.push(false);
                     break;
                 case pickle.OpCode.LONG1:
-                    var data = reader.readBytes(reader.readByte());
+                    var data = reader.bytes(reader.byte());
                     var value = 0;
                     switch (data.length) {
                         case 0: value = 0; break;
@@ -214,7 +230,7 @@ pickle.Unpickler = class {
                     break;
                 case pickle.OpCode.LONG4:
                     // TODO decode LONG4
-                    var data = reader.readBytes(reader.readUInt32());
+                    var data = reader.bytes(reader.uint32());
                     stack.push(data);
                     break;
                 case pickle.OpCode.TUPLE1:
@@ -246,7 +262,7 @@ pickle.Unpickler = class {
     }
 
     read(size) {
-        return this._reader.readBytes(size);
+        return this._reader.bytes(size);
     }
 };
 
@@ -312,7 +328,7 @@ pickle.Reader = class {
         if (buffer) {
             this._buffer = buffer;
             this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            this._offset = 0;
+            this._position = 0;
         }
         pickle.Reader._utf8Decoder = pickle.Reader._utf8Decoder || new TextDecoder('utf-8');
         pickle.Reader._asciiDecoder = pickle.Reader._asciiDecoder || new TextDecoder('ascii');
@@ -322,72 +338,72 @@ pickle.Reader = class {
         return this._buffer.byteLength;
     }
 
-    get offset() {
-        return this._offset;
+    get position() {
+        return this._position;
     }
 
-    readByte() {
-        var value = this._dataView.getUint8(this._offset);
-        this._offset++;
+    byte() {
+        var value = this._dataView.getUint8(this._position);
+        this._position++;
         return value;
     }
 
-    readBytes(length) {
-        var data = this._buffer.subarray(this._offset, this._offset + length);
-        this._offset += length;
+    bytes(length) {
+        var data = this._buffer.subarray(this._position, this._position + length);
+        this._position += length;
         return data;
     }
 
-    readUInt16() {
-        var value = this._dataView.getUint16(this._offset, true);
-        this._offset += 2;
+    uint16() {
+        var value = this._dataView.getUint16(this._position, true);
+        this._position += 2;
         return value;
     }
 
-    readInt32() {
-        var value = this._dataView.getInt32(this._offset, true);
-        this._offset += 4;
+    int32() {
+        var value = this._dataView.getInt32(this._position, true);
+        this._position += 4;
         return value;
     }
 
-    readUInt32() {
-        var value = this._dataView.getUint32(this._offset, true);
-        this._offset += 4;
+    uint32() {
+        var value = this._dataView.getUint32(this._position, true);
+        this._position += 4;
         return value;
     }
 
-    readFloat32() {
-        var value = this._dataView.getFloat32(this._offset, true);
-        this._offset += 4;
+    float32() {
+        var value = this._dataView.getFloat32(this._position, true);
+        this._position += 4;
         return value;
     }
 
-    readFloat64() {
-        var value = this._dataView.getFloat64(this._offset, false);
-        this._offset += 8;
+    float64() {
+        var value = this._dataView.getFloat64(this._position, false);
+        this._position += 8;
         return value;
     }
 
-    skipBytes(length) {
-        this._offset += length;
+    seek(offset) {
+        this._position += offset;
     }
 
-    readString(size, encoding) {
-        var data = this.readBytes(size);
+    string(size, encoding) {
+        var data = this.bytes(size);
         if (encoding == 'utf-8') {
             return pickle.Reader._utf8Decoder.decode(data);    
         }
         return pickle.Reader._asciiDecoder.decode(data);
     }
 
-    readLine() {
-        var index = this._buffer.indexOf(0x0A, this._offset);
+    line() {
+        var index = this._buffer.indexOf(0x0A, this._position);
         if (index == -1) {
             throw new pickle.Error("Could not find end of line.");
         }
-        var size = index - this._offset;
-        var text = this.readString(size, 'ascii');
-        this.skipBytes(1);
+        var size = index - this._position;
+        var text = this.string(size, 'ascii');
+        this.seek(1);
         return text;
     }
 };
@@ -399,3 +415,7 @@ pickle.Error = class extends Error {
         this.name = 'Unpickle Error';
     }
 };
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Unpickler = pickle.Unpickler;
+}

@@ -1,0 +1,117 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+node_modules=${root}/node_modules
+src=${root}/src
+test=${root}/test
+tools=${root}/tools
+third_party=${root}/third_party
+
+identifier=pytorch
+virtualenv=${build}/virtualenv/${identifier}
+
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2}
+    fi
+    git -C "${third_party}" submodule update --init
+}
+
+clean() {
+    bold "pytorch clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/${identifier}
+}
+
+sync() {
+    bold "pytorch sync"
+    git_sync pytorch https://github.com/pytorch/pytorch.git
+}
+
+install() {
+    bold "pytorch install"
+if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
+brew bundle --file=- <<-EOS
+brew "automake"
+brew "cmake"
+brew "gflags"
+brew "glog"
+EOS
+fi
+    virtualenv --quiet -p ${python} ${virtualenv}
+    source ${virtualenv}/bin/activate
+    pushd "${third_party}/pytorch" > /dev/null
+    ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
+    ${python} setup.py install --quiet
+    ${pip} install --quiet torchvision
+    popd > /dev/null
+    deactivate
+}
+
+schema() {
+    bold "caffe2 schema"
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2-proto.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
+    node ${tools}/update_pbjs.js enumeration ${src}/caffe2-proto.js floats float 1
+}
+
+metadata() {
+    bold "pytorch metadata"
+    source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
+    ${python} pytorch-script.py metadata
+    bold "caffe2 metadata"
+    ${python} caffe2-script.py metadata
+    popd > /dev/null
+    deactivate
+}
+
+zoo() {
+    bold "pytorch zoo"
+    source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
+    ${python} pytorch-script.py zoo torchvision.models.alexnet ${test}/data/pytorch/alexnet.pth
+    ${python} pytorch-script.py zoo torchvision.models.densenet121 ${test}/data/pytorch/densenet121.pth
+    ${python} pytorch-script.py zoo torchvision.models.densenet161 ${test}/data/pytorch/densenet161.pth
+    ${python} pytorch-script.py zoo torchvision.models.inception_v3 ${test}/data/pytorch/inception_v3.pth
+    ${python} pytorch-script.py zoo torchvision.models.resnet101 ${test}/data/pytorch/resnet101.pth
+    ${python} pytorch-script.py zoo torchvision.models.resnet18 ${test}/data/pytorch/resnet18.pth
+    ${python} pytorch-script.py zoo torchvision.models.resnet50 ${test}/data/pytorch/resnet50.pth
+    ${python} pytorch-script.py zoo torchvision.models.squeezenet1_0 ${test}/data/pytorch/squeezenet1_0.pth
+    ${python} pytorch-script.py zoo torchvision.models.vgg11_bn ${test}/data/pytorch/vgg11_bn.pth
+    ${python} pytorch-script.py zoo torchvision.models.vgg16 ${test}/data/pytorch/vgg16.pth
+    rm -rf ~/.torch/models
+    popd > /dev/null
+    deactivate
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "install") install;;
+        "schema") schema;;
+        "metadata") metadata;;
+        "zoo") zoo;;
+    esac
+done

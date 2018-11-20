@@ -1,12 +1,14 @@
-class OpenVINOIROperatorMetadata {
+var openvinoIR = openvinoIR || {};
+
+openvinoIR.OperatorMetadata = class {
     static open(host, callback) {
-        if (OpenVINOIROperatorMetadata.operatorMetadata) {
-            callback(null, OpenVINOIROperatorMetadata.operatorMetadata);
+        if (openvinoIR.OperatorMetadata.operatorMetadata) {
+            callback(null, openvinoIR.OperatorMetadata.operatorMetadata);
         }
         else {
-            host.request(null, 'openvino-ir-metadata.json', 'utf-8', (err, data) => {
-                OpenVINOIROperatorMetadata.operatorMetadata = new OpenVINOIROperatorMetadata(data);
-                callback(null, OpenVINOIROperatorMetadata.operatorMetadata);
+            host.request(null, 'openvino-ir/openvino-ir-metadata.json', 'utf-8', (err, data) => {
+                openvinoIR.OperatorMetadata.operatorMetadata = new openvinoIR.OperatorMetadata(data);
+                callback(null, openvinoIR.OperatorMetadata.operatorMetadata);
             });
         }
     }
@@ -165,7 +167,7 @@ class OpenVINOIROperatorMetadata {
                     return false;
                 }
                 while (length--) {
-                    if (!OpenVINOIROperatorMetadata.isEquivalent(a[length], b[length])) {
+                    if (!openvinoIR.OperatorMetadata.isEquivalent(a[length], b[length])) {
                         return false;
                     }
                 }
@@ -179,10 +181,14 @@ class OpenVINOIROperatorMetadata {
         }
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && OpenVINOIROperatorMetadata.isEquivalent(a[key], b[key]))) {
+            if (!(b.hasOwnProperty(key) && openvinoIR.OperatorMetadata.isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }
         return true;
     }
+}
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.OperatorMetadata = openvinoIR.OperatorMetadata;
 }

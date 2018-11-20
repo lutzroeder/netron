@@ -1,0 +1,90 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+test=${root}/test
+tools=${root}/tools
+third_party=${root}/third_party
+
+python="python"
+pip="pip"
+
+identifier=keras
+virtualenv=${build}/virtualenv/${identifier}
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2}
+    fi
+    git -C "${third_party}" submodule update --init
+}
+
+clean() {
+    bold "keras clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/${identifier}
+}
+
+sync() {
+    bold "keras sync"
+    git_sync keras https://github.com/keras-team/keras.git
+}
+
+install() {
+    bold "keras install"
+    virtualenv --quiet -p ${python} ${virtualenv}
+    source ${virtualenv}/bin/activate
+    ${pip} install --quiet tensorflow
+    ${pip} install --quiet ${third_party}/${identifier}
+    deactivate
+}
+
+metadata() {
+    bold "keras metadata"
+    source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
+    ${python} keras-script.py metadata
+    popd > /dev/null
+    deactivate
+}
+
+zoo() {
+    bold "keras zoo"
+    source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
+    ${python} keras-script.py zoo keras.applications.densenet.DenseNet121 ${test}/data/keras/DenseNet121.h5
+    ${python} keras-script.py zoo keras.applications.inception_resnet_v2.InceptionResNetV2 ${test}/data/keras/InceptionResNetV2.h5
+    ${python} keras-script.py zoo keras.applications.inception_v3.InceptionV3 ${test}/data/keras/InceptionV3.h5
+    ${python} keras-script.py zoo keras.applications.mobilenet_v2.MobileNetV2 ${test}/data/keras/MobileNetV2.h5
+    ${python} keras-script.py zoo keras.applications.nasnet.NASNetMobile ${test}/data/keras/NASNetMobile.h5
+    ${python} keras-script.py zoo keras.applications.resnet50.ResNet50 ${test}/data/keras/ResNet50.h5
+    ${python} keras-script.py zoo keras.applications.vgg16.VGG16 ${test}/data/keras/VGG16.h5
+    ${python} keras-script.py zoo keras.applications.vgg19.VGG19 ${test}/data/keras/VGG19.h5
+    ${python} keras-script.py zoo keras.applications.xception.Xception ${test}/data/keras/Xception.h5
+    rm -rf ~/.keras/models
+    popd > /dev/null
+    deactivate
+}
+
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "install") install;;
+        "metadata") metadata;;
+        "zoo") zoo;;
+    esac
+done

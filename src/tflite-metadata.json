@@ -13,9 +13,9 @@
       ],
       "attributes": [
         { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
         { "name": "stride_w", "type": "int", "default": 1 },
         { "name": "stride_h", "type": "int", "default": 1 },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
         { "name": "dilation_w_factor", "type": "int", "default": 1 },
         { "name": "dilation_h_factor", "type": "int", "default": 1 }
       ]
@@ -88,6 +88,7 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
+        { "name": "weights_format", "type": "FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
         { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
@@ -106,10 +107,10 @@
       ],
       "attributes": [
         { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
         { "name": "stride_w", "type": "int", "default": 1 },
         { "name": "stride_h", "type": "int", "default": 1 },
         { "name": "depth_multiplier", "type": "int", "default": 1 },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
         { "name": "dilation_w_factor", "type": "int", "default": 1 },
         { "name": "dilation_h_factor", "type": "int", "default": 1 }
       ]
@@ -124,6 +125,10 @@
       ],
       "outputs": [
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "Padding" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
       ]
     }
   },
@@ -188,7 +193,7 @@
         { "name": "output" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "type", "type": "LSHProjectionType" }
       ]
     }
   },
@@ -338,6 +343,9 @@
       "outputs": [
         { "name": "state", "type": "T" },
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },

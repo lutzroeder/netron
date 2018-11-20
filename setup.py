@@ -6,6 +6,7 @@ import json
 import os
 import setuptools
 import setuptools.command.build_py
+import distutils.command.build
 
 node_dependencies = [ 
     ( 'netron', [
@@ -38,7 +39,27 @@ node_dependencies = [
         'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.woff2' ])
 ]
 
+class build(distutils.command.build.build):
+    user_options = distutils.command.build.build.user_options + [ ('version', None, 'version' ) ]
+    def initialize_options(self):
+        distutils.command.build.build.initialize_options(self)
+        self.version = None
+    def finalize_options(self):
+        distutils.command.build.build.finalize_options(self)
+    def run(self):
+        if self.version:
+            build_py.version = True;
+        else:
+            build_py.version = False;
+        return distutils.command.build.build.run(self)
+
 class build_py(setuptools.command.build_py.build_py):
+    user_options = setuptools.command.build_py.build_py.user_options + [ ('version', None, 'version' ) ]
+    def initialize_options(self):
+        setuptools.command.build_py.build_py.initialize_options(self)
+        self.version = None
+    def finalize_options(self):
+        setuptools.command.build_py.build_py.finalize_options(self)
     def run(self):
         result = setuptools.command.build_py.build_py.run(self)
         for target, files in node_dependencies:
@@ -50,7 +71,7 @@ class build_py(setuptools.command.build_py.build_py):
         return result
     def build_module(self, module, module_file, package):
         setuptools.command.build_py.build_py.build_module(self, module, module_file, package)
-        if module == '__version__':
+        if build_py.version and module == '__version__':
             package = package.split('.')
             outfile = self.get_module_outfile(self.build_lib, package, module)
             with open(outfile, 'w+') as f:
@@ -88,6 +109,7 @@ setuptools.setup(
     ],
     license="MIT",
     cmdclass={
+        'build': build,
         'build_py': build_py
     },
     package_dir={
@@ -98,37 +120,37 @@ setuptools.setup(
     ],
     package_data={
         'netron': [ 
-            'logo.svg', 'spinner.svg', 'favicon.ico', 'icon.png',
-            'onnx-model.js', 'onnx.js', 'onnx-metadata.json',
-            'tf-model.js', 'tf.js', 'tf-metadata.json',
-            'tflite-model.js', 'tflite.js', 'tflite-metadata.json',
-            'keras-model.js', 'keras-metadata.json', 'hdf5.js',
-            'coreml-model.js', 'coreml-metadata.json', 'coreml.js',
-            'caffe-model.js', 'caffe-metadata.json', 'caffe.js',
-            'caffe2-model.js', 'caffe2-metadata.json', 'caffe2.js',
-            'mxnet-model.js', 'mxnet-metadata.json',
-            'cntk-model.js', 'cntk.js', 'cntk-metadata.json',
-            'pytorch-model.js', 'pytorch-metadata.json', 'pickle.js',
-            'sklearn-model.js', 'sklearn-metadata.json',
+            'favicon.ico', 'icon.png',
+            'numpy.js', 'base.js', 'zip.js', 'tar.js', 'gzip.js',
+            'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
+            'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
+            'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
+            'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
+            'keras.js', 'keras-metadata.json', 'hdf5.js',
+            'mxnet.js', 'mxnet-metadata.json',
+            'cntk.js', 'cntk-metadata.json', 'cntk-proto.js',
+            'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
+            'sklearn.js', 'sklearn-metadata.json',
+            'tf.js', 'tf-metadata.json', 'tf-proto.js', 
+            'tflite.js', 'tflite-metadata.json', 'tflite-schema.js', 
 
             # OpenVINO IR
-            'openvino-ir/openvino-ir-model.js',
+            'openvino-ir/openvino-ir.js',
             'openvino-ir/openvino-ir-graph.js',
             'openvino-ir/openvino-ir-node.js',
             'openvino-ir/openvino-ir-metadata.js',
             'openvino-ir/openvino-ir-metadata.json',
-            'openvino-ir/openvino-ir.js',
+            'openvino-ir/openvino-ir-parser.js',
             
             # OpenVINO Xdot
-            'openvino-ir-xdot/openvino-ir-xdot-model.js',
-            'openvino-ir-xdot/openvino-ir-xdot-graph.js',
-            'openvino-ir-xdot/openvino-ir-xdot-node.js',
-            'openvino-ir-xdot/openvino-ir-xdot-metadata.js',
-            'openvino-ir-xdot/openvino-ir-xdot.js',
+            'openvino-xdot/openvino-xdot.js',
+            'openvino-xdot/openvino-xdot-graph.js',
+            'openvino-xdot/openvino-xdot-node.js',
+            'openvino-xdot/openvino-xdot-metadata.js',
+            'openvino-xdot/openvino-xdot-parser.js',
 
-            'numpy.js', 'zip.js', 'tar.js',
             'view-browser.html', 'view-browser.js',
-            'view-render.css', 'view-render.js',
+            'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',
             'view.js', 'view.css',
             'server.py'

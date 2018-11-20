@@ -1,12 +1,15 @@
 /*jshint esversion: 6 */
 
-var electron = require('electron');
-var fs = require('fs');
-var process = require('process');
-var path = require('path');
-var protobuf = require('protobufjs');
+var host = host || {};
 
-class ElectronHost {
+const electron = require('electron');
+const fs = require('fs');
+const process = require('process');
+const path = require('path');
+const protobuf = require('protobufjs');
+const view = require('./view');
+
+host.ElectronHost = class {
 
     constructor() {
         this._isDev = ('ELECTRON_IS_DEV' in process.env) ?
@@ -26,6 +29,22 @@ class ElectronHost {
         window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
         };
+
+        this._updateTheme();
+        if (electron.remote.systemPreferences.subscribeNotification) {
+            electron.remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => this._updateTheme());
+        }
+        document.body.style.opacity = 1;
+    }
+
+    _updateTheme() {
+        if (electron.remote.systemPreferences.isDarkMode &&
+            electron.remote.systemPreferences.isDarkMode()) {
+            document.body.classList.add('dark-mode');
+        }
+        else {
+            document.body.classList.remove('dark-mode');
+        }
     }
 
     get name() {
@@ -115,9 +134,6 @@ class ElectronHost {
         if (name == 'PROTOTXT') {
             return true;
         }
-        if (name == 'CNTK') {
-            // return true;
-        }
         return null;
     }
 
@@ -146,22 +162,12 @@ class ElectronHost {
     }
 
     require(id, callback) {
-        var script = document.scripts.namedItem(id);
-        if (script) {
-            callback(null);
-            return;
+        try {
+            callback(null, require(id));
         }
-        script = document.createElement('script');
-        script.setAttribute('id', id);
-        script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', path.join(__dirname, id + '.js'));
-        script.onload = () => {
-            callback(null);
-        };
-        script.onerror = (e) => {
-            callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
-        };
-        document.head.appendChild(script);
+        catch (err) {
+            callback(err, null);
+        }
     }
 
     save(name, extension, defaultPath, callback) {
@@ -179,38 +185,26 @@ class ElectronHost {
         });
     }
 
-    export(file, data, mimeType) {
-        var encoding = 'utf-8';
-        if (mimeType == 'image/png') {
-            try
-            {
-                var nativeImage = electron.nativeImage.createFromDataURL(data);
-                data = nativeImage.toPNG();
-                encoding = 'binary';
-            }
-            catch (e)
-            {
-                this.exception(e, false);
-                this.error('Export failure.', e);
-                return;
-            }    
-        }
-        if (mimeType == null) {
-            encoding = 'binary';
-        }
-        fs.writeFile(file, data, encoding, (err) => {
-            if (err) {
-                this.exception(err, false);
-                this.error('Export write failure.', err);
-            }
-        });
+    export(file, blob) {
+        var reader = new FileReader();
+        reader.onload = (e) => {
+            var data = new Uint8Array(e.target.result);
+            var encoding = null;
+            fs.writeFile(file, data, encoding, (err) => {
+                if (err) {
+                    this.exception(err, false);
+                    this.error('Export write failure.', err);
+                }
+            });
+        };
+        reader.readAsArrayBuffer(blob);
     }
 
     request(base, file, encoding, callback) {
         var pathname = path.join(base || __dirname, file);
         fs.exists(pathname, (exists) => {
             if (!exists) {
-                callback('File not found.', null);
+                callback(new Error('File not found.'), null);
             }
             else {
                 fs.readFile(pathname, encoding, (err, data) => {
@@ -229,15 +223,11 @@ class ElectronHost {
         electron.shell.openExternal(url);
     }
 
-    inflateRaw(data) {
-        return require('zlib').inflateRawSync(data);
-    }
-
     exception(err, fatal) {
         if (this._telemetry) {
             try {
                 var description = [];
-                description.push((err.name ? (err.name + ': ') : '') + err.message);
+                description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
                 if (err.stack) {
                     var match = err.stack.match(/\n    at (.*)\((.*)\)/);
                     if (match) {
@@ -353,7 +343,7 @@ class ElectronHost {
     _update(name, value) {
         electron.ipcRenderer.send('update', { name: name, value: value });
     }
-}
+};
 
 class ElectonContext {
 
@@ -385,6 +375,24 @@ class ElectonContext {
         }
         return this._text;
     }
+
+    get tags() {
+        if (!this._tags) {
+            this._tags = {};
+            try {
+                var reader = protobuf.TextReader.create(this.text);
+                reader.start(false);
+                while (!reader.end(false)) {
+                    var tag = reader.tag();
+                    this._tags[tag] = true;
+                    reader.skip();
+                }
+            }
+            catch (error) {
+            }
+        }
+        return this._tags;
+    }
 }
 
-window.host = new ElectronHost();
+window.__view__ = new view.View(new host.ElectronHost());

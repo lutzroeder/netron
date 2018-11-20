@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+tools=$(cd $(dirname ${0})/..; pwd)/tools
+
+${tools}/tf sync install schema metadata
+${tools}/keras sync install metadata
+
+${tools}/caffe sync schema
+${tools}/coreml sync install schema
+${tools}/cntk sync schema
+${tools}/mxnet sync metadata
+${tools}/onnx sync install schema metadata
+${tools}/pytorch sync install schema metadata
+${tools}/sklearn sync install metadata
+
+${tools}/tflite sync install schema

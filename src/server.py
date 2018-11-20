@@ -1,10 +1,12 @@
 
 import codecs
+import errno
 import os
 import platform
 import sys
 import threading
 import webbrowser
+import time
 
 from .__version__ import __version__
 
@@ -63,7 +65,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 status_code = 200
             elif pathname.startswith(data):
                 file = pathname[len(data):]
-                if file == self.file:
+                if file == self.file and self.data:
                     buffer = self.data
                 else:
                     file = self.folder + '/' + file
@@ -88,7 +90,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 else:
                     status_code = 404
         if self.verbose:
-            print(str(status_code) + ' ' + self.command + ' ' + self.path)
+            sys.stdout.write(str(status_code) + ' ' + self.command + ' ' + self.path + '\n')
         sys.stdout.flush()
         self.send_response(status_code)
         for key in headers:
@@ -109,37 +111,109 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 
-def serve_data(data, file, verbose=False, browse=False, port=8080, host='localhost'):
-    server = ThreadedHTTPServer((host, port), HTTPRequestHandler)
-    server.RequestHandlerClass.folder = os.path.dirname(file) if file else ''
-    server.RequestHandlerClass.file = os.path.basename(file) if file else ''
-    server.RequestHandlerClass.data = data
-    server.RequestHandlerClass.verbose = verbose
-    url = 'http://' + host + ':' + str(port)
-    if file:
-        print("Serving '" + file + "' at " + url)
-    else:
-        print("Serving at " + url)
-    sys.stdout.flush()
-    if browse:
-        threading.Timer(1, webbrowser.open, args=(url,)).start()
+class HTTPServerThread(threading.Thread):
+    def __init__(self, data, file, verbose, browse, port, host):
+        threading.Thread.__init__(self)
+        self.file = file
+        self.url = 'http://' + host + ':' + str(port)
+        self.browse = browse
+        self.server = ThreadedHTTPServer((host, port), HTTPRequestHandler)
+        if file:
+            self.server.RequestHandlerClass.folder = os.path.dirname(file) if os.path.dirname(file) else '.'
+            self.server.RequestHandlerClass.file = os.path.basename(file)
+        else:
+            self.server.RequestHandlerClass.folder = ''
+            self.server.RequestHandlerClass.file = ''
+        self.server.RequestHandlerClass.data = data
+        self.server.RequestHandlerClass.verbose = verbose
+        self.terminate_event = threading.Event()
+        self.terminate_event.set()
+        self.stop_event = threading.Event()
+
+    def run(self):
+        self.terminate_event.clear()
+        self.stop_event.clear()
+        if self.file:
+            sys.stdout.write("Serving '" + self.file + "' at " + self.url + "\n")
+        else:
+            sys.stdout.write("Serving at " + self.url + "\n")
+        try:
+            while not self.stop_event.is_set():
+                if self.browse:
+                    self.browse = False
+                    threading.Timer(1, webbrowser.open, args=(self.url,)).start()
+                sys.stdout.flush()
+                self.server.handle_request()
+        except Exception as e:
+            pass
+        self.terminate_event.set()
+        self.stop_event.clear()
+
+    def stop(self):
+        if self.alive():
+            sys.stdout.write("\nStopping " + self.url + "\n")
+            self.stop_event.set()
+            self.server.server_close()
+            self.terminate_event.wait(1000)
+
+    def alive(self):
+        return not self.terminate_event.is_set()
+
+thread_list = []
+
+def stop(port=8080, host='localhost'):
+    '''Stop serving model at host:port.
+
+    Args:
+        port (int, optional): port to stop. Default: 8080
+        host (string, optional): host to stop. Default: localhost
+    '''
+    global thread_list
+    for thread in thread_list:
+        if port == thread.port and host == thread.host:
+            thread.stop()
+    thread_list = [ thread for thread in thread_list if thread.alive() ]
+
+def wait():
+    '''Wait for console exit and stop all model servers.'''
+    global thread_list
     try:
-        while True:
-            sys.stdout.flush()
-            server.handle_request()
+        while len(thread_list) > 0:
+            thread_list = [ thread for thread in thread_list if thread.alive() ]
+            time.sleep(1000)
     except (KeyboardInterrupt, SystemExit):
-        print("\nStopping")
-        server.server_close()
+        for thread in thread_list:
+            thread.stop()
+        thread_list = [ thread for thread in thread_list if thread.alive() ]
 
-def serve_file(file, verbose=False, browse=False, port=8080, host='localhost'):
-    data = None
-    if file and os.path.exists(file):
-        print("Reading '" + file + "'")
-        with open(file, 'rb') as binary:
-            data = binary.read()
-    else:
-        file = None
-    serve_data(data, file, verbose=verbose, browse=browse, port=port, host=host)
+def serve(file, data, verbose=False, browse=False, port=8080, host='localhost'):
+    '''Start serving model from file or data buffer at host:port and open in web browser.
+    
+    Args:
+        file (string): Model file to serve. Required to detect format.
+        data (bytes): Model data to serve. None will load data from file.
+        verbose (bool, optional): Log details to console. Default: False
+        browse (bool, optional): Launch web browser, Default: True
+        port (int, optional): Port to serve. Default: 8080
+        host (string, optional): Host to serve. Default: localhost
+    '''
+    global thread_list
+    if not data and file and not os.path.exists(file):
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
+    stop(port, host)
+    thread = HTTPServerThread(data, file, verbose, browse, port, host)
+    thread.start()
+    thread_list.append(thread)
+    thread_list = [ thread for thread in thread_list if thread.alive() ]
 
-def browse(file, verbose=False, port=8080, host='localhost'):
-    serve_file(file, verbose, True, port, host)
+def start(file, verbose=False, browse=True, port=8080, host='localhost'):
+    '''Start serving model file at host:port and open in web browser
+    
+    Args:
+        file (string): Model file to serve.
+        verbose (bool, optional): Log details to console. Default: False
+        browse (bool, optional): Launch web browser, Default: True
+        port (int, optional): Port to serve. Default: 8080
+        host (string, optional): Host to serve. Default: localhost
+    '''
+    serve(file, None, verbose=verbose, browse=browse, port=port, host=host)

@@ -5,7 +5,7 @@
 <!-- meta -->
 <title>Netron</title>
 <link rel='stylesheet' type='text/css' href='open-sans.css'>
-<link rel='stylesheet' type='text/css' href='view-render.css'>
+<link rel='stylesheet' type='text/css' href='view-grapher.css'>
 <link rel='stylesheet' type='text/css' href='view-sidebar.css'>
 <link rel='stylesheet' type='text/css' href='view.css'>
 <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
@@ -17,50 +17,98 @@
 <body>
 <div id='welcome' class='background' style='display: block'>
     <a class='center logo' href='https://github.com/lutzroeder/netron' target='_blank'>
-        <img class='logo absolute' src='logo.svg' />
-        <img id='spinner' class='spinner logo absolute' src='spinner.svg' style='display: none;' />
+        <svg xmlns='http://www.w3.org/2000/svg' class='logo absolute' width='128' height='128' viewBox='0 0 1024 1024'>
+            <circle class='stroke' cx='512' cy='512' r='431' fill='none' stroke-width='32'/>
+            <circle class='border' cx='512' cy='512' r='450' fill='none' stroke-width='6' /> 
+            <circle class='border' cx='512' cy='512' r='412' fill='none' stroke-width='6' /> 
+            <line class='stroke' x1='296' y1='392' x2='540' y2='280' stroke-width='12' />
+            <line class='stroke' x1='296' y1='632' x2='540' y2='280' stroke-width='12' />
+            <line class='stroke' x1='296' y1='392' x2='540' y2='435' stroke-width='12' />
+            <line class='stroke' x1='296' y1='632' x2='540' y2='435' stroke-width='12' />
+            <line class='stroke' x1='296' y1='392' x2='540' y2='590' stroke-width='12' />
+            <line class='stroke' x1='296' y1='632' x2='540' y2='590' stroke-width='12' />
+            <line class='stroke' x1='296' y1='392' x2='540' y2='744' stroke-width='12' />
+            <line class='stroke' x1='296' y1='632' x2='540' y2='744' stroke-width='12' />
+            <line class='stroke' x1='540' y1='280' x2='785' y2='512' stroke-width='12' />
+            <line class='stroke' x1='540' y1='590' x2='785' y2='512' stroke-width='12' />
+            <line class='stroke' x1='540' y1='435' x2='785' y2='512' stroke-width='12' />
+            <line class='stroke' x1='540' y1='744' x2='785' y2='512' stroke-width='12' />
+            <g transform='translate(296, 392)'>
+                <circle class='fill' cx='0' cy='0' r='51' />
+                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            </g>
+            <g transform='translate(296, 632)'>
+                <circle class='fill' cx='0' cy='0' r='51' />
+                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            </g>
+            <g transform='translate(540, 280)'>
+                <circle class='fill' cx='0' cy='0' r='51' />
+                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            </g>
+            <g transform='translate(540, 435)'>
+                <circle class='fill' cx='0' cy='0' r='51' />
+                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            </g>
+            <g transform='translate(540, 590)'>
+                <circle class='fill' cx='0' cy='0' r='51' />
+                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            </g>
+            <g transform='translate(540, 744)'>
+                <circle class='fill' cx='0' cy='0' r='51' />
+                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            </g>
+            <g transform='translate(785, 512)'>
+                <circle class='fill' cx='0' cy='0' r='51' />
+                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            </g>
+        </svg>
+        <svg class='spinner logo absolute' id='spinner' viewBox='0 0 1024 1024' style='display: none;'>
+            <g id='spinner' transform='translate(512, 512)' style='opacity: 1'>
+                <path class='stroke' d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width='24' fill='None' />
+            </g>
+        </svg>
     </a>
     <button id='open-file-button' class='center' style='top: 200px; width: 125px; opacity: 0;'>Open Model...</button>
     <input type='file' id='open-file-dialog' style='display:none' multiple='false' accept='.onnx, .pb, .meta, .tflite, .keras, .h5, .hdf5, .json, .model, .mlmodel, .caffemodel, .pt, .pth, .pkl, .joblib, .pbtxt, .prototxt, .xml, .bin, .dot'>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
-    <div style='font-weight: normal; color: #e6e6e6; user-select: none;'>.</div>
-    <div style='font-weight: 600; color: #e6e6e6; user-select: none;'>.</div>
-    <div style='font-weight: bold; color: #e6e6e6; user-select: none;'>.</div>
+    <div style='font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;'>.</div>
+    <div style='font-weight: 600; color: rgba(0, 0, 0, 0.01); user-select: none;'>.</div>
+    <div style='font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;'>.</div>
 </div>
 <svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet' width='100%' height='100%'></svg>
 <div id='toolbar' class='toolbar' style='position: absolute; top: 10px; left: 10px; display: none;'>
     <button id='model-properties-button' title='Model Properties'>
-        <svg viewBox='0 0 100 100'>
-            <rect x='12' y='12' width='76' height='76' rx='16' ry='16' stroke-width='8' stroke='#fff' />
-            <line x1='30' y1='37' x2='70' y2='37' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line x1='30' y1='50' x2='70' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line x1='30' y1='63' x2='70' y2='63' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <rect x='12' y='12' width='76' height='76' rx='16' ry='16' stroke-width='4' />
-            <line x1='30' y1='37' x2='70' y2='37' stroke-width='4' stroke-linecap='round' />
-            <line x1='30' y1='50' x2='70' y2='50' stroke-width='4' stroke-linecap='round' />
-            <line x1='30' y1='63' x2='70' y2='63' stroke-width='4' stroke-linecap='round' />
+        <svg viewBox='0 0 100 100' class='icon'>
+            <rect class='border' x='12' y='12' width='76' height='76' rx='16' ry='16' stroke-width='8' />
+            <line class='border' x1='30' y1='37' x2='70' y2='37' stroke-width='8' stroke-linecap='round' stroke='#fff' />
+            <line class='border' x1='30' y1='50' x2='70' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
+            <line class='border' x1='30' y1='63' x2='70' y2='63' stroke-width='8' stroke-linecap='round' stroke='#fff' />
+            <rect class='stroke' x='12' y='12' width='76' height='76' rx='16' ry='16' stroke-width='4' />
+            <line class='stroke' x1='30' y1='37' x2='70' y2='37' stroke-width='4' stroke-linecap='round' />
+            <line class='stroke' x1='30' y1='50' x2='70' y2='50' stroke-width='4' stroke-linecap='round' />
+            <line class='stroke' x1='30' y1='63' x2='70' y2='63' stroke-width='4' stroke-linecap='round' />
         </svg>
     </button>
-    <button id='zoom-in-button' class='icon' title='Zoom In'>
-        <svg viewBox='0 0 100 100'>
-            <circle cx='50' cy='50' r='35' stroke-width='8' stroke='#fff' />
-            <line x1='50' y1='38' x2='50' y2='62' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line x1='38' y1='50' x2='62' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line x1='78' y1='78' x2='82' y2='82' stroke-width='12' stroke-linecap='square' stroke='#fff' />
-            <circle cx='50' cy='50' r='35' stroke-width='4' />
-            <line x1='50' y1='38' x2='50' y2='62' stroke-width='4' stroke-linecap='round' />
-            <line x1='38' y1='50' x2='62' y2='50' stroke-width='4' stroke-linecap='round' />
-            <line x1='78' y1='78' x2='82' y2='82' stroke-width='8' stroke-linecap='square' />
+    <button id='zoom-in-button' title='Zoom In'>
+        <svg viewBox='0 0 100 100' class='icon'>
+            <circle class='border' cx='50' cy='50' r='35' stroke-width='8' stroke='#fff' />
+            <line class='border' x1='50' y1='38' x2='50' y2='62' stroke-width='8' stroke-linecap='round' stroke='#fff' />
+            <line class='border' x1='38' y1='50' x2='62' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
+            <line class='border' x1='78' y1='78' x2='82' y2='82' stroke-width='12' stroke-linecap='square' stroke='#fff' />
+            <circle class='stroke' cx='50' cy='50' r='35' stroke-width='4' />
+            <line class='stroke' x1='50' y1='38' x2='50' y2='62' stroke-width='4' stroke-linecap='round' />
+            <line class='stroke' x1='38' y1='50' x2='62' y2='50' stroke-width='4' stroke-linecap='round' />
+            <line class='stroke' x1='78' y1='78' x2='82' y2='82' stroke-width='8' stroke-linecap='square' />
         </svg>
     </button>
-    <button id='zoom-out-button' class='icon' title='Zoom Out'>
-        <svg viewBox='0 0 100 100'>
-            <circle cx='50' cy='50' r='35' stroke-width='8' stroke='#fff' />
-            <line x1='38' y1='50' x2='62' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line x1='78' y1='78' x2='82' y2='82' stroke-width='12' stroke-linecap='square' stroke='#fff' />
-            <circle cx='50' cy='50' r='35' stroke-width='4' />
-            <line x1='38' y1='50' x2='62' y2='50' stroke-width='4' stroke-linecap='round' />
-            <line x1='78' y1='78' x2='82' y2='82' stroke-width='8' stroke-linecap='square' />
+    <button id='zoom-out-button' title='Zoom Out'>
+        <svg viewBox='0 0 100 100' class='icon'>
+            <circle class='border' cx='50' cy='50' r='35' stroke-width='8' stroke='#fff' />
+            <line class='border' x1='38' y1='50' x2='62' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
+            <line class='border' x1='78' y1='78' x2='82' y2='82' stroke-width='12' stroke-linecap='square' stroke='#fff' />
+            <circle class='stroke' cx='50' cy='50' r='35' stroke-width='4' />
+            <line class='stroke' x1='38' y1='50' x2='62' y2='50' stroke-width='4' stroke-linecap='round' />
+            <line class='stroke' x1='78' y1='78' x2='82' y2='82' stroke-width='8' stroke-linecap='square' />
         </svg>
     </button>
 </div>
@@ -79,35 +127,38 @@
 <script type='text/javascript' src='handlebars.min.js'></script>
 <script type='text/javascript' src='marked.min.js'></script>
 <script type='text/javascript' src='pako.min.js'></script>
+<script type='text/javascript' src='base.js'></script>
 <script type='text/javascript' src='zip.js'></script>
+<script type='text/javascript' src='gzip.js'></script>
 <script type='text/javascript' src='tar.js'></script>
-<script type='text/javascript' src='onnx-model.js'></script>
-<script type='text/javascript' src='tf-model.js'></script>
-<script type='text/javascript' src='tflite-model.js'></script>
-<script type='text/javascript' src='keras-model.js'></script>
-<script type='text/javascript' src='coreml-model.js'></script>
-<script type='text/javascript' src='caffe-model.js'></script>
-<script type='text/javascript' src='caffe2-model.js'></script>
-<script type='text/javascript' src='pytorch-model.js'></script>
-<script type='text/javascript' src='mxnet-model.js'></script>
-<script type='text/javascript' src='cntk-model.js'></script>
-<script type='text/javascript' src='sklearn-model.js'></script>
+<script type='text/javascript' src='hdf5.js'></script>
+<script type='text/javascript' src='onnx.js'></script>
+<script type='text/javascript' src='tf.js'></script>
+<script type='text/javascript' src='tflite.js'></script>
+<script type='text/javascript' src='keras.js'></script>
+<script type='text/javascript' src='coreml.js'></script>
+<script type='text/javascript' src='caffe.js'></script>
+<script type='text/javascript' src='caffe2.js'></script>
+<script type='text/javascript' src='pytorch.js'></script>
+<script type='text/javascript' src='mxnet.js'></script>
+<script type='text/javascript' src='cntk.js'></script>
+<script type='text/javascript' src='sklearn.js'></script>
 
 <!--Open VINO IR files-->
-<script type='text/javascript' src='openvino-ir/openvino-ir-model.js'></script>
+<script type='text/javascript' src='openvino-ir/openvino-ir.js'></script>
 <script type='text/javascript' src='openvino-ir/openvino-ir-graph.js'></script>
 <script type='text/javascript' src='openvino-ir/openvino-ir-node.js'></script>
 <script type='text/javascript' src='openvino-ir/openvino-ir-metadata.js'></script>
 
 <!-- OpenVINO XDot files -->
-<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-model.js'></script>
-<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-graph.js'></script>
-<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-node.js'></script>
-<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-metadata.js'></script>
+<script type='text/javascript' src='openvino-xdot/openvino-xdot.js'></script>
+<script type='text/javascript' src='openvino-xdot/openvino-xdot-graph.js'></script>
+<script type='text/javascript' src='openvino-xdot/openvino-xdot-node.js'></script>
+<script type='text/javascript' src='openvino-xdot/openvino-xdot-metadata.js'></script>
 
-<script type='text/javascript' src='view-browser.js'></script>
-<script type='text/javascript' src='view-render.js'></script>
+<script type='text/javascript' src='view-grapher.js'></script>
 <script type='text/javascript' src='view-sidebar.js'></script>
 <script type='text/javascript' src='view.js'></script>
+<script type='text/javascript' src='view-browser.js'></script>
 </body>
 </html>

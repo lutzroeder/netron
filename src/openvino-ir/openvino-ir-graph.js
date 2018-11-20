@@ -1,4 +1,10 @@
-class OpenVINOIRGraph {
+var openvinoIR = openvinoIR || {};
+
+if (window.require) {
+    openvinoIR.Node = openvinoIR.Node || require('./openvino-ir-node').Node;
+}
+
+openvinoIR.Graph = class {
     constructor(netDef, init) {
         this._name = netDef.net.name || '';
         this._batch = +netDef.net.batch || '';
@@ -10,7 +16,7 @@ class OpenVINOIRGraph {
         this._outputs = [];
 
         _.each(netDef.layers, (layer) => {
-            const node = new OpenVINOIRNode(layer, this._version, netDef.edges, netDef.layers);
+            const node = new openvinoIR.Node(layer, this._version, netDef.edges, netDef.layers);
             this._operators[node.operator] = _.get(this._operators, node.operator, 0) + 1;
             this._nodes.push(node);
         });
@@ -35,4 +41,8 @@ class OpenVINOIRGraph {
     get operators() {
         return this._operators;
     }
+}
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Graph = openvinoIR.Graph;
 }

@@ -13,7 +13,7 @@ clean:
 build_python:
 	@[ -d node_modules ] || npm install
 	rm -rf ./build/python
-	python ./setup.py build
+	python ./setup.py build --version
 
 build_electron:
 	@[ -d node_modules ] || npm install
@@ -27,7 +27,7 @@ start:
 publish_pip:
 	@[ -d node_modules ] || npm install
 	rm -rf ./build/python
-	python ./setup.py build bdist_wheel upload
+	python ./setup.py build --version bdist_wheel upload
 
 publish_github_electron:
 	@[ -d node_modules ] || npm install
@@ -36,7 +36,7 @@ publish_github_electron:
 
 publish_github_pages:
 	@[ -d node_modules ] || npm install
-	python ./setup.py build
+	python ./setup.py build --version
 	rm -rf ./build/gh-pages
 	git clone git@github.com:lutzroeder/netron.git ./build/gh-pages --branch gh-pages
 	rm -rf ./build/gh-pages/*
