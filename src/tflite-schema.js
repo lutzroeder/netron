@@ -131,7 +131,8 @@ tflite_schema.BuiltinOperator = {
   FLOOR_MOD: 95, 95: 'FLOOR_MOD',
   RANGE: 96, 96: 'RANGE',
   RESIZE_NEAREST_NEIGHBOR: 97, 97: 'RESIZE_NEAREST_NEIGHBOR',
-  LEAKY_RELU: 98, 98: 'LEAKY_RELU'
+  LEAKY_RELU: 98, 98: 'LEAKY_RELU',
+  SQUARED_DIFFERENCE: 99, 99: 'SQUARED_DIFFERENCE'
 };
 
 /**
@@ -213,7 +214,8 @@ tflite_schema.BuiltinOptions = {
   FloorModOptions: 72, 72: 'FloorModOptions',
   RangeOptions: 73, 73: 'RangeOptions',
   ResizeNearestNeighborOptions: 74, 74: 'ResizeNearestNeighborOptions',
-  LeakyReluOptions: 75, 75: 'LeakyReluOptions'
+  LeakyReluOptions: 75, 75: 'LeakyReluOptions',
+  SquaredDifferenceOptions: 76, 76: 'SquaredDifferenceOptions'
 };
 
 /**
@@ -6338,6 +6340,57 @@ tflite_schema.LeakyReluOptions.addAlpha = function(builder, alpha) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.LeakyReluOptions.endLeakyReluOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.SquaredDifferenceOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.SquaredDifferenceOptions}
+ */
+tflite_schema.SquaredDifferenceOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.SquaredDifferenceOptions=} obj
+ * @returns {tflite_schema.SquaredDifferenceOptions}
+ */
+tflite_schema.SquaredDifferenceOptions.getRootAsSquaredDifferenceOptions = function(bb, obj) {
+  return (obj || new tflite_schema.SquaredDifferenceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.SquaredDifferenceOptions.startSquaredDifferenceOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SquaredDifferenceOptions.endSquaredDifferenceOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
