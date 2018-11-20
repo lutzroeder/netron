@@ -1,6 +1,10 @@
-var openvinoXdot = openvinoXdot || {};
+var openvinoDot = openvinoDot || {};
 
-openvinoXdot.Graph = class {
+if (window.require) {
+    openvinoDot.Node = openvinoDot.Node || require('./openvino-dot-node').Node;
+}
+
+openvinoDot.Graph = class {
     constructor(netDef, init) {
         this._name = netDef.id || '';
         this._version = Boolean(netDef.strict).toString();
@@ -14,7 +18,7 @@ openvinoXdot.Graph = class {
         const edges = _.filter(netDef.children, (child) => child.type === "edge_stmt");
 
         _.each(layers, (layer) => {
-            const node = new openvinoXdot.Node(layer, this._version, edges, layers);
+            const node = new openvinoDot.Node(layer, this._version, edges, layers);
             this._operators[node.operator] = _.get(this._operators, node.operator, 0) + 1;
             this._nodes.push(node);
         });
@@ -55,5 +59,5 @@ openvinoXdot.Graph = class {
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Graph = openvinoXdot.Graph;
+    module.exports.Graph = openvinoDot.Graph;
 }

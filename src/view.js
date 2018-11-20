@@ -20,7 +20,7 @@ var sklearn = sklearn || require('./sklearn');
 var tf = tf || require('./tf');
 var tflite = tflite || require('./tflite');
 var openvinoIR = openvinoIR || require('./openvino-ir/openvino-ir');
-var openvinoXdot = openvinoXdot || require('./openvino-xdot/openvino-xdot');
+var openvinoDot = openvinoDot || require('./openvino-dot/openvino-dot');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -972,7 +972,7 @@ view.ModelFactoryService = class {
             new sklearn.ModelFactory(),
             new cntk.ModelFactory(),
             new openvinoIR.ModelFactory(),
-            new openvinoXdot.ModelFactory()
+            new openvinoDot.ModelFactory()
         ];
     }
 

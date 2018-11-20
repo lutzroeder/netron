@@ -1,11 +1,11 @@
-var openvinoXdot = openvinoXdot || {};
+var openvinoDot = openvinoDot || {};
 
-openvinoXdot.OperatorMetadata = class {
+openvinoDot.OperatorMetadata = class {
     static open(host, callback) {
-        if (!openvinoXdot.OperatorMetadata.operatorMetadata) {
-            openvinoXdot.OperatorMetadata.operatorMetadata = new openvinoXdot.OperatorMetadata();
+        if (!openvinoDot.OperatorMetadata.operatorMetadata) {
+            openvinoDot.OperatorMetadata.operatorMetadata = new openvinoDot.OperatorMetadata();
         }
-        callback(null, openvinoXdot.OperatorMetadata.operatorMetadata);
+        callback(null, openvinoDot.OperatorMetadata.operatorMetadata);
     }
 
     constructor(data) {
@@ -162,7 +162,7 @@ openvinoXdot.OperatorMetadata = class {
                     return false;
                 }
                 while (length--) {
-                    if (!openvinoXdot.OperatorMetadata.isEquivalent(a[length], b[length])) {
+                    if (!openvinoDot.OperatorMetadata.isEquivalent(a[length], b[length])) {
                         return false;
                     }
                 }
@@ -176,7 +176,7 @@ openvinoXdot.OperatorMetadata = class {
         }
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && openvinoXdot.OperatorMetadata.isEquivalent(a[key], b[key]))) {
+            if (!(b.hasOwnProperty(key) && openvinoDot.OperatorMetadata.isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }
@@ -185,5 +185,5 @@ openvinoXdot.OperatorMetadata = class {
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.OperatorMetadata = openvinoXdot.OperatorMetadata;
+    module.exports.OperatorMetadata = openvinoDot.OperatorMetadata;
 }

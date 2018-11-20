@@ -54,8 +54,8 @@ fileAssociations:
     ext: xml
   - name: "OpenVINO IR Model Binary Addon"
     ext: bin
-  - name: "OpenVINO Xdot Model"
-    ext: xdot
+  - name: "OpenVINO Dot Model"
+    ext: dot
   - name: "PyTorch Model"
     ext: pth
 publish:

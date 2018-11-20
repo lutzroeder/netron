@@ -135,7 +135,7 @@ class Application {
                         'prototxt',
                         'xml',
                         'bin',
-                        'xdot'
+                        'dot'
                     ] 
                 }
                 /* 

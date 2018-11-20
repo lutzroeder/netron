@@ -1,6 +1,10 @@
-var openvinoXdot = openvinoXdot || {};
+var openvinoDot = openvinoDot || {};
 
-openvinoXdot.Node = class {
+if (window.require) {
+    openvinoDot.OperatorMetadata = openvinoDot.OperatorMetadata || require('./openvino-dot-metadata').OperatorMetadata;
+}
+
+openvinoDot.Node = class {
     constructor(layer, version, edges, layers) {
         this._inputs = [];
         this._outputs = [];
@@ -17,7 +21,7 @@ openvinoXdot.Node = class {
                 this[`_${name}`] = value;
             }
 
-            this._attributes.push(new openvinoXdot.Attribute(this, name, value));
+            this._attributes.push(new openvinoDot.Attribute(this, name, value));
         });
     }
 
@@ -30,11 +34,11 @@ openvinoXdot.Node = class {
     }
 
     get category() {
-        return openvinoXdot.OperatorMetadata.operatorMetadata.getOperatorCategory(this._type);
+        return openvinoDot.OperatorMetadata.operatorMetadata.getOperatorCategory(this._type);
     }
 
     get documentation() {
-        return openvinoXdot.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._type);
+        return openvinoDot.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._type);
     }
 
     updateInputs(id) {
@@ -47,22 +51,22 @@ openvinoXdot.Node = class {
 
     get inputs() {
         const list = this._inputs.concat(this._initializers);
-        const inputs = openvinoXdot.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
+        const inputs = openvinoDot.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
         return inputs.map((input) => {
-            return new openvinoXdot.Argument(input.name, input.connections.map((connection) => {
-                if (connection.id instanceof CaffeTensor) {
-                    return new openvinoXdot.Connection('', null, connection.id);
+            return new openvinoDot.Argument(input.name, input.connections.map((connection) => {
+                if (connection.id instanceof openvinoDot.Tensor) {
+                    return new openvinoDot.Connection('', null, connection.id);
                 }
-                return new openvinoXdot.Connection(connection.id, null, null);
+                return new openvinoDot.Connection(connection.id, null, null);
             }));
         });
     }
 
     get outputs() {
-        const outputs = openvinoXdot.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._name);
+        const outputs = openvinoDot.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._name);
         return outputs.map((output) => {
-            return new openvinoXdot.Argument(output.name, output.connections.map((connection) => {
-                return new openvinoXdot.Connection(connection.id, null, null);
+            return new openvinoDot.Argument(output.name, output.connections.map((connection) => {
+                return new openvinoDot.Connection(connection.id, null, null);
             }));
         });
     }
@@ -120,7 +124,7 @@ openvinoXdot.Node = class {
     }
 }
 
-openvinoXdot.Argument = class {
+openvinoDot.Argument = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -139,7 +143,7 @@ openvinoXdot.Argument = class {
     }
 }
 
-openvinoXdot.Connection = class {
+openvinoDot.Connection = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -162,7 +166,7 @@ openvinoXdot.Connection = class {
     }
 }
 
-openvinoXdot.Attribute = class {
+openvinoDot.Attribute = class {
     constructor(node, name, value) {
         this._node = node;
         this._name = name;
@@ -178,17 +182,17 @@ openvinoXdot.Attribute = class {
     }
 
     get visible() {
-        const meta = openvinoXdot.OperatorMetadata.operatorMetadata;
+        const meta = openvinoDot.OperatorMetadata.operatorMetadata;
         return meta.getAttributeVisible(this._node.operator, this._name, this._value);
     }
 }
 
-openvinoXdot.Tensor = class {
+openvinoDot.Tensor = class {
     constructor({data, shape, precision}) {
         this._data = data;
         this._shape = shape;
         const dataType = precision === 'FP32' ? 'float32' : '?';
-        this._type = new openvinoXdot.TensorType(dataType, this._shape);
+        this._type = new openvinoDot.TensorType(dataType, this._shape);
     }
 
     get kind() {
@@ -261,7 +265,7 @@ openvinoXdot.Tensor = class {
     }
 }
 
-openvinoXdot.TensorType = class {
+openvinoDot.TensorType = class {
     constructor(dataType, shape) {
         this._dataType = dataType;
         this._shape = shape;
@@ -282,5 +286,5 @@ openvinoXdot.TensorType = class {
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Node = openvinoXdot.Node;
+    module.exports.Node = openvinoDot.Node;
 }

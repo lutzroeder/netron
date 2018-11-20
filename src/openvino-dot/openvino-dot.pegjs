@@ -1,5 +1,5 @@
 /*
- * Grammar to parse the graphviz dot/xdot language
+ * Grammar to parse the graphviz dot/dot language
  */
 
 start

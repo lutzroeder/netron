@@ -143,11 +143,11 @@ setuptools.setup(
             'openvino-ir/openvino-ir-parser.js',
             
             # OpenVINO Xdot
-            'openvino-xdot/openvino-xdot.js',
-            'openvino-xdot/openvino-xdot-graph.js',
-            'openvino-xdot/openvino-xdot-node.js',
-            'openvino-xdot/openvino-xdot-metadata.js',
-            'openvino-xdot/openvino-xdot-parser.js',
+            'openvino-dot/openvino-dot.js',
+            'openvino-dot/openvino-dot-graph.js',
+            'openvino-dot/openvino-dot-node.js',
+            'openvino-dot/openvino-dot-metadata.js',
+            'openvino-dot/openvino-dot-parser.js',
 
             'view-browser.html', 'view-browser.js',
             'view-grapher.css', 'view-grapher.js',
