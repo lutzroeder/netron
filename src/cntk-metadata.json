@@ -1,47 +1,138 @@
 [
   {
-    "name": "Convolution",
+    "name": "Negate",
     "schema": {
-      "category": "Layer",
-      "operator": 33
+      "operator": 0
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation",
+      "operator": 1,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "category": "Activation",
+      "operator": 2,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "ReLU",
     "schema": {
       "category": "Activation",
-      "operator": 3
+      "operator": 3,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "RectifiedLinear",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Exp",
     "schema": {
-      "operator": 4
+      "operator": 4,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Log",
     "schema": {
-      "operator": 5
+      "operator": 5,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
-    "name": "Log",
+    "name": "Sqrt",
     "schema": {
-      "operator": 5
+      "operator": 6,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Floor",
+    "schema": {
+      "operator": 7,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Abs",
+    "schema": {
+      "operator": 8
     }
   },
   {
     "name": "Reciprocal",
     "schema": {
-      "operator": 9
+      "operator": 9,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Softmax",
     "schema": {
       "category": "Activation",
-      "operator": 10
+      "operator": 10,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -52,55 +143,279 @@
     }
   },
   {
+    "name": "TransposeAxes",
+    "schema": {
+      "category": "Activation",
+      "operator": 12
+    }
+  },
+  {
+    "name": "Where",
+    "schema": {
+      "operator": 13,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Slice",
     "schema": {
       "category": "Tensor",
-      "operator": 14
+      "operator": 14,
+      "inputs": [
+        { "name": "input" },
+        { "name": "begin" },
+        { "name": "end" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Dropout",
     "schema": {
       "category": "Dropout",
-      "operator": 15
+      "operator": 15,
+      "attributes": [
+        { "name": "rngSeed", "visible": false },
+        { "name": "rngOffset", "visible": false }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Reshape",
     "schema": {
       "category": "Shape",
-      "operator": 16
+      "operator": 16,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "MaxPooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Pooling",
     "schema": {
       "category": "Pool",
-      "operator": 17
+      "operator": 17,
+      "attributes": [
+        { "name": "transpose", "default": false },
+        { "name": "includePad", "default": false },
+        { "name": "ceilOutDim", "default": false },
+        { "name": "autoPadding", "default": [ false, null ] },
+        { "name": "sharing", "default": [ true, null] },
+        { "name": "strides", "default": [ 1, null ] },
+        { "name": "lowerPad", "default": [ 0, null ] },
+        { "name": "upperPad", "default": [ 0, null ] },
+        { "name": "outputShape", "default": 0 },
+        { "name": "maxTempMemSizeInSamples", "default": 0 },
+        { "name": "poolingType", "type": "PoolingType", "default": "Max" },
+        { "name": "poolKind", "type": "PoolKind", "default": "None" },
+        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "SumAll",
+    "schema": {
+      "operator": 18
     }
   },
   {
     "name": "Plus",
     "schema": {
-      "operator": 19
+      "operator": 19,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "Minus",
     "schema": {
-      "operator": 20
+      "operator": 20,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "ElementTimes",
     "schema": {
-      "operator": 21
+      "operator": 21,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "Equal",
+    "schema": {
+      "operator": 22,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "NotEqual",
+    "schema": {
+      "operator": 23,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "Less",
+    "schema": {
+      "operator": 24,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "LessEqual",
+    "schema": {
+      "operator": 25,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "Greater",
+    "schema": {
+      "operator": 26,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "GreaterEqual",
+    "schema": {
+      "operator": 27,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "PackedIndex",
+    "schema": {
+      "operator": 28,
+      "inputs": [
+        { "name": "source" },
+        { "name": "index" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "GatherPacked",
+    "schema": {
+      "operator": 29,
+      "inputs": [
+        { "name": "index" },
+        { "name": "source" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "ScatterPacked",
+    "schema": {
+      "operator": 30
     }
   },
   {
     "name": "Times",
     "schema": {
-      "operator": 31
+      "operator": 31,
+      "attributes": [
+        { "name": "outputRank", "default": 1 },
+        { "name": "inferInputRankToMap", "visible": false, "default": -1 }
+      ],
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
@@ -110,30 +425,620 @@
     }
   },
   {
+    "name": "Convolution",
+    "schema": {
+      "category": "Layer",
+      "operator": 33,
+      "attributes": [
+        { "name": "transpose", "default": false },
+        { "name": "maxTempMemSizeInSamples", "default": 0 },
+        { "name": "dilation", "default": [ 1, null] },
+        { "name": "outputShape", "default": 0 },
+        { "name": "sharing", "default": [ true, null] },
+        { "name": "strides", "default": [ 1, null ] },
+        { "name": "includePad", "default": false },
+        { "name": "ceilOutDim", "default": false },
+        { "name": "autoPadding", "default": [ true, null ] },
+        { "name": "lowerPad", "default": [ 0, null ] },
+        { "name": "upperPad", "default": [ 0, null ] },
+        { "name": "convolution2D", "visible": false },
+        { "name": "poolKind", "type": "PoolKind", "default": "None" },
+        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "SquaredError",
+    "schema": {
+      "operator": 34
+    }
+  },
+  {
+    "name": "CrossEntropyWithSoftmax",
+    "schema": {
+      "operator": 35,
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "ClassificationError",
+    "schema": {
+      "operator": 36,
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "PastValue",
+    "schema": {
+      "operator": 37,
+      "attributes": [
+        { "name": "offset", "type": "uint32", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "initialState" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "FutureValue",
+    "schema": {
+      "operator": 38,
+      "attributes": [
+        { "name": "offset", "type": "uint32", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "initialState" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "ReduceElements",
     "schema": {
-      "operator": 39
+      "operator": 39,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "BatchNormalization",
     "schema": {
       "category": "Normalization",
-      "operator": 40
+      "operator": 40,
+      "attributes": [
+        { "name": "disableRegularization", "default": false },
+        { "name": "useCuDNNEngine", "visible": false },
+        { "name": "useCntkEngine", "visible": false },
+        { "name": "runCountUntied", "visible": false },
+        { "name": "epsilon", "default": 0.00001 },
+        { "name": "normalizationTimeConstant", "default": 0 },
+        { "name": "disableRegularization", "default": false },
+        { "name": "blendTimeConstant", "default": 0 },
+        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "scale" },
+        { "name": "bias" },
+        { "name": "mean" },
+        { "name": "variance" },
+        { "name": "count" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Clip",
+    "schema": {
+      "operator": 41
+    }
+  },
+  {
+    "name": "Select",
+    "schema": {
+      "operator": 42
     }
   },
   {
     "name": "Splice",
     "schema": {
       "category": "Tensor",
-      "operator": 43
+      "operator": 43,
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Combine",
     "schema": {
       "category": "Tensor",
-      "operator": 44
+      "operator": 44,
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "RandomSample",
+    "schema": {
+      "operator": 45
+    }
+  },
+  {
+    "name": "RandomSampleInclusionFrequency",
+    "schema": {
+      "operator": 46
+    }
+  },
+  {
+    "name": "ROIPooling",
+    "schema": {
+      "operator": 47,
+      "category": "Pool",
+      "attributes": [
+        { "name": "spatialScale", "default": 0.0625 },
+        { "name": "poolKind", "type": "PoolKind", "default": "None" }
+      ]
+    }
+  },
+  {
+    "name": "Logistic",
+    "schema": {
+      "operator": 48
+    }
+  },
+  {
+    "name": "OptimizedRNNStack",
+    "schema": {
+      "operator": 49
+    }
+  },
+  {
+    "name": "ReconcileDynamicAxis",
+    "schema": {
+      "operator": 50
+    }
+  },
+  {
+    "name": "LogSoftmax",
+    "schema": {
+      "operator": 51
+    }
+  },
+  {
+    "name": "LogPlus",
+    "schema": {
+      "operator": 52
+    }
+  },
+  {
+    "name": "CosDistance",
+    "schema": {
+      "operator": 53
+    }
+  },
+  {
+    "name": "Sin",
+    "schema": {
+      "operator": 54
+    }
+  },
+  {
+    "name": "Cos",
+    "schema": {
+      "operator": 55
+    }
+  },
+  {
+    "name": "Pass",
+    "schema": {
+      "operator": 56
+    }
+  },
+  {
+    "name": "Block",
+    "schema": {
+      "operator": 57
+    }
+  },
+  {
+    "name": "Unpooling",
+    "schema": {
+      "operator": 58
+    }
+  },
+  {
+    "name": "LambdaRank",
+    "schema": {
+      "operator": 59
+    }
+  },
+  {
+    "name": "NDCG",
+    "schema": {
+      "operator": 60
+    }
+  },
+  {
+    "name": "EditDistanceError",
+    "schema": {
+      "operator": 61
+    }
+  },
+  {
+    "name": "NoOp",
+    "schema": {
+      "operator": 62
+    }
+  },
+  {
+    "name": "LabelsToGraph",
+    "schema": {
+      "operator": 63
+    }
+  },
+  {
+    "name": "StopGradient",
+    "schema": {
+      "operator": 64
+    }
+  },
+  {
+    "name": "ELU",
+    "schema": {
+      "operator": 65
+    }
+  },
+  {
+    "name": "ForwardBackward",
+    "schema": {
+      "operator": 66
+    }
+  },
+  {
+    "name": "CosDistanceWithNegativeSamples",
+    "schema": {
+      "operator": 67
+    }
+  },
+  {
+    "name": "OneHot",
+    "schema": {
+      "operator": 68
+    }
+  },
+  {
+    "name": "Pow",
+    "schema": {
+      "operator": 69
+    }
+  },
+  {
+    "name": "ToSequence",
+    "schema": {
+      "operator": 70
+    }
+  },
+  {
+    "name": "ToSequenceLike",
+    "schema": {
+      "operator": 71
+    }
+  },
+  {
+    "name": "UnpackSequence",
+    "schema": {
+      "operator": 72
+    }
+  },
+  {
+    "name": "Assign",
+    "schema": {
+      "operator": 73
+    }
+  },
+  {
+    "name": "Gather",
+    "schema": {
+      "operator": 74
+    }
+  },
+  {
+    "name": "StableSigmoid",
+    "schema": {
+      "operator": 75,
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "RandomDistribution",
+    "schema": {
+      "operator": 76
+    }
+  },
+  {
+    "name": "Sinh",
+    "schema": {
+      "operator": 77
+    }
+  },
+  {
+    "name": "Cosh",
+    "schema": {
+      "operator": 78
+    }
+  },
+  {
+    "name": "UnpackBatch",
+    "schema": {
+      "operator": 79
+    }
+  },
+  {
+    "name": "ToBatch",
+    "schema": {
+      "operator": 80
+    }
+  },
+  {
+    "name": "Asin",
+    "schema": {
+      "operator": 81
+    }
+  },
+  {
+    "name": "Acos",
+    "schema": {
+      "operator": 82
+    }
+  },
+  {
+    "name": "Pad",
+    "schema": {
+      "operator": 83
+    }
+  },
+  {
+    "name": "Crop",
+    "schema": {
+      "operator": 84
+    }
+  },
+  {
+    "name": "Atanh",
+    "schema": {
+      "operator": 85
+    }
+  },
+  {
+    "name": "Asinh",
+    "schema": {
+      "operator": 86
+    }
+  },
+  {
+    "name": "TopK",
+    "schema": {
+      "operator": 87
+    }
+  },
+  {
+    "name": "Squeeze",
+    "schema": {
+      "operator": 88
+    }
+  },
+  {
+    "name": "ConstantOp",
+    "schema": {
+      "operator": 89
+    }
+  },
+  {
+    "name": "LatticeSequenceWithSoftmax",
+    "schema": {
+      "operator": 90
+    }
+  },
+  {
+    "name": "Cast",
+    "schema": {
+      "operator": 91
+    }
+  },
+  {
+    "name": "EyeLikeOp",
+    "schema": {
+      "operator": 92
+    }
+  },
+  {
+    "name": "CustomProxyOp",
+    "schema": {
+      "operator": 93
+    }
+  },
+  {
+    "name": "StraightThrough",
+    "schema": {
+      "operator": 94
+    }
+  },
+  {
+    "name": "Tan",
+    "schema": {
+      "operator": 95
+    }
+  },
+  {
+    "name": "Atan",
+    "schema": {
+      "operator": 96
+    }
+  },
+  {
+    "name": "ConvolutionSequenceShape",
+    "schema": {
+      "operator": 97
+    }
+  },
+  {
+    "name": "Function:Dense",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:Convolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:linear",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  { 
+    "name": "Function:ElementDivide",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "Function:BatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "scale" },
+        { "name": "bias" },
+        { "name": "mean" },
+        { "name": "variance" },
+        { "name": "count" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:MaxPooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:AveragePooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:Dropout",
+    "schema": {
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:LSTM",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "0" },
+        { "name": "1" },
+        { "name": "2" },
+        { "name": "b" },
+        { "name": "W" },
+        { "name": "H" }
+      ]
     }
   }
 ]

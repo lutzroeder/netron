@@ -3419,7 +3419,7 @@
           "type": "type"
         },
         {
-          "default": 1e-05,
+          "default": 9.999999747378752e-06,
           "name": "tolerance",
           "type": "float"
         }
@@ -5534,6 +5534,10 @@
             },
             {
               "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
               "value": 8
             },
             {
@@ -7327,7 +7331,7 @@
       "description": "An op that returns a list of float tensors, where each tensor represents the\nbucketized values for a single feature.",
       "inputs": [
         {
-          "description": "float; List of Rank 2 Tensor each containing float values for a single feature.",
+          "description": "float; List of Rank 1 Tensor each containing float values for a single feature.",
           "name": "float_values",
           "numberAttr": "num_features",
           "type": 1
@@ -7341,7 +7345,7 @@
       ],
       "outputs": [
         {
-          "description": "int; List of Rank 2 Tensors each containing the bucketized values for a single feature.",
+          "description": "int; List of Rank 1 Tensors each containing the bucketized values for a single feature.",
           "name": "buckets",
           "type": 3
         }
@@ -7662,10 +7666,10 @@
           "type": "int"
         }
       ],
-      "description": "An op that takes a list of tensors and outputs the quantile summaries for each tensor.",
+      "description": "An op that takes a list of tensors (one tensor per feature) and outputs the\nquantile summaries for each tensor.",
       "inputs": [
         {
-          "description": "float; List of Rank 2 Tensors each containing values for a single feature.",
+          "description": "float; List of Rank 1 Tensors each containing values for a single feature.",
           "name": "float_values",
           "numberAttr": "num_features",
           "type": 1
@@ -7683,7 +7687,7 @@
       ],
       "outputs": [
         {
-          "description": "float; List of Rank 2 Tensors each containing the quantile summary (value, weight,\nmin_rank, max_rank) of a single feature.",
+          "description": "float; List of Rank 2 Tensors each containing the quantile summary\n(value, weight, min_rank, max_rank) of a single feature.",
           "name": "summaries",
           "type": 1
         }
@@ -7812,6 +7816,34 @@
         }
       ],
       "summary": "Add the quantile summaries to each quantile stream resource."
+    }
+  },
+  {
+    "name": "BoostedTreesQuantileStreamResourceDeserialize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "inferred int; number of features to get bucket boundaries for.",
+          "minimum": 1,
+          "name": "num_streams",
+          "type": "int"
+        }
+      ],
+      "description": "An op that deserializes bucket boundaries and are boundaries ready flag into current QuantileAccumulator.",
+      "inputs": [
+        {
+          "description": "resource handle referring to a QuantileStreamResource.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        },
+        {
+          "description": "float; List of Rank 1 Tensors each containing the bucket boundaries for a feature.",
+          "name": "bucket_boundaries",
+          "numberAttr": "num_streams",
+          "type": 1
+        }
+      ],
+      "summary": "Deserialize bucket boundaries and ready flag into current QuantileAccumulator."
     }
   },
   {
@@ -13568,7 +13600,7 @@
         }
       ],
       "category": "Tensor",
-      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nif T == qint8, in[i] += (range(T) + 1)/ 2.0\nout[i] = min_range + (in[i]* (max_range - min_range) / range(T))\n```\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nIf the input comes from a QuantizedRelu6, the output type is\nquint8 (range of 0-255) but the possible range of QuantizedRelu6 is\n0-6.  The min_range and max_range values are therefore 0.0 and 6.0.\nDequantize on quint8 will take each value, cast to float, and multiply\nby 6 / 255.\nNote that if quantizedtype is qint8, the operation will additionally add\neach value by 128 prior to casting.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```c++\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = range / num_discrete_values\nconst double offset_input = static_cast<double>(input) - lowest_quantized;\nresult = range_min + ((input - numeric_limits<T>::min()) * range_scale)\n```\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, we do not use the full range of the output type,\nchoosing to elide the lowest possible value for symmetry (e.g., output range is\n-127 to 127, not -128 to 127 for signed 8 bit quantization), so that 0.0 maps to\n0.\n\nWe first find the range of values in our tensor. The\nrange we use is always centered on 0, so we find m such that\n```c++\n  m = max(abs(input_min), abs(input_max))\n```\n\nOur input tensor range is then `[-m, m]`.\n\nNext, we choose our fixed-point quantization buckets, `[min_fixed, max_fixed]`.\nIf T is signed, this is\n```\n  num_bits = sizeof(T) * 8\n  [min_fixed, max_fixed] =\n      [-(1 << (num_bits - 1) - 1), (1 << (num_bits - 1)) - 1]\n```\n\nOtherwise, if T is unsigned, the fixed-point range is\n```\n  [min_fixed, max_fixed] = [0, (1 << num_bits) - 1]\n```\n\nFrom this we compute our scaling factor, s:\n```c++\n  s = (2 * m) / (max_fixed - min_fixed)\n```\n\nNow we can dequantize the elements of our tensor:\n```c++\nresult = input * s\n```",
+      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nif T == qint8: in[i] += (range(T) + 1)/ 2.0\nout[i] = min_range + (in[i]* (max_range - min_range) / range(T))\n```\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nIf the input comes from a QuantizedRelu6, the output type is\nquint8 (range of 0-255) but the possible range of QuantizedRelu6 is\n0-6.  The min_range and max_range values are therefore 0.0 and 6.0.\nDequantize on quint8 will take each value, cast to float, and multiply\nby 6 / 255.\nNote that if quantizedtype is qint8, the operation will additionally add\neach value by 128 prior to casting.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```c++\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = range / num_discrete_values\nconst double offset_input = static_cast<double>(input) - lowest_quantized;\nresult = range_min + ((input - numeric_limits<T>::min()) * range_scale)\n```\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, we do not use the full range of the output type,\nchoosing to elide the lowest possible value for symmetry (e.g., output range is\n-127 to 127, not -128 to 127 for signed 8 bit quantization), so that 0.0 maps to\n0.\n\nWe first find the range of values in our tensor. The\nrange we use is always centered on 0, so we find m such that\n```c++\n  m = max(abs(input_min), abs(input_max))\n```\n\nOur input tensor range is then `[-m, m]`.\n\nNext, we choose our fixed-point quantization buckets, `[min_fixed, max_fixed]`.\nIf T is signed, this is\n```\n  num_bits = sizeof(T) * 8\n  [min_fixed, max_fixed] =\n      [-(1 << (num_bits - 1) - 1), (1 << (num_bits - 1)) - 1]\n```\n\nOtherwise, if T is unsigned, the fixed-point range is\n```\n  [min_fixed, max_fixed] = [0, (1 << num_bits) - 1]\n```\n\nFrom this we compute our scaling factor, s:\n```c++\n  s = (2 * m) / (max_fixed - min_fixed)\n```\n\nNow we can dequantize the elements of our tensor:\n```c++\nresult = input * s\n```",
       "inputs": [
         {
           "name": "input",
@@ -14716,6 +14748,10 @@
         {
           "name": "element_shape",
           "typeAttr": "shape_type"
+        },
+        {
+          "name": "max_num_elements",
+          "type": 3
         }
       ],
       "outputs": [
@@ -15368,6 +15404,708 @@
     }
   },
   {
+    "name": "ExperimentalAssertNextDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "transformations",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalCSVDataset",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "filenames",
+          "type": 7
+        },
+        {
+          "name": "compression_type",
+          "type": 7
+        },
+        {
+          "name": "buffer_size",
+          "type": 9
+        },
+        {
+          "name": "header",
+          "type": 10
+        },
+        {
+          "name": "field_delim",
+          "type": 7
+        },
+        {
+          "name": "use_quote_delim",
+          "type": 10
+        },
+        {
+          "name": "na_value",
+          "type": 7
+        },
+        {
+          "name": "select_cols",
+          "type": 9
+        },
+        {
+          "name": "record_defaults",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalDirectedInterleaveDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A dataset of scalar `DT_INT64` elements that determines which of the\n`N` data inputs should produce the next output element.",
+          "name": "selector_input_dataset",
+          "type": 21
+        },
+        {
+          "description": "`N` datasets with the same type that will be interleaved according to\nthe values of `selector_input_dataset`.",
+          "name": "data_input_datasets",
+          "numberAttr": "N",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "A substitute for `InterleaveDataset` on a fixed list of `N` datasets."
+    }
+  },
+  {
+    "name": "ExperimentalFunctionBufferingResource",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If non-empty, this resource will be shared under the given name across\nmultiple sessions.",
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "description": "If non-empty, this resource is placed in the given container.\nOtherwise, a default container is used.",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "description": "Function to be executed.",
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "description": "Size of the buffer.",
+          "name": "buffer_size",
+          "type": "int"
+        },
+        {
+          "description": "The type list for the return values.",
+          "name": "output_types",
+          "type": "list(type)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "String argument to the function call.",
+          "name": "string_arg",
+          "type": 7
+        },
+        {
+          "description": "Target device to execute the function on.",
+          "name": "target_device",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Handle to the resource created.",
+          "name": "resource",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a resource that fills up a buffer by making function calls."
+    }
+  },
+  {
+    "name": "ExperimentalFunctionBufferingResourceGetNext",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type list for the return values.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The FunctionBufferingResource handle.",
+          "name": "function_buffer_resource",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of return values.",
+          "name": "output",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "Gets the next element from a FunctionBufferingResource."
+    }
+  },
+  {
+    "name": "ExperimentalFunctionBufferingResourceReset",
+    "schema": {
+      "inputs": [
+        {
+          "description": "The FunctionBufferingResource handle.",
+          "name": "function_buffer_resource",
+          "type": 20
+        }
+      ],
+      "summary": "Resets the FunctionBufferingResource."
+    }
+  },
+  {
+    "name": "ExperimentalIdentityIndexedDataset",
+    "schema": {
+      "inputs": [
+        {
+          "name": "size",
+          "type": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalIgnoreErrorsDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that contains the elements of `input_dataset` ignoring errors."
+    }
+  },
+  {
+    "name": "ExperimentalIndexedDatasetGet",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "materialized",
+          "type": 20
+        },
+        {
+          "name": "index",
+          "type": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "components",
+          "typeListAttr": "output_types"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalIndexedDatasetMaterialize",
+    "schema": {
+      "inputs": [
+        {
+          "name": "dataset",
+          "type": 21
+        },
+        {
+          "name": "materialized",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalIteratorGetDevice",
+    "schema": {
+      "inputs": [
+        {
+          "name": "resource",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "device",
+          "type": 7
+        }
+      ],
+      "summary": "Returns the name of the device on which `resource` has been placed."
+    }
+  },
+  {
+    "name": "ExperimentalLMDBDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "filenames",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalMapDataset",
+    "schema": {
+      "attributes": [
+        {
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": true,
+          "name": "use_inter_op_parallelism",
+          "type": "bool"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that applies `f` to the outputs of `input_dataset`."
+    }
+  },
+  {
+    "name": "ExperimentalMaterializedIndexDatasetHandle",
+    "schema": {
+      "attributes": [
+        {
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalNonSerializableDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalNumaMapAndBatchDataset",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A function to apply to the outputs of `input_dataset`.",
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "Creates a dataset that applies `f` to the outputs of `input_dataset` and then\nbatches `batch_size` of them.\n\nUnlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `batch_size * num_parallel_batches` copies of `f` in parallel.\n\nUnlike \"MapAndBatchDatasetV2\", this dataset uses a NUMA-aware thread scheduling\npolicy. Because it uses the single-threaded executor, it only supports the\nfunction-based control flow ops.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A list of tensors, typically values that were captured when building a closure\nfor `f`.",
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        },
+        {
+          "description": "A scalar representing the number of elements to accumulate in a\nbatch. It determines the number of concurrent invocations of `f` that process\nelements from `input_dataset` in parallel.",
+          "name": "batch_size",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing the maximum number of parallel invocations of the `map_fn`\nfunction. Applying the `map_fn` on consecutive input elements in parallel has\nthe potential to improve input pipeline throughput.",
+          "name": "num_parallel_calls",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing whether the last batch should be dropped in case its size\nis smaller than desired.",
+          "name": "drop_remainder",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that fuses mapping with batching."
+    }
+  },
+  {
+    "name": "ExperimentalSleepDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "sleep_microseconds",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalThreadPoolDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A resource produced by the ThreadPoolHandle op.",
+          "name": "thread_pool",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that uses a custom thread pool to compute `input_dataset`."
+    }
+  },
+  {
+    "name": "ExperimentalThreadPoolHandle",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The number of threads in the thread pool.",
+          "name": "num_threads",
+          "type": "int"
+        },
+        {
+          "default": 1,
+          "description": "The maximum degree of parallelism to use within operations that execute on this\nthreadpool.",
+          "name": "max_intra_op_parallelism",
+          "type": "int"
+        },
+        {
+          "description": "A human-readable name for the threads that may be visible in some\nvisualizations.\nthreadpool.",
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A resource that can be consumed by one or more ExperimentalThreadPoolDataset\nops.",
+          "name": "handle",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a dataset that uses a custom thread pool to compute `input_dataset`."
+    }
+  },
+  {
+    "name": "ExperimentalUniqueDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that contains the unique elements of `input_dataset`."
+    }
+  },
+  {
     "name": "Expm1",
     "schema": {
       "attributes": [
@@ -15708,7 +16446,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Extract `patches` from `input` and put them in the \"depth\" output\ndimension. 3D extension of `extract_image_patches`."
+      "summary": "Extract `patches` from `input` and put them in the \"depth\" output dimension. 3D extension of `extract_image_patches`."
     }
   },
   {
@@ -16425,6 +17163,43 @@
         }
       ],
       "summary": "Creates a dataset that emits the records from one or more binary files."
+    }
+  },
+  {
+    "name": "FixedLengthRecordDatasetV2",
+    "schema": {
+      "inputs": [
+        {
+          "name": "filenames",
+          "type": 7
+        },
+        {
+          "name": "header_bytes",
+          "type": 9
+        },
+        {
+          "name": "record_bytes",
+          "type": 9
+        },
+        {
+          "name": "footer_bytes",
+          "type": 9
+        },
+        {
+          "name": "buffer_size",
+          "type": 9
+        },
+        {
+          "name": "compression_type",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
     }
   },
   {
@@ -17254,7 +18029,7 @@
           "type": "type"
         },
         {
-          "default": 0.0001,
+          "default": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17351,7 +18126,7 @@
           "type": "type"
         },
         {
-          "default": 0.0001,
+          "default": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17466,7 +18241,7 @@
           "type": "type"
         },
         {
-          "default": 0.0001,
+          "default": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17581,7 +18356,7 @@
           "type": "type"
         },
         {
-          "default": 0.0001,
+          "default": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -19175,6 +19950,11 @@
           "description": "    A function that takes 'inputs' and returns a list of tensors, whose\n    types are the same as what then_branch returns.",
           "name": "else_branch",
           "type": "func"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "list(shape)"
         }
       ],
       "inputs": [
@@ -19218,7 +19998,7 @@
           "type": "type"
         }
       ],
-      "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\\\)\n\nwhere\n\n\\\\(gamma(a, x) = int_{0}^{x} t^{a-1} exp(-t) dt\\\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
+      "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\\\)\n\nwhere\n\n\\\\(gamma(a, x) = \\\\int_{0}^{x} t^{a-1} exp(-t) dt\\\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
       "inputs": [
         {
           "name": "a",
@@ -20819,6 +21599,115 @@
     }
   },
   {
+    "name": "LeakyRelu",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.20000000298023224,
+          "name": "alpha",
+          "type": "float"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "features",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activations",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes rectified linear: `max(features, features * alpha)`."
+    }
+  },
+  {
+    "name": "LeakyReluGrad",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.20000000298023224,
+          "name": "alpha",
+          "type": "float"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The backpropagated gradients to the corresponding LeakyRelu operation.",
+          "name": "gradients",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The features passed as input to the corresponding LeakyRelu operation,\nOR the outputs of that operation (both work equivalently).",
+          "name": "features",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "`gradients * (features > 0) + alpha * gradients * (featurs <= 0)`.",
+          "name": "backprops",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes rectified linear gradients for a LeakyRelu operation."
+    }
+  },
+  {
     "name": "LearnedUnigramCandidateSampler",
     "schema": {
       "attributes": [
@@ -21954,6 +22843,31 @@
     }
   },
   {
+    "name": "LookupTableRemoveV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "Tin",
+          "type": "type"
+        }
+      ],
+      "description": "The tensor `keys` must of the same type as the keys of the table. Keys not\nalready in the table are silently ignored.",
+      "inputs": [
+        {
+          "description": "Handle to the table.",
+          "name": "table_handle",
+          "type": 20
+        },
+        {
+          "description": "Any shape.  Keys of the elements to remove.",
+          "name": "keys",
+          "typeAttr": "Tin"
+        }
+      ],
+      "summary": "Removes keys and its associated values from a table."
+    }
+  },
+  {
     "name": "LookupTableSize",
     "schema": {
       "inputs": [
@@ -22299,6 +23213,13 @@
           "type": "list(type)"
         },
         {
+          "default": [],
+          "description": "A list of types.",
+          "minimum": 0,
+          "name": "Tcaptured",
+          "type": "list(type)"
+        },
+        {
           "description": "A list of types.",
           "minimum": 1,
           "name": "output_types",
@@ -22317,19 +23238,24 @@
       ],
       "inputs": [
         {
-          "description": "    A list of tensors whose types are Targuments, corresponding to the inputs the\n    function should be mapped over.",
+          "description": "    A list of tensors whose types are `Targuments`, corresponding to the inputs\n    the function should be mapped over.",
           "name": "arguments",
           "typeListAttr": "Targuments"
+        },
+        {
+          "description": "    A list of tensors whose types are `Tcaptured`, corresponding to the captured\n    inputs of the defun.",
+          "name": "captured_inputs",
+          "typeListAttr": "Tcaptured"
         }
       ],
       "outputs": [
         {
-          "description": "    A list of output tensors whose types are output_types and whose dimensions 0\n    are the same as the dimensions 0 of the tensors in arguments, and whose\n    remaining dimensions correspond to those in output_shapes.",
+          "description": "    A list of output tensors whose types are `output_types` and whose dimensions\n    0 are the same as the dimensions 0 of the tensors in `arguments`, and whose\n    remaining dimensions correspond to those in `output_shapes`.",
           "name": "output",
           "typeListAttr": "output_types"
         }
       ],
-      "summary": "  Maps a function on the list of tensors unpacked from inputs on dimension 0."
+      "summary": "  Maps a function on the list of tensors unpacked from arguments on dimension 0."
     }
   },
   {
@@ -22666,6 +23592,10 @@
             },
             {
               "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
               "value": 8
             },
             {
@@ -22716,6 +23646,23 @@
         }
       ],
       "summary": "Returns the set of files matching one or more glob patterns."
+    }
+  },
+  {
+    "name": "MatchingFilesDataset",
+    "schema": {
+      "inputs": [
+        {
+          "name": "patterns",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
     }
   },
   {
@@ -23147,6 +24094,51 @@
         }
       ],
       "summary": "Solves one or more linear least-squares problems."
+    }
+  },
+  {
+    "name": "MatrixSquareRoot",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "matmul(sqrtm(A), sqrtm(A)) = A\n\nThe input matrix should be invertible. If the input matrix is real, it should\nhave no eigenvalues which are real and negative (pairs of complex conjugate\neigenvalues are allowed).\n\nThe matrix square root is computed by first reducing the matrix to \nquasi-triangular form with the real Schur decomposition. The square root \nof the quasi-triangular matrix is then computed directly. Details of \nthe algorithm can be found in: Nicholas J. Higham, \"Computing real \nsquare roots of a real matrix\", Linear Algebra Appl., 1987.\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the matrix square root for all input submatrices `[..., :, :]`.",
+      "inputs": [
+        {
+          "description": "Shape is `[..., M, M]`.",
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Shape is `[..., M, M]`.\n\n@compatibility(scipy)\nEquivalent to scipy.linalg.sqrtm\n@end_compatibility",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the matrix square root of one or more square matrices:"
     }
   },
   {
@@ -25808,7 +26800,7 @@
           "type": "int"
         },
         {
-          "default": 0.8,
+          "default": 0.800000011920929,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float"
@@ -25880,7 +26872,7 @@
           "type": "int"
         },
         {
-          "default": 0.8,
+          "default": 0.800000011920929,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float"
@@ -25891,6 +26883,10 @@
         {
           "description": "The key used to represent empty key buckets internally. Must not\nbe used in insert or lookup operations.",
           "name": "empty_key",
+          "typeAttr": "key_dtype"
+        },
+        {
+          "name": "deleted_key",
           "typeAttr": "key_dtype"
         }
       ],
@@ -26142,6 +27138,185 @@
         }
       ],
       "summary": "Creates a Mutex resource that can be locked by `MutexLock`."
+    }
+  },
+  {
+    "name": "NcclAllReduce",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            "min",
+            "max",
+            "prod",
+            "sum"
+          ],
+          "name": "reduction",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "name": "num_devices",
+          "type": "int"
+        },
+        {
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "description": "Outputs a tensor containing the reduction across all input tensors passed to ops\nwithin the same `shared_name.\n\nThe graph should be constructed so if one op runs with shared_name value `c`,\nthen `num_devices` ops will run with shared_name value `c`.  Failure to do so\nwill cause the graph execution to fail to complete.\n\ninput: the input to the reduction\ndata: the value of the reduction across all `num_devices` devices.\nreduction: the reduction operation to perform.\nnum_devices: The number of devices participating in this reduction.\nshared_name: Identifier that shared between ops of the same reduction.",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "data",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Outputs a tensor containing the reduction across all input tensors."
+    }
+  },
+  {
+    "name": "NcclBroadcast",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "name": "shape",
+          "type": "shape"
+        }
+      ],
+      "description": "Sends `input` to all devices that are connected to the output.\n\nThe graph should be constructed so that all ops connected to the output have a\nvalid device assignment, and the op itself is assigned one of these devices.\n\ninput: The input to the broadcast.\noutput: The same as input.\nshape: The shape of the input tensor.\n",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Sends `input` to all devices that are connected to the output."
+    }
+  },
+  {
+    "name": "NcclReduce",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            "min",
+            "max",
+            "prod",
+            "sum"
+          ],
+          "name": "reduction",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "minimum": 1,
+          "name": "num_devices",
+          "type": "int"
+        }
+      ],
+      "description": "Reduces `input` from `num_devices` using `reduction` to a single device.\n\nThe graph should be constructed so that all inputs have a valid device\nassignment, and the op itself is assigned one of these devices.\n\ninput: The input to the reduction.\ndata: the value of the reduction across all `num_devices` devices.\nreduction: the reduction operation to perform.",
+      "inputs": [
+        {
+          "name": "input",
+          "numberAttr": "num_devices",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "data",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Reduces `input` from `num_devices` using `reduction` to a single device."
     }
   },
   {
@@ -27876,6 +29051,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": false,
+          "name": "sloppy",
+          "type": "bool"
         }
       ],
       "inputs": [
@@ -27935,6 +29115,11 @@
         {
           "default": true,
           "name": "use_inter_op_parallelism",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "sloppy",
           "type": "bool"
         }
       ],
@@ -28238,6 +29423,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": false,
+          "name": "sloppy",
+          "type": "bool"
         }
       ],
       "inputs": [
@@ -28834,6 +30024,21 @@
           "description": "      A function that takes 'args', a list of tensors, and returns 'output',\n      another list of tensors. Input and output types are specified by 'Tin'\n      and 'Tout'. The function body of f will be placed and partitioned across\n      devices, setting this op apart from the regular Call op.",
           "name": "f",
           "type": "func"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "config_proto",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "executor_type",
+          "type": "string"
         }
       ],
       "inputs": [
@@ -29277,13 +30482,6 @@
     "schema": {
       "attributes": [
         {
-          "allowedValues": [
-            "stdout",
-            "stderr",
-            "log(info)",
-            "log(warning)",
-            "log(error)"
-          ],
           "default": "stderr",
           "description": "A string specifying the output stream or logging level to print to.",
           "name": "output_stream",
@@ -29764,7 +30962,7 @@
           "type": "type"
         }
       ],
-      "description": "This op simulates the precision loss from the quantized forward pass by:\n\n1. Quantizing the tensor to fixed point numbers, which should match the target\n   quantization method when it is used in inference.\n2. Dequantizing it back to floating point numbers for the following ops, most\n   likely matmul.\n\nThere are different ways to quantize. This version uses only scaling, so 0.0\nmaps to 0.\n\nFrom the specified 'num_bits' in the quantized output type, it determines\nminimum and maximum representable quantized values.\n\ne.g.\n\n*   [-128, 127] for signed, num_bits = 8, or\n*   [0, 255] for unsigned, num_bits = 8.\n\nIf range_given == False, the initial input_min, input_max will be determined\nautomatically as the minimum and maximum values in the input tensor, otherwise\nthe specified values of input_min, input_max are used.\n\nNote: If the input_min, input_max are specified, they do not need to equal the\nactual minimum and maximum values in the tensor. e.g. in some cases it may be\nbeneficial to specify these values such that the low probability extremes of the\ninput distribution are clipped.\n\nThis op determines the maximum scale_factor that would map the initial\n[input_min, input_max] range to a range that lies within the representable\nquantized range.\n\nIt determines the scale from one of input_min and input_max, then updates the\nother one to maximize the respresentable range.\n\ne.g.\n\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    5.0]: it would use a scale_factor of -128 / -10.0 = 12.8 In this case, it\n    would update input_max to be 127 / 12.8 = 9.921875\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    10.0]: it would use a scale_factor of 127 / 10.0 = 12.7 In this case, it\n    would update input_min to be 128.0 / 12.7 = -10.07874\n*   if the output is unsigned, input_min is forced to be 0, and only the\n    specified input_max is used.\n\nAfter determining the scale_factor and updating the input range, it applies the\nfollowing to each value in the 'input' tensor.\n\noutput = round(clamp(value, input_min, input_max) * scale_factor) / scale_factor.\n",
+      "description": "This op simulates the precision loss from the quantized forward pass by:\n\n1. Quantizing the tensor to fixed point numbers, which should match the target\n   quantization method when it is used in inference.\n2. Dequantizing it back to floating point numbers for the following ops, most\n   likely matmul.\n\nThere are different ways to quantize. This version uses only scaling, so 0.0\nmaps to 0.\n\nFrom the specified 'num_bits' in the quantized output type, it determines\nminimum and maximum representable quantized values.\n\ne.g.\n\n*   [-128, 127] for signed, num_bits = 8, or\n*   [0, 255] for unsigned, num_bits = 8.\n\nIf range_given == False, the initial input_min, input_max will be determined\nautomatically as the minimum and maximum values in the input tensor, otherwise\nthe specified values of input_min, input_max are used.\n\nNote: If the input_min, input_max are specified, they do not need to equal the\nactual minimum and maximum values in the tensor. e.g. in some cases it may be\nbeneficial to specify these values such that the low probability extremes of the\ninput distribution are clipped.\n\nThis op determines the maximum scale_factor that would map the initial\n[input_min, input_max] range to a range that lies within the representable\nquantized range.\n\nIt determines the scale from one of input_min and input_max, then updates the\nother one to maximize the respresentable range.\n\ne.g.\n\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    5.0]: it would use a scale_factor of -128 / -10.0 = 12.8 In this case, it\n    would update input_max to be 127 / 12.8 = 9.921875\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    10.0]: it would use a scale_factor of 127 / 10.0 = 12.7 In this case, it\n    would update input_min to be 128.0 / 12.7 = -10.07874\n*   if the output is unsigned, input_min is forced to be 0, and only the\n    specified input_max is used.\n\nAfter determining the scale_factor and updating the input range, it applies the\nfollowing to each value in the 'input' tensor.\n\noutput = round(clamp(value, input_min, input_max) * scale_factor) / scale_factor.\n\nThe above round function uses half to even rounding.\n",
       "inputs": [
         {
           "description": "Tensor to quantize and then dequantize.",
@@ -30001,7 +31199,7 @@
           "type": "string"
         }
       ],
-      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.  The\n'round_mode' attribute controls which rounding tie-breaking algorithm is used\nwhen rounding float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nout[i] = (in[i] - min_range) * range(T) / (max_range - min_range)\nif T == qint8, out[i] -= (range(T) + 1) / 2.0\n```\n\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nAssume the input is type float and has a possible range of [0.0, 6.0] and the\noutput type is quint8 ([0, 255]). The min_range and max_range values should be\nspecified as 0.0 and 6.0. Quantizing from float to quint8 will multiply each\nvalue of the input by 255/6 and cast to quint8.\n\nIf the output type was qint8 ([-128, 127]), the operation will additionally\nsubtract each value by 128 prior to casting, so that the range of values aligns\nwith the range of qint8.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = num_discrete_values / range\nquantized = round(input * range_scale) - round(range_min * range_scale) +\n  numeric_limits<T>::min()\nquantized = max(quantized, numeric_limits<T>::min())\nquantized = min(quantized, numeric_limits<T>::max())\n```\n\nThe biggest difference between this and MIN_COMBINED is that the minimum range\nis rounded first, before it's subtracted from the rounded value. With\nMIN_COMBINED, a small bias is introduced where repeated iterations of quantizing\nand dequantizing will introduce a larger and larger error.\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, we do not use the full range of the output type,\nchoosing to elide the lowest possible value for symmetry (e.g., output range is\n-127 to 127, not -128 to 127 for signed 8 bit quantization), so that 0.0 maps to\n0.\n\nWe first find the range of values in our tensor. The\nrange we use is always centered on 0, so we find m such that\n\n```c++\n  m = max(abs(input_min), abs(input_max))\n```\n\nOur input tensor range is then `[-m, m]`.\n\nNext, we choose our fixed-point quantization buckets, `[min_fixed, max_fixed]`.\nIf T is signed, this is\n\n```\n  num_bits = sizeof(T) * 8\n  [min_fixed, max_fixed] =\n      [-(1 << (num_bits - 1) - 1), (1 << (num_bits - 1)) - 1]\n```\n\nOtherwise, if T is unsigned, the fixed-point range is\n\n```\n  [min_fixed, max_fixed] = [0, (1 << num_bits) - 1]\n```\n\nFrom this we compute our scaling factor, s:\n\n```c++\n  s = (max_fixed - min_fixed) / (2 * m)\n```\n\nNow we can quantize the elements of our tensor:\n\n```c++\nresult = round(input * s)\n```\n\nOne thing to watch out for is that the operator may choose to adjust the\nrequested minimum and maximum values slightly during the quantization process,\nso you should always use the output ports as the range for further calculations.\nFor example, if the requested minimum and maximum values are close to equal,\nthey will be separated by a small epsilon value to prevent ill-formed quantized\nbuffers from being created. Otherwise, you can end up with buffers where all the\nquantized values map to the same float value, which causes problems for\noperations that have to perform further calculations on them.",
+      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.  The\n'round_mode' attribute controls which rounding tie-breaking algorithm is used\nwhen rounding float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nout[i] = (in[i] - min_range) * range(T) / (max_range - min_range)\nif T == qint8: out[i] -= (range(T) + 1) / 2.0\n```\n\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nAssume the input is type float and has a possible range of [0.0, 6.0] and the\noutput type is quint8 ([0, 255]). The min_range and max_range values should be\nspecified as 0.0 and 6.0. Quantizing from float to quint8 will multiply each\nvalue of the input by 255/6 and cast to quint8.\n\nIf the output type was qint8 ([-128, 127]), the operation will additionally\nsubtract each value by 128 prior to casting, so that the range of values aligns\nwith the range of qint8.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = num_discrete_values / range\nquantized = round(input * range_scale) - round(range_min * range_scale) +\n  numeric_limits<T>::min()\nquantized = max(quantized, numeric_limits<T>::min())\nquantized = min(quantized, numeric_limits<T>::max())\n```\n\nThe biggest difference between this and MIN_COMBINED is that the minimum range\nis rounded first, before it's subtracted from the rounded value. With\nMIN_COMBINED, a small bias is introduced where repeated iterations of quantizing\nand dequantizing will introduce a larger and larger error.\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, we do not use the full range of the output type,\nchoosing to elide the lowest possible value for symmetry (e.g., output range is\n-127 to 127, not -128 to 127 for signed 8 bit quantization), so that 0.0 maps to\n0.\n\nWe first find the range of values in our tensor. The\nrange we use is always centered on 0, so we find m such that\n\n```c++\n  m = max(abs(input_min), abs(input_max))\n```\n\nOur input tensor range is then `[-m, m]`.\n\nNext, we choose our fixed-point quantization buckets, `[min_fixed, max_fixed]`.\nIf T is signed, this is\n\n```\n  num_bits = sizeof(T) * 8\n  [min_fixed, max_fixed] =\n      [-(1 << (num_bits - 1) - 1), (1 << (num_bits - 1)) - 1]\n```\n\nOtherwise, if T is unsigned, the fixed-point range is\n\n```\n  [min_fixed, max_fixed] = [0, (1 << num_bits) - 1]\n```\n\nFrom this we compute our scaling factor, s:\n\n```c++\n  s = (max_fixed - min_fixed) / (2 * m)\n```\n\nNow we can quantize the elements of our tensor:\n\n```c++\nresult = round(input * s)\n```\n\nOne thing to watch out for is that the operator may choose to adjust the\nrequested minimum and maximum values slightly during the quantization process,\nso you should always use the output ports as the range for further calculations.\nFor example, if the requested minimum and maximum values are close to equal,\nthey will be separated by a small epsilon value to prevent ill-formed quantized\nbuffers from being created. Otherwise, you can end up with buffers where all the\nquantized values map to the same float value, which causes problems for\noperations that have to perform further calculations on them.",
       "inputs": [
         {
           "name": "input",
@@ -30827,13 +32025,13 @@
           "type": "float"
         },
         {
-          "default": 1e-05,
+          "default": 9.999999747378752e-06,
           "description": "A small float number to avoid dividing by 0.",
           "name": "variance_epsilon",
           "type": "float"
         },
         {
-          "default": 0.001,
+          "default": 0.0010000000474974513,
           "description": "Minimum value of `y_max - y_min`",
           "name": "min_separation",
           "type": "float"
@@ -32326,6 +33524,192 @@
         }
       ],
       "summary": "Converts one or more images from RGB to HSV."
+    }
+  },
+  {
+    "name": "RaggedGather",
+    "schema": {
+      "attributes": [
+        {
+          "name": "Tvalues",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "description": "The ragged rank of the `params` RaggedTensor. `params_nested_splits` should\ncontain this number of `row_splits` tensors. This value should equal\n`params.ragged_rank`.",
+          "minimum": 1,
+          "name": "PARAMS_RAGGED_RANK",
+          "type": "int"
+        },
+        {
+          "description": "The ragged rank of the output RaggedTensor. `output_nested_splits` will contain\nthis number of `row_splits` tensors. This value should equal\n`indices.shape.ndims + params.ragged_rank - 1`.",
+          "minimum": 0,
+          "name": "OUTPUT_RAGGED_RANK",
+          "type": "int"
+        }
+      ],
+      "description": "Outputs a `RaggedTensor` output composed from `output_dense_values` and\n`output_nested_splits`, such that:\n\n```python\noutput.shape = indices.shape + params.shape[1:]\noutput.ragged_rank = indices.shape.ndims + params.ragged_rank\noutput[i...j, d0...dn] = params[indices[i...j], d0...dn]\n```\n\nwhere\n\n* `params =\n   ragged.from_nested_row_splits(params_dense_values, params_nested_splits)`\n   provides the values that should be gathered.\n* `indices` ia a dense tensor with dtype `int32` or `int64`, indicating which\n   values should be gathered.\n* `output =\n   ragged.from_nested_row_splits(output_dense_values, output_nested_splits)`\n   is the output tensor.\n\n(Note: This c++ op is used to implement the higher-level python\n`tf.ragged.gather` op, which also supports ragged indices.)\n",
+      "inputs": [
+        {
+          "description": "The `nested_row_splits` tensors that define the row-partitioning for the\n`params` RaggedTensor input.",
+          "name": "params_nested_splits",
+          "numberAttr": "PARAMS_RAGGED_RANK",
+          "type": 9
+        },
+        {
+          "description": "The `inner_values` for the `params` RaggedTensor. There was a terminology change\nat the python level from dense_values to inner_values, so dense_values is the\ndeprecated name.",
+          "name": "params_dense_values",
+          "typeAttr": "Tvalues"
+        },
+        {
+          "description": "Indices in the outermost dimension of `params` of the values that should be\ngathered.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The `nested_row_splits` tensors that define the row-partitioning for the\nreturned RaggedTensor.",
+          "name": "output_nested_splits",
+          "type": 9
+        },
+        {
+          "description": "The `inner_values` for the returned RaggedTensor.",
+          "name": "output_dense_values",
+          "typeAttr": "Tvalues"
+        }
+      ],
+      "summary": "Gather ragged slices from `params` axis `0` according to `indices`."
+    }
+  },
+  {
+    "name": "RaggedRange",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "\nReturns a `RaggedTensor` `result` composed from `rt_dense_values` and\n`rt_nested_splits`, such that\n`result[i] = range(starts[i], limits[i], deltas[i])`.\n\n```python\n>>> (rt_nested_splits, rt_dense_values) = gen_ragged_ops.ragged_range(\n...     starts=[2, 5, 8], limits=[3, 5, 12], deltas=1)\n>>> result = ragged.from_nested_row_splits(rt_dense_values, rt_nested_splits)\n>>> print result.eval().tolist()\n[[2],               # result[0] = range(2, 3)\n [],                # result[1] = range(5, 5)\n [8, 9, 10, 11]]    # result[2] = range(8, 12)\n```\n\nThe input tensors `starts`, `limits`, and `deltas` may be scalars or vectors.\nThe vector inputs must all have the same size.  Scalar inputs are broadcast\nto match the size of the vector inputs.",
+      "inputs": [
+        {
+          "description": "The starts of each range.",
+          "name": "starts",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The limits of each range.",
+          "name": "limits",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The deltas of each range.",
+          "name": "deltas",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The `row_splits` for the returned `RaggedTensor`.",
+          "name": "rt_nested_splits",
+          "type": 9
+        },
+        {
+          "description": "The `inner_values` for the returned `RaggedTensor`.",
+          "name": "rt_dense_values",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns a `RaggedTensor` containing the specified sequences of numbers."
+    }
+  },
+  {
+    "name": "RaggedTensorToSparse",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The ragged rank of the input RaggedTensor.  `rt_nested_splits` should contain\nthis number of ragged-splits tensors.  This value should equal\n`input.ragged_rank`.",
+          "minimum": 1,
+          "name": "RAGGED_RANK",
+          "type": "int"
+        },
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "input=ragged.from_nested_row_splits(rt_dense_values, rt_nested_splits)\noutput=SparseTensor(indices=sparse_indices, values=sparse_values,\n                    dense_shape=sparse_dense_shape)",
+      "inputs": [
+        {
+          "description": "The `row_splits` for the `RaggedTensor`.",
+          "name": "rt_nested_splits",
+          "numberAttr": "RAGGED_RANK",
+          "type": 9
+        },
+        {
+          "description": "The `inner_values` for the `RaggedTensor`.",
+          "name": "rt_dense_values",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The indices for the `SparseTensor`.",
+          "name": "sparse_indices",
+          "type": 9
+        },
+        {
+          "description": "The values of the `SparseTensor`.",
+          "name": "sparse_values",
+          "typeAttr": "T"
+        },
+        {
+          "description": "`sparse_dense_shape` is a tight bounding box of the input `RaggedTensor`.",
+          "name": "sparse_dense_shape",
+          "type": 9
+        }
+      ],
+      "summary": "Converts a `RaggedTensor` into a `SparseTensor` with the same values."
     }
   },
   {
@@ -33916,6 +35300,66 @@
         }
       ],
       "summary": "Emits randomized records."
+    }
+  },
+  {
+    "name": "ReduceDataset",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A function that maps `(old_state, input_element)` to `new_state`. It must take\ntwo arguments and return a nested structures of tensors. The structure of\n`new_state` must match the structure of `initial_state`.",
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "minimum": 1,
+          "name": "Tstate",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": true,
+          "name": "use_inter_op_parallelism",
+          "type": "bool"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A nested structure of tensors, representing the initial state of the\ntransformation.",
+          "name": "initial_state",
+          "typeListAttr": "Tstate"
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "components",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "Reduces the input dataset to a singleton using a reduce function."
     }
   },
   {
@@ -40543,7 +41987,7 @@
           "type": "int"
         },
         {
-          "default": 0.1,
+          "default": 0.10000000149011612,
           "description": "The cropped area of the image must contain at least this\nfraction of any bounding box supplied. The value of this parameter should be\nnon-negative. In the case of 0, the cropped area does not need to overlap\nany of the bounding boxes supplied.",
           "name": "min_object_covered",
           "type": "float"
@@ -40551,7 +41995,7 @@
         {
           "default": [
             0.75,
-            1.33
+            1.3300000429153442
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -40559,7 +42003,7 @@
         },
         {
           "default": [
-            0.05,
+            0.05000000074505806,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -40657,7 +42101,7 @@
         {
           "default": [
             0.75,
-            1.33
+            1.3300000429153442
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -40665,7 +42109,7 @@
         },
         {
           "default": [
-            0.05,
+            0.05000000074505806,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -42362,6 +43806,149 @@
     }
   },
   {
+    "name": "SdcaOptimizerV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            "logistic_loss",
+            "squared_loss",
+            "hinge_loss",
+            "smooth_hinge_loss",
+            "poisson_loss"
+          ],
+          "description": "Type of the primal loss. Currently SdcaSolver supports logistic,\nsquared and hinge losses.",
+          "name": "loss_type",
+          "type": "string"
+        },
+        {
+          "default": false,
+          "description": "Whether to use Adaptive SDCA for the inner loop.",
+          "name": "adaptive",
+          "type": "bool"
+        },
+        {
+          "description": "Number of sparse feature groups to train on.",
+          "minimum": 0,
+          "name": "num_sparse_features",
+          "type": "int"
+        },
+        {
+          "description": "Number of sparse feature groups with values\nassociated with it, otherwise implicitly treats values as 1.0.",
+          "minimum": 0,
+          "name": "num_sparse_features_with_values",
+          "type": "int"
+        },
+        {
+          "description": "Number of dense feature groups to train on.",
+          "minimum": 0,
+          "name": "num_dense_features",
+          "type": "int"
+        },
+        {
+          "description": "Symmetric l1 regularization strength.",
+          "name": "l1",
+          "type": "float"
+        },
+        {
+          "description": "Symmetric l2 regularization strength.",
+          "name": "l2",
+          "type": "float"
+        },
+        {
+          "description": "Number of partitions of the global loss function.",
+          "minimum": 1,
+          "name": "num_loss_partitions",
+          "type": "int"
+        },
+        {
+          "description": "Number of iterations per mini-batch.",
+          "minimum": 1,
+          "name": "num_inner_iterations",
+          "type": "int"
+        }
+      ],
+      "description": "linear models with L1 + L2 regularization. As global optimization objective is\nstrongly-convex, the optimizer optimizes the dual objective at each step. The\noptimizer applies each update one example at a time. Examples are sampled\nuniformly, and the optimizer is learning rate free and enjoys linear convergence\nrate.\n\n[Proximal Stochastic Dual Coordinate Ascent](http://arxiv.org/pdf/1211.2717v1.pdf).<br>\nShai Shalev-Shwartz, Tong Zhang. 2012\n\n$$Loss Objective = \\sum f_{i} (wx_{i}) + (l2 / 2) * |w|^2 + l1 * |w|$$\n\n[Adding vs. Averaging in Distributed Primal-Dual Optimization](http://arxiv.org/abs/1502.03508).<br>\nChenxin Ma, Virginia Smith, Martin Jaggi, Michael I. Jordan,\nPeter Richtarik, Martin Takac. 2015\n\n[Stochastic Dual Coordinate Ascent with Adaptive Probabilities](https://arxiv.org/abs/1502.08053).<br>\nDominik Csiba, Zheng Qu, Peter Richtarik. 2015",
+      "inputs": [
+        {
+          "description": "a list of vectors which contain example indices.",
+          "name": "sparse_example_indices",
+          "numberAttr": "num_sparse_features",
+          "type": 9
+        },
+        {
+          "description": "a list of vectors which contain feature indices.",
+          "name": "sparse_feature_indices",
+          "numberAttr": "num_sparse_features",
+          "type": 9
+        },
+        {
+          "description": "a list of vectors which contains feature value\nassociated with each feature group.",
+          "name": "sparse_feature_values",
+          "numberAttr": "num_sparse_features_with_values",
+          "type": 1
+        },
+        {
+          "description": "a list of matrices which contains the dense feature values.",
+          "name": "dense_features",
+          "numberAttr": "num_dense_features",
+          "type": 1
+        },
+        {
+          "description": "a vector which contains the weight associated with each\nexample.",
+          "name": "example_weights",
+          "type": 1
+        },
+        {
+          "description": "a vector which contains the label/target associated with each\nexample.",
+          "name": "example_labels",
+          "type": 1
+        },
+        {
+          "description": "a list of vectors where each value is the indices which has\ncorresponding weights in sparse_weights. This field maybe omitted for the\ndense approach.",
+          "name": "sparse_indices",
+          "numberAttr": "num_sparse_features",
+          "type": 9
+        },
+        {
+          "description": "a list of vectors where each value is the weight associated with\na sparse feature group.",
+          "name": "sparse_weights",
+          "numberAttr": "num_sparse_features",
+          "type": 1
+        },
+        {
+          "description": "a list of vectors where the values are the weights associated\nwith a dense feature group.",
+          "name": "dense_weights",
+          "numberAttr": "num_dense_features",
+          "type": 1
+        },
+        {
+          "description": "a list of vectors containing the example state data.",
+          "name": "example_state_data",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "a list of vectors containing the updated example state\ndata.",
+          "name": "out_example_state_data",
+          "type": 1
+        },
+        {
+          "description": "a list of vectors where each value is the delta\nweights associated with a sparse feature group.",
+          "name": "out_delta_sparse_weights",
+          "type": 1
+        },
+        {
+          "description": "a list of vectors where the values are the delta\nweights associated with a dense feature group.",
+          "name": "out_delta_dense_weights",
+          "type": 1
+        }
+      ],
+      "summary": "Distributed version of Stochastic Dual Coordinate Ascent (SDCA) optimizer for"
+    }
+  },
+  {
     "name": "SdcaShrinkL1",
     "schema": {
       "attributes": [
@@ -43401,6 +44988,14 @@
         {
           "name": "stats_aggregator",
           "type": 20
+        },
+        {
+          "name": "tag",
+          "type": 7
+        },
+        {
+          "name": "counter_prefix",
+          "type": 7
         }
       ],
       "outputs": [
@@ -43921,26 +45516,6 @@
     }
   },
   {
-    "name": "SinkDataset",
-    "schema": {
-      "description": "A placeholder for input pipeline graph optimizations.",
-      "inputs": [
-        {
-          "description": "A variant tensor representing the input dataset.",
-          "name": "input_dataset",
-          "type": 21
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ],
-      "summary": "A placeholder for input pipeline graph optimizations."
-    }
-  },
-  {
     "name": "Size",
     "schema": {
       "attributes": [
@@ -44045,7 +45620,7 @@
           "type": "int"
         },
         {
-          "default": 0.001,
+          "default": 0.0010000000474974513,
           "description": "Threshold for word occurrence. Words that appear with higher\nfrequency will be randomly down-sampled. Set to 0 to disable.",
           "name": "subsample",
           "type": "float"
@@ -50529,6 +52104,21 @@
           "description": "      A function that takes 'args', a list of tensors, and returns 'output',\n      another list of tensors. Input and output types are specified by 'Tin'\n      and 'Tout'. The function body of f will be placed and partitioned across\n      devices, setting this op apart from the regular Call op. This op is\n      stateful.",
           "name": "f",
           "type": "func"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "config_proto",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "executor_type",
+          "type": "string"
         }
       ],
       "inputs": [
@@ -50735,6 +52325,10 @@
             },
             {
               "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -50822,6 +52416,10 @@
             },
             {
               "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -50898,6 +52496,91 @@
     }
   },
   {
+    "name": "StatelessRandomUniformInt",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tseed",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a uniform distribution in the range `[minval, maxval)`.\n\nThe outputs are a deterministic function of `shape`, `seed`, `minval`, and `maxval`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        },
+        {
+          "description": "Minimum value (inclusive, scalar).",
+          "name": "minval",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "Maximum value (exclusive, scalar).",
+          "name": "maxval",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random integers from a uniform distribution."
+    }
+  },
+  {
     "name": "StatelessTruncatedNormal",
     "schema": {
       "attributes": [
@@ -50906,6 +52589,10 @@
             {
               "type": "type",
               "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
             },
             {
               "type": "type",
@@ -51856,6 +53543,16 @@
           ],
           "name": "T",
           "type": "type"
+        },
+        {
+          "allowedValues": [
+            "BYTE",
+            "UTF8_CHAR"
+          ],
+          "default": "BYTE",
+          "description": "The unit that is used to create the substring.  One of: `\"BYTE\"` (for\ndefining position and length by bytes) or `\"UTF8_CHAR\"` (for the UTF-8\nencoded Unicode code points).  The default is `\"BYTE\"`. Results are undefined if\n`unit=UTF8_CHAR` and the `input` strings do not contain structurally valid\nUTF-8.",
+          "name": "unit",
+          "type": "string"
         }
       ],
       "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, then as many characters as possible are used.\n\nA negative `pos` indicates distance within the string backwards from the end.\n\nIf `pos` specifies an index which is out of range for any of the input strings,\nthen an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```",
@@ -53747,6 +55444,158 @@
     }
   },
   {
+    "name": "TensorForestCreateTreeVariable",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource to be created.",
+          "name": "tree_handle",
+          "type": 20
+        },
+        {
+          "description": "Serialized proto string of the boosted_trees.Tree.",
+          "name": "tree_config",
+          "type": 7
+        }
+      ],
+      "summary": "Creates a tree resource and returns a handle to it."
+    }
+  },
+  {
+    "name": "TensorForestTreeDeserialize",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource to be restored.",
+          "name": "tree_handle",
+          "type": 20
+        },
+        {
+          "description": "Serialied proto string of the boosted_trees.Tree proto.",
+          "name": "tree_config",
+          "type": 7
+        }
+      ],
+      "summary": "Deserializes a proto into the tree handle"
+    }
+  },
+  {
+    "name": "TensorForestTreeIsInitializedOp",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree.",
+          "name": "tree_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Whether the tree is initialized.",
+          "name": "is_initialized",
+          "type": 10
+        }
+      ],
+      "summary": "Checks whether a tree has been initialized."
+    }
+  },
+  {
+    "name": "TensorForestTreePredict",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Scalar, dimension of the logits.",
+          "name": "logits_dimension",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Handle to the tree resource.",
+          "name": "tree_handle",
+          "type": 20
+        },
+        {
+          "description": "Rank 2 dense features tensor.",
+          "name": "dense_features",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The logits predictions from the tree for each instance in the batch.",
+          "name": "logits",
+          "type": 1
+        }
+      ],
+      "summary": "Output the logits for the given input data"
+    }
+  },
+  {
+    "name": "TensorForestTreeResourceHandleOp",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "resource",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a handle to a TensorForestTreeResource"
+    }
+  },
+  {
+    "name": "TensorForestTreeSerialize",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource to be serialized.",
+          "name": "tree_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Serialied proto string of the tree resource.",
+          "name": "tree_config",
+          "type": 7
+        }
+      ],
+      "summary": "Serializes the tree handle to a proto"
+    }
+  },
+  {
+    "name": "TensorForestTreeSize",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree resource.",
+          "name": "tree_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The size of the tree.",
+          "name": "tree_size",
+          "type": 3
+        }
+      ],
+      "summary": "Get the number of nodes in a tree"
+    }
+  },
+  {
     "name": "TensorListConcatLists",
     "schema": {
       "attributes": [
@@ -55154,6 +57003,149 @@
     }
   },
   {
+    "name": "UnicodeDecodeWithOffsets",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Text encoding of the input strings. This is any of the encodings supported\nby ICU ucnv algorithmic converters. Examples: `\"UTF-16\", \"US ASCII\", \"UTF-8\"`.",
+          "name": "input_encoding",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "strict",
+            "replace",
+            "ignore"
+          ],
+          "default": "replace",
+          "description": "Error handling policy when there is invalid formatting found in the input.\nThe value of 'strict' will cause the operation to produce a InvalidArgument\nerror on any invalid input formatting. A value of 'replace' (the default) will\ncause the operation to replace any invalid formatting in the input with the\n`replacement_char` codepoint. A value of 'ignore' will cause the operation to\nskip any invalid formatting in the input and produce no corresponding output\ncharacter.",
+          "name": "errors",
+          "type": "string"
+        },
+        {
+          "default": 65533,
+          "description": "The replacement character codepoint to be used in place of any invalid\nformatting in the input when `errors='replace'`. Any valid unicode codepoint may\nbe used. The default value is the default unicode replacement character is\n0xFFFD or U+65533.)",
+          "name": "replacement_char",
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Whether to replace the C0 control characters (00-1F) with the\n`replacement_char`. Default is false.",
+          "name": "replace_control_characters",
+          "type": "bool"
+        }
+      ],
+      "description": "The character codepoints for all strings are returned using a single vector\n`char_values`, with strings expanded to characters in row-major order.\nSimilarly, the character start byte offsets are returned using a single vector\n`char_to_byte_starts`, with strings expanded in row-major order.\n\nThe `row_splits` tensor indicates where the codepoints and start offsets for\neach input string begin and end within the `char_values` and\n`char_to_byte_starts` tensors.  In particular, the values for the `i`th\nstring (in row-major order) are stored in the slice\n`[row_splits[i]:row_splits[i+1]]`. Thus:\n\n* `char_values[row_splits[i]+j]` is the Unicode codepoint for the `j`th\n  character in the `i`th string (in row-major order).\n* `char_to_bytes_starts[row_splits[i]+j]` is the start byte offset for the `j`th\n  character in the `i`th string (in row-major order).\n* `row_splits[i+1] - row_splits[i]` is the number of characters in the `i`th\n  string (in row-major order).",
+      "inputs": [
+        {
+          "description": "The text to be decoded. Can have any shape. Note that the output is flattened\nto a vector of char values.",
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 1D int32 tensor containing the row splits.",
+          "name": "row_splits",
+          "type": 9
+        },
+        {
+          "description": "A 1D int32 Tensor containing the decoded codepoints.",
+          "name": "char_values",
+          "type": 3
+        },
+        {
+          "description": "A 1D int32 Tensor containing the byte index in the input string where each\ncharacter in `char_values` starts.",
+          "name": "char_to_byte_starts",
+          "type": 9
+        }
+      ],
+      "summary": "Decodes each string in `input` into a sequence of Unicode code points."
+    }
+  },
+  {
+    "name": "UnicodeScript",
+    "schema": {
+      "description": "This operation converts Unicode code points to script codes corresponding to\neach code point. Script codes correspond to International Components for\nUnicode (ICU) UScriptCode values. See http://icu-project.org/apiref/icu4c/uscript_8h.html.\nReturns -1 (USCRIPT_INVALID_CODE) for invalid codepoints. Output shape will\nmatch input shape.",
+      "inputs": [
+        {
+          "description": "A Tensor of int32 Unicode code points.",
+          "name": "input",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A Tensor of int32 script codes corresponding to each input code point.",
+          "name": "output",
+          "type": 3
+        }
+      ],
+      "summary": "Determine the script codes of a given tensor of Unicode integer code points."
+    }
+  },
+  {
+    "name": "UnicodeTranscode",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Text encoding of the input strings. This is any of the encodings supported\nby ICU ucnv algorithmic converters. Examples: `\"UTF-16\", \"US ASCII\", \"UTF-8\"`.",
+          "name": "input_encoding",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "UTF-8",
+            "UTF-16-BE",
+            "UTF-32-BE"
+          ],
+          "description": "The unicode encoding to use in the output. Must be one of\n`\"UTF-8\", \"UTF-16-BE\", \"UTF-32-BE\"`. Multi-byte encodings will be big-endian.",
+          "name": "output_encoding",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "strict",
+            "replace",
+            "ignore"
+          ],
+          "default": "replace",
+          "description": "Error handling policy when there is invalid formatting found in the input.\nThe value of 'strict' will cause the operation to produce a InvalidArgument\nerror on any invalid input formatting. A value of 'replace' (the default) will\ncause the operation to replace any invalid formatting in the input with the\n`replacement_char` codepoint. A value of 'ignore' will cause the operation to\nskip any invalid formatting in the input and produce no corresponding output\ncharacter.",
+          "name": "errors",
+          "type": "string"
+        },
+        {
+          "default": 65533,
+          "description": "The replacement character codepoint to be used in place of any invalid\nformatting in the input when `errors='replace'`. Any valid unicode codepoint may\nbe used. The default value is the default unicode replacement character is\n0xFFFD or U+65533.)\n\nNote that for UTF-8, passing a replacement character expressible in 1 byte, such\nas ' ', will preserve string alignment to the source since invalid bytes will be\nreplaced with a 1-byte replacement. For UTF-16-BE and UTF-16-LE, any 1 or 2 byte\nreplacement character will preserve byte alignment to the source.",
+          "name": "replacement_char",
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Whether to replace the C0 control characters (00-1F) with the\n`replacement_char`. Default is false.",
+          "name": "replace_control_characters",
+          "type": "bool"
+        }
+      ],
+      "description": "The input is a string tensor of any shape. The output is a string tensor of\nthe same shape containing the transcoded strings. Output strings are always\nvalid unicode. If the input contains invalid encoding positions, the\n`errors` attribute sets the policy for how to deal with them. If the default\nerror-handling policy is used, invalid formatting will be substituted in the\noutput by the `replacement_char`. If the errors policy is to `ignore`, any\ninvalid encoding positions in the input are skipped and not included in the\noutput. If it set to `strict` then any invalid formatting will result in an\nInvalidArgument error.\n\nThis operation can be used with `output_encoding = input_encoding` to enforce\ncorrect formatting for inputs even if they are already in the desired encoding.\n\nIf the input is prefixed by a Byte Order Mark needed to determine encoding\n(e.g. if the encoding is UTF-16 and the BOM indicates big-endian), then that\nBOM will be consumed and not emitted into the output. If the input encoding\nis marked with an explicit endianness (e.g. UTF-16-BE), then the BOM is\ninterpreted as a non-breaking-space and is preserved in the output (including\nalways for UTF-8).\n\nThe end result is that if the input is marked as an explicit endianness the\ntranscoding is faithful to all codepoints in the source. If it is not marked\nwith an explicit endianness, the BOM is not considered part of the string itself\nbut as metadata, and so is not preserved in the output.",
+      "inputs": [
+        {
+          "description": "The text to be processed. Can have any shape.",
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A string tensor containing unicode text encoded using `output_encoding`.",
+          "name": "output",
+          "type": 7
+        }
+      ],
+      "summary": "Transcode the input text from a source encoding to a destination encoding."
+    }
+  },
+  {
     "name": "UniformCandidateSampler",
     "schema": {
       "attributes": [
@@ -56451,6 +58443,11 @@
           "description": "      A function that takes a list of tensors and returns another\n      list of tensors. Both lists have the same types as specified\n      by T.",
           "name": "body",
           "type": "func"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "list(shape)"
         }
       ],
       "inputs": [

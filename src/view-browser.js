@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
-class BrowserHost {
+var host = host || {};
+
+host.BrowserHost = class {
 
     constructor() {
         if (!window.ga) {
@@ -91,9 +93,11 @@ class BrowserHost {
         document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
-                this._openFile(e.dataTransfer.files[0]);
+                var file = e.dataTransfer.files[0];
+                if (file.name.split('.').length > 1) {
+                    this._openFile(file);
+                }
             }
-            return false;
         });
     }
 
@@ -101,14 +105,11 @@ class BrowserHost {
         if (name == 'PROTOTXT') {
             return true;
         }
-        if (name == 'CNTK') {
-            // return true;
-        }
         return null;
     }
 
     error(message, detail) {
-        alert(message + ' ' + detail);
+        alert((message == 'Error' ? '' : message + ' ') + detail);
     }
 
     confirm(message, detail) {
@@ -116,6 +117,7 @@ class BrowserHost {
     }
 
     require(id, callback) {
+        window.module = { exports: {} };
         var script = document.scripts.namedItem(id);
         if (script) {
             callback(null);
@@ -126,15 +128,28 @@ class BrowserHost {
         script.setAttribute('type', 'text/javascript');
         script.setAttribute('src', this._url(id + '.js'));
         script.onload = () => {
-            callback(null);
+            var exports = window.module.exports;
+            delete window.module;
+            callback(null, exports);
         };
         script.onerror = (e) => {
-            callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
+            delete window.module;
+            callback(new Error('The script \'' + e.target.src + '\' failed to load.'), null);
         };
         document.head.appendChild(script);
     }
 
-    export(file, data, mimeType) {
+    save(name, extension, defaultPath, callback) {
+        callback(defaultPath + '.' + extension);
+    }
+
+    export(file, blob) {
+        var element = document.createElement('a');
+        element.download = file;
+        element.href = URL.createObjectURL(blob);
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
     }
 
     request(base, file, encoding, callback) {
@@ -167,14 +182,10 @@ class BrowserHost {
         window.open(url, '_target');
     }
 
-    inflateRaw(data) {
-        return pako.inflateRaw(data);
-    }
-
     exception(err, fatal) {
         if (window.ga && this.version) {
             var description = [];
-            description.push((err.name ? (err.name + ': ') : '') + err.message);
+            description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
             if (err.stack) {
                 var match = err.stack.match(/\n    at (.*)\((.*)\)/);
                 if (match) {
@@ -270,7 +281,7 @@ class BrowserHost {
         request.onerror = () => {
             this.error('Error while requesting model.', request.status);
         };
-        request.open('GET', url, true);
+        request.open('GET', url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime(), true);
         request.send();
     }
 
@@ -304,7 +315,7 @@ class BrowserHost {
                 Object.keys(json.files).forEach((key) => {
                     var file = json.files[key];
                     identifier = file.filename;
-                    var extension = identifier.split('.').pop();
+                    var extension = identifier.split('.').pop().toLowerCase();
                     if (extension == 'json' || extension == 'pbtxt' || extension == 'prototxt') {
                         var encoder = new TextEncoder();
                         buffer = encoder.encode(file.content);
@@ -336,16 +347,31 @@ class BrowserHost {
     _openBuffer(file, callback) {
         var size = file.size;
         var reader = new FileReader();
-        reader.onloadend = () => {
-            if (reader.error) {
-                callback(reader.error, null);
-                return;
-            }
-            var buffer = new Uint8Array(reader.result);
+        reader.onload = (e) => {
+            var buffer = new Uint8Array(e.target.result);
             var context = new BrowserContext(this, '', file.name, buffer);
             this._view.openContext(context, (err, model) => {
                 callback(err, model);
             });
+        };
+        reader.onerror = (e) => {
+            e = e || window.event;
+            var message = '';
+            switch(e.target.error.code) {
+                case e.target.error.NOT_FOUND_ERR:
+                    message = 'File not found.';          
+                    break;
+                case e.target.error.NOT_READABLE_ERR:
+                    message = 'File not readable.';
+                    break;
+                case e.target.error.SECURITY_ERR:
+                    message = 'File access denied.';
+                    break;
+                default:
+                    message = "File read error '" + e.target.error.code.toString() + "'.";
+                    break;
+            }
+            callback(new Error(message), null);
         };
         reader.readAsArrayBuffer(file);
     }
@@ -383,14 +409,27 @@ class BrowserHost {
                     break;
             }
         }
+        if (e.shiftKey && (e.ctrlKey || e.metaKey)) {
+            switch (e.keyCode) {
+                case 69: // E
+                    if (e.altKey) {
+                        this._view.export(document.title + '.svg');
+                    }
+                    else {
+                        this._view.export(document.title + '.png');
+                    }
+                    e.preventDefault();
+                    break;
+            }
+        }
     }
-}
+};
 
-window.TextDecoder = window.TextDecoder || class {
-    constructor(encoding) {
+if (typeof TextDecoder === "undefined") {
+    TextDecoder = function TextDecoder(encoding) {
         this._encoding = encoding;
-    }
-    decode(buffer) {
+    };
+    TextDecoder.prototype.decode = function decode(buffer) {
         var result = '';
         var length = buffer.length;
         var i = 0;
@@ -422,8 +461,95 @@ window.TextDecoder = window.TextDecoder || class {
                 break;
         }
         return result;
+    };
+}
+
+if (typeof TextEncoder === "undefined") {
+    TextEncoder = function TextEncoder() {
+    };
+    TextEncoder.prototype.encode = function encode(str) {
+        "use strict";
+        var length = str.length, resPos = -1;
+        var resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
+        for (var point = 0, nextcode = 0, i = 0; i !== length; ) {
+            point = str.charCodeAt(i);
+            i += 1;
+            if (point >= 0xD800 && point <= 0xDBFF) {
+                if (i === length) {
+                    resArr[resPos += 1] = 0xef; resArr[resPos += 1] = 0xbf;
+                    resArr[resPos += 1] = 0xbd; break;
+                }
+                nextcode = str.charCodeAt(i);
+                if (nextcode >= 0xDC00 && nextcode <= 0xDFFF) {
+                    point = (point - 0xD800) * 0x400 + nextcode - 0xDC00 + 0x10000;
+                    i += 1;
+                    if (point > 0xffff) {
+                        resArr[resPos += 1] = (0x1e<<3) | (point>>>18);
+                        resArr[resPos += 1] = (0x2<<6) | ((point>>>12)&0x3f);
+                        resArr[resPos += 1] = (0x2<<6) | ((point>>>6)&0x3f);
+                        resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
+                        continue;
+                    }
+                } else {
+                    resArr[resPos += 1] = 0xef; resArr[resPos += 1] = 0xbf;
+                    resArr[resPos += 1] = 0xbd; continue;
+                }
+            }
+            if (point <= 0x007f) {
+                resArr[resPos += 1] = (0x0<<7) | point;
+            } else if (point <= 0x07ff) {
+                resArr[resPos += 1] = (0x6<<5) | (point>>>6);
+                resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
+            } else {
+                resArr[resPos += 1] = (0xe<<4) | (point>>>12);
+                resArr[resPos += 1] = (0x2<<6) | ((point>>>6)&0x3f);
+                resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
+            }
+        }
+        if (typeof Uint8Array!=="undefined") {
+            return new Uint8Array(resArr.buffer.slice(0, resPos+1));
+        }
+        else {
+            return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
+        }
+    };
+    TextEncoder.prototype.toString = function() { 
+        return "[object TextEncoder]"
+    };
+    try {
+        Object.defineProperty(TextEncoder.prototype,"encoding", {
+            get:function() {
+                if (TextEncoder.prototype.isPrototypeOf(this)) {
+                    return"utf-8";
+                }
+                else {
+                    throw TypeError("Illegal invocation");
+                }
+            }
+        });
     }
-};
+    catch (e) {
+        TextEncoder.prototype.encoding = "utf-8";
+    }
+    if (typeof Symbol !== "undefined") {
+        TextEncoder.prototype[Symbol.toStringTag] = "TextEncoder";
+    }
+}
+
+if (!HTMLCanvasElement.prototype.toBlob) {
+    HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
+        var canvas = this;
+        setTimeout(function() {
+            var data = atob(canvas.toDataURL(type, quality).split(',')[1]);
+            var length = data.length;
+            var buffer = new Uint8Array(length);
+            for (var i = 0; i < length; i++) {
+                buffer[i] = data.charCodeAt(i);
+            }
+            callback(new Blob([ buffer ], { type: type || 'image/png' }));
+        });
+    };
+}
 
 class BrowserContext {
 
@@ -465,6 +591,24 @@ class BrowserContext {
         }
         return this._text;
     }
+
+    get tags() {
+        if (!this._tags) {
+            this._tags = {};
+            try {
+                var reader = protobuf.TextReader.create(this.text);
+                reader.start(false);
+                while (!reader.end(false)) {
+                    var tag = reader.tag();
+                    this._tags[tag] = true;
+                    reader.skip();
+                }
+            }
+            catch (error) {
+            }
+        }
+        return this._tags;
+    }
 }
 
-window.host = new BrowserHost();
+window.__view__ = new view.View(new host.BrowserHost());

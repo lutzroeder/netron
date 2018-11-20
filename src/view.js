@@ -1,6 +1,31 @@
 /*jshint esversion: 6 */
 
-class View {
+var view = view || {};
+
+var base = base || require('./base');
+var zip = zip || require('./zip');
+var gzip = gzip || require('./gzip');
+var tar = tar || require('./tar');
+window._ = window._ || require('lodash');
+
+var caffe = caffe || require('./caffe');
+var caffe2 = caffe2 || require('./caffe2');
+var cntk = cntk || require('./cntk');
+var coreml = coreml || require('./coreml');
+var keras = keras || require('./keras');
+var mxnet = mxnet || require('./mxnet');
+var onnx = onnx || require('./onnx');
+var pytorch = pytorch || require('./pytorch');
+var sklearn = sklearn || require('./sklearn');
+var tf = tf || require('./tf');
+var tflite = tflite || require('./tflite');
+var openvinoIR = openvinoIR || require('./openvino-ir/openvino-ir');
+var openvinoDot = openvinoDot || require('./openvino-dot/openvino-dot');
+
+var d3 = d3 || require('d3');
+var dagre = dagre || require('dagre');
+
+view.View = class {
 
     constructor(host) {
         this._host = host;
@@ -73,6 +98,7 @@ class View {
         if (page == 'Graph') {
             welcomeElement.style.display = 'none';
             openFileButton.style.display = 'none';
+            openFileButton.style.opacity = 0;
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'block';
             graphElement.style.opacity = 1;
@@ -101,7 +127,7 @@ class View {
         if (this._activeGraph) {
             this.clearSelection();
             var graphElement = document.getElementById('graph');
-            var view = new FindView(graphElement, this._activeGraph);
+            var view = new FindSidebar(graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -201,139 +227,13 @@ class View {
     }
 
     loadContext(context, callback) {
-        var modelFactoryRegistry = [
-            new OnnxModelFactory(),
-            new MXNetModelFactory(),
-            new KerasModelFactory(),
-            new CoreMLModelFactory(),
-            new CaffeModelFactory(),
-            new Caffe2ModelFactory(), 
-            new PyTorchModelFactory(),
-            new TensorFlowLiteModelFactory(),
-            new TensorFlowModelFactory(),
-            new SklearnModelFactory(),
-            new CntkModelFactory()
-        ];
-
-        try {
-            var extension;
-            var archive;
-            var entry;
-    
-            var identifier = context.identifier;
-            var buffer = context.buffer;
-
-            extension = identifier.split('.').pop();
-            if (extension == 'gz' || extension == 'tgz') {
-                archive = new gzip.Archive(buffer, this._host.inflateRaw);
-                if (archive.entries.length == 1) {
-                    entry = archive.entries[0];
-                    if (entry.name) {
-                        identifier = entry.name;
-                    }
-                    else {
-                        identifier = identifier.substring(0, identifier.lastIndexOf('.'));
-                        if (extension == 'tgz') {
-                            identifier += '.tar';
-                        }
-                    }
-                    buffer = entry.data;
-                    archive = null;
-                }
-            }
-    
-            switch (identifier.split('.').pop()) {
-                case 'tar':
-                    archive = new tar.Archive(buffer);
-                    break;
-                case 'zip':
-                    archive = new zip.Archive(buffer);
-                    break;           
-            }
-    
-            if (archive) {
-                var folders = {};
-                archive.entries.forEach((entry) => {
-                    if (entry.name.indexOf('/') != -1) {
-                        folders[entry.name.split('/').shift() + '/'] = true;
-                    }
-                    else {
-                        folders['/'] = true;    
-                    }
-                });
-                var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
-                rootFolder = rootFolder == '/' ? '' : rootFolder;
-                var entries = archive.entries.filter((entry) => {
-                    if (entry.name.startsWith(rootFolder)) {
-                        var identifier = entry.name.substring(rootFolder.length);
-                        if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                            return modelFactoryRegistry.some((factory) => factory.match(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host));
-                        }
-                    }
-                    return false;
-                });
-                if (entries.length == 0) {
-                    callback(new ArchiveError('Root does not contain model file.'), null);
-                    return;
-                }
-                else if (entries.length > 1) {
-                    callback(new ArchiveError('Root contains multiple model files.'), null);
-                    return;
-                }
-                else {
-                    entry = entries[0];
-                    context = new ArchiveContext(entries, rootFolder, entry.name, entry.data);
-                }
-            }
-        }
-        catch (err) {
-            callback(new ArchiveError(err.message), null);
-            return;
-        }
-
-        var errorList = [];
-        var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context, this._host));
-        var factoryCount = factoryList.length;
-        var next = () => {
-            if (factoryList.length > 0) {
-                var modelFactory = factoryList.shift();
-                modelFactory.open(context, this._host, (err, model) => {
-                    if (err) {
-                        errorList.push(err);
-                    }
-                    if (model || factoryList.length == 0) {
-                        if (!model && factoryCount > 1 && errorList.length > 1) {
-                            callback(new NameError(errorList.map((err) => err.message).join('\n'), "Error loading model."), null);
-                        }
-                        else {
-                            callback(err, model);
-                        }
-                    }
-                    else {
-                        next();
-                    }
-                });
-            }
-            else {
-                var extension = context.identifier.split('.').pop();
-                switch (extension) {
-                    case 'json':
-                    case 'pb':
-                    case 'model':
-                        callback(new NameError('Unsupported file content for extension \'.' + extension + '\'.', "Error loading model."), null);
-                        break;
-                    default:
-                        callback(new NameError('Unsupported file extension \'.' + extension + '\'.', "Error loading model."), null);
-                        break;
-                }
-            }
-        };
-        next();
+        var modelFactoryService = new view.ModelFactoryService(this._host);
+        modelFactoryService.create(context, callback);
     }
 
     error(message, err) {
         this._sidebar.close();
-        this.exception(err, false);
+        this._host.exception(err, false);
         this._host.error(message, err.toString());
         this.show('Welcome');
     }
@@ -436,10 +336,8 @@ class View {
                 var groups = graph.groups;
     
                 var graphOptions = {};
-                if (!this._showDetails) {
-                    graphOptions.nodesep = 25;
-                    graphOptions.ranksep = 25;
-                }
+                graphOptions.nodesep = 25;
+                graphOptions.ranksep = 25;
     
                 var g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
@@ -471,7 +369,13 @@ class View {
     
                 nodes.forEach((node) => {
     
-                    var formatter = new NodeFormatter();
+                    var formatter = new grapher.NodeElement();
+
+                    if (node.function) {
+                        formatter.addItem('+', null, [ 'node-item-function' ], null, () => { 
+                            debugger;
+                        });
+                    }
 
                     function addOperator(view, formatter, node) {
                         if (node) {
@@ -597,10 +501,10 @@ class View {
                                         attributeValue = '[...]';
                                     }
                                     else {
-                                        attributeValue = attribute.value;
-                                        if (attributeValue && attributeValue.length > 25) {
-                                            attributeValue = attributeValue.substring(0, 25) + '...';
-                                        }
+                                        attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
+                                    }
+                                    if (attributeValue && attributeValue.length > 25) {
+                                        attributeValue = attributeValue.substring(0, 25) + '...';
                                     }
                                     formatter.addAttribute(attribute.name, attributeValue, attribute.type);
                                 }
@@ -668,7 +572,7 @@ class View {
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
     
-                    var formatter = new NodeFormatter();
+                    var formatter = new grapher.NodeElement();
                     formatter.addItem(input.name, null, [ 'graph-item-input' ], types, () => {
                         this.showModelProperties();
                     });
@@ -686,7 +590,7 @@ class View {
                     });
                     var types = output.connections.map(connection => connection.type || '').join('\n');
             
-                    var formatter = new NodeFormatter();
+                    var formatter = new grapher.NodeElement();
                     formatter.addItem(output.name, null, [ 'graph-item-output' ], types, () => {
                         this.showModelProperties();
                     });
@@ -698,8 +602,9 @@ class View {
                     if (tuple.from != null) {
                         tuple.to.forEach((to) => {
                             var text = '';
-                            if (tuple.from.type && tuple.from.type.shape && tuple.from.type.shape.length > 0) {
-                                text = tuple.from.type.shape.join('\u00D7');
+                            var type = tuple.from.type;
+                            if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
+                                text = type.shape.dimensions.join('\u00D7');
                             }
                             else if (tuple.from.name && to.name) {
                                 text = tuple.from.name + ' \u21E8 ' + to.name;
@@ -754,7 +659,7 @@ class View {
 
                 setTimeout(() => {
                     try {
-                        var graphRenderer = new GraphRenderer(originElement);
+                        var graphRenderer = new grapher.Renderer(originElement);
                         graphRenderer.render(g);
             
                         var svgSize = graphElement.getBoundingClientRect();
@@ -793,33 +698,23 @@ class View {
         }
     }
 
-    transferStyleSheet(element, name) {
-        var styles = [];
-        for (var styleSheet of document.styleSheets) {
-            if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
-                for (var rule of styleSheet.rules) {
-                    styles.push(rule.cssText);
-                }
-            }
-        }
-        var defsElement = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        defsElement.innerHTML = '<style type="text/css">' + styles.join('\n') + '\n</style>';
-        element.insertBefore(defsElement, element.firstChild);
-    }
-
     applyStyleSheet(element, name) {
         var rules = [];
-        for (var styleSheet of document.styleSheets) {
+        for (var i = 0; i < document.styleSheets.length; i++) {
+            var styleSheet = document.styleSheets[i];
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
-                rules = styleSheet.rules;
+                rules = styleSheet.cssRules;
+                break;
             }
         }
         var nodes = element.getElementsByTagName('*');
-        for (var node of nodes) {
-            for (var rule of rules) {
+        for (var j = 0; j < nodes.length; j++) {
+            var node = nodes[j];
+            for (var k = 0; k < rules.length; k++) {
+                var rule = rules[k];                
                 if (node.matches(rule.selectorText)) {
-                    for (var k = 0; k < rule.style.length; k++) {
-                        var item = rule.style.item(k);
+                    for (var l = 0; l < rule.style.length; l++) {
+                        var item = rule.style.item(l);
                         node.style[item] = rule.style[item];
                     }
                 }
@@ -833,25 +728,18 @@ class View {
         if (lastIndex != -1) {
             extension = file.substring(lastIndex + 1);
         }
-        if (extension == 'png' || extension == 'svg') {
+        if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
             var graphElement = document.getElementById('graph');
             var exportElement = graphElement.cloneNode(true);
-            switch (extension) {
-                case 'png':
-                    this.transferStyleSheet(exportElement, 'view-render.css');
-                    break;
-                case 'svg':
-                    this.applyStyleSheet(exportElement, 'view-render.css');
-                    break;
-            }
+            this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
             exportElement.style.removeProperty('opacity');
             exportElement.style.removeProperty('display');
-            var originElement = exportElement.getElementById('origin');
+            var backgroundElement = exportElement.querySelector('#background');
+            var originElement = exportElement.querySelector('#origin');
             originElement.setAttribute('transform', 'translate(0,0) scale(1)');
-            var backgroundElement = exportElement.getElementById('background');
             backgroundElement.removeAttribute('width');
             backgroundElement.removeAttribute('height');
     
@@ -875,12 +763,11 @@ class View {
             var data = new XMLSerializer().serializeToString(exportElement);
     
             if (extension == 'svg') {
-                this._host.export(file, data, 'image/svg');
+                this._host.export(file, new Blob([ data ], { type: 'image/svg' }));
             }
     
             if (extension == 'png') {
                 var imageElement = new Image();
-                document.body.insertBefore(imageElement, document.body.firstChild);
                 imageElement.onload = () => {
                     var max = Math.max(width, height);
                     var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
@@ -891,17 +778,19 @@ class View {
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
                     document.body.removeChild(imageElement);
-                    var pngBase64 = canvas.toDataURL('image/png');
-                    this._host.export(file, pngBase64, 'image/png');
+                    canvas.toBlob((blob) => {
+                        this._host.export(file, blob);
+                    }, 'image/png');
                 };
                 imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+                document.body.insertBefore(imageElement, document.body.firstChild);
             }
         }
     }
 
     showModelProperties() {
         if (this._model) {
-            var view = new ModelView(this._model);
+            var view = new ModelSidebar(this._model, this._host);
             view.on('update-active-graph', (sender, name) => {
                 this.updateActiveGraph(name);
             });
@@ -911,17 +800,22 @@ class View {
     
     showNodeProperties(node, input) {
         if (node) {
-            var view = new NodeView(node, this._host);
+            var view = new NodeSidebar(node, this._host);
             view.on('show-documentation', (sender, e) => {
                 this.showOperatorDocumentation(node);
             });
             view.on('export-tensor', (sender, tensor) => {
-                this._host.require('numpy', (err) => {
+                this._host.require('./numpy', (err, numpy) => {
                     if (!err) {
                         var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                         this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
-                            var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape);
-                            this._host.export(file, array.toBuffer(), null);
+                            try {
+                                var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
+                                this._host.export(file, new Blob([ array.toBuffer() ], { type: 'application/octet-stream' }));
+                            }
+                            catch (error) {
+                                this.error('Error saving NumPy tensor.', error);
+                            }
                         });
                     }
                 });
@@ -936,90 +830,50 @@ class View {
     showOperatorDocumentation(node) {
         var documentation = node.documentation;
         if (documentation) {
-            var view = new OperatorDocumentationView(documentation);
+            var view = new OperatorDocumentationSidebar(documentation);
             view.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
             this._sidebar.open(view.elements, 'Documentation');
         }
     }
-}
 
-window.view = new View(window.host);
-
-class Int64 {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-    }
-
-    toString(radix) {
-        var high = this._readInt32(4);
-        var low = this._readInt32(0);
-        var str = '';
-        var sign = high & 0x80000000;
-        if (sign) {
-            high = ~high;
-            low = 0x100000000 - low;
+    static formatAttributeValue(value, type) {
+        if (typeof value === 'function') {
+            return value();
         }
-        radix = radix || 10;
-        while (true) {
-            var mod = (high % radix) * 0x100000000 + low;
-            high = Math.floor(high / radix);
-            low = Math.floor(mod / radix);
-            str = (mod % radix).toString(radix) + str;
-            if (!high && !low) 
-            {
-                break;
-            }
+        if (typeof value === 'string' && type && type != 'string') {
+            return value;
         }
-        if (sign) {
-            str = "-" + str;
+        if (value && value.__isLong__) {
+            return value.toString();
         }
-        return str;
-    }
-
-    toBuffer() {
-        return this._buffer;
-    }
-
-    _readInt32(offset) {
-      return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
-    }
-}
-
-class Uint64 {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-    }
-
-    toString(radix) {
-        var high = this._readInt32(4);
-        var low = this._readInt32(0);
-        var str = '';
-        radix = radix || 10;
-        while (true) {
-            var mod = (high % radix) * 0x100000000 + low;
-            high = Math.floor(high / radix);
-            low = Math.floor(mod / radix);
-            str = (mod % radix).toString(radix) + str;
-            if (!high && !low) 
-            {
-                break;
-            }
+        if (value instanceof base.Int64 || value instanceof base.Uint64) {
+            return value.toString();
         }
-        return str;
+        if (Number.isNaN(value)) {
+            return 'NaN';
+        }
+        if (type == 'shape') {
+            return value.toString();
+        }
+        if (type == 'shape[]') {
+            return value.map((item) => item.toString()).join(', ');
+        }
+        if (Array.isArray(value)) {
+            return value.map((item) => {
+                if (item && item.__isLong__) {
+                    return item.toString();
+                }
+                if (Number.isNaN(item)) {
+                    return 'NaN';
+                }
+                return JSON.stringify(item);
+            }).join(', ');
+        }
+        return JSON.stringify(value);
     }
-
-    toBuffer() {
-        return this._buffer;
-    }
-
-    _readInt32(offset) {
-        return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
-    }
-}
+};
 
 class ArchiveContext {
 
@@ -1067,18 +921,192 @@ class ArchiveContext {
         }
         return this._text;
     }
+
+    get tags() {
+        if (!this._tags) {
+            this._tags = {};
+            try {
+                var reader = protobuf.TextReader.create(this.text);
+                reader.start(false);
+                while (!reader.end(false)) {
+                    var tag = reader.tag();
+                    this._tags[tag] = true;
+                    reader.skip();
+                }
+            }
+            catch (error) {
+            }
+        }
+        return this._tags;
+    }
 }
 
 class ArchiveError extends Error {
     constructor(message) {
         super(message);
-        this.name = "Error loading archive";
+        this.name = 'Error loading archive.';
     }
 }
 
-class NameError extends Error {
-    constructor(message, name) {
+class ModelError extends Error {
+    constructor(message) {
         super(message);
-        this.name = name; 
+        this.name = 'Error loading model.'; 
     }
+}
+
+view.ModelFactoryService = class {
+
+    constructor(host) {
+        this._host = host;
+        this._factories = [
+            new onnx.ModelFactory(),
+            new mxnet.ModelFactory(),
+            new keras.ModelFactory(),
+            new coreml.ModelFactory(),
+            new caffe.ModelFactory(),
+            new caffe2.ModelFactory(), 
+            new pytorch.ModelFactory(),
+            new tflite.ModelFactory(),
+            new tf.ModelFactory(),
+            new sklearn.ModelFactory(),
+            new cntk.ModelFactory(),
+            new openvinoIR.ModelFactory(),
+            new openvinoDot.ModelFactory()
+        ];
+    }
+
+    some(context) {
+        return this._factories.some((factory) => factory.match(context, this._host));
+    }
+
+    filter(context) {
+        return this._factories.filter((factory) => factory.match(context, this._host));        
+    }
+
+    create(context, callback) {
+        try {
+            var extension;
+            var archive;
+            var entry;
+    
+            var identifier = context.identifier;
+            var buffer = context.buffer;
+
+            extension = identifier.split('.').pop().toLowerCase();
+            if (extension == 'gz' || extension == 'tgz') {
+                archive = new gzip.Archive(buffer);
+                if (archive.entries.length == 1) {
+                    entry = archive.entries[0];
+                    if (entry.name) {
+                        identifier = entry.name;
+                    }
+                    else {
+                        identifier = identifier.substring(0, identifier.lastIndexOf('.'));
+                        if (extension == 'tgz') {
+                            identifier += '.tar';
+                        }
+                    }
+                    buffer = entry.data;
+                    archive = null;
+                }
+            }
+
+            switch (identifier.split('.').pop().toLowerCase()) {
+                case 'tar':
+                    archive = new tar.Archive(buffer);
+                    break;
+                case 'zip':
+                    archive = new zip.Archive(buffer);
+                    break;
+            }
+
+            if (archive) {
+                var folders = {};
+                archive.entries.forEach((entry) => {
+                    if (entry.name.indexOf('/') != -1) {
+                        folders[entry.name.split('/').shift() + '/'] = true;
+                    }
+                    else {
+                        folders['/'] = true;
+                    }
+                });
+                var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
+                rootFolder = rootFolder == '/' ? '' : rootFolder;
+                var entries = archive.entries.filter((entry) => {
+                    if (entry.name.startsWith(rootFolder)) {
+                        var identifier = entry.name.substring(rootFolder.length);
+                        if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                            return this.some(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host);
+                        }
+                    }
+                    return false;
+                });
+                if (entries.length == 0) {
+                    callback(new ArchiveError('Root does not contain model file.'), null);
+                    return;
+                }
+                else if (entries.length > 1) {
+                    callback(new ArchiveError('Root contains multiple model files.'), null);
+                    return;
+                }
+                else {
+                    entry = entries[0];
+                    context = new ArchiveContext(entries, rootFolder, entry.name, entry.data);
+                }
+            }
+        }
+        catch (err) {
+            callback(new ArchiveError(err.message), null);
+            return;
+        }
+
+        var errorList = [];
+        var factoryList = this.filter(context, this._host);
+        var factoryCount = factoryList.length;
+        var next = () => {
+            if (factoryList.length > 0) {
+                var modelFactory = factoryList.shift();
+                modelFactory.open(context, this._host, (err, model) => {
+                    if (err) {
+                        errorList.push(err);
+                    }
+                    if (model || factoryList.length == 0) {
+                        if (!model && factoryCount > 1 && errorList.length > 1) {
+                            callback(new ModelError(errorList.map((err) => err.message).join('\n')), null);
+                        }
+                        else {
+                            callback(err, model);
+                        }
+                    }
+                    else {
+                        next();
+                    }
+                });
+            }
+            else {
+                var extension = context.identifier.split('.').pop().toLowerCase();
+                switch (extension) {
+                    case 'json':
+                    case 'pb':
+                    case 'pbtxt':
+                    case 'prototxt':
+                    case 'pth':
+                    case 'h5':
+                    case 'model':
+                        callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
+                        break;
+                    default:
+                        callback(new ModelError("Unsupported file extension '." + extension + "'."), null);
+                        break;
+                }
+            }
+        };
+        next();
+    }
+};
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.View = view.View;
+    module.exports.ModelFactoryService = view.ModelFactoryService;
 }

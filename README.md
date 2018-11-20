@@ -1,9 +1,9 @@
 
-<p align='center'><img width='400' src='media/logo.png'/></p>
+<p align='center'><a href='https://github.com/lutzroeder/netron'><img width='400' src='media/logo.png'/></a></p>
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
-Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`), **Caffe2** (`predict_net.pb`, `predict_net.pbtxt`), **MXNet** (`.model`, `-symbol.json`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`, `.prototxt`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).
+Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`), **Caffe2** (`predict_net.pb`, `predict_net.pbtxt`), **MXNet** (`.model`, `-symbol.json`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`, `.prototxt`), **PyTorch** (`.pth`), **CNTK** (`.model`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 
@@ -17,7 +17,7 @@ Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`, `.pbtxt`), **Keras**
 
 **Browser**: [**Start**](https://www.lutzroeder.com/ai/netron) the browser version.
 
-**Python Server**: Run `pip install netron` and `netron [MODEL_FILE]`. In Python run `import netron` and `netron.browse('model.onnx')`.
+**Python Server**: Run `pip install netron` and `netron -b [MODEL_FILE]`. In Python run `import netron` and `netron.start('model.onnx')`.
 
 ## Download Models
 

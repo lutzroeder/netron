@@ -4,6 +4,6 @@ source=$(dirname ${0})
 pushd ${source} > /dev/null
 [ -d node_modules ] || npm install
 rm -rf ./build/python
-python ./setup.py --quiet build
+python3 ./setup.py --quiet build
 popd > /dev/null
-PYTHONPATH=${source}/build/python/lib python -c "import netron; netron.main()" $@
+PYTHONPATH=${source}/build/python/lib python3 -c "import netron; netron.main()" $@

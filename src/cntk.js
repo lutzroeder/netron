@@ -1,1463 +1,1354 @@
-/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
-(function($protobuf) {
-    "use strict";
+/*jshint esversion: 6 */
 
-    var $Reader = $protobuf.Reader, $util = $protobuf.util;
-    
-    var $root = $protobuf.roots.cntk || ($protobuf.roots.cntk = {});
-    
-    $root.CNTK = (function() {
-    
-        var CNTK = {};
-    
-        CNTK.proto = (function() {
-    
-            var proto = {};
-    
-            proto.NDShape = (function() {
-    
-                function NDShape(properties) {
-                    this.shape_dim = [];
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                NDShape.prototype.shape_dim = $util.emptyArray;
-    
-                NDShape.create = function create(properties) {
-                    return new NDShape(properties);
-                };
-    
-                NDShape.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.NDShape();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            if (!(message.shape_dim && message.shape_dim.length))
-                                message.shape_dim = [];
-                            if ((tag & 7) === 2) {
-                                var end2 = reader.uint32() + reader.pos;
-                                while (reader.pos < end2)
-                                    message.shape_dim.push(reader.uint64());
-                            } else
-                                message.shape_dim.push(reader.uint64());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                NDShape.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.shape_dim != null && message.hasOwnProperty("shape_dim")) {
-                        if (!Array.isArray(message.shape_dim))
-                            return "shape_dim: array expected";
-                        for (var i = 0; i < message.shape_dim.length; ++i)
-                            if (!$util.isInteger(message.shape_dim[i]) && !(message.shape_dim[i] && $util.isInteger(message.shape_dim[i].low) && $util.isInteger(message.shape_dim[i].high)))
-                                return "shape_dim: integer|Long[] expected";
-                    }
-                    return null;
-                };
-    
-                NDShape.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CNTK.proto.NDShape)
-                        return object;
-                    var message = new $root.CNTK.proto.NDShape();
-                    if (object.shape_dim) {
-                        if (!Array.isArray(object.shape_dim))
-                            throw TypeError(".CNTK.proto.NDShape.shape_dim: array expected");
-                        message.shape_dim = [];
-                        for (var i = 0; i < object.shape_dim.length; ++i)
-                            if ($util.Long)
-                                (message.shape_dim[i] = $util.Long.fromValue(object.shape_dim[i])).unsigned = true;
-                            else if (typeof object.shape_dim[i] === "string")
-                                message.shape_dim[i] = parseInt(object.shape_dim[i], 10);
-                            else if (typeof object.shape_dim[i] === "number")
-                                message.shape_dim[i] = object.shape_dim[i];
-                            else if (typeof object.shape_dim[i] === "object")
-                                message.shape_dim[i] = new $util.LongBits(object.shape_dim[i].low >>> 0, object.shape_dim[i].high >>> 0).toNumber(true);
-                    }
-                    return message;
-                };
-    
-                NDShape.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.arrays || options.defaults)
-                        object.shape_dim = [];
-                    if (message.shape_dim && message.shape_dim.length) {
-                        object.shape_dim = [];
-                        for (var j = 0; j < message.shape_dim.length; ++j)
-                            if (typeof message.shape_dim[j] === "number")
-                                object.shape_dim[j] = options.longs === String ? String(message.shape_dim[j]) : message.shape_dim[j];
-                            else
-                                object.shape_dim[j] = options.longs === String ? $util.Long.prototype.toString.call(message.shape_dim[j]) : options.longs === Number ? new $util.LongBits(message.shape_dim[j].low >>> 0, message.shape_dim[j].high >>> 0).toNumber(true) : message.shape_dim[j];
-                    }
-                    return object;
-                };
-    
-                NDShape.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-    
-                return NDShape;
-            })();
-    
-            proto.Axis = (function() {
-    
-                function Axis(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                Axis.prototype.static_axis_idx = 0;
-                Axis.prototype.name = "";
-                Axis.prototype.is_ordered_dynamic_axis = false;
-    
-                Axis.create = function create(properties) {
-                    return new Axis(properties);
-                };
-    
-                Axis.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.Axis();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.static_axis_idx = reader.int32();
-                            break;
-                        case 2:
-                            message.name = reader.string();
-                            break;
-                        case 3:
-                            message.is_ordered_dynamic_axis = reader.bool();
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                Axis.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.static_axis_idx != null && message.hasOwnProperty("static_axis_idx"))
-                        if (!$util.isInteger(message.static_axis_idx))
-                            return "static_axis_idx: integer expected";
-                    if (message.name != null && message.hasOwnProperty("name"))
-                        if (!$util.isString(message.name))
-                            return "name: string expected";
-                    if (message.is_ordered_dynamic_axis != null && message.hasOwnProperty("is_ordered_dynamic_axis"))
-                        if (typeof message.is_ordered_dynamic_axis !== "boolean")
-                            return "is_ordered_dynamic_axis: boolean expected";
-                    return null;
-                };
-    
-                Axis.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CNTK.proto.Axis)
-                        return object;
-                    var message = new $root.CNTK.proto.Axis();
-                    if (object.static_axis_idx != null)
-                        message.static_axis_idx = object.static_axis_idx | 0;
-                    if (object.name != null)
-                        message.name = String(object.name);
-                    if (object.is_ordered_dynamic_axis != null)
-                        message.is_ordered_dynamic_axis = Boolean(object.is_ordered_dynamic_axis);
-                    return message;
-                };
-    
-                Axis.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults) {
-                        object.static_axis_idx = 0;
-                        object.name = "";
-                        object.is_ordered_dynamic_axis = false;
-                    }
-                    if (message.static_axis_idx != null && message.hasOwnProperty("static_axis_idx"))
-                        object.static_axis_idx = message.static_axis_idx;
-                    if (message.name != null && message.hasOwnProperty("name"))
-                        object.name = message.name;
-                    if (message.is_ordered_dynamic_axis != null && message.hasOwnProperty("is_ordered_dynamic_axis"))
-                        object.is_ordered_dynamic_axis = message.is_ordered_dynamic_axis;
-                    return object;
-                };
-    
-                Axis.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-    
-                return Axis;
-            })();
-    
-            proto.NDArrayView = (function() {
-    
-                function NDArrayView(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                NDArrayView.prototype.data_type = 0;
-                NDArrayView.prototype.storage_format = 0;
-                NDArrayView.prototype.shape = null;
-                NDArrayView.prototype.float_values = null;
-                NDArrayView.prototype.double_values = null;
-                NDArrayView.prototype.bytes_value = null;
-                NDArrayView.prototype.sint32_values = null;
-    
-                var $oneOfFields;
-    
-                Object.defineProperty(NDArrayView.prototype, "values", {
-                    get: $util.oneOfGetter($oneOfFields = ["float_values", "double_values", "bytes_value", "sint32_values"]),
-                    set: $util.oneOfSetter($oneOfFields)
-                });
-    
-                NDArrayView.create = function create(properties) {
-                    return new NDArrayView(properties);
-                };
-    
-                NDArrayView.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.NDArrayView();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.data_type = reader.int32();
-                            break;
-                        case 2:
-                            message.storage_format = reader.int32();
-                            break;
-                        case 3:
-                            message.shape = $root.CNTK.proto.NDShape.decode(reader, reader.uint32());
-                            break;
-                        case 4:
-                            message.float_values = $root.CNTK.proto.NDArrayView.FloatValues.decode(reader, reader.uint32());
-                            break;
-                        case 5:
-                            message.double_values = $root.CNTK.proto.NDArrayView.DoubleValues.decode(reader, reader.uint32());
-                            break;
-                        case 6:
-                            message.bytes_value = $root.CNTK.proto.NDArrayView.BytesValue.decode(reader, reader.uint32());
-                            break;
-                        case 7:
-                            message.sint32_values = $root.CNTK.proto.NDArrayView.IntValues.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                NDArrayView.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    var properties = {};
-                    if (message.data_type != null && message.hasOwnProperty("data_type"))
-                        switch (message.data_type) {
-                        default:
-                            return "data_type: enum value expected";
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 4:
-                        case 5:
-                        case 6:
-                            break;
-                        }
-                    if (message.storage_format != null && message.hasOwnProperty("storage_format"))
-                        switch (message.storage_format) {
-                        default:
-                            return "storage_format: enum value expected";
-                        case 0:
-                        case 1:
-                        case 2:
-                            break;
-                        }
-                    if (message.shape != null && message.hasOwnProperty("shape")) {
-                        var error = $root.CNTK.proto.NDShape.verify(message.shape);
-                        if (error)
-                            return "shape." + error;
-                    }
-                    if (message.float_values != null && message.hasOwnProperty("float_values")) {
-                        properties.values = 1;
-                        {
-                            var error = $root.CNTK.proto.NDArrayView.FloatValues.verify(message.float_values);
-                            if (error)
-                                return "float_values." + error;
-                        }
-                    }
-                    if (message.double_values != null && message.hasOwnProperty("double_values")) {
-                        if (properties.values === 1)
-                            return "values: multiple values";
-                        properties.values = 1;
-                        {
-                            var error = $root.CNTK.proto.NDArrayView.DoubleValues.verify(message.double_values);
-                            if (error)
-                                return "double_values." + error;
-                        }
-                    }
-                    if (message.bytes_value != null && message.hasOwnProperty("bytes_value")) {
-                        if (properties.values === 1)
-                            return "values: multiple values";
-                        properties.values = 1;
-                        {
-                            var error = $root.CNTK.proto.NDArrayView.BytesValue.verify(message.bytes_value);
-                            if (error)
-                                return "bytes_value." + error;
-                        }
-                    }
-                    if (message.sint32_values != null && message.hasOwnProperty("sint32_values")) {
-                        if (properties.values === 1)
-                            return "values: multiple values";
-                        properties.values = 1;
-                        {
-                            var error = $root.CNTK.proto.NDArrayView.IntValues.verify(message.sint32_values);
-                            if (error)
-                                return "sint32_values." + error;
-                        }
-                    }
-                    return null;
-                };
-    
-                NDArrayView.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CNTK.proto.NDArrayView)
-                        return object;
-                    var message = new $root.CNTK.proto.NDArrayView();
-                    switch (object.data_type) {
-                    case "Unknown":
-                    case 0:
-                        message.data_type = 0;
-                        break;
-                    case "Float":
-                    case 1:
-                        message.data_type = 1;
-                        break;
-                    case "Double":
-                    case 2:
-                        message.data_type = 2;
-                        break;
-                    case "Float16":
-                    case 4:
-                        message.data_type = 4;
-                        break;
-                    case "Int8":
-                    case 5:
-                        message.data_type = 5;
-                        break;
-                    case "Int16":
-                    case 6:
-                        message.data_type = 6;
-                        break;
-                    }
-                    switch (object.storage_format) {
-                    case "Dense":
-                    case 0:
-                        message.storage_format = 0;
-                        break;
-                    case "SparseCSC":
-                    case 1:
-                        message.storage_format = 1;
-                        break;
-                    case "SparseBlockCol":
-                    case 2:
-                        message.storage_format = 2;
-                        break;
-                    }
-                    if (object.shape != null) {
-                        if (typeof object.shape !== "object")
-                            throw TypeError(".CNTK.proto.NDArrayView.shape: object expected");
-                        message.shape = $root.CNTK.proto.NDShape.fromObject(object.shape);
-                    }
-                    if (object.float_values != null) {
-                        if (typeof object.float_values !== "object")
-                            throw TypeError(".CNTK.proto.NDArrayView.float_values: object expected");
-                        message.float_values = $root.CNTK.proto.NDArrayView.FloatValues.fromObject(object.float_values);
-                    }
-                    if (object.double_values != null) {
-                        if (typeof object.double_values !== "object")
-                            throw TypeError(".CNTK.proto.NDArrayView.double_values: object expected");
-                        message.double_values = $root.CNTK.proto.NDArrayView.DoubleValues.fromObject(object.double_values);
-                    }
-                    if (object.bytes_value != null) {
-                        if (typeof object.bytes_value !== "object")
-                            throw TypeError(".CNTK.proto.NDArrayView.bytes_value: object expected");
-                        message.bytes_value = $root.CNTK.proto.NDArrayView.BytesValue.fromObject(object.bytes_value);
-                    }
-                    if (object.sint32_values != null) {
-                        if (typeof object.sint32_values !== "object")
-                            throw TypeError(".CNTK.proto.NDArrayView.sint32_values: object expected");
-                        message.sint32_values = $root.CNTK.proto.NDArrayView.IntValues.fromObject(object.sint32_values);
-                    }
-                    return message;
-                };
-    
-                NDArrayView.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults) {
-                        object.data_type = options.enums === String ? "Unknown" : 0;
-                        object.storage_format = options.enums === String ? "Dense" : 0;
-                        object.shape = null;
-                    }
-                    if (message.data_type != null && message.hasOwnProperty("data_type"))
-                        object.data_type = options.enums === String ? $root.CNTK.proto.NDArrayView.DataType[message.data_type] : message.data_type;
-                    if (message.storage_format != null && message.hasOwnProperty("storage_format"))
-                        object.storage_format = options.enums === String ? $root.CNTK.proto.NDArrayView.StorageFormat[message.storage_format] : message.storage_format;
-                    if (message.shape != null && message.hasOwnProperty("shape"))
-                        object.shape = $root.CNTK.proto.NDShape.toObject(message.shape, options);
-                    if (message.float_values != null && message.hasOwnProperty("float_values")) {
-                        object.float_values = $root.CNTK.proto.NDArrayView.FloatValues.toObject(message.float_values, options);
-                        if (options.oneofs)
-                            object.values = "float_values";
-                    }
-                    if (message.double_values != null && message.hasOwnProperty("double_values")) {
-                        object.double_values = $root.CNTK.proto.NDArrayView.DoubleValues.toObject(message.double_values, options);
-                        if (options.oneofs)
-                            object.values = "double_values";
-                    }
-                    if (message.bytes_value != null && message.hasOwnProperty("bytes_value")) {
-                        object.bytes_value = $root.CNTK.proto.NDArrayView.BytesValue.toObject(message.bytes_value, options);
-                        if (options.oneofs)
-                            object.values = "bytes_value";
-                    }
-                    if (message.sint32_values != null && message.hasOwnProperty("sint32_values")) {
-                        object.sint32_values = $root.CNTK.proto.NDArrayView.IntValues.toObject(message.sint32_values, options);
-                        if (options.oneofs)
-                            object.values = "sint32_values";
-                    }
-                    return object;
-                };
-    
-                NDArrayView.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-    
-                NDArrayView.DataType = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
-                    values[valuesById[0] = "Unknown"] = 0;
-                    values[valuesById[1] = "Float"] = 1;
-                    values[valuesById[2] = "Double"] = 2;
-                    values[valuesById[4] = "Float16"] = 4;
-                    values[valuesById[5] = "Int8"] = 5;
-                    values[valuesById[6] = "Int16"] = 6;
-                    return values;
-                })();
-    
-                NDArrayView.StorageFormat = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
-                    values[valuesById[0] = "Dense"] = 0;
-                    values[valuesById[1] = "SparseCSC"] = 1;
-                    values[valuesById[2] = "SparseBlockCol"] = 2;
-                    return values;
-                })();
-    
-                NDArrayView.FloatValues = (function() {
-    
-                    function FloatValues(properties) {
-                        this.value = [];
-                        if (properties)
-                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                if (properties[keys[i]] != null)
-                                    this[keys[i]] = properties[keys[i]];
-                    }
-    
-                    FloatValues.prototype.value = $util.emptyArray;
-    
-                    FloatValues.create = function create(properties) {
-                        return new FloatValues(properties);
-                    };
-    
-                    FloatValues.decode = function decode(reader, length) {
-                        if (!(reader instanceof $Reader))
-                            reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.NDArrayView.FloatValues();
-                        while (reader.pos < end) {
-                            var tag = reader.uint32();
-                            switch (tag >>> 3) {
-                            case 1:
-                                if (!(message.value && message.value.length))
-                                    message.value = [];
-                                if ((tag & 7) === 2) {
-                                    var end2 = reader.uint32() + reader.pos;
-                                    while (reader.pos < end2)
-                                        message.value.push(reader.float());
-                                } else
-                                    message.value.push(reader.float());
-                                break;
-                            default:
-                                reader.skipType(tag & 7);
-                                break;
-                            }
-                        }
-                        return message;
-                    };
-    
-                    FloatValues.verify = function verify(message) {
-                        if (typeof message !== "object" || message === null)
-                            return "object expected";
-                        if (message.value != null && message.hasOwnProperty("value")) {
-                            if (!Array.isArray(message.value))
-                                return "value: array expected";
-                            for (var i = 0; i < message.value.length; ++i)
-                                if (typeof message.value[i] !== "number")
-                                    return "value: number[] expected";
-                        }
-                        return null;
-                    };
-    
-                    FloatValues.fromObject = function fromObject(object) {
-                        if (object instanceof $root.CNTK.proto.NDArrayView.FloatValues)
-                            return object;
-                        var message = new $root.CNTK.proto.NDArrayView.FloatValues();
-                        if (object.value) {
-                            if (!Array.isArray(object.value))
-                                throw TypeError(".CNTK.proto.NDArrayView.FloatValues.value: array expected");
-                            message.value = [];
-                            for (var i = 0; i < object.value.length; ++i)
-                                message.value[i] = Number(object.value[i]);
-                        }
-                        return message;
-                    };
-    
-                    FloatValues.toObject = function toObject(message, options) {
-                        if (!options)
-                            options = {};
-                        var object = {};
-                        if (options.arrays || options.defaults)
-                            object.value = [];
-                        if (message.value && message.value.length) {
-                            object.value = [];
-                            for (var j = 0; j < message.value.length; ++j)
-                                object.value[j] = options.json && !isFinite(message.value[j]) ? String(message.value[j]) : message.value[j];
-                        }
-                        return object;
-                    };
-    
-                    FloatValues.prototype.toJSON = function toJSON() {
-                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                    };
-    
-                    return FloatValues;
-                })();
-    
-                NDArrayView.DoubleValues = (function() {
-    
-                    function DoubleValues(properties) {
-                        this.value = [];
-                        if (properties)
-                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                if (properties[keys[i]] != null)
-                                    this[keys[i]] = properties[keys[i]];
-                    }
-    
-                    DoubleValues.prototype.value = $util.emptyArray;
-    
-                    DoubleValues.create = function create(properties) {
-                        return new DoubleValues(properties);
-                    };
-    
-                    DoubleValues.decode = function decode(reader, length) {
-                        if (!(reader instanceof $Reader))
-                            reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.NDArrayView.DoubleValues();
-                        while (reader.pos < end) {
-                            var tag = reader.uint32();
-                            switch (tag >>> 3) {
-                            case 1:
-                                if (!(message.value && message.value.length))
-                                    message.value = [];
-                                if ((tag & 7) === 2) {
-                                    var end2 = reader.uint32() + reader.pos;
-                                    while (reader.pos < end2)
-                                        message.value.push(reader.double());
-                                } else
-                                    message.value.push(reader.double());
-                                break;
-                            default:
-                                reader.skipType(tag & 7);
-                                break;
-                            }
-                        }
-                        return message;
-                    };
-    
-                    DoubleValues.verify = function verify(message) {
-                        if (typeof message !== "object" || message === null)
-                            return "object expected";
-                        if (message.value != null && message.hasOwnProperty("value")) {
-                            if (!Array.isArray(message.value))
-                                return "value: array expected";
-                            for (var i = 0; i < message.value.length; ++i)
-                                if (typeof message.value[i] !== "number")
-                                    return "value: number[] expected";
-                        }
-                        return null;
-                    };
-    
-                    DoubleValues.fromObject = function fromObject(object) {
-                        if (object instanceof $root.CNTK.proto.NDArrayView.DoubleValues)
-                            return object;
-                        var message = new $root.CNTK.proto.NDArrayView.DoubleValues();
-                        if (object.value) {
-                            if (!Array.isArray(object.value))
-                                throw TypeError(".CNTK.proto.NDArrayView.DoubleValues.value: array expected");
-                            message.value = [];
-                            for (var i = 0; i < object.value.length; ++i)
-                                message.value[i] = Number(object.value[i]);
-                        }
-                        return message;
-                    };
-    
-                    DoubleValues.toObject = function toObject(message, options) {
-                        if (!options)
-                            options = {};
-                        var object = {};
-                        if (options.arrays || options.defaults)
-                            object.value = [];
-                        if (message.value && message.value.length) {
-                            object.value = [];
-                            for (var j = 0; j < message.value.length; ++j)
-                                object.value[j] = options.json && !isFinite(message.value[j]) ? String(message.value[j]) : message.value[j];
-                        }
-                        return object;
-                    };
-    
-                    DoubleValues.prototype.toJSON = function toJSON() {
-                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                    };
-    
-                    return DoubleValues;
-                })();
-    
-                NDArrayView.BytesValue = (function() {
-    
-                    function BytesValue(properties) {
-                        if (properties)
-                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                if (properties[keys[i]] != null)
-                                    this[keys[i]] = properties[keys[i]];
-                    }
-    
-                    BytesValue.prototype.value = $util.newBuffer([]);
-    
-                    BytesValue.create = function create(properties) {
-                        return new BytesValue(properties);
-                    };
-    
-                    BytesValue.decode = function decode(reader, length) {
-                        if (!(reader instanceof $Reader))
-                            reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.NDArrayView.BytesValue();
-                        while (reader.pos < end) {
-                            var tag = reader.uint32();
-                            switch (tag >>> 3) {
-                            case 1:
-                                message.value = reader.bytes();
-                                break;
-                            default:
-                                reader.skipType(tag & 7);
-                                break;
-                            }
-                        }
-                        return message;
-                    };
-    
-                    BytesValue.verify = function verify(message) {
-                        if (typeof message !== "object" || message === null)
-                            return "object expected";
-                        if (message.value != null && message.hasOwnProperty("value"))
-                            if (!(message.value && typeof message.value.length === "number" || $util.isString(message.value)))
-                                return "value: buffer expected";
-                        return null;
-                    };
-    
-                    BytesValue.fromObject = function fromObject(object) {
-                        if (object instanceof $root.CNTK.proto.NDArrayView.BytesValue)
-                            return object;
-                        var message = new $root.CNTK.proto.NDArrayView.BytesValue();
-                        if (object.value != null)
-                            if (typeof object.value === "string")
-                                $util.base64.decode(object.value, message.value = $util.newBuffer($util.base64.length(object.value)), 0);
-                            else if (object.value.length)
-                                message.value = object.value;
-                        return message;
-                    };
-    
-                    BytesValue.toObject = function toObject(message, options) {
-                        if (!options)
-                            options = {};
-                        var object = {};
-                        if (options.defaults)
-                            if (options.bytes === String)
-                                object.value = "";
-                            else {
-                                object.value = [];
-                                if (options.bytes !== Array)
-                                    object.value = $util.newBuffer(object.value);
-                            }
-                        if (message.value != null && message.hasOwnProperty("value"))
-                            object.value = options.bytes === String ? $util.base64.encode(message.value, 0, message.value.length) : options.bytes === Array ? Array.prototype.slice.call(message.value) : message.value;
-                        return object;
-                    };
-    
-                    BytesValue.prototype.toJSON = function toJSON() {
-                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                    };
-    
-                    return BytesValue;
-                })();
-    
-                NDArrayView.IntValues = (function() {
-    
-                    function IntValues(properties) {
-                        this.value = [];
-                        if (properties)
-                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                if (properties[keys[i]] != null)
-                                    this[keys[i]] = properties[keys[i]];
-                    }
-    
-                    IntValues.prototype.value = $util.emptyArray;
-    
-                    IntValues.create = function create(properties) {
-                        return new IntValues(properties);
-                    };
-    
-                    IntValues.decode = function decode(reader, length) {
-                        if (!(reader instanceof $Reader))
-                            reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.NDArrayView.IntValues();
-                        while (reader.pos < end) {
-                            var tag = reader.uint32();
-                            switch (tag >>> 3) {
-                            case 1:
-                                if (!(message.value && message.value.length))
-                                    message.value = [];
-                                if ((tag & 7) === 2) {
-                                    var end2 = reader.uint32() + reader.pos;
-                                    while (reader.pos < end2)
-                                        message.value.push(reader.sint32());
-                                } else
-                                    message.value.push(reader.sint32());
-                                break;
-                            default:
-                                reader.skipType(tag & 7);
-                                break;
-                            }
-                        }
-                        return message;
-                    };
-    
-                    IntValues.verify = function verify(message) {
-                        if (typeof message !== "object" || message === null)
-                            return "object expected";
-                        if (message.value != null && message.hasOwnProperty("value")) {
-                            if (!Array.isArray(message.value))
-                                return "value: array expected";
-                            for (var i = 0; i < message.value.length; ++i)
-                                if (!$util.isInteger(message.value[i]))
-                                    return "value: integer[] expected";
-                        }
-                        return null;
-                    };
-    
-                    IntValues.fromObject = function fromObject(object) {
-                        if (object instanceof $root.CNTK.proto.NDArrayView.IntValues)
-                            return object;
-                        var message = new $root.CNTK.proto.NDArrayView.IntValues();
-                        if (object.value) {
-                            if (!Array.isArray(object.value))
-                                throw TypeError(".CNTK.proto.NDArrayView.IntValues.value: array expected");
-                            message.value = [];
-                            for (var i = 0; i < object.value.length; ++i)
-                                message.value[i] = object.value[i] | 0;
-                        }
-                        return message;
-                    };
-    
-                    IntValues.toObject = function toObject(message, options) {
-                        if (!options)
-                            options = {};
-                        var object = {};
-                        if (options.arrays || options.defaults)
-                            object.value = [];
-                        if (message.value && message.value.length) {
-                            object.value = [];
-                            for (var j = 0; j < message.value.length; ++j)
-                                object.value[j] = message.value[j];
-                        }
-                        return object;
-                    };
-    
-                    IntValues.prototype.toJSON = function toJSON() {
-                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                    };
-    
-                    return IntValues;
-                })();
-    
-                return NDArrayView;
-            })();
-    
-            proto.Vector = (function() {
-    
-                function Vector(properties) {
-                    this.value = [];
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                Vector.prototype.value = $util.emptyArray;
-    
-                Vector.create = function create(properties) {
-                    return new Vector(properties);
-                };
-    
-                Vector.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.Vector();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            if (!(message.value && message.value.length))
-                                message.value = [];
-                            message.value.push($root.CNTK.proto.DictionaryValue.decode(reader, reader.uint32()));
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                Vector.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.value != null && message.hasOwnProperty("value")) {
-                        if (!Array.isArray(message.value))
-                            return "value: array expected";
-                        for (var i = 0; i < message.value.length; ++i) {
-                            var error = $root.CNTK.proto.DictionaryValue.verify(message.value[i]);
-                            if (error)
-                                return "value." + error;
-                        }
-                    }
-                    return null;
-                };
-    
-                Vector.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CNTK.proto.Vector)
-                        return object;
-                    var message = new $root.CNTK.proto.Vector();
-                    if (object.value) {
-                        if (!Array.isArray(object.value))
-                            throw TypeError(".CNTK.proto.Vector.value: array expected");
-                        message.value = [];
-                        for (var i = 0; i < object.value.length; ++i) {
-                            if (typeof object.value[i] !== "object")
-                                throw TypeError(".CNTK.proto.Vector.value: object expected");
-                            message.value[i] = $root.CNTK.proto.DictionaryValue.fromObject(object.value[i]);
-                        }
-                    }
-                    return message;
-                };
-    
-                Vector.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.arrays || options.defaults)
-                        object.value = [];
-                    if (message.value && message.value.length) {
-                        object.value = [];
-                        for (var j = 0; j < message.value.length; ++j)
-                            object.value[j] = $root.CNTK.proto.DictionaryValue.toObject(message.value[j], options);
-                    }
-                    return object;
-                };
-    
-                Vector.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-    
-                return Vector;
-            })();
-    
-            proto.Dictionary = (function() {
-    
-                function Dictionary(properties) {
-                    this.data = {};
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                Dictionary.prototype.version = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
-                Dictionary.prototype.data = $util.emptyObject;
-    
-                Dictionary.create = function create(properties) {
-                    return new Dictionary(properties);
-                };
-    
-                Dictionary.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.Dictionary(), key;
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.version = reader.uint64();
-                            break;
-                        case 2:
-                            reader.skip().pos++;
-                            if (message.data === $util.emptyObject)
-                                message.data = {};
-                            key = reader.string();
-                            reader.pos++;
-                            message.data[key] = $root.CNTK.proto.DictionaryValue.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                Dictionary.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.version != null && message.hasOwnProperty("version"))
-                        if (!$util.isInteger(message.version) && !(message.version && $util.isInteger(message.version.low) && $util.isInteger(message.version.high)))
-                            return "version: integer|Long expected";
-                    if (message.data != null && message.hasOwnProperty("data")) {
-                        if (!$util.isObject(message.data))
-                            return "data: object expected";
-                        var key = Object.keys(message.data);
-                        for (var i = 0; i < key.length; ++i) {
-                            var error = $root.CNTK.proto.DictionaryValue.verify(message.data[key[i]]);
-                            if (error)
-                                return "data." + error;
-                        }
-                    }
-                    return null;
-                };
-    
-                Dictionary.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CNTK.proto.Dictionary)
-                        return object;
-                    var message = new $root.CNTK.proto.Dictionary();
-                    if (object.version != null)
-                        if ($util.Long)
-                            (message.version = $util.Long.fromValue(object.version)).unsigned = true;
-                        else if (typeof object.version === "string")
-                            message.version = parseInt(object.version, 10);
-                        else if (typeof object.version === "number")
-                            message.version = object.version;
-                        else if (typeof object.version === "object")
-                            message.version = new $util.LongBits(object.version.low >>> 0, object.version.high >>> 0).toNumber(true);
-                    if (object.data) {
-                        if (typeof object.data !== "object")
-                            throw TypeError(".CNTK.proto.Dictionary.data: object expected");
-                        message.data = {};
-                        for (var keys = Object.keys(object.data), i = 0; i < keys.length; ++i) {
-                            if (typeof object.data[keys[i]] !== "object")
-                                throw TypeError(".CNTK.proto.Dictionary.data: object expected");
-                            message.data[keys[i]] = $root.CNTK.proto.DictionaryValue.fromObject(object.data[keys[i]]);
-                        }
-                    }
-                    return message;
-                };
-    
-                Dictionary.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.objects || options.defaults)
-                        object.data = {};
-                    if (options.defaults)
-                        if ($util.Long) {
-                            var long = new $util.Long(0, 0, true);
-                            object.version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
-                        } else
-                            object.version = options.longs === String ? "0" : 0;
-                    if (message.version != null && message.hasOwnProperty("version"))
-                        if (typeof message.version === "number")
-                            object.version = options.longs === String ? String(message.version) : message.version;
-                        else
-                            object.version = options.longs === String ? $util.Long.prototype.toString.call(message.version) : options.longs === Number ? new $util.LongBits(message.version.low >>> 0, message.version.high >>> 0).toNumber(true) : message.version;
-                    var keys2;
-                    if (message.data && (keys2 = Object.keys(message.data)).length) {
-                        object.data = {};
-                        for (var j = 0; j < keys2.length; ++j)
-                            object.data[keys2[j]] = $root.CNTK.proto.DictionaryValue.toObject(message.data[keys2[j]], options);
-                    }
-                    return object;
-                };
-    
-                Dictionary.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-    
-                return Dictionary;
-            })();
-    
-            proto.DictionaryValue = (function() {
-    
-                function DictionaryValue(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                DictionaryValue.prototype.version = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
-                DictionaryValue.prototype.value_type = 0;
-                DictionaryValue.prototype.bool_value = false;
-                DictionaryValue.prototype.int_value = 0;
-                DictionaryValue.prototype.size_t_value = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
-                DictionaryValue.prototype.float_value = 0;
-                DictionaryValue.prototype.double_value = 0;
-                DictionaryValue.prototype.string_value = "";
-                DictionaryValue.prototype.nd_shape_value = null;
-                DictionaryValue.prototype.axis_value = null;
-                DictionaryValue.prototype.vector_value = null;
-                DictionaryValue.prototype.dictionary_value = null;
-                DictionaryValue.prototype.nd_array_view_value = null;
-    
-                var $oneOfFields;
-    
-                Object.defineProperty(DictionaryValue.prototype, "value", {
-                    get: $util.oneOfGetter($oneOfFields = ["bool_value", "int_value", "size_t_value", "float_value", "double_value", "string_value", "nd_shape_value", "axis_value", "vector_value", "dictionary_value", "nd_array_view_value"]),
-                    set: $util.oneOfSetter($oneOfFields)
-                });
-    
-                DictionaryValue.create = function create(properties) {
-                    return new DictionaryValue(properties);
-                };
-    
-                DictionaryValue.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CNTK.proto.DictionaryValue();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.version = reader.uint64();
-                            break;
-                        case 2:
-                            message.value_type = reader.int32();
-                            break;
-                        case 3:
-                            message.bool_value = reader.bool();
-                            break;
-                        case 4:
-                            message.int_value = reader.int32();
-                            break;
-                        case 5:
-                            message.size_t_value = reader.uint64();
-                            break;
-                        case 6:
-                            message.float_value = reader.float();
-                            break;
-                        case 7:
-                            message.double_value = reader.double();
-                            break;
-                        case 8:
-                            message.string_value = reader.string();
-                            break;
-                        case 9:
-                            message.nd_shape_value = $root.CNTK.proto.NDShape.decode(reader, reader.uint32());
-                            break;
-                        case 10:
-                            message.axis_value = $root.CNTK.proto.Axis.decode(reader, reader.uint32());
-                            break;
-                        case 11:
-                            message.vector_value = $root.CNTK.proto.Vector.decode(reader, reader.uint32());
-                            break;
-                        case 12:
-                            message.dictionary_value = $root.CNTK.proto.Dictionary.decode(reader, reader.uint32());
-                            break;
-                        case 13:
-                            message.nd_array_view_value = $root.CNTK.proto.NDArrayView.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                DictionaryValue.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    var properties = {};
-                    if (message.version != null && message.hasOwnProperty("version"))
-                        if (!$util.isInteger(message.version) && !(message.version && $util.isInteger(message.version.low) && $util.isInteger(message.version.high)))
-                            return "version: integer|Long expected";
-                    if (message.value_type != null && message.hasOwnProperty("value_type"))
-                        switch (message.value_type) {
-                        default:
-                            return "value_type: enum value expected";
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                        case 10:
-                        case 11:
-                            break;
-                        }
-                    if (message.bool_value != null && message.hasOwnProperty("bool_value")) {
-                        properties.value = 1;
-                        if (typeof message.bool_value !== "boolean")
-                            return "bool_value: boolean expected";
-                    }
-                    if (message.int_value != null && message.hasOwnProperty("int_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        if (!$util.isInteger(message.int_value))
-                            return "int_value: integer expected";
-                    }
-                    if (message.size_t_value != null && message.hasOwnProperty("size_t_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        if (!$util.isInteger(message.size_t_value) && !(message.size_t_value && $util.isInteger(message.size_t_value.low) && $util.isInteger(message.size_t_value.high)))
-                            return "size_t_value: integer|Long expected";
-                    }
-                    if (message.float_value != null && message.hasOwnProperty("float_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        if (typeof message.float_value !== "number")
-                            return "float_value: number expected";
-                    }
-                    if (message.double_value != null && message.hasOwnProperty("double_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        if (typeof message.double_value !== "number")
-                            return "double_value: number expected";
-                    }
-                    if (message.string_value != null && message.hasOwnProperty("string_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        if (!$util.isString(message.string_value))
-                            return "string_value: string expected";
-                    }
-                    if (message.nd_shape_value != null && message.hasOwnProperty("nd_shape_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        {
-                            var error = $root.CNTK.proto.NDShape.verify(message.nd_shape_value);
-                            if (error)
-                                return "nd_shape_value." + error;
-                        }
-                    }
-                    if (message.axis_value != null && message.hasOwnProperty("axis_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        {
-                            var error = $root.CNTK.proto.Axis.verify(message.axis_value);
-                            if (error)
-                                return "axis_value." + error;
-                        }
-                    }
-                    if (message.vector_value != null && message.hasOwnProperty("vector_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        {
-                            var error = $root.CNTK.proto.Vector.verify(message.vector_value);
-                            if (error)
-                                return "vector_value." + error;
-                        }
-                    }
-                    if (message.dictionary_value != null && message.hasOwnProperty("dictionary_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        {
-                            var error = $root.CNTK.proto.Dictionary.verify(message.dictionary_value);
-                            if (error)
-                                return "dictionary_value." + error;
-                        }
-                    }
-                    if (message.nd_array_view_value != null && message.hasOwnProperty("nd_array_view_value")) {
-                        if (properties.value === 1)
-                            return "value: multiple values";
-                        properties.value = 1;
-                        {
-                            var error = $root.CNTK.proto.NDArrayView.verify(message.nd_array_view_value);
-                            if (error)
-                                return "nd_array_view_value." + error;
-                        }
-                    }
-                    return null;
-                };
-    
-                DictionaryValue.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CNTK.proto.DictionaryValue)
-                        return object;
-                    var message = new $root.CNTK.proto.DictionaryValue();
-                    if (object.version != null)
-                        if ($util.Long)
-                            (message.version = $util.Long.fromValue(object.version)).unsigned = true;
-                        else if (typeof object.version === "string")
-                            message.version = parseInt(object.version, 10);
-                        else if (typeof object.version === "number")
-                            message.version = object.version;
-                        else if (typeof object.version === "object")
-                            message.version = new $util.LongBits(object.version.low >>> 0, object.version.high >>> 0).toNumber(true);
-                    switch (object.value_type) {
-                    case "None":
-                    case 0:
-                        message.value_type = 0;
-                        break;
-                    case "Bool":
-                    case 1:
-                        message.value_type = 1;
-                        break;
-                    case "Int":
-                    case 2:
-                        message.value_type = 2;
-                        break;
-                    case "SizeT":
-                    case 3:
-                        message.value_type = 3;
-                        break;
-                    case "Float":
-                    case 4:
-                        message.value_type = 4;
-                        break;
-                    case "Double":
-                    case 5:
-                        message.value_type = 5;
-                        break;
-                    case "String":
-                    case 6:
-                        message.value_type = 6;
-                        break;
-                    case "NDShape":
-                    case 7:
-                        message.value_type = 7;
-                        break;
-                    case "Axis":
-                    case 8:
-                        message.value_type = 8;
-                        break;
-                    case "Vector":
-                    case 9:
-                        message.value_type = 9;
-                        break;
-                    case "Dictionary":
-                    case 10:
-                        message.value_type = 10;
-                        break;
-                    case "NDArrayView":
-                    case 11:
-                        message.value_type = 11;
-                        break;
-                    }
-                    if (object.bool_value != null)
-                        message.bool_value = Boolean(object.bool_value);
-                    if (object.int_value != null)
-                        message.int_value = object.int_value | 0;
-                    if (object.size_t_value != null)
-                        if ($util.Long)
-                            (message.size_t_value = $util.Long.fromValue(object.size_t_value)).unsigned = true;
-                        else if (typeof object.size_t_value === "string")
-                            message.size_t_value = parseInt(object.size_t_value, 10);
-                        else if (typeof object.size_t_value === "number")
-                            message.size_t_value = object.size_t_value;
-                        else if (typeof object.size_t_value === "object")
-                            message.size_t_value = new $util.LongBits(object.size_t_value.low >>> 0, object.size_t_value.high >>> 0).toNumber(true);
-                    if (object.float_value != null)
-                        message.float_value = Number(object.float_value);
-                    if (object.double_value != null)
-                        message.double_value = Number(object.double_value);
-                    if (object.string_value != null)
-                        message.string_value = String(object.string_value);
-                    if (object.nd_shape_value != null) {
-                        if (typeof object.nd_shape_value !== "object")
-                            throw TypeError(".CNTK.proto.DictionaryValue.nd_shape_value: object expected");
-                        message.nd_shape_value = $root.CNTK.proto.NDShape.fromObject(object.nd_shape_value);
-                    }
-                    if (object.axis_value != null) {
-                        if (typeof object.axis_value !== "object")
-                            throw TypeError(".CNTK.proto.DictionaryValue.axis_value: object expected");
-                        message.axis_value = $root.CNTK.proto.Axis.fromObject(object.axis_value);
-                    }
-                    if (object.vector_value != null) {
-                        if (typeof object.vector_value !== "object")
-                            throw TypeError(".CNTK.proto.DictionaryValue.vector_value: object expected");
-                        message.vector_value = $root.CNTK.proto.Vector.fromObject(object.vector_value);
-                    }
-                    if (object.dictionary_value != null) {
-                        if (typeof object.dictionary_value !== "object")
-                            throw TypeError(".CNTK.proto.DictionaryValue.dictionary_value: object expected");
-                        message.dictionary_value = $root.CNTK.proto.Dictionary.fromObject(object.dictionary_value);
-                    }
-                    if (object.nd_array_view_value != null) {
-                        if (typeof object.nd_array_view_value !== "object")
-                            throw TypeError(".CNTK.proto.DictionaryValue.nd_array_view_value: object expected");
-                        message.nd_array_view_value = $root.CNTK.proto.NDArrayView.fromObject(object.nd_array_view_value);
-                    }
-                    return message;
-                };
-    
-                DictionaryValue.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults) {
-                        if ($util.Long) {
-                            var long = new $util.Long(0, 0, true);
-                            object.version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
-                        } else
-                            object.version = options.longs === String ? "0" : 0;
-                        object.value_type = options.enums === String ? "None" : 0;
-                    }
-                    if (message.version != null && message.hasOwnProperty("version"))
-                        if (typeof message.version === "number")
-                            object.version = options.longs === String ? String(message.version) : message.version;
-                        else
-                            object.version = options.longs === String ? $util.Long.prototype.toString.call(message.version) : options.longs === Number ? new $util.LongBits(message.version.low >>> 0, message.version.high >>> 0).toNumber(true) : message.version;
-                    if (message.value_type != null && message.hasOwnProperty("value_type"))
-                        object.value_type = options.enums === String ? $root.CNTK.proto.DictionaryValue.Type[message.value_type] : message.value_type;
-                    if (message.bool_value != null && message.hasOwnProperty("bool_value")) {
-                        object.bool_value = message.bool_value;
-                        if (options.oneofs)
-                            object.value = "bool_value";
-                    }
-                    if (message.int_value != null && message.hasOwnProperty("int_value")) {
-                        object.int_value = message.int_value;
-                        if (options.oneofs)
-                            object.value = "int_value";
-                    }
-                    if (message.size_t_value != null && message.hasOwnProperty("size_t_value")) {
-                        if (typeof message.size_t_value === "number")
-                            object.size_t_value = options.longs === String ? String(message.size_t_value) : message.size_t_value;
-                        else
-                            object.size_t_value = options.longs === String ? $util.Long.prototype.toString.call(message.size_t_value) : options.longs === Number ? new $util.LongBits(message.size_t_value.low >>> 0, message.size_t_value.high >>> 0).toNumber(true) : message.size_t_value;
-                        if (options.oneofs)
-                            object.value = "size_t_value";
-                    }
-                    if (message.float_value != null && message.hasOwnProperty("float_value")) {
-                        object.float_value = options.json && !isFinite(message.float_value) ? String(message.float_value) : message.float_value;
-                        if (options.oneofs)
-                            object.value = "float_value";
-                    }
-                    if (message.double_value != null && message.hasOwnProperty("double_value")) {
-                        object.double_value = options.json && !isFinite(message.double_value) ? String(message.double_value) : message.double_value;
-                        if (options.oneofs)
-                            object.value = "double_value";
-                    }
-                    if (message.string_value != null && message.hasOwnProperty("string_value")) {
-                        object.string_value = message.string_value;
-                        if (options.oneofs)
-                            object.value = "string_value";
-                    }
-                    if (message.nd_shape_value != null && message.hasOwnProperty("nd_shape_value")) {
-                        object.nd_shape_value = $root.CNTK.proto.NDShape.toObject(message.nd_shape_value, options);
-                        if (options.oneofs)
-                            object.value = "nd_shape_value";
-                    }
-                    if (message.axis_value != null && message.hasOwnProperty("axis_value")) {
-                        object.axis_value = $root.CNTK.proto.Axis.toObject(message.axis_value, options);
-                        if (options.oneofs)
-                            object.value = "axis_value";
-                    }
-                    if (message.vector_value != null && message.hasOwnProperty("vector_value")) {
-                        object.vector_value = $root.CNTK.proto.Vector.toObject(message.vector_value, options);
-                        if (options.oneofs)
-                            object.value = "vector_value";
-                    }
-                    if (message.dictionary_value != null && message.hasOwnProperty("dictionary_value")) {
-                        object.dictionary_value = $root.CNTK.proto.Dictionary.toObject(message.dictionary_value, options);
-                        if (options.oneofs)
-                            object.value = "dictionary_value";
-                    }
-                    if (message.nd_array_view_value != null && message.hasOwnProperty("nd_array_view_value")) {
-                        object.nd_array_view_value = $root.CNTK.proto.NDArrayView.toObject(message.nd_array_view_value, options);
-                        if (options.oneofs)
-                            object.value = "nd_array_view_value";
-                    }
-                    return object;
-                };
-    
-                DictionaryValue.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-    
-                DictionaryValue.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
-                    values[valuesById[0] = "None"] = 0;
-                    values[valuesById[1] = "Bool"] = 1;
-                    values[valuesById[2] = "Int"] = 2;
-                    values[valuesById[3] = "SizeT"] = 3;
-                    values[valuesById[4] = "Float"] = 4;
-                    values[valuesById[5] = "Double"] = 5;
-                    values[valuesById[6] = "String"] = 6;
-                    values[valuesById[7] = "NDShape"] = 7;
-                    values[valuesById[8] = "Axis"] = 8;
-                    values[valuesById[9] = "Vector"] = 9;
-                    values[valuesById[10] = "Dictionary"] = 10;
-                    values[valuesById[11] = "NDArrayView"] = 11;
-                    return values;
-                })();
-    
-                return DictionaryValue;
-            })();
-    
-            return proto;
-        })();
-    
-        return CNTK;
-    })();
+var cntk = cntk || {};
+var protobuf = protobuf || require('protobufjs');
 
-    return $root;
-})(protobuf);
+var cntk_v1 = {};
+var cntk_v2 = null;
+
+cntk.ModelFactory = class {
+
+    match(context, host) {
+        var extension = context.identifier.split('.').pop().toLowerCase();
+        if (extension == 'model') {
+            var buffer = context.buffer;
+            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+                return false;
+            }
+            // Filter PyTorch models published with incorrect .h5 file extension.
+            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            if (buffer && buffer.length > torch.length + 2 && 
+                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
+                if (torch.every((value, index) => value == buffer[index + 2])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    open(context, host, callback) { 
+        host.require('./cntk-proto', (err, module) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            var version = 0;
+            var obj = null;
+            try {
+                var buffer = context.buffer;
+                if (buffer && buffer.length >= 8 && 
+                    buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
+                    buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
+                    obj = new cntk_v1.ComputationNetwork(buffer);
+                    version = 1;
+                }
+            }
+            catch (error) {
+                callback(new cntk.Error("File format is not CNTK v1 (" + error.message + ") in '" + context.identifier + "'."), null);
+                return;
+            }
+            try {
+                if (!obj) {
+                    cntk_v2 = protobuf.roots.cntk.CNTK.proto;
+                    cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
+                    var dictionary = cntk_v2.Dictionary.decode(context.buffer);
+                    obj = cntk.ModelFactory._convertDictionary(dictionary);
+                    version = 2;
+                }
+            }
+            catch (error) {
+                callback(new cntk.Error("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'."), null);
+                return;
+            }
+            cntk.OperatorMetadata.open(host, (err, metadata) => {
+                try {
+                    var model = new cntk.Model(version, obj);
+                    callback(null, model);
+                }
+                catch (error) {
+                    callback(new cntk.Error(error.message), null);
+                }
+            });
+        });
+    }
+
+    static _convertDictionary(dictionary) {
+        var target = {};
+        Object.keys(dictionary.data).filter((key) => key != 'version').forEach((key) => {
+            target[key] = cntk.ModelFactory._convertDictionaryValue(dictionary.data[key]);
+        });
+        return target;
+    }
+
+    static _convertDictionaryValue(dictionaryValue) {
+        switch (dictionaryValue.value_type) {
+            case cntk_v2.DictionaryValue.Type.Bool:
+                return dictionaryValue.bool_value;
+            case cntk_v2.DictionaryValue.Type.Int:
+                return dictionaryValue.int_value;
+            case cntk_v2.DictionaryValue.Type.SizeT:
+                return dictionaryValue.size_t_value;
+            case cntk_v2.DictionaryValue.Type.Float:
+                return dictionaryValue.float_value;
+            case cntk_v2.DictionaryValue.Type.Double:
+                return dictionaryValue.double_value;
+            case cntk_v2.DictionaryValue.Type.String:
+                return dictionaryValue.string_value;
+            case cntk_v2.DictionaryValue.Type.Vector:
+                return cntk.ModelFactory._convertVectorValue(dictionaryValue.vector_value);
+            case cntk_v2.DictionaryValue.Type.NDShape:
+                return dictionaryValue.nd_shape_value;
+            case cntk_v2.DictionaryValue.Type.Axis:
+                return dictionaryValue.axis_value;
+            case cntk_v2.DictionaryValue.Type.Dictionary:
+                return cntk.ModelFactory._convertDictionary(dictionaryValue.dictionary_value);
+            case cntk_v2.DictionaryValue.Type.NDArrayView:
+                return dictionaryValue.nd_array_view_value;
+        }
+        throw new cntk.Error("Unknown dictionary value type '" + dictionaryValue.value_type.toString() + "'.");
+    }
+
+    static _convertVectorValue(vectorValue) {
+        var target = [];
+        vectorValue.value.forEach((item) => {
+            target.push(cntk.ModelFactory._convertDictionaryValue(item));
+        });
+        return target;
+    }
+};
+
+cntk.Model = class {
+
+    constructor(version, obj) {
+        switch (version) {
+            case 1:
+                this._format = 'CNTK v1' + (obj.version ? ('.' + obj.version.toString()) : '');
+                break;
+            case 2:
+                this._format = 'CNTK v2';
+                break;
+        }
+        this._graphs = [];
+        this._graphs.push(new cntk.Graph(version, obj));
+    }
+
+    get graphs() {
+        return this._graphs;
+    }
+
+    get format() {
+        return this._format;
+    }
+};
+
+cntk.Graph = class {
+
+    constructor(version, obj) {
+        this._inputs = [];
+        this._outputs = [];
+        this._nodes = [];
+        this._functions = [];
+        var connections = {};
+
+        if (version == 1) {
+
+            var nodes = [];
+
+            Object.keys(obj.nodes).forEach((name) => {
+                var node = obj.nodes[name];
+                switch (node.__type__) {
+                    case 'InputValue':
+                        this._inputs.push(new cntk.Argument(node.name, [ 
+                            new cntk.Connection(version, node)
+                        ]));
+                        break;
+                    case 'LearnableParameter':
+                        connections[node.name] = new cntk.Connection(version, node);
+                        break;
+                }
+            });
+
+            Object.keys(obj.nodes).forEach((name) => {
+                var node = obj.nodes[name];
+                if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
+                    this._nodes.push(new cntk.Node(version, node, connections));
+                }
+            });
+
+            if (obj.output) {
+                obj.output.forEach((output) => {
+                    this._outputs.push(new cntk.Argument(output, [ 
+                        new cntk.Connection(version, output)
+                    ]));
+                });
+            }
+        }
+        else if (version == 2) {
+            var nodeMap = {};
+            obj.primitive_functions.forEach((node) => {
+                nodeMap[node.uid] = node;
+            });
+
+            var argumentNames = {};
+            obj.inputs.forEach((input) => {
+                var connection = new cntk.Connection(version, input);
+                connections[input.uid] = connection;
+                // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
+                if (input.kind == 0) {
+                    var inputName = input.name || input.uid;
+                    this._inputs.push(new cntk.Argument(inputName, [ connection ]));
+                }
+                if (input.kind == 1) {
+                    debugger;
+                }
+                argumentNames[input.uid] = input;
+            });
+
+            obj.primitive_functions.forEach((block) => {
+                if (block.op == 57 && block.block_function_composite) {
+                    var list = [ block.block_function_composite.root ];
+                    var nodes = [];
+                    while (list.length > 0) {
+                        var name = list.shift();
+                        var node = nodeMap[name];
+                        if (node) {
+                            nodes.push(new cntk.Node(version, node, connections));
+                            nodeMap[name] = null;
+                            node.inputs.forEach((input) => {
+                                var parts = input.split('_');
+                                if (parts.length >= 3 && parts[parts.length - 2] == 'Output') {
+                                    parts.pop();
+                                    parts.pop();
+                                    list.push(parts.join('_'));
+                                }
+                            });
+                        }
+                    }
+                    var inputs = [];
+                    var outputs = [ block.block_function_composite.root ];
+                    this._functions.push(new cntk.Function(block.block_function_op_name, nodes, inputs, outputs));
+                }
+            });
+
+            obj.primitive_functions.forEach((node) => {
+                if (nodeMap[node.uid]) {
+                    this._nodes.push(new cntk.Node(version, node, connections));
+                }
+            });
+        }
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+
+    get functions() {
+        return this._functions;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+};
+
+cntk.Function = class {
+
+    constructor(name, nodes, inputs, outputs) {
+        this._name = name;
+        this._inputs = inputs;
+        this._outputs = outputs;
+        this._nodes = nodes;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get description() {
+        return null;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+};
+
+cntk.Argument = class {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get visible() {
+        return true;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+};
+
+cntk.Connection = class {
+
+    constructor(version, obj) {
+        if (typeof obj === 'string') {
+            this._id = obj;
+        }
+        else {
+            switch (version) {
+                case 1:
+                    switch (obj.__type__) {
+                        case 'InputValue':
+                            this._id = obj.name;
+                            this._type = new cntk.TensorType(version, obj.precision, obj.sampleLayout);
+                            this._initializer = null;
+                            break;
+                        case 'LearnableParameter':
+                            this._id = obj.name;
+                            this._type = null;
+                            this._initializer = new cntk.Tensor(version, obj);
+                            break;
+                    }
+                    break;
+                case 2:
+                    this._id = obj.uid;
+                    if (obj.value) {
+                        if (obj.kind != 2 && obj.kind != 3) {
+                            debugger;
+                        }
+                        this._type = null;
+                        this._initializer = new cntk.Tensor(version, obj);
+                    }
+                    else {
+                        if (obj.kind == 2 || obj.kind == 3) {
+                            debugger;
+                        }
+                        this._type = new cntk.TensorType(version, obj.data_type, obj.shape);
+                        this._initializer = null;
+                    }    
+                    break;
+            }
+        }
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._type) {
+            return this._type;
+        }
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return null;
+    }
+
+    get description() {
+        return null;
+    }
+
+    get initializer() {
+        return this._initializer;
+    }
+};
+
+cntk.Node = class { 
+
+    constructor(version, obj, connections) {
+
+        this._attributes = [];
+        this._inputs = [];
+        this._outputs = [];
+
+        var inputs = [];
+        var outputs = [];
+        var initializers = [];
+
+        switch (version) {
+            case 1:
+                this._operator = obj.__type__;
+                this._name = obj.name;
+                Object.keys(obj).forEach((key) => {
+                    if (key != '__type__' && key != 'name' && key != 'inputs' && key != 'precision') {
+                        this._attributes.push(new cntk.Attribute(this._operator, key, obj[key]));
+                    }
+                });
+                inputs = obj.inputs.map((input) => { 
+                    if (connections[input]) {
+                        return connections[input];
+                    }
+                    return new cntk.Connection(version, input);
+                });
+                outputs = [ new cntk.Connection(version, this._name) ];
+                break;
+            case 2:
+                this._name = obj.name || obj.uid || null;
+                var output = obj.uid;
+                if (obj.op == 57) {
+                    this._operator = 'Block';
+                    if (obj.block_function_op_name) {
+                        this._operator = obj.block_function_op_name;
+                        this._function = true;
+                    }
+                }
+                else {
+                    this._operator = cntk.OperatorMetadata.operatorMetadata.getOperatorName(obj.op);
+                    if (this._operator == null) {
+                        this._operator = obj.op.toString();
+                    }                
+                }
+                Object.keys(obj.attributes).forEach((key) => {
+                    this._attributes.push(new cntk.Attribute(this._operator, key, obj.attributes[key]));
+                });
+                obj.inputs.forEach((input) => {
+                    var connection = connections[input];
+                    if (connection) {
+                        if (connection.initializer) {
+                            initializers.push(connection);
+                        }
+                        else {
+                            inputs.push(connection);
+                        }
+                    }
+                    else {
+                        inputs.push(new cntk.Connection(version, input));
+                    }
+                });
+                outputs.push(new cntk.Connection(version, output + '_Output_0'));
+                inputs = inputs.concat(initializers);
+        }
+
+        var inputIndex = 0;
+        var schema = cntk.OperatorMetadata.operatorMetadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        if (schema && schema.inputs) {
+            schema.inputs.forEach((inputSchema) => {
+                if (inputIndex < inputs.length || inputSchema.option != 'optional') {
+                    var connections = [];
+                    var input = {};
+                    input.name = inputSchema.name;
+                    var count = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    inputs.slice(inputIndex, inputIndex + count).forEach((connection) => {
+                        if (connection.id != '' || inputSchema.option != 'optional') {
+                            connections.push(connection);
+                        }
+                    });
+                    inputIndex += count;
+                    this._inputs.push(new cntk.Argument(inputSchema.name, connections));
+                }
+            });
+        }
+        else {
+            inputs.slice(inputIndex).forEach((connection) => {
+                this._inputs.push(new cntk.Argument(inputIndex.toString(), [ connection ]));
+                inputIndex++;
+            });
+        }
+
+        var outputIndex = 0;
+        if (schema && schema.outputs) {
+            schema.outputs.forEach((outputSchema) => {
+                if (outputIndex < outputs.length || outputSchema.option != 'optional') {
+                    var count = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    var connections = outputs.slice(outputIndex, outputIndex + count);
+                    outputIndex += count;
+                    this._outputs.push(new cntk.Argument(outputSchema.name, connections));
+                }
+            });
+        }
+        else {
+            outputs.slice(outputIndex).forEach((connection) => {
+                this._outputs.push(new cntk.Argument(outputIndex.toString(), [ connection ]));
+                outputIndex++;
+            });
+        }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get operator() {
+        return this._operator;
+    }
+
+    get function() {
+        return this._function || false;
+    }
+
+    get category() {
+        var schema = cntk.OperatorMetadata.operatorMetadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        if (schema && schema.category) {
+            return schema.category;
+        }
+        return null;
+    }
+
+    get documentation() { 
+        return null;
+    }
+
+    get attributes() { 
+        return this._attributes;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+};
+
+cntk.Attribute = class {
+
+    constructor(operator, name, value) {
+        this._name = name;
+        this._value = value;
+        this._type = null;
+        if (cntk_v1 && this._value instanceof cntk_v1.TensorShape) {
+            this._value = new cntk.TensorShape(1, value);
+            this._type = 'shape';
+        }
+        if (cntk_v2 && this._value instanceof cntk_v2.NDShape) {
+            this._value = new cntk.TensorShape(2, value);
+            this._type = 'shape';
+        }
+        if (cntk_v2 && this._value instanceof cntk_v2.Axis) {
+            this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
+        }
+
+        var schema = cntk.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        if (schema) {
+            if (schema.type) {
+                this._type = schema.type;
+                var type = cntk_v1[this._type] || cntk_v2[this._type];
+                if (type && type[this._value]) {
+                    this._value = type[this._value];
+                }
+            }
+            if (schema.hasOwnProperty('visible') && !schema.visible) {
+                this._visible = false;
+            }
+            else if (schema.hasOwnProperty('default')) {
+                var defaultValue = schema.default;
+                value = this._value;
+                if (typeof value == 'function') {
+                    value = value();
+                }
+                if (this._type == 'shape') {
+                    value = value.dimensions;
+                }
+                if (value == defaultValue) {
+                    this._visible = false;
+                }
+                else if (Array.isArray(value) && Array.isArray(defaultValue)) {
+                    defaultValue = defaultValue.slice(0, defaultValue.length);
+                    if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
+                        defaultValue.pop();
+                        while (defaultValue.length < value.length) {
+                           defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                        }
+                    }
+                    if (value.every((item, index) => { return item == defaultValue[index]; })) {
+                        this._visible = false;
+                    }
+                }
+            }
+        }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    get visible() {
+        return this._visible == false ? false : true;
+    }
+};
+
+cntk.Tensor = class {
+
+    constructor(version, tensor) {
+        switch (version) {
+            case 1:
+                if (tensor.__type__ == 'LearnableParameter') {
+                    this._name = tensor.name || null;
+                    this._type = new cntk.TensorType(version, tensor.precision, tensor.sampleLayout);
+                }
+                break;
+            case 2:
+                this._name = tensor.uid || null;
+                this._type = new cntk.TensorType(version, tensor.data_type, tensor.shape);
+                this._value = tensor.value;
+                break;
+        }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get state() {
+        return this._context().state || null;
+    }
+
+    get value() {
+        var context = this._context();
+        if (context.state) {
+            return null;
+        }
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
+    }
+
+    toString() {
+        var context = this._context();
+        if (context.state) {
+            return '';
+        }
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
+    }
+
+    _context() {
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.state = null;
+
+        if (this._type.dataType == '?') {
+            context.state = 'Tensor has unknown data type.';
+            return context;
+        }
+        if (!this._type.shape) {
+            context.state = 'Tensor has no dimensions.';
+            return context;
+        }
+
+        var value = this._value;
+        if (!value) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+
+        switch (this._type.dataType) {
+            case 'float32':
+                if (value.float_values && value.float_values.value && value.float_values.value.length > 0) {
+                    context.data = value.float_values.value;
+                }
+                else {
+                    context.state = 'Tensor data is empty.';
+                }
+                break;
+            default:
+                // debugger;
+                context.state = 'Tensor data type is not implemented.';
+                break;
+        }
+
+        context.dataType = this._type.dataType;
+        context.shape = this._type.shape.dimensions;
+        
+        return context;
+    }
+
+    _decode(context, dimension) {
+        var shape = context.shape;
+        if (context.shape.length == 0) {
+            shape = [ 1 ];
+        }
+        var results = [];
+        var size = shape[dimension];
+        if (dimension == shape.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(context.data[context.index++]);
+                context.count++;
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decode(context, dimension + 1));
+            }
+        }
+        if (context.shape.length == 0) {
+            return results[0];
+        }
+        return results;
+    }
+};
+
+cntk.TensorType = class {
+
+    constructor(version, dataType, shape) {
+        this._dataType = '?';
+        switch (version) {
+            case 1:
+                switch (dataType) {
+                    case 'float': this._dataType = 'float32'; break;
+                    case 'double': this._dataType = 'float64'; break;
+                    case 'half': this._dataType = 'float16'; break;
+                    case '': this._dataType = 'float32'; break;
+                }
+                this._shape = new cntk.TensorShape(version, shape);
+                break;
+            case 2:
+                if (dataType.__isLong__) {
+                    dataType = dataType.toNumber(); 
+                }
+                switch (dataType) {
+                    case 1: this._dataType = 'float32'; break;
+                }
+                this._shape = new cntk.TensorShape(version, shape);
+                break;                
+        }
+    }
+
+    get dataType() {
+        return this._dataType;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this._dataType + this._shape.toString();
+    }
+};
+
+cntk.TensorShape = class {
+
+    constructor(version, shape) {
+        switch (version) {
+            case 1:
+                this._dimensions = shape.dims;
+                break;
+            case 2:
+                this._dimensions = shape.shape_dim.map((dimension) => {
+                    if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
+                        return -1;
+                    }
+                    if (dimension && dimension.__isLong__) {
+                        return dimension.toNumber();
+                    }
+                    return dimension;            
+                });
+                break;
+        }
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return (this._dimensions && this._dimensions.length) ? ('[' + this._dimensions.join(',') + ']') : '';
+    }
+};
+
+cntk.OperatorMetadata = class {
+
+    static open(host, callback) {
+        if (cntk.OperatorMetadata.operatorMetadata) {
+            callback(null, cntk.OperatorMetadata.operatorMetadata);
+        }
+        else {
+            host.request(null, 'cntk-metadata.json', 'utf-8', (err, data) => {
+                cntk.OperatorMetadata.operatorMetadata = new cntk.OperatorMetadata(data);
+                callback(null, cntk.OperatorMetadata.operatorMetadata);
+            });
+        }    
+    }
+
+    constructor(data) {
+        this._map = {};
+        this._operatorMap = {};
+        if (data) {
+            var items = JSON.parse(data);
+            if (items) {
+                items.forEach((item) => {
+                    if (item.name && item.schema)
+                    {
+                        var name = item.name;
+                        var schema = item.schema;
+                        this._map[name] = schema;
+                        if (schema.operator) {
+                            this._operatorMap[schema.operator] = name;
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    getOperatorName(code) {
+        // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
+        return this._operatorMap[code] || null;
+    }
+
+    getSchema(operator) {
+        return this._map[operator] || null;
+    }
+
+    getAttributeSchema(operator, name) {
+        var schema = this._map[operator];
+        if (schema && schema.attributes && schema.attributes.length > 0) {
+            if (!schema._attributesMap) {
+                schema._attributesMap = {};
+                schema.attributes.forEach((attribute) => {
+                    schema._attributesMap[attribute.name] = attribute;
+                });
+            }
+            return schema._attributesMap[name] || null;
+        }
+        return null;
+    }
+};
+
+cntk_v1.ComputationNetwork = class {
+
+    constructor(buffer) {
+        var reader = new cntk_v1.Reader(buffer);
+        reader.assert('BCN');
+        reader.assert('BVersion');
+        this.version = reader.uint64();
+        reader.version = this.version;
+        reader.assert('EVersion');
+        var numNodes = reader.uint64();
+        reader.assert('BNodeList');
+        var op = {};
+        op.Minus = function(reader) {};
+        op.Plus = function(reader) {};
+        op.GreaterEqual = function(reader) {};
+        op.Equal = function(reader) {};
+        op.NotEqual = function(reader) {};
+        op.GreaterEqual = function(reader) {};
+        op.Exp = function(reader) {};
+        op.Log = function(reader) {};
+        op.Reciprocal = function(reader) {};
+        op.ElementTimes = function(reader) {};
+        op.ClassificationError = function(reader) {};
+        op.RectifiedLinear = function(reader) {};
+        op.InputValue = function(reader) {
+            this.rows = reader.uint64();
+            this.cols = reader.uint64();
+            this.sampleLayout = new cntk_v1.TensorShape(reader, true);
+            this.dynamicAxisNodeName = '';
+            if (reader.version >= 8) {
+                var nrAxes = reader.uint32();
+                if (nrAxes == 1) {
+                    this.dynamicAxisNodeName = reader.string();
+                }
+            }
+            this.learningRateMultiplier = 0;
+            if (reader.version >= 10) {
+                this.learningRateMultiplier = reader.float32();
+            }
+        };
+        op.LearnableParameter = function(reader) {
+            if (reader.version >= 3) {
+                this.learningRateMultiplier = reader.float32();
+                this.sampleLayout = new cntk_v1.TensorShape(reader);
+            }
+            else {
+                throw new cntk.Error('LeanableParameter reader implemented.');
+            }
+            this.value = new cntk_v1.Matrix(reader);
+        };
+        op.CrossEntropyWithSoftmax = function(reader) {
+            this.evalMode = reader.uint32();
+            if (this.evalMode > 2) {
+                this.evalMode = 0;
+                reader.seek(-4);
+            }
+        };
+        op.Times = function(reader) {
+            this.outputRank = (reader.version >= 3) ? reader.uint64() : 1;
+            this.inferInputRankToMap = (reader.version >= 12) ? reader.int32() : -1;
+        };
+        op.Dropout = function(reader) {
+            if (reader.version >= 16) {
+                this.rngSeed = (reader.version == 16) ? reader.uint32() : reader.uint64();
+                this.rngOffset = reader.uint64();
+            }
+        };
+        op.ConvolutionBase = function(reader) {
+            if (reader.version >= 5)
+            {
+                this.kernelShape = new cntk_v1.TensorShape(reader);
+                this.mapCount = new cntk_v1.TensorShape(reader);
+                this.strides = new cntk_v1.TensorShape(reader);
+                this.sharing = reader.bools(reader.uint64());
+                this.autoPadding = reader.bools(reader.uint64());
+                this.lowerPad = new cntk_v1.TensorShape(reader);
+                this.upperPad = new cntk_v1.TensorShape(reader);
+                this.poolKind = reader.enum();
+                this.imageLayoutKind = reader.enum();
+                this.maxTempMemSizeInSamples = reader.uint64();
+            }
+            if (reader.version >= 9) {
+                this.transpose = reader.bool();
+            }
+            if (reader.version >= 20) {
+                this.outputShape = new cntk_v1.TensorShape(reader);
+            }
+            if (reader.version >= 21) {
+                this.ceilOutDim = reader.bool();
+            }
+            if (reader.version >= 23) {
+                this.includePad = reader.bool();
+            }
+        };
+        op.Convolution = function(reader) {
+            op.ConvolutionBase.apply(this, [ reader ]);
+            if (reader.version < 5) {
+                this.kernelShape = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
+                this.strides = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
+                this.mapCount = new cntk_v1.TensorShape([ reader.uint32() ]);
+                this.imageLayoutKind = reader.enum();
+                this.autoPadding = [ reader.bool() ];
+                this.maxTempMemSizeInSamples = reader.uint64();
+                this.poolKind = 'None';
+                this.convolution2D = true;
+                this.sharing = [ true ];
+                m_lowerPad = new cntk_v1.TensorShape([ 0 ]);
+                m_upperPad = new cntk_v1.TensorShape([ 0 ]);
+            }
+            else {
+                this.convolution2D = reader.bool();
+                if (reader.version >= 18) {
+                    this.dilation = new cntk_v1.TensorShape(reader);
+                }
+                else {
+                    this.dilation = new cntk_v1.TensorShape([ 1 ]);
+                }
+            }
+        };
+        op.Pooling = function(reader) {
+            op.ConvolutionBase.apply(this, [ reader ]);
+        };
+        op.PoolingBase = function(reader) {
+            this.imageLayoutKind = reader.enum();
+            this.windowWidth = reader.uint32();
+            this.windowHeight = reader.uint64();
+            this.horizontalSubsample = reader.uint64();
+            this.verticalSubsample = reader.uint64();
+        };
+        op.MaxPooling = function(reader) {
+            op.PoolingBase.apply(this, [ reader ]);
+        };
+        op.ROIPooling = function(reader) {
+            this.roiOutputShape = new cntk_v1.TensorShape(reader);
+            this.poolKind = (reader.version < 26) ? 'Max' : reader.enum();
+            this.spatialScale = (reader.version < 26) ? 0.0625 : reader.float64();
+        };
+        op.Reshape = function(reader) {
+            this.beginDimParameter = reader.uint32();
+            this.endDimParameter = reader.uint32();
+            this.replacementSampleLayout = new cntk_v1.TensorShape(reader);
+        };
+        op.ReduceElements = function(reader) {
+            var num_axes = 1;
+            if (reader.version >= 27) {
+                num_axes = reader.uint32();
+            }
+            this.axes = [];
+            for (var i = 0; i < num_axes; i++)
+            {
+                this.axes.push(reader.uint32());
+            }
+            this.operation = reader.string();
+            if (reader.version >= 24) {
+                this.keepDimensions = reader.bool();
+            }
+        };
+        op.BatchNormalization = function(reader) {
+            var mbCount = 0;
+            if (reader.version >= 6)
+            {
+                this.spatial = reader.bool();
+                this.normalizationTimeConstant = reader.float64();
+                this.blendTimeConstant = reader.float64();
+                this.imageLayoutKind = reader.enum();
+                if (reader.version >= 13)
+                {
+                    if (reader.version != 19) {
+                        this.runCountUntied = reader.uint64();
+                    }
+                    else
+                    {
+                        this.runCountUntied = reader.bool() ? 0 : 'SIZE_MAX'; // TODO
+                    }
+                }
+                else {
+                    mbCount = reader.uint64();
+                }
+                this.epsilon = reader.float64();
+                this.useCntkEngine = reader.bool();
+            }
+            else
+            {
+                var verWritten = reader.int32();
+                var verReadable = reader.int32();
+                if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
+                    throw new cntk.Error('BatchNormalization version not supported.');
+                }
+                this.eval = reader.bool();
+                this.spatial = reader.bool();
+                if (verWritten >= 0x00010004) {
+                    this.normalizationTimeConstant = reader.float64();
+                }
+                else {
+                    reader.float64(); // expAvgFactor
+                }
+                if (verWritten >= 0x00010002) {
+                    this.imageLayoutKind = reader.enum();
+                    mbCount = reader.uint64();
+                }
+                if (verWritten >= 0x00010003) {
+                    this.epsilon = reader.float64();
+                    this.useCntkEngine = reader.bool();
+                }
+            }
+            if (reader.version < 13)
+            {
+                this.runCountUntied = 16 * mbCount;
+                this.convertRunningVariancePending = true;
+            }
+        };
+        
+        var nodes = [];
+        this.nodes = {};
+        for (var i = 0; i < numNodes; i++) {
+            var precision = reader.version >= 7 ? reader.string() : '';
+            if (precision != 'float' && precision != 'double' && precision != 'half' && precision != '') {
+                throw new cntk.Error("Invalid precision format '" + precision + "'.");
+            }
+            var obj = { __type__: reader.string() };
+            obj.name = reader.string();
+            obj.precision = precision;
+            var constructor = op[obj.__type__];
+            if (!constructor) {
+                throw new cntk.Error("Unknown operator '" + obj.__type__ + "'.");
+            } 
+            constructor.apply(obj, [ reader ]);
+            nodes.push(obj);
+            this.nodes[obj.name] = obj;
+        }
+        reader.assert('ENodeList');
+        reader.assert('BRelation');
+        for (var j = 0; j < numNodes; j++) {
+            var nodeName = reader.string();
+            var node = this.nodes[nodeName];
+            var numChildren = reader.uint64();
+            var children = [];
+            for (var k = 0; k < numChildren; k++) {
+                children.push(reader.string());
+            }
+            if (this.version < 19 && node.__type__ == 'BatchNormalization') {
+                var runSampleCount = {
+                    __type__: 'LearnableParameter',
+                    name: nodeName + '.run_sample_count',
+                    precision: node.precision,
+                    sampleLayout: new cntk_v1.TensorShape([ 1 ]), // TODO set value = 0
+                    learningRateMultiplier: 0
+                };
+                nodes.push(runSampleCount);
+                this.nodes[runSampleCount.name] = runSampleCount;
+                children.push(runSampleCount.name);
+            }
+            if (node.__type__ == 'Convolution' && children.length > 1) {
+                children.splice(0, 0, children.pop());
+            }
+            node.inputs = children;
+        }
+        reader.assert('ERelation');
+        reader.assert('BRootNodes');
+        if (reader.match('BFeatureNodes')) {
+            this.feature = reader.strings(reader.uint64());
+            reader.assert('EFeatureNodes');
+        }
+        if (reader.match('BLabelNodes')) {
+            this.label = reader.strings(reader.uint64());
+            reader.assert('ELabelNodes');
+        }
+        if (reader.match('BCriterionNodes')) {
+            this.criterion = reader.strings(reader.uint64());
+            reader.assert('ECriterionNodes');
+        }
+        if (this.criterion.length == 0) {
+            if (reader.match('BCriteriaNodes')) {
+                this.criterion = reader.strings(reader.uint64());
+                reader.assert('ECriteriaNodes');
+            }
+        }
+        if (reader.match('BNodesReqMultiSeqHandling')) {
+            reader.strings(reader.uint64());
+            reader.assert('ENodesReqMultiSeqHandling');
+        }
+        if (reader.match('BEvalNodes')) {
+            this.eval = reader.strings(reader.uint64());
+            reader.assert('EEvalNodes');
+        }
+        if (reader.match('BOutputNodes')) {
+            this.output = reader.strings(reader.uint64());
+            reader.assert('EOutputNodes');
+        }
+        if (reader.match('BPairNodes')) {
+            this.pair = reader.strings(reader.uint64());
+            reader.assert('EPairNodes');
+        }
+        reader.assert('ERootNodes');
+        reader.assert('ECN');
+    }
+};
+
+cntk_v1.Reader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._offset = 0;
+    }
+
+    set version(value) {
+        this._version = value;
+    }
+
+    get version() {
+        return this._version;
+    }
+
+    match(text) {
+        var offset = this._offset;
+        for (var i = 0; i < text.length; i++) {
+            if (this.uint16() != text.charCodeAt(i)) {
+                this._offset = offset;
+                return false;
+            }
+        }
+        if (this.uint16() != 0) {
+            this._offset = offset;
+            return false;
+        }
+        return true;
+    }
+
+    assert(text) {
+        if (!this.match(text)) {
+            throw new cntk_v1.Error("Invalid '" + text + "' signature.");
+        }
+    }
+
+    seek(offset) {
+        this._offset += offset;
+    }
+
+    bool() {
+        return this.byte() != 0 ? true : false;
+    }
+
+    bools(count) {
+        var array = [];
+        for (var i = 0; i < count; i++) {
+            array.push(this.bool());
+        }
+        return array;
+    }
+
+    byte() {
+        var value = this._dataView.getUint8(this._offset);
+        this._offset++;
+        return value;
+    }
+
+    bytes(count) {
+        var data = this._buffer.subarray(this._offset, this._offset + count);
+        this._offset += count;
+        return data;
+    }
+
+    uint16() {
+        var value = this._dataView.getUint16(this._offset, true);
+        this._offset += 2;
+        return value;
+    }
+
+    int32() {
+        var value = this._dataView.getInt32(this._offset, true);
+        this._offset += 4;
+        return value;
+    }
+
+    uint32() {
+        var value = this._dataView.getUint32(this._offset, true);
+        this._offset += 4;
+        return value;
+    }
+
+    uint64() {
+        var low = this.uint32();
+        var hi = this.uint32();
+        if (hi > 65536) {
+            throw new cntk_v1.Error('Value not in 48-bit range.');
+        }
+        return (hi << 32) | low;
+    }
+
+    float32() {
+        var value = this._dataView.getFloat32(this._offset, true);
+        this._offset += 4;
+        return value;
+    }
+
+    float64() {
+        var value = this._dataView.getFloat64(this._offset, true);
+        this._offset += 8;
+        return value;
+    }
+
+    string() {
+        var text = '';
+        while (true) {
+            var c = this.uint16();
+            if (c == 0) {
+                break;
+            }
+            text += String.fromCharCode(c);
+        }
+        return text;
+    }
+
+    strings(count) {
+        var array = [];
+        for (var i = 0; i < count; i++) {
+            array.push(this.string());
+        }
+        return array;
+    }
+
+    enum() {
+        return this.int32();
+    }
+};
+
+cntk_v1.TensorShape = class {
+    constructor(reader, acceptLegacyFormat = false) {
+        if (reader && Array.isArray(reader)) {
+            this.dims = reader;
+            return;
+        }
+        this.dims = [];
+        var rank = reader.uint32();
+        var dim0 = 0;
+        if (rank > 0) {
+            dim0 = reader.uint32();
+        }
+        if (!acceptLegacyFormat || dim0 != 0) {
+            this.dims.push(dim0);
+            for (var i = 1; i < rank; i++) {
+                this.dims.push(reader.uint32());
+            }
+        }
+        else {
+            var dim = reader.uint32();
+            this.dims.push(reader.uint32());
+            this.dims.push(rank);
+            this.dims.push(dim);
+        }
+    }
+};
+
+cntk_v1.Matrix = class {
+    constructor(reader) {
+        var type = reader.byte();
+        switch (type) {
+            case 100: // dense
+                reader.assert('BMAT');
+                var elsize = reader.uint64();
+                this.name = reader.string();
+                this.format = reader.uint32();
+                this.rows = reader.uint64();
+                this.columns = reader.uint64();
+                reader.bytes(elsize * this.rows * this.columns);
+                reader.assert('EMAT');
+                break;
+            case 115: // sparse
+                throw new cntk_v1.Error('Matrix sparse type not implemented.');
+            default:
+                throw new cntk_v1.Error("Matrix type '" + type.toString() + "' not implemented.");
+        }
+    }
+};
+
+cntk_v1.ImageLayoutKind = {
+    0: 'CHW', 
+    1: 'HWC'
+};
+
+cntk_v1.PoolKind = {
+    0: 'None',
+    1: 'Max',
+    2: 'Average'
+};
+
+cntk_v1.Error = class extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading CNTK v1 model.';
+    }
+};
+
+cntk.Error = class extends Error {
+
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading CNTK model.';
+    }
+};
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.ModelFactory = cntk.ModelFactory;
+}

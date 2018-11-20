@@ -42,7 +42,8 @@ class Application {
         });
 
         electron.ipcMain.on('drop-files', (e, data) => {
-            this._dropFiles(e.sender, data.files);
+            var files = data.files.filter((file) => fs.statSync(file).isFile());
+            this._dropFiles(e.sender, files);
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -74,7 +75,7 @@ class Application {
         if (argv.length > 1) {
             argv.slice(1).forEach((arg) => {
                 if (!arg.startsWith('-')) {
-                    var extension = arg.split('.').pop();
+                    var extension = arg.split('.').pop().toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
                         this._openFile(arg);
                         open = true;
@@ -111,7 +112,32 @@ class Application {
         var showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
-                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth', 'pkl', 'joblib', 'pbtxt', 'prototxt' ] }
+                { 
+                    name: 'All Model Files',  
+                    extensions: [ 
+                        'onnx', 
+                        'pb', 
+                        'h5', 
+                        'hdf5', 
+                        'json', 
+                        'keras', 
+                        'mlmodel', 
+                        'caffemodel', 
+                        'model', 
+                        'meta', 
+                        'tflite', 
+                        'lite', 
+                        'pt', 
+                        'pth', 
+                        'pkl', 
+                        'joblib', 
+                        'pbtxt', 
+                        'prototxt',
+                        'xml',
+                        'bin',
+                        'dot'
+                    ] 
+                }
                 /* 
                 { name: 'ONNX Model', extensions: [ 'onnx', 'pb', 'pbtxt' ] },
                 { name: 'Keras Model', extensions: [ 'h5', 'hdf5', 'json', 'keras' ] },
@@ -140,8 +166,7 @@ class Application {
             this._openFileQueue.push(file);
             return;
         }
-        if (file && file.length > 0 && fs.existsSync(file))
-        {
+        if (file && file.length > 0 && fs.existsSync(file) && fs.statSync(file).isFile()) {
             // find existing view for this file
             var view = this._views.find(file);
             // find empty welcome window
@@ -564,7 +589,7 @@ class View {
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         var options = {};
         options.title = electron.app.getName(); 
-        options.backgroundColor = '#eeeeee';
+        options.backgroundColor = electron.systemPreferences.isDarkMode() ? '#1d1d1d' : '#e6e6e6';
         options.icon = electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
         options.minWidth = 600;
         options.minHeight = 400;

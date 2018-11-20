@@ -5,20 +5,23 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "2.1.8",
+    "version": "2.5.6",
     "description": "Viewer neural network models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
     "scripts": {
-        "start": "npx electron ."
+        "start": "[ -d node_modules ] || npm install && npx electron .",
+        "server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@",
+        "test": "[ -d node_modules ] || npm install && node ./test/test.js"
     },
     "dependencies": {
         "d3": "latest",
         "dagre": "latest",
-        "electron-updater": "^3.0.3",
+        "electron-updater": "^4.0.0",
         "flatbuffers": "latest",
         "handlebars": "latest",
+        "lodash": "^4.17.11",
         "marked": "latest",
         "npm-font-open-sans": "latest",
         "pako": "latest",

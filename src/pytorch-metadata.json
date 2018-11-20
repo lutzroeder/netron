@@ -1,14 +1,24 @@
 [
   {
+    "name": "Conv1d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
+    "name": "ConvTranspose1d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
     "name": "Conv2d",
     "schema": {
       "attributes": [
         {
           "name": "output_padding",
-          "visible": false
-        },
-        {
-          "name": "training",
           "visible": false
         },
         {
@@ -54,7 +64,64 @@
     }
   },
   {
+    "name": "ConvTranspose2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_padding",
+          "visible": false
+        },
+        {
+          "name": "in_channels",
+          "visible": false
+        },
+        {
+          "name": "out_channels",
+          "visible": false
+        },
+        {
+          "default": 1,
+          "name": "groups"
+        },
+        {
+          "default": true,
+          "name": "transposed"
+        },
+        {
+          "default": [
+            0,
+            0
+          ],
+          "name": "padding"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "dilation"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "stride"
+        }
+      ],
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
     "name": "Conv3d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
+    "name": "ConvTranspose3d",
     "schema": {
       "category": "Layer",
       "package": "torch.nn.modules.conv"
@@ -63,14 +130,30 @@
   {
     "name": "Linear",
     "schema": {
-      "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        }
-      ],
+      "attributes": [],
       "category": "Layer",
       "package": "torch.nn.modules.linear"
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "Softmax",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
     }
   },
   {
@@ -78,7 +161,7 @@
     "schema": {
       "attributes": [
         {
-          "default": true,
+          "default": false,
           "name": "inplace"
         },
         {
@@ -88,23 +171,46 @@
         {
           "default": 0,
           "name": "value"
-        },
-        {
-          "name": "training",
-          "visible": false
         }
       ],
-      "category": "Activation"
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "ReLU6",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "PReLU",
+    "schema": {
+      "attributes": [],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "LeakyReLU",
+    "schema": {
+      "attributes": [],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "MaxPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
     }
   },
   {
     "name": "MaxPool2d",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 0,
           "name": "padding"
@@ -122,17 +228,28 @@
           "visible": false
         }
       ],
-      "category": "Pool"
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "MaxPool3d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AvgPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
     }
   },
   {
     "name": "AvgPool2d",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 0,
           "name": "padding"
@@ -146,17 +263,50 @@
           "visible": false
         }
       ],
-      "category": "Pool"
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AvgPool3d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveAvgPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveAvgPool2d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveAvgPool3d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "BatchNorm1d",
+    "schema": {
+      "attributes": [],
+      "category": "Normalization",
+      "package": "torch.nn.modules.batchnorm"
     }
   },
   {
     "name": "BatchNorm2d",
     "schema": {
       "attributes": [
-        {
-          "name": "training",
-          "visible": false
-        },
         {
           "default": 1e-05,
           "name": "eps"
@@ -174,7 +324,32 @@
           "name": "track_running_stats"
         }
       ],
-      "category": "Normalization"
+      "category": "Normalization",
+      "package": "torch.nn.modules.batchnorm"
+    }
+  },
+  {
+    "name": "GroupNorm",
+    "schema": {
+      "category": "Normalization",
+      "package": "torch.nn.modules.normalization"
+    }
+  },
+  {
+    "name": "Dropout2d",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "inplace"
+        },
+        {
+          "default": 0.5,
+          "name": "p"
+        }
+      ],
+      "category": "Dropout",
+      "package": "torch.nn.modules.dropout"
     }
   },
   {
@@ -188,20 +363,160 @@
         {
           "default": 0.5,
           "name": "p"
-        },
-        {
-          "name": "training",
-          "visible": false
         }
       ],
-      "category": "Dropout"
+      "category": "Dropout",
+      "package": "torch.nn.modules.dropout"
+    }
+  },
+  {
+    "name": "GRU",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.rnn"
     }
   },
   {
     "name": "LSTM",
     "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "dropout"
+        },
+        {
+          "default": {},
+          "name": "dropout_state"
+        },
+        {
+          "default": 1,
+          "name": "num_layers"
+        },
+        {
+          "name": "batch_first",
+          "visible": false
+        },
+        {
+          "name": "bidirectional",
+          "visible": false
+        },
+        {
+          "name": "bias",
+          "visible": false
+        }
+      ],
       "category": "Layer",
-      "package": "torch.nn"
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
+    "name": "Embedding",
+    "schema": {
+      "attributes": [
+        {
+          "default": 2,
+          "name": "norm_type"
+        },
+        {
+          "default": false,
+          "name": "scale_grad_by_freq"
+        },
+        {
+          "default": false,
+          "name": "sparse"
+        },
+        {
+          "default": null,
+          "name": "max_norm"
+        },
+        {
+          "default": null,
+          "name": "padding_idx"
+        }
+      ],
+      "category": "Transform",
+      "package": "torch.nn.modules.sparse"
+    }
+  },
+  {
+    "name": "ReflectionPad1d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ReflectionPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ReplicationPad1d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ReplicationPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ReplicationPad3d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ZeroPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ConstantPad1d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ConstantPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "ConstantPad3d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "InstanceNorm1d",
+    "schema": {
+      "package": "torch.nn.modules.instancenorm"
+    }
+  },
+  {
+    "name": "InstanceNorm2d",
+    "schema": {
+      "package": "torch.nn.modules.instancenorm"
+    }
+  },
+  {
+    "name": "InstanceNorm3d",
+    "schema": {
+      "package": "torch.nn.modules.instancenorm"
     }
   }
 ]

@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+identifier=mxnet
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2} ${1}
+    fi
+    git -C "${third_party}" submodule update --init
+}
+
+clean() {
+    bold "mxnet clean"
+    rm -rf ${virtualenv}
+    rm -rf ${third_party}/${identifier}
+}
+
+sync() {
+    bold "mxnet sync"
+    git_sync mxnet https://github.com/apache/incubator-mxnet.git
+}
+
+metadata() {
+    bold "mxnet metadata"
+    # ${python} mxnet-script.py
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "metadata") metadata;;
+    esac
+done

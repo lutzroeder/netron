@@ -124,6 +124,96 @@
     }
   },
   {
+    "name": "DecisionTreeRegressor",
+    "schema": {
+      "attributes": [
+        {
+          "default": "mse",
+          "description": "The function to measure the quality of a split. Supported criteria\nare \"mse\" for the mean squared error, which is equal to variance\nreduction as feature selection criterion and minimizes the L2 loss\nusing the mean of each terminal node, \"friedman_mse\", which uses mean\nsquared error with Friedman's improvement score for potential splits,\nand \"mae\" for the mean absolute error, which minimizes the L1 loss\nusing the median of each terminal node.\n\n.. versionadded:: 0.18\nMean Absolute Error (MAE) criterion.\n",
+          "name": "criterion",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": "best",
+          "description": "The strategy used to choose the split at each node. Supported\nstrategies are \"best\" to choose the best split and \"random\" to choose\nthe best random split.\n",
+          "name": "splitter",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": null,
+          "description": "The maximum depth of the tree. If None, then nodes are expanded until\nall leaves are pure or until all leaves contain less than\nmin_samples_split samples.\n",
+          "name": "max_depth",
+          "option": "optional"
+        },
+        {
+          "default": 2,
+          "description": "The minimum number of samples required to split an internal node:\n\n- If int, then consider `min_samples_split` as the minimum number.\n- If float, then `min_samples_split` is a fraction and\n`ceil(min_samples_split * n_samples)` are the minimum\nnumber of samples for each split.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_split",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 1,
+          "description": "The minimum number of samples required to be at a leaf node.\nA split point at any depth will only be considered if it leaves at\nleast ``min_samples_leaf`` training samples in each of the left and\nright branches.  This may have the effect of smoothing the model,\nespecially in regression.\n\n- If int, then consider `min_samples_leaf` as the minimum number.\n- If float, then `min_samples_leaf` is a fraction and\n`ceil(min_samples_leaf * n_samples)` are the minimum\nnumber of samples for each node.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_leaf",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 0.0,
+          "description": "The minimum weighted fraction of the sum total of weights (of all\nthe input samples) required to be at a leaf node. Samples have\nequal weight when sample_weight is not provided.\n",
+          "name": "min_weight_fraction_leaf",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": null,
+          "description": "The number of features to consider when looking for the best split:\n\n- If int, then consider `max_features` features at each split.\n- If float, then `max_features` is a fraction and\n`int(max_features * n_features)` features are considered at each\nsplit.\n- If \"auto\", then `max_features=n_features`.\n- If \"sqrt\", then `max_features=sqrt(n_features)`.\n- If \"log2\", then `max_features=log2(n_features)`.\n- If None, then `max_features=n_features`.\n\nNote: the search for a split does not stop until at least one\nvalid partition of the node samples is found, even if it requires to\neffectively inspect more than ``max_features`` features.\n",
+          "name": "max_features",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": null,
+          "description": "Grow a tree with ``max_leaf_nodes`` in best-first fashion.\nBest nodes are defined as relative reduction in impurity.\nIf None then unlimited number of leaf nodes.\n",
+          "name": "max_leaf_nodes",
+          "option": "optional"
+        },
+        {
+          "default": 0.0,
+          "description": "A node will be split if this split induces a decrease of the impurity\ngreater than or equal to this value.\n\nThe weighted impurity decrease equation is the following::\n\nN_t / N * (impurity - N_t_R / N_t * right_impurity\n- N_t_L / N_t * left_impurity)\n\nwhere ``N`` is the total number of samples, ``N_t`` is the number of\nsamples at the current node, ``N_t_L`` is the number of samples in the\nleft child, and ``N_t_R`` is the number of samples in the right child.\n\n``N``, ``N_t``, ``N_t_R`` and ``N_t_L`` all refer to the weighted sum,\nif ``sample_weight`` is passed.\n\n.. versionadded:: 0.19\n",
+          "name": "min_impurity_decrease",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
+          "name": "min_impurity_split",
+          "type": "float32"
+        },
+        {
+          "default": false,
+          "description": "Whether to presort the data to speed up the finding of best splits in\nfitting. For the default settings of a decision tree on large\ndatasets, setting this to true may slow down the training process.\nWhen using either a smaller dataset or a restricted depth, this may\nspeed up the training.\n",
+          "name": "presort",
+          "option": "optional",
+          "type": "boolean"
+        }
+      ],
+      "description": "A decision tree regressor.\n\nRead more in the :ref:`User Guide <tree>`.\n",
+      "package": "sklearn.tree.tree"
+    }
+  },
+  {
     "name": "DecisionTreeClassifier",
     "schema": {
       "attributes": [
@@ -196,7 +286,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -282,7 +373,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -411,7 +503,8 @@
           "type": "float32"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -423,6 +516,122 @@
       ],
       "description": "An extremely randomized tree classifier.\n\nExtra-trees differ from classic decision trees in the way they are built.\nWhen looking for the best split to separate the samples of a node into two\ngroups, random splits are drawn for each of the `max_features` randomly\nselected features and the best split among those is chosen. When\n`max_features` is set 1, this amounts to building a totally random\ndecision tree.\n\nWarning: Extra-trees should only be used within ensemble methods.\n\nRead more in the :ref:`User Guide <tree>`.\n",
       "package": "sklearn.tree.tree"
+    }
+  },
+  {
+    "name": "RandomForestRegressor",
+    "schema": {
+      "attributes": [
+        {
+          "default": "10",
+          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.20\nThe default value of ``n_estimators`` will change from 10 in\nversion 0.20 to 100 in version 0.22.\n",
+          "name": "n_estimators",
+          "option": "optional"
+        },
+        {
+          "default": "mse",
+          "description": "The function to measure the quality of a split. Supported criteria\nare \"mse\" for the mean squared error, which is equal to variance\nreduction as feature selection criterion, and \"mae\" for the mean\nabsolute error.\n\n.. versionadded:: 0.18\nMean Absolute Error (MAE) criterion.\n",
+          "name": "criterion",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": null,
+          "description": "The maximum depth of the tree. If None, then nodes are expanded until\nall leaves are pure or until all leaves contain less than\nmin_samples_split samples.\n",
+          "name": "max_depth",
+          "option": "optional"
+        },
+        {
+          "default": 2,
+          "description": "The minimum number of samples required to split an internal node:\n\n- If int, then consider `min_samples_split` as the minimum number.\n- If float, then `min_samples_split` is a fraction and\n`ceil(min_samples_split * n_samples)` are the minimum\nnumber of samples for each split.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_split",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 1,
+          "description": "The minimum number of samples required to be at a leaf node.\nA split point at any depth will only be considered if it leaves at\nleast ``min_samples_leaf`` training samples in each of the left and\nright branches.  This may have the effect of smoothing the model,\nespecially in regression.\n\n- If int, then consider `min_samples_leaf` as the minimum number.\n- If float, then `min_samples_leaf` is a fraction and\n`ceil(min_samples_leaf * n_samples)` are the minimum\nnumber of samples for each node.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_leaf",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 0.0,
+          "description": "The minimum weighted fraction of the sum total of weights (of all\nthe input samples) required to be at a leaf node. Samples have\nequal weight when sample_weight is not provided.\n",
+          "name": "min_weight_fraction_leaf",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": "auto",
+          "description": "The number of features to consider when looking for the best split:\n\n- If int, then consider `max_features` features at each split.\n- If float, then `max_features` is a fraction and\n`int(max_features * n_features)` features are considered at each\nsplit.\n- If \"auto\", then `max_features=n_features`.\n- If \"sqrt\", then `max_features=sqrt(n_features)`.\n- If \"log2\", then `max_features=log2(n_features)`.\n- If None, then `max_features=n_features`.\n\nNote: the search for a split does not stop until at least one\nvalid partition of the node samples is found, even if it requires to\neffectively inspect more than ``max_features`` features.\n",
+          "name": "max_features",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": null,
+          "description": "Grow trees with ``max_leaf_nodes`` in best-first fashion.\nBest nodes are defined as relative reduction in impurity.\nIf None then unlimited number of leaf nodes.\n",
+          "name": "max_leaf_nodes",
+          "option": "optional"
+        },
+        {
+          "default": 0.0,
+          "description": "A node will be split if this split induces a decrease of the impurity\ngreater than or equal to this value.\n\nThe weighted impurity decrease equation is the following::\n\nN_t / N * (impurity - N_t_R / N_t * right_impurity\n- N_t_L / N_t * left_impurity)\n\nwhere ``N`` is the total number of samples, ``N_t`` is the number of\nsamples at the current node, ``N_t_L`` is the number of samples in the\nleft child, and ``N_t_R`` is the number of samples in the right child.\n\n``N``, ``N_t``, ``N_t_R`` and ``N_t_L`` all refer to the weighted sum,\nif ``sample_weight`` is passed.\n\n.. versionadded:: 0.19\n",
+          "name": "min_impurity_decrease",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n",
+          "name": "min_impurity_split",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "Whether bootstrap samples are used when building trees.\n",
+          "name": "bootstrap",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "whether to use out-of-bag samples to estimate\nthe R^2 on unseen data.\n",
+          "name": "oob_score",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": null,
+          "description": "The number of jobs to run in parallel for both `fit` and `predict`.\n`None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "name": "n_jobs",
+          "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 0,
+          "description": "Controls the verbosity when fitting and predicting.\n",
+          "name": "verbose",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": false,
+          "description": "When set to ``True``, reuse the solution of the previous call to fit\nand add more estimators to the ensemble, otherwise, just fit a whole\nnew forest. See :term:`the Glossary <warm_start>`.\n",
+          "name": "warm_start",
+          "option": "optional",
+          "type": "boolean"
+        }
+      ],
+      "description": "A random forest regressor.\n\nA random forest is a meta estimator that fits a number of classifying\ndecision trees on various sub-samples of the dataset and uses averaging\nto improve the predictive accuracy and control over-fitting.\nThe sub-sample size is always the same as the original\ninput sample size but the samples are drawn with replacement if\n`bootstrap=True` (default).\n\nRead more in the :ref:`User Guide <forest>`.\n",
+      "package": "sklearn.ensemble.forest"
     }
   },
   {
@@ -483,7 +692,8 @@
           "option": "optional"
         },
         {
-          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "default": 1e-07,
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19. The default value of\n``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it\nwill be removed in 0.25. Use ``min_impurity_decrease`` instead.\n\n",
           "name": "min_impurity_split",
           "type": "float32"
         },
@@ -818,6 +1028,651 @@
       ],
       "description": "\nNaive Bayes classifier for multinomial models\n\nThe multinomial Naive Bayes classifier is suitable for classification with\ndiscrete features (e.g., word counts for text classification). The\nmultinomial distribution normally requires integer feature counts. However,\nin practice, fractional counts such as tf-idf may also work.\n\nRead more in the :ref:`User Guide <multinomial_naive_bayes>`.\n",
       "package": "sklearn.naive_bayes"
+    }
+  },
+  {
+    "name": "KNeighborsClassifier",
+    "schema": {
+      "attributes": [
+        {
+          "default": 5,
+          "description": "Number of neighbors to use by default for :meth:`kneighbors` queries.\n",
+          "name": "n_neighbors",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "uniform",
+          "description": "weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n",
+          "name": "weights",
+          "option": "optional"
+        },
+        {
+          "description": "Algorithm used to compute the nearest neighbors:\n\n- 'ball_tree' will use :class:`BallTree`\n- 'kd_tree' will use :class:`KDTree`\n- 'brute' will use a brute-force search.\n- 'auto' will attempt to decide the most appropriate algorithm\nbased on the values passed to :meth:`fit` method.\n\nNote: fitting on sparse input will override the setting of\nthis parameter, using brute force.\n",
+          "name": "algorithm",
+          "option": "optional"
+        },
+        {
+          "default": 30,
+          "description": "Leaf size passed to BallTree or KDTree.  This can affect the\nspeed of the construction and query, as well as the memory\nrequired to store the tree.  The optimal value depends on the\nnature of the problem.\n",
+          "name": "leaf_size",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "2",
+          "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
+          "name": "p",
+          "option": "optional"
+        },
+        {
+          "default": "minkowski",
+          "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of the DistanceMetric class for a\nlist of available metrics.\n",
+          "name": "metric"
+        },
+        {
+          "default": null,
+          "description": "Additional keyword arguments for the metric function.\n",
+          "name": "metric_params",
+          "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "The number of parallel jobs to run for neighbors search.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\nDoesn't affect :meth:`fit` method.\n",
+          "name": "n_jobs",
+          "option": "optional"
+        }
+      ],
+      "description": "Classifier implementing the k-nearest neighbors vote.\n\nRead more in the :ref:`User Guide <classification>`.\n",
+      "package": "sklearn.neighbors"
+    }
+  },
+  {
+    "name": "KNeighborsRegressor",
+    "schema": {
+      "attributes": [
+        {
+          "default": 5,
+          "description": "Number of neighbors to use by default for :meth:`kneighbors` queries.\n",
+          "name": "n_neighbors",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "description": "weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n\nUniform weights are used by default.\n",
+          "name": "weights"
+        },
+        {
+          "description": "Algorithm used to compute the nearest neighbors:\n\n- 'ball_tree' will use :class:`BallTree`\n- 'kd_tree' will use :class:`KDTree`\n- 'brute' will use a brute-force search.\n- 'auto' will attempt to decide the most appropriate algorithm\nbased on the values passed to :meth:`fit` method.\n\nNote: fitting on sparse input will override the setting of\nthis parameter, using brute force.\n",
+          "name": "algorithm",
+          "option": "optional"
+        },
+        {
+          "default": 30,
+          "description": "Leaf size passed to BallTree or KDTree.  This can affect the\nspeed of the construction and query, as well as the memory\nrequired to store the tree.  The optimal value depends on the\nnature of the problem.\n",
+          "name": "leaf_size",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "2",
+          "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
+          "name": "p",
+          "option": "optional"
+        },
+        {
+          "default": "minkowski",
+          "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of the DistanceMetric class for a\nlist of available metrics.\n",
+          "name": "metric"
+        },
+        {
+          "default": null,
+          "description": "Additional keyword arguments for the metric function.\n",
+          "name": "metric_params",
+          "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "The number of parallel jobs to run for neighbors search.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\nDoesn't affect :meth:`fit` method.\n",
+          "name": "n_jobs",
+          "option": "optional"
+        }
+      ],
+      "description": "Regression based on k-nearest neighbors.\n\nThe target is predicted by local interpolation of the targets\nassociated of the nearest neighbors in the training set.\n\nRead more in the :ref:`User Guide <regression>`.\n",
+      "package": "sklearn.neighbors"
+    }
+  },
+  {
+    "name": "LassoLars",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Constant that multiplies the penalty term. Defaults to 1.0.\n``alpha = 0`` is equivalent to an ordinary least square, solved\nby :class:`LinearRegression`. For numerical reasons, using\n``alpha = 0`` with the LassoLars object is not advised and you\nshould prefer the LinearRegression object.\n",
+          "name": "alpha",
+          "type": "float32"
+        },
+        {
+          "description": "whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(e.g. data is expected to be already centered).\n",
+          "name": "fit_intercept",
+          "type": "boolean"
+        },
+        {
+          "description": "Sets the verbosity amount\n",
+          "name": "verbose",
+          "option": "optional"
+        },
+        {
+          "default": true,
+          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n",
+          "name": "normalize",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "description": "Whether to use a precomputed Gram matrix to speed up\ncalculations. If set to ``'auto'`` let us decide. The Gram\nmatrix can also be passed as argument.\n",
+          "name": "precompute"
+        },
+        {
+          "description": "Maximum number of iterations to perform.\n",
+          "name": "max_iter",
+          "option": "optional"
+        },
+        {
+          "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\n",
+          "name": "eps",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "If True, X will be copied; else, it may be overwritten.\n",
+          "name": "copy_X",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "description": "If ``True`` the full path is stored in the ``coef_path_`` attribute.\nIf you compute the solution for a large problem or many targets,\nsetting ``fit_path`` to ``False`` will lead to a speedup, especially\nwith a small alpha.\n",
+          "name": "fit_path",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Restrict coefficients to be >= 0. Be aware that you might want to\nremove fit_intercept which is set True by default.\nUnder the positive restriction the model coefficients will not converge\nto the ordinary-least-squares solution for small values of alpha.\nOnly coefficients up to the smallest alpha value (``alphas_[alphas_ >\n0.].min()`` when fit_path=True) reached by the stepwise Lars-Lasso\nalgorithm are typically in congruence with the solution of the\ncoordinate descent Lasso estimator.\n",
+          "name": "positive",
+          "type": "boolean"
+        }
+      ],
+      "description": "Lasso model fit with Least Angle Regression a.k.a. Lars\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n",
+      "package": "sklearn.linear_model"
+    }
+  },
+  {
+    "name": "PCA",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Number of components to keep.\nif n_components is not set all components are kept::\n\nn_components == min(n_samples, n_features)\n\nIf ``n_components == 'mle'`` and ``svd_solver == 'full'``, Minka's\nMLE is used to guess the dimension. Use of ``n_components == 'mle'``\nwill interpret ``svd_solver == 'auto'`` as ``svd_solver == 'full'``.\n\nIf ``0 < n_components < 1`` and ``svd_solver == 'full'``, select the\nnumber of components such that the amount of variance that needs to be\nexplained is greater than the percentage specified by n_components.\n\nIf ``svd_solver == 'arpack'``, the number of components must be\nstrictly less than the minimum of n_features and n_samples.\n\nHence, the None case results in::\n\nn_components == min(n_samples, n_features) - 1\n",
+          "name": "n_components"
+        },
+        {
+          "default": true,
+          "description": "If False, data passed to fit are overwritten and running\nfit(X).transform(X) will not yield the expected results,\nuse fit_transform(X) instead.\n",
+          "name": "copy",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "When True (False by default) the `components_` vectors are multiplied\nby the square root of n_samples and then divided by the singular values\nto ensure uncorrelated outputs with unit component-wise variances.\n\nWhitening will remove some information from the transformed signal\n(the relative variance scales of the components) but can sometime\nimprove the predictive accuracy of the downstream estimators by\nmaking their data respect some hard-wired assumptions.\n",
+          "name": "whiten",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "description": "auto :\nthe solver is selected by a default policy based on `X.shape` and\n`n_components`: if the input data is larger than 500x500 and the\nnumber of components to extract is lower than 80% of the smallest\ndimension of the data, then the more efficient 'randomized'\nmethod is enabled. Otherwise the exact full SVD is computed and\noptionally truncated afterwards.\nfull :\nrun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\narpack :\nrun SVD truncated to n_components calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n0 < n_components < min(X.shape)\nrandomized :\nrun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n",
+          "name": "svd_solver",
+          "type": "string"
+        },
+        {
+          "default": ".0",
+          "description": "Tolerance for singular values computed by svd_solver == 'arpack'.\n\n.. versionadded:: 0.18.0\n",
+          "name": "tol",
+          "option": "optional"
+        },
+        {
+          "default": "auto",
+          "description": "Number of iterations for the power method computed by\nsvd_solver == 'randomized'.\n\n.. versionadded:: 0.18.0\n",
+          "name": "iterated_power"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.\n\n.. versionadded:: 0.18.0\n",
+          "name": "random_state",
+          "option": "optional"
+        }
+      ],
+      "description": "Principal component analysis (PCA)\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nIt can also use the scipy.sparse.linalg ARPACK implementation of the\ntruncated SVD.\n\nNotice that this class does not support sparse input. See\n:class:`TruncatedSVD` for an alternative with sparse data.\n\nRead more in the :ref:`User Guide <PCA>`.\n",
+      "package": "sklearn.decomposition"
+    }
+  },
+  {
+    "name": "CalibratedClassifierCV",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The classifier whose output decision function needs to be calibrated\nto offer more accurate predict_proba outputs. If cv=prefit, the\nclassifier must have been fit already on data.\n",
+          "name": "base_estimator"
+        },
+        {
+          "description": "The method to use for calibration. Can be 'sigmoid' which\ncorresponds to Platt's method or 'isotonic' which is a\nnon-parametric approach. It is not advised to use isotonic calibration\nwith too few calibration samples ``(<<1000)`` since it tends to\noverfit.\nUse sigmoids (Platt's calibration) in this case.\n",
+          "name": "method"
+        },
+        {
+          "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 3-fold cross-validation,\n- integer, to specify the number of folds.\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`sklearn.model_selection.KFold`\nis used.\n\nRefer :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\nIf \"prefit\" is passed, it is assumed that base_estimator has been\nfitted already and all data is used for calibration.\n\n.. versionchanged:: 0.20\n``cv`` default value if None will change from 3-fold to 5-fold\nin v0.22.\n",
+          "name": "cv",
+          "option": "optional"
+        }
+      ],
+      "description": "Probability calibration with isotonic regression or sigmoid.\n\nSee glossary entry for :term:`cross-validation estimator`.\n\nWith this class, the base_estimator is fit on the train set of the\ncross-validation generator and the test set is used for calibration.\nThe probabilities for each of the folds are then averaged\nfor prediction. In case that cv=\"prefit\" is passed to __init__,\nit is assumed that base_estimator has been fitted already and all\ndata is used for calibration. Note that data for fitting the\nclassifier and for calibrating it must be disjoint.\n\nRead more in the :ref:`User Guide <calibration>`.\n",
+      "package": "sklearn.calibration"
+    }
+  },
+  {
+    "name": "CountVectorizer",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be the sequence strings or\nbytes items are expected to be analyzed directly.\n",
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "default": "utf-8",
+          "description": "If bytes or files are given to analyze, this encoding is used to\ndecode.\n",
+          "name": "encoding",
+          "type": "string"
+        },
+        {
+          "description": "Instruction on what to do if a byte sequence is given to analyze that\ncontains characters not of the given `encoding`. By default, it is\n'strict', meaning that a UnicodeDecodeError will be raised. Other\nvalues are 'ignore' and 'replace'.\n",
+          "name": "decode_error"
+        },
+        {
+          "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+          "name": "strip_accents"
+        },
+        {
+          "default": true,
+          "description": "Convert all characters to lowercase before tokenizing.\n",
+          "name": "lowercase",
+          "type": "boolean"
+        },
+        {
+          "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\n",
+          "name": "preprocessor"
+        },
+        {
+          "description": "Override the string tokenization step while preserving the\npreprocessing and n-grams generation steps.\nOnly applies if ``analyzer == 'word'``.\n",
+          "name": "tokenizer"
+        },
+        {
+          "description": "If 'english', a built-in stop word list for English is used.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
+          "name": "stop_words"
+        },
+        {
+          "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp select tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n",
+          "name": "token_pattern",
+          "type": "string"
+        },
+        {
+          "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used.\n",
+          "name": "ngram_range"
+        },
+        {
+          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n",
+          "name": "analyzer"
+        },
+        {
+          "default": "1.0",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly higher than the given threshold (corpus-specific\nstop words).\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "name": "max_df"
+        },
+        {
+          "default": "1",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly lower than the given threshold. This value is also\ncalled cut-off in the literature.\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "name": "min_df"
+        },
+        {
+          "default": null,
+          "description": "If not None, build a vocabulary that only consider the top\nmax_features ordered by term frequency across the corpus.\n\nThis parameter is ignored if vocabulary is not None.\n",
+          "name": "max_features"
+        },
+        {
+          "description": "Either a Mapping (e.g., a dict) where keys are terms and values are\nindices in the feature matrix, or an iterable over terms. If not\ngiven, a vocabulary is determined from the input documents. Indices\nin the mapping should not be repeated and should not have any gap\nbetween 0 and the largest index.\n",
+          "name": "vocabulary",
+          "option": "optional"
+        },
+        {
+          "default": false,
+          "description": "If True, all non zero counts are set to 1. This is useful for discrete\nprobabilistic models that model binary events rather than integer\ncounts.\n",
+          "name": "binary",
+          "type": "boolean"
+        },
+        {
+          "description": "Type of the matrix returned by fit_transform() or transform().\n",
+          "name": "dtype",
+          "option": "optional"
+        }
+      ],
+      "description": "Convert a collection of text documents to a matrix of token counts\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+      "package": "sklearn.feature_extraction.text"
+    }
+  },
+  {
+    "name": "TfidfVectorizer",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be the sequence strings or\nbytes items are expected to be analyzed directly.\n",
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "default": "utf-8",
+          "description": "If bytes or files are given to analyze, this encoding is used to\ndecode.\n",
+          "name": "encoding",
+          "type": "string"
+        },
+        {
+          "description": "Instruction on what to do if a byte sequence is given to analyze that\ncontains characters not of the given `encoding`. By default, it is\n'strict', meaning that a UnicodeDecodeError will be raised. Other\nvalues are 'ignore' and 'replace'.\n",
+          "name": "decode_error"
+        },
+        {
+          "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+          "name": "strip_accents"
+        },
+        {
+          "default": true,
+          "description": "Convert all characters to lowercase before tokenizing.\n",
+          "name": "lowercase",
+          "type": "boolean"
+        },
+        {
+          "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\n",
+          "name": "preprocessor"
+        },
+        {
+          "description": "Override the string tokenization step while preserving the\npreprocessing and n-grams generation steps.\nOnly applies if ``analyzer == 'word'``.\n",
+          "name": "tokenizer"
+        },
+        {
+          "description": "Whether the feature should be made of word or character n-grams.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n",
+          "name": "analyzer"
+        },
+        {
+          "description": "If a string, it is passed to _check_stop_list and the appropriate stop\nlist is returned. 'english' is currently the only supported string\nvalue.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
+          "name": "stop_words"
+        },
+        {
+          "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp selects tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n",
+          "name": "token_pattern",
+          "type": "string"
+        },
+        {
+          "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used.\n",
+          "name": "ngram_range"
+        },
+        {
+          "default": "1.0",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly higher than the given threshold (corpus-specific\nstop words).\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "name": "max_df"
+        },
+        {
+          "default": "1",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly lower than the given threshold. This value is also\ncalled cut-off in the literature.\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "name": "min_df"
+        },
+        {
+          "default": null,
+          "description": "If not None, build a vocabulary that only consider the top\nmax_features ordered by term frequency across the corpus.\n\nThis parameter is ignored if vocabulary is not None.\n",
+          "name": "max_features"
+        },
+        {
+          "description": "Either a Mapping (e.g., a dict) where keys are terms and values are\nindices in the feature matrix, or an iterable over terms. If not\ngiven, a vocabulary is determined from the input documents.\n",
+          "name": "vocabulary",
+          "option": "optional"
+        },
+        {
+          "default": false,
+          "description": "If True, all non-zero term counts are set to 1. This does not mean\noutputs will have only 0/1 values, only that the tf term in tf-idf\nis binary. (Set idf and normalization to False to get 0/1 outputs.)\n",
+          "name": "binary",
+          "type": "boolean"
+        },
+        {
+          "description": "Type of the matrix returned by fit_transform() or transform().\n",
+          "name": "dtype",
+          "option": "optional"
+        },
+        {
+          "description": "Norm used to normalize term vectors. None for no normalization.\n",
+          "name": "norm"
+        },
+        {
+          "default": true,
+          "description": "Enable inverse-document-frequency reweighting.\n",
+          "name": "use_idf",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "description": "Smooth idf weights by adding one to document frequencies, as if an\nextra document was seen containing every term in the collection\nexactly once. Prevents zero divisions.\n",
+          "name": "smooth_idf",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Apply sublinear tf scaling, i.e. replace tf with 1 + log(tf).\n",
+          "name": "sublinear_tf",
+          "type": "boolean"
+        }
+      ],
+      "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to CountVectorizer followed by TfidfTransformer.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+      "package": "sklearn.feature_extraction.text"
+    }
+  },
+  {
+    "name": "LGBMRegressor",
+    "schema": {
+      "attributes": [
+        {
+          "default": "gbdt",
+          "name": "boosting_type",
+          "type": "string"
+        },
+        {
+          "default": null,
+          "name": "class_weight"
+        },
+        {
+          "default": 1.0,
+          "name": "colsample_bytree"
+        },
+        {
+          "default": 0.05,
+          "name": "learning_rate"
+        },
+        {
+          "default": -1,
+          "name": "max_depth"
+        },
+        {
+          "default": 20,
+          "name": "min_child_samples"
+        },
+        {
+          "default": 0.001,
+          "name": "min_child_weight"
+        },
+        {
+          "default": 0.0,
+          "name": "min_split_gain"
+        },
+        {
+          "default": 100,
+          "name": "n_estimators"
+        },
+        {
+          "default": -1,
+          "name": "n_jobs"
+        },
+        {
+          "default": 31,
+          "name": "num_leaves"
+        },
+        {
+          "default": null,
+          "name": "random_state"
+        },
+        {
+          "default": 0,
+          "name": "reg_alpha"
+        },
+        {
+          "default": 0,
+          "name": "reg_lambda"
+        },
+        {
+          "default": true,
+          "name": "silent",
+          "type": "boolean"
+        },
+        {
+          "default": 200000,
+          "name": "subsample_for_bin"
+        },
+        {
+          "default": 0,
+          "name": "subsample_freq"
+        },
+        {
+          "default": 1.0,
+          "name": "subsample"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LGBMClassifier",
+    "schema": {
+      "attributes": [
+        {
+          "default": "gbdt",
+          "name": "boosting_type",
+          "type": "string"
+        },
+        {
+          "default": null,
+          "name": "class_weight"
+        },
+        {
+          "default": 1.0,
+          "name": "colsample_bytree"
+        },
+        {
+          "default": 0.05,
+          "name": "learning_rate"
+        },
+        {
+          "default": -1,
+          "name": "max_depth"
+        },
+        {
+          "default": 20,
+          "name": "min_child_samples"
+        },
+        {
+          "default": 0.001,
+          "name": "min_child_weight"
+        },
+        {
+          "default": 0.0,
+          "name": "min_split_gain"
+        },
+        {
+          "default": 100,
+          "name": "n_estimators"
+        },
+        {
+          "default": -1,
+          "name": "n_jobs"
+        },
+        {
+          "default": 31,
+          "name": "num_leaves"
+        },
+        {
+          "default": null,
+          "name": "random_state"
+        },
+        {
+          "default": 0,
+          "name": "reg_alpha"
+        },
+        {
+          "default": 0,
+          "name": "reg_lambda"
+        },
+        {
+          "default": true,
+          "name": "silent",
+          "type": "boolean"
+        },
+        {
+          "default": 200000,
+          "name": "subsample_for_bin"
+        },
+        {
+          "default": 0,
+          "name": "subsample_freq"
+        },
+        {
+          "default": 1.0,
+          "name": "subsample"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Booster",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "best_iteration"
+        },
+        {
+          "default": false,
+          "name": "network"
+        },
+        {
+          "default": null,
+          "name": "train_set"
+        },
+        {
+          "default": false,
+          "name": "stride"
+        },
+        {
+          "default": null,
+          "name": "model_file"
+        },
+        {
+          "default": null,
+          "name": "params"
+        },
+        {
+          "default": null,
+          "name": "pandas_categorical"
+        }
+      ]
     }
   }
 ]

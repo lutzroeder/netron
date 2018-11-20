@@ -32,44 +32,55 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; optional)* Should the legacy padding be VALID or SAME. When used, pads should not be used.",
+          "description": "Should the legacy padding be VALID or SAME. When used, pads should not be used.",
           "name": "legacy_pad",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: [int]; default: [])* Desired kernel size. If left at default the kernel size will be inferred from the input $filter$ blob.",
+          "description": "Desired kernel size. If left at default the kernel size will be inferred from the input $filter$ blob.",
           "name": "kernels",
-          "option": "optional"
+          "option": "optional",
+          "type": "int[]"
         },
         {
-          "description": "*(type: [int]; default: [])* Controls the stride of the kernel as it traverses the input blob.",
+          "description": "Controls the stride of the kernel as it traverses the input blob.",
           "name": "strides",
-          "option": "optional"
+          "option": "optional",
+          "type": "int[]"
         },
         {
-          "description": "*(type: [int]; default: [])* Controls the amount of padding applied to the input feature map before computation.",
+          "description": "Controls the amount of padding applied to the input feature map before computation.",
           "name": "pads",
-          "option": "optional"
+          "option": "optional",
+          "type": "int[]"
         },
         {
-          "description": "*(type: [int]; default: [])*",
+          "description": "",
           "name": "adjs",
-          "option": "optional"
+          "option": "optional",
+          "type": "int[]"
         },
         {
-          "description": "*(type: string; default: \"NCHW\")* Specifies the order of the input data blob, where $N$ is batch size, $C$ is number of channels, $H$ is spatial height, and $W$ is spatial width. The only other valid option is \"NHWC\".",
+          "default": "NCHW",
+          "description": "Specifies the order of the input data blob, where $N$ is batch size, $C$ is number of channels, $H$ is spatial height, and $W$ is spatial width. The only other valid option is \"NHWC\".",
           "name": "order",
-          "option": "optional"
+          "option": "optional",
+          "type": "string"
         },
         {
-          "description": "*(type: int; default: 0)*",
+          "default": 0,
+          "description": "",
           "name": "shared_buffer",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: bool; default: False)* ",
+          "default": false,
+          "description": "",
           "name": "no_bias",
-          "option": "optional"
+          "option": "optional",
+          "type": "bool"
         }
       ],
       "category": "Layer",
@@ -102,19 +113,25 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: 1)* Describes the axis of the input data $X$. Defaults to one because in the common case when the input $X$ has shape $(M,K)$, the first axis encodes the batch size.",
+          "default": 1,
+          "description": "Describes the axis of the input data $X$. Defaults to one because in the common case when the input $X$ has shape $(M,K)$, the first axis encodes the batch size.",
           "name": "axis",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: int; default: 1)* Describes the axis of the input weight matrix $W$. Defaults to one because the first axis most likely describes the batch_size.",
+          "default": 1,
+          "description": "Describes the axis of the input weight matrix $W$. Defaults to one because the first axis most likely describes the batch_size.",
           "name": "axis_w",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: bool; default: False)* Whether to use float-16 compute kernel.",
+          "default": false,
+          "description": "Whether to use float-16 compute kernel.",
           "name": "float16_compute",
-          "option": "optional"
+          "option": "optional",
+          "type": "bool"
         }
       ],
       "category": "Layer",
@@ -147,14 +164,18 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: 0)* Pass 1 to enable broadcasting",
+          "default": 0,
+          "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: int; default: -1)* Axis to concatenate on.",
+          "default": -1,
+          "description": "Axis to concatenate on.",
           "name": "axis",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         }
       ],
       "description": "\nPerforms element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_op_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Add\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 6  8]\n [10 12]]\n\n```\n\n</details>\n\n\n",
@@ -213,14 +234,18 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: 0)* Pass 1 to enable broadcasting",
+          "default": 0,
+          "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: int; default: -1)* Axis to concatenate on.",
+          "default": -1,
+          "description": "Axis to concatenate on.",
           "name": "axis",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         }
       ],
       "description": "\nPerforms element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_op_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Mul\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 5 12]\n [21 32]]\n\n```\n\n</details>\n\n\n",
@@ -248,24 +273,32 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: 1)* Exclusive axis that divides the first and second dimension of matrix `A`.",
+          "default": 1,
+          "description": "Exclusive axis that divides the first and second dimension of matrix `A`.",
           "name": "axis_a",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: int; default: 1)* Exclusive axis that divides the first and second dimension of matrix `B`.",
+          "default": 1,
+          "description": "Exclusive axis that divides the first and second dimension of matrix `B`.",
           "name": "axis_b",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: int; default: 0)* Pass 1 to transpose `A` before multiplication and after the dimension adjustment using `axis_a`.",
+          "default": 0,
+          "description": "Pass 1 to transpose `A` before multiplication and after the dimension adjustment using `axis_a`.",
           "name": "trans_a",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: int; default: 0)* Pass 1 to transpose `B` before multiplication and after the dimension adjustment using `axis_b`.",
+          "default": 0,
+          "description": "Pass 1 to transpose `B` before multiplication and after the dimension adjustment using `axis_b`.",
           "name": "trans_b",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         }
       ],
       "description": "\nMatrix multiplication $Y = A * B$, where `A` has size (M x K), `B` has size\n(K x N), and `Y` will have a size (M x N). To transpose `A` or `B` before\nmultiplication, pass 1 to the `trans_a` and/or `trans_b` arguments, which\nseparate the first and second dimensions of the respective matrices using\n`axis_a` and `axis_b`.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/matmul_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"MatMul\",\n    [\"A\", \"B\"],\n    [\"Y\"],\n)\n\nworkspace.FeedBlob(\"A\", np.random.randint(10, size=(3,3)).astype(np.float32))\nworkspace.FeedBlob(\"B\", np.random.randint(10, size=(3,3)).astype(np.float32))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nA: [[1. 8. 3.]\n [6. 4. 4.]\n [5. 4. 7.]]\nB: [[4. 0. 3.]\n [3. 1. 1.]\n [8. 5. 8.]]\nY: [[52. 23. 35.]\n [68. 24. 54.]\n [88. 39. 75.]]\n```\n\n</details>\n\n",
@@ -357,9 +390,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: 1)* Axis of the inputs when coerced to 2D matrix.",
+          "default": 1,
+          "description": "Axis of the inputs when coerced to 2D matrix.",
           "name": "axis",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         }
       ],
       "category": "Activation",
@@ -432,28 +467,38 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: 0)* If set to nonzero, run spatial batch normalization in test mode.",
-          "name": "is_test"
+          "default": 0,
+          "description": "If set to nonzero, run spatial batch normalization in test mode.",
+          "name": "is_test",
+          "type": "int"
         },
         {
-          "description": "*(type: float; default: 1e-5)* The epsilon value to use to avoid division by zero.",
+          "default": 1e-05,
+          "description": "The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
-          "option": "optional"
+          "option": "optional",
+          "type": "float"
         },
         {
-          "description": "*(type: string; default: \"NCHW\")* Specifies the order of the input data blob, where $N$ is batch size, $C$ is number of channels, $H$ is spatial height, and $W$ is spatial width. The only other valid option is \"NHWC\".",
+          "default": "NCHW",
+          "description": "Specifies the order of the input data blob, where $N$ is batch size, $C$ is number of channels, $H$ is spatial height, and $W$ is spatial width. The only other valid option is \"NHWC\".",
           "name": "order",
-          "option": "optional"
+          "option": "optional",
+          "type": "string"
         },
         {
-          "description": "*(type: float; default: 0.9)* Factor used in computing the running mean and variance. e.g., running_mean = running_mean x momentum + mean x (1 - momentum)",
+          "default": 0.9,
+          "description": "Factor used in computing the running mean and variance. e.g., running_mean = running_mean x momentum + mean x (1 - momentum)",
           "name": "momentum",
-          "option": "optional"
+          "option": "optional",
+          "type": "float"
         },
         {
-          "description": "*(type: int; default: 1)* Specifies the number of batches to apply normalization on. Requires specifying the optional sums and sumsq inputs that provide statistics across multiple batches from which mean and variance can be determined.",
+          "default": 1,
+          "description": "Specifies the number of batches to apply normalization on. Requires specifying the optional sums and sumsq inputs that provide statistics across multiple batches from which mean and variance can be determined.",
           "name": "num_batches",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         }
       ],
       "category": "Normalization",
@@ -521,36 +566,42 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: 0)* Amount of neighboring channels to sum over for normalization",
+          "default": 0,
+          "description": "Amount of neighboring channels to sum over for normalization",
           "name": "size",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "default": 0,
-          "description": "*(type: float; default: 0)* Multiplicative (scaling) factor.",
+          "default": 0.0,
+          "description": "Multiplicative (scaling) factor.",
           "name": "alpha",
-          "option": "optional"
+          "option": "optional",
+          "type": "float"
         },
         {
-          "default": 0,
-          "description": "*(type: float; default: 0)* Exponent.",
+          "default": 0.0,
+          "description": "Exponent.",
           "name": "beta",
-          "option": "optional"
+          "option": "optional",
+          "type": "float"
         },
         {
           "default": 1.0,
-          "description": "*(type: float; default: 1.0)* Additive factor.",
+          "description": "Additive factor.",
           "name": "bias",
-          "option": "optional"
+          "option": "optional",
+          "type": "float"
         },
         {
-          "description": "*(type: float; default: 'NCHW')* Order of blob dimensions.",
+          "description": "Order of blob dimensions.",
           "name": "order",
-          "option": "optional"
+          "option": "optional",
+          "type": "float"
         }
       ],
       "category": "Normalization",
-      "description": "\n\n`LRN` applies Local Response Normalization to an input blob. This operation performs\na kind of \"lateral inhibition\" by normalizing over local input regions, where \nnormalization is applied across channels. This operator is typically used to \nnormalize an unbounded activation (such as ReLU). The output shape is the same as\nthe input shape. The `brew` module has a wrapper for this operator for use in a\n`ModelHelper` object.\n\nThe formula for LRN is as follows:\n\n$$b_{c} = a_{c}(bias + \\frac{\\alpha}{n}\\sum_{c'=max(0,c-n/2)}^{min(N-1,c+n/2)} a_{c'}^2 )^{-\\beta}$$\n\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/local_response_normalization_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/local_response_normalization_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\"LRN\",\n     [\"X\"],\n     [\"Y\", \"Y_scale\"],\n     size=11,\n     alpha=0.001,\n     beta=0.5,\n     bias=2.0,\n     order=\"NHWC\"\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(1, 6, 6, 1).astype(np.float32)) // NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\nprint(\"Y_scale:\\n\", workspace.FetchBlob(\"Y_scale\"))\n```\n\n**Result**\n\n```\nX:\n [[[[ 0.72985137]\n   [-0.3753357 ]\n   [ 2.7344604 ]\n   [-0.5937792 ]\n   [ 0.38440478]\n   [-2.1659644 ]]\n\n  [[-0.92846817]\n   [-0.9996144 ]\n   [ 0.212943  ]\n   [-1.968045  ]\n   [-0.77839696]\n   [ 0.45492038]]\n\n  [[-0.11263168]\n   [ 1.9901097 ]\n   [ 0.19275683]\n   [ 0.15630436]\n   [ 0.7536298 ]\n   [-0.77339894]]\n\n  [[ 0.8353551 ]\n   [-0.7784452 ]\n   [ 1.779317  ]\n   [ 0.22421335]\n   [ 1.3846219 ]\n   [-3.0546608 ]]\n\n  [[ 0.09977621]\n   [ 2.2071757 ]\n   [ 0.79971045]\n   [ 3.563886  ]\n   [-0.7169287 ]\n   [ 0.77170426]]\n\n  [[-1.4296649 ]\n   [ 0.19181213]\n   [ 0.45961624]\n   [-1.0201577 ]\n   [ 0.62854475]\n   [-0.6395456 ]]]] \n\nY:\n [[[[ 0.5160766 ]\n   [-0.26540157]\n   [ 1.9332271 ]\n   [-0.41986194]\n   [ 0.27181432]\n   [-1.5314047 ]]\n\n  [[-0.6565133 ]\n   [-0.7068181 ]\n   [ 0.15057328]\n   [-1.3914955 ]\n   [-0.5504022 ]\n   [ 0.32167578]]\n\n  [[-0.0796426 ]\n   [ 1.4070934 ]\n   [ 0.13629955]\n   [ 0.11052381]\n   [ 0.53288984]\n   [-0.5468682 ]]\n\n  [[ 0.5906759 ]\n   [-0.5504363 ]\n   [ 1.2580767 ]\n   [ 0.1585426 ]\n   [ 0.9790328 ]\n   [-2.1595135 ]]\n\n  [[ 0.07055242]\n   [ 1.5605361 ]\n   [ 0.5654725 ]\n   [ 2.5193207 ]\n   [-0.50693923]\n   [ 0.54567   ]]\n\n  [[-1.0108787 ]\n   [ 0.13563155]\n   [ 0.3249962 ]\n   [-0.72134334]\n   [ 0.44444424]\n   [-0.45222285]]]]\nY_scale:\n [[[[2.0000484]\n   [2.0000129]\n   [2.0006797]\n   [2.000032 ]\n   [2.0000134]\n   [2.0004265]]\n\n  [[2.0000784]\n   [2.0000908]\n   [2.000004 ]\n   [2.0003521]\n   [2.000055 ]\n   [2.0000188]]\n\n  [[2.0000012]\n   [2.00036  ]\n   [2.0000033]\n   [2.0000021]\n   [2.0000517]\n   [2.0000544]]\n\n  [[2.0000634]\n   [2.000055 ]\n   [2.0002878]\n   [2.0000045]\n   [2.0001743]\n   [2.0008483]]\n\n  [[2.000001 ]\n   [2.000443 ]\n   [2.0000582]\n   [2.0011547]\n   [2.0000467]\n   [2.0000541]]\n\n  [[2.0001857]\n   [2.0000033]\n   [2.0000193]\n   [2.0000947]\n   [2.000036 ]\n   [2.0000372]]]]\n```\n\n</details>\n\n",
+      "description": "\n\n`LRN` applies Local Response Normalization to an input blob. This operation performs\na kind of \"lateral inhibition\" by normalizing over local input regions, where\nnormalization is applied across channels. This operator is typically used to\nnormalize an unbounded activation (such as ReLU). The output shape is the same as\nthe input shape. The `brew` module has a wrapper for this operator for use in a\n`ModelHelper` object.\n\nThe formula for LRN is as follows:\n\n$$b_{c} = a_{c}(bias + \\frac{\\alpha}{n}\\sum_{c'=max(0,c-n/2)}^{min(N-1,c+n/2)} a_{c'}^2 )^{-\\beta}$$\n\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/local_response_normalization_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/local_response_normalization_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\"LRN\",\n     [\"X\"],\n     [\"Y\", \"Y_scale\"],\n     size=11,\n     alpha=0.001,\n     beta=0.5,\n     bias=2.0,\n     order=\"NHWC\"\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(1, 6, 6, 1).astype(np.float32)) // NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\nprint(\"Y_scale:\\n\", workspace.FetchBlob(\"Y_scale\"))\n```\n\n**Result**\n\n```\nX:\n [[[[ 0.72985137]\n   [-0.3753357 ]\n   [ 2.7344604 ]\n   [-0.5937792 ]\n   [ 0.38440478]\n   [-2.1659644 ]]\n\n  [[-0.92846817]\n   [-0.9996144 ]\n   [ 0.212943  ]\n   [-1.968045  ]\n   [-0.77839696]\n   [ 0.45492038]]\n\n  [[-0.11263168]\n   [ 1.9901097 ]\n   [ 0.19275683]\n   [ 0.15630436]\n   [ 0.7536298 ]\n   [-0.77339894]]\n\n  [[ 0.8353551 ]\n   [-0.7784452 ]\n   [ 1.779317  ]\n   [ 0.22421335]\n   [ 1.3846219 ]\n   [-3.0546608 ]]\n\n  [[ 0.09977621]\n   [ 2.2071757 ]\n   [ 0.79971045]\n   [ 3.563886  ]\n   [-0.7169287 ]\n   [ 0.77170426]]\n\n  [[-1.4296649 ]\n   [ 0.19181213]\n   [ 0.45961624]\n   [-1.0201577 ]\n   [ 0.62854475]\n   [-0.6395456 ]]]]\n\nY:\n [[[[ 0.5160766 ]\n   [-0.26540157]\n   [ 1.9332271 ]\n   [-0.41986194]\n   [ 0.27181432]\n   [-1.5314047 ]]\n\n  [[-0.6565133 ]\n   [-0.7068181 ]\n   [ 0.15057328]\n   [-1.3914955 ]\n   [-0.5504022 ]\n   [ 0.32167578]]\n\n  [[-0.0796426 ]\n   [ 1.4070934 ]\n   [ 0.13629955]\n   [ 0.11052381]\n   [ 0.53288984]\n   [-0.5468682 ]]\n\n  [[ 0.5906759 ]\n   [-0.5504363 ]\n   [ 1.2580767 ]\n   [ 0.1585426 ]\n   [ 0.9790328 ]\n   [-2.1595135 ]]\n\n  [[ 0.07055242]\n   [ 1.5605361 ]\n   [ 0.5654725 ]\n   [ 2.5193207 ]\n   [-0.50693923]\n   [ 0.54567   ]]\n\n  [[-1.0108787 ]\n   [ 0.13563155]\n   [ 0.3249962 ]\n   [-0.72134334]\n   [ 0.44444424]\n   [-0.45222285]]]]\nY_scale:\n [[[[2.0000484]\n   [2.0000129]\n   [2.0006797]\n   [2.000032 ]\n   [2.0000134]\n   [2.0004265]]\n\n  [[2.0000784]\n   [2.0000908]\n   [2.000004 ]\n   [2.0003521]\n   [2.000055 ]\n   [2.0000188]]\n\n  [[2.0000012]\n   [2.00036  ]\n   [2.0000033]\n   [2.0000021]\n   [2.0000517]\n   [2.0000544]]\n\n  [[2.0000634]\n   [2.000055 ]\n   [2.0002878]\n   [2.0000045]\n   [2.0001743]\n   [2.0008483]]\n\n  [[2.000001 ]\n   [2.000443 ]\n   [2.0000582]\n   [2.0011547]\n   [2.0000467]\n   [2.0000541]]\n\n  [[2.0001857]\n   [2.0000033]\n   [2.0000193]\n   [2.0000947]\n   [2.000036 ]\n   [2.0000372]]]]\n```\n\n</details>\n\n",
       "inputs": [
         {
           "description": "*(type: Tensor`<float>`)* Input data tensor (ReLU output).",
@@ -575,13 +626,17 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: float; default: 0.5)* Probability of an element to be zeroed.",
+          "default": 0.5,
+          "description": "Probability of an element to be zeroed.",
           "name": "ratio",
-          "option": "optional"
+          "option": "optional",
+          "type": "float"
         },
         {
-          "description": "*(type: int; default: 0)* If zero (train mode), perform dropout. If non-zero(test mode), Y = X.",
-          "name": "is_test"
+          "default": 0,
+          "description": "If zero (train mode), perform dropout. If non-zero(test mode), Y = X.",
+          "name": "is_test",
+          "type": "int"
         }
       ],
       "category": "Dropout",
@@ -618,19 +673,23 @@
     "schema": {
       "attributes": [
         {
-          "description": "*(type: int; default: -1)* Axis to concatenate on.",
+          "default": -1,
+          "description": "Axis to concatenate on.",
           "name": "axis",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         },
         {
-          "description": "*(type: string; default='NCHW')* Order of blob dimensions. Concats on the C dimension.",
+          "description": "Order of blob dimensions. Concats on the C dimension.",
           "name": "order",
-          "option": "optional"
+          "option": "optional",
+          "type": "string"
         },
         {
-          "description": "*(type: int)* Pass non-zero integer to add the axis specified in `axis` to all input tensors.",
+          "description": "Pass non-zero integer to add the axis specified in `axis` to all input tensors.",
           "name": "add_axis",
-          "option": "optional"
+          "option": "optional",
+          "type": "int"
         }
       ],
       "category": "Tensor",
@@ -947,6 +1006,63 @@
         {
           "description": "Optional number of filtered indices per class, size (num_classes)",
           "name": "keeps_size"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "ONNXWhile",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Net executed on each iteration",
+          "name": "body",
+          "option": "optional"
+        },
+        {
+          "description": "Whether to use the trip count input",
+          "name": "has_trip_count",
+          "option": "optional"
+        },
+        {
+          "description": "Whether to use the condition input",
+          "name": "has_cond",
+          "option": "optional"
+        },
+        {
+          "description": "Whether to save the scopes across iterations, as in for backprop",
+          "name": "save_scopes",
+          "option": "optional"
+        },
+        {
+          "description": "Do not create new scopes. Use this only if you're certain there will be no name collision, for example if you're converting from a fully-SSA IR",
+          "name": "disable_scopes",
+          "option": "optional"
+        }
+      ],
+      "description": "\n*** EXPERIMENTAL. This operator is a work-in-progress. No assumption should be\nmade about the stability or correctness of this op. ***\n\nGeneric Looping construct confirming to the ONNX Loop operator spec. This loop\nhas multiple termination conditions:\n\n1. Trip count. Iteration count specified at runtime. Set by specifying the\n    input M. Optional. Set to empty string to omit. Note that a static trip\n    count (specified at graph construction time) can be specified by passing\n    in a constant node for input M.\n2. Loop termination condition. This is an input to the op that determines\n    whether to run the first interation and also a loop-carried dependency for\n    the body graph. The body graph must yield a value for the condition\n    variable, whether this input is provided or not.\n\nThis table summarizes the operating modes of this operator with equivalent\nC-style code:\n\nOperator inputs defined as (max_trip_count, condition_var). Omitted optional\ninputs are represented as empty string. Concretely, in this caffe2 op an input\nis marked as omitted by setting its 'has_{name}' argument to False.\n\n    input (\"\", \"\"):\n        for (int i=0; ; ++i) {\n          cond = ... // Note this value is ignored, but is required in the body\n        }\n\n    input (\"\", cond) // Note this is analogous to a while loop\n        bool cond = ...;\n        for (int i=0; cond; ++i) {\n          cond = ...;\n        }\n\n    input (\"\", 1) // Note this is analogous to a do-while loop\n        bool cond = true\n        for (int i=0; cond; ++i) {\n          cond = ...;\n        }\n\n    input (trip_count, \"\") // Note this is analogous to a for loop\n        int trip_count = ...\n        for (int i=0; i < trip_count; ++i) {\n          cond = ...; // ignored\n        }\n\n    input (trip_count, cond)\n        int trip_count = ...;\n        bool cond = ...;\n        for (int i=0; i < trip_count && cond; ++i) {\n          cond = ...;\n        }\n    ",
+      "inputs": [
+        {
+          "description": "Number of iterations to go out to. Used if the flag has_trip_count is True.",
+          "name": "max_trip_count"
+        },
+        {
+          "name": "condition"
+        },
+        {
+          "name": "initial",
+          "option": "variadic"
+        },
+        {
+          "description": "Dynamic condition value for the first iteration. For all subsequent iterations, the condition from the body graph is used. This input is used if the flag has_cond is true.",
+          "name": "first_iter_condition"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "final_and_scan_outputs",
+          "option": "variadic"
         }
       ],
       "support_level": "default"

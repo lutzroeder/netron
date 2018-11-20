@@ -1,5 +1,7 @@
 /*jshint esversion: 6 */
 
+var Handlebars = Handlebars || require('handlebars');
+
 class Sidebar {
     
     constructor() {
@@ -18,7 +20,6 @@ class Sidebar {
                 contentElement.style.height = window.innerHeight - 60;
             }
         };
-    
     }
 
     open(content, title, width) {
@@ -71,7 +72,7 @@ class Sidebar {
     }
 }
 
-class NodeView {
+class NodeSidebar {
 
     constructor(node, host) {
         this._host = host;
@@ -285,12 +286,12 @@ class NodeAttributeView {
             });
             this._element.appendChild(this._expander);
         }
-        var value = this._attribute.value;
+        var value = '';
         if (this._attribute.tensor) {
             value = '[...]';
         }
-        if ((value || value === false || value === 0) && typeof value !== 'string') {
-            value = value.toString();
+        else {
+            value = view.View.formatAttributeValue(this._attribute.value, this._attribute.type);
         }
         if (value && value.length > 1000) {
             value = value.substring(0, 1000) + '...';
@@ -382,7 +383,7 @@ class ConnectionView {
 
         var initializer = connection.initializer;
         if (initializer) {
-            this._element.style.backgroundColor = '#f4f4f4';
+            this._element.classList.add('sidebar-view-item-value-dark');
         }
 
         var quantization = connection.quantization;
@@ -485,7 +486,7 @@ class ConnectionView {
                     var state = initializer.state;
                     if (state === null && this._host.save && 
                         initializer.type.dataType && initializer.type.dataType != '?' && 
-                        initializer.type.shape && initializer.type.shape.length > 0) {
+                        initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
                         this._saveButton = document.createElement('div');
                         this._saveButton.className = 'sidebar-view-item-value-expander';
                         this._saveButton.innerHTML = '&#x1F4BE;';
@@ -527,7 +528,7 @@ class ConnectionView {
     }
 }
 
-class ModelView {
+class ModelSidebar {
 
     constructor(model, host) {
         this._host = host;
@@ -731,7 +732,7 @@ class GraphOperatorListView {
     }
 }
 
-class OperatorDocumentationView {
+class OperatorDocumentationSidebar {
 
     constructor(documentation) {
         this._elements = [];
@@ -848,7 +849,7 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
     }
 }
 
-class FindView {
+class FindSidebar {
 
     constructor(graphElement, graph) {
         this._graphElement = graphElement;
