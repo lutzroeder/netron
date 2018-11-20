@@ -370,6 +370,13 @@
     }
   },
   {
+    "name": "GRU",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
     "name": "LSTM",
     "schema": {
       "attributes": [

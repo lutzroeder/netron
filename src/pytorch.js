@@ -81,6 +81,7 @@ pytorch.ModelFactory = class {
             var functionTable = {};
 
             constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
+            constructorTable['torch.backends.cudnn.rnn.Unserializable'] = function () {};
             constructorTable['torch.nn.modules.activation.LeakyReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.ReLU6'] = function () {};
@@ -116,6 +117,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool1d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool2d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool3d'] = function() {};
+            constructorTable['torch.nn.modules.rnn.GRU'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
             constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
