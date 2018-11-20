@@ -63,7 +63,7 @@ openvinoDot.Node = class {
     }
 
     get outputs() {
-        const outputs = openvinoDot.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._name);
+        const outputs = openvinoDot.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._id);
         return outputs.map((output) => {
             return new openvinoDot.Argument(output.name, output.connections.map((connection) => {
                 return new openvinoDot.Connection(connection.id, null, null);
