@@ -10,6 +10,7 @@ import setuptools.command.build_py
 node_dependencies = [ 
     ( 'netron', [
         'node_modules/d3/dist/d3.min.js',
+        'node_modules/lodash/lodash.min.js',
         'node_modules/dagre/dist/dagre.min.js',
         'node_modules/handlebars/dist/handlebars.min.js',
         'node_modules/marked/marked.min.js',
@@ -61,12 +62,25 @@ def package_version():
         package_manifest = json.load(package_file)
         return package_manifest['version']
 
+supported_frameworks = [
+    '**ONNX** (`.onnx`, `.pb`)',
+    '**Keras** (`.h5`, `.keras`)',
+    '**CoreML** (`.mlmodel`)',
+    '**TensorFlow Lite** (`.tflite`)'
+]
+experimental_frameworks = [
+    '**Caffe** (`.caffemodel`)',
+    '**Caffe2** (`predict_net.pb`)',
+    '**MXNet** (`-symbol.json`)',
+    '**TensorFlow.js** (`model.json`, `.pb`)',
+    '**TensorFlow** (`.pb`, `.meta`)'
+]
 setuptools.setup(
     name="netron",
     version=package_version(),
     description="Viewer for neural network, deep learning and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning and machine learning models.\n\n' +
-                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`), **Caffe2** (`predict_net.pb`), **MXNet** (`-symbol.json`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`).',
+                     'Netron supports {}. Netron has experimental support for {}'.format(','.join(supported_frameworks), ','.join(experimental_frameworks)),
     keywords=[
         'onnx', 'keras', 'tensorflow', 'coreml', 'mxnet', 'caffe', 'caffe2',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',
@@ -96,6 +110,22 @@ setuptools.setup(
             'cntk-model.js', 'cntk.js', 'cntk-metadata.json',
             'pytorch-model.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn-model.js', 'sklearn-metadata.json',
+
+            # OpenVINO IR
+            'openvino-ir/openvino-ir-model.js',
+            'openvino-ir/openvino-ir-graph.js',
+            'openvino-ir/openvino-ir-node.js',
+            'openvino-ir/openvino-ir-metadata.js',
+            'openvino-ir/openvino-ir-metadata.json',
+            'openvino-ir/openvino-ir.js',
+            
+            # OpenVINO Xdot
+            'openvino-ir-xdot/openvino-ir-xdot-model.js',
+            'openvino-ir-xdot/openvino-ir-xdot-graph.js',
+            'openvino-ir-xdot/openvino-ir-xdot-node.js',
+            'openvino-ir-xdot/openvino-ir-xdot-metadata.js',
+            'openvino-ir-xdot/openvino-ir-xdot.js',
+
             'numpy.js', 'zip.js', 'tar.js',
             'view-browser.html', 'view-browser.js',
             'view-render.css', 'view-render.js',

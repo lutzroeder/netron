@@ -21,7 +21,7 @@
         <img id='spinner' class='spinner logo absolute' src='spinner.svg' style='display: none;' />
     </a>
     <button id='open-file-button' class='center' style='top: 200px; width: 125px; opacity: 0;'>Open Model...</button>
-    <input type='file' id='open-file-dialog' style='display:none' multiple='false' accept='.onnx, .pb, .meta, .tflite, .keras, .h5, .hdf5, .json, .model, .mlmodel, .caffemodel, .pt, .pth, .pkl, .joblib, .pbtxt, .prototxt'>
+    <input type='file' id='open-file-dialog' style='display:none' multiple='false' accept='.onnx, .pb, .meta, .tflite, .keras, .h5, .hdf5, .json, .model, .mlmodel, .caffemodel, .pt, .pth, .pkl, .joblib, .pbtxt, .prototxt, .xml, .bin, .dot'>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style='font-weight: normal; color: #e6e6e6; user-select: none;'>.</div>
     <div style='font-weight: 600; color: #e6e6e6; user-select: none;'>.</div>
@@ -72,6 +72,7 @@
 </div>
 <script type='text/javascript' src='https://www.google-analytics.com/analytics.js' async></script>
 <script type='text/javascript' src='d3.min.js'></script>
+<script type='text/javascript' src='lodash.min.js'></script>
 <script type='text/javascript' src='dagre.min.js'></script>
 <script type='text/javascript' src='protobuf.min.js'></script>
 <script type='text/javascript' src='flatbuffers.js'></script>
@@ -91,6 +92,19 @@
 <script type='text/javascript' src='mxnet-model.js'></script>
 <script type='text/javascript' src='cntk-model.js'></script>
 <script type='text/javascript' src='sklearn-model.js'></script>
+
+<!--Open VINO IR files-->
+<script type='text/javascript' src='openvino-ir/openvino-ir-model.js'></script>
+<script type='text/javascript' src='openvino-ir/openvino-ir-graph.js'></script>
+<script type='text/javascript' src='openvino-ir/openvino-ir-node.js'></script>
+<script type='text/javascript' src='openvino-ir/openvino-ir-metadata.js'></script>
+
+<!-- OpenVINO XDot files -->
+<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-model.js'></script>
+<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-graph.js'></script>
+<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-node.js'></script>
+<script type='text/javascript' src='openvino-ir-xdot/openvino-ir-xdot-metadata.js'></script>
+
 <script type='text/javascript' src='view-browser.js'></script>
 <script type='text/javascript' src='view-render.js'></script>
 <script type='text/javascript' src='view-sidebar.js'></script>

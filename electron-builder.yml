@@ -50,6 +50,12 @@ fileAssociations:
     ext: prototxt
   - name: "Caffe Model"
     ext: prototxt
+  - name: "OpenVINO IR Model"
+    ext: xml
+  - name: "OpenVINO IR Model Binary Addon"
+    ext: bin
+  - name: "OpenVINO Xdot Model"
+    ext: xdot
 publish:
   - provider: github
     releaseType: release

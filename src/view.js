@@ -212,7 +212,9 @@ class View {
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),
             new SklearnModelFactory(),
-            new CntkModelFactory()
+            new CntkModelFactory(),
+            new OpenVINOIRModelFactory(),
+            new OpenVINOIRXdotModelFactory()
         ];
 
         try {
