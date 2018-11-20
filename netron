@@ -1,9 +1,0 @@
-#!/bin/bash
-# Build and start Netron as a Python web server from local directory
-source=$(dirname ${0})
-pushd ${source} > /dev/null
-[ -d node_modules ] || npm install
-rm -rf ./build/python
-python3 ./setup.py --quiet build
-popd > /dev/null
-PYTHONPATH=${source}/build/python/lib python3 -c "import netron; netron.main()" $@
