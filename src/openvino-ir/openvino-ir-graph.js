@@ -15,9 +15,9 @@ openvinoIR.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        _.each(netDef.layers, (layer) => {
+        netDef.layers.forEach((layer) => {
             const node = new openvinoIR.Node(layer, this._version, netDef.edges, netDef.layers);
-            this._operators[node.operator] = _.get(this._operators, node.operator, 0) + 1;
+            this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
             this._nodes.push(node);
         });
     }

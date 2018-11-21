@@ -11,7 +11,6 @@ import distutils.command.build
 node_dependencies = [ 
     ( 'netron', [
         'node_modules/d3/dist/d3.min.js',
-        'node_modules/lodash/lodash.min.js',
         'node_modules/dagre/dist/dagre.min.js',
         'node_modules/handlebars/dist/handlebars.min.js',
         'node_modules/marked/marked.min.js',

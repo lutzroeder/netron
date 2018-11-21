@@ -27,8 +27,8 @@ openvinoIR.Node = class {
         this._attributes.push(new openvinoIR.Attribute(this, 'precision', layer.precision));
 
         if (layer.data) {
-            this._attributes = _.map(layer.data, (value, key) => {
-                return new openvinoIR.Attribute(this, key, value);
+            this._attributes = Object.keys(layer.data).map((key) => {
+                return new openvinoIR.Attribute(this, key, layer.data[key]);
             });
         }
 
@@ -112,15 +112,15 @@ openvinoIR.Node = class {
             return;
         }
 
-        this._inputs = _.map(inputs, (input) => {
-            const candidate_edge = _.find(edges, (edge) => {
+        this._inputs = inputs.map((input) => {
+            const candidate_edge = edges.find((edge) => {
                 return edge['to-layer'] === this._id && edge['to-port'] === input.id;
             });
             if (!candidate_edge){
                 return;
             }
             const parentID = candidate_edge['from-layer'];
-            const parent = _.find(layers, (layer) => layer.id === parentID);
+            const parent = layers.find((layer) => layer.id === parentID);
             if (!parent) {
                 return;
             }
@@ -134,15 +134,15 @@ openvinoIR.Node = class {
             return;
         }
 
-        this._outputs = _.map(outputs, (output) => {
-            const candidate_edge = _.find(edges, (edge) => {
+        this._outputs = outputs.map((output) => {
+            const candidate_edge = edges.find((edge) => {
                 return edge['from-layer'] === this._id && edge['from-port'] === output.id;
             });
             if (!candidate_edge){
                 return;
             }
             const childID = candidate_edge['to-layer'];
-            const child = _.find(layers, (layer) => layer.id === childID);
+            const child = layers.find((layer) => layer.id === childID);
             if (!child) {
                 return;
             }
