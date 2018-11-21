@@ -82,19 +82,6 @@ def package_version():
         package_manifest = json.load(package_file)
         return package_manifest['version']
 
-supported_frameworks = [
-    '**ONNX** (`.onnx`, `.pb`)',
-    '**Keras** (`.h5`, `.keras`)',
-    '**CoreML** (`.mlmodel`)',
-    '**TensorFlow Lite** (`.tflite`)'
-]
-experimental_frameworks = [
-    '**Caffe** (`.caffemodel`)',
-    '**Caffe2** (`predict_net.pb`)',
-    '**MXNet** (`-symbol.json`)',
-    '**TensorFlow.js** (`model.json`, `.pb`)',
-    '**TensorFlow** (`.pb`, `.meta`)'
-]
 setuptools.setup(
     name="netron",
     version=package_version(),
