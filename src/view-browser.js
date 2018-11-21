@@ -117,19 +117,21 @@ host.BrowserHost = class {
     }
 
     require(id, callback) {
-        window.module = { exports: {} };
-        var script = document.scripts.namedItem(id);
-        if (script) {
-            callback(null);
+        var url = this._url(id + '.js');
+        window.__modules__ = window.__modules__ || {};
+        if (window.__modules__[url]) {
+            callback(null, window.__exports__[url]);
             return;
         }
-        script = document.createElement('script');
+        window.module = { exports: {} };
+        var script = document.createElement('script');
         script.setAttribute('id', id);
         script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', this._url(id + '.js'));
+        script.setAttribute('src', url);
         script.onload = () => {
             var exports = window.module.exports;
             delete window.module;
+            window.__modules__[id] = exports;
             callback(null, exports);
         };
         script.onerror = (e) => {
