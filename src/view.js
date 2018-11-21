@@ -18,8 +18,8 @@ var pytorch = pytorch || require('./pytorch');
 var sklearn = sklearn || require('./sklearn');
 var tf = tf || require('./tf');
 var tflite = tflite || require('./tflite');
-var openvinoIR = openvinoIR || require('./openvino-ir/openvino-ir');
-var openvinoDot = openvinoDot || require('./openvino-dot/openvino-dot');
+var openvinoIR = openvinoIR || require('./openvino-ir');
+var openvinoDot = openvinoDot || require('./openvino-dot');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');

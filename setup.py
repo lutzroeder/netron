@@ -131,23 +131,9 @@ setuptools.setup(
             'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn.js', 'sklearn-metadata.json',
             'tf.js', 'tf-metadata.json', 'tf-proto.js', 
-            'tflite.js', 'tflite-metadata.json', 'tflite-schema.js', 
-
-            # OpenVINO IR
-            'openvino-ir/openvino-ir.js',
-            'openvino-ir/openvino-ir-graph.js',
-            'openvino-ir/openvino-ir-node.js',
-            'openvino-ir/openvino-ir-metadata.js',
-            'openvino-ir/openvino-ir-metadata.json',
-            'openvino-ir/openvino-ir-parser.js',
-            
-            # OpenVINO Xdot
-            'openvino-dot/openvino-dot.js',
-            'openvino-dot/openvino-dot-graph.js',
-            'openvino-dot/openvino-dot-node.js',
-            'openvino-dot/openvino-dot-metadata.js',
-            'openvino-dot/openvino-dot-parser.js',
-
+            'tflite.js', 'tflite-metadata.json', 'tflite-schema.js',
+            'openvino-ir.js', 'openvino-ir-proto.js',
+            'openvino-dot.js', 'openvino-dot-proto.js',
             'view-browser.html', 'view-browser.js',
             'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',
