@@ -6,7 +6,6 @@ var base = base || require('./base');
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
-window._ = window._ || require('lodash');
 
 var caffe = caffe || require('./caffe');
 var caffe2 = caffe2 || require('./caffe2');

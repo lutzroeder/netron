@@ -15,9 +15,9 @@ openvinoDot.Node = class {
 
         const ownAttributes = ['name', 'shape', 'style', 'fillcolor', 'type'];
 
-        _.each(layer.attr_list, ({name, value}) => {
+        layer.attr_list.forEach(({name, value}) => {
             name = name.toLowerCase().replace(/\s/g, '_');
-            if (_.includes(ownAttributes, name)) {
+            if (ownAttributes.includes(name)) {
                 this[`_${name}`] = value;
             }
 
@@ -85,15 +85,15 @@ openvinoDot.Node = class {
             return;
         }
 
-        this._inputs = _.map(inputs, (input) => {
-            const candidate_edge = _.find(edges, (edge) => {
+        this._inputs = inputs.map((input) => {
+            const candidate_edge = edges.find((edge) => {
                 return edge['to-layer'] === this._id && edge['to-port'] === input.id;
             });
             if (!candidate_edge) {
                 return;
             }
             const parentID = candidate_edge['from-layer'];
-            const parent = _.find(layers, (layer) => layer.id === parentID);
+            const parent = layers.find((layer) => layer.id === parentID);
             if (!parent) {
                 return;
             }
@@ -107,15 +107,15 @@ openvinoDot.Node = class {
             return;
         }
 
-        this._outputs = _.map(outputs, (output) => {
-            const candidate_edge = _.find(edges, (edge) => {
+        this._outputs = outputs.map((output) => {
+            const candidate_edge = edges.find((edge) => {
                 return edge['from-layer'] === this._id && edge['from-port'] === output.id;
             });
             if (!candidate_edge) {
                 return;
             }
             const childID = candidate_edge['to-layer'];
-            const child = _.find(layers, (layer) => layer.id === childID);
+            const child = layers.find((layer) => layer.id === childID);
             if (!child) {
                 return;
             }

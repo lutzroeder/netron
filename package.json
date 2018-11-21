@@ -21,7 +21,6 @@
         "electron-updater": "^4.0.0",
         "flatbuffers": "latest",
         "handlebars": "latest",
-        "lodash": "^4.17.11",
         "marked": "latest",
         "npm-font-open-sans": "latest",
         "pako": "latest",

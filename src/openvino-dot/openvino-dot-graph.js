@@ -14,23 +14,23 @@ openvinoDot.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        const layers = _.filter(netDef.children, (child) => child.type === "node_stmt");
-        const edges = _.filter(netDef.children, (child) => child.type === "edge_stmt");
+        const layers = netDef.children.filter((child) => child.type === "node_stmt");
+        const edges = netDef.children.filter((child) => child.type === "edge_stmt");
 
-        _.each(layers, (layer) => {
+        layers.forEach((layer) => {
             const node = new openvinoDot.Node(layer, this._version, edges, layers);
-            this._operators[node.operator] = _.get(this._operators, node.operator, 0) + 1;
+            this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
             this._nodes.push(node);
         });
 
-        _.each(edges, (edge) => {
+        edges.forEach((edge) => {
             const from = edge.edge_list[0];
             const to = edge.edge_list[1];
-            const child = _.find(this._nodes, (node) => node._id === to.id);
+            const child = this._nodes.find((node) => node._id === to.id);
             if (child) {
                 child.updateInputs(from.id);
             }
-            const parent = _.find(this._nodes, (node) => node._id === from.id);
+            const parent = this._nodes.find((node) => node._id === from.id);
             if (parent) {
                 parent.updateOutputs(to.id);
             }
