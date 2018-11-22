@@ -302,6 +302,21 @@ pytorch.ModelFactory = class {
 
     _isLegacyFormat(buffer) {
         try {
+            if (buffer.length < 512) {
+                return false;
+            }
+            var sum = 0;
+            for (var i = 0; i < 512; i++) {
+                sum += (i >= 148 && i < 156) ? 32 : buffer[i];
+            }
+            var checksum = '';
+            for (var j = 148; j < 156 && buffer[j] != 0; j++) {
+                checksum += String.fromCharCode(buffer[j]);
+            }
+            checksum = parseInt(checksum, 8);
+            if (isNaN(checksum) || sum != checksum) {
+                return false;
+            }
             var archive = new tar.Archive(buffer);
             if (archive.entries.some((entry) => entry.name == 'pickle') &&
                 archive.entries.some((entry) => entry.name == 'storages') &&
