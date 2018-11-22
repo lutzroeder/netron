@@ -17,10 +17,16 @@ const tar = require('../src/tar');
 global.TextDecoder = require('util').TextDecoder;
 global.protobuf = protobuf;
 
+var type = process.argv.length > 2 ? process.argv[2] : null;
+
 var models = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
-var folder = __dirname + '/data';
+var dataFolder = __dirname + '/data';
 
 class TestHost {
+
+    constructor() {
+        this._exceptions = [];
+    }
 
     require(id, callback) {
         try {
@@ -52,7 +58,11 @@ class TestHost {
     }
 
     exception(err, fatal) {
-        console.log('HOST: ' + err.toString());
+        this._exceptions.push(err);
+    }
+
+    get exceptions() {
+        return this._exceptions;
     }
 }
 
@@ -182,6 +192,10 @@ function loadModel(target, item, callback) {
         }
         catch (error) {
             callback(error, null);
+            return;
+        }
+        if (host.exceptions.length > 0) {
+            callback(host.exceptions[0], null);
             return;
         }
         callback(null, model);
@@ -368,27 +382,26 @@ function next() {
         return;
     }
     var item = models.shift();
-    if (item.status && item.status == 'fail') {
+    if (type && item.type != type) {
         next();
         return;
     }
-    // if (item.target != 'coreml/GestureAI.mlmodel') { next(); return; }
-    // if (!item.target.startsWith('onnx/')) { next(); return; }
     var targets = item.target.split(',');
     if (process.stdout.clearLine) {
         process.stdout.clearLine();
     }
-    process.stdout.write(targets[0] + '\n');
+    var folder = dataFolder + '/' + item.type;
+    process.stdout.write(item.type + '/' + targets[0] + '\n');
     var sources = item.source;
     download(folder, targets, sources, [], (err, completed) => {
         if (err) {
-            if (item.status == 'script' && item.script) {
+            if (item.script) {
                 try {
                     var root = path.dirname(__dirname);
                     var command = item.script[0].replace('${root}', root);
-                    var arguments = item.script[1].replace('${root}', root);
-                    console.log('  ' + command + ' ' + arguments);
-                    child_process.execSync(command + ' ' + arguments, { stdio: [ 0, 1 , 2] });
+                    var args = item.script[1].replace('${root}', root);
+                    console.log('  ' + command + ' ' + args);
+                    child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
                     completed = targets;
                 }
                 catch (err) {

@@ -1069,14 +1069,13 @@ view.ModelFactoryService = class {
                     if (model || factoryList.length == 0) {
                         if (!model && factoryCount > 1 && errorList.length > 1) {
                             callback(new ModelError(errorList.map((err) => err.message).join('\n')), null);
+                            return;
                         }
-                        else {
-                            callback(err, model);
-                        }
+                        callback(err, model);
+                        return;
                     }
-                    else {
-                        next();
-                    }
+                    next();
+                    return;
                 });
             }
             else {
