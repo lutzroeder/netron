@@ -857,6 +857,12 @@ view.View = class {
         if (type == 'shape[]') {
             return value.map((item) => item.toString()).join(', ');
         }
+        if (type == 'graph') {
+            return value.toString();
+        }
+        if (type == 'graph[]') {
+            return value.map((item) => item.toString()).join(', ');
+        }
         if (Array.isArray(value)) {
             return value.map((item) => {
                 if (item && item.__isLong__) {

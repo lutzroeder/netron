@@ -328,6 +328,10 @@ onnx.Graph = class {
         return this._metadata;
     }
 
+    toString() {
+        return 'graph(' + this.name + ')';
+    }
+
     _connection(connections, id, type, doc_string, initializer) {
         var connection = connections[id];
         if (!connection) {
@@ -518,6 +522,9 @@ onnx.Attribute = class {
 
     constructor(metadata, operator, attribute) {
         this._name = attribute.name;
+        this._type = null;
+        this._value = null;
+
         if (attribute.doc_string) {
             this._description = this._attribute.doc_string;
         }
@@ -525,7 +532,6 @@ onnx.Attribute = class {
             this._tensor = true;
         }
 
-        this._value = null;
         if (attribute.ints && attribute.ints.length > 0) {
             if (attribute.ints.length > 65536) {
                 this._value = () => '...';
@@ -557,6 +563,10 @@ onnx.Attribute = class {
                 });
             }
         }
+        else if (attribute.graphs && attribute.graphs.length > 0) {
+            this._value = arg.graphs.map((graph) => new onnx.Graph(metadata, graph));
+            this._type = 'graph[]';
+        }
         else if (attribute.s && attribute.s.length > 0) {
             if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
                 this._value = String.fromCharCode.apply(null, attribute.s);
@@ -574,33 +584,36 @@ onnx.Attribute = class {
         else if (attribute.hasOwnProperty('t')) {
             this._value = new onnx.Tensor(attribute.t).value;
         }
+        else if (attribute.hasOwnProperty('g')) {
+            this._type = 'graph';
+            this._value = new onnx.Graph(metadata, attribute.g);
+        }
 
         var attributeSchema = metadata.getAttributeSchema(operator, attribute.name);
 
-        if (attribute.hasOwnProperty('type')) {
-            if (!onnx.Attribute._attributeTypeMap) {
-                var map = {};
-                map[onnx.proto.AttributeProto.AttributeType.UNDEFINED] = 'undefined';
-                map[onnx.proto.AttributeProto.AttributeType.FLOAT] = 'float';
-                map[onnx.proto.AttributeProto.AttributeType.INT] = 'int';
-                map[onnx.proto.AttributeProto.AttributeType.STRING] = 'string';
-                map[onnx.proto.AttributeProto.AttributeType.TENSOR] = 'tensor';
-                map[onnx.proto.AttributeProto.AttributeType.GRAPH] = 'graph';
-                map[onnx.proto.AttributeProto.AttributeType.FLOATS] = 'float';
-                map[onnx.proto.AttributeProto.AttributeType.INTS] = 'int[]';
-                map[onnx.proto.AttributeProto.AttributeType.STRINGS] = 'string[]';
-                map[onnx.proto.AttributeProto.AttributeType.TENSORS] = 'tensor[]';
-                map[onnx.proto.AttributeProto.AttributeType.GRAPHS] = 'graph[]';
-                onnx.Attribute._attributeTypeMap = map;
+        if (!this._type) {
+            if (attribute.hasOwnProperty('type')) {
+                if (!onnx.Attribute._attributeTypeMap) {
+                    var map = {};
+                    map[onnx.proto.AttributeProto.AttributeType.UNDEFINED] = 'undefined';
+                    map[onnx.proto.AttributeProto.AttributeType.FLOAT] = 'float';
+                    map[onnx.proto.AttributeProto.AttributeType.INT] = 'int';
+                    map[onnx.proto.AttributeProto.AttributeType.STRING] = 'string';
+                    map[onnx.proto.AttributeProto.AttributeType.TENSOR] = 'tensor';
+                    map[onnx.proto.AttributeProto.AttributeType.GRAPH] = 'graph';
+                    map[onnx.proto.AttributeProto.AttributeType.FLOATS] = 'float';
+                    map[onnx.proto.AttributeProto.AttributeType.INTS] = 'int[]';
+                    map[onnx.proto.AttributeProto.AttributeType.STRINGS] = 'string[]';
+                    map[onnx.proto.AttributeProto.AttributeType.TENSORS] = 'tensor[]';
+                    map[onnx.proto.AttributeProto.AttributeType.GRAPHS] = 'graph[]';
+                    onnx.Attribute._attributeTypeMap = map;
+                }
+                var attributeType = onnx.Attribute._attributeTypeMap[attribute.type];
+                this._type = attributeType || onnx.Attribute._attributeTypeMap[onnx.proto.AttributeProto.AttributeType.UNDEFINED];
             }
-            var attributeType = onnx.Attribute._attributeTypeMap[attribute.type];
-            this._type = attributeType || onnx.Attribute._attributeTypeMap[onnx.proto.AttributeProto.AttributeType.UNDEFINED];
-        }
-        else if (attributeSchema && attributeSchema.type) {
-            this._type = attributeSchema.type;
-        }
-        else {
-            this._type = null;
+            else if (attributeSchema && attributeSchema.type) {
+                this._type = attributeSchema.type;
+            }
         }
 
         if (attributeSchema && attributeSchema.hasOwnProperty('default') && attributeSchema.default) {

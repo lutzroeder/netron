@@ -197,6 +197,10 @@ caffe2.Graph = class {
     get operators() {
         return this._operators;
     }
+
+    toString() {
+        return 'graph(' + this.name + ')';
+    }
 };
 
 caffe2.Argument = class {
@@ -327,10 +331,12 @@ caffe2.Attribute = class {
             this._value = arg.ints;
         }
         else if (arg.nets && arg.nets.length > 0) {
-            this._value = () => '{ NefDef[] }';
+            this._value = arg.nets.map((net) => new caffe2.Graph(net, null));
+            this._type = 'graph[]';
         }
         else if (arg.n) {
-            this._value = () => '{ NefDef }';
+            this._value = new caffe2.Graph(arg.n, null);
+            this._type = 'graph';
         }
         else if (arg.i != 0) {
             this._value = arg.i;
