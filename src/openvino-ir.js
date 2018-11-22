@@ -4,32 +4,33 @@ var openvinoIR = openvinoIR || {};
 
 openvinoIR.ModelFactory = class {
     match(context) {
-        return context.identifier.endsWith('.xml');
+        return context.identifier.endsWith('.xml') || context.identifier.endsWith('.dot');
     }
 
     open(context, host, callback) {
-        host.require('./openvino-ir-proto', (err) => {
+        host.require('./openvino-ir-parser', (err) => {
+            var isXML = context.identifier.endsWith('.xml');
             if (err) {
                 callback(err, null);
                 return;
             }
 
             try {
-                var xml_content = new TextDecoder("utf-8").decode(context.buffer);
+                var file_content = new TextDecoder("utf-8").decode(context.buffer);
             } catch (error) {
                 callback(new openvinoIR.Error('File format is not OpenVINO IR compliant.'), null);
                 return;
             }
 
             try {
-                var parsed_xml = OpenVINOIRParser.parse(xml_content);
+                var parsed = isXML ? OpenVINOIRParser.parse(file_content) : OpenVINODotParser.parse(file_content);
             } catch (error) {
                 callback(new openvinoIR.Error('Unable to parse OpenVINO IR file.'), null);
                 return;
             }
 
             try {
-                var model = new openvinoIR.Model(parsed_xml);
+                var model = isXML ? new openvinoIR.Model(parsed) : new openvinoIR.DotModel(parsed);
             } catch (error) {
                 host.exception(error, false);
                 callback(new openvinoIR.Error(error.message), null);
@@ -45,7 +46,7 @@ openvinoIR.ModelFactory = class {
 
 openvinoIR.Model = class {
     constructor(netDef, init) {
-        var graph = new openvinoIR.Graph(netDef, init);
+        var graph = new openvinoIR.XMLGraph(netDef, init);
         this._graphs = [graph];
     }
 
@@ -65,7 +66,7 @@ openvinoIR.Error = class extends Error {
     }
 }
 
-openvinoIR.Graph = class {
+openvinoIR.XMLGraph = class {
     constructor(netDef, init) {
         this._name = netDef.net.name || '';
         this._batch = +netDef.net.batch || '';
@@ -77,7 +78,7 @@ openvinoIR.Graph = class {
         this._outputs = [];
 
         netDef.layers.forEach((layer) => {
-            const node = new openvinoIR.Node(layer, this._version, netDef.edges, netDef.layers);
+            const node = new openvinoIR.XMLNode(layer, this._version, netDef.edges, netDef.layers);
             this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
             this._nodes.push(node);
         });
@@ -104,8 +105,109 @@ openvinoIR.Graph = class {
     }
 }
 
-openvinoIR.Node = class {
+openvinoIR.AbstractNode = class {
+    get id() {
+        return this._id;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get device() {
+        return this._device || '';
+    }
+
+    get operator() {
+        return this._type;
+    }
+
+    get category() {
+        return openvinoIR.OperatorMetadata.operatorMetadata.getOperatorCategory(this._type);
+    }
+
+    get documentation() {
+        return openvinoIR.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._type);
+    }
+
+    get attributes() {
+        return this._attributes;
+    }
+
+    _concatBinaryAttributes(data) {
+        return `offset: ${data.offset}, size: ${data.size}`;
+    }
+
+    setInputs(inputs, edges, layers) {
+        if (!inputs) {
+            this._inputs = [];
+            return;
+        }
+
+        this._inputs = inputs.map((input) => {
+            const candidate_edge = edges.find((edge) => {
+                return edge['to-layer'] === this._id && edge['to-port'] === input.id;
+            });
+            if (!candidate_edge) {
+                return;
+            }
+            const parentID = candidate_edge['from-layer'];
+            const parent = layers.find((layer) => layer.id === parentID);
+            if (!parent) {
+                return;
+            }
+            return parent.id;
+        })
+    }
+
+    setOutputs(outputs, edges, layers) {
+        if (!outputs) {
+            this._outputs = [];
+            return;
+        }
+
+        this._outputs = outputs.map((output) => {
+            const candidate_edge = edges.find((edge) => {
+                return edge['from-layer'] === this._id && edge['from-port'] === output.id;
+            });
+            if (!candidate_edge) {
+                return;
+            }
+            const childID = candidate_edge['to-layer'];
+            const child = layers.find((layer) => layer.id === childID);
+            if (!child) {
+                return;
+            }
+            return child.id;
+        })
+    }
+
+    get inputs() {
+        const list = this._inputs.concat(this._initializers);
+        const inputs = openvinoIR.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
+        return inputs.map((input) => {
+            return new openvinoIR.Argument(input.name, input.connections.map((connection) => {
+                if (connection.id instanceof openvinoIR.Tensor) {
+                    return new openvinoIR.Connection('', null, connection.id);
+                }
+                return new openvinoIR.Connection(connection.id, null, null);
+            }));
+        });
+    }
+
+    get outputs() {
+        const outputs = openvinoIR.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._id);
+        return outputs.map((output) => {
+            return new openvinoIR.Argument(output.name, output.connections.map((connection) => {
+                return new openvinoIR.Connection(connection.id, null, null);
+            }));
+        });
+    }
+}
+
+openvinoIR.XMLNode = class extends openvinoIR.AbstractNode {
     constructor(layer, version, edges, layers) {
+        super();
         switch (version) {
             case 2:
             default:
@@ -155,99 +257,6 @@ openvinoIR.Node = class {
             // }));
         }
 
-    }
-    get name() {
-        return this._name;
-    }
-
-    get device() {
-        return this._device || '';
-    }
-
-    get operator() {
-        return this._type;
-    }
-
-    get category() {
-        return openvinoIR.OperatorMetadata.operatorMetadata.getOperatorCategory(this._type);
-    }
-
-    get documentation() {
-        return openvinoIR.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._type);
-    }
-
-    get inputs() {
-        const list = this._inputs.concat(this._initializers);
-        const inputs = openvinoIR.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
-        return inputs.map((input) => {
-            return new openvinoIR.Argument(input.name, input.connections.map((connection) => {
-                if (connection.id instanceof openvinoIR.Tensor) {
-                    return new openvinoIR.Connection('', null, connection.id);
-                }
-                return new openvinoIR.Connection(connection.id, null, null);
-            }));
-        });
-    }
-
-    get outputs() {
-        const outputs = openvinoIR.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._name);
-        return outputs.map((output) => {
-            return new openvinoIR.Argument(output.name, output.connections.map((connection) => {
-                return new openvinoIR.Connection(connection.id, null, null);
-            }));
-        });
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    _concatBinaryAttributes(data) {
-        return `offset: ${data.offset}, size: ${data.size}`;
-    }
-
-    setInputs(inputs, edges, layers) {
-        if (!inputs){
-            this._inputs = [];
-            return;
-        }
-
-        this._inputs = inputs.map((input) => {
-            const candidate_edge = edges.find((edge) => {
-                return edge['to-layer'] === this._id && edge['to-port'] === input.id;
-            });
-            if (!candidate_edge){
-                return;
-            }
-            const parentID = candidate_edge['from-layer'];
-            const parent = layers.find((layer) => layer.id === parentID);
-            if (!parent) {
-                return;
-            }
-            return parent.name;
-        })
-    }
-
-    setOutputs(outputs, edges, layers) {
-        if (!outputs){
-            this._outputs = [];
-            return;
-        }
-
-        this._outputs = outputs.map((output) => {
-            const candidate_edge = edges.find((edge) => {
-                return edge['from-layer'] === this._id && edge['from-port'] === output.id;
-            });
-            if (!candidate_edge){
-                return;
-            }
-            const childID = candidate_edge['to-layer'];
-            const child = layers.find((layer) => layer.id === childID);
-            if (!child) {
-                return;
-            }
-            return child.name;
-        })
     }
 }
 
@@ -535,6 +544,110 @@ openvinoIR.OperatorMetadata = class {
             }
         }
         return true;
+    }
+}
+
+openvinoIR.DotModel = class {
+    constructor(netDef, init) {
+        var graph = new openvinoIR.DotGraph(netDef, init);
+        this._graphs = [graph];
+    }
+
+    get format() {
+        return 'OpenVINO IR Dot';
+    }
+
+    get graphs() {
+        return this._graphs;
+    }
+}
+
+openvinoIR.DotGraph = class {
+    constructor(netDef, init) {
+        this._name = netDef.id || '';
+        this._version = Boolean(netDef.strict).toString();
+
+        this._nodes = [];
+        this._operators = {};
+        this._inputs = [];
+        this._outputs = [];
+
+        const layers = netDef.children.filter((child) => child.type === "node_stmt");
+        const edges = netDef.children.filter((child) => child.type === "edge_stmt");
+
+        layers.forEach((layer) => {
+            const node = new openvinoIR.DotNode(layer, this._version, edges, layers);
+            this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
+            this._nodes.push(node);
+        });
+
+        edges.forEach((edge) => {
+            const from = edge.edge_list[0];
+            const to = edge.edge_list[1];
+            const child = this._nodes.find((node) => node._id === to.id);
+            if (child) {
+                child.updateInputs(from.id);
+            }
+            const parent = this._nodes.find((node) => node._id === from.id);
+            if (parent) {
+                parent.updateOutputs(to.id);
+            }
+        });
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+
+    get operators() {
+        return this._operators;
+    }
+}
+
+openvinoIR.DotNode = class extends openvinoIR.AbstractNode {
+    constructor(layer, version, edges, layers) {
+        super();
+        this._inputs = [];
+        this._outputs = [];
+        this._id = layer.node_id.id;
+
+        this._initializers = [];
+        this._attributes = [];
+
+        const ownAttributes = ['name', 'shape', 'style', 'fillcolor', 'type'];
+
+        layer.attr_list.forEach(({name, value}) => {
+            name = name.toLowerCase().replace(/\s/g, '_');
+            if (ownAttributes.includes(name)) {
+                this[`_${name}`] = value;
+            }
+
+            this._attributes.push(new openvinoIR.Attribute(this, name, value));
+        });
+
+        if (!this._type){
+            this._type = 'data';
+        }
+    }
+
+    updateInputs(id) {
+        this._inputs.push(id);
+    }
+
+    updateOutputs(id) {
+        this._outputs.push(id);
     }
 }
 

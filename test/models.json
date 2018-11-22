@@ -2559,5 +2559,12 @@
     "source": "https://raw.githubusercontent.com/kosslab-kr/Tizen-NN-Runtime/master/Xor/xorGate.lite",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/kosslab-kr/Tizen-NN-Runtime"
+  },
+  {
+    "type":   "openvino",
+    "target": "age-gender-recognition-retail-0013.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
   }
 ]
