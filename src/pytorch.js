@@ -81,6 +81,7 @@ pytorch.ModelFactory = class {
             var functionTable = {};
 
             constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
+            constructorTable['torch.autograd.variable.Variable'] = function () {};
             constructorTable['torch.backends.cudnn.rnn.Unserializable'] = function () {};
             constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
             constructorTable['torch.nn.modules.activation.LeakyReLU'] = function () {};
@@ -90,6 +91,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.activation.Sigmoid'] = function () {};
             constructorTable['torch.nn.modules.activation.Softmax'] = function () {};
             constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
+            constructorTable['torch.nn.modules.activation.Threshold'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm1d'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm3d'] = function () {};
@@ -224,6 +226,7 @@ pytorch.ModelFactory = class {
                          !name.startsWith('model.') && !name.startsWith('models.') &&
                          !name.startsWith('modeling.') && !name.startsWith('src.model.') &&
                          !name.startsWith('resnet.') && !name.startsWith('seq2seq.') &&
+                         !name.startsWith('mtqt.') && !name.startsWith('pruning.') &&
                          !name.startsWith('Layers.') && !name.startsWith('Sublayers.') && !name.startsWith('parts.') &&
                          !name.startsWith('Embed.') && !name.startsWith('fpn.') && !name.startsWith('retinanet.') &&
                          !name.startsWith('darknet.') && !name.startsWith('self_attn.') && !name.startsWith('base.')) {

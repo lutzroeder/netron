@@ -157,6 +157,13 @@
     }
   },
   {
+    "name": "Threshold",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "ReLU",
     "schema": {
       "attributes": [
