@@ -10,8 +10,9 @@ cntk.ModelFactory = class {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop().toLowerCase();
+        var buffer = null;
         if (extension == 'model') {
-            var buffer = context.buffer;
+            buffer = context.buffer;
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
                 return false;
             }
@@ -24,6 +25,12 @@ cntk.ModelFactory = class {
                 }
             }
             return true;
+        }
+        if (extension == 'cntk') {
+            buffer = context.buffer;
+            if (buffer && buffer.length > 3 && buffer[0] == 0x08 && buffer[1] < 0x10 && buffer[2] == 0x12) {
+                return true;
+            }
         }
         return false;
     }

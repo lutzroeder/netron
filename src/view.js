@@ -1093,6 +1093,7 @@ view.ModelFactoryService = class {
                     case 'prototxt':
                     case 'pth':
                     case 'h5':
+                    case 'cntk':
                     case 'model':
                         callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
                         break;
