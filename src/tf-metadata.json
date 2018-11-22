@@ -15845,6 +15845,23 @@
     }
   },
   {
+    "name": "ExperimentalMatchingFilesDataset",
+    "schema": {
+      "inputs": [
+        {
+          "name": "patterns",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ExperimentalMaterializedIndexDatasetHandle",
     "schema": {
       "attributes": [
@@ -15873,6 +15890,41 @@
           "type": 20
         }
       ]
+    }
+  },
+  {
+    "name": "ExperimentalMaxIntraOpParallelismDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "Identifies the maximum intra-op parallelism to use.",
+          "name": "max_intra_op_parallelism",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that overrides the maximum intra-op parallelism."
     }
   },
   {
@@ -15964,6 +16016,41 @@
         }
       ],
       "summary": "Creates a dataset that fuses mapping with batching."
+    }
+  },
+  {
+    "name": "ExperimentalPrivateThreadPoolDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "Identifies the number of threads to use for the private threadpool.",
+          "name": "num_threads",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that uses a custom thread pool to compute `input_dataset`."
     }
   },
   {
@@ -23646,23 +23733,6 @@
         }
       ],
       "summary": "Returns the set of files matching one or more glob patterns."
-    }
-  },
-  {
-    "name": "MatchingFilesDataset",
-    "schema": {
-      "inputs": [
-        {
-          "name": "patterns",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ]
     }
   },
   {
