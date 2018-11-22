@@ -1259,4 +1259,44 @@ message SmoothL1LossParameter {
 }
 `);
 
+update(
+`  // Whether to force use of the general ND convolution, even if a specific
+  // implementation for blobs of the appropriate number of spatial dimensions
+  // is available. (Currently, there is only a 2D-specific convolution
+  // implementation; for input blobs with num_axes != 2, this option is
+  // ignored and the ND implementation will be used.)
+  optional bool force_nd_im2col = 17 [default = false];
+}
+
+message CropParameter {
+`,
+`  // Whether to force use of the general ND convolution, even if a specific
+  // implementation for blobs of the appropriate number of spatial dimensions
+  // is available. (Currently, there is only a 2D-specific convolution
+  // implementation; for input blobs with num_axes != 2, this option is
+  // ignored and the ND implementation will be used.)
+  optional bool force_nd_im2col = 17 [default = false];
+  optional uint32 hole = 117 [default = 1]; // The filter stride (equal in Y, X) // 17 in pathak22/caffe-ccnn
+  optional uint32 hole_h = 118 [default = 1]; // The filter stride height // 18 in pathak22/caffe-ccnn
+  optional uint32 hole_w = 119 [default = 1]; // The filter stride width // 19s in pathak22/caffe-ccnn
+}
+
+message CropParameter {
+`);
+
+update(
+`    SLICE = 33;
+    TANH = 23;
+    WINDOW_DATA = 24;
+    THRESHOLD = 31;
+  }
+`,
+`    SLICE = 33;
+    TANH = 23;
+    WINDOW_DATA = 24;
+    THRESHOLD = 31;
+    IMAGE_SEG_DATA = 139; // 39 in cdmh/deeplab-public
+  }
+`);
+
 fs.writeFileSync(file, data, 'utf-8');
