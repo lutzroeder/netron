@@ -296,6 +296,27 @@
     }
   },
   {
+    "name": "AdaptiveMaxPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveMaxPool2d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveMaxPool3d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
     "name": "BatchNorm1d",
     "schema": {
       "attributes": [],
