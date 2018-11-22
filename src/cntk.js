@@ -814,8 +814,8 @@ cntk.OperatorMetadata = class {
                         var name = item.name;
                         var schema = item.schema;
                         this._map[name] = schema;
-                        if (schema.operator) {
-                            this._operatorMap[schema.operator] = name;
+                        if (schema.hasOwnProperty('operator')) {
+                            this._operatorMap[schema.operator.toString()] = name;
                         }
                     }
                 });
@@ -825,7 +825,7 @@ cntk.OperatorMetadata = class {
 
     getOperatorName(code) {
         // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
-        return this._operatorMap[code] || null;
+        return this._operatorMap[code.toString()] || null;
     }
 
     getSchema(operator) {

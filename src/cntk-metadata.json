@@ -2,7 +2,13 @@
   {
     "name": "Negate",
     "schema": {
-      "operator": 0
+      "operator": 0,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
