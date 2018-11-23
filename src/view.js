@@ -1095,6 +1095,7 @@ view.ModelFactoryService = class {
                     case 'prototxt':
                     case 'pth':
                     case 'h5':
+                    case 'hdf5':
                     case 'cntk':
                     case 'xml':
                     case 'dot':
