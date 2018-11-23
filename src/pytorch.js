@@ -222,8 +222,7 @@ pytorch.ModelFactory = class {
                 if (constructor) {
                     constructor.apply(obj, args);
                 }
-                else if (name.startsWith('torch.') || name.startsWith('torchvision.') ||
-                         name.startsWith('argparse.') || name.startsWith('collections.')) {
+                else if (name.startsWith('torch.') || name.startsWith('torchvision.') || name.startsWith('argparse.') || name.startsWith('collections.') | name.startsWith('__builtin__.')) {
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;
@@ -815,11 +814,8 @@ pytorch.OperatorMetadata = class {
             var items = JSON.parse(data);
             if (items) {
                 items.forEach((item) => {
-                    if (item.name && item.schema)
-                    {
-                        var name = item.name;
-                        var schema = item.schema;
-                        this._map[name] = schema;
+                    if (item.name && item.schema) {
+                        this._map[item.name] = item.schema;
                     }
                 });
             }

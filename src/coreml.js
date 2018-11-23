@@ -896,11 +896,8 @@ coreml.OperatorMetadata = class {
             var items = JSON.parse(data);
             if (items) {
                 items.forEach((item) => {
-                    if (item.name && item.schema)
-                    {
-                        var name = item.name;
-                        var schema = item.schema;
-                        this._map[name] = schema;
+                    if (item.name && item.schema) {
+                        this._map[item.name] = item.schema;
                     }
                 });
             }

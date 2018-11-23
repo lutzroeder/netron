@@ -1238,8 +1238,7 @@ onnx.OperatorMetadata = class {
             var items = JSON.parse(data);
             if (items) {
                 items.forEach((item) => {
-                    if (item.name && item.schema)
-                    {
+                    if (item.name && item.schema) {
                         var name = item.name;
                         this._map[name] = this._map[name] || [];
                         this._map[name].push(item.schema);
