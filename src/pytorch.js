@@ -120,6 +120,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.padding.ConstantPad1d'] = function () {};
             constructorTable['torch.nn.modules.padding.ConstantPad2d'] = function () {};
             constructorTable['torch.nn.modules.padding.ConstantPad3d'] = function () {};
+            constructorTable['torch.nn.modules.pixelshuffle.PixelShuffle'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool1d'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool2d'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool3d'] = function () {};
@@ -138,6 +139,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
             constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
             constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) { this.data = data; this.requires_grad = requires_grad; };
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNorm'] = function () {};
             constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function () {};
             constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
             constructorTable['torchvision.models.densenet.DenseNet'] = function () {};
