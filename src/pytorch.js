@@ -222,15 +222,8 @@ pytorch.ModelFactory = class {
                 if (constructor) {
                     constructor.apply(obj, args);
                 }
-                else if (!name.startsWith('__main__.') && !name.startsWith('networks.') && !name.startsWith('nets.') && 
-                         !name.startsWith('model.') && !name.startsWith('models.') &&
-                         !name.startsWith('modeling.') && !name.startsWith('src.model.') &&
-                         !name.startsWith('resnet.') && !name.startsWith('seq2seq.') &&
-                         !name.startsWith('mtqt.') && !name.startsWith('pruning.') &&
-                         !name.startsWith('Layers.') && !name.startsWith('Sublayers.') && !name.startsWith('parts.') &&
-                         !name.startsWith('Embed.') && !name.startsWith('fpn.') && !name.startsWith('retinanet.') &&
-                         !name.startsWith('darknet.') && !name.startsWith('self_attn.') && !name.startsWith('base.')) {
-                    debugger;
+                else if (name.startsWith('torch.') || name.startsWith('torchvision.') ||
+                         name.startsWith('argparse.') || name.startsWith('collections.')) {
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;
