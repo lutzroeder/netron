@@ -641,6 +641,13 @@
   },
   {
     "type":   "caffe",
+    "target": "mobilenet_yolov3_lite_train.prototxt",
+    "source": "https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_lite_train.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/eric612/Caffe-YOLOv3-Windows"
+  },
+  {
+    "type":   "caffe",
     "target": "mobilenet.caffemodel",
     "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet.caffemodel",
     "format": "Caffe v2",
