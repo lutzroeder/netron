@@ -306,6 +306,13 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
+    "type":   "openvino",
+    "target": "age-gender-recognition-retail-0013.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
     "type":   "caffe",
     "target": "age_net.caffemodel",
     "source": "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/age_net.caffemodel",

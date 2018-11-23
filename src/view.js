@@ -14,6 +14,7 @@ var coreml = coreml || require('./coreml');
 var keras = keras || require('./keras');
 var mxnet = mxnet || require('./mxnet');
 var onnx = onnx || require('./onnx');
+var openvino = openvino || require('./openvino');
 var pytorch = pytorch || require('./pytorch');
 var sklearn = sklearn || require('./sklearn');
 var tf = tf || require('./tf');
@@ -973,7 +974,8 @@ view.ModelFactoryService = class {
             new tflite.ModelFactory(),
             new tf.ModelFactory(),
             new sklearn.ModelFactory(),
-            new cntk.ModelFactory()
+            new cntk.ModelFactory(),
+            new openvino.ModelFactory()
         ];
     }
 
@@ -1094,6 +1096,8 @@ view.ModelFactoryService = class {
                     case 'pth':
                     case 'h5':
                     case 'cntk':
+                    case 'xml':
+                    case 'dot':
                     case 'model':
                         callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
                         break;
