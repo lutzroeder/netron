@@ -612,8 +612,7 @@ tflite.OperatorMetadata = class {
             var items = JSON.parse(data);
             if (items) {
                 items.forEach((item) => {
-                    if (item.name && item.schema)
-                    {
+                    if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
                 });
@@ -623,6 +622,27 @@ tflite.OperatorMetadata = class {
 
     getSchema(operator) {
         return this._map[operator];
+    }
+
+    getAttributeSchema(operator, name) {
+        var schema = this.getSchema(operator);
+        if (schema) {
+            var attributeMap = schema.attributeMap;
+            if (!attributeMap) {
+                attributeMap = {};
+                if (schema.attributes) {
+                    schema.attributes.forEach((attribute) => {
+                        attributeMap[attribute.name] = attribute;
+                    });
+                }
+                schema.attributeMap = attributeMap;
+            }
+            var attributeSchema = attributeMap[name];
+            if (attributeSchema) {
+                return attributeSchema; 
+            }
+        }
+        return null;
     }
 
     getInputs(node, operator) {
@@ -677,27 +697,6 @@ tflite.OperatorMetadata = class {
             }
         }
         return '(' + index.toString() + ')';
-    }
-
-    getAttributeSchema(operator, name) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    schema.attributes.forEach((attribute) => {
-                        attributeMap[attribute.name] = attribute;
-                    });
-                }
-                schema.attributeMap = attributeMap;
-            }
-            var attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema; 
-            }
-        }
-        return null;
     }
 };
 

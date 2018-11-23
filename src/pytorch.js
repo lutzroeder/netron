@@ -81,7 +81,9 @@ pytorch.ModelFactory = class {
             var functionTable = {};
 
             constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
+            constructorTable['torch.autograd.variable.Variable'] = function () {};
             constructorTable['torch.backends.cudnn.rnn.Unserializable'] = function () {};
+            constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
             constructorTable['torch.nn.modules.activation.LeakyReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.ReLU6'] = function () {};
@@ -89,6 +91,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.activation.Sigmoid'] = function () {};
             constructorTable['torch.nn.modules.activation.Softmax'] = function () {};
             constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
+            constructorTable['torch.nn.modules.activation.Threshold'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm1d'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm3d'] = function () {};
@@ -108,6 +111,15 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad1d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad3d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ZeroPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ConstantPad1d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ConstantPad2d'] = function () {};
+            constructorTable['torch.nn.modules.padding.ConstantPad3d'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool1d'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool2d'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool3d'] = function () {};
@@ -117,13 +129,16 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool1d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool2d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool3d'] = function() {};
+            constructorTable['torch.nn.modules.pooling.AdaptiveMaxPool1d'] = function() {};
+            constructorTable['torch.nn.modules.pooling.AdaptiveMaxPool2d'] = function() {};
+            constructorTable['torch.nn.modules.pooling.AdaptiveMaxPool3d'] = function() {};
             constructorTable['torch.nn.modules.rnn.GRU'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
-            constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
-            constructorTable['torchvision.models.squeezenet.Fire'] = function () {};
-            constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function () {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
+            constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
+            constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) { this.data = data; this.requires_grad = requires_grad; };
+            constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function () {};
             constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
             constructorTable['torchvision.models.densenet.DenseNet'] = function () {};
             constructorTable['torchvision.models.densenet._DenseBlock'] = function () {};
@@ -137,21 +152,12 @@ pytorch.ModelFactory = class {
             constructorTable['torchvision.models.inception.InceptionC'] = function () {};
             constructorTable['torchvision.models.inception.InceptionD'] = function () {};
             constructorTable['torchvision.models.inception.InceptionE'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReplicationPad1d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReplicationPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReplicationPad3d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ZeroPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ConstantPad1d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ConstantPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ConstantPad3d'] = function () {};
+            constructorTable['torchvision.models.squeezenet.Fire'] = function () {};
+            constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function () {};
             constructorTable['torchvision.models.resnet.Bottleneck'] = function () {};
             constructorTable['torchvision.models.resnet.BasicBlock'] = function() {};
             constructorTable['torchvision.models.resnet.ResNet'] = function () {};
             constructorTable['torchvision.models.vgg.VGG'] = function () {};
-            constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
-            constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) { this.data = data; this.requires_grad = requires_grad; };
             constructorTable['torch.ByteStorage'] = function (size) { this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; };
             constructorTable['torch.LongStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'int64'; };
             constructorTable['torch.HalfStorage'] = function (size) { this.size = size; this.dataTypeSize = 2; this.dataType = 'float16'; };
@@ -216,13 +222,7 @@ pytorch.ModelFactory = class {
                 if (constructor) {
                     constructor.apply(obj, args);
                 }
-                else if (!name.startsWith('__main__.') && !name.startsWith('networks.') && !name.startsWith('nets.') && 
-                         !name.startsWith('model.') && !name.startsWith('models.') &&
-                         !name.startsWith('modeling.') && !name.startsWith('src.model.') && !name.startsWith('resnet.') &&
-                         !name.startsWith('Layers.') && !name.startsWith('Sublayers.') && !name.startsWith('parts.') &&
-                         !name.startsWith('Embed.') && !name.startsWith('fpn.') && !name.startsWith('retinanet.') &&
-                         !name.startsWith('darknet.') && !name.startsWith('self_attn.') && !name.startsWith('base.')) {
-                    debugger;
+                else if (name.startsWith('torch.') || name.startsWith('torchvision.') || name.startsWith('argparse.') || name.startsWith('collections.') | name.startsWith('__builtin__.')) {
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;
@@ -297,6 +297,21 @@ pytorch.ModelFactory = class {
 
     _isLegacyFormat(buffer) {
         try {
+            if (buffer.length < 512) {
+                return false;
+            }
+            var sum = 0;
+            for (var i = 0; i < 512; i++) {
+                sum += (i >= 148 && i < 156) ? 32 : buffer[i];
+            }
+            var checksum = '';
+            for (var j = 148; j < 156 && buffer[j] != 0; j++) {
+                checksum += String.fromCharCode(buffer[j]);
+            }
+            checksum = parseInt(checksum, 8);
+            if (isNaN(checksum) || sum != checksum) {
+                return false;
+            }
             var archive = new tar.Archive(buffer);
             if (archive.entries.some((entry) => entry.name == 'pickle') &&
                 archive.entries.some((entry) => entry.name == 'storages') &&
@@ -799,11 +814,8 @@ pytorch.OperatorMetadata = class {
             var items = JSON.parse(data);
             if (items) {
                 items.forEach((item) => {
-                    if (item.name && item.schema)
-                    {
-                        var name = item.name;
-                        var schema = item.schema;
-                        this._map[name] = schema;
+                    if (item.name && item.schema) {
+                        this._map[item.name] = item.schema;
                     }
                 });
             }

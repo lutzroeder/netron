@@ -15845,6 +15845,23 @@
     }
   },
   {
+    "name": "ExperimentalMatchingFilesDataset",
+    "schema": {
+      "inputs": [
+        {
+          "name": "patterns",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ExperimentalMaterializedIndexDatasetHandle",
     "schema": {
       "attributes": [
@@ -15873,6 +15890,41 @@
           "type": 20
         }
       ]
+    }
+  },
+  {
+    "name": "ExperimentalMaxIntraOpParallelismDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "Identifies the maximum intra-op parallelism to use.",
+          "name": "max_intra_op_parallelism",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that overrides the maximum intra-op parallelism."
     }
   },
   {
@@ -15964,6 +16016,41 @@
         }
       ],
       "summary": "Creates a dataset that fuses mapping with batching."
+    }
+  },
+  {
+    "name": "ExperimentalPrivateThreadPoolDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "Identifies the number of threads to use for the private threadpool.",
+          "name": "num_threads",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that uses a custom thread pool to compute `input_dataset`."
     }
   },
   {
@@ -16475,14 +16562,14 @@
       "description": "Computes the 1-dimensional discrete Fourier transform over the inner-most\ndimension of `input`.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
           "typeAttr": "Tcomplex"
         }
       ],
       "outputs": [
         {
-          "description": "A complex64 tensor of the same shape as `input`. The inner-most\n  dimension of `input` is replaced with its 1D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.fft\n@end_compatibility",
+          "description": "A complex tensor of the same shape as `input`. The inner-most\n  dimension of `input` is replaced with its 1D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.fft\n@end_compatibility",
           "name": "output",
           "typeAttr": "Tcomplex"
         }
@@ -16516,14 +16603,14 @@
       "description": "Computes the 2-dimensional discrete Fourier transform over the inner-most\n2 dimensions of `input`.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
           "typeAttr": "Tcomplex"
         }
       ],
       "outputs": [
         {
-          "description": "A complex64 tensor of the same shape as `input`. The inner-most 2\n  dimensions of `input` are replaced with their 2D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.fft2\n@end_compatibility",
+          "description": "A complex tensor of the same shape as `input`. The inner-most 2\n  dimensions of `input` are replaced with their 2D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.fft2\n@end_compatibility",
           "name": "output",
           "typeAttr": "Tcomplex"
         }
@@ -19638,14 +19725,14 @@
       "description": "Computes the inverse 1-dimensional discrete Fourier transform over the\ninner-most dimension of `input`.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
           "typeAttr": "Tcomplex"
         }
       ],
       "outputs": [
         {
-          "description": "A complex64 tensor of the same shape as `input`. The inner-most\n  dimension of `input` is replaced with its inverse 1D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.ifft\n@end_compatibility",
+          "description": "A complex tensor of the same shape as `input`. The inner-most\n  dimension of `input` is replaced with its inverse 1D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.ifft\n@end_compatibility",
           "name": "output",
           "typeAttr": "Tcomplex"
         }
@@ -19679,14 +19766,14 @@
       "description": "Computes the inverse 2-dimensional discrete Fourier transform over the\ninner-most 2 dimensions of `input`.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
           "typeAttr": "Tcomplex"
         }
       ],
       "outputs": [
         {
-          "description": "A complex64 tensor of the same shape as `input`. The inner-most 2\n  dimensions of `input` are replaced with their inverse 2D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.ifft2\n@end_compatibility",
+          "description": "A complex tensor of the same shape as `input`. The inner-most 2\n  dimensions of `input` are replaced with their inverse 2D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.ifft2\n@end_compatibility",
           "name": "output",
           "typeAttr": "Tcomplex"
         }
@@ -23646,23 +23733,6 @@
         }
       ],
       "summary": "Returns the set of files matching one or more glob patterns."
-    }
-  },
-  {
-    "name": "MatchingFilesDataset",
-    "schema": {
-      "inputs": [
-        {
-          "name": "patterns",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ]
     }
   },
   {

@@ -2,7 +2,13 @@
   {
     "name": "Negate",
     "schema": {
-      "operator": 0
+      "operator": 0,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -700,7 +706,13 @@
   {
     "name": "NoOp",
     "schema": {
-      "operator": 62
+      "operator": 62,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -833,7 +845,13 @@
   {
     "name": "Pad",
     "schema": {
-      "operator": 83
+      "operator": 83,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -843,7 +861,7 @@
     }
   },
   {
-    "name": "Atanh",
+    "name": "Atanh",  
     "schema": {
       "operator": 85
     }
@@ -857,7 +875,13 @@
   {
     "name": "TopK",
     "schema": {
-      "operator": 87
+      "operator": 87,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {

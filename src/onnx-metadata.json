@@ -1491,7 +1491,7 @@
         },
         {
           "default": 1,
-          "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.",
+          "description": "If true, compute the mean and variance across per activation. If false, compute the mean and variance across per feature over each mini-batch.",
           "name": "spatial",
           "required": false,
           "type": "int"
@@ -1513,22 +1513,22 @@
           "type": "T"
         },
         {
-          "description": "The scale as a 1-dimensional tensor of size C to be applied to the output.",
+          "description": "If spatial is true, the dimension of scale is (C). If spatial is false, the dimensions of scale are (C x D1 x ... x Dn)",
           "name": "scale",
           "type": "T"
         },
         {
-          "description": "The bias as a 1-dimensional tensor of size C to be applied to the output.",
+          "description": "If spatial is true, the dimension of bias is (C). If spatial is false, the dimensions of bias are (C x D1 x ... x Dn)",
           "name": "B",
           "type": "T"
         },
         {
-          "description": "The running mean (training) or the estimated mean (testing) as a 1-dimensional tensor of size C.",
+          "description": "If spatial is true, the dimension of the running mean (training) or the estimated mean (testing) is (C). If spatial is false, the dimensions of the running mean (training) or the estimated mean (testing) are (C x D1 x ... x Dn).",
           "name": "mean",
           "type": "T"
         },
         {
-          "description": "The running variance (training) or the estimated variance (testing) as a 1-dimensional tensor of size C.",
+          "description": "If spatial is true, the dimension of the running variance(training) or the estimated variance (testing) is (C). If spatial is false, the dimensions of the running variance(training) or the estimated variance (testing) are (C x D1 x ... x Dn).",
           "name": "var",
           "type": "T"
         }
@@ -1539,7 +1539,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "The output tensor of the same shape as X.",
+          "description": "The output tensor of the same shape as X",
           "name": "Y",
           "type": "T"
         },
@@ -6006,7 +6006,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "The output values with the same shape as input tensor.",
+          "description": "The output values with the same shape as input tensor (the original size without coercion).",
           "name": "output",
           "type": "T"
         }
@@ -7493,7 +7493,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "The output values with the same shape as input tensor.",
+          "description": "The output values with the same shape as input tensor (the original size without coercion).",
           "name": "output",
           "type": "T"
         }
@@ -12657,7 +12657,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "The output values with the same shape as input tensor.",
+          "description": "The output values with the same shape as input tensor (the original size without coercion).",
           "name": "output",
           "type": "T"
         }

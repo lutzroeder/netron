@@ -132,7 +132,8 @@ tflite_schema.BuiltinOperator = {
   RANGE: 96, 96: 'RANGE',
   RESIZE_NEAREST_NEIGHBOR: 97, 97: 'RESIZE_NEAREST_NEIGHBOR',
   LEAKY_RELU: 98, 98: 'LEAKY_RELU',
-  SQUARED_DIFFERENCE: 99, 99: 'SQUARED_DIFFERENCE'
+  SQUARED_DIFFERENCE: 99, 99: 'SQUARED_DIFFERENCE',
+  MIRROR_PAD: 100, 100: 'MIRROR_PAD'
 };
 
 /**
@@ -215,7 +216,8 @@ tflite_schema.BuiltinOptions = {
   RangeOptions: 73, 73: 'RangeOptions',
   ResizeNearestNeighborOptions: 74, 74: 'ResizeNearestNeighborOptions',
   LeakyReluOptions: 75, 75: 'LeakyReluOptions',
-  SquaredDifferenceOptions: 76, 76: 'SquaredDifferenceOptions'
+  SquaredDifferenceOptions: 76, 76: 'SquaredDifferenceOptions',
+  MirrorPadOptions: 77, 77: 'MirrorPadOptions'
 };
 
 /**
@@ -270,6 +272,14 @@ tflite_schema.CombinerType = {
   SUM: 0, 0: 'SUM',
   MEAN: 1, 1: 'MEAN',
   SQRTN: 2, 2: 'SQRTN'
+};
+
+/**
+ * @enum
+ */
+tflite_schema.MirrorPadMode = {
+  REFLECT: 0, 0: 'REFLECT',
+  SYMMETRIC: 1, 1: 'SYMMETRIC'
 };
 
 /**
@@ -6391,6 +6401,73 @@ tflite_schema.SquaredDifferenceOptions.startSquaredDifferenceOptions = function(
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.SquaredDifferenceOptions.endSquaredDifferenceOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.MirrorPadOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.MirrorPadOptions}
+ */
+tflite_schema.MirrorPadOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.MirrorPadOptions=} obj
+ * @returns {tflite_schema.MirrorPadOptions}
+ */
+tflite_schema.MirrorPadOptions.getRootAsMirrorPadOptions = function(bb, obj) {
+  return (obj || new tflite_schema.MirrorPadOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {tflite_schema.MirrorPadMode}
+ */
+tflite_schema.MirrorPadOptions.prototype.mode = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {tflite_schema.MirrorPadMode} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite_schema.MirrorPadMode.REFLECT;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.MirrorPadOptions.startMirrorPadOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.MirrorPadMode} mode
+ */
+tflite_schema.MirrorPadOptions.addMode = function(builder, mode) {
+  builder.addFieldInt8(0, mode, tflite_schema.MirrorPadMode.REFLECT);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.MirrorPadOptions.endMirrorPadOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };

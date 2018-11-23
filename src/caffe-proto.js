@@ -8340,6 +8340,9 @@
             ConvolutionParameter.prototype.engine = 0;
             ConvolutionParameter.prototype.axis = 1;
             ConvolutionParameter.prototype.force_nd_im2col = false;
+            ConvolutionParameter.prototype.hole = 1;
+            ConvolutionParameter.prototype.hole_h = 1;
+            ConvolutionParameter.prototype.hole_w = 1;
     
             ConvolutionParameter.create = function create(properties) {
                 return new ConvolutionParameter(properties);
@@ -8434,6 +8437,15 @@
                     case 17:
                         message.force_nd_im2col = reader.bool();
                         break;
+                    case 117:
+                        message.hole = reader.uint32();
+                        break;
+                    case 118:
+                        message.hole_h = reader.uint32();
+                        break;
+                    case 119:
+                        message.hole_w = reader.uint32();
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -8511,6 +8523,15 @@
                         break;
                     case "force_nd_im2col":
                         message.force_nd_im2col = reader.bool();
+                        break;
+                    case "hole":
+                        message.hole = reader.uint32();
+                        break;
+                    case "hole_h":
+                        message.hole_h = reader.uint32();
+                        break;
+                    case "hole_w":
+                        message.hole_w = reader.uint32();
                         break;
                     default:
                         reader.handle(tag);
@@ -8603,6 +8624,15 @@
                 if (message.force_nd_im2col != null && message.hasOwnProperty("force_nd_im2col"))
                     if (typeof message.force_nd_im2col !== "boolean")
                         return "force_nd_im2col: boolean expected";
+                if (message.hole != null && message.hasOwnProperty("hole"))
+                    if (!$util.isInteger(message.hole))
+                        return "hole: integer expected";
+                if (message.hole_h != null && message.hasOwnProperty("hole_h"))
+                    if (!$util.isInteger(message.hole_h))
+                        return "hole_h: integer expected";
+                if (message.hole_w != null && message.hasOwnProperty("hole_w"))
+                    if (!$util.isInteger(message.hole_w))
+                        return "hole_w: integer expected";
                 return null;
             };
     
@@ -8684,6 +8714,12 @@
                     message.axis = object.axis | 0;
                 if (object.force_nd_im2col != null)
                     message.force_nd_im2col = Boolean(object.force_nd_im2col);
+                if (object.hole != null)
+                    message.hole = object.hole >>> 0;
+                if (object.hole_h != null)
+                    message.hole_h = object.hole_h >>> 0;
+                if (object.hole_w != null)
+                    message.hole_w = object.hole_w >>> 0;
                 return message;
             };
     
@@ -8712,6 +8748,9 @@
                     object.engine = options.enums === String ? "DEFAULT" : 0;
                     object.axis = 1;
                     object.force_nd_im2col = false;
+                    object.hole = 1;
+                    object.hole_h = 1;
+                    object.hole_w = 1;
                 }
                 if (message.num_output != null && message.hasOwnProperty("num_output"))
                     object.num_output = message.num_output;
@@ -8761,6 +8800,12 @@
                     for (var j = 0; j < message.dilation.length; ++j)
                         object.dilation[j] = message.dilation[j];
                 }
+                if (message.hole != null && message.hasOwnProperty("hole"))
+                    object.hole = message.hole;
+                if (message.hole_h != null && message.hasOwnProperty("hole_h"))
+                    object.hole_h = message.hole_h;
+                if (message.hole_w != null && message.hasOwnProperty("hole_w"))
+                    object.hole_w = message.hole_w;
                 return object;
             };
     
@@ -15278,6 +15323,7 @@
                     case 23:
                     case 24:
                     case 31:
+                    case 139:
                         break;
                     }
                 if (message.blobs != null && message.hasOwnProperty("blobs")) {
@@ -15691,6 +15737,10 @@
                 case "THRESHOLD":
                 case 31:
                     message.type = 31;
+                    break;
+                case "IMAGE_SEG_DATA":
+                case 139:
+                    message.type = 139;
                     break;
                 }
                 if (object.blobs) {
@@ -16123,6 +16173,7 @@
                 values[valuesById[23] = "TANH"] = 23;
                 values[valuesById[24] = "WINDOW_DATA"] = 24;
                 values[valuesById[31] = "THRESHOLD"] = 31;
+                values[valuesById[139] = "IMAGE_SEG_DATA"] = 139;
                 return values;
             })();
     

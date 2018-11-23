@@ -157,6 +157,13 @@
     }
   },
   {
+    "name": "Threshold",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "ReLU",
     "schema": {
       "attributes": [
@@ -290,6 +297,27 @@
   },
   {
     "name": "AdaptiveAvgPool3d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveMaxPool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveMaxPool2d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "AdaptiveMaxPool3d",
     "schema": {
       "category": "Pool",
       "package": "torch.nn.modules.pooling"
