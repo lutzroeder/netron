@@ -18,7 +18,7 @@ var pytorch = pytorch || require('./pytorch');
 var sklearn = sklearn || require('./sklearn');
 var tf = tf || require('./tf');
 var tflite = tflite || require('./tflite');
-var openvinoIR = openvinoIR || require('./openvino-ir');
+var openvino = openvino || require('./openvino');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -969,7 +969,7 @@ view.ModelFactoryService = class {
             new tf.ModelFactory(),
             new sklearn.ModelFactory(),
             new cntk.ModelFactory(),
-            new openvinoIR.ModelFactory()
+            new openvino.ModelFactory()
         ];
     }
 

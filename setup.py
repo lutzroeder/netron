@@ -119,7 +119,7 @@ setuptools.setup(
             'sklearn.js', 'sklearn-metadata.json',
             'tf.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite.js', 'tflite-metadata.json', 'tflite-schema.js',
-            'openvino-ir.js', 'openvino-ir-parser.js',
+            'openvino.js', 'openvino-parser.js',
             'view-browser.html', 'view-browser.js',
             'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',

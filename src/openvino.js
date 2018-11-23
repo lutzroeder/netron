@@ -1,14 +1,14 @@
 /*jshint esversion: 6 */
 
-var openvinoIR = openvinoIR || {};
+var openvino = openvino || {};
 
-openvinoIR.ModelFactory = class {
+openvino.ModelFactory = class {
     match(context) {
         return context.identifier.endsWith('.xml') || context.identifier.endsWith('.dot');
     }
 
     open(context, host, callback) {
-        host.require('./openvino-ir-parser', (err) => {
+        host.require('./openvino-parser', (err) => {
             var isXML = context.identifier.endsWith('.xml');
             if (err) {
                 callback(err, null);
@@ -18,35 +18,35 @@ openvinoIR.ModelFactory = class {
             try {
                 var file_content = new TextDecoder("utf-8").decode(context.buffer);
             } catch (error) {
-                callback(new openvinoIR.Error('File format is not OpenVINO IR compliant.'), null);
+                callback(new openvino.Error('File format is not OpenVINO IR compliant.'), null);
                 return;
             }
 
             try {
-                var parsed = isXML ? OpenVINOIRParser.parse(file_content) : OpenVINODotParser.parse(file_content);
+                var parsed = isXML ? openvinoParser.parse(file_content) : OpenVINODotParser.parse(file_content);
             } catch (error) {
-                callback(new openvinoIR.Error('Unable to parse OpenVINO IR file.'), null);
+                callback(new openvino.Error('Unable to parse OpenVINO IR file.'), null);
                 return;
             }
 
             try {
-                var model = isXML ? new openvinoIR.Model(parsed) : new openvinoIR.DotModel(parsed);
+                var model = isXML ? new openvino.Model(parsed) : new openvino.DotModel(parsed);
             } catch (error) {
                 host.exception(error, false);
-                callback(new openvinoIR.Error(error.message), null);
+                callback(new openvino.Error(error.message), null);
                 return;
             }
 
-            openvinoIR.OperatorMetadata.open(host, (err, metadata) => {
+            openvino.OperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
             });
         });
     }
 }
 
-openvinoIR.Model = class {
+openvino.Model = class {
     constructor(netDef, init) {
-        var graph = new openvinoIR.XMLGraph(netDef, init);
+        var graph = new openvino.XMLGraph(netDef, init);
         this._graphs = [graph];
     }
 
@@ -59,14 +59,14 @@ openvinoIR.Model = class {
     }
 }
 
-openvinoIR.Error = class extends Error {
+openvino.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading OpenVINO IR model.';
     }
 }
 
-openvinoIR.XMLGraph = class {
+openvino.XMLGraph = class {
     constructor(netDef, init) {
         this._name = netDef.net.name || '';
         this._batch = +netDef.net.batch || '';
@@ -78,7 +78,7 @@ openvinoIR.XMLGraph = class {
         this._outputs = [];
 
         netDef.layers.forEach((layer) => {
-            const node = new openvinoIR.XMLNode(layer, this._version, netDef.edges, netDef.layers);
+            const node = new openvino.XMLNode(layer, this._version, netDef.edges, netDef.layers);
             this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
             this._nodes.push(node);
         });
@@ -105,7 +105,7 @@ openvinoIR.XMLGraph = class {
     }
 }
 
-openvinoIR.AbstractNode = class {
+openvino.AbstractNode = class {
     get id() {
         return this._id;
     }
@@ -123,11 +123,11 @@ openvinoIR.AbstractNode = class {
     }
 
     get category() {
-        return openvinoIR.OperatorMetadata.operatorMetadata.getOperatorCategory(this._type);
+        return openvino.OperatorMetadata.operatorMetadata.getOperatorCategory(this._type);
     }
 
     get documentation() {
-        return openvinoIR.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._type);
+        return openvino.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._type);
     }
 
     get attributes() {
@@ -184,28 +184,28 @@ openvinoIR.AbstractNode = class {
 
     get inputs() {
         const list = this._inputs.concat(this._initializers);
-        const inputs = openvinoIR.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
+        const inputs = openvino.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
         return inputs.map((input) => {
-            return new openvinoIR.Argument(input.name, input.connections.map((connection) => {
-                if (connection.id instanceof openvinoIR.Tensor) {
-                    return new openvinoIR.Connection('', null, connection.id);
+            return new openvino.Argument(input.name, input.connections.map((connection) => {
+                if (connection.id instanceof openvino.Tensor) {
+                    return new openvino.Connection('', null, connection.id);
                 }
-                return new openvinoIR.Connection(connection.id, null, null);
+                return new openvino.Connection(connection.id, null, null);
             }));
         });
     }
 
     get outputs() {
-        const outputs = openvinoIR.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._id);
+        const outputs = openvino.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs, this._id);
         return outputs.map((output) => {
-            return new openvinoIR.Argument(output.name, output.connections.map((connection) => {
-                return new openvinoIR.Connection(connection.id, null, null);
+            return new openvino.Argument(output.name, output.connections.map((connection) => {
+                return new openvino.Connection(connection.id, null, null);
             }));
         });
     }
 }
 
-openvinoIR.XMLNode = class extends openvinoIR.AbstractNode {
+openvino.XMLNode = class extends openvino.AbstractNode {
     constructor(layer, version, edges, layers) {
         super();
         switch (version) {
@@ -226,21 +226,21 @@ openvinoIR.XMLNode = class extends openvinoIR.AbstractNode {
         this._initializers = [];
         this._attributes = [];
 
-        this._attributes.push(new openvinoIR.Attribute(this, 'precision', layer.precision));
+        this._attributes.push(new openvino.Attribute(this, 'precision', layer.precision));
 
         if (layer.data) {
             this._attributes = Object.keys(layer.data).map((key) => {
-                return new openvinoIR.Attribute(this, key, layer.data[key]);
+                return new openvino.Attribute(this, key, layer.data[key]);
             });
         }
 
         if (layer.biases) {
             const value = this._concatBinaryAttributes(layer.biases);
-            this._attributes.push(new openvinoIR.Attribute(this, 'biases', value));
+            this._attributes.push(new openvino.Attribute(this, 'biases', value));
 
             // TODO: complex to extract the size of the bias
             // TODO: compute from the overall size?
-            // this._initializers.push(new OpenVINOIRTensor({data: [],
+            // this._initializers.push(new openvinoTensor({data: [],
             //     shape: [layer[0].output[0].dims[1]],
             //     precision: layer.precision
             // }));
@@ -248,10 +248,10 @@ openvinoIR.XMLNode = class extends openvinoIR.AbstractNode {
 
         if (layer.weights) {
             const value = this._concatBinaryAttributes(layer.weights);
-            this._attributes.push(new openvinoIR.Attribute(this, 'weights', value));
+            this._attributes.push(new openvino.Attribute(this, 'weights', value));
 
 
-            // this._initializers.push(new OpenVINOIRTensor({data: [],
+            // this._initializers.push(new openvinoTensor({data: [],
             //     shape: layer[0].output[0].dims,
             //     precision: layer.precision
             // }));
@@ -260,7 +260,7 @@ openvinoIR.XMLNode = class extends openvinoIR.AbstractNode {
     }
 }
 
-openvinoIR.Argument = class {
+openvino.Argument = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -279,7 +279,7 @@ openvinoIR.Argument = class {
     }
 }
 
-openvinoIR.Connection = class {
+openvino.Connection = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -302,7 +302,7 @@ openvinoIR.Connection = class {
     }
 }
 
-openvinoIR.Attribute = class {
+openvino.Attribute = class {
     constructor(node, name, value) {
         this._node = node;
         this._name = name;
@@ -316,19 +316,14 @@ openvinoIR.Attribute = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        const meta = openvinoIR.OperatorMetadata.operatorMetadata;
-        return meta.getAttributeVisible(this._node.operator, this._name, this._value);
-    }
 }
 
-openvinoIR.Tensor = class {
+openvino.Tensor = class {
     constructor({data, shape, precision}) {
         this._data = data;
         this._shape = shape;
         const dataType = precision === 'FP32' ? 'float32' : '?';
-        this._type = new openvinoIR.TensorType(dataType, this._shape);
+        this._type = new openvino.TensorType(dataType, this._shape);
     }
 
     get kind() {
@@ -401,7 +396,7 @@ openvinoIR.Tensor = class {
     }
 }
 
-openvinoIR.TensorType = class {
+openvino.TensorType = class {
     constructor(dataType, shape) {
         this._dataType = dataType;
         this._shape = shape;
@@ -420,12 +415,12 @@ openvinoIR.TensorType = class {
     }
 }
 
-openvinoIR.OperatorMetadata = class {
+openvino.OperatorMetadata = class {
     static open(host, callback) {
-        if (!openvinoIR.OperatorMetadata.operatorMetadata) {
-            openvinoIR.OperatorMetadata.operatorMetadata = new openvinoIR.OperatorMetadata();
+        if (!openvino.OperatorMetadata.operatorMetadata) {
+            openvino.OperatorMetadata.operatorMetadata = new openvino.OperatorMetadata();
         }
-        callback(null, openvinoIR.OperatorMetadata.operatorMetadata);
+        callback(null, openvino.OperatorMetadata.operatorMetadata);
     }
 
     constructor(data) {
@@ -523,33 +518,11 @@ openvinoIR.OperatorMetadata = class {
         });
         return results;
     }
-
-    getAttributeVisible(operator, name, value) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
-                schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
-                });
-            }
-            var attribute = schema.attributesMap[name];
-            if (attribute) {
-                if (attribute.hasOwnProperty('visible')) {
-                    return attribute.visible;
-                }
-                if (attribute.hasOwnProperty('default')) {
-                    return value != attribute.default.toString();
-                }
-            }
-        }
-        return true;
-    }
 }
 
-openvinoIR.DotModel = class {
+openvino.DotModel = class {
     constructor(netDef, init) {
-        var graph = new openvinoIR.DotGraph(netDef, init);
+        var graph = new openvino.DotGraph(netDef, init);
         this._graphs = [graph];
     }
 
@@ -562,7 +535,7 @@ openvinoIR.DotModel = class {
     }
 }
 
-openvinoIR.DotGraph = class {
+openvino.DotGraph = class {
     constructor(netDef, init) {
         this._name = netDef.id || '';
         this._version = Boolean(netDef.strict).toString();
@@ -576,7 +549,7 @@ openvinoIR.DotGraph = class {
         const edges = netDef.children.filter((child) => child.type === "edge_stmt");
 
         layers.forEach((layer) => {
-            const node = new openvinoIR.DotNode(layer, this._version, edges, layers);
+            const node = new openvino.DotNode(layer, this._version, edges, layers);
             this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
             this._nodes.push(node);
         });
@@ -616,7 +589,7 @@ openvinoIR.DotGraph = class {
     }
 }
 
-openvinoIR.DotNode = class extends openvinoIR.AbstractNode {
+openvino.DotNode = class extends openvino.AbstractNode {
     constructor(layer, version, edges, layers) {
         super();
         this._inputs = [];
@@ -634,7 +607,7 @@ openvinoIR.DotNode = class extends openvinoIR.AbstractNode {
                 this[`_${name}`] = value;
             }
 
-            this._attributes.push(new openvinoIR.Attribute(this, name, value));
+            this._attributes.push(new openvino.Attribute(this, name, value));
         });
 
         if (!this._type){
@@ -652,5 +625,5 @@ openvinoIR.DotNode = class extends openvinoIR.AbstractNode {
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = openvinoIR.ModelFactory;
+    module.exports.ModelFactory = openvino.ModelFactory;
 }
