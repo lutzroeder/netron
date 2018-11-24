@@ -306,6 +306,13 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
+    "type":   "openvino",
+    "target": "age-gender-recognition-retail-0013.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
     "type":   "caffe",
     "target": "age_net.caffemodel",
     "source": "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/age_net.caffemodel",
@@ -631,6 +638,13 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/lstm.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "type":   "caffe",
+    "target": "mobilenet_yolov3_lite_train.prototxt",
+    "source": "https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_lite_train.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/eric612/Caffe-YOLOv3-Windows"
   },
   {
     "type":   "caffe",

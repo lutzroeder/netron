@@ -157,13 +157,6 @@
     }
   },
   {
-    "name": "Threshold",
-    "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
-    }
-  },
-  {
     "name": "ReLU",
     "schema": {
       "attributes": [
@@ -527,6 +520,12 @@
     "schema": {
       "category": "Tensor",
       "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "PixelShuffle",
+    "schema": {
+      "package": "torch.nn.modules.pixelshuffle"
     }
   },
   {

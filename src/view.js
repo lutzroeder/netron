@@ -14,6 +14,7 @@ var coreml = coreml || require('./coreml');
 var keras = keras || require('./keras');
 var mxnet = mxnet || require('./mxnet');
 var onnx = onnx || require('./onnx');
+var openvino = openvino || require('./openvino');
 var pytorch = pytorch || require('./pytorch');
 var sklearn = sklearn || require('./sklearn');
 var tf = tf || require('./tf');
@@ -1095,7 +1096,10 @@ view.ModelFactoryService = class {
                     case 'prototxt':
                     case 'pth':
                     case 'h5':
+                    case 'hdf5':
                     case 'cntk':
+                    case 'xml':
+                    case 'dot':
                     case 'model':
                         callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
                         break;
