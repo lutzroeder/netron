@@ -157,13 +157,6 @@
     }
   },
   {
-    "name": "Threshold",
-    "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
-    }
-  },
-  {
     "name": "ReLU",
     "schema": {
       "attributes": [
@@ -193,6 +186,14 @@
   },
   {
     "name": "PReLU",
+    "schema": {
+      "attributes": [],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "ELU",
     "schema": {
       "attributes": [],
       "category": "Activation",
@@ -247,7 +248,21 @@
     }
   },
   {
-    "name": "AvgPool1d",
+    "name": "MaxUnpool1d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "MaxUnpool2d",
+    "schema": {
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
+    }
+  },
+  {
+    "name": "MaxUnpool3d",
     "schema": {
       "category": "Pool",
       "package": "torch.nn.modules.pooling"
@@ -527,6 +542,12 @@
     "schema": {
       "category": "Tensor",
       "package": "torch.nn.modules.padding"
+    }
+  },
+  {
+    "name": "PixelShuffle",
+    "schema": {
+      "package": "torch.nn.modules.pixelshuffle"
     }
   },
   {
