@@ -263,7 +263,10 @@ openvino.ir.Node = class extends openvino.AbstractNode {
         this._outputs = [];
 
         this.setInputs(layer.input, edges, layers);
-        this.setOutputs(layer[0].output, edges, layers);
+        if (layer.hasOwnProperty(0)) {
+            // meaning it has outputs 
+            this.setOutputs(layer[0].output, edges, layers);
+        }
 
         this._initializers = [];
         this._attributes = [];
