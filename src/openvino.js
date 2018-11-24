@@ -1,4 +1,4 @@
-            /*jshint esversion: 6 */
+/*jshint esversion: 6 */
 
 var openvino = openvino || {};
 openvino.ir = openvino.ir || {};
@@ -8,49 +8,45 @@ openvino.ModelFactory = class {
 
     match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
-        return extension == 'xml' || extension == 'dot';
+        var isXML = extension === 'xml';
+        var isDot = extension === 'dot';
+        
+        if (!isXML && !isDot) {
+            return false;
+        }
+
+        return (isXML && context.text.includes('<net')) || 
+            (isDot && context.text.includes('layer_'));
     }
 
     open(context, host, callback) {
         host.require('./openvino-parser', (err, openvino_parser) => {
+            var extension = context.identifier.split('.').pop().toLowerCase();
+            var isXML = extension === 'xml';
+
             if (err) {
                 callback(err, null);
                 return;
             }
 
-            var extension = context.identifier.split('.').pop().toLowerCase();
             var parsed = null;
-            var model = null;
-            if (extension == 'xml') {
+            if (isXML) {
                 try {
                     parsed = openvino_parser.IrParser.parse(context.text);
                 } catch (error) {
                     callback(new openvino.Error('Failed to read OpenVINO IR file.'), null);
                     return;
                 }
+            } else {
                 try {
-                    model = new openvino.ir.Model(parsed);
-                } catch (error) {
-                    host.exception(error, false);
-                    callback(new openvino.Error(error.message), null);
-                    return;
-                }
-            }
-            else {
-                try {
-                    parsed = openvino_parser.DotParser.parse(text);
+                    parsed = openvino_parser.DotParser.parse(context.text);
                 } catch (error) {
                     callback(new openvino.Error('Failed to read OpenVINO Dot file.'), null);
                     return;
                 }
-                try {
-                    model = new openvino.dot.Model(parsed);
-                } catch (error) {
-                    host.exception(error, false);
-                    callback(new openvino.Error(error.message), null);
-                    return;
-                }
             }
+
+            var model = isXML ? new openvino.ir.Model(parsed) : new openvino.dot.Model(parsed);
 
             openvino.OperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
@@ -74,7 +70,6 @@ openvino.ir.Model = class {
         return this._graphs;
     }
 };
-
 
 openvino.ir.Graph = class {
 
