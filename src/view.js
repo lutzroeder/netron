@@ -349,7 +349,11 @@ view.View = class {
     
                 var id = new Date().getTime();
                 var nodes = graph.nodes;
-        
+
+                if (nodes.length > 1500) {
+                    graphOptions.ranker = 'longest-path';
+                }
+
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
                 if (groups) {
