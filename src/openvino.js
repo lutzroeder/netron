@@ -1,12 +1,14 @@
-/*jshint esversion: 6 */
+            /*jshint esversion: 6 */
 
 var openvino = openvino || {};
 openvino.ir = openvino.ir || {};
 openvino.dot = openvino.dot || {};
 
-openvino.ir.ModelFactory = class {
+openvino.ModelFactory = class {
+
     match(context) {
-        return context.identifier.endsWith('.xml') || context.identifier.endsWith('.dot');
+        var extension = context.identifier.split('.').pop().toLowerCase();
+        return extension == 'xml' || extension == 'dot';
     }
 
     open(context, host, callback) {
@@ -16,29 +18,38 @@ openvino.ir.ModelFactory = class {
                 return;
             }
 
-            var isXML = context.identifier.endsWith('.xml');
-            var file_content = null;
-            try {
-                file_content = new TextDecoder("utf-8").decode(context.buffer);
-            } catch (error) {
-                callback(new openvino.ir.Error('File format is not OpenVINO IR compliant.'), null);
-                return;
+            var extension = context.identifier.split('.').pop().toLowerCase();
+            var parsed = null;
+            var model = null;
+            if (extension == 'xml') {
+                try {
+                    parsed = openvino_parser.IrParser.parse(context.text);
+                } catch (error) {
+                    callback(new openvino.Error('Failed to read OpenVINO IR file.'), null);
+                    return;
+                }
+                try {
+                    model = new openvino.ir.Model(parsed);
+                } catch (error) {
+                    host.exception(error, false);
+                    callback(new openvino.Error(error.message), null);
+                    return;
+                }
             }
-
-            var parsed = false;
-            try {
-                parsed = isXML ? openvino_parser.IrParser.parse(file_content) : openvino_parser.DotParser.parse(file_content);
-            } catch (error) {
-                callback(new openvino.ir.Error('Unable to parse OpenVINO IR file.'), null);
-                return;
-            }
-
-            try {
-                var model = isXML ? new openvino.ir.Model(parsed) : new openvino.dot.Model(parsed);
-            } catch (error) {
-                host.exception(error, false);
-                callback(new openvino.ir.Error(error.message), null);
-                return;
+            else {
+                try {
+                    parsed = openvino_parser.DotParser.parse(text);
+                } catch (error) {
+                    callback(new openvino.Error('Failed to read OpenVINO Dot file.'), null);
+                    return;
+                }
+                try {
+                    model = new openvino.dot.Model(parsed);
+                } catch (error) {
+                    host.exception(error, false);
+                    callback(new openvino.Error(error.message), null);
+                    return;
+                }
             }
 
             openvino.OperatorMetadata.open(host, (err, metadata) => {
@@ -49,6 +60,7 @@ openvino.ir.ModelFactory = class {
 };
 
 openvino.ir.Model = class {
+
     constructor(netDef, init) {
         var graph = new openvino.ir.Graph(netDef, init);
         this._graphs = [ graph ];
@@ -65,6 +77,7 @@ openvino.ir.Model = class {
 
 
 openvino.ir.Graph = class {
+
     constructor(netDef, init) {
         this._name = netDef.net.name || '';
         this._batch = +netDef.net.batch || '';
@@ -104,6 +117,7 @@ openvino.ir.Graph = class {
 };
 
 openvino.AbstractNode = class {
+
     get id() {
         return this._id;
     }
@@ -242,6 +256,7 @@ openvino.AbstractNode = class {
 };
 
 openvino.ir.Node = class extends openvino.AbstractNode {
+
     constructor(layer, version, edges, layers) {
         super();
 
@@ -292,6 +307,7 @@ openvino.ir.Node = class extends openvino.AbstractNode {
 };
 
 openvino.Argument = class {
+
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -311,6 +327,7 @@ openvino.Argument = class {
 };
 
 openvino.Connection = class {
+
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -334,6 +351,7 @@ openvino.Connection = class {
 };
 
 openvino.Attribute = class {
+
     constructor(node, name, value) {
         this._node = node;
         this._name = name;
@@ -350,6 +368,7 @@ openvino.Attribute = class {
 };
 
 openvino.Tensor = class {
+
     constructor({data, shape, precision}) {
         this._data = data;
         this._shape = shape;
@@ -428,6 +447,7 @@ openvino.Tensor = class {
 };
 
 openvino.TensorType = class {
+
     constructor(dataType, shape) {
         this._dataType = dataType;
         this._shape = shape;
@@ -447,6 +467,7 @@ openvino.TensorType = class {
 };
 
 openvino.OperatorMetadata = class {
+
     static open(host, callback) {
         if (!openvino.OperatorMetadata.operatorMetadata) {
             openvino.OperatorMetadata.operatorMetadata = new openvino.OperatorMetadata();
@@ -506,17 +527,11 @@ openvino.OperatorMetadata = class {
     }
 };
 
-openvino.ir.Error = class extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'Error loading OpenVINO IR model.';
-    }
-};
-
 openvino.dot.Model = class {
+
     constructor(netDef, init) {
         var graph = new openvino.dot.Graph(netDef, init);
-        this._graphs = [graph];
+        this._graphs = [ graph ];
     }
 
     get format() {
@@ -529,6 +544,7 @@ openvino.dot.Model = class {
 };
 
 openvino.dot.Graph = class {
+
     constructor(netDef, init) {
         this._name = netDef.id || '';
         this._version = Boolean(netDef.strict).toString();
@@ -583,6 +599,7 @@ openvino.dot.Graph = class {
 };
 
 openvino.dot.Node = class extends openvino.AbstractNode {
+
     constructor(layer, version, edges, layers) {
         super();
         this._inputs = [];
@@ -617,6 +634,14 @@ openvino.dot.Node = class extends openvino.AbstractNode {
     }
 };
 
+openvino.Error = class extends Error {
+
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading OpenVINO model.';
+    }
+};
+
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = openvino.ir.ModelFactory;
+    module.exports.ModelFactory = openvino.ModelFactory;
 }

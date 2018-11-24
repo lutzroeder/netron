@@ -1,318 +1,5 @@
 [
   {
-    "type":   "onnx",
-    "target": "arcface-resnet100.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/models/face_recognition/ArcFace"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_alexnet_opset_3.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_alexnet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_alexnet_opset_9.shape.onnx",
-    "status": "script",
-    "script": [ "${root}/tools/onnx", "sync install infer ${root}/test/data/onnx/bvlc_alexnet_opset_9.onnx" ],
-    "format": "ONNX v3"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_googlenet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_googlenet.tar.gz[bvlc_googlenet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_googlenet"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_reference_caffenet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_caffenet.tar.gz[bvlc_reference_caffenet/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_reference_rcnn_ilsvrc13_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_rcnn_ilsvrc13.tar.gz[bvlc_reference_rcnn_ilsvrc13/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_reference_rcnn_ilsvrc13"
-  },
-  {
-    "type":   "onnx",
-    "target": "candy.onnx",
-    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets/candy.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets"
-  },
-  {
-    "type":   "onnx",
-    "target": "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/183"
-  },
-  {
-    "type":   "onnx",
-    "target": "denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/183"
-  },
-  {
-    "type":   "onnx",
-    "target": "denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/183"
-  },
-  {
-    "type":   "onnx",
-    "target": "denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/183"
-  },
-  {
-    "type":   "onnx",
-    "target": "densenet121_opset_9.tar.gz",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz"
-  },
-  {
-    "type":   "onnx",
-    "target": "densenet121_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz[densenet121/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "DocumentClassification.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2592479/DocumentClassification.onnx.zip[DocumentClassification.onnx]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/188"
-  },
-  {
-    "type":   "onnx",
-    "target": "eisber_model3.pbtxt",
-    "source": "https://github.com/lutzroeder/netron/files/2592471/eisber_model3.zip[eisber_model3.pbtxt]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/188"
-  },
-  {
-    "type":   "onnx",
-    "target": "Exermote.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2592478/Exermote.onnx.zip[Exermote.onnx]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/188"
-  },
-  {
-    "type":   "onnx",
-    "target": "emoji8.onnx",
-    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/Emoji8/UWP/cs/Emoji8/Models/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/Emoji8/UWP/cs/Emoji8"
-  },
-  {
-    "type":   "onnx",
-    "target": "emotion_ferplus_opset_8.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/emotion_ferplus/emotion_ferplus.tar.gz[emotion_ferplus/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "FastStyleNet.onnx",
-    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/chainer-fast-neuralstyle/FastStyleNet.onnx",
-    "format": "ONNX v1", "producer": "Chainer 3.2.0"
-  },
-  {
-    "type":   "onnx",
-    "target": "inception_v1_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/inception_v1.tar.gz[inception_v1/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "inception_v2_opset_6.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_6/inception_v2.tar.gz[inception_v2/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "inception_v2_opset_8.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_8/inception_v2.tar.gz[inception_v2/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "inception_v2_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/inception_v2.tar.gz[inception_v2/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "Kmeans.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2592495/Kmeans.onnx.zip[Kmeans.onnx]",
-    "format": "ONNX v3", "producer": "ML.NET 0.7.27009.0",
-    "link":   "https://github.com/lutzroeder/netron/issues/188"
-  },
-  {
-    "type":   "onnx",
-    "target": "Kmeans.pbtxt",
-    "status": "script",
-    "script": [ "${root}/tools/onnx", "sync install convert ${root}/test/data/onnx/Kmeans.onnx" ],
-    "format": "ONNX v3"
-  },
-  {
-    "type":   "onnx",
-    "target": "mnist.onnx",
-    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/MNIST/Tutorial/cs/Assets"
-  },
-  {
-    "type":   "onnx",
-    "target": "mnist_opset_9.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/mnist/mnist.tar.gz[mnist/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "resnet50_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/resnet50.tar.gz[resnet50/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "resnet50v2.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/resnet/resnet50v2/resnet50v2.onnx"
-  },
-  {
-    "type":   "onnx",
-    "target": "ResNet101_DUC_HDC.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/duc/ResNet101_DUC_HDC.onnx"
-  },
-  {
-    "type":   "onnx",
-    "target": "reshape_opset_4.pb",
-    "source": "https://github.com/lutzroeder/netron/files/2592375/reshape_opset.zip[reshape_opset_4.pb]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/pull/97"
-  },
-  {
-    "type":   "onnx",
-    "target": "reshape_opset_6.pb",
-    "source": "https://github.com/lutzroeder/netron/files/2592375/reshape_opset.zip[reshape_opset_6.pb]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/pull/97"
-  },
-  {
-    "type":   "onnx",
-    "target": "shufflenet_float16.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/2592368/shufflenet_float16.onnx.zip[shufflenet_float16.onnx]",
-    "format": "ONNX v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/186"
-  },
-  {
-    "type":   "onnx",
-    "target": "shufflenet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/shufflenet"
-  },
-  {
-    "type":   "onnx",
-    "target": "squeezenet.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx",
-    "format": "ONNX v1", "producer": "pytorch 0.2"
-  },
-  {
-    "type":   "onnx",
-    "target": "squeezenet1.1.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
-    "format": "ONNX v3"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_operator_rnn.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_operator_rnn_single_layer.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn_single_layer/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_operator_lstm.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_lstm/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_lstm_with_peepholes.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/node/test_lstm_with_peepholes/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "tiny_yolov2_opset_8.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/tiny_yolov2/tiny_yolov2.tar.gz[tiny_yolov2/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "YOLOv2_tiny.onnx",
-    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/YOLOv2_tiny/YOLOv2_tiny.onnx"
-  },
-  {
-    "type":   "onnx",
-    "target": "vgg16.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
-  },
-  {
-    "type":   "onnx",
-    "target": "vgg16-bn.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16-bn/vgg16-bn.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
-  },
-  {
-    "type":   "onnx",
-    "target": "vgg19.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19/vgg19.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
-  },
-  {
-    "type":   "onnx",
-    "target": "vgg19-bn.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19-bn/vgg19-bn.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
-  },
-  {
-    "type":   "onnx",
-    "target": "vgg19_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "zfnet512_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "1D_lstm.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/1D_lstm.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "openvino",
-    "target": "age-gender-recognition-retail-0013.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml",
-    "format": "OpenVINO IR",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
     "type":   "caffe",
     "target": "age_net.caffemodel",
     "source": "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/age_net.caffemodel",
@@ -2279,6 +1966,340 @@
     "type":   "mxnet",
     "target": "vgg19_bn.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
+  },
+  {
+    "type":   "onnx",
+    "target": "arcface-resnet100.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/face_recognition/ArcFace"
+  },
+  {
+    "type":   "onnx",
+    "target": "bvlc_alexnet_opset_3.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
+  },
+  {
+    "type":   "onnx",
+    "target": "bvlc_alexnet_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
+  },
+  {
+    "type":   "onnx",
+    "target": "bvlc_alexnet_opset_9.shape.onnx",
+    "status": "script",
+    "script": [ "${root}/tools/onnx", "sync install infer ${root}/test/data/onnx/bvlc_alexnet_opset_9.onnx" ],
+    "format": "ONNX v3"
+  },
+  {
+    "type":   "onnx",
+    "target": "bvlc_googlenet_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_googlenet.tar.gz[bvlc_googlenet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_googlenet"
+  },
+  {
+    "type":   "onnx",
+    "target": "bvlc_reference_caffenet_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_caffenet.tar.gz[bvlc_reference_caffenet/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "bvlc_reference_rcnn_ilsvrc13_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_rcnn_ilsvrc13.tar.gz[bvlc_reference_rcnn_ilsvrc13/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_reference_rcnn_ilsvrc13"
+  },
+  {
+    "type":   "onnx",
+    "target": "candy.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets/candy.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets"
+  },
+  {
+    "type":   "onnx",
+    "target": "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
+    "type":   "onnx",
+    "target": "denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
+    "type":   "onnx",
+    "target": "denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
+    "type":   "onnx",
+    "target": "denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/183"
+  },
+  {
+    "type":   "onnx",
+    "target": "densenet121_opset_9.tar.gz",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz"
+  },
+  {
+    "type":   "onnx",
+    "target": "densenet121_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz[densenet121/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "DocumentClassification.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2592479/DocumentClassification.onnx.zip[DocumentClassification.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
+    "target": "eisber_model3.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/2592471/eisber_model3.zip[eisber_model3.pbtxt]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
+    "target": "Exermote.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2592478/Exermote.onnx.zip[Exermote.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
+    "target": "emoji8.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/Emoji8/UWP/cs/Emoji8/Models/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/Emoji8/UWP/cs/Emoji8"
+  },
+  {
+    "type":   "onnx",
+    "target": "emotion_ferplus_opset_8.onnx",
+    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/emotion_ferplus/emotion_ferplus.tar.gz[emotion_ferplus/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "FastStyleNet.onnx",
+    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/chainer-fast-neuralstyle/FastStyleNet.onnx",
+    "format": "ONNX v1", "producer": "Chainer 3.2.0"
+  },
+  {
+    "type":   "onnx",
+    "target": "inception_v1_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/inception_v1.tar.gz[inception_v1/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "inception_v2_opset_6.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_6/inception_v2.tar.gz[inception_v2/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "inception_v2_opset_8.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_8/inception_v2.tar.gz[inception_v2/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "inception_v2_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/inception_v2.tar.gz[inception_v2/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "Kmeans.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2592495/Kmeans.onnx.zip[Kmeans.onnx]",
+    "format": "ONNX v3", "producer": "ML.NET 0.7.27009.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
+    "target": "Kmeans.pbtxt",
+    "status": "script",
+    "script": [ "${root}/tools/onnx", "sync install convert ${root}/test/data/onnx/Kmeans.onnx" ],
+    "format": "ONNX v3"
+  },
+  {
+    "type":   "onnx",
+    "target": "mnist.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/MNIST/Tutorial/cs/Assets"
+  },
+  {
+    "type":   "onnx",
+    "target": "mnist_opset_9.onnx",
+    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/mnist/mnist.tar.gz[mnist/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "resnet50_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/resnet50.tar.gz[resnet50/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "resnet50v2.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/resnet/resnet50v2/resnet50v2.onnx"
+  },
+  {
+    "type":   "onnx",
+    "target": "ResNet101_DUC_HDC.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/duc/ResNet101_DUC_HDC.onnx"
+  },
+  {
+    "type":   "onnx",
+    "target": "reshape_opset_4.pb",
+    "source": "https://github.com/lutzroeder/netron/files/2592375/reshape_opset.zip[reshape_opset_4.pb]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/pull/97"
+  },
+  {
+    "type":   "onnx",
+    "target": "reshape_opset_6.pb",
+    "source": "https://github.com/lutzroeder/netron/files/2592375/reshape_opset.zip[reshape_opset_6.pb]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/pull/97"
+  },
+  {
+    "type":   "onnx",
+    "target": "shufflenet_float16.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/2592368/shufflenet_float16.onnx.zip[shufflenet_float16.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/186"
+  },
+  {
+    "type":   "onnx",
+    "target": "shufflenet_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/shufflenet"
+  },
+  {
+    "type":   "onnx",
+    "target": "squeezenet.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx",
+    "format": "ONNX v1", "producer": "pytorch 0.2"
+  },
+  {
+    "type":   "onnx",
+    "target": "squeezenet1.1.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
+    "format": "ONNX v3"
+  },
+  {
+    "type":   "onnx",
+    "target": "test_operator_rnn.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
+    "type":   "onnx",
+    "target": "test_operator_rnn_single_layer.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn_single_layer/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
+    "type":   "onnx",
+    "target": "test_operator_lstm.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_lstm/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
+    "type":   "onnx",
+    "target": "test_lstm_with_peepholes.onnx",
+    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/node/test_lstm_with_peepholes/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+  },
+  {
+    "type":   "onnx",
+    "target": "tiny_yolov2_opset_8.onnx",
+    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/tiny_yolov2/tiny_yolov2.tar.gz[tiny_yolov2/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "YOLOv2_tiny.onnx",
+    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/YOLOv2_tiny/YOLOv2_tiny.onnx"
+  },
+  {
+    "type":   "onnx",
+    "target": "vgg16.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
+  },
+  {
+    "type":   "onnx",
+    "target": "vgg16-bn.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16-bn/vgg16-bn.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
+  },
+  {
+    "type":   "onnx",
+    "target": "vgg19.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19/vgg19.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
+  },
+  {
+    "type":   "onnx",
+    "target": "vgg19-bn.onnx",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19-bn/vgg19-bn.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
+  },
+  {
+    "type":   "onnx",
+    "target": "vgg19_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "zfnet512_opset_9.onnx",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "1D_lstm.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/1D_lstm.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "type":   "openvino",
+    "target": "age-gender-recognition-retail-0013.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "rm_cnn4a.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_cnn4a_smbr/rm_cnn4a.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "wsj_dnn5b.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/wsj_dnn5b_smbr/wsj_dnn5b.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "landmarks-regression-retail-0009-fp16.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
   },
   {
     "type":   "pytorch",

@@ -336,8 +336,8 @@ view.View = class {
     
                 var graphOptions = {};
                 graphOptions.nodesep = 25;
-                graphOptions.ranksep = 25;
-    
+                graphOptions.ranksep = 30;
+
                 var g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
                 g.setDefaultEdgeLabel(() => { return {}; });
@@ -350,7 +350,11 @@ view.View = class {
     
                 var id = new Date().getTime();
                 var nodes = graph.nodes;
-        
+
+                if (nodes.length > 1500) {
+                    graphOptions.ranker = 'longest-path';
+                }
+
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
                 if (groups) {
@@ -604,15 +608,6 @@ view.View = class {
                             var type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
                                 text = type.shape.dimensions.join('\u00D7');
-                            }
-                            else if (tuple.from.name && to.name) {
-                                text = tuple.from.name + ' \u21E8 ' + to.name;
-                            }
-                            else if (tuple.from.name) {
-                                text = tuple.from.name;
-                            }
-                            else {
-                                text = to.name;
                             }
             
                             if (this._showNames) {
