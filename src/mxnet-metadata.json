@@ -4,7 +4,7 @@
     "schema": {
       "attributes": [
         {
-          "default": "False",
+          "default": false,
           "name": "cudnn_off",
           "type": "bool"
         },
@@ -170,7 +170,7 @@
           "name": "ignore_label"
         },
         {
-          "default": "False",
+          "default": false,
           "name": "multi_output"
         },
         {
@@ -178,7 +178,7 @@
           "name": "normalization"
         },
         {
-          "default": "False",
+          "default": false,
           "name": "out_grad"
         },
         {
@@ -186,11 +186,11 @@
           "name": "smooth_alpha"
         },
         {
-          "default": "False",
+          "default": false,
           "name": "use_ignore"
         },
         {
-          "default": "False",
+          "default": false,
           "name": "preserve_shape"
         }
       ],
@@ -241,11 +241,11 @@
     "schema": {
       "attributes": [
         {
-          "default": "False",
+          "default": false,
           "name": "cudnn_off"
         },
         {
-          "default": "False",
+          "default": false,
           "name": "global_pool"
         },
         {
