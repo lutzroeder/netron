@@ -65,6 +65,7 @@ update(
   optional EvalDetectionParameter eval_detection_param = 301;
   optional YoloDetectionOutputParameter yolo_detection_output_param = 601; // eric612/MobileNet-YOLO
   optional Yolov3DetectionOutputParameter yolov3_detection_output_param = 602; // eric612/MobileNet-YOLO
+  optional Yolov3Parameter yolov3_param = 603; // 603 in eric612/Caffe-YOLOv3-Windows
   optional ROIPoolingParameter roi_pooling_param_2 = 8266711;
   optional NormalizeBBoxParameter normalize_bbox_param = 8266712; // 149
   optional BNParameter bn_param = 1137; // 41 in ChenglongChen/batch_normalization, 137 in yjxiong/caffe
@@ -589,6 +590,8 @@ message AnnotatedDataParameter {
   // If provided, it will replace the AnnotationType stored in each
   // AnnotatedDatum.
   optional AnnotatedDatum.AnnotationType anno_type = 3;
+  optional int32 yolo_data_type = 4 [default = 0]; // eric612/Caffe-YOLOv3-Windows
+  optional float yolo_data_jitter = 5 [default = 0.3]; // eric612/Caffe-YOLOv3-Windows
 }
 
 // Message that store parameters used by MultiBoxLossLayer
@@ -1148,6 +1151,22 @@ message Yolov3DetectionOutputParameter {
   repeated uint32 anchors_scale = 6 ;
   optional uint32 mask_group_num = 7 [default = 2];
   repeated uint32 mask = 8;
+}
+
+message Yolov3Parameter{
+  //Yolov3
+  optional uint32 side = 1 [default = 13];
+  optional uint32 num_class = 2 [default = 20];
+  optional uint32 num = 3 [default = 5];
+  optional float object_scale = 4 [default = 1.0];
+  optional float class_scale = 5 [default = 1.0];
+  optional float noobject_scale = 6 [default = 0.5];
+  optional float coord_scale = 7 [default = 5.0];
+  optional float thresh = 8 [default = 0.2];
+  optional uint32 anchors_scale = 10 [default = 32];
+  repeated float biases = 11;
+  repeated uint32 mask = 12;
+  optional bool use_logic_gradient = 13 [default = false];
 }
 
 // ***************** MulticoreWare_Modified - Feature: Pruning / Splicing ******************

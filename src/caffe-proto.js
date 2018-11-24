@@ -3019,6 +3019,7 @@
             LayerParameter.prototype.eval_detection_param = null;
             LayerParameter.prototype.yolo_detection_output_param = null;
             LayerParameter.prototype.yolov3_detection_output_param = null;
+            LayerParameter.prototype.yolov3_param = null;
             LayerParameter.prototype.roi_pooling_param_2 = null;
             LayerParameter.prototype.normalize_bbox_param = null;
             LayerParameter.prototype.bn_param = null;
@@ -3338,6 +3339,9 @@
                         break;
                     case 602:
                         message.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.decode(reader, reader.uint32());
+                        break;
+                    case 603:
+                        message.yolov3_param = $root.caffe.Yolov3Parameter.decode(reader, reader.uint32());
                         break;
                     case 8266711:
                         message.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.decode(reader, reader.uint32());
@@ -3700,6 +3704,9 @@
                         break;
                     case "yolov3_detection_output_param":
                         message.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.decodeText(reader, true);
+                        break;
+                    case "yolov3_param":
+                        message.yolov3_param = $root.caffe.Yolov3Parameter.decodeText(reader, true);
                         break;
                     case "roi_pooling_param_2":
                         message.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.decodeText(reader, true);
@@ -4234,6 +4241,11 @@
                     var error = $root.caffe.Yolov3DetectionOutputParameter.verify(message.yolov3_detection_output_param);
                     if (error)
                         return "yolov3_detection_output_param." + error;
+                }
+                if (message.yolov3_param != null && message.hasOwnProperty("yolov3_param")) {
+                    var error = $root.caffe.Yolov3Parameter.verify(message.yolov3_param);
+                    if (error)
+                        return "yolov3_param." + error;
                 }
                 if (message.roi_pooling_param_2 != null && message.hasOwnProperty("roi_pooling_param_2")) {
                     var error = $root.caffe.ROIPoolingParameter.verify(message.roi_pooling_param_2);
@@ -4812,6 +4824,11 @@
                         throw TypeError(".caffe.LayerParameter.yolov3_detection_output_param: object expected");
                     message.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.fromObject(object.yolov3_detection_output_param);
                 }
+                if (object.yolov3_param != null) {
+                    if (typeof object.yolov3_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.yolov3_param: object expected");
+                    message.yolov3_param = $root.caffe.Yolov3Parameter.fromObject(object.yolov3_param);
+                }
                 if (object.roi_pooling_param_2 != null) {
                     if (typeof object.roi_pooling_param_2 !== "object")
                         throw TypeError(".caffe.LayerParameter.roi_pooling_param_2: object expected");
@@ -5022,6 +5039,7 @@
                     object.eval_detection_param = null;
                     object.yolo_detection_output_param = null;
                     object.yolov3_detection_output_param = null;
+                    object.yolov3_param = null;
                     object.bn_param = null;
                     object.interp_param = null;
                     object.coeff_schedule_param = null;
@@ -5243,6 +5261,8 @@
                     object.yolo_detection_output_param = $root.caffe.YoloDetectionOutputParameter.toObject(message.yolo_detection_output_param, options);
                 if (message.yolov3_detection_output_param != null && message.hasOwnProperty("yolov3_detection_output_param"))
                     object.yolov3_detection_output_param = $root.caffe.Yolov3DetectionOutputParameter.toObject(message.yolov3_detection_output_param, options);
+                if (message.yolov3_param != null && message.hasOwnProperty("yolov3_param"))
+                    object.yolov3_param = $root.caffe.Yolov3Parameter.toObject(message.yolov3_param, options);
                 if (message.bn_param != null && message.hasOwnProperty("bn_param"))
                     object.bn_param = $root.caffe.BNParameter.toObject(message.bn_param, options);
                 if (message.interp_param != null && message.hasOwnProperty("interp_param"))
@@ -20137,6 +20157,8 @@
             AnnotatedDataParameter.prototype.batch_sampler = $util.emptyArray;
             AnnotatedDataParameter.prototype.label_map_file = "";
             AnnotatedDataParameter.prototype.anno_type = 0;
+            AnnotatedDataParameter.prototype.yolo_data_type = 0;
+            AnnotatedDataParameter.prototype.yolo_data_jitter = 0.3;
     
             AnnotatedDataParameter.create = function create(properties) {
                 return new AnnotatedDataParameter(properties);
@@ -20159,6 +20181,12 @@
                         break;
                     case 3:
                         message.anno_type = reader.int32();
+                        break;
+                    case 4:
+                        message.yolo_data_type = reader.int32();
+                        break;
+                    case 5:
+                        message.yolo_data_jitter = reader.float();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -20186,6 +20214,12 @@
                         break;
                     case "anno_type":
                         message.anno_type = reader.enum($root.caffe.AnnotatedDatum.AnnotationType);
+                        break;
+                    case "yolo_data_type":
+                        message.yolo_data_type = reader.int32();
+                        break;
+                    case "yolo_data_jitter":
+                        message.yolo_data_jitter = reader.float();
                         break;
                     default:
                         reader.handle(tag);
@@ -20217,6 +20251,12 @@
                     case 0:
                         break;
                     }
+                if (message.yolo_data_type != null && message.hasOwnProperty("yolo_data_type"))
+                    if (!$util.isInteger(message.yolo_data_type))
+                        return "yolo_data_type: integer expected";
+                if (message.yolo_data_jitter != null && message.hasOwnProperty("yolo_data_jitter"))
+                    if (typeof message.yolo_data_jitter !== "number")
+                        return "yolo_data_jitter: number expected";
                 return null;
             };
     
@@ -20242,6 +20282,10 @@
                     message.anno_type = 0;
                     break;
                 }
+                if (object.yolo_data_type != null)
+                    message.yolo_data_type = object.yolo_data_type | 0;
+                if (object.yolo_data_jitter != null)
+                    message.yolo_data_jitter = Number(object.yolo_data_jitter);
                 return message;
             };
     
@@ -20254,6 +20298,8 @@
                 if (options.defaults) {
                     object.label_map_file = "";
                     object.anno_type = options.enums === String ? "BBOX" : 0;
+                    object.yolo_data_type = 0;
+                    object.yolo_data_jitter = 0.3;
                 }
                 if (message.batch_sampler && message.batch_sampler.length) {
                     object.batch_sampler = [];
@@ -20264,6 +20310,10 @@
                     object.label_map_file = message.label_map_file;
                 if (message.anno_type != null && message.hasOwnProperty("anno_type"))
                     object.anno_type = options.enums === String ? $root.caffe.AnnotatedDatum.AnnotationType[message.anno_type] : message.anno_type;
+                if (message.yolo_data_type != null && message.hasOwnProperty("yolo_data_type"))
+                    object.yolo_data_type = message.yolo_data_type;
+                if (message.yolo_data_jitter != null && message.hasOwnProperty("yolo_data_jitter"))
+                    object.yolo_data_jitter = options.json && !isFinite(message.yolo_data_jitter) ? String(message.yolo_data_jitter) : message.yolo_data_jitter;
                 return object;
             };
     
@@ -27475,6 +27525,306 @@
             };
     
             return Yolov3DetectionOutputParameter;
+        })();
+    
+        caffe.Yolov3Parameter = (function() {
+    
+            function Yolov3Parameter(properties) {
+                this.biases = [];
+                this.mask = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            Yolov3Parameter.prototype.side = 13;
+            Yolov3Parameter.prototype.num_class = 20;
+            Yolov3Parameter.prototype.num = 5;
+            Yolov3Parameter.prototype.object_scale = 1;
+            Yolov3Parameter.prototype.class_scale = 1;
+            Yolov3Parameter.prototype.noobject_scale = 0.5;
+            Yolov3Parameter.prototype.coord_scale = 5;
+            Yolov3Parameter.prototype.thresh = 0.2;
+            Yolov3Parameter.prototype.anchors_scale = 32;
+            Yolov3Parameter.prototype.biases = $util.emptyArray;
+            Yolov3Parameter.prototype.mask = $util.emptyArray;
+            Yolov3Parameter.prototype.use_logic_gradient = false;
+    
+            Yolov3Parameter.create = function create(properties) {
+                return new Yolov3Parameter(properties);
+            };
+    
+            Yolov3Parameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.Yolov3Parameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.side = reader.uint32();
+                        break;
+                    case 2:
+                        message.num_class = reader.uint32();
+                        break;
+                    case 3:
+                        message.num = reader.uint32();
+                        break;
+                    case 4:
+                        message.object_scale = reader.float();
+                        break;
+                    case 5:
+                        message.class_scale = reader.float();
+                        break;
+                    case 6:
+                        message.noobject_scale = reader.float();
+                        break;
+                    case 7:
+                        message.coord_scale = reader.float();
+                        break;
+                    case 8:
+                        message.thresh = reader.float();
+                        break;
+                    case 10:
+                        message.anchors_scale = reader.uint32();
+                        break;
+                    case 11:
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.biases.push(reader.float());
+                        } else
+                            message.biases.push(reader.float());
+                        break;
+                    case 12:
+                        if (!(message.mask && message.mask.length))
+                            message.mask = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.mask.push(reader.uint32());
+                        } else
+                            message.mask.push(reader.uint32());
+                        break;
+                    case 13:
+                        message.use_logic_gradient = reader.bool();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            Yolov3Parameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.Yolov3Parameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "side":
+                        message.side = reader.uint32();
+                        break;
+                    case "num_class":
+                        message.num_class = reader.uint32();
+                        break;
+                    case "num":
+                        message.num = reader.uint32();
+                        break;
+                    case "object_scale":
+                        message.object_scale = reader.float();
+                        break;
+                    case "class_scale":
+                        message.class_scale = reader.float();
+                        break;
+                    case "noobject_scale":
+                        message.noobject_scale = reader.float();
+                        break;
+                    case "coord_scale":
+                        message.coord_scale = reader.float();
+                        break;
+                    case "thresh":
+                        message.thresh = reader.float();
+                        break;
+                    case "anchors_scale":
+                        message.anchors_scale = reader.uint32();
+                        break;
+                    case "biases":
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        message.biases.push(reader.float());
+                        break;
+                    case "mask":
+                        if (!(message.mask && message.mask.length))
+                            message.mask = [];
+                        message.mask.push(reader.uint32());
+                        break;
+                    case "use_logic_gradient":
+                        message.use_logic_gradient = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            Yolov3Parameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.side != null && message.hasOwnProperty("side"))
+                    if (!$util.isInteger(message.side))
+                        return "side: integer expected";
+                if (message.num_class != null && message.hasOwnProperty("num_class"))
+                    if (!$util.isInteger(message.num_class))
+                        return "num_class: integer expected";
+                if (message.num != null && message.hasOwnProperty("num"))
+                    if (!$util.isInteger(message.num))
+                        return "num: integer expected";
+                if (message.object_scale != null && message.hasOwnProperty("object_scale"))
+                    if (typeof message.object_scale !== "number")
+                        return "object_scale: number expected";
+                if (message.class_scale != null && message.hasOwnProperty("class_scale"))
+                    if (typeof message.class_scale !== "number")
+                        return "class_scale: number expected";
+                if (message.noobject_scale != null && message.hasOwnProperty("noobject_scale"))
+                    if (typeof message.noobject_scale !== "number")
+                        return "noobject_scale: number expected";
+                if (message.coord_scale != null && message.hasOwnProperty("coord_scale"))
+                    if (typeof message.coord_scale !== "number")
+                        return "coord_scale: number expected";
+                if (message.thresh != null && message.hasOwnProperty("thresh"))
+                    if (typeof message.thresh !== "number")
+                        return "thresh: number expected";
+                if (message.anchors_scale != null && message.hasOwnProperty("anchors_scale"))
+                    if (!$util.isInteger(message.anchors_scale))
+                        return "anchors_scale: integer expected";
+                if (message.biases != null && message.hasOwnProperty("biases")) {
+                    if (!Array.isArray(message.biases))
+                        return "biases: array expected";
+                    for (var i = 0; i < message.biases.length; ++i)
+                        if (typeof message.biases[i] !== "number")
+                            return "biases: number[] expected";
+                }
+                if (message.mask != null && message.hasOwnProperty("mask")) {
+                    if (!Array.isArray(message.mask))
+                        return "mask: array expected";
+                    for (var i = 0; i < message.mask.length; ++i)
+                        if (!$util.isInteger(message.mask[i]))
+                            return "mask: integer[] expected";
+                }
+                if (message.use_logic_gradient != null && message.hasOwnProperty("use_logic_gradient"))
+                    if (typeof message.use_logic_gradient !== "boolean")
+                        return "use_logic_gradient: boolean expected";
+                return null;
+            };
+    
+            Yolov3Parameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.Yolov3Parameter)
+                    return object;
+                var message = new $root.caffe.Yolov3Parameter();
+                if (object.side != null)
+                    message.side = object.side >>> 0;
+                if (object.num_class != null)
+                    message.num_class = object.num_class >>> 0;
+                if (object.num != null)
+                    message.num = object.num >>> 0;
+                if (object.object_scale != null)
+                    message.object_scale = Number(object.object_scale);
+                if (object.class_scale != null)
+                    message.class_scale = Number(object.class_scale);
+                if (object.noobject_scale != null)
+                    message.noobject_scale = Number(object.noobject_scale);
+                if (object.coord_scale != null)
+                    message.coord_scale = Number(object.coord_scale);
+                if (object.thresh != null)
+                    message.thresh = Number(object.thresh);
+                if (object.anchors_scale != null)
+                    message.anchors_scale = object.anchors_scale >>> 0;
+                if (object.biases) {
+                    if (!Array.isArray(object.biases))
+                        throw TypeError(".caffe.Yolov3Parameter.biases: array expected");
+                    message.biases = [];
+                    for (var i = 0; i < object.biases.length; ++i)
+                        message.biases[i] = Number(object.biases[i]);
+                }
+                if (object.mask) {
+                    if (!Array.isArray(object.mask))
+                        throw TypeError(".caffe.Yolov3Parameter.mask: array expected");
+                    message.mask = [];
+                    for (var i = 0; i < object.mask.length; ++i)
+                        message.mask[i] = object.mask[i] >>> 0;
+                }
+                if (object.use_logic_gradient != null)
+                    message.use_logic_gradient = Boolean(object.use_logic_gradient);
+                return message;
+            };
+    
+            Yolov3Parameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.biases = [];
+                    object.mask = [];
+                }
+                if (options.defaults) {
+                    object.side = 13;
+                    object.num_class = 20;
+                    object.num = 5;
+                    object.object_scale = 1;
+                    object.class_scale = 1;
+                    object.noobject_scale = 0.5;
+                    object.coord_scale = 5;
+                    object.thresh = 0.2;
+                    object.anchors_scale = 32;
+                    object.use_logic_gradient = false;
+                }
+                if (message.side != null && message.hasOwnProperty("side"))
+                    object.side = message.side;
+                if (message.num_class != null && message.hasOwnProperty("num_class"))
+                    object.num_class = message.num_class;
+                if (message.num != null && message.hasOwnProperty("num"))
+                    object.num = message.num;
+                if (message.object_scale != null && message.hasOwnProperty("object_scale"))
+                    object.object_scale = options.json && !isFinite(message.object_scale) ? String(message.object_scale) : message.object_scale;
+                if (message.class_scale != null && message.hasOwnProperty("class_scale"))
+                    object.class_scale = options.json && !isFinite(message.class_scale) ? String(message.class_scale) : message.class_scale;
+                if (message.noobject_scale != null && message.hasOwnProperty("noobject_scale"))
+                    object.noobject_scale = options.json && !isFinite(message.noobject_scale) ? String(message.noobject_scale) : message.noobject_scale;
+                if (message.coord_scale != null && message.hasOwnProperty("coord_scale"))
+                    object.coord_scale = options.json && !isFinite(message.coord_scale) ? String(message.coord_scale) : message.coord_scale;
+                if (message.thresh != null && message.hasOwnProperty("thresh"))
+                    object.thresh = options.json && !isFinite(message.thresh) ? String(message.thresh) : message.thresh;
+                if (message.anchors_scale != null && message.hasOwnProperty("anchors_scale"))
+                    object.anchors_scale = message.anchors_scale;
+                if (message.biases && message.biases.length) {
+                    object.biases = [];
+                    for (var j = 0; j < message.biases.length; ++j)
+                        object.biases[j] = options.json && !isFinite(message.biases[j]) ? String(message.biases[j]) : message.biases[j];
+                }
+                if (message.mask && message.mask.length) {
+                    object.mask = [];
+                    for (var j = 0; j < message.mask.length; ++j)
+                        object.mask[j] = message.mask[j];
+                }
+                if (message.use_logic_gradient != null && message.hasOwnProperty("use_logic_gradient"))
+                    object.use_logic_gradient = message.use_logic_gradient;
+                return object;
+            };
+    
+            Yolov3Parameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return Yolov3Parameter;
         })();
     
         caffe.SqueezeConvolutionParameter = (function() {
