@@ -405,5 +405,17 @@
         { "name": "output", "type": "T" }
       ]
     }
+  },
+  {
+    "name": "ResizeBilinear",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "size" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]
