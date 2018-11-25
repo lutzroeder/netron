@@ -528,13 +528,10 @@ onnx.Attribute = class {
         if (attribute.doc_string) {
             this._description = this._attribute.doc_string;
         }
-        if (attribute.hasOwnProperty('t')) {
-            this._tensor = true;
-        }
 
         if (attribute.ints && attribute.ints.length > 0) {
             if (attribute.ints.length > 65536) {
-                this._value = () => '...';
+                this._value = () => '[...]';
             }
             else {
                 this._value = attribute.ints; 
@@ -542,7 +539,7 @@ onnx.Attribute = class {
         }
         else if (attribute.floats && attribute.floats.length > 0) {
             if (attribute.floats.length > 65536) {
-                this._value = () => '...';
+                this._value = () => '[...]';
             }
             else {
                 this._value = attribute.floats;
@@ -550,7 +547,7 @@ onnx.Attribute = class {
         }
         else if (attribute.strings && attribute.strings.length > 0) {
             if (attribute.strings.length > 65536) {
-                this._value = () => '...';
+                this._value = () => '[...]';
             }
             else {
                 this._value = attribute.strings.map((s) => {
@@ -582,6 +579,7 @@ onnx.Attribute = class {
             this._value = attribute.i;
         }
         else if (attribute.hasOwnProperty('t')) {
+            this._type = 'tensor';
             this._value = new onnx.Tensor(attribute.t).value;
         }
         else if (attribute.hasOwnProperty('g')) {
@@ -641,10 +639,6 @@ onnx.Attribute = class {
 
     get visible() {
         return this._visible == false ? false : true;
-    }
-
-    get tensor() {
-        return this._tensor ? true : false;
     }
 };
 

@@ -169,6 +169,7 @@ function loadModel(target, item, callback) {
                         if (value && value.length > 1000) {
                             value = value.substring(0, 1000) + '...';
                         }
+                        value = value.split('<');
                     });
                     node.inputs.forEach((input) => {
                         input.connections.forEach((connection) => {

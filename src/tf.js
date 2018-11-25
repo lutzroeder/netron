@@ -570,15 +570,15 @@ tf.Attribute = class {
         this._type = null;
         var schema = metadata.getAttributeSchema(operator, name);
         if (value.hasOwnProperty('tensor')) {
-            this._type = new tf.Tensor(value.tensor).type;
-            this._tensor = value.tensor.tensor_shape && value.tensor.tensor_shape.dim && value.tensor.tensor_shape.dim.length > 0;
+            this._type = 'tensor';
+            this._value = new tf.Tensor(value.tensor);
         }
         else if (schema && schema.type) {
             this._type = schema.type;
         }
         if (value.hasOwnProperty('type')) {
-            this._value = () => tf.Tensor.formatDataType(value.type);
             this._type = 'type';
+            this._value = () => tf.Tensor.formatDataType(value.type);
          }
         else if (value.hasOwnProperty('i')) {
             this._value = value.i;
@@ -602,14 +602,15 @@ tf.Attribute = class {
             }
         }
         else if (value.hasOwnProperty('tensor')) {
-            this._value = () => new tf.Tensor(value.tensor);
+            this._type = 'tensor';
+            this._value = new tf.Tensor(value.tensor);
         }
         else if (value.hasOwnProperty('list')) {
             var list = value.list;
             this._value = [];
             if (list.s && list.s.length > 0) {
                 if (list.s.length > 65536) {
-                    this._value = () => '...';
+                    this._value = () => '[...]';
                 }
                 else {
                     this._value = list.s.map((s) => {
@@ -622,7 +623,7 @@ tf.Attribute = class {
             }
             else if (list.i && list.i.length > 0) {
                 if (list.i.length > 65536) {
-                    this._value = () => '...';
+                    this._value = () => '[...]';
                 }
                 else {
                     this._value = list.i;
@@ -630,7 +631,7 @@ tf.Attribute = class {
             }
             else if (list.f && list.f.length > 0) {
                 if (list.f.length > 65536) {
-                    this._value = () => '...';
+                    this._value = () => '[...]';
                 }
                 else {
                     this._value = list.f;
@@ -638,20 +639,20 @@ tf.Attribute = class {
             }
             else if (list.type && list.type.length > 0) {
                 if (list.type.length > 65536) {
-                    this._value = () => '...';
+                    this._value = () => '[...]';
                 }
                 else {
-                    this._value = list.type.map((type) => tf.Tensor.formatDataType(type)); 
                     this._type = 'type[]';
+                    this._value = list.type.map((type) => tf.Tensor.formatDataType(type)); 
                 }
             }
             else if (list.shape && list.shape.length > 0) {
                 if (list.shape.length > 65536) {
-                    this._value = () => '...';
+                    this._value = () => '[...]';
                 }
                 else {
-                    this._value = list.shape.map((shape) => new tf.TensorShape(shape));
                     this._type = 'shape[]';
+                    this._value = list.shape.map((shape) => new tf.TensorShape(shape));
                 }
             }
         }
@@ -698,10 +699,6 @@ tf.Attribute = class {
 
     get visible() {
         return this._visible == false ? false : true;
-    }
-
-    get tensor() {
-        return this._tensor ? true : false;
     }
 };
 

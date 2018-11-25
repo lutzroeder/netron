@@ -286,17 +286,13 @@ class NodeAttributeView {
             });
             this._element.appendChild(this._expander);
         }
-        var value = '';
-        if (this._attribute.tensor) {
-            value = '[...]';
-        }
-        else {
-            value = view.View.formatAttributeValue(this._attribute.value, this._attribute.type);
-        }
+        var value = view.View.formatAttributeValue(this._attribute.value, this._attribute.type);
         if (value && value.length > 1000) {
             value = value.substring(0, 1000) + '...';
         }
-        value = value.split('<').join('&lt;').split('>').join('&gt;');
+        if (value && typeof value === 'string') {
+            value = value.split('<').join('&lt;').split('>').join('&gt;');
+        }
         var valueLine = document.createElement('div');
         valueLine.className = 'sidebar-view-item-value-line';
         valueLine.innerHTML = (value ? value : '&nbsp;');
@@ -313,8 +309,16 @@ class NodeAttributeView {
 
             var typeLine = document.createElement('div');
             typeLine.className = 'sidebar-view-item-value-line-border';
-            typeLine.innerHTML = 'type: ' + '<code><b>' + this._attribute.type + '</b></code>';
-            this._element.appendChild(typeLine);
+            var type = this._attribute.type;
+            var value = this._attribute.value;
+            if (type == 'tensor') {
+                typeLine.innerHTML = 'type: ' + '<code><b>' + value.type.toString() + '</b></code>';
+                this._element.appendChild(typeLine);
+            }
+            else {
+                typeLine.innerHTML = 'type: ' + '<code><b>' + this._attribute.type + '</b></code>';
+                this._element.appendChild(typeLine);
+            }
 
             var description = this._attribute.description;
             if (description) {
@@ -322,6 +326,16 @@ class NodeAttributeView {
                 descriptionLine.className = 'sidebar-view-item-value-line-border';
                 descriptionLine.innerHTML = description;
                 this._element.appendChild(descriptionLine);
+            }
+
+            if (this._attribute.type == 'tensor') {
+                var state = value.state;
+                var valueLine = document.createElement('div');
+                valueLine.className = 'sidebar-view-item-value-line-border';
+                var contentLine = document.createElement('pre');
+                contentLine.innerHTML = state || value.toString();
+                valueLine.appendChild(contentLine);
+                this._element.appendChild(valueLine);
             }
         }
         else {

@@ -498,13 +498,7 @@ view.View = class {
                             });
                             attributes.forEach((attribute) => {
                                 if (attribute.visible) {
-                                    var attributeValue = '';
-                                    if (attribute.tensor) {
-                                        attributeValue = '[...]';
-                                    }
-                                    else {
-                                        attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
-                                    }
+                                    var attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
                                         attributeValue = attributeValue.substring(0, 25) + '...';
                                     }
@@ -841,7 +835,7 @@ view.View = class {
         if (value && value.__isLong__) {
             return value.toString();
         }
-        if (value instanceof base.Int64 || value instanceof base.Uint64) {
+        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
             return value.toString();
         }
         if (Number.isNaN(value)) {
@@ -858,6 +852,9 @@ view.View = class {
         }
         if (type == 'graph[]') {
             return value.map((item) => item.toString()).join(', ');
+        }
+        if (type == 'tensor') {
+            return '[...]';
         }
         if (Array.isArray(value)) {
             return value.map((item) => {
