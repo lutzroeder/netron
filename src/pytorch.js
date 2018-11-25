@@ -228,7 +228,9 @@ pytorch.ModelFactory = class {
                 if (constructor) {
                     constructor.apply(obj, args);
                 }
-                else if (name.startsWith('torch.') || name.startsWith('torchvision.') || name.startsWith('argparse.') || name.startsWith('collections.') | name.startsWith('__builtin__.')) {
+                else if (name.startsWith('torch.') || name.startsWith('torchvision.') || 
+                         name.startsWith('argparse.') || name.startsWith('collections.') ||
+                         name.startsWith('numpy.') || name.startsWith('__builtin__.') || name.startsWith('_codecs.')) {
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;
