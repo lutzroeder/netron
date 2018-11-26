@@ -504,10 +504,7 @@ cntk.Node = class {
 
     get category() {
         var schema = cntk.OperatorMetadata.operatorMetadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
-        if (schema && schema.category) {
-            return schema.category;
-        }
-        return null;
+        return (schema && schema.category) ? schema.category : null;
     }
 
     get documentation() { 
