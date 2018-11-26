@@ -1259,6 +1259,11 @@
   },
   {
     "type":   "coreml",
+    "target": "GoogLeNetPlaces.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel"
+  },
+  {
+    "type":   "coreml",
     "target": "HED_so.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_so.mlmodel"
   },
@@ -1288,6 +1293,11 @@
   },
   {
     "type":   "coreml",
+    "target": "Inceptionv3.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel"
+  },
+  {
+    "type":   "coreml",
     "target": "iris.mlmodel",
     "source": "https://raw.githubusercontent.com/gavi/Iris/master/Iris/iris.mlmodel",
     "format": "CoreML v1",
@@ -1310,6 +1320,13 @@
   },
   {
     "type":   "coreml",
+    "target": "mobilenet_v2_1.4_224.mlmodel",
+    "source": "https://github.com/tf-coreml/tf-coreml/files/2575260/mobilenet_v2_1.4_224.mlmodel.zip[mobilenet_v2_1.4_224.mlmodel]",
+    "format": "CoreML v1",
+    "link":   "https://github.com/tf-coreml/tf-coreml/issues/252"
+  },
+  {
+    "type":   "coreml",
     "target": "NamesDT.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/NamesDT.mlmodel"
   },
@@ -1323,6 +1340,35 @@
     "target": "onehot_simple.mlmodel",
     "source": "https://raw.githubusercontent.com/onnx/onnxmltools/master/tests/data/onehot_simple.mlmodel",
     "link":   "https://github.com/onnx/onnxmltools/tree/master/tests/data"
+  },
+  {
+    "type":   "coreml",
+    "target": "Oxford102.mlmodel",
+    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Oxford102.mlmodel"
+  },
+  {
+    "type":   "coreml",
+    "target": "ProductTagger.mlmodel",
+    "source": "https://raw.githubusercontent.com/aidev1065/CustomEntityRecognition/master/ProductTagger.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/aidev1065/CustomEntityRecognition"
+  },
+  {
+    "type":   "coreml",
+    "target": "ProgrammingLanguageClassifier.mlmodel",
+    "source": "https://raw.githubusercontent.com/Flight-School/Programming-Language-Classifier/master/ProgrammingLanguageClassifier.mlmodel",
+    "format": "CoreML v3",
+    "link":   "https://github.com/Flight-School/Programming-Language-Classifier"
+  },
+  {
+    "type":   "coreml",
+    "target": "Resnet50.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Resnet50.mlmodel"
+  },
+  {
+    "type":   "coreml",
+    "target": "RN1015k500.mlmodel",
+    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/RN1015k500.mlmodel"
   },
   {
     "type":   "coreml",
@@ -1340,38 +1386,6 @@
     "type":   "coreml",
     "target": "SqueezeNet.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/SqueezeNet.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "GoogLeNetPlaces.mlmodel",
-    "source": "https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "Resnet50.mlmodel",
-    "source": "https://docs-assets.developer.apple.com/coreml/models/Resnet50.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "Inceptionv3.mlmodel",
-    "source": "https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "mobilenet_v2_1.4_224.mlmodel",
-    "source": "https://github.com/tf-coreml/tf-coreml/files/2575260/mobilenet_v2_1.4_224.mlmodel.zip[mobilenet_v2_1.4_224.mlmodel]",
-    "format": "CoreML v1",
-    "link":   "https://github.com/tf-coreml/tf-coreml/issues/252"
-  },
-  {
-    "type":   "coreml",
-    "target": "Oxford102.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Oxford102.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "RN1015k500.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/RN1015k500.mlmodel"
   },
   {
     "type":   "coreml",

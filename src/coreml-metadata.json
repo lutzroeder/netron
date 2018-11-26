@@ -396,5 +396,27 @@
     "schema": {
       "category": "Data"
     }
+  },
+  {
+    "name": "wordTagger",
+    "schema": {
+      "attributes": [
+        { "name": "revision", "visible": false }
+      ],
+      "outputs": [
+        { "name": "tokens" },
+        { "name": "tags" },
+        { "name": "locations" },
+        { "name": "lengths" }
+      ]
+    }
+  },
+  {
+    "name": "textClassifier",
+    "schema": {
+      "attributes": [
+        { "name": "revision", "visible": false }
+      ]
+    }
   }
 ]

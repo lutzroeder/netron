@@ -164,6 +164,8 @@ function loadModel(target, item, callback) {
                     });
                 });
                 graph.nodes.forEach((node) => {
+                    var documentation = node.documentation;
+                    var category = node.category;
                     node.attributes.forEach((attribute) => {
                         var value = view.View.formatAttributeValue(attribute.value, attribute.type)
                         if (value && value.length > 1000) {
