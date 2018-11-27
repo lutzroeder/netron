@@ -7,7 +7,7 @@ var marked = marked || require('marked');
 caffe2.ModelFactory = class {
 
     match(context, host) {
-        var identifier = context.identifier;
+        var identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('predict_net.pb')) {
             return true;
         }
