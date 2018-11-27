@@ -99,11 +99,67 @@ openvino.ir.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
+        this.handleParsedLayers(netDef);
+    }
+
+    handleParsedLayers(netDef) {
         netDef.layers.forEach((layer) => {
             const node = new openvino.ir.Node(layer, this._version, netDef.edges, netDef.layers);
-            this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
-            this._nodes.push(node);
+
+            if (layer.type === 'TensorIterator') {
+                console.log('Handling TensorIterator specially');
+                layer.nestedIR.layers.forEach((nestedLayer) => {
+                    nestedLayer.id = `${layer.id}_${nestedLayer.id}`;
+                    const nestedNode = new openvino.ir.Node(nestedLayer, this._version, layer.nestedIR.edges, layer.nestedIR.layers);
+                    this.addNewNode(nestedNode);
+                });
+
+                console.log('Handling edges for the nested nodes specially');
+                // We know for sure that edges that appeared in the nested IR are not
+                // aware of the external context
+                layer.mappingForNestedIR.input.forEach((nestedInput) => {
+                    console.log('Input from ' + nestedInput.external_port_id);
+                    const nestedNode = this._nodes.find((n) => n._id === `${layer.id}_${nestedInput.internal_layer_id}`);
+
+                    const candidate_edge = netDef.edges.find((edge) => {
+                        return edge['to-layer'] === node._id && edge['to-port'] === nestedInput.external_port_id;
+                    });
+                    const parentID = candidate_edge['from-layer'];
+                    const parent = netDef.layers.find((layer) => layer.id === parentID);
+                    if (!nestedNode._inputs){
+                        nestedNode._inputs = [];
+                        nestedNode._inputs.push(parent.id)
+                    } else {
+                        nestedNode._inputs[nestedInput.internal_port_id] = parent.id;
+                    }
+                });
+
+                layer.mappingForNestedIR.output.forEach((nestedOutput) => {
+                    console.log('Output to ' + nestedOutput.external_port_id);
+                    const nestedNode = this._nodes.find((n) => n._id === `${layer.id}_${nestedOutput.internal_layer_id}`)
+
+                    const candidate_edge = netDef.edges.find((edge) => {
+                        return edge['from-layer'] === node._id && edge['from-port'] === nestedOutput.external_port_id;
+                    });
+                    const childID = candidate_edge['to-layer'];
+                    const child = netDef.layers.find((layer) => layer.id === childID);
+                    if (!nestedNode._outputs){
+                        nestedNode._outputs = [];
+                        nestedNode._inputs.push(child.id)
+                    } else {
+                        nestedNode._outputs[nestedOutput.internal_port_id] = child.id;
+                    }
+                });
+
+                return;
+            }
+            this.addNewNode(node);
         });
+    }
+
+    addNewNode(node) {
+        this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
+        this._nodes.push(node);
     }
 
     get name() {

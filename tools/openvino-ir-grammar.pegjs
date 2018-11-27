@@ -135,7 +135,7 @@ LayerTag
         }
         
         if (body && body.length > 0) {
-        	start.nestedIR = body;
+        	start.nestedIR = body[0];
         }
         
         if (portMap && portMap[0]) {
@@ -462,7 +462,6 @@ BodyTag
     closeEdges: EdgesCloseTag _
     next6: CommentsTag* _
     rest: _ {
-    	console.log({layers: layers, edges: edges[1]});
     	return {layers: layers, edges: edges[1]};
     }
 
