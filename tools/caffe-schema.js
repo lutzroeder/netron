@@ -93,7 +93,17 @@ update(
 }`);
 
 update(
-`  optional uint32 crop_size = 3 [default = 0];
+`// Message that stores parameters used to apply transformation
+// to the data layer's data
+message TransformationParameter {
+  // For data pre-processing, we can do simple scaling and subtracting the
+  // data mean, if provided. Note that the mean subtraction is always carried
+  // out before scaling.
+  optional float scale = 1 [default = 1];
+  // Specify if we want to randomly mirror data.
+  optional bool mirror = 2 [default = false];
+  // Specify if we would like to randomly crop an image.
+  optional uint32 crop_size = 3 [default = 0];
   // mean_file and mean_value cannot be specified at the same time
   optional string mean_file = 4;
   // if specified can be repeated once (would subtract it from all the channels)
@@ -105,13 +115,20 @@ update(
   // Force the decoded image to have 1 color channels.
   optional bool force_gray = 7 [default = false];
 }`,
-`  optional uint32 crop_size = 3 [default = 0];
-  optional uint32 crop_h = 11 [default = 0];
-  optional uint32 crop_w = 12 [default = 0];
-
+`// Message that stores parameters used to apply transformation
+// to the data layer's data
+message TransformationParameter {
+  // For data pre-processing, we can do simple scaling and subtracting the
+  // data mean, if provided. Note that the mean subtraction is always carried
+  // out before scaling.
+  optional float scale = 1 [default = 1];
+  // Specify if we want to randomly mirror data.
+  optional bool mirror = 2 [default = false];
+  // Specify if we would like to randomly crop an image.
+  optional uint32 crop_size = 3 [default = 0];
   // mean_file and mean_value cannot be specified at the same time
   optional string mean_file = 4;
-  // if specified can be repeated once (would substract it from all the channels)
+  // if specified can be repeated once (would subtract it from all the channels)
   // or can be repeated the same number of times as channels
   // (would subtract them from the corresponding channel)
   repeated float mean_value = 5;
@@ -119,24 +136,34 @@ update(
   optional bool force_color = 6 [default = false];
   // Force the decoded image to have 1 color channels.
   optional bool force_gray = 7 [default = false];
-  // Resize policy
+
   optional ResizeParameter resize_param = 8;
-  // Noise policy
   optional NoiseParameter noise_param = 9;
-  // Distortion policy
-  optional DistortionParameter distort_param = 13;
-  // Expand policy
-  optional ExpansionParameter expand_param = 14;
-  // Constraint for emitting the annotation after transformation.
   optional EmitConstraint emit_constraint = 10;
-  // Resize the input randomly
+  optional uint32 crop_h = 11 [default = 0];
+  optional uint32 crop_w = 12 [default = 0];
+  optional DistortionParameter distort_param = 13;
+  optional ExpansionParameter expand_param = 14;
   optional RandomResizeParameter random_resize_param = 15;
   optional RandomAspectRatioParameter random_aspect_ratio_param = 16;
-
-    //will flip x flow if flow image input
   optional bool flow = 17 [default = false];
-
   optional bool bgr2rgb = 18 [ default = false ];
+
+  optional float min_scaling_factor = 108 [default = 0.75]; // 8 in twtygqyy/caffe-augmentation
+  optional float max_scaling_factor = 109 [default = 1.50]; // 9 in twtygqyy/caffe-augmentation
+  optional uint32 max_rotation_angle = 110 [default = 0]; // 10 in twtygqyy/caffe-augmentation
+  optional bool contrast_brightness_adjustment = 111 [default = false]; // 11 in twtygqyy/caffe-augmentation
+  optional bool smooth_filtering = 112 [default = false]; // 12 in twtygqyy/caffe-augmentation
+  optional float min_contrast = 114 [default = 0.8]; // 14 in twtygqyy/caffe-augmentation
+  optional float max_contrast = 115 [default = 1.2]; // 15 in twtygqyy/caffe-augmentation
+  optional uint32 max_brightness_shift = 116 [default = 5]; // 16 in twtygqyy/caffe-augmentation
+  optional float max_smooth = 117 [default = 6]; // 17 in twtygqyy/caffe-augmentation
+  optional uint32 max_color_shift = 120 [default = 0]; // 20 in twtygqyy/caffe-augmentation
+  optional uint32 min_side_min = 113 [default = 0]; // 13 in twtygqyy/caffe-augmentation
+  optional uint32 min_side_max = 121 [default = 0]; // 21 in twtygqyy/caffe-augmentation
+  optional uint32 min_side = 122 [default = 0]; // 22 in twtygqyy/caffe-augmentation
+  optional float apply_probability = 118 [default = 0.5]; // 18 in twtygqyy/caffe-augmentation
+  optional bool debug_params = 119 [default = false]; // 19 in twtygqyy/caffe-augmentation
 }
 
 // Message that stores parameters used by data transformer for transformation

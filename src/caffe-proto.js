@@ -5334,21 +5334,36 @@
             TransformationParameter.prototype.scale = 1;
             TransformationParameter.prototype.mirror = false;
             TransformationParameter.prototype.crop_size = 0;
-            TransformationParameter.prototype.crop_h = 0;
-            TransformationParameter.prototype.crop_w = 0;
             TransformationParameter.prototype.mean_file = "";
             TransformationParameter.prototype.mean_value = $util.emptyArray;
             TransformationParameter.prototype.force_color = false;
             TransformationParameter.prototype.force_gray = false;
             TransformationParameter.prototype.resize_param = null;
             TransformationParameter.prototype.noise_param = null;
+            TransformationParameter.prototype.emit_constraint = null;
+            TransformationParameter.prototype.crop_h = 0;
+            TransformationParameter.prototype.crop_w = 0;
             TransformationParameter.prototype.distort_param = null;
             TransformationParameter.prototype.expand_param = null;
-            TransformationParameter.prototype.emit_constraint = null;
             TransformationParameter.prototype.random_resize_param = null;
             TransformationParameter.prototype.random_aspect_ratio_param = null;
             TransformationParameter.prototype.flow = false;
             TransformationParameter.prototype.bgr2rgb = false;
+            TransformationParameter.prototype.min_scaling_factor = 0.75;
+            TransformationParameter.prototype.max_scaling_factor = 1.5;
+            TransformationParameter.prototype.max_rotation_angle = 0;
+            TransformationParameter.prototype.contrast_brightness_adjustment = false;
+            TransformationParameter.prototype.smooth_filtering = false;
+            TransformationParameter.prototype.min_contrast = 0.8;
+            TransformationParameter.prototype.max_contrast = 1.2;
+            TransformationParameter.prototype.max_brightness_shift = 5;
+            TransformationParameter.prototype.max_smooth = 6;
+            TransformationParameter.prototype.max_color_shift = 0;
+            TransformationParameter.prototype.min_side_min = 0;
+            TransformationParameter.prototype.min_side_max = 0;
+            TransformationParameter.prototype.min_side = 0;
+            TransformationParameter.prototype.apply_probability = 0.5;
+            TransformationParameter.prototype.debug_params = false;
     
             TransformationParameter.create = function create(properties) {
                 return new TransformationParameter(properties);
@@ -5369,12 +5384,6 @@
                         break;
                     case 3:
                         message.crop_size = reader.uint32();
-                        break;
-                    case 11:
-                        message.crop_h = reader.uint32();
-                        break;
-                    case 12:
-                        message.crop_w = reader.uint32();
                         break;
                     case 4:
                         message.mean_file = reader.string();
@@ -5401,14 +5410,20 @@
                     case 9:
                         message.noise_param = $root.caffe.NoiseParameter.decode(reader, reader.uint32());
                         break;
+                    case 10:
+                        message.emit_constraint = $root.caffe.EmitConstraint.decode(reader, reader.uint32());
+                        break;
+                    case 11:
+                        message.crop_h = reader.uint32();
+                        break;
+                    case 12:
+                        message.crop_w = reader.uint32();
+                        break;
                     case 13:
                         message.distort_param = $root.caffe.DistortionParameter.decode(reader, reader.uint32());
                         break;
                     case 14:
                         message.expand_param = $root.caffe.ExpansionParameter.decode(reader, reader.uint32());
-                        break;
-                    case 10:
-                        message.emit_constraint = $root.caffe.EmitConstraint.decode(reader, reader.uint32());
                         break;
                     case 15:
                         message.random_resize_param = $root.caffe.RandomResizeParameter.decode(reader, reader.uint32());
@@ -5421,6 +5436,51 @@
                         break;
                     case 18:
                         message.bgr2rgb = reader.bool();
+                        break;
+                    case 108:
+                        message.min_scaling_factor = reader.float();
+                        break;
+                    case 109:
+                        message.max_scaling_factor = reader.float();
+                        break;
+                    case 110:
+                        message.max_rotation_angle = reader.uint32();
+                        break;
+                    case 111:
+                        message.contrast_brightness_adjustment = reader.bool();
+                        break;
+                    case 112:
+                        message.smooth_filtering = reader.bool();
+                        break;
+                    case 114:
+                        message.min_contrast = reader.float();
+                        break;
+                    case 115:
+                        message.max_contrast = reader.float();
+                        break;
+                    case 116:
+                        message.max_brightness_shift = reader.uint32();
+                        break;
+                    case 117:
+                        message.max_smooth = reader.float();
+                        break;
+                    case 120:
+                        message.max_color_shift = reader.uint32();
+                        break;
+                    case 113:
+                        message.min_side_min = reader.uint32();
+                        break;
+                    case 121:
+                        message.min_side_max = reader.uint32();
+                        break;
+                    case 122:
+                        message.min_side = reader.uint32();
+                        break;
+                    case 118:
+                        message.apply_probability = reader.float();
+                        break;
+                    case 119:
+                        message.debug_params = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -5447,12 +5507,6 @@
                     case "crop_size":
                         message.crop_size = reader.uint32();
                         break;
-                    case "crop_h":
-                        message.crop_h = reader.uint32();
-                        break;
-                    case "crop_w":
-                        message.crop_w = reader.uint32();
-                        break;
                     case "mean_file":
                         message.mean_file = reader.string();
                         break;
@@ -5473,14 +5527,20 @@
                     case "noise_param":
                         message.noise_param = $root.caffe.NoiseParameter.decodeText(reader, true);
                         break;
+                    case "emit_constraint":
+                        message.emit_constraint = $root.caffe.EmitConstraint.decodeText(reader, true);
+                        break;
+                    case "crop_h":
+                        message.crop_h = reader.uint32();
+                        break;
+                    case "crop_w":
+                        message.crop_w = reader.uint32();
+                        break;
                     case "distort_param":
                         message.distort_param = $root.caffe.DistortionParameter.decodeText(reader, true);
                         break;
                     case "expand_param":
                         message.expand_param = $root.caffe.ExpansionParameter.decodeText(reader, true);
-                        break;
-                    case "emit_constraint":
-                        message.emit_constraint = $root.caffe.EmitConstraint.decodeText(reader, true);
                         break;
                     case "random_resize_param":
                         message.random_resize_param = $root.caffe.RandomResizeParameter.decodeText(reader, true);
@@ -5493,6 +5553,51 @@
                         break;
                     case "bgr2rgb":
                         message.bgr2rgb = reader.bool();
+                        break;
+                    case "min_scaling_factor":
+                        message.min_scaling_factor = reader.float();
+                        break;
+                    case "max_scaling_factor":
+                        message.max_scaling_factor = reader.float();
+                        break;
+                    case "max_rotation_angle":
+                        message.max_rotation_angle = reader.uint32();
+                        break;
+                    case "contrast_brightness_adjustment":
+                        message.contrast_brightness_adjustment = reader.bool();
+                        break;
+                    case "smooth_filtering":
+                        message.smooth_filtering = reader.bool();
+                        break;
+                    case "min_contrast":
+                        message.min_contrast = reader.float();
+                        break;
+                    case "max_contrast":
+                        message.max_contrast = reader.float();
+                        break;
+                    case "max_brightness_shift":
+                        message.max_brightness_shift = reader.uint32();
+                        break;
+                    case "max_smooth":
+                        message.max_smooth = reader.float();
+                        break;
+                    case "max_color_shift":
+                        message.max_color_shift = reader.uint32();
+                        break;
+                    case "min_side_min":
+                        message.min_side_min = reader.uint32();
+                        break;
+                    case "min_side_max":
+                        message.min_side_max = reader.uint32();
+                        break;
+                    case "min_side":
+                        message.min_side = reader.uint32();
+                        break;
+                    case "apply_probability":
+                        message.apply_probability = reader.float();
+                        break;
+                    case "debug_params":
+                        message.debug_params = reader.bool();
                         break;
                     default:
                         reader.handle(tag);
@@ -5514,12 +5619,6 @@
                 if (message.crop_size != null && message.hasOwnProperty("crop_size"))
                     if (!$util.isInteger(message.crop_size))
                         return "crop_size: integer expected";
-                if (message.crop_h != null && message.hasOwnProperty("crop_h"))
-                    if (!$util.isInteger(message.crop_h))
-                        return "crop_h: integer expected";
-                if (message.crop_w != null && message.hasOwnProperty("crop_w"))
-                    if (!$util.isInteger(message.crop_w))
-                        return "crop_w: integer expected";
                 if (message.mean_file != null && message.hasOwnProperty("mean_file"))
                     if (!$util.isString(message.mean_file))
                         return "mean_file: string expected";
@@ -5546,6 +5645,17 @@
                     if (error)
                         return "noise_param." + error;
                 }
+                if (message.emit_constraint != null && message.hasOwnProperty("emit_constraint")) {
+                    var error = $root.caffe.EmitConstraint.verify(message.emit_constraint);
+                    if (error)
+                        return "emit_constraint." + error;
+                }
+                if (message.crop_h != null && message.hasOwnProperty("crop_h"))
+                    if (!$util.isInteger(message.crop_h))
+                        return "crop_h: integer expected";
+                if (message.crop_w != null && message.hasOwnProperty("crop_w"))
+                    if (!$util.isInteger(message.crop_w))
+                        return "crop_w: integer expected";
                 if (message.distort_param != null && message.hasOwnProperty("distort_param")) {
                     var error = $root.caffe.DistortionParameter.verify(message.distort_param);
                     if (error)
@@ -5555,11 +5665,6 @@
                     var error = $root.caffe.ExpansionParameter.verify(message.expand_param);
                     if (error)
                         return "expand_param." + error;
-                }
-                if (message.emit_constraint != null && message.hasOwnProperty("emit_constraint")) {
-                    var error = $root.caffe.EmitConstraint.verify(message.emit_constraint);
-                    if (error)
-                        return "emit_constraint." + error;
                 }
                 if (message.random_resize_param != null && message.hasOwnProperty("random_resize_param")) {
                     var error = $root.caffe.RandomResizeParameter.verify(message.random_resize_param);
@@ -5577,6 +5682,51 @@
                 if (message.bgr2rgb != null && message.hasOwnProperty("bgr2rgb"))
                     if (typeof message.bgr2rgb !== "boolean")
                         return "bgr2rgb: boolean expected";
+                if (message.min_scaling_factor != null && message.hasOwnProperty("min_scaling_factor"))
+                    if (typeof message.min_scaling_factor !== "number")
+                        return "min_scaling_factor: number expected";
+                if (message.max_scaling_factor != null && message.hasOwnProperty("max_scaling_factor"))
+                    if (typeof message.max_scaling_factor !== "number")
+                        return "max_scaling_factor: number expected";
+                if (message.max_rotation_angle != null && message.hasOwnProperty("max_rotation_angle"))
+                    if (!$util.isInteger(message.max_rotation_angle))
+                        return "max_rotation_angle: integer expected";
+                if (message.contrast_brightness_adjustment != null && message.hasOwnProperty("contrast_brightness_adjustment"))
+                    if (typeof message.contrast_brightness_adjustment !== "boolean")
+                        return "contrast_brightness_adjustment: boolean expected";
+                if (message.smooth_filtering != null && message.hasOwnProperty("smooth_filtering"))
+                    if (typeof message.smooth_filtering !== "boolean")
+                        return "smooth_filtering: boolean expected";
+                if (message.min_contrast != null && message.hasOwnProperty("min_contrast"))
+                    if (typeof message.min_contrast !== "number")
+                        return "min_contrast: number expected";
+                if (message.max_contrast != null && message.hasOwnProperty("max_contrast"))
+                    if (typeof message.max_contrast !== "number")
+                        return "max_contrast: number expected";
+                if (message.max_brightness_shift != null && message.hasOwnProperty("max_brightness_shift"))
+                    if (!$util.isInteger(message.max_brightness_shift))
+                        return "max_brightness_shift: integer expected";
+                if (message.max_smooth != null && message.hasOwnProperty("max_smooth"))
+                    if (typeof message.max_smooth !== "number")
+                        return "max_smooth: number expected";
+                if (message.max_color_shift != null && message.hasOwnProperty("max_color_shift"))
+                    if (!$util.isInteger(message.max_color_shift))
+                        return "max_color_shift: integer expected";
+                if (message.min_side_min != null && message.hasOwnProperty("min_side_min"))
+                    if (!$util.isInteger(message.min_side_min))
+                        return "min_side_min: integer expected";
+                if (message.min_side_max != null && message.hasOwnProperty("min_side_max"))
+                    if (!$util.isInteger(message.min_side_max))
+                        return "min_side_max: integer expected";
+                if (message.min_side != null && message.hasOwnProperty("min_side"))
+                    if (!$util.isInteger(message.min_side))
+                        return "min_side: integer expected";
+                if (message.apply_probability != null && message.hasOwnProperty("apply_probability"))
+                    if (typeof message.apply_probability !== "number")
+                        return "apply_probability: number expected";
+                if (message.debug_params != null && message.hasOwnProperty("debug_params"))
+                    if (typeof message.debug_params !== "boolean")
+                        return "debug_params: boolean expected";
                 return null;
             };
     
@@ -5590,10 +5740,6 @@
                     message.mirror = Boolean(object.mirror);
                 if (object.crop_size != null)
                     message.crop_size = object.crop_size >>> 0;
-                if (object.crop_h != null)
-                    message.crop_h = object.crop_h >>> 0;
-                if (object.crop_w != null)
-                    message.crop_w = object.crop_w >>> 0;
                 if (object.mean_file != null)
                     message.mean_file = String(object.mean_file);
                 if (object.mean_value) {
@@ -5617,6 +5763,15 @@
                         throw TypeError(".caffe.TransformationParameter.noise_param: object expected");
                     message.noise_param = $root.caffe.NoiseParameter.fromObject(object.noise_param);
                 }
+                if (object.emit_constraint != null) {
+                    if (typeof object.emit_constraint !== "object")
+                        throw TypeError(".caffe.TransformationParameter.emit_constraint: object expected");
+                    message.emit_constraint = $root.caffe.EmitConstraint.fromObject(object.emit_constraint);
+                }
+                if (object.crop_h != null)
+                    message.crop_h = object.crop_h >>> 0;
+                if (object.crop_w != null)
+                    message.crop_w = object.crop_w >>> 0;
                 if (object.distort_param != null) {
                     if (typeof object.distort_param !== "object")
                         throw TypeError(".caffe.TransformationParameter.distort_param: object expected");
@@ -5626,11 +5781,6 @@
                     if (typeof object.expand_param !== "object")
                         throw TypeError(".caffe.TransformationParameter.expand_param: object expected");
                     message.expand_param = $root.caffe.ExpansionParameter.fromObject(object.expand_param);
-                }
-                if (object.emit_constraint != null) {
-                    if (typeof object.emit_constraint !== "object")
-                        throw TypeError(".caffe.TransformationParameter.emit_constraint: object expected");
-                    message.emit_constraint = $root.caffe.EmitConstraint.fromObject(object.emit_constraint);
                 }
                 if (object.random_resize_param != null) {
                     if (typeof object.random_resize_param !== "object")
@@ -5646,6 +5796,36 @@
                     message.flow = Boolean(object.flow);
                 if (object.bgr2rgb != null)
                     message.bgr2rgb = Boolean(object.bgr2rgb);
+                if (object.min_scaling_factor != null)
+                    message.min_scaling_factor = Number(object.min_scaling_factor);
+                if (object.max_scaling_factor != null)
+                    message.max_scaling_factor = Number(object.max_scaling_factor);
+                if (object.max_rotation_angle != null)
+                    message.max_rotation_angle = object.max_rotation_angle >>> 0;
+                if (object.contrast_brightness_adjustment != null)
+                    message.contrast_brightness_adjustment = Boolean(object.contrast_brightness_adjustment);
+                if (object.smooth_filtering != null)
+                    message.smooth_filtering = Boolean(object.smooth_filtering);
+                if (object.min_contrast != null)
+                    message.min_contrast = Number(object.min_contrast);
+                if (object.max_contrast != null)
+                    message.max_contrast = Number(object.max_contrast);
+                if (object.max_brightness_shift != null)
+                    message.max_brightness_shift = object.max_brightness_shift >>> 0;
+                if (object.max_smooth != null)
+                    message.max_smooth = Number(object.max_smooth);
+                if (object.max_color_shift != null)
+                    message.max_color_shift = object.max_color_shift >>> 0;
+                if (object.min_side_min != null)
+                    message.min_side_min = object.min_side_min >>> 0;
+                if (object.min_side_max != null)
+                    message.min_side_max = object.min_side_max >>> 0;
+                if (object.min_side != null)
+                    message.min_side = object.min_side >>> 0;
+                if (object.apply_probability != null)
+                    message.apply_probability = Number(object.apply_probability);
+                if (object.debug_params != null)
+                    message.debug_params = Boolean(object.debug_params);
                 return message;
             };
     
@@ -5673,6 +5853,21 @@
                     object.random_aspect_ratio_param = null;
                     object.flow = false;
                     object.bgr2rgb = false;
+                    object.min_scaling_factor = 0.75;
+                    object.max_scaling_factor = 1.5;
+                    object.max_rotation_angle = 0;
+                    object.contrast_brightness_adjustment = false;
+                    object.smooth_filtering = false;
+                    object.min_side_min = 0;
+                    object.min_contrast = 0.8;
+                    object.max_contrast = 1.2;
+                    object.max_brightness_shift = 5;
+                    object.max_smooth = 6;
+                    object.apply_probability = 0.5;
+                    object.debug_params = false;
+                    object.max_color_shift = 0;
+                    object.min_side_max = 0;
+                    object.min_side = 0;
                 }
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     object.scale = options.json && !isFinite(message.scale) ? String(message.scale) : message.scale;
@@ -5713,6 +5908,36 @@
                     object.flow = message.flow;
                 if (message.bgr2rgb != null && message.hasOwnProperty("bgr2rgb"))
                     object.bgr2rgb = message.bgr2rgb;
+                if (message.min_scaling_factor != null && message.hasOwnProperty("min_scaling_factor"))
+                    object.min_scaling_factor = options.json && !isFinite(message.min_scaling_factor) ? String(message.min_scaling_factor) : message.min_scaling_factor;
+                if (message.max_scaling_factor != null && message.hasOwnProperty("max_scaling_factor"))
+                    object.max_scaling_factor = options.json && !isFinite(message.max_scaling_factor) ? String(message.max_scaling_factor) : message.max_scaling_factor;
+                if (message.max_rotation_angle != null && message.hasOwnProperty("max_rotation_angle"))
+                    object.max_rotation_angle = message.max_rotation_angle;
+                if (message.contrast_brightness_adjustment != null && message.hasOwnProperty("contrast_brightness_adjustment"))
+                    object.contrast_brightness_adjustment = message.contrast_brightness_adjustment;
+                if (message.smooth_filtering != null && message.hasOwnProperty("smooth_filtering"))
+                    object.smooth_filtering = message.smooth_filtering;
+                if (message.min_side_min != null && message.hasOwnProperty("min_side_min"))
+                    object.min_side_min = message.min_side_min;
+                if (message.min_contrast != null && message.hasOwnProperty("min_contrast"))
+                    object.min_contrast = options.json && !isFinite(message.min_contrast) ? String(message.min_contrast) : message.min_contrast;
+                if (message.max_contrast != null && message.hasOwnProperty("max_contrast"))
+                    object.max_contrast = options.json && !isFinite(message.max_contrast) ? String(message.max_contrast) : message.max_contrast;
+                if (message.max_brightness_shift != null && message.hasOwnProperty("max_brightness_shift"))
+                    object.max_brightness_shift = message.max_brightness_shift;
+                if (message.max_smooth != null && message.hasOwnProperty("max_smooth"))
+                    object.max_smooth = options.json && !isFinite(message.max_smooth) ? String(message.max_smooth) : message.max_smooth;
+                if (message.apply_probability != null && message.hasOwnProperty("apply_probability"))
+                    object.apply_probability = options.json && !isFinite(message.apply_probability) ? String(message.apply_probability) : message.apply_probability;
+                if (message.debug_params != null && message.hasOwnProperty("debug_params"))
+                    object.debug_params = message.debug_params;
+                if (message.max_color_shift != null && message.hasOwnProperty("max_color_shift"))
+                    object.max_color_shift = message.max_color_shift;
+                if (message.min_side_max != null && message.hasOwnProperty("min_side_max"))
+                    object.min_side_max = message.min_side_max;
+                if (message.min_side != null && message.hasOwnProperty("min_side"))
+                    object.min_side = message.min_side;
                 return object;
             };
     
