@@ -75,6 +75,15 @@ LayerTag
     output: OutputsTag* _
     next5: CommentsTag* _
     outputClose: OutputsCloseTag * _
+    portMap: PortMapTag* _
+    next11: CommentsTag* _
+    portMapClose: PortMapCloseTag * _
+    backEdges: BackEdgesTag* _
+    next12: CommentsTag* _
+    backEdgesClose: BackEdgesCloseTag * _
+    body: BodyTag* _
+    next13: CommentsTag* _
+    bodyClose: BodyCloseTag * _
     next6: CommentsTag* _
     weights: WeightsTag?
     next7: CommentsTag* _
@@ -123,6 +132,18 @@ LayerTag
               el1[el2] = blobs[el2];
               return el1;
             }, start);
+        }
+        
+        if (body) {
+        	start.nestedIR = body;
+        }
+        
+        if (portMap && portMap[0]) {
+        	start.mappingForNestedIR = portMap[0].output[0];
+        }
+        
+        if (backEdges && backEdges[0] && backEdges[0][1]) {
+        	start.backEdgesForNestedIR = backEdges[0][1];
         }
 
         return start;
@@ -200,7 +221,7 @@ InputTag
 
 InputsStartTag
     = first:("<input>")
-
+    
 // ----------------------------------Layer <<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 PortTag
@@ -224,6 +245,39 @@ PortStartTag
 
 PortCloseTag
     = first:("</port>")
+// ----------------------------------Layer <<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+PortMapTag
+    = 
+    next1: CommentsTag* _
+    first:(PortMapStartTag _ )
+    next2: CommentsTag* _
+    rest: (_ input:PortMapContainerTag {return input;})* {
+        return {'output': rest};
+    }
+
+PortMapCloseTag
+    = ("</port_map>") _
+
+PortMapContainerTag
+    = 
+    next1: CommentsTag* _
+    inputs: (PortMapInputTag _)*
+    outputs: (PortMapOutputTag _)*
+    next2: CommentsTag* _
+    closePort: PortMapCloseTag _  {
+        var inputValues = inputs.map(function(el){
+        	return el[0];
+        });
+        var outputValues = outputs.map(function(el){
+        	return el[0];
+        });
+        return {input: inputValues, output: outputValues};
+    }
+
+PortMapStartTag
+    = first:("<port_map>")
+
 
 // ----------------------------------Layer <<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -248,7 +302,7 @@ DimCloseTag
     first:("</dim>")
 
 // ----------------------------------Layer <<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+// ----------------------------------Layer <<<<<<<<<<<<<<<<<<<<<<<<<<<    
 DataTag
     = 
     next1: CommentsTag* _
@@ -383,6 +437,74 @@ EdgesTag
 EdgesCloseTag
     = ("</edges>")
 
+// ------------------------------------ 
+
+BackEdgesTag
+    = first:("<back_edges>" _ )
+    rest: (_ layer:EdgeTag {return layer;})*
+
+BackEdgesCloseTag
+    = ("</back_edges>")
+    
+
+
+// ------------------------------------ 
+
+BodyTag
+    = first:("<body>" _ )
+    next2: CommentsTag* _
+    layers: LayersTag _
+    next3: CommentsTag* _
+    close: LayersCloseTag _
+    next4: CommentsTag* _
+    edges: EdgesTag _
+    next5: CommentsTag* _
+    closeEdges: EdgesCloseTag _
+    next6: CommentsTag* _
+    rest: _ {
+    	console.log({layers: layers, edges: edges[1]});
+    	return {layers: layers, edges: edges[1]};
+    }
+
+BodyCloseTag
+    = ("</body>")
+
+// ------------------------------------ PortMapInputTag >>>>>>>>>>>>>>
+
+PortMapInputTag
+    = start: PortMapInputStartTag _ "/>" {
+        return start;
+    }
+
+PortMapInputStartTag
+    = first:("<input")
+     rest: tag_attr_pair* _ {
+        return rest.reduce(function(el1, el2) {
+            el1[el2.key] = el2.value;
+            return el1;
+        }, {});
+    }
+    
+// ------------------------------------ PortMapInputTag <<<<<<<<<<<<<<
+
+// ------------------------------------ PortMapOutputTag >>>>>>>>>>>>>>
+
+PortMapOutputTag
+    = start: PortMapOutputStartTag _ "/>" {
+        return start;
+    }
+
+PortMapOutputStartTag
+    = first:("<output")
+     rest: tag_attr_pair* _ {
+        return rest.reduce(function(el1, el2) {
+            el1[el2.key] = el2.value;
+            return el1;
+        }, {});
+    }
+    
+// ------------------------------------ PortMapOutputTag <<<<<<<<<<<<<<
+
 // ------------------------------------ Edge >>>>>>>>>>>>>>>>>>>>>>>>>
 
 EdgeTag
@@ -397,7 +519,7 @@ EdgeStartTag
     = first:("<edge")
      rest: tag_attr_pair* _ {
         return rest.reduce(function(el1, el2) {
-            el1[el2.key] = el2.value;
+            el1[el2.key] = el2.value.replace(/"/g, '');
             return el1;
         }, {});
     }
@@ -419,7 +541,7 @@ tag_attr_pair
     }
 
 attr_value
-    = head:('"' [A-Za-z0-9/\.\-\_\, ]* '"'){
+    = head:(_'"' [A-Za-z0-9/\.\-\_\, ]* '"'_){
         return head.toString().split(',').join('').slice(1, -1);
     }
 
