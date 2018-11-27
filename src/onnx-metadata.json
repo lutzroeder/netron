@@ -6875,6 +6875,111 @@
     }
   },
   {
+    "name": "LabelEncoder",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A float.",
+          "name": "default_float",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": -1,
+          "description": "An integer.",
+          "name": "default_int64",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "_Unused",
+          "description": "A string.",
+          "name": "default_string",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "A list of floats.",
+          "name": "keys_floats",
+          "required": false,
+          "type": "float[]"
+        },
+        {
+          "description": "A list of ints.",
+          "name": "keys_int64s",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "A list of strings. One and only one of 'keys_*'s should be set.",
+          "name": "keys_strings",
+          "required": false,
+          "type": "string[]"
+        },
+        {
+          "description": "A list of floats.",
+          "name": "values_floats",
+          "required": false,
+          "type": "float[]"
+        },
+        {
+          "description": "A list of ints.",
+          "name": "values_int64s",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "A list of strings. One and only one of 'value_*'s should be set.",
+          "name": "values_strings",
+          "required": false,
+          "type": "string[]"
+        }
+      ],
+      "description": "Maps each element in the input tensor to another value.<br>\n    The mapping is determined by the two parallel attributes, 'keys_*' and\n    'values_*' attribute. The i-th value in the specified 'keys_*' attribute\n    would be mapped to the i-th value in the specified 'values_*' attribute. It\n    implies that input's element type and the element type of the specified\n    'keys_*' should be identical while the output type is identical to the\n    specified 'values_*' attribute. If an input element can not be found in the\n    specified 'keys_*' attribute, the 'default_*' that matches the specified\n    'values_*' attribute may be used as its output value.<br>\n    Let's consider an example which maps a string tensor to an integer tensor.\n    Assume and 'keys_strings' is [\"Amy\", \"Sally\"], 'values_int64s' is [5, 6],\n    and 'default_int64' is '-1'.  The input [\"Dori\", \"Amy\", \"Amy\", \"Sally\",\n    \"Sally\"] would be mapped to [-1, 5, 5, 6, 6].<br>\n    Since this operator is an one-to-one mapping, its input and output shapes\n    are the same. Notice that only one of 'keys_*'/'values_*' can be set.<br>\n    For key look-up, bit-wise comparison is used so even a float NaN can be\n    mapped to a value in 'values_*' attribute.<br>\n",
+      "domain": "ai.onnx.ml",
+      "inputs": [
+        {
+          "description": "Input data. It can be either tensor or scalar.",
+          "name": "X",
+          "type": "T1"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data.",
+          "name": "Y",
+          "type": "T2"
+        }
+      ],
+      "since_version": 2,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(string)",
+            "tensor(int64)",
+            "tensor(float)"
+          ],
+          "description": "The input type is a tensor of any shape.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(string)",
+            "tensor(int64)",
+            "tensor(float)"
+          ],
+          "description": "Output type is determined by the specified 'values_*' attribute.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
     "name": "LeakyRelu",
     "schema": {
       "attributes": [
@@ -9322,7 +9427,7 @@
           "type": "int"
         }
       ],
-      "description": "Replace each input element with an array of ones and zeros, where a single\n    one is placed at the index of the category that was passed in. The total category count \n    will determine the size of the extra dimension of the output array Y.<br>\n    For example, if we pass a tensor with a single value of 4, and a category count of 8, \n    the output will be a tensor with ``[0,0,0,0,1,0,0,0]``.<br>\n    This operator assumes every input feature is from the same set of categories.<br>\n\tIf the input is a tensor of float, int32, or double, the data will be cast\n    to integers and the cats_int64s category list will be used for the lookups.\n",
+      "description": "Replace each input element with an array of ones and zeros, where a single\n    one is placed at the index of the category that was passed in. The total category count \n    will determine the size of the extra dimension of the output array Y.<br>\n    For example, if we pass a tensor with a single value of 4, and a category count of 8, \n    the output will be a tensor with ``[0,0,0,0,1,0,0,0]``.<br>\n    This operator assumes every input feature is from the same set of categories.<br>\n    If the input is a tensor of float, int32, or double, the data will be cast\n    to integers and the cats_int64s category list will be used for the lookups.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -12018,6 +12123,12 @@
       ],
       "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum')",
+          "summary": "scan"
+        }
+      ],
       "inputs": [
         {
           "description": "Optional tensor specifying lengths of the sequences in a batch. If this input is not specified, all sequences are assumed to be of the maximum sequence length (the dimension of the sequence axis of the scan_input tensors).",
