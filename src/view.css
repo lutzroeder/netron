@@ -106,11 +106,15 @@ body {
 .graph {
     display: block;
     position: absolute;
-    background-color: #fff;
+    background-color: #ffffff;
     text-rendering: geometricPrecision;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
+}
+
+.graph-container {
+    background: #ffffff;
 }
 
 .toolbar {
