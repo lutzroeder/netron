@@ -134,7 +134,7 @@ LayerTag
             }, start);
         }
         
-        if (body) {
+        if (body && body.length > 0) {
         	start.nestedIR = body;
         }
         
@@ -541,7 +541,7 @@ tag_attr_pair
     }
 
 attr_value
-    = head:(_'"' [A-Za-z0-9/\.\-\_\, ]* '"'_){
+    = head:('"' [A-Za-z0-9/\.\-\_\, ]* '"'){
         return head.toString().split(',').join('').slice(1, -1);
     }
 
