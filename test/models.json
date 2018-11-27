@@ -2323,6 +2323,27 @@
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
+    "type":   "openvino",
+    "target": "i8_normalized_squeezenet_ssd.dot",
+    "source": "https://github.com/lutzroeder/netron/files/2618902/i8_normalized_squeezenet_ssd.dot.zip[i8_normalized_squeezenet_ssd.dot]",
+    "format": "OpenVINO IR Dot",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "i8_normalized_squeezenet11.dot",
+    "source": "https://github.com/lutzroeder/netron/files/2618904/i8_normalized_squeezenet11.dot.zip[i8_normalized_squeezenet11.dot]",
+    "format": "OpenVINO IR Dot",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "i8_normalized_vgg16.dot",
+    "source": "https://github.com/lutzroeder/netron/files/2618905/i8_normalized_vgg16.dot.zip[i8_normalized_vgg16.dot]",
+    "format": "OpenVINO IR Dot",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
     "type":   "pytorch",
     "target": "alexnet.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
