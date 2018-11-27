@@ -1092,6 +1092,26 @@ view.ModelFactoryService = class {
             new cntk.ModelFactory(),
             new openvino.ModelFactory()
         ];
+        this._extensions = [];
+        this._modules = [];
+        this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt' ]);
+        this.register('./mxnet', [ '.model', '.json' ]);
+        this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json' ]);
+        this.register('./coreml', [ '.mlmodel' ]);
+        this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
+        this.register('./caffe2', [ 'predict_net.pb', 'predict_net.pbtxt', 'predict_net.prototxt' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model' ]);
+        this.register('./tflite', [ '.tflite', '.lite' ]);
+        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
+        this.register('./sklearn', [ '.pkl', '.joblib' ]);
+        this.register('./cntk', [ '.model', '.cntk' ]);
+        this.register('./openvino', [ '.xml', '.dot' ]);
+    }
+
+    register(id, extensions) {
+        extensions.forEach((extension) => {
+            this._extensions.push({ extension: extension, id: id });
+        });
     }
 
     some(context) {
