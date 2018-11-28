@@ -835,7 +835,7 @@ tf.Tensor = class {
 
     _decode(context, dimension) {
         var shape = context.shape;
-        if (context.shape.length == 0) {
+        if (shape.length == 0) {
             shape = [ 1 ];
         }
         var results = [];
