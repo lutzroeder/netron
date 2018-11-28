@@ -134,7 +134,7 @@ function loadModel(target, item, callback) {
     fs.closeSync(fd);
     var context = new TestContext(host, folder, identifier, buffer);
     var modelFactoryService = new view.ModelFactoryService(host);
-    modelFactoryService.create(context, (err, model) => {
+    modelFactoryService.open(context, (err, model) => {
         if (err) {
             callback(err, null);
             return;

@@ -7,19 +7,6 @@ var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 
-var caffe = caffe || require('./caffe');
-var caffe2 = caffe2 || require('./caffe2');
-var cntk = cntk || require('./cntk');
-var coreml = coreml || require('./coreml');
-var keras = keras || require('./keras');
-var mxnet = mxnet || require('./mxnet');
-var onnx = onnx || require('./onnx');
-var openvino = openvino || require('./openvino');
-var pytorch = pytorch || require('./pytorch');
-var sklearn = sklearn || require('./sklearn');
-var tf = tf || require('./tf');
-var tflite = tflite || require('./tflite');
-
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
 
@@ -35,6 +22,7 @@ view.View = class {
         this._showNames = false;
         this._searchText = '';
         this._zoomMode = 'd3';
+        this._modelFactoryService = new view.ModelFactoryService(this._host);
         document.documentElement.style.overflow = 'hidden';
         document.body.scroll = 'no';
         document.getElementById('model-properties-button').addEventListener('click', (e) => {
@@ -302,11 +290,6 @@ view.View = class {
         }
     }
 
-    loadContext(context, callback) {
-        var modelFactoryService = new view.ModelFactoryService(this._host);
-        modelFactoryService.create(context, callback);
-    }
-
     error(message, err) {
         this._sidebar.close();
         this._host.exception(err, false);
@@ -318,7 +301,7 @@ view.View = class {
         this._host.event('Model', 'Open', 'Size', context.buffer.length);
         this._sidebar.close();
         setTimeout(() => {
-            this.loadContext(context, (err, model) => {
+            this._modelFactoryService.open(context, (err, model) => {
                 if (err) {
                     callback(err);
                 }
@@ -1078,22 +1061,7 @@ view.ModelFactoryService = class {
 
     constructor(host) {
         this._host = host;
-        this._factories = [
-            new onnx.ModelFactory(),
-            new mxnet.ModelFactory(),
-            new keras.ModelFactory(),
-            new coreml.ModelFactory(),
-            new caffe.ModelFactory(),
-            new caffe2.ModelFactory(), 
-            new pytorch.ModelFactory(),
-            new tflite.ModelFactory(),
-            new tf.ModelFactory(),
-            new sklearn.ModelFactory(),
-            new cntk.ModelFactory(),
-            new openvino.ModelFactory()
-        ];
         this._extensions = [];
-        this._modules = [];
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./mxnet', [ '.model', '.json' ]);
         this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json' ]);
@@ -1114,15 +1082,67 @@ view.ModelFactoryService = class {
         });
     }
 
-    some(context) {
-        return this._factories.some((factory) => factory.match(context, this._host));
+    open(context, callback) {
+        this._openArchive(context, (err, context) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            var extension = context.identifier.split('.').pop().toLowerCase();
+            var modules = this._filter(context);
+            if (modules.length == 0) {
+                callback(new ModelError("Unsupported file extension '." + extension + "'."), null);
+                return;
+            }
+            var errors = [];
+            var matches = 0;
+            var nextModule = () => {
+                if (modules.length > 0) {
+                    var id = modules.shift();
+                    this._host.require(id, (err, module) => {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        if (!module.ModelFactory) {
+                            callback(new ModelError("Failed to load module '" + id + "'."), null);
+                            return;
+                        }
+                        var modelFactory = new module.ModelFactory(); 
+                        if (!modelFactory.match(context, this._host)) {
+                            nextModule();
+                            return;
+                        }
+                        matches++;
+                        modelFactory.open(context, this._host, (err, model) => {
+                            if (err) {
+                                errors.push(err);
+                                nextModule();
+                                return;
+                            }
+                            callback(null, model);
+                            return;
+                        });
+                    });
+                }
+                else {
+                    if (matches > 0) {
+                        if (errors.length == 1) {
+                            callback(errors[0], null);
+                            return;
+                        }
+                        callback(new ModelError(errors.map((err) => err.message).join('\n')), null);
+                        return;
+                    }
+                    callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
+                    return;
+                }
+            };
+            nextModule();
+        });
     }
 
-    filter(context) {
-        return this._factories.filter((factory) => factory.match(context, this._host));        
-    }
-
-    create(context, callback) {
+    _openArchive(context, callback) {
         try {
             var extension;
             var archive;
@@ -1171,79 +1191,86 @@ view.ModelFactoryService = class {
                 });
                 var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
                 rootFolder = rootFolder == '/' ? '' : rootFolder;
-                var entries = archive.entries.filter((entry) => {
-                    if (entry.name.startsWith(rootFolder)) {
-                        var identifier = entry.name.substring(rootFolder.length);
-                        if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                            return this.some(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host);
+                var matches = [];
+                var entries = archive.entries.slice();
+                var nextEntry = () => {
+                    if (entries.length > 0) {
+                        var entry = entries.shift();
+                        if (entry.name.startsWith(rootFolder)) {
+                            var identifier = entry.name.substring(rootFolder.length);
+                            if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                                var context = new ArchiveContext(null, rootFolder, entry.name, entry.data);
+                                var modules = this._filter(context);
+                                var nextModule = () => {
+                                    if (modules.length > 0) {
+                                        var id = modules.shift();
+                                        this._host.require(id, (err, module) => {
+                                            if (err) {
+                                                callback(err, null);
+                                                return;
+                                            }
+                                            if (!module.ModelFactory) {
+                                                callback(new ArchiveError("Failed to load module '" + id + "'.", null), null);
+                                            }
+                                            var factory = new module.ModelFactory();
+                                            if (factory.match(context, this._host)) {
+                                                matches.push(entry);
+                                                modules = [];
+                                            }
+                                            nextModule();
+                                            return;
+                                        });
+                                    }
+                                    else {
+                                        nextEntry();
+                                        return;
+                                    }
+                                };
+                                nextModule();
+                                return;
+                            }
                         }
+                        nextEntry();
                     }
-                    return false;
-                });
-                if (entries.length == 0) {
-                    callback(new ArchiveError('Root does not contain model file.'), null);
-                    return;
-                }
-                else if (entries.length > 1) {
-                    callback(new ArchiveError('Root contains multiple model files.'), null);
-                    return;
-                }
-                else {
-                    entry = entries[0];
-                    context = new ArchiveContext(entries, rootFolder, entry.name, entry.data);
-                }
+                    else {
+                        if (matches.length == 0) {
+                            callback(new ArchiveError('Root does not contain model file.'), null);
+                            return;
+                        }
+                        else if (matches.length > 1) {
+                            callback(new ArchiveError('Root contains multiple model files.'), null);
+                            return;
+                        }
+                        var match = matches[0];
+                        callback(null, new ArchiveContext(entries, rootFolder, match.name, match.data));
+                        return;
+                    }
+                };
+                nextEntry();
+                return;
             }
+            callback(null, context);
+            return;
         }
         catch (err) {
             callback(new ArchiveError(err.message), null);
             return;
         }
+    }
 
-        var errorList = [];
-        var factoryList = this.filter(context, this._host);
-        var factoryCount = factoryList.length;
-        var next = () => {
-            if (factoryList.length > 0) {
-                var modelFactory = factoryList.shift();
-                modelFactory.open(context, this._host, (err, model) => {
-                    if (err) {
-                        errorList.push(err);
-                    }
-                    if (model || factoryList.length == 0) {
-                        if (!model && factoryCount > 1 && errorList.length > 1) {
-                            callback(new ModelError(errorList.map((err) => err.message).join('\n')), null);
-                            return;
-                        }
-                        callback(err, model);
-                        return;
-                    }
-                    next();
-                    return;
-                });
-            }
-            else {
-                var extension = context.identifier.split('.').pop().toLowerCase();
-                switch (extension) {
-                    case 'json':
-                    case 'pb':
-                    case 'pbtxt':
-                    case 'prototxt':
-                    case 'pth':
-                    case 'h5':
-                    case 'hdf5':
-                    case 'cntk':
-                    case 'xml':
-                    case 'dot':
-                    case 'model':
-                        callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
-                        break;
-                    default:
-                        callback(new ModelError("Unsupported file extension '." + extension + "'."), null);
-                        break;
+    _filter(context) {
+        var moduleList = [];
+        var moduleMap = {};
+        var identifier = context.identifier.toLowerCase();
+        this._extensions.forEach((extension) => {
+            if (identifier.endsWith(extension.extension)) {
+                if (!moduleMap[extension.id]) {
+                    moduleList.push(extension.id);
+                    moduleMap[extension.id] = true;
                 }
             }
-        };
-        next();
+        });
+        return moduleList;
     }
 };
 

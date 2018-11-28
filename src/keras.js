@@ -2,7 +2,6 @@
 
 var keras = keras || {};
 var marked = marked || require('marked');
-var hdf5 = hdf5 || require('./hdf5');
 
 keras.ModelFactory = class {
 
@@ -41,63 +40,69 @@ keras.ModelFactory = class {
     }
 
     open(context, host, callback) {
-        var format = 'Keras';
-        var model_config = null;
-        var rootGroup = null;
-        var rootJson = null;
-        var identifier = context.identifier;
-        try {
-            var extension = identifier.split('.').pop().toLowerCase();
-            if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
-                var file = null;
-                try {
-                    file = new hdf5.File(context.buffer);
-                }
-                catch (error) {
-                    callback(new keras.Error(error.name + ": " + error.message.replace(/\.$/, '') + " in '" + identifier + "'."), null);
-                    return;
-                }
-                rootGroup = file.rootGroup;
-                if (!rootGroup.attributes.model_config) {
-                    callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
-                    return;
-                }
-                model_config = JSON.parse(rootGroup.attributes.model_config);
+        host.require('./hdf5', (err, hdf5) => {
+            if (err) {
+                callback(err, null);
+                return;
             }
-            else if (extension == 'json') {
-                var json = context.text;
-                model_config = JSON.parse(json);
-                if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
-                    format = 'TensorFlow.js ' + format;
-                    rootJson = model_config;
-                    model_config = model_config.modelTopology.model_config;
-                }
-            }
-        }
-        catch (error) {
-            host.exception(error, false);
-            callback(new keras.Error(error.message), null);
-            return;
-        }
-
-        if (!model_config) {
-            callback(new keras.Error('\'model_config\' is not present.'));
-            return;
-        }
-        if (!model_config.class_name) {
-            callback(new keras.Error('\'class_name\' is not present.'), null);
-            return;
-        }
-
-        keras.OperatorMetadata.open(host, (err, metadata) => {
+            var format = 'Keras';
+            var model_config = null;
+            var rootGroup = null;
+            var rootJson = null;
+            var identifier = context.identifier;
             try {
-                var model = new keras.Model(format, model_config, rootGroup, rootJson);
-                callback(null, model);
+                var extension = identifier.split('.').pop().toLowerCase();
+                if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
+                    var file = null;
+                    try {
+                        file = new hdf5.File(context.buffer);
+                    }
+                    catch (error) {
+                        callback(new keras.Error(error.name + ": " + error.message.replace(/\.$/, '') + " in '" + identifier + "'."), null);
+                        return;
+                    }
+                    rootGroup = file.rootGroup;
+                    if (!rootGroup.attributes.model_config) {
+                        callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
+                        return;
+                    }
+                    model_config = JSON.parse(rootGroup.attributes.model_config);
+                }
+                else if (extension == 'json') {
+                    var json = context.text;
+                    model_config = JSON.parse(json);
+                    if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
+                        format = 'TensorFlow.js ' + format;
+                        rootJson = model_config;
+                        model_config = model_config.modelTopology.model_config;
+                    }
+                }
             }
             catch (error) {
                 host.exception(error, false);
                 callback(new keras.Error(error.message), null);
+                return;
             }
+    
+            if (!model_config) {
+                callback(new keras.Error('\'model_config\' is not present.'));
+                return;
+            }
+            if (!model_config.class_name) {
+                callback(new keras.Error('\'class_name\' is not present.'), null);
+                return;
+            }
+    
+            keras.OperatorMetadata.open(host, (err, metadata) => {
+                try {
+                    var model = new keras.Model(format, model_config, rootGroup, rootJson);
+                    callback(null, model);
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new keras.Error(error.message), null);
+                }
+            });
         });
     }
 };
