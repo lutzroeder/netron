@@ -177,18 +177,6 @@ openvino.ir.Graph = class {
                     return id === singleTensorIteratorNode.id ? nestedNode.id : singleTensorIteratorNode.id;
                 });
             });
-            
-            // console.log('Replacing TensorIterator layer with its content');
-            // const parents = this._nodes.filter((node) => node._outputs.includes(singleTensorIteratorNode._id));
-            // parents.forEach((singleParent) => {
-            //     const internalLayer = 
-            //         _outputs = parents._outputs.map((id) => {
-            //         return id === singleTensorIteratorNode._id ? 
-            //                 `${singleTensorIteratorNode.id}_${nestedLayer.id}` : 
-            //                 singleTensorIteratorNode._id;
-            //     });
-            // });
-            // const children = this._nodes.filter((node) => node._inputs.includes(singleTensorIteratorNode._id));
             this._nodes = this._nodes.filter((node) => node._type !== 'TensorIterator');
         });
     }
