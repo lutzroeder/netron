@@ -115,7 +115,6 @@ openvino.ir.Graph = class {
         const tiNodes = netDef.layers.filter((node) => node.type === 'TensorIterator');
 
         tiNodes.forEach((singleTensorIteratorNode) => {
-            console.log('Reading TensorIterator content');
             singleTensorIteratorNode.nestedIR.layers.forEach((nestedLayer) => {
                 const nestedNode = new openvino.ir.Node(nestedLayer, this._version, singleTensorIteratorNode.nestedIR.edges, singleTensorIteratorNode.nestedIR.layers);
                 nestedNode._id = `${singleTensorIteratorNode.id}_${nestedLayer.id}`;
@@ -128,11 +127,9 @@ openvino.ir.Graph = class {
                 this.addNewNode(nestedNode);
             });
 
-            console.log('Handling edges for the nested nodes specially');
             // We know for sure that edges that appeared in the nested IR are not
             // aware of the external context
             singleTensorIteratorNode.mappingForNestedIR.input.forEach((nestedInput) => {
-                console.log('Input from ' + nestedInput.external_port_id);
                 const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNode.id}_${nestedInput.internal_layer_id}`);
 
                 const candidate_edge = netDef.edges.find((edge) => {
@@ -156,7 +153,6 @@ openvino.ir.Graph = class {
             });
 
             singleTensorIteratorNode.mappingForNestedIR.output.forEach((nestedOutput) => {
-                console.log('Output to ' + nestedOutput.external_port_id);
                 const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNode.id}_${nestedOutput.internal_layer_id}`)
 
                 const candidate_edge = netDef.edges.find((edge) => {
