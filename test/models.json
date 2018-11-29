@@ -510,6 +510,13 @@
   },
   {
     "type":   "caffe",
+    "target": "segnet_basic_inference.prototxt",
+    "source": "https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/master/Models/segnet_basic_inference.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/alexgkendall/SegNet-Tutorial"
+  },
+  {
+    "type":   "caffe",
     "target": "squeezenet_v1.1.caffemodel",
     "source": "https://raw.githubusercontent.com/DeepScale/SqueezeNet/master/SqueezeNet_v1.1/squeezenet_v1.1.caffemodel",
     "format": "Caffe v2",

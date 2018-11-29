@@ -88,6 +88,8 @@ update(
   optional YoloV3LossParameter yolo_v3_loss_param = 3199; // 199
   optional BoxOutputParameter box_output_param = 4151; // 151 in gdlg/panoramic-object-detection
   optional RingPadParameter ring_pad_param = 4158; // 158 in gdlg/panoramic-object-detection
+  optional UpsampleParameter upsample_param = 5137; // 137 in alexgkendall/caffe-segnet
+  optional DenseImageDataParameter dense_image_data_param = 5138; // 138 in alexgkendall/caffe-segnet
   optional bool force_backward = 4000; // ???
   optional SmoothL1LossParameter smooth_l1_loss_param = 5148; // 148 in mahyarnajibi/caffe-ssh
 }`);
@@ -291,6 +293,14 @@ message BNParameter {
     CUDNN = 2;
   }
   optional Engine engine = 6 [default = DEFAULT];
+
+  optional FillerParameter scale_filler = 101; // 3 in alexgkendall/caffe-segnet
+  optional FillerParameter shift_filler = 102; // 3 in alexgkendall/caffe-segnet
+  enum BNMode {
+    LEARN = 0;
+    INFERENCE = 1;
+  }
+  optional BNMode bn_mode = 103 [default = LEARN]; // 3 in alexgkendall/caffe-segnet
 }
 
 message BatchReductionParameter {
@@ -1302,6 +1312,50 @@ message SmoothL1LossParameter {
   //   0.5 * (sigma * x) ** 2    -- if x < 1.0 / sigma / sigma
   //   |x| - 0.5 / sigma / sigma -- otherwise
   optional float sigma = 1 [default = 1];
+}
+
+message UpsampleParameter {
+  // DEPRECATED. No need to specify upsampling scale factors when
+  // exact output shape is given by upsample_h, upsample_w parameters.
+  optional uint32 scale = 1 [default = 2];
+  // DEPRECATED. No need to specify upsampling scale factors when
+  // exact output shape is given by upsample_h, upsample_w parameters.
+  optional uint32 scale_h = 2;
+  // DEPRECATED. No need to specify upsampling scale factors when
+  // exact output shape is given by upsample_h, upsample_w parameters.
+  optional uint32 scale_w = 3;
+  // DEPRECATED. Specify exact output height using upsample_h. This
+  // parameter only works when scale is 2
+  optional bool pad_out_h = 4 [default = false];
+  // DEPRECATED. Specify exact output width using upsample_w. This
+  // parameter only works when scale is 2
+  optional bool pad_out_w = 5 [default = false];
+  optional uint32 upsample_h = 6;
+  optional uint32 upsample_w = 7;
+}
+
+message DenseImageDataParameter {
+  // Specify the data source file.
+  optional string source = 1;
+  // Specify the batch size.
+  optional uint32 batch_size = 2;
+  // The rand_skip variable is for the data layer to skip a few data points
+  // to avoid all asynchronous sgd clients to start at the same point. The skip
+  // point would be set as rand_skip * rand(0,1). Note that rand_skip should not
+  // be larger than the number of keys in the database.
+  optional uint32 rand_skip = 3 [default = 0];
+  // Whether or not ImageLayer should shuffle the list of files at every epoch.
+  optional bool shuffle = 4 [default = false];
+  // It will also resize images if new_height or new_width are not zero.
+  optional uint32 new_height = 5 [default = 0];
+  optional uint32 new_width = 6 [default = 0];
+  // Specify if the images are color or gray
+  optional bool is_color = 7 [default = true];
+  optional string mean_file = 8;
+  optional string root_folder = 9 [default = ""];
+  optional bool mirror = 10 [default = false];
+  optional uint32 crop_width = 11 [default = 0];
+  optional uint32 crop_height = 12 [default = 0];
 }
 `);
 
