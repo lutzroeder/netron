@@ -133,7 +133,8 @@ tflite_schema.BuiltinOperator = {
   RESIZE_NEAREST_NEIGHBOR: 97, 97: 'RESIZE_NEAREST_NEIGHBOR',
   LEAKY_RELU: 98, 98: 'LEAKY_RELU',
   SQUARED_DIFFERENCE: 99, 99: 'SQUARED_DIFFERENCE',
-  MIRROR_PAD: 100, 100: 'MIRROR_PAD'
+  MIRROR_PAD: 100, 100: 'MIRROR_PAD',
+  ABS: 101, 101: 'ABS'
 };
 
 /**
@@ -217,7 +218,8 @@ tflite_schema.BuiltinOptions = {
   ResizeNearestNeighborOptions: 74, 74: 'ResizeNearestNeighborOptions',
   LeakyReluOptions: 75, 75: 'LeakyReluOptions',
   SquaredDifferenceOptions: 76, 76: 'SquaredDifferenceOptions',
-  MirrorPadOptions: 77, 77: 'MirrorPadOptions'
+  MirrorPadOptions: 77, 77: 'MirrorPadOptions',
+  AbsOptions: 78, 78: 'AbsOptions'
 };
 
 /**
@@ -5792,6 +5794,57 @@ tflite_schema.OneHotOptions.addAxis = function(builder, axis) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.OneHotOptions.endOneHotOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.AbsOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.AbsOptions}
+ */
+tflite_schema.AbsOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.AbsOptions=} obj
+ * @returns {tflite_schema.AbsOptions}
+ */
+tflite_schema.AbsOptions.getRootAsAbsOptions = function(bb, obj) {
+  return (obj || new tflite_schema.AbsOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.AbsOptions.startAbsOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.AbsOptions.endAbsOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };

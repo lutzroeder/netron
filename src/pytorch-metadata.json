@@ -162,8 +162,8 @@
       "attributes": [
         {
           "default": false,
-          "visible": false,
-          "name": "inplace"
+          "name": "inplace",
+          "visible": false
         },
         {
           "default": 0,
@@ -368,6 +368,7 @@
           "name": "track_running_stats"
         }
       ],
+      "category": "Normalization",
       "inputs": [
         {
           "name": "input"
@@ -391,7 +392,6 @@
           "visible": false
         }
       ],
-      "category": "Normalization",
       "package": "torch.nn.modules.batchnorm"
     }
   },
@@ -472,6 +472,7 @@
           "visible": false
         }
       ],
+      "category": "Layer",
       "inputs": [
         {
           "name": "input"
@@ -509,7 +510,6 @@
           "visible": false
         }
       ],
-      "category": "Layer",
       "package": "torch.nn.modules.rnn"
     }
   },
