@@ -160,6 +160,9 @@
     "name": "Reshape",
     "schema": {
       "category": "Shape",
+      "attributes": [
+        { "name": "new_shape", "type": "shape"}
+      ],
       "inputs": [
         { "name": "data", "type": "T" },
         { "name": "shape", "type": "T" }

@@ -205,7 +205,7 @@ tflite.Node = class {
                         for (var i = 0; i < length; i++) {
                             array.push(a[i]);
                         }
-                        value = () => '[' + array.join(', ') + ']';
+                        value = array;
                     }
                     else {
                         value = options[name]();
@@ -294,7 +294,10 @@ tflite.Attribute = class {
             if (schema.type) {
                 this._type = schema.type;
             }
-            if (this._type && tflite) {
+            if (this._type == 'shape') {
+                this._value = new tflite.TensorShape(value);
+            }
+            else if (this._type && tflite) {
                 var type = tflite.schema[this._type];
                 if (type && type[this.value]) {
                     this._value = type[this.value];
@@ -555,7 +558,15 @@ tflite.TensorType = class {
     constructor(tensor) {
         var dataType = tflite.schema.TensorType[tensor.type()]; 
         this._dataType = (dataType) ? dataType.toLowerCase() : '?';
-        this._shape = new tflite.TensorShape(tensor);
+
+        var dimensions = [];
+        var shapeLength = tensor.shapeLength();
+        if (shapeLength > 0) {
+            for (var i = 0; i < shapeLength; i++) {
+                dimensions.push(tensor.shape(i));
+            }
+        }
+        this._shape = new tflite.TensorShape(dimensions);
     }
 
     get dataType() {
@@ -573,14 +584,8 @@ tflite.TensorType = class {
 
 tflite.TensorShape = class {
 
-    constructor(tensor) {
-        this._dimensions = [];
-        var shapeLength = tensor.shapeLength();
-        if (shapeLength > 0) {
-            for (var i = 0; i < shapeLength; i++) {
-                this._dimensions.push(tensor.shape(i));
-            }
-        }
+    constructor(dimensions) {
+        this._dimensions = dimensions;
     }
 
     get dimensions() {
