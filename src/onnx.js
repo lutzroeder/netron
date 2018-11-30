@@ -846,7 +846,7 @@ onnx.Tensor = class {
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT8:
-                            results.push(context.rawData.getUInt8(context.index, true));
+                            results.push(context.rawData.getUint8(context.index, true));
                             context.index++;
                             context.count++;
                             break;
