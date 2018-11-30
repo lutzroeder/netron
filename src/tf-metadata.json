@@ -15562,99 +15562,6 @@
     }
   },
   {
-    "name": "ExperimentalFunctionBufferingResource",
-    "schema": {
-      "attributes": [
-        {
-          "description": "If non-empty, this resource will be shared under the given name across\nmultiple sessions.",
-          "name": "shared_name",
-          "type": "string"
-        },
-        {
-          "description": "If non-empty, this resource is placed in the given container.\nOtherwise, a default container is used.",
-          "name": "container",
-          "type": "string"
-        },
-        {
-          "description": "Function to be executed.",
-          "name": "f",
-          "type": "func"
-        },
-        {
-          "description": "Size of the buffer.",
-          "name": "buffer_size",
-          "type": "int"
-        },
-        {
-          "description": "The type list for the return values.",
-          "name": "output_types",
-          "type": "list(type)"
-        }
-      ],
-      "inputs": [
-        {
-          "description": "String argument to the function call.",
-          "name": "string_arg",
-          "type": 7
-        },
-        {
-          "description": "Target device to execute the function on.",
-          "name": "target_device",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "description": "Handle to the resource created.",
-          "name": "resource",
-          "type": 20
-        }
-      ],
-      "summary": "Creates a resource that fills up a buffer by making function calls."
-    }
-  },
-  {
-    "name": "ExperimentalFunctionBufferingResourceGetNext",
-    "schema": {
-      "attributes": [
-        {
-          "description": "The type list for the return values.",
-          "minimum": 1,
-          "name": "output_types",
-          "type": "list(type)"
-        }
-      ],
-      "inputs": [
-        {
-          "description": "The FunctionBufferingResource handle.",
-          "name": "function_buffer_resource",
-          "type": 20
-        }
-      ],
-      "outputs": [
-        {
-          "description": "A list of return values.",
-          "name": "output",
-          "typeListAttr": "output_types"
-        }
-      ],
-      "summary": "Gets the next element from a FunctionBufferingResource."
-    }
-  },
-  {
-    "name": "ExperimentalFunctionBufferingResourceReset",
-    "schema": {
-      "inputs": [
-        {
-          "description": "The FunctionBufferingResource handle.",
-          "name": "function_buffer_resource",
-          "type": 20
-        }
-      ],
-      "summary": "Resets the FunctionBufferingResource."
-    }
-  },
-  {
     "name": "ExperimentalIdentityIndexedDataset",
     "schema": {
       "inputs": [
@@ -43064,7 +42971,7 @@
           "type": "type"
         }
       ],
-      "description": "Creates a new tensor by applying sparse `updates` to individual values or\nslices within a tensor (initially zero for numeric, empty for string) of\nthe given `shape` according to indices.  This operator is the inverse of the\n`tf.gather_nd` operator which extracts values or slices from a given tensor.\n\nIf `indices` contains duplicates, then their updates are accumulated (summed).\n\n**WARNING**: The order in which updates are applied is nondeterministic, so the\noutput will be nondeterministic if `indices` contains duplicates -- because\nof some numerical approximation issues, numbers summed in different order\nmay yield different results.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of scatter is to insert individual elements in a tensor by\nindex. For example, say we want to insert 4 scattered elements in a rank-1\ntensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    shape = tf.constant([8])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [0, 11, 0, 10, 9, 0, 0, 12]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd2.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    shape = tf.constant([4, 4, 4])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+      "description": "Creates a new tensor by applying sparse `updates` to individual values or\nslices within a tensor (initially zero for numeric, empty for string) of\nthe given `shape` according to indices.  This operator is the inverse of the\n`tf.gather_nd` operator which extracts values or slices from a given tensor.\n\nThis operation is similar to tensor_scatter_add, except that the tensor is\nzero-initialized. Calling `tf.scatter_nd(indices, values, shape)` is identical\nto `tensor_scatter_add(tf.zeros(shape, values.dtype), indices, values)`\n\nIf `indices` contains duplicates, then their updates are accumulated (summed).\n\n**WARNING**: The order in which updates are applied is nondeterministic, so the\noutput will be nondeterministic if `indices` contains duplicates -- because\nof some numerical approximation issues, numbers summed in different order\nmay yield different results.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of scatter is to insert individual elements in a tensor by\nindex. For example, say we want to insert 4 scattered elements in a rank-1\ntensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    shape = tf.constant([8])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [0, 11, 0, 10, 9, 0, 0, 12]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd2.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    shape = tf.constant([4, 4, 4])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
       "inputs": [
         {
           "description": "Index tensor.",
@@ -56094,6 +56001,159 @@
     }
   },
   {
+    "name": "TensorScatterAdd",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        }
+      ],
+      "description": "This operation creates a new tensor by adding sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd_add`, except that the updates\nare added onto an existing tensor (as opposed to a variable). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of tensor_scatter_add is to add individual elements to a\ntensor by index. For example, say we want to add 4 elements in a rank-1\ntensor with 8 elements.\n\nIn Python, this scatter add operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    tensor = tf.ones([8], dtype=tf.int32)\n    updated = tf.tensor_scatter_add(tensor, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [1, 12, 1, 11, 10, 1, 1, 13]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter add operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    tensor = tf.ones([4, 4, 4])\n    updated = tf.tensor_scatter_add(tensor, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [[[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],\n     [[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+      "inputs": [
+        {
+          "description": "Tensor to copy/update.",
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Index tensor.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "Updates to scatter into output.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A new tensor copied from tensor and updates added according to the indices.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Adds sparse `updates` to an existing tensor according to `indices`."
+    }
+  },
+  {
+    "name": "TensorScatterSub",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        }
+      ],
+      "description": "This operation creates a new tensor by subtracting sparse `updates` from the\npassed in `tensor`.\nThis operation is very similar to `tf.scatter_nd_sub`, except that the updates\nare subtracted from an existing tensor (as opposed to a variable). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of tensor_scatter_sub is to subtract individual elements\nfrom a tensor by index. For example, say we want to insert 4 scattered elements\nin a rank-1 tensor with 8 elements.\n\nIn Python, this scatter subtract operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    tensor = tf.ones([8], dtype=tf.int32)\n    updated = tf.tensor_scatter_sub(tensor, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [1, -10, 1, -9, -8, 1, 1, -11]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter add operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    tensor = tf.ones([4, 4, 4])\n    updated = tf.tensor_scatter_sub(tensor, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [[[-4, -4, -4, -4], [-5, -5, -5, -5], [-6, -6, -6, -6], [-7, -7, -7, -7]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],\n     [[-4, -4, -4, -4], [-5, -5, -5, -5], [-6, -6, -6, -6], [-7, -7, -7, -7]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+      "inputs": [
+        {
+          "description": "Tensor to copy/update.",
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Index tensor.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "Updates to scatter into output.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A new tensor copied from tensor and updates subtracted according to the indices.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Subtracts sparse `updates` from an existing tensor according to `indices`."
+    }
+  },
+  {
+    "name": "TensorScatterUpdate",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        }
+      ],
+      "description": "This operation creates a new tensor by applying sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd`, except that the updates are\nscattered onto an existing tensor (as opposed to a zero-tensor). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\nIf `indices` contains duplicates, then their updates are accumulated (summed).\n\n**WARNING**: The order in which updates are applied is nondeterministic, so the\noutput will be nondeterministic if `indices` contains duplicates -- because\nof some numerical approximation issues, numbers summed in different order\nmay yield different results.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of scatter is to insert individual elements in a tensor by\nindex. For example, say we want to insert 4 scattered elements in a rank-1\ntensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    tensor = tf.ones([8], dtype=tf.int32)\n    updated = tf.tensor_scatter_update(tensor, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [1, 11, 1, 10, 9, 1, 1, 12]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    tensor = tf.ones([4, 4, 4])\n    updated = tf.tensor_scatter_update(tensor, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+      "inputs": [
+        {
+          "description": "Tensor to copy/update.",
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Index tensor.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "Updates to scatter into output.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A new tensor with the given shape and updates applied according\nto the indices.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Scatter `updates` into an existing tensor according to `indices`."
+    }
+  },
+  {
     "name": "TensorSliceDataset",
     "schema": {
       "attributes": [
@@ -57141,6 +57201,61 @@
         }
       ],
       "summary": "Decodes each string in `input` into a sequence of Unicode code points."
+    }
+  },
+  {
+    "name": "UnicodeEncode",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            "ignore",
+            "replace",
+            "strict"
+          ],
+          "default": "replace",
+          "description": "Error handling policy when there is invalid formatting found in the input.\nThe value of 'strict' will cause the operation to produce a InvalidArgument\nerror on any invalid input formatting. A value of 'replace' (the default) will\ncause the operation to replace any invalid formatting in the input with the\n`replacement_char` codepoint. A value of 'ignore' will cause the operation to\nskip any invalid formatting in the input and produce no corresponding output\ncharacter.",
+          "name": "errors",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "UTF-8",
+            "UTF-16-BE",
+            "UTF-32-BE"
+          ],
+          "description": "Unicode encoding of the output strings. Valid encodings are: `\"UTF-8\",\n\"UTF-16-BE\", and \"UTF-32-BE\"`.",
+          "name": "output_encoding",
+          "type": "string"
+        },
+        {
+          "default": 65533,
+          "description": "The replacement character codepoint to be used in place of any invalid\nformatting in the input when `errors='replace'`. Any valid unicode codepoint may\nbe used. The default value is the default unicode replacement character is\n0xFFFD (U+65533).",
+          "name": "replacement_char",
+          "type": "int"
+        }
+      ],
+      "description": "Returns a vector of strings, where `output[i]` is constructed by encoding the\nUnicode codepoints in `input_values[input_splits[i]:input_splits[i+1]]`\nusing `output_encoding`.\n\n---\n\nExample:\n\n```\ninput_values = [72, 101, 108, 108, 111, 87, 111, 114, 108, 100]\ninput_splits = [0, 5, 10]\noutput_encoding = 'UTF-8'\n\noutput = ['Hello', 'World']\n```",
+      "inputs": [
+        {
+          "description": "A 1D tensor containing the unicode codepoints that should be encoded.",
+          "name": "input_values",
+          "type": 3
+        },
+        {
+          "description": "A 1D tensor specifying how the unicode codepoints should be split into strings.\nIn particular, `output[i]` is constructed by encoding the codepoints in the\nslice `input_values[input_splits[i]:input_splits[i+1]]`.",
+          "name": "input_splits",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The 1-D Tensor of strings encoded from the provided unicode codepoints.",
+          "name": "output",
+          "type": 7
+        }
+      ],
+      "summary": "Encode a tensor of ints into unicode strings."
     }
   },
   {
