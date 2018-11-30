@@ -1389,8 +1389,7 @@ update(
     TANH = 23;
     WINDOW_DATA = 24;
     THRESHOLD = 31;
-  }
-`,
+  }`,
 `    SLICE = 33;
     TANH = 23;
     WINDOW_DATA = 24;
@@ -1398,5 +1397,38 @@ update(
     IMAGE_SEG_DATA = 139; // 39 in cdmh/deeplab-public
   }
 `);
+
+update(
+`  // Path to caffemodel file(s) with pretrained weights to initialize finetuning.
+  // Tha same as command line --weights parameter for caffe train command.
+  // If command line --weights parameter is specified, it has higher priority
+  // and overwrites this one(s).
+  // If --snapshot command line parameter is specified, this one(s) are ignored.
+  // If several model files are expected, they can be listed in a one 
+  // weights parameter separated by ',' (like in a command string) or
+  // in repeated weights parameters separately.
+  repeated string weights = 42;
+}`,
+`  // Path to caffemodel file(s) with pretrained weights to initialize finetuning.
+  // Tha same as command line --weights parameter for caffe train command.
+  // If command line --weights parameter is specified, it has higher priority
+  // and overwrites this one(s).
+  // If --snapshot command line parameter is specified, this one(s) are ignored.
+  // If several model files are expected, they can be listed in a one 
+  // weights parameter separated by ',' (like in a command string) or
+  // in repeated weights parameters separately.
+  repeated string weights = 42;
+
+  // Evaluation type.
+  optional string eval_type = 52 [default = "classification"]; // eric612/Caffe-YOLOv3-Windows
+  // ap_version: different ways of computing Average Precision.
+  //    Check https://sanchom.wordpress.com/tag/average-precision/ for details.
+  //    11point: the 11-point interpolated average precision. Used in VOC2007.
+  //    MaxIntegral: maximally interpolated AP. Used in VOC2012/ILSVRC.
+  //    Integral: the natural integral of the precision-recall curve.
+  optional string ap_version = 53 [default = "Integral"];
+  // If true, display per class result.
+  optional bool show_per_class_result = 44 [default = false];
+}`,)
 
 fs.writeFileSync(file, data, 'utf-8');

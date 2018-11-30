@@ -48,6 +48,20 @@
     }
   },
   {
+    "name": "DepthwiseConvolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "filter" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  { 
     "name": "InnerProduct",
     "schema": {
       "category": "Layer",

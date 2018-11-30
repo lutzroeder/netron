@@ -1366,6 +1366,9 @@
             SolverParameter.prototype.solver_type = 0;
             SolverParameter.prototype.layer_wise_reduce = true;
             SolverParameter.prototype.weights = $util.emptyArray;
+            SolverParameter.prototype.eval_type = "classification";
+            SolverParameter.prototype.ap_version = "Integral";
+            SolverParameter.prototype.show_per_class_result = false;
     
             SolverParameter.create = function create(properties) {
                 return new SolverParameter(properties);
@@ -1526,6 +1529,15 @@
                             message.weights = [];
                         message.weights.push(reader.string());
                         break;
+                    case 52:
+                        message.eval_type = reader.string();
+                        break;
+                    case 53:
+                        message.ap_version = reader.string();
+                        break;
+                    case 44:
+                        message.show_per_class_result = reader.bool();
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -1679,6 +1691,15 @@
                         if (!(message.weights && message.weights.length))
                             message.weights = [];
                         message.weights.push(reader.string());
+                        break;
+                    case "eval_type":
+                        message.eval_type = reader.string();
+                        break;
+                    case "ap_version":
+                        message.ap_version = reader.string();
+                        break;
+                    case "show_per_class_result":
+                        message.show_per_class_result = reader.bool();
                         break;
                     default:
                         reader.handle(tag);
@@ -1870,6 +1891,15 @@
                         if (!$util.isString(message.weights[i]))
                             return "weights: string[] expected";
                 }
+                if (message.eval_type != null && message.hasOwnProperty("eval_type"))
+                    if (!$util.isString(message.eval_type))
+                        return "eval_type: string expected";
+                if (message.ap_version != null && message.hasOwnProperty("ap_version"))
+                    if (!$util.isString(message.ap_version))
+                        return "ap_version: string expected";
+                if (message.show_per_class_result != null && message.hasOwnProperty("show_per_class_result"))
+                    if (typeof message.show_per_class_result !== "boolean")
+                        return "show_per_class_result: boolean expected";
                 return null;
             };
     
@@ -2053,6 +2083,12 @@
                     for (var i = 0; i < object.weights.length; ++i)
                         message.weights[i] = String(object.weights[i]);
                 }
+                if (object.eval_type != null)
+                    message.eval_type = String(object.eval_type);
+                if (object.ap_version != null)
+                    message.ap_version = String(object.ap_version);
+                if (object.show_per_class_result != null)
+                    message.show_per_class_result = Boolean(object.show_per_class_result);
                 return message;
             };
     
@@ -2109,6 +2145,9 @@
                     object.momentum2 = 0.999;
                     object.type = "SGD";
                     object.layer_wise_reduce = true;
+                    object.show_per_class_result = false;
+                    object.eval_type = "classification";
+                    object.ap_version = "Integral";
                 }
                 if (message.train_net != null && message.hasOwnProperty("train_net"))
                     object.train_net = message.train_net;
@@ -2215,6 +2254,12 @@
                     for (var j = 0; j < message.weights.length; ++j)
                         object.weights[j] = message.weights[j];
                 }
+                if (message.show_per_class_result != null && message.hasOwnProperty("show_per_class_result"))
+                    object.show_per_class_result = message.show_per_class_result;
+                if (message.eval_type != null && message.hasOwnProperty("eval_type"))
+                    object.eval_type = message.eval_type;
+                if (message.ap_version != null && message.hasOwnProperty("ap_version"))
+                    object.ap_version = message.ap_version;
                 return object;
             };
     
