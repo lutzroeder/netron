@@ -99,11 +99,91 @@ openvino.ir.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
+        this.handleParsedLayers(netDef);
+    }
+
+    handleParsedLayers(netDef) {
         netDef.layers.forEach((layer) => {
             const node = new openvino.ir.Node(layer, this._version, netDef.edges, netDef.layers);
-            this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
-            this._nodes.push(node);
+            this.addNewNode(node);
         });
+
+        this.replaceTensorIteratorWithSubgraph(netDef);
+    }
+
+    replaceTensorIteratorWithSubgraph(netDef) {
+        const tiNodes = netDef.layers.filter((node) => node.type === 'TensorIterator');
+
+        tiNodes.forEach((singleTensorIteratorNode) => {
+            singleTensorIteratorNode.nestedIR.layers.forEach((nestedLayer) => {
+                const nestedNode = new openvino.ir.Node(nestedLayer, this._version, singleTensorIteratorNode.nestedIR.edges, singleTensorIteratorNode.nestedIR.layers);
+                nestedNode._id = `${singleTensorIteratorNode.id}_${nestedLayer.id}`;
+                nestedNode._inputs = nestedNode._inputs.map((input) => {
+                    return `${singleTensorIteratorNode.id}_${input}`;
+                });
+                nestedNode._outputs = nestedNode._outputs.map((output) => {
+                    return `${singleTensorIteratorNode.id}_${output}`;
+                });
+                this.addNewNode(nestedNode);
+            });
+
+            // We know for sure that edges that appeared in the nested IR are not
+            // aware of the external context
+            singleTensorIteratorNode.mappingForNestedIR.input.forEach((nestedInput) => {
+                const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNode.id}_${nestedInput.internal_layer_id}`);
+
+                const candidate_edges = netDef.edges.filter((edge) => {
+                    return edge['to-layer'] === singleTensorIteratorNode.id && edge['to-port'] === nestedInput.external_port_id;
+                });
+                if (!candidate_edges.length){
+                    return;
+                }
+                candidate_edges.forEach((candidate_edge) => {
+                    const parentID = candidate_edge['from-layer'];
+                    const parent = this._nodes.find((layer) => layer._id === parentID);
+                    if (!nestedNode._inputs){
+                        nestedNode._inputs = [];
+                        nestedNode._inputs.push(parent.id)
+                    } else {
+                        nestedNode._inputs[nestedInput.internal_port_id] = parent.id;
+                    }
+
+                    parent._outputs = parent._outputs.map((id) => {
+                        return id === singleTensorIteratorNode.id ? nestedNode.id : id;
+                    });
+                });
+            });
+
+            singleTensorIteratorNode.mappingForNestedIR.output.forEach((nestedOutput) => {
+                const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNode.id}_${nestedOutput.internal_layer_id}`)
+
+                const candidate_edges = netDef.edges.filter((edge) => {
+                    return edge['from-layer'] === singleTensorIteratorNode.id && edge['from-port'] === nestedOutput.external_port_id;
+                });
+                if (candidate_edges.length === 0){
+                    return;
+                }
+                candidate_edges.forEach((candidate_edge) => {
+                    const childID = candidate_edge['to-layer'];
+                    const child = this._nodes.find((layer) => layer._id === childID);
+                    if (!nestedNode._outputs){
+                        nestedNode._outputs = [];
+                        nestedNode._inputs.push(child.id)
+                    } else {
+                        nestedNode._outputs.push(child.id);
+                    }
+                    child._inputs = child._inputs.map((id) => {
+                        return id === singleTensorIteratorNode.id ? nestedNode.id : id;
+                    });
+                });
+            });
+            this._nodes = this._nodes.filter((node) => node._type !== 'TensorIterator');
+        });
+    }
+
+    addNewNode(node) {
+        this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
+        this._nodes.push(node);
     }
 
     get name() {
@@ -218,7 +298,7 @@ openvino.AbstractNode = class {
                 return;
             }
             return parent.id;
-        });
+        }).filter((el) => Boolean(el));
     }
 
     setOutputs(outputs, edges, layers) {
@@ -240,7 +320,7 @@ openvino.AbstractNode = class {
                 return;
             }
             return child.id;
-        });
+        }).filter((el) => Boolean(el));
     }
 
     get inputs() {
