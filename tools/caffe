@@ -28,7 +28,7 @@ git_sync() {
 
 clean() {
     bold "caffe clean"
-    rm -tf ${third_party}/caffe
+    rm -rf ${third_party}/caffe
 }
 
 sync() {

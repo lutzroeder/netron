@@ -36,7 +36,7 @@ git_sync () {
 
 clean() {
     bold "coreml clean"
-    rm -tf ${third_party}/coremltools
+    rm -rf ${third_party}/coremltools
 }
 
 sync() {
