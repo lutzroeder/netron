@@ -276,6 +276,7 @@ caffe.Graph = class {
 };
 
 caffe.Argument = class {
+
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -404,25 +405,73 @@ caffe.Node = class {
     }
 
     get inputs() {
-        var list = this._inputs.concat(this._initializers);
-        var inputs = caffe.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
-        return inputs.map((input) => {
-            return new caffe.Argument(input.name, input.connections.map((connection) => {
-                if (connection.id instanceof caffe.Tensor) {
-                    return new caffe.Connection('', null, connection.id);
+        var inputs = this._inputs.concat(this._initializers);
+        var args = [];
+        var index = 0;
+        var schema = caffe.OperatorMetadata.operatorMetadata.getSchema(this.operator);
+        if (schema && schema.inputs) {
+            schema.inputs.forEach((inputDef) => {
+                if (index < inputs.length || inputDef.option != 'optional') {
+                    var connections = [];
+                    var count = (inputDef.option == 'variadic') ? (inputs.length - index) : 1;
+                    inputs.slice(index, index + count).forEach((input) => {
+                        if (input != '' || inputDef.option != 'optional') {
+                            if (input instanceof caffe.Tensor) {
+                                connections.push(new caffe.Connection('', null, input));
+                            }
+                            else {
+                                connections.push(new caffe.Connection(input, null, null));
+                            }
+                        }
+                    });
+                    index += count;
+                    args.push(new caffe.Argument(inputDef.name, connections));
                 }
-                return new caffe.Connection(connection.id, null, null);
-            }));
-        });
+            });
+        }
+        else {
+            inputs.slice(index).forEach((input) => {
+                var connection = null;
+                if (input instanceof caffe.Tensor) {
+                    connection = new caffe.Connection('', null, input);
+                }
+                else {
+                    connection = new caffe.Connection(input, null, null);
+                }
+                args.push(new caffe.Argument(index.toString(), [ connection ]));
+                index++;
+            });
+        }
+        return args;
     }
 
     get outputs() {
-        var outputs = caffe.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs);
-        return outputs.map((output) => {
-            return new caffe.Argument(output.name, output.connections.map((connection) => {
-                return new caffe.Connection(connection.id, null, null);
-            }));
-        });
+        var args = [];
+        var index = 0;
+        var outputs = this._outputs;
+        var schema = caffe.OperatorMetadata.operatorMetadata.getSchema(this.operator);
+        if (schema && schema.outputs) {
+            schema.outputs.forEach((outputDef) => {
+                if (index < outputs.length || outputDef.option != 'optional') {
+                    var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
+                    var connections = [];
+                    outputs.slice(index, index + count).forEach((output) => {
+                        connections.push(new caffe.Connection(output, null, null));
+                    });
+                    index += count;
+                    args.push(new caffe.Argument(outputDef.name, connections));
+                }
+            });
+        }
+        else {
+            outputs.slice(index).forEach((output) => {
+                args.push(new caffe.Argument(index.toString(), [
+                    new caffe.Connection(output, null, null)
+                ]));
+                index++;
+            });
+        }
+        return args;
     }
 
     get attributes() {
@@ -677,72 +726,6 @@ caffe.OperatorMetadata = class {
 
     getSchema(operator) {
         return this._map[operator] || null;
-    }
-
-    getInputs(operator, inputs) {
-        var results = [];
-        var index = 0;
-        var schema = this.getSchema(operator);
-        if (schema && schema.inputs) {
-            schema.inputs.forEach((inputDef) => {
-                if (index < inputs.length || inputDef.option != 'optional') {
-                    var input = {};
-                    input.name = inputDef.name;
-                    input.type = inputDef.type;
-                    var count = (inputDef.option == 'variadic') ? (inputs.length - index) : 1;
-                    input.connections = [];
-                    inputs.slice(index, index + count).forEach((id) => {
-                        if (id != '' || inputDef.option != 'optional') {
-                            input.connections.push({ id: id});
-                        }
-                    });
-                    index += count;
-                    results.push(input);
-                }
-            });
-        }
-        else {
-            inputs.slice(index).forEach((input) => {
-                results.push({
-                    name: index.toString(),
-                    connections: [ { id: input } ]
-                });
-                index++;
-            });
-
-        }
-        return results;
-    }
-
-    getOutputs(operator, outputs) {
-        var results = [];
-        var index = 0;
-        var schema = this.getSchema(operator);
-        if (schema && schema.outputs) {
-            schema.outputs.forEach((outputDef) => {
-                if (index < outputs.length || outputDef.option != 'optional') {
-                    var output = {};
-                    output.name = outputDef.name;
-                    var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
-                    output.connections = outputs.slice(index, index + count).map((id) => {
-                        return { id: id };
-                    });
-                    index += count;
-                    results.push(output);
-                }
-            });
-        }
-        else {
-            outputs.slice(index).forEach((output) => {
-                results.push({
-                    name: index.toString(),
-                    connections: [ { id: output } ]
-                });
-                index++;
-            });
-
-        }
-        return results;
     }
 
     getAttributeSchema(operator, name) {
