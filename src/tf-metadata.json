@@ -55583,6 +55583,35 @@
     }
   },
   {
+    "name": "TensorListConcat",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "Requires that all tensors have the same shape except the first dimension.\n\ninput_handle: The input list.\ntensor: The concated result.\nlengths: Output tensor containing sizes of the 0th dimension of tensors in the list, used for computing the gradient.\n",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "element_dtype"
+        },
+        {
+          "name": "lengths",
+          "type": 9
+        }
+      ],
+      "summary": "Concats all tensors in the list along the 0th dimension."
+    }
+  },
+  {
     "name": "TensorListConcatLists",
     "schema": {
       "attributes": [
@@ -55968,6 +55997,53 @@
         }
       ],
       "summary": "Sets the index-th position of the list to contain the given tensor."
+    }
+  },
+  {
+    "name": "TensorListSplit",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "shape_type",
+          "type": "type"
+        }
+      ],
+      "description": "list[i] corresponds to lengths[i] tensors from the input tensor.\nThe tensor must have rank at least 1 and contain exactly sum(lengths) elements.\n\ntensor: The input tensor.\nelement_shape: A shape compatible with that of elements in the tensor.\nlengths: Vector of sizes of the 0th dimension of tensors in the list.\noutput_handle: The list.",
+      "inputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "element_dtype"
+        },
+        {
+          "name": "element_shape",
+          "typeAttr": "shape_type"
+        },
+        {
+          "name": "lengths",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ],
+      "summary": "Splits a tensor into a list."
     }
   },
   {
