@@ -2358,6 +2358,13 @@
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
+    "type":   "paddle",
+    "target": "resnet50_int8_model.tar.gz",
+    "source": "http://paddle-inference-dist.bj.bcebos.com/int8/resnet50_int8_model.tar.gz",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/198"
+  },
+  {
     "type":   "pytorch",
     "target": "alexnet.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",

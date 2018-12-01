@@ -4,15 +4,14 @@ set -e
 
 tools=$(cd $(dirname ${0})/..; pwd)/tools
 
-${tools}/tf sync install schema metadata
-${tools}/keras sync install metadata
-
 ${tools}/caffe sync schema
 ${tools}/coreml sync install schema
 ${tools}/cntk sync schema
+${tools}/keras sync install metadata
 ${tools}/mxnet sync metadata
 ${tools}/onnx sync install schema metadata
+${tools}/paddle sync schema
 ${tools}/pytorch sync install schema metadata
 ${tools}/sklearn sync install metadata
-
+${tools}/tf sync install schema metadata
 ${tools}/tflite sync install schema

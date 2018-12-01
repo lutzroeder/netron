@@ -116,6 +116,7 @@ setuptools.setup(
             'keras.js', 'keras-metadata.json', 'hdf5.js',
             'mxnet.js', 'mxnet-metadata.json',
             'openvino.js', 'openvino-parser.js',
+            'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn.js', 'sklearn-metadata.json',
             'tf.js', 'tf-metadata.json', 'tf-proto.js', 

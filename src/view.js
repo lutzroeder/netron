@@ -313,10 +313,16 @@ view.View = class {
                     }
 
                     setTimeout(() => {
-                        var graph = model.graphs.length > 0 ? model.graphs[0] : null;
-                        this.updateGraph(model, graph, (err, model) => {
-                            callback(err, model);
-                        });
+                        try {
+                            var graph = model.graphs.   length > 0 ? model.graphs[0] : null;
+                            this.updateGraph(model, graph, (err, model) => {
+                                callback(err, model);
+                            });
+                        }
+                        catch (err) {
+                            callback(err, null);
+                            return;
+                        }
                     }, 20);   
                 }
             });    
@@ -986,12 +992,12 @@ class ArchiveContext {
                 if (entry.name.startsWith(rootFolder)) {
                     var name = entry.name.substring(rootFolder.length);
                     if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                        this._entries[name] = entry;
+                        this._entries[name] = entry.substring(rootFolder.length);
                     }
                 }
             });
         }
-        this._identifier = identifier;
+        this._identifier = identifier.substring(rootFolder.length);
         this._buffer = buffer;
     }
 
@@ -1074,6 +1080,7 @@ view.ModelFactoryService = class {
         this.register('./sklearn', [ '.pkl', '.joblib' ]);
         this.register('./cntk', [ '.model', '.cntk' ]);
         this.register('./openvino', [ '.xml', '.dot' ]);
+        this.register('./paddle', [ '.paddle', '__model__' ]);
     }
 
     register(id, extensions) {
@@ -1157,6 +1164,7 @@ view.ModelFactoryService = class {
                 if (archive.entries.length == 1) {
                     entry = archive.entries[0];
                     if (entry.name) {
+                          
                         identifier = entry.name;
                     }
                     else {

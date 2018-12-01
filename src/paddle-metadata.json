@@ -1,0 +1,95 @@
+[
+  {
+    "name": "conv2d",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "workspace_size_MB", "default": 4096 },
+        { "name": "fuse_residual_connection", "default": false },
+        { "name": "fuse_eltwise", "default": false },
+        { "name": "fuse_relu", "default": false },
+        { "name": "data_format", "default": "AnyLayout" },
+        { "name": "groups", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "depthwise_conv2d",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "workspace_size_MB", "default": 4096 },
+        { "name": "fuse_residual_connection", "default": false },
+        { "name": "data_format", "default": "AnyLayout" },
+        { "name": "groups", "default": 1 },
+        { "name": "fuse_relu", "default": false }     
+      ]
+    }
+  },
+  {
+    "name": "relu",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "softmax",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        { "name": "data_format", "default": "AnyLayout" }
+      ]
+    }
+  },
+  {
+    "name": "batch_norm",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "momentum", "default": 0.8999999761581421 },
+        { "name": "epsilon", "default": 9.999999747378752e-06 },
+        { "name": "fuse_with_relu", "default": false },     
+        { "name": "data_layout", "default": "NCHW" }
+      ] 
+    }
+  },
+  {
+    "name": "pool2d",
+    "schema": {
+      "category": "Pool",
+      "attributes": [
+        { "name": "data_format", "default": "AnyLayout" },
+        { "name": "ceil_mode", "default": false },
+        { "name": "global_pooling", "default": false },
+        { "name": "exclusive", "default": true },
+        { "name": "pooling_type", "default": "max" }
+      ]
+    }
+  },
+  {
+    "name": "elementwise_add",
+    "schema": {
+      "attributes": [
+        { "name": "axis", "default": -1 }
+      ]
+    }
+  },
+  {
+    "name": "concat",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "reshape",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "reshape2",
+    "schema": {
+      "category": "Shape"
+    }
+  }
+]
