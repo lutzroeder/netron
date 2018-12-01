@@ -140,6 +140,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.pooling.MaxUnpool2d'] = function () {};
             constructorTable['torch.nn.modules.pooling.MaxUnpool3d'] = function () {};
             constructorTable['torch.nn.modules.rnn.GRU'] = function () {};
+            constructorTable['torch.nn.modules.rnn.GRUCell'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
