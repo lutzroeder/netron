@@ -24,11 +24,14 @@ keras.ModelFactory = class {
             var json = context.text;
             if (json.indexOf('\"mxnet_version\":', 0) == -1) {
                 try {
-                    var model_config = JSON.parse(json);
-                    if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
-                        model_config = model_config.modelTopology.model_config;
+                    var root = JSON.parse(json);
+                    if (root && root.nodes && root.arg_nodes && root.heads) {
+                       return false;
                     }
-                    if (model_config && model_config.class_name) {
+                    if (root && root.modelTopology && root.modelTopology.model_config) {
+                        root = root.modelTopology.model_config;
+                    }
+                    if (root && root.class_name) {
                         return true;
                     }
                 }

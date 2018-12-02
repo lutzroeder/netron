@@ -314,7 +314,7 @@ view.View = class {
 
                     setTimeout(() => {
                         try {
-                            var graph = model.graphs.   length > 0 ? model.graphs[0] : null;
+                            var graph = model.graphs.length > 0 ? model.graphs[0] : null;
                             this.updateGraph(model, graph, (err, model) => {
                                 callback(err, model);
                             });

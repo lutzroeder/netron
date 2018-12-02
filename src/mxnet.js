@@ -8,9 +8,6 @@ var zip = zip || require('./zip');
 mxnet.ModelFactory = class {
 
     match(context, host) {
-        if (context.identifier.endsWith('-symbol.json')) {
-            return true;
-        }
         var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'model') {
             var buffer = context.buffer;
@@ -20,8 +17,15 @@ mxnet.ModelFactory = class {
         }
         if (extension == 'json') {
             var json = context.text;
-            if (json.indexOf('\"mxnet_version\":', 0) != -1) {
-                return true;
+            if (json.indexOf('\"nodes\":', 0) != -1) {
+                try {
+                    var symbol = JSON.parse(json);
+                    if (symbol && symbol.nodes && symbol.arg_nodes && symbol.heads) {
+                        return true;
+                    }
+                }
+                catch (err) {
+                }
             }
         }
         return false;
@@ -31,14 +35,10 @@ mxnet.ModelFactory = class {
         var extension = context.identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'json':
-                mxnet.OperatorMetadata.open(host, (err, metadata) => {
-                    this._openSymbol(context, host, callback);
-                });
+                this._openSymbol(context, host, callback);
                 break;
             case 'model':
-                mxnet.OperatorMetadata.open(host, (err, metadata) => {
-                    this._openModel(context, host, callback);
-                });
+                this._openModelServer(context, host, callback);
                 break;
             default:
                 callback(new mxnet.Error('Unsupported file extension.'));
@@ -48,17 +48,32 @@ mxnet.ModelFactory = class {
 
     _openSymbol(context, host, callback) {
         try {
+            var identifier = context.identifier;
             var symbol = JSON.parse(context.text);
-            var model = new mxnet.Model(null, symbol, null, {});
-            callback(null, model);
+            var format = null;
+            if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
+                format  = 'TVM';
+            }
+            var mxnet_extension = '-symbol.json';
+            if (identifier.toLowerCase().endsWith(mxnet_extension)) {
+                var paramsIdentifier = identifier.substring(0, identifier.length - mxnet_extension.length) + '-0000.params';
+                context.request(paramsIdentifier, null, (err, params) => {
+                    this._openModel(format, null, symbol, null, params, host, callback);
+                    return;
+                });
+                return;
+            }
+            this._openModel(format, null, symbol, null, null, host, callback);
+            return;
         }
         catch (error) {
             host.exception(error, false);
             callback(new mxnet.Error(error.message), null);
+            return;
         }
     }
 
-    _openModel(context, host, callback) {
+    _openModelServer(context, host, callback) {
         var entries = {};
         try {
             var archive = new zip.Archive(context.buffer, host.inflateRaw);
@@ -131,13 +146,41 @@ mxnet.ModelFactory = class {
         catch (err) {
         }
 
-        var parameters = {};
+        var params = null;
         try {
             if (manifest.Model.Parameters) {
                 var parametersEntry = entries[rootFolder + manifest.Model.Parameters];
                 if (parametersEntry) {
-                    var parametersData = parametersEntry.data;
-                    var stream = new ndarray.Stream(parametersData);
+                    params = parametersEntry.data;
+                }
+            }
+        }
+        catch (err) {
+        }
+
+        try {
+            var format = null;
+            if (manifest) {
+                format = 'MXNet Model Server';
+                if (manifest['Model-Archive-Version']) {
+                    format += ' v' + manifest['Model-Archive-Version'].toString();
+                }
+            }
+            this._openModel(format, manifest, symbol, signature, params, host, callback);
+            return;
+        } 
+        catch (error) {
+            callback(new mxnet.Error(error.message), null);
+            return;
+        }
+    }
+
+    _openModel(format, manifest, symbol, signature, params, host, callback) {
+        mxnet.OperatorMetadata.open(host, 'mxnet-metadata.json', (err, metadata) => {
+            var parameters = {};
+            if (params) {
+                try {
+                    var stream = new ndarray.Stream(params);
                     Object.keys(stream.arrays).forEach((key) => {
                         var name = key;
                         if (name.startsWith('arg:') || name.startsWith('aux:')) {
@@ -146,26 +189,26 @@ mxnet.ModelFactory = class {
                         parameters[name] = stream.arrays[key];
                     });
                 }
+                catch (error) {
+                }
             }
-        }
-        catch (err) {
-        }
-
-        try {
-            var model = new mxnet.Model(manifest, symbol, signature, parameters);
-            mxnet.OperatorMetadata.open(host, (err, metadata) => {
+            try {
+                var model = new mxnet.Model(metadata, format, manifest, symbol, signature, parameters);
                 callback(null, model);
-            });
-        } 
-        catch (err) {
-            callback(new mxnet.Error(err.message), null);
-        }
+                return;
+            }
+            catch (error) {
+                host.exception(error, false);
+                callback(new mxnet.Error(error.message), null);
+                return;
+            }
+        });
     }
 };
 
 mxnet.Model = class {
 
-    constructor(manifest, symbol, signature, parameters) {
+    constructor(metadata, format, manifest, symbol, signature, parameters) {
         if (!symbol) {
             throw new mxnet.Error('JSON file does not contain MXNet data.');
         }
@@ -179,11 +222,9 @@ mxnet.Model = class {
             throw new mxnet.Error('JSON file does not contain an MXNet \'heads\' property.');
         }
 
+        this._format = format;
+
         if (manifest) {
-            this._format = 'MXNet Model Server';
-            if (manifest['Model-Archive-Version']) {
-                this._format += ' v' + manifest['Model-Archive-Version'].toString();
-            }
             if (manifest.Model && manifest.Model['Model-Name']) {
                 this._name = manifest.Model['Model-Name'];
             }
@@ -209,7 +250,8 @@ mxnet.Model = class {
             this._format = 'MXNet';
         }
 
-        this._graphs = [ new mxnet.Graph(manifest, symbol, signature, parameters) ];
+        this._graphs = [];
+        this._graphs.push(new mxnet.Graph(metadata, manifest, symbol, signature, parameters));
     }
 
     get name() {
@@ -247,16 +289,21 @@ mxnet.Model = class {
 
 mxnet.Graph = class {
 
-    constructor(manifest, symbol, signature, parameters)
+    constructor(metadata, manifest, symbol, signature, parameters)
     {
-        var nodes = symbol.nodes;
-
+        this._metadata = metadata;
         this._nodes = [];
-
         this._operators = [];
+
+        var nodes = symbol.nodes;
         nodes.forEach((node) => {
             if (node.op && node.op != 'null') { 
-                this._operators[node.op] = (this._operators[node.op] || 0) + 1;
+                var operator = node.op;
+                var attrs = node.attrs || node.attr || node.param;
+                if (operator == 'tvm_op' && attrs && attrs.func_name) {
+                    operator = attrs.func_name;
+                }
+                this._operators[operator] = (this._operators[operator] || 0) + 1;
             }
         });
 
@@ -308,7 +355,7 @@ mxnet.Graph = class {
 
         nodes.forEach((node, index) => {
             if (!argumentMap[index]) {
-                this._nodes.push(new mxnet.Node(node, argumentMap, parameters));
+                this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, parameters));
             }
         });
 
@@ -407,23 +454,23 @@ mxnet.Connection = class {
 
 mxnet.Node = class {
 
-    constructor(json, argumentMap, parameters) {
-        this._operator = json.op;
-        this._name = json.name;
-        this._inputs = json.inputs;
-        this._outputs = json.outputs;
+    constructor(metadata, node, argumentMap, parameters) {
+        this._metadata = metadata;
+        this._operator = node.op;
+        this._name = node.name;
+        this._inputs = node.inputs;
+        this._outputs = node.outputs;
         this._attributes = [];
-        var attrs = json.attrs;
-        if (!attrs) {
-            attrs = json.attr;
-        }
-        if (!attrs) {
-            attrs = json.param;
-        }
+        var attrs = node.attrs || node.attr || node.param;
         if (attrs) {
+            if (this._operator == 'tvm_op' && attrs.func_name) {
+                this._operator = attrs.func_name;
+            }
             Object.keys(attrs).forEach((key) => {
-                var value = attrs[key];
-                this._attributes.push(new mxnet.Attribute(this.operator, key, value));
+                if (this._operator != 'tvm_op' && key != 'func_name') {
+                    var value = attrs[key];
+                    this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, key, value));
+                }
             });
         }
         if (this._operator == 'RNN') {
@@ -432,7 +479,7 @@ mxnet.Node = class {
                 var argument = argumentMap[argumentNodeIndex];
                 if (argument && argument.op == 'null' && argument.name &&
                     argument.name.endsWith('_parameters') && argument.attr && argument.attr.__init__) {
-                    this._attributes.push(new mxnet.Attribute(this.operator, argument.name, argument.attr.__init__));
+                    this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, argument.name, argument.attr.__init__));
                     delete argumentMap[argumentNodeIndex];
                     return null;
                 }
@@ -483,7 +530,7 @@ mxnet.Node = class {
     }
 
     get category() {
-        var schema = mxnet.OperatorMetadata.operatorMetadata.getSchema(this._operator); 
+        var schema = this._metadata.getSchema(this._operator); 
         if (schema && schema.category) {
             return schema.category;
         }
@@ -491,7 +538,7 @@ mxnet.Node = class {
     }
 
     get documentation() {
-        var schema = mxnet.OperatorMetadata.operatorMetadata.getSchema(this._operator); 
+        var schema = this._metadata.getSchema(this._operator); 
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
@@ -529,25 +576,66 @@ mxnet.Node = class {
     }
 
     get inputs() {
-        var inputs = mxnet.OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs.map((inputs) => {
-            return '[' + inputs.join(',') + ']'; 
-        }));
-        return inputs.map((input) => {
-            return new mxnet.Argument(input.name, input.connections.map((connection) => {
-                return new mxnet.Connection(connection.id, null, this._initializers[connection.id]);
-            }));
-        });
+        var args = [];
+        var index = 0;
+        var inputs = this._inputs;
+        var schema = this._metadata.getSchema(this.operator);
+        if (schema && schema.inputs) {
+            schema.inputs.forEach((inputDef) => {
+                if (index < inputs.length || inputDef.option != 'optional') {
+                    var count = (inputDef.option == 'variadic') ? (inputs.length - index) : 1;
+                    var connections = [];
+                    inputs.slice(index, index + count).forEach((input) => {
+                        var id = '[' + input.join(',') + ']';
+                        if (id != '' || inputDef.option != 'optional') {
+                            connections.push(new mxnet.Connection(id, inputDef.type, this._initializers[id]));
+                        }
+                    });
+                    index += count;
+                    args.push(new mxnet.Argument(inputDef.name, connections));
+                }
+            });
+        }
+        if (index < inputs.length) {
+            inputs.slice(index).forEach((input) => {
+                var name = index.toString();
+                var id = '[' + input.join(',') + ']';
+                var connection = new mxnet.Connection(id, null, this._initializers[id]);
+                args.push(new mxnet.Argument(name, [ connection ]));
+                index++;
+            });
+        }
+        return args;
     }
 
     get outputs() {
-        var outputs = mxnet.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs.map((output) => {
-            return '[' + output.join(',') + ']'; 
-        }));
-        return outputs.map((output) => {
-            return new mxnet.Argument(output.name, output.connections.map((connection) => {
-                return new mxnet.Connection(connection.id, null, null);
-            }));
-        });
+        var args = [];
+        var index = 0;
+        var outputs = this._outputs;
+        var schema = this._metadata.getSchema(this.operator);
+        if (schema && schema.outputs) {
+            schema.outputs.forEach((outputDef) => {
+                if (index < outputs.length || outputDef.option != 'optional') {
+                    var output = {};
+                    var connections = [];
+                    var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
+                    outputs.slice(index, index + count).forEach((input) => {
+                        connections.push(new mxnet.Connection('[' + input.join(',') + ']', null, null));
+                    });
+                    index += count;
+                    args.push(new mxnet.Argument(outputDef.name, connections));
+                }
+            });
+        }
+        if (index < outputs.length) {
+                outputs.slice(index).forEach((output) => {
+                var name = index.toString();
+                var connection = new mxnet.Connection('[' + output.join(',') + ']', null, null);
+                args.push(new mxnet.Argument(name, [ connection ]));
+                index++;
+            });
+        }
+        return args;
     }
 
     get attributes() {
@@ -557,11 +645,11 @@ mxnet.Node = class {
 
 mxnet.Attribute = class {
 
-    constructor(operator, name, value) {
+    constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
 
-        var schema = mxnet.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        var schema = metadata.getAttributeSchema(operator, name);
         if (schema && schema.type) {
             switch (schema.type) {
                 case 'bool':
@@ -839,22 +927,29 @@ mxnet.TensorShape = class {
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        if (this._dimensions) {
+            if (this._dimensions.length == 0) {
+                return '';
+            }
+            return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        }
+        return '';
     }
 };
 
 mxnet.OperatorMetadata = class {
 
-    static open(host, callback) {
-        if (mxnet.OperatorMetadata.operatorMetadata) {
-            callback(null, mxnet.OperatorMetadata.operatorMetadata);
+    static open(host, file, callback) {
+        mxnet.OperatorMetadata._map = {};
+        if (mxnet.OperatorMetadata._map[file]) {
+            callback(null, mxnet.OperatorMetadata._map[file]);
+            return;
         }
-        else {
-            host.request(null, 'mxnet-metadata.json', 'utf-8', (err, data) => {
-                mxnet.OperatorMetadata.operatorMetadata = new mxnet.OperatorMetadata(data);
-                callback(null, mxnet.OperatorMetadata.operatorMetadata);
-            });
-        }
+        host.request(null, file, 'utf-8', (err, data) => {
+            mxnet.OperatorMetadata._map[file] = new mxnet.OperatorMetadata(data);
+            callback(null, mxnet.OperatorMetadata._map[file]);
+            return;
+        });
     }
 
     constructor(data) {
@@ -875,94 +970,16 @@ mxnet.OperatorMetadata = class {
         return this._map[operator] || null;
     }
 
-    getInputs(type, inputs) {
-        var results = [];
-        var index = 0;
-        var schema = this._map[type];
-        if (schema && schema.inputs) {
-            schema.inputs.forEach((inputDef) => {
-                if (index < inputs.length || inputDef.option != 'optional') {
-                    var input = {};
-                    input.name = inputDef.name;
-                    input.type = inputDef.type;
-                    var count = (inputDef.option == 'variadic') ? (inputs.length - index) : 1;
-                    input.connections = [];
-                    inputs.slice(index, index + count).forEach((id) => {
-                        if (id != '' || inputDef.option != 'optional') {
-                            input.connections.push({ id: id});
-                        }
-                    });
-                    index += count;
-                    results.push(input);
-                }
-            });
-            if (index < inputs.length) {
-                inputs.slice(index, inputs.length).forEach((input) => {
-                    var argument = {};
-                    argument.name = index.toString();
-                    argument.connections = [];
-                    argument.connections.push({ id: input });
-                    index++;
-                    results.push(argument);
-                });
-            }
-        }
-        else {
-            inputs.slice(index).forEach((input) => {
-                var name = (index == 0) ? 'input' : index.toString();
-                results.push({
-                    name: name,
-                    connections: [ { id: input } ]
-                });
-                index++;
-            });
-
-        }
-        return results;
-    }
-
-    getOutputs(type, outputs) {
-        var results = [];
-        var index = 0;
-        var schema = this._map[type];
-        if (schema && schema.outputs) {
-            schema.outputs.forEach((outputDef) => {
-                if (index < outputs.length || outputDef.option != 'optional') {
-                    var output = {};
-                    output.name = outputDef.name;
-                    var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
-                    output.connections = outputs.slice(index, index + count).map((id) => {
-                        return { id: id };
-                    });
-                    index += count;
-                    results.push(output);
-                }
-            });
-        }
-        else {
-            outputs.slice(index).forEach((output) => {
-                var name = (index == 0) ? 'output' : index.toString();
-                results.push({
-                    name: name,
-                    connections: [ { id: output } ]
-                });
-                index++;
-            });
-
-        }
-        return results;
-    }
-
     getAttributeSchema(operator, name) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
+            if (!schema.__attributesMap) {
+                schema.__attributesMap = {};
                 schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
+                    schema.__attributesMap[attribute.name] = attribute;
                 });
             }
-            return schema.attributesMap[name];
+            return schema.__attributesMap[name];
         }
         return null;
     }
@@ -1118,7 +1135,6 @@ ndarray.Shape = class {
         });
         return result;
     }
-
 };
 
 ndarray.Context = class {
@@ -1127,7 +1143,6 @@ ndarray.Context = class {
         this._deviceType = reader.readUint32();
         this._deviceId = reader.readUint32();
     }
-
 };
 
 ndarray.Reader = class { 

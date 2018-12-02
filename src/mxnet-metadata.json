@@ -63,6 +63,11 @@
           "name": "bias",
           "option": "optional"
         }
+      ],
+      "outputs": [
+        { 
+          "name": "output"
+        }
       ]
     }
   },
@@ -94,6 +99,11 @@
         },
         {
           "name": "bias"
+        }
+      ],
+      "outputs": [
+        { 
+          "name": "output"
         }
       ]
     }
@@ -129,6 +139,11 @@
         {
           "name": "bias"
         }
+      ],
+      "outputs": [
+        { 
+          "name": "output"
+        }
       ]
     }
   },
@@ -142,6 +157,12 @@
           "default": 0.5,
           "name": "p"
         }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -154,6 +175,12 @@
         { "name": "beta", "type": "float32", "default": 0.75 },
         { "name": "knorm", "type": "float32", "default": 2 },
         { "name": "nsize", "type": "int32" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -202,6 +229,9 @@
         {
           "name": "label"
         }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -210,9 +240,10 @@
     "schema": {
       "category": "Activation",
       "inputs": [
-        {
-          "name": "input"
-        }
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -221,19 +252,24 @@
     "schema": {
       "category": "Activation",
       "inputs": [
-        {
-          "name": "input"
-        },
-        {
-          "name": "weight"
-        }
+        { "name": "input" },
+        { "name": "weight" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
   {
     "name": "Activation",
     "schema": {
-      "category": "Activation"
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -271,13 +307,25 @@
           "type": "int32[]"
         }
       ],
-      "category": "Pool"
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Flatten",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -299,6 +347,9 @@
           "name": "inputs",
           "option": "variadic"
         }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -310,6 +361,9 @@
           "name": "inputs",
           "option": "variadic"
         }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -321,6 +375,9 @@
           "name": "inputs",
           "option": "variadic"
         }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -356,21 +413,14 @@
       ],
       "category": "Normalization",
       "inputs": [
-        {
-          "name": "input"
-        },
-        {
-          "name": "gamma"
-        },
-        {
-          "name": "beta"
-        },
-        {
-          "name": "mean"
-        },
-        {
-          "name": "variance"
-        }
+        { "name": "input" },
+        { "name": "gamma" },
+        { "name": "beta" },
+        { "name": "mean" },
+        { "name": "variance" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -388,6 +438,9 @@
         {
           "name": "beta"
         }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -400,6 +453,9 @@
           "name": "inputs",
           "option": "variadic"
         }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -420,6 +476,9 @@
       "inputs": [
         { "name": "input" },
         { "name": "weight" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -460,13 +519,22 @@
         { "name": "input" },
         { "name": "state_0" },
         { "name": "state_1" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
   {
     "name": "Reshape",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -474,6 +542,12 @@
     "schema": {
       "attributes": [
         { "name": "scalar", "type": "float32" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -482,6 +556,12 @@
     "schema": {
       "attributes": [
         { "name": "scalar", "type": "float32" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -491,6 +571,9 @@
       "inputs": [
         { "name": "lhs" },
         { "name": "rhs" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -500,6 +583,126 @@
       "inputs": [
         { "name": "lhs" },
         { "name": "rhs" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_copy",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_minus_scalar",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_mul_scalar",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "slice_axis",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Pad",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "relu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_linalg_gemm2",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_zeros",
+    "schema": {
+      "category": "Constant",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "transpose",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   }

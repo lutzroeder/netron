@@ -32,9 +32,11 @@ class TestHost {
         try {
             var file = path.join(path.join(__dirname, '../src'), id + '.js');
             callback(null, require(file));
+            return;
         }
         catch (err) {
             callback(err, null);
+            return;
         }
     }
 
@@ -43,17 +45,16 @@ class TestHost {
         fs.exists(pathname, (exists) => {
             if (!exists) {
                 callback(new Error('File not found.'), null);
+                return;
             }
-            else {
-                fs.readFile(pathname, encoding, (err, data) => {
-                    if (err) {
-                        callback(err, null);
-                    }
-                    else {
-                        callback(null, data);
-                    }
-                });
-            }
+            fs.readFile(pathname, encoding, (err, data) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+                return;
+            });
         });
     }
 
@@ -134,17 +135,24 @@ function loadModel(target, item, callback) {
     fs.closeSync(fd);
     var context = new TestContext(host, folder, identifier, buffer);
     var modelFactoryService = new view.ModelFactoryService(host);
+    var opened = false;
     modelFactoryService.open(context, (err, model) => {
+        if (opened) {
+            callback(new Error("Model opened more than once '" + target + "'."), null);
+            process.exit();
+            return;
+        }
+        opened = true;
         if (err) {
             callback(err, null);
             return;
         }
         if (!model.format || (item.format && model.format != item.format)) {
-            callback(new Error("ERROR: Invalid model format '" + model.format + "'."), null);
+            callback(new Error("Invalid model format '" + model.format + "'."), null);
             return;
         }
         if (item.producer && model.producer != item.producer) {
-            callback(new Error("ERROR: Invalid producer '" + model.producer + "'."), null);
+            callback(new Error("Invalid producer '" + model.producer + "'."), null);
             return;
         }
         try {
@@ -202,6 +210,7 @@ function loadModel(target, item, callback) {
             return;
         }
         callback(null, model);
+        return;
     });
 }
 
