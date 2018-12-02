@@ -3151,5 +3151,89 @@
     "source": "https://raw.githubusercontent.com/kosslab-kr/Tizen-NN-Runtime/master/Xor/xorGate.lite",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/kosslab-kr/Tizen-NN-Runtime"
+  },
+  {
+    "type":   "torch",
+    "target": "2ch_notredame.t7",
+    "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[2ch/2ch_notredame.t7]",
+    "format": "Torch v7",
+    "link":   "https://github.com/szagoruyko/cvpr15deepcompare"
+  },
+  {
+    "type":   "torch",
+    "target": "2ch2stream_liberty.t7",
+    "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[2ch2stream/2ch2stream_liberty.t7]",
+    "format": "Torch v7",
+    "link":   "https://github.com/szagoruyko/cvpr15deepcompare"
+  },
+  {
+    "type":   "torch",
+    "target": "2chdeep_yosemite.t7",
+    "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[2chdeep/2chdeep_yosemite.t7]",
+    "format": "Torch v7",
+    "link":   "https://github.com/szagoruyko/cvpr15deepcompare"
+  },
+  {
+    "type":   "torch",
+    "target": "completionnet_places2.t7",
+    "source": "http://hi.cs.waseda.ac.jp/~iizuka/data/completionnet_places2.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/yangwangx/inpainting_glcic_pytorch"
+  },
+  {
+    "type":   "torch",
+    "target": "inception.t7",
+    "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/inception.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/cpra/fer-cnn-sota"
+  },
+  {
+    "type":   "torch",
+    "target": "resnet.t7",
+    "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/resnet.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/cpra/fer-cnn-sota"
+  },
+  {
+    "type":   "torch",
+    "target": "resnet-18.t7",
+    "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-18.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/facebook/fb.resnet.torch/tree/master/pretrained"
+  },
+  {
+    "type":   "torch",
+    "target": "resnet-34.t7",
+    "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-34.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/facebook/fb.resnet.torch/tree/master/pretrained"
+  },
+  {
+    "type":   "torch",
+    "target": "resnet-50.t7",
+    "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-50.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/facebook/fb.resnet.torch/tree/master/pretrained"
+  },
+  {
+    "type":   "torch",
+    "target": "siam_liberty.t7",
+    "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam/siam_liberty.t7]",
+    "format": "Torch v7",
+    "link":   "https://github.com/szagoruyko/cvpr15deepcompare"
+  },
+  {
+    "type":   "torch",
+    "target": "siam2stream_notredame.t7",
+    "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam2stream/siam2stream_notredame.t7]",
+    "format": "Torch v7",
+    "link":   "https://github.com/szagoruyko/cvpr15deepcompare"
+  },
+  {
+    "type":   "torch",
+    "target": "vgg.t7",
+    "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/vgg.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/cpra/fer-cnn-sota"
   }
 ]

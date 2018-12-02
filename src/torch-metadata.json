@@ -1,0 +1,150 @@
+[
+  {
+    "name": "Linear",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "SpatialConvolution",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "benchmarked", "visible": false },
+        { "name": "input_offset", "visible": false },
+        { "name": "output_offset", "visible": false },
+        { "name": "weight_offset", "visible": false },
+        { "name": "groups", "default": 1 },
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "padding", "default": 0 },
+        { "name": "nInputPlane", "visible": false },
+        { "name": "nOutputPlane", "visible": false },
+        { "name": "fmode", "visible": false },
+        { "name": "bwmode", "visible": false },
+        { "name": "bdmode", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "SpatialFullConvolution",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "dilation", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "nInputPlane", "visible": false },
+        { "name": "nOutputPlane", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "SpatialDilatedConvolution",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "dilation", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "nInputPlane", "visible": false },
+        { "name": "nOutputPlane", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "BatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "affine", "default": true },
+        { "name": "momentum", "default": 0.1 },
+        { "name": "eps", "default": 0.00001 }
+      ]
+    }
+  },
+  {
+    "name": "SpatialBatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "affine", "default": true },
+        { "name": "momentum", "default": 0.1 },
+        { "name": "eps", "default": 0.00001 },
+        { "name": "mode", "default": "CUDNN_BATCHNORM_SPATIAL" },
+        { "name": "nDim", "default": 4 }
+      ]
+    }
+  },
+  {
+    "name": "SpatialAveragePooling",
+    "schema": {
+      "category": "Pool",
+      "attributes": [ 
+        { "name": "ceil_mode", "default": false },
+        { "name": "mode", "default": "CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING" },
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] }
+      ]
+    }
+  },
+  {
+    "name": "SpatialMaxPooling",
+    "schema": {
+      "category": "Pool",
+      "attributes": [ 
+        { "name": "ceil_mode", "default": false },
+        { "name": "mode", "default": "CUDNN_POOLING_MAX" },
+        { "name": "pad", "default": [ 0, 0 ] }
+      ]
+    }
+  },
+  {
+    "name": "SpatialZeroPadding",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [ 
+      ]
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        { "name": "threshold", "default": 0 },
+        { "name": "val", "default": 0 },
+        { "name": "inplace", "default": false, "visible": false },
+        { "name": "mode", "default": "CUDNN_ACTIVATION_RELU" },
+        { "name": "nElem", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout",
+      "attributes": [
+        { "name": "v2", "visible": false }
+      ]
+    }
+  }
+]

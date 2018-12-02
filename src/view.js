@@ -774,8 +774,8 @@ view.View = class {
                                 graphElement.setAttribute('height', height / this._zoom);        
                                 if (inputElements && inputElements.length > 0) {
                                     // Center view based on input elements
-                                    for (var i = 0; i < inputElements.length; i++) {
-                                        inputElements[i].scrollIntoView({ behavior: 'instant' });
+                                    for (var j = 0; j < inputElements.length; j++) {
+                                        inputElements[j].scrollIntoView({ behavior: 'instant' });
                                         break;
                                     }
                                 }
@@ -1075,6 +1075,7 @@ view.ModelFactoryService = class {
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
         this.register('./caffe2', [ 'predict_net.pb', 'predict_net.pbtxt', 'predict_net.prototxt' ]);
         this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model' ]);
+        this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
         this.register('./sklearn', [ '.pkl', '.joblib' ]);

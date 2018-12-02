@@ -52,6 +52,8 @@ fileAssociations:
     ext: prototxt
   - name: "PyTorch Model"
     ext: pth
+  - name: "Torch Model"
+    ext: t7
 publish:
   - provider: github
     releaseType: release
