@@ -1422,7 +1422,7 @@
           "name": "tokenizer"
         },
         {
-          "description": "Whether the feature should be made of word or character n-grams.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n",
+          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n",
           "name": "analyzer"
         },
         {
