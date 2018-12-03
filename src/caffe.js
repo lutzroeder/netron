@@ -523,10 +523,8 @@ caffe.Attribute = class {
                     this._visible = false;
                 }
                 else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
-                    if (this._value.length != defaultValue.length) {
-                        this._value = false;
-                    }
-                    else if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
+                    if (this._value.length == defaultValue.length &&
+                        this._value.every((item, index) => { return item == defaultValue[index]; })) {
                         this._visible = false;
                     }
                 }
