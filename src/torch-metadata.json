@@ -27,6 +27,20 @@
     }
   },
   {
+    "name": "SpatialConvolutionMM",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "groups", "default": 1 },
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "padding", "default": 0 },
+        { "name": "nInputPlane", "visible": false },
+        { "name": "nOutputPlane", "visible": false }
+      ]
+    }
+  },
+  {
     "name": "SpatialFullConvolution",
     "schema": {
       "category": "Layer",
@@ -49,6 +63,19 @@
         { "name": "pad", "default": [ 0, 0 ] },
         { "name": "nInputPlane", "visible": false },
         { "name": "nOutputPlane", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "InstanceNormalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "affine", "default": true },
+        { "name": "nOutput", "visible": false },
+        { "name": "prev_batch_size", "visible": false },
+        { "name": "eps", "default": 0.00001 },
+        { "name": "momentum", "default": 0.1 }
       ]
     }
   },
@@ -108,6 +135,14 @@
     }
   },
   {
+    "name": "SpatialReflectionPadding",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [ 
+      ]
+    }
+  },
+  {
     "name": "Concat",
     "schema": {
       "category": "Tensor"
@@ -123,6 +158,16 @@
         { "name": "inplace", "default": false, "visible": false },
         { "name": "mode", "default": "CUDNN_ACTIVATION_RELU" },
         { "name": "nElem", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "LeakyReLU",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        { "name": "negval", "default": 0.01, "visible": false },
+        { "name": "inplace", "default": false, "visible": false }
       ]
     }
   },
@@ -144,6 +189,17 @@
       "category": "Dropout",
       "attributes": [
         { "name": "v2", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "Mean",
+    "schema": {
+      "attributes": [
+        { "name": "squeeze", "default": true },
+        { "name": "sizeAverage", "default": false },
+        { "name": "dimension", "default": 1 },
+        { "name": "nInputDims", "visible": false }
       ]
     }
   }

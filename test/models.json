@@ -3175,10 +3175,31 @@
   },
   {
     "type":   "torch",
+    "target": "apple2orange.t7",
+    "source": "https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/models/apple2orange.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/junyanz/CycleGAN"
+  },
+  {
+    "type":   "torch",
     "target": "completionnet_places2.t7",
     "source": "http://hi.cs.waseda.ac.jp/~iizuka/data/completionnet_places2.t7",
     "format": "Torch v7",
     "link":   "https://github.com/yangwangx/inpainting_glcic_pytorch"
+  },
+  {
+    "type":   "torch",
+    "target": "cunet_art_14l_scale2.0x_model.t7",
+    "source": "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/cunet/art/noise0_model.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/nagadomi/waifu2x"
+  },
+  {
+    "type":   "torch",
+    "target": "facades_photo2label.t7",
+    "source": "https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/models/facades_photo2label.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/junyanz/CycleGAN"
   },
   {
     "type":   "torch",
@@ -3217,6 +3238,13 @@
   },
   {
     "type":   "torch",
+    "target": "resnet_photo_14l_scale2.0x_model.t7",
+    "source": "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/resnet_14l/photo/scale2.0x_model.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/nagadomi/waifu2x"
+  },
+  {
+    "type":   "torch",
     "target": "siam_liberty.t7",
     "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam/siam_liberty.t7]",
     "format": "Torch v7",
@@ -3228,6 +3256,13 @@
     "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam2stream/siam2stream_notredame.t7]",
     "format": "Torch v7",
     "link":   "https://github.com/szagoruyko/cvpr15deepcompare"
+  },
+  {
+    "type":   "torch",
+    "target": "upconv_7l_photo_scale2.0x_model.t7",
+    "source": "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/upconv_7l/photo/scale2.0x_model.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/nagadomi/waifu2x"
   },
   {
     "type":   "torch",
