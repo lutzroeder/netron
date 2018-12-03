@@ -18,6 +18,89 @@
     
                 var proto = {};
     
+                proto.Version = (function() {
+    
+                    function Version(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    Version.prototype.version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                    Version.create = function create(properties) {
+                        return new Version(properties);
+                    };
+    
+                    Version.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.paddle.framework.proto.Version();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.version = reader.int64();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    Version.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.version != null && message.hasOwnProperty("version"))
+                            if (!$util.isInteger(message.version) && !(message.version && $util.isInteger(message.version.low) && $util.isInteger(message.version.high)))
+                                return "version: integer|Long expected";
+                        return null;
+                    };
+    
+                    Version.fromObject = function fromObject(object) {
+                        if (object instanceof $root.paddle.framework.proto.Version)
+                            return object;
+                        var message = new $root.paddle.framework.proto.Version();
+                        if (object.version != null)
+                            if ($util.Long)
+                                (message.version = $util.Long.fromValue(object.version)).unsigned = false;
+                            else if (typeof object.version === "string")
+                                message.version = parseInt(object.version, 10);
+                            else if (typeof object.version === "number")
+                                message.version = object.version;
+                            else if (typeof object.version === "object")
+                                message.version = new $util.LongBits(object.version.low >>> 0, object.version.high >>> 0).toNumber();
+                        return message;
+                    };
+    
+                    Version.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults)
+                            if ($util.Long) {
+                                var long = new $util.Long(0, 0, false);
+                                object.version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                            } else
+                                object.version = options.longs === String ? "0" : 0;
+                        if (message.version != null && message.hasOwnProperty("version"))
+                            if (typeof message.version === "number")
+                                object.version = options.longs === String ? String(message.version) : message.version;
+                            else
+                                object.version = options.longs === String ? $util.Long.prototype.toString.call(message.version) : options.longs === Number ? new $util.LongBits(message.version.low >>> 0, message.version.high >>> 0).toNumber() : message.version;
+                        return object;
+                    };
+    
+                    Version.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return Version;
+                })();
+    
                 proto.AttrType = (function() {
                     var valuesById = {}, values = Object.create(valuesById);
                     values[valuesById[0] = "INT"] = 0;
@@ -30,6 +113,8 @@
                     values[valuesById[7] = "BOOLEANS"] = 7;
                     values[valuesById[8] = "BLOCK"] = 8;
                     values[valuesById[9] = "LONG"] = 9;
+                    values[valuesById[10] = "BLOCKS"] = 10;
+                    values[valuesById[11] = "LONGS"] = 11;
                     return values;
                 })();
     
@@ -218,6 +303,8 @@
                             this.floats = [];
                             this.strings = [];
                             this.bools = [];
+                            this.blocks_idx = [];
+                            this.longs = [];
                             if (properties)
                                 for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                                     if (properties[keys[i]] != null)
@@ -236,6 +323,8 @@
                         Attr.prototype.bools = $util.emptyArray;
                         Attr.prototype.block_idx = 0;
                         Attr.prototype.l = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                        Attr.prototype.blocks_idx = $util.emptyArray;
+                        Attr.prototype.longs = $util.emptyArray;
     
                         Attr.create = function create(properties) {
                             return new Attr(properties);
@@ -307,6 +396,26 @@
                                 case 13:
                                     message.l = reader.int64();
                                     break;
+                                case 14:
+                                    if (!(message.blocks_idx && message.blocks_idx.length))
+                                        message.blocks_idx = [];
+                                    if ((tag & 7) === 2) {
+                                        var end2 = reader.uint32() + reader.pos;
+                                        while (reader.pos < end2)
+                                            message.blocks_idx.push(reader.int32());
+                                    } else
+                                        message.blocks_idx.push(reader.int32());
+                                    break;
+                                case 15:
+                                    if (!(message.longs && message.longs.length))
+                                        message.longs = [];
+                                    if ((tag & 7) === 2) {
+                                        var end2 = reader.uint32() + reader.pos;
+                                        while (reader.pos < end2)
+                                            message.longs.push(reader.int64());
+                                    } else
+                                        message.longs.push(reader.int64());
+                                    break;
                                 default:
                                     reader.skipType(tag & 7);
                                     break;
@@ -337,6 +446,8 @@
                             case 7:
                             case 8:
                             case 9:
+                            case 10:
+                            case 11:
                                 break;
                             }
                             if (message.i != null && message.hasOwnProperty("i"))
@@ -385,6 +496,20 @@
                             if (message.l != null && message.hasOwnProperty("l"))
                                 if (!$util.isInteger(message.l) && !(message.l && $util.isInteger(message.l.low) && $util.isInteger(message.l.high)))
                                     return "l: integer|Long expected";
+                            if (message.blocks_idx != null && message.hasOwnProperty("blocks_idx")) {
+                                if (!Array.isArray(message.blocks_idx))
+                                    return "blocks_idx: array expected";
+                                for (var i = 0; i < message.blocks_idx.length; ++i)
+                                    if (!$util.isInteger(message.blocks_idx[i]))
+                                        return "blocks_idx: integer[] expected";
+                            }
+                            if (message.longs != null && message.hasOwnProperty("longs")) {
+                                if (!Array.isArray(message.longs))
+                                    return "longs: array expected";
+                                for (var i = 0; i < message.longs.length; ++i)
+                                    if (!$util.isInteger(message.longs[i]) && !(message.longs[i] && $util.isInteger(message.longs[i].low) && $util.isInteger(message.longs[i].high)))
+                                        return "longs: integer|Long[] expected";
+                            }
                             return null;
                         };
     
@@ -435,6 +560,14 @@
                             case 9:
                                 message.type = 9;
                                 break;
+                            case "BLOCKS":
+                            case 10:
+                                message.type = 10;
+                                break;
+                            case "LONGS":
+                            case 11:
+                                message.type = 11;
+                                break;
                             }
                             if (object.i != null)
                                 message.i = object.i | 0;
@@ -483,6 +616,27 @@
                                     message.l = object.l;
                                 else if (typeof object.l === "object")
                                     message.l = new $util.LongBits(object.l.low >>> 0, object.l.high >>> 0).toNumber();
+                            if (object.blocks_idx) {
+                                if (!Array.isArray(object.blocks_idx))
+                                    throw TypeError(".paddle.framework.proto.OpDesc.Attr.blocks_idx: array expected");
+                                message.blocks_idx = [];
+                                for (var i = 0; i < object.blocks_idx.length; ++i)
+                                    message.blocks_idx[i] = object.blocks_idx[i] | 0;
+                            }
+                            if (object.longs) {
+                                if (!Array.isArray(object.longs))
+                                    throw TypeError(".paddle.framework.proto.OpDesc.Attr.longs: array expected");
+                                message.longs = [];
+                                for (var i = 0; i < object.longs.length; ++i)
+                                    if ($util.Long)
+                                        (message.longs[i] = $util.Long.fromValue(object.longs[i])).unsigned = false;
+                                    else if (typeof object.longs[i] === "string")
+                                        message.longs[i] = parseInt(object.longs[i], 10);
+                                    else if (typeof object.longs[i] === "number")
+                                        message.longs[i] = object.longs[i];
+                                    else if (typeof object.longs[i] === "object")
+                                        message.longs[i] = new $util.LongBits(object.longs[i].low >>> 0, object.longs[i].high >>> 0).toNumber();
+                            }
                             return message;
                         };
     
@@ -495,6 +649,8 @@
                                 object.floats = [];
                                 object.strings = [];
                                 object.bools = [];
+                                object.blocks_idx = [];
+                                object.longs = [];
                             }
                             if (options.defaults) {
                                 object.name = "";
@@ -549,6 +705,19 @@
                                     object.l = options.longs === String ? String(message.l) : message.l;
                                 else
                                     object.l = options.longs === String ? $util.Long.prototype.toString.call(message.l) : options.longs === Number ? new $util.LongBits(message.l.low >>> 0, message.l.high >>> 0).toNumber() : message.l;
+                            if (message.blocks_idx && message.blocks_idx.length) {
+                                object.blocks_idx = [];
+                                for (var j = 0; j < message.blocks_idx.length; ++j)
+                                    object.blocks_idx[j] = message.blocks_idx[j];
+                            }
+                            if (message.longs && message.longs.length) {
+                                object.longs = [];
+                                for (var j = 0; j < message.longs.length; ++j)
+                                    if (typeof message.longs[j] === "number")
+                                        object.longs[j] = options.longs === String ? String(message.longs[j]) : message.longs[j];
+                                    else
+                                        object.longs[j] = options.longs === String ? $util.Long.prototype.toString.call(message.longs[j]) : options.longs === Number ? new $util.LongBits(message.longs[j].low >>> 0, message.longs[j].high >>> 0).toNumber() : message.longs[j];
+                            }
                             return object;
                         };
     
@@ -1028,6 +1197,8 @@
                             case 7:
                             case 8:
                             case 9:
+                            case 10:
+                            case 11:
                                 break;
                             }
                             if (!$util.isString(message.comment))
@@ -1085,6 +1256,14 @@
                             case 9:
                                 message.type = 9;
                                 break;
+                            case "BLOCKS":
+                            case 10:
+                                message.type = 10;
+                                break;
+                            case "LONGS":
+                            case 11:
+                                message.type = 11;
+                                break;
                             }
                             if (object.comment != null)
                                 message.comment = String(object.comment);
@@ -1138,7 +1317,6 @@
                     VarType.prototype.lod_tensor = null;
                     VarType.prototype.tensor_array = null;
                     VarType.prototype.reader = null;
-                    VarType.prototype.channel = null;
                     VarType.prototype.tuple = null;
     
                     VarType.create = function create(properties) {
@@ -1166,9 +1344,6 @@
                                 break;
                             case 5:
                                 message.reader = $root.paddle.framework.proto.VarType.ReaderDesc.decode(reader, reader.uint32());
-                                break;
-                            case 6:
-                                message.channel = $root.paddle.framework.proto.VarType.ChannelDesc.decode(reader, reader.uint32());
                                 break;
                             case 7:
                                 message.tuple = $root.paddle.framework.proto.VarType.Tuple.decode(reader, reader.uint32());
@@ -1198,6 +1373,7 @@
                         case 6:
                         case 19:
                         case 20:
+                        case 21:
                         case 7:
                         case 8:
                         case 9:
@@ -1207,7 +1383,6 @@
                         case 13:
                         case 14:
                         case 15:
-                        case 16:
                         case 17:
                         case 18:
                             break;
@@ -1231,11 +1406,6 @@
                             var error = $root.paddle.framework.proto.VarType.ReaderDesc.verify(message.reader);
                             if (error)
                                 return "reader." + error;
-                        }
-                        if (message.channel != null && message.hasOwnProperty("channel")) {
-                            var error = $root.paddle.framework.proto.VarType.ChannelDesc.verify(message.channel);
-                            if (error)
-                                return "channel." + error;
                         }
                         if (message.tuple != null && message.hasOwnProperty("tuple")) {
                             var error = $root.paddle.framework.proto.VarType.Tuple.verify(message.tuple);
@@ -1286,6 +1456,10 @@
                         case 20:
                             message.type = 20;
                             break;
+                        case "INT8":
+                        case 21:
+                            message.type = 21;
+                            break;
                         case "LOD_TENSOR":
                         case 7:
                             message.type = 7;
@@ -1322,10 +1496,6 @@
                         case 15:
                             message.type = 15;
                             break;
-                        case "CHANNEL":
-                        case 16:
-                            message.type = 16;
-                            break;
                         case "RAW":
                         case 17:
                             message.type = 17;
@@ -1355,11 +1525,6 @@
                                 throw TypeError(".paddle.framework.proto.VarType.reader: object expected");
                             message.reader = $root.paddle.framework.proto.VarType.ReaderDesc.fromObject(object.reader);
                         }
-                        if (object.channel != null) {
-                            if (typeof object.channel !== "object")
-                                throw TypeError(".paddle.framework.proto.VarType.channel: object expected");
-                            message.channel = $root.paddle.framework.proto.VarType.ChannelDesc.fromObject(object.channel);
-                        }
                         if (object.tuple != null) {
                             if (typeof object.tuple !== "object")
                                 throw TypeError(".paddle.framework.proto.VarType.tuple: object expected");
@@ -1378,7 +1543,6 @@
                             object.lod_tensor = null;
                             object.tensor_array = null;
                             object.reader = null;
-                            object.channel = null;
                             object.tuple = null;
                         }
                         if (message.type != null && message.hasOwnProperty("type"))
@@ -1391,8 +1555,6 @@
                             object.tensor_array = $root.paddle.framework.proto.VarType.LoDTensorArrayDesc.toObject(message.tensor_array, options);
                         if (message.reader != null && message.hasOwnProperty("reader"))
                             object.reader = $root.paddle.framework.proto.VarType.ReaderDesc.toObject(message.reader, options);
-                        if (message.channel != null && message.hasOwnProperty("channel"))
-                            object.channel = $root.paddle.framework.proto.VarType.ChannelDesc.toObject(message.channel, options);
                         if (message.tuple != null && message.hasOwnProperty("tuple"))
                             object.tuple = $root.paddle.framework.proto.VarType.Tuple.toObject(message.tuple, options);
                         return object;
@@ -1413,6 +1575,7 @@
                         values[valuesById[6] = "FP64"] = 6;
                         values[valuesById[19] = "SIZE_T"] = 19;
                         values[valuesById[20] = "UINT8"] = 20;
+                        values[valuesById[21] = "INT8"] = 21;
                         values[valuesById[7] = "LOD_TENSOR"] = 7;
                         values[valuesById[8] = "SELECTED_ROWS"] = 8;
                         values[valuesById[9] = "FEED_MINIBATCH"] = 9;
@@ -1422,7 +1585,6 @@
                         values[valuesById[13] = "LOD_TENSOR_ARRAY"] = 13;
                         values[valuesById[14] = "PLACE_LIST"] = 14;
                         values[valuesById[15] = "READER"] = 15;
-                        values[valuesById[16] = "CHANNEL"] = 16;
                         values[valuesById[17] = "RAW"] = 17;
                         values[valuesById[18] = "TUPLE"] = 18;
                         return values;
@@ -1490,6 +1652,7 @@
                             case 6:
                             case 19:
                             case 20:
+                            case 21:
                             case 7:
                             case 8:
                             case 9:
@@ -1499,7 +1662,6 @@
                             case 13:
                             case 14:
                             case 15:
-                            case 16:
                             case 17:
                             case 18:
                                 break;
@@ -1555,6 +1717,10 @@
                             case 20:
                                 message.data_type = 20;
                                 break;
+                            case "INT8":
+                            case 21:
+                                message.data_type = 21;
+                                break;
                             case "LOD_TENSOR":
                             case 7:
                                 message.data_type = 7;
@@ -1590,10 +1756,6 @@
                             case "READER":
                             case 15:
                                 message.data_type = 15;
-                                break;
-                            case "CHANNEL":
-                            case 16:
-                                message.data_type = 16;
                                 break;
                             case "RAW":
                             case 17:
@@ -1916,212 +2078,6 @@
                         return ReaderDesc;
                     })();
     
-                    VarType.ChannelDesc = (function() {
-    
-                        function ChannelDesc(properties) {
-                            if (properties)
-                                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                    if (properties[keys[i]] != null)
-                                        this[keys[i]] = properties[keys[i]];
-                        }
-    
-                        ChannelDesc.prototype.data_type = 0;
-                        ChannelDesc.prototype.capacity = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-                        ChannelDesc.create = function create(properties) {
-                            return new ChannelDesc(properties);
-                        };
-    
-                        ChannelDesc.decode = function decode(reader, length) {
-                            if (!(reader instanceof $Reader))
-                                reader = $Reader.create(reader);
-                            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.paddle.framework.proto.VarType.ChannelDesc();
-                            while (reader.pos < end) {
-                                var tag = reader.uint32();
-                                switch (tag >>> 3) {
-                                case 1:
-                                    message.data_type = reader.int32();
-                                    break;
-                                case 2:
-                                    message.capacity = reader.int64();
-                                    break;
-                                default:
-                                    reader.skipType(tag & 7);
-                                    break;
-                                }
-                            }
-                            if (!message.hasOwnProperty("data_type"))
-                                throw $util.ProtocolError("missing required 'data_type'", { instance: message });
-                            if (!message.hasOwnProperty("capacity"))
-                                throw $util.ProtocolError("missing required 'capacity'", { instance: message });
-                            return message;
-                        };
-    
-                        ChannelDesc.verify = function verify(message) {
-                            if (typeof message !== "object" || message === null)
-                                return "object expected";
-                            switch (message.data_type) {
-                            default:
-                                return "data_type: enum value expected";
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                            case 5:
-                            case 6:
-                            case 19:
-                            case 20:
-                            case 7:
-                            case 8:
-                            case 9:
-                            case 10:
-                            case 11:
-                            case 12:
-                            case 13:
-                            case 14:
-                            case 15:
-                            case 16:
-                            case 17:
-                            case 18:
-                                break;
-                            }
-                            if (!$util.isInteger(message.capacity) && !(message.capacity && $util.isInteger(message.capacity.low) && $util.isInteger(message.capacity.high)))
-                                return "capacity: integer|Long expected";
-                            return null;
-                        };
-    
-                        ChannelDesc.fromObject = function fromObject(object) {
-                            if (object instanceof $root.paddle.framework.proto.VarType.ChannelDesc)
-                                return object;
-                            var message = new $root.paddle.framework.proto.VarType.ChannelDesc();
-                            switch (object.data_type) {
-                            case "BOOL":
-                            case 0:
-                                message.data_type = 0;
-                                break;
-                            case "INT16":
-                            case 1:
-                                message.data_type = 1;
-                                break;
-                            case "INT32":
-                            case 2:
-                                message.data_type = 2;
-                                break;
-                            case "INT64":
-                            case 3:
-                                message.data_type = 3;
-                                break;
-                            case "FP16":
-                            case 4:
-                                message.data_type = 4;
-                                break;
-                            case "FP32":
-                            case 5:
-                                message.data_type = 5;
-                                break;
-                            case "FP64":
-                            case 6:
-                                message.data_type = 6;
-                                break;
-                            case "SIZE_T":
-                            case 19:
-                                message.data_type = 19;
-                                break;
-                            case "UINT8":
-                            case 20:
-                                message.data_type = 20;
-                                break;
-                            case "LOD_TENSOR":
-                            case 7:
-                                message.data_type = 7;
-                                break;
-                            case "SELECTED_ROWS":
-                            case 8:
-                                message.data_type = 8;
-                                break;
-                            case "FEED_MINIBATCH":
-                            case 9:
-                                message.data_type = 9;
-                                break;
-                            case "FETCH_LIST":
-                            case 10:
-                                message.data_type = 10;
-                                break;
-                            case "STEP_SCOPES":
-                            case 11:
-                                message.data_type = 11;
-                                break;
-                            case "LOD_RANK_TABLE":
-                            case 12:
-                                message.data_type = 12;
-                                break;
-                            case "LOD_TENSOR_ARRAY":
-                            case 13:
-                                message.data_type = 13;
-                                break;
-                            case "PLACE_LIST":
-                            case 14:
-                                message.data_type = 14;
-                                break;
-                            case "READER":
-                            case 15:
-                                message.data_type = 15;
-                                break;
-                            case "CHANNEL":
-                            case 16:
-                                message.data_type = 16;
-                                break;
-                            case "RAW":
-                            case 17:
-                                message.data_type = 17;
-                                break;
-                            case "TUPLE":
-                            case 18:
-                                message.data_type = 18;
-                                break;
-                            }
-                            if (object.capacity != null)
-                                if ($util.Long)
-                                    (message.capacity = $util.Long.fromValue(object.capacity)).unsigned = false;
-                                else if (typeof object.capacity === "string")
-                                    message.capacity = parseInt(object.capacity, 10);
-                                else if (typeof object.capacity === "number")
-                                    message.capacity = object.capacity;
-                                else if (typeof object.capacity === "object")
-                                    message.capacity = new $util.LongBits(object.capacity.low >>> 0, object.capacity.high >>> 0).toNumber();
-                            return message;
-                        };
-    
-                        ChannelDesc.toObject = function toObject(message, options) {
-                            if (!options)
-                                options = {};
-                            var object = {};
-                            if (options.defaults) {
-                                object.data_type = options.enums === String ? "BOOL" : 0;
-                                if ($util.Long) {
-                                    var long = new $util.Long(0, 0, false);
-                                    object.capacity = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
-                                } else
-                                    object.capacity = options.longs === String ? "0" : 0;
-                            }
-                            if (message.data_type != null && message.hasOwnProperty("data_type"))
-                                object.data_type = options.enums === String ? $root.paddle.framework.proto.VarType.Type[message.data_type] : message.data_type;
-                            if (message.capacity != null && message.hasOwnProperty("capacity"))
-                                if (typeof message.capacity === "number")
-                                    object.capacity = options.longs === String ? String(message.capacity) : message.capacity;
-                                else
-                                    object.capacity = options.longs === String ? $util.Long.prototype.toString.call(message.capacity) : options.longs === Number ? new $util.LongBits(message.capacity.low >>> 0, message.capacity.high >>> 0).toNumber() : message.capacity;
-                            return object;
-                        };
-    
-                        ChannelDesc.prototype.toJSON = function toJSON() {
-                            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                        };
-    
-                        return ChannelDesc;
-                    })();
-    
                     VarType.Tuple = (function() {
     
                         function Tuple(properties) {
@@ -2182,6 +2138,7 @@
                                     case 6:
                                     case 19:
                                     case 20:
+                                    case 21:
                                     case 7:
                                     case 8:
                                     case 9:
@@ -2191,7 +2148,6 @@
                                     case 13:
                                     case 14:
                                     case 15:
-                                    case 16:
                                     case 17:
                                     case 18:
                                         break;
@@ -2247,6 +2203,10 @@
                                     case 20:
                                         message.element_type[i] = 20;
                                         break;
+                                    case "INT8":
+                                    case 21:
+                                        message.element_type[i] = 21;
+                                        break;
                                     case "LOD_TENSOR":
                                     case 7:
                                         message.element_type[i] = 7;
@@ -2282,10 +2242,6 @@
                                     case "READER":
                                     case 15:
                                         message.element_type[i] = 15;
-                                        break;
-                                    case "CHANNEL":
-                                    case 16:
-                                        message.element_type[i] = 16;
                                         break;
                                     case "RAW":
                                     case 17:
@@ -2599,6 +2555,7 @@
                     }
     
                     ProgramDesc.prototype.blocks = $util.emptyArray;
+                    ProgramDesc.prototype.version = null;
     
                     ProgramDesc.create = function create(properties) {
                         return new ProgramDesc(properties);
@@ -2615,6 +2572,9 @@
                                 if (!(message.blocks && message.blocks.length))
                                     message.blocks = [];
                                 message.blocks.push($root.paddle.framework.proto.BlockDesc.decode(reader, reader.uint32()));
+                                break;
+                            case 2:
+                                message.version = $root.paddle.framework.proto.Version.decode(reader, reader.uint32());
                                 break;
                             default:
                                 reader.skipType(tag & 7);
@@ -2636,6 +2596,11 @@
                                     return "blocks." + error;
                             }
                         }
+                        if (message.version != null && message.hasOwnProperty("version")) {
+                            var error = $root.paddle.framework.proto.Version.verify(message.version);
+                            if (error)
+                                return "version." + error;
+                        }
                         return null;
                     };
     
@@ -2653,6 +2618,11 @@
                                 message.blocks[i] = $root.paddle.framework.proto.BlockDesc.fromObject(object.blocks[i]);
                             }
                         }
+                        if (object.version != null) {
+                            if (typeof object.version !== "object")
+                                throw TypeError(".paddle.framework.proto.ProgramDesc.version: object expected");
+                            message.version = $root.paddle.framework.proto.Version.fromObject(object.version);
+                        }
                         return message;
                     };
     
@@ -2662,11 +2632,15 @@
                         var object = {};
                         if (options.arrays || options.defaults)
                             object.blocks = [];
+                        if (options.defaults)
+                            object.version = null;
                         if (message.blocks && message.blocks.length) {
                             object.blocks = [];
                             for (var j = 0; j < message.blocks.length; ++j)
                                 object.blocks[j] = $root.paddle.framework.proto.BlockDesc.toObject(message.blocks[j], options);
                         }
+                        if (message.version != null && message.hasOwnProperty("version"))
+                            object.version = $root.paddle.framework.proto.Version.toObject(message.version, options);
                         return object;
                     };
     
