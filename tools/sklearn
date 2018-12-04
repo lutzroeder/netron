@@ -42,7 +42,6 @@ install() {
     bold "sklearn install"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
-    echo "Install scikit-learn"
     ${pip} install --quiet Cython
     ${pip} install --quiet numpy
     ${pip} install --quiet ${third_party}/scikit-learn
@@ -52,7 +51,6 @@ install() {
 metadata() {
     bold "sklearn metadata"
     source ${virtualenv}/bin/activate
-    echo "Update 'sklearn-metadata.json'"
     pushd ${tools} > /dev/null
     ${python} sklearn-script.py
     popd > /dev/null
