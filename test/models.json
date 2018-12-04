@@ -3182,6 +3182,20 @@
   },
   {
     "type":   "torch",
+    "target": "bedrooms_4_net_G.t7",
+    "source": "https://github.com/soumith/lfs/raw/master/dcgan.torch/bedrooms_4_net_G.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/soumith/dcgan.torch"
+  },
+  {
+    "type":   "torch",
+    "target": "celebA_25_net_G.t7",
+    "source": "https://github.com/soumith/lfs/raw/master/dcgan.torch/celebA_25_net_G.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/soumith/dcgan.torch"
+  },
+  {
+    "type":   "torch",
     "target": "completionnet_places2.t7",
     "source": "http://hi.cs.waseda.ac.jp/~iizuka/data/completionnet_places2.t7",
     "format": "Torch v7",
@@ -3193,6 +3207,20 @@
     "source": "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/cunet/art/noise0_model.t7",
     "format": "Torch v7",
     "link":   "https://github.com/nagadomi/waifu2x"
+  },
+  {
+    "type":   "torch",
+    "target": "densenet-121.t7",
+    "source": "https://drive.google.com/uc?export=download&id=0B8ReS-sYUS-HWFViYlVlZk9sdHc",
+    "format": "Torch v7",
+    "link":   "https://github.com/liuzhuang13/DenseNet"
+  },
+  {
+    "type":   "torch",
+    "target": "densenet_cosine_264_k48.t7",
+    "source": "https://drive.google.com/uc?export=download&id=0By1NwtA2JPGzcnFDSE1HQVh4c0k",
+    "format": "Torch v7",
+    "link":   "https://github.com/liuzhuang13/DenseNet"
   },
   {
     "type":   "torch",
@@ -3210,6 +3238,13 @@
   },
   {
     "type":   "torch",
+    "target": "portrait_584_net_D_cpu.t7",
+    "source": "https://drive.google.com/uc?export=download&id=1KJMUW0sOZ3CRjshCEsJPd76DN4GT6Otv",
+    "format": "Torch v7",
+    "link":   "https://github.com/robbiebarrat/art-DCGAN/issues/3"
+  },
+  {
+    "type":   "torch",
     "target": "resnet.t7",
     "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/resnet.t7",
     "format": "Torch v7",
@@ -3220,21 +3255,35 @@
     "target": "resnet-18.t7",
     "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-18.t7",
     "format": "Torch v7",
-    "link":   "https://github.com/facebook/fb.resnet.torch/tree/master/pretrained"
+    "link":   "https://github.com/facebook/fb.resnet.torch"
   },
   {
     "type":   "torch",
     "target": "resnet-34.t7",
     "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-34.t7",
     "format": "Torch v7",
-    "link":   "https://github.com/facebook/fb.resnet.torch/tree/master/pretrained"
+    "link":   "https://github.com/facebook/fb.resnet.torch"
   },
   {
     "type":   "torch",
     "target": "resnet-50.t7",
     "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-50.t7",
     "format": "Torch v7",
-    "link":   "https://github.com/facebook/fb.resnet.torch/tree/master/pretrained"
+    "link":   "https://github.com/facebook/fb.resnet.torch"
+  },
+  {
+    "type":   "torch",
+    "target": "resnet-200.t7",
+    "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-200.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/facebook/fb.resnet.torch"
+  },
+  {
+    "type":   "torch",
+    "target": "resnext_101_64x4d.t7",
+    "source": "https://s3.amazonaws.com/resnext/imagenet_models/resnext_101_64x4d.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/facebookresearch/ResNeXt"
   },
   {
     "type":   "torch",
@@ -3271,4 +3320,4 @@
     "format": "Torch v7",
     "link":   "https://github.com/cpra/fer-cnn-sota"
   }
-]
+ ]

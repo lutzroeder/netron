@@ -20,6 +20,8 @@
         { "name": "padding", "default": 0 },
         { "name": "nInputPlane", "visible": false },
         { "name": "nOutputPlane", "visible": false },
+        { "name": "convDescData", "visible": false },
+        { "name": "autotunerHash", "visible": false },
         { "name": "fmode", "visible": false },
         { "name": "bwmode", "visible": false },
         { "name": "bdmode", "visible": false }
@@ -45,11 +47,17 @@
     "schema": {
       "category": "Layer",
       "attributes": [
+        { "name": "groups", "default": 1 },
         { "name": "d", "default": [ 1, 1 ] },
         { "name": "dilation", "default": [ 1, 1 ] },
         { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "convDescData", "visible": false },
+        { "name": "autotunerHash", "visible": false },
         { "name": "nInputPlane", "visible": false },
-        { "name": "nOutputPlane", "visible": false }
+        { "name": "nOutputPlane", "visible": false },
+        { "name": "input_offset", "visible": false },
+        { "name": "output_offset", "visible": false },
+        { "name": "weight_offset", "visible": false }
       ]
     }
   },
@@ -99,7 +107,8 @@
         { "name": "momentum", "default": 0.1 },
         { "name": "eps", "default": 0.00001 },
         { "name": "mode", "default": "CUDNN_BATCHNORM_SPATIAL" },
-        { "name": "nDim", "default": 4 }
+        { "name": "nDim", "default": 4 },
+        { "name": "__shareGradInputKey", "visible": false }
       ]
     }
   },
@@ -111,7 +120,8 @@
         { "name": "ceil_mode", "default": false },
         { "name": "mode", "default": "CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING" },
         { "name": "d", "default": [ 1, 1 ] },
-        { "name": "pad", "default": [ 0, 0 ] }
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "count_include_pad", "visible": false }
       ]
     }
   },
@@ -122,7 +132,9 @@
       "attributes": [ 
         { "name": "ceil_mode", "default": false },
         { "name": "mode", "default": "CUDNN_POOLING_MAX" },
-        { "name": "pad", "default": [ 0, 0 ] }
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "iheight", "visible": false },
+        { "name": "iwidth", "visible": false }
       ]
     }
   },
@@ -145,7 +157,10 @@
   {
     "name": "Concat",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "attributes": [
+        { "name": "outputSize", "visible": false }
+      ]
     }
   },
   {
@@ -157,6 +172,16 @@
         { "name": "val", "default": 0 },
         { "name": "inplace", "default": false, "visible": false },
         { "name": "mode", "default": "CUDNN_ACTIVATION_RELU" },
+        { "name": "nElem", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        { "name": "mode", "default": "CUDNN_ACTIVATION_TANH" },
         { "name": "nElem", "visible": false }
       ]
     }
@@ -174,13 +199,20 @@
   {
     "name": "Sigmoid",
     "schema": {
-      "category": "Activation"
+      "category": "Activation",
+      "attributes": [
+        { "name": "mode", "default": "CUDNN_ACTIVATION_SIGMOID" },
+        { "name": "nElem", "visible": false }
+      ]
     }
   },
   {
     "name": "Reshape",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "attributes": [
+        { "name": "nelement", "visible": false }
+      ]
     }
   },
   {

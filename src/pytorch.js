@@ -113,6 +113,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm2d'] = function() {};
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
+            constructorTable['torch.nn.modules.loss.MSELoss'] = function () {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
             constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function () {};
             constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function () {};

@@ -104,14 +104,12 @@ torch.Graph = class {
                 groups.push(key);
                 var subInputs = inputs;
                 var subOutputs = [];
-                var keys = Object.keys(module.modules);
-                keys.sort(); 
-                var last = keys[keys.length - 1];
-                keys.forEach((key, index) => {
-                    if (key == last.toString()) {
+                var length = module.modules.length;
+                module.modules.forEach((module, index) => {
+                    if (index == length - 1) {
                         subOutputs = outputs;
-                    }
-                    this._loadModule(metadata, module.modules[key], groups, key, subInputs, subOutputs);
+                    }                    
+                    this._loadModule(metadata, module, groups, index.toString(), subInputs, subOutputs);
                     subInputs = subOutputs;
                     subOutputs = [];
                 });
@@ -119,14 +117,12 @@ torch.Graph = class {
                 break;
             case 'nn.Parallel':
                 groups.push(key);
-                var keys = Object.keys(module.modules);
-                keys.sort();
                 var newInputs = [];
                 var newOutputs = [];
-                keys.forEach((key, index) => {
+                module.modules.forEach((module, index) => {
                     var subInputs = inputs.map((input) => input);
                     var subOutputs = outputs.map((output) => output);
-                    this._loadModule(metadata, module.modules[key], groups, key, subInputs, subOutputs);
+                    this._loadModule(metadata, module, groups, index.toString(), subInputs, subOutputs);
                     if (inputs.length == 0) {
                         subInputs.forEach((input) => {
                             newInputs.push(input);
@@ -148,22 +144,19 @@ torch.Graph = class {
                 break;
             case 'nn.Concat':
             case 'nn.ConcatTable':
-                groups.push(key);
-                var keys = Object.keys(module.modules);
-                keys.sort();
+                var prefix = key;
                 if (inputs.length == 0) {
-                    inputs.push(new torch.Connection(groups.join('/') + '/' + key, null, null));
+                    inputs.push(new torch.Connection(groups.join('/') + ':' + key + ':in', null, null));
                 }
                 var concatInputs = [];
-                keys.forEach((key, index) => {
+                module.modules.forEach((module, index) => {
                     var streamInputs = inputs.map((input) => input);
                     var streamOutputs = [];
-                    this._loadModule(metadata, module.modules[key], groups, key, streamInputs, streamOutputs);
+                    this._loadModule(metadata, module, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
                     streamOutputs.forEach((output) => {
                         concatInputs.push(output);
                     });
                 });
-                groups.pop();
                 delete module.modules;
                 delete module.dimension;
                 this._createNode(metadata, module, groups, key, concatInputs, outputs);
@@ -233,17 +226,17 @@ torch.Connection = class {
 
 torch.Node = class {
 
-    constructor(metadata, module, groups, key, inputs, outputs) {
+    constructor(metadata, module, groups, name, inputs, outputs) {
         this._metadata = metadata;
         this._group = groups.join('/');
-        this._name = this._group + '/' + key;
+        this._name = this._group ? (this._group + ':' + name) : name;
         var type = module.__type__;
         this._operator = type ? type.split('.').pop() : 'Object';
         var initializers = [];
         Object.keys(module).forEach((key) => {
             var obj = module[key];
             if (obj.__type__ && obj.__type__ == 'torch.LongStorage') {
-                module[key] = obj.data;
+                module[key] = obj.read();
             }
         });
         delete module.iSize;
@@ -254,13 +247,11 @@ torch.Node = class {
         delete module.gradWeight;
         delete module.gradBias;
         delete module.scaleT;
+        delete module._input;
+        delete module._gradOutput;
         switch (type) {
             case 'nn.Linear':
                 delete module.addBuffer;
-                break;
-            case 'nn.Reshape':
-                delete module._input;
-                delete module._gradOutput;
                 break;
             case 'cudnn.SpatialConvolution':
             case 'cudnn.SpatialFullConvolution':
@@ -269,6 +260,8 @@ torch.Node = class {
             case 'nn.SpatialDilatedConvolution':
             case 'nn.SpatialFullConvolution':
                 delete module.ones;
+                delete module.input_slice;
+                delete module.output_slice;
                 this._updateSize(module, 'adj');
                 this._updateSize(module, 'd');
                 this._updateSize(module, 'dilation');
@@ -283,10 +276,18 @@ torch.Node = class {
                 delete module.save_mean;
                 delete module.save_std;
                 delete module.gradWeight;
-                module.mean = module.running_mean;
-                module.var = module.running_var;
-                delete module.running_mean;
-                delete module.running_var;
+                if (module.running_mean) {
+                    module.mean = module.running_mean;
+                    delete module.running_mean;
+                }
+                if (module.running_var) {
+                    module.var = module.running_var;
+                    delete module.running_var;
+                }
+                if (module.running_std) {
+                    module.std = module.running_std;
+                    delete module.running_std;
+                }
                 delete module.bn; // TODO InstanceNormalization
                 break;
             case 'cudnn.SpatialMaxPooling':
@@ -335,7 +336,7 @@ torch.Node = class {
         });
         this._inputs = [];
         if (inputs.length == 0) {
-            inputs.push(new torch.Connection(this._name + '/in', null, null));
+            inputs.push(new torch.Connection(this._name + ':in', null, null));
         }
         this._inputs.push(new torch.Argument('input', true, inputs));
         this._outputs = [];
@@ -512,10 +513,6 @@ torch.Error = class extends Error {
 torch.T7Reader = class {
 
     constructor(buffer, callback) {
-        this._buffer = buffer;
-        this._position = 0;
-        this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
-        this._textDecoder = new TextDecoder('ascii');
         this._callback = callback; 
         this._memo = {};
 
@@ -527,9 +524,11 @@ torch.T7Reader = class {
         this._registry['cudnn.SpatialBatchNormalization'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.SpatialFullConvolution'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
+        this._registry['cudnn.Tanh'] = function(reader, version) { reader.nn(this); };
         this._registry['inn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.CAddTable'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Concat'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.Copy'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ConcatTable'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.DepthConcat'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Dropout'] = function(reader, version) { reader.nn(this); };
@@ -591,28 +590,17 @@ torch.T7Reader = class {
         this._registry['w2nn.InplaceClip01'] = function(reader, version) { reader.nn(this); };
         this._registry['w2nn.ScaleTable'] = function(reader, version) { reader.nn(this); };
 
-        if (this._buffer.length == 0) {
+        if (buffer.length == 0) {
             throw new torch.Error('File is empty.');            
         }
-        if (this._buffer[0] > 8) {
-            this._ascii = true;
-            this.int32();
-            this._position = 0;
+        if (buffer[0] <= 8) {
+            this._reader = new torch.BinaryReader(buffer);
         }
-    }
-
-    line(size) {
-        var start = this._position;
-        size++;
-        while (size > 0) {
-            var c = this._buffer[this._position++];
-            if (c == 0x0a) {
-                var text = this._textDecoder.decode(this._buffer.slice(start, this._position - 1));
-                return text;
-            }
-            size--;
+        else {
+            this._reader = new torch.TextReader(buffer);
+            this._reader.int32();
+            this._reader.reset();
         }
-        throw torch.Error('Line exceeded maximum length.');
     }
 
     read() {
@@ -632,119 +620,31 @@ torch.T7Reader = class {
     }
 
     boolean() {
-        return this.int32() == 1;
+        return this._reader.boolean();
     }
 
     bytes(size) {
-        if (this._ascii) {
-            debugger;
-        }
-        var data = this._buffer.subarray(this._position, this._position + size);
-        this._position += size;
-        return data;
-    }
-
-    int8() {
-        if (this._ascii) {
-            return this.int64();
-        }
-        var value = this._dataView.getInt8(this._position, true);
-        this._position += 1;
-        return value;
-    }
-
-    int16() {
-        if (this._ascii) {
-            return this.int64();
-        }
-        var value = this._dataView.getInt16(this._position, true);
-        this._position += 2;
-        return value;
+        return this._reader.bytes(size);
     }
 
     int32() {
-        if (this._ascii) {
-            return this.int64();
-        }
-        var value = this._dataView.getInt32(this._position, true);
-        this._position += 4;
-        return value;
+        return this._reader.int32();
     }
 
     int64() {
-        if (this._ascii) {
-            var token = this.line(20);
-            var number = Number.parseInt(token, 10);
-            if (Number.isNaN(token - number)) {
-                throw new torch.Error("Couldn't parse int64 '" + token + "'.");
-            }
-            return number;
-        }
-        var lo = this.int32();
-        var hi = this.int32();
-        if (lo == -1 && hi == -1) {
-            return -1;
-        }
-        if (hi != 0) {
-            throw new torch.Error('Invalid int64 value.');
-        }
-        return lo;
+        return this._reader.int64();
     }
 
     int64s(size) {
-        var array = [];
-        if (this._ascii && size > 0) {
-            var text = this.line(Number.MAX_SAFE_INTEGER);
-            text.split(' ').forEach((token) => {
-                var number = Number.parseInt(token, 10);
-                if (Number.isNaN(token - number)) {
-                    throw new torch.Error("Couldn't parse int64 '" + token + "'.");
-                }
-                array.push(number);
-            });
-        }
-        else {
-            for (var i = 0; i < size; i++) {
-                array.push(this.int64());
-            }
-        }
-        return array;
-    }
-    
-    float32() {
-        if (this._ascii) {
-            return this.float64();
-        }
-        var value = this._dataView.getFloat32(this._position, true);
-        this._position += 4;
-        return value;
+        return this._reader.int64s(size);
     }
 
     float64() {
-        if (this._ascii) {
-            var token = this.line(20);
-            var number = Number.parseFloat(token);
-            if (Number.isNaN(token - number)) {
-                throw new Error("Couldn't parse float '" + token + "'.");
-            }
-            return number;
-        }
-        var value = this._dataView.getFloat64(this._position, true);
-        this._position += 8;
-        return value;
+        return this._reader.float64();
     }
 
     string() {
-        var size = this.int32();
-        if (this._ascii) {
-            var text = this.line(size);
-            if (size != text.length) {
-                throw torch.Error('Invalid text length.');
-            }
-            return text;
-        }
-        var buffer = this.bytes(size);
-        return this._textDecoder.decode(buffer);
+        return this._reader.string();
     }
 
     object() {
@@ -785,21 +685,39 @@ torch.T7Reader = class {
         if (this._memo[index]) {
             return this._memo[index];
         }
+        this._memo[index] = table;
         var size = this.int32();
         var table = {};
+        var convert = true;
+        var sum = 0;
         for (var i = 0; i < size; i++) {
             var key = this.read();
             var value = this.read();
             table[key] = value;
+            if (Number.isInteger(key) && key >= 0) {
+                sum += key;
+            }
+            else {
+                convert = false;
+            }
         }
-        this._memo[index] = table;
+        var n = Object.keys(table).length;
+        if (convert && (n * (n + 1)) == (2 * sum)) {
+            var list = [];
+            for (var j = 0; j < n; j++) {
+                var item = table[j + 1];
+                if (item == table) {
+                    item = list;
+                }
+                list.push(item);
+            }
+            this._memo[index] = list;
+            return list;
+        }
         return table;
     }
 
     function() {
-        if (this._ascii) {
-            throw new torch.Error('Function not supported in ASCII mode.');
-        }
         var size = this.int32();
         var dumped = this.bytes(size);
         var upvalues = this.read();
@@ -827,95 +745,265 @@ torch.T7Reader = class {
         obj.dataType = dataType;
         obj.itemSize = itemSize;
         obj.size = this.int64();
-        var size = obj.size;
-        switch (dataType) {
-            case 'uint8':
-                obj.data = new Uint8Array(size);
-                break;
-            case 'int8':
-                obj.data = new Int8Array(size);
-                break;
-            case 'int16':
-                obj.data = new Int16Array(size);
-                break;
-            case 'int32':
-                obj.data = new Int32Array(size);
-                break;
-            case 'int64':
-                obj.data = new Float64Array(size);
-                break;
-            case 'float32':
-                obj.data = new Float32Array(size);
-                break;
-            case 'float64':
-                obj.data = new Float64Array(size);
-                break;
-        }
-        var data = obj.data;
-        if (obj.size > 0) {
-            if (this._ascii) {
-                var float = dataType.startsWith('float');
-                var text = this.line(Number.MAX_SAFE_INTEGER);
-                var index = 0;
-                text.split(' ').forEach((token) => {
-                    var number = null;
-                    if (float) {
-                        if (token.startsWith('-nan')) {
-                            return -NaN;
-                        }
-                        if (token.startsWith('nan')) {
-                            return NaN;
-                        }
-                        if (token.startsWith('inf')) {
-                            return Infinity;
-                        }
-                        if (token.startsWith('-inf')) {
-                            return -Infinity;
-                        }
-                                            number = Number.parseFloat(token);
-                        if (Number.isNaN(token - number)) {
-                            throw new Error("Couldn't parse float '" + token + "'.");
-                        }        
-                    }
-                    else {
-                        number = Number.parseInt(token, 10);
-                        if (Number.isNaN(token - number)) {
-                            throw new Error("Couldn't parse int '" + token + "'.");
-                        }        
-                    }
-                    data[index++] = number;
-                });
+        obj.data = this._reader.storage(obj.size, obj.itemSize);
+        obj.read = function() {
+            var array = null;
+            var size = this.size;
+            var reader = this.data;
+            var dataType = this.dataType;
+            switch (dataType) {
+                case 'uint8':
+                    array = new Uint8Array(size);
+                    break;
+                case 'int8':
+                    array = new Int8Array(size);
+                    break;
+                case 'int16':
+                    array = new Int16Array(size);
+                    break;
+                case 'int32':
+                    array = new Int32Array(size);
+                    break;
+                case 'int64':
+                    array = new Float64Array(size);
+                    break;
+                case 'float32':
+                    array = new Float32Array(size);
+                    break;
+                case 'float64':
+                    array = new Float64Array(size);
+                    break;
+                default:
+                    throw new torch.Error("Unknown storage data type '" + this.dataType + "'.");
             }
-            else {
-                for (var i = 0; i < size; i++) {
-                    switch (dataType) {
-                        case 'uint8':
-                            data[i] = this.byte();
-                            break;
-                        case 'int8':
-                            data[i] = this.int8();
-                            break;
-                        case 'int16':
-                            data[i] = this.int16();
-                            break;
-                        case 'int32':
-                            data[i] = this.int32();
-                            break;
-                        case 'int64':
-                            data[i] = this.int64();
-                            break;
-                        case 'float32':
-                            data[i] = this.float32();
-                            break;
-                        case 'float64':
-                            data[i] = this.float64();
-                            break;
-                        default:
-                            throw new torch.Error("Unknown storage data type '" + type + "'.");
-                    }
+            reader.reset();
+            for (var i = 0; i < size; i++) {
+                switch (dataType) {
+                    case 'uint8':
+                        array[i] = reader.byte();
+                        break;
+                    case 'int8':
+                        array[i] = reader.int8();
+                        break;
+                    case 'int16':
+                        array[i] = reader.int16();
+                        break;
+                    case 'int32':
+                        array[i] = reader.int32();
+                        break;
+                    case 'int64':
+                        array[i] = reader.int64();
+                        break;
+                    case 'float32':
+                        array[i] = reader.float32();
+                        break;
+                    case 'float64':
+                        array[i] = reader.float64();
+                        break;
                 }
             }
+            return [].slice.call(array);
+        };
+    }
+};
+
+torch.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._position = 0;
+        this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        this._textDecoder = new TextDecoder('ascii');
+    }
+
+    reset() {
+        this._position = 0;
+    }
+
+    boolean() {
+        return this.int32() == 1;
+    }
+
+    bytes(size) {
+        var data = this._buffer.subarray(this._position, this._position + size);
+        this._position += size;
+        return data;
+    }
+
+    int8() {
+        var value = this._dataView.getInt8(this._position, true);
+        this._position += 1;
+        return value;
+    }
+
+    int16() {
+        var value = this._dataView.getInt16(this._position, true);
+        this._position += 2;
+        return value;
+    }
+
+    int32() {
+        var value = this._dataView.getInt32(this._position, true);
+        this._position += 4;
+        return value;
+    }
+
+    int64() {
+        var lo = this._dataView.getInt32(this._position, true);
+        var hi = this._dataView.getInt32(this._position, true);
+        this._position += 8;
+        if (hi == 0 || hi == -1) {
+            return lo;
         }
+        lo = this._dataView.getUint32(this._position - 8, true);
+        hi = this._dataView.getInt32(this._position - 4, true);
+        if (hi < 32677) {
+            return hi << 32 || lo;
+        }
+        throw new torch.Error('Invalid int64 value.');
+    }
+
+    int64s(size) {
+        var array = [];
+        for (var i = 0; i < size; i++) {
+            array.push(this.int64());
+        }
+        return array;
+    }
+    
+    float32() {
+        var value = this._dataView.getFloat32(this._position, true);
+        this._position += 4;
+        return value;
+    }
+
+    float64() {
+        var value = this._dataView.getFloat64(this._position, true);
+        this._position += 8;
+        return value;
+    }
+
+    string() {
+        var size = this.int32();
+        var buffer = this.bytes(size);
+        return this._textDecoder.decode(buffer);
+    }
+
+    storage(size, itemSize) {
+        return new torch.BinaryReader(this.bytes(size * itemSize));
+    }
+};
+
+torch.TextReader = class {
+
+    constructor(buffer, separator) {
+        this._buffer = buffer;
+        this._position = 0;
+        this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        this._textDecoder = new TextDecoder('ascii');
+        this._separator = separator || 0x0a;
+    }
+
+    reset() {
+        this._position = 0;
+    }
+
+    line(size) {
+        var start = this._position;
+        while (this._position < this._buffer.length && size > -1) {
+            var c = this._buffer[this._position++];
+            if (c == this._separator) {
+                return this._buffer.slice(start, this._position - 1);
+            }
+            else if (this._position == this._buffer.length) {
+                return this._buffer.slice(start, this._position);
+            }
+            size--;
+        }
+        throw torch.Error('Line exceeded maximum length.');
+    }
+
+    boolean() {
+        return this.int32() == 1;
+    }
+
+    bytes(size) {
+        throw new torch.Error('Byte array not supported in ASCII mode.');
+    }
+
+    int8() {
+        return this.int64();
+    }
+
+    int16() {
+        return this.int64();
+    }
+
+    int32() {
+        return this.int64();
+    }
+
+    int64() {
+        var token = this._textDecoder.decode(this.line(20));
+        var number = Number.parseInt(token, 10);
+        if (Number.isNaN(token - number)) {
+            throw new torch.Error("Couldn't parse int64 '" + token + "'.");
+        }
+        return number;
+    }
+
+    int64s(size) {
+        var array = [];
+        if (size > 0) {
+            var text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
+            text.split(' ').forEach((token) => {
+                var number = Number.parseInt(token, 10);
+                if (Number.isNaN(token - number)) {
+                    throw new torch.Error("Couldn't parse int64 '" + token + "'.");
+                }
+                array.push(number);
+            });
+        }
+        return array;
+    }
+    
+    float32() {
+        return this.float64();
+    }
+
+    float64() {
+        var token = this._textDecoder.decode(this.line(20));
+        if (token.startsWith('-nan')) {
+            return -NaN;
+        }
+        if (token.startsWith('nan')) {
+            return NaN;
+        }
+        if (token.startsWith('inf')) {
+            return Infinity;
+        }
+        if (token.startsWith('-inf')) {
+            return -Infinity;
+        }
+        var number = Number.parseFloat(token);
+        if (Number.isNaN(token - number)) {
+            throw new Error("Couldn't parse float '" + token + "'.");
+        }
+        return number;
+    }
+
+    string() {
+        var size = this.int32();
+        var text = this._textDecoder.decode(this.line(size));
+        if (size != text.length) {
+            throw torch.Error('Invalid text length.');
+        }
+        return text;
+    }
+
+    storage(size, itemSize) {
+        var data = size > 0 ? this.line(Number.MAX_SAFE_INTEGER) : new Uint8Array(0);
+        return new torch.TextReader(data, 0x20);
     }
 };
 
