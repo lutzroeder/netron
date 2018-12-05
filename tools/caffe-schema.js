@@ -62,6 +62,9 @@ update(
   optional VideoDataParameter video_data_param = 207; // 140 in yjxiong/caffe
   optional SplitParameter split_param = 208;
   optional RegionLossParameter region_loss_param = 209;
+  optional LabelSpecificAffineParameter label_specific_affine_param = 238; // happynear/caffe-windows
+  optional LabelSpecificHardMarginParameter label_specific_hard_margin_param = 239; // happynear/caffe-windows
+  optional LabelSpecificAddParameter label_specific_add_param = 241; // happynear/caffe-windows
   optional EvalDetectionParameter eval_detection_param = 301;
   optional YoloDetectionOutputParameter yolo_detection_output_param = 601; // eric612/MobileNet-YOLO
   optional Yolov3DetectionOutputParameter yolov3_detection_output_param = 602; // eric612/MobileNet-YOLO
@@ -90,6 +93,7 @@ update(
   optional RingPadParameter ring_pad_param = 4158; // 158 in gdlg/panoramic-object-detection
   optional UpsampleParameter upsample_param = 5137; // 137 in alexgkendall/caffe-segnet
   optional DenseImageDataParameter dense_image_data_param = 5138; // 138 in alexgkendall/caffe-segnet
+  optional CenterLossParameter center_loss_param = 6147; // 147 in ydwen/caffe-face
   optional bool force_backward = 4000; // ???
   optional SmoothL1LossParameter smooth_l1_loss_param = 5148; // 148 in mahyarnajibi/caffe-ssh
 }`);
@@ -375,6 +379,55 @@ update(
 
 add(
 `
+message CenterLossParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional FillerParameter center_filler = 2; // The filler for the centers
+  // The first axis to be lumped into a single inner product computation;
+  // all preceding axes are retained in the output.
+  // May be negative to index from the end (e.g., -1 for the last axis).
+  optional int32 axis = 3 [default = 1];
+}
+
+message LabelSpecificAffineParameter {
+  optional float scale_base = 1 [default = 1.0];
+  optional float scale_gamma = 2 [default = 0.0];
+  optional float scale_power = 3 [default = 1.0];
+  optional float scale_max = 4 [default =1.0];
+  optional bool transform_test = 5 [default = false];
+  optional uint32 iteration = 6 [default = 0];
+  optional float bias_base = 7 [default = 0.0];
+  optional float bias_gamma = 8 [default = 0.0];
+  optional float bias_power = 9 [default = 1.0];
+  optional float bias_max = 10 [default =0.0];
+  optional float power_base = 11 [default = 1.0];
+  optional float power_gamma = 12 [default = 0.0];
+  optional float power_power = 13 [default = -1.0];
+  optional float power_min = 14 [default =0.5];
+  optional bool auto_tune = 15 [default = false];
+  optional bool reset = 16 [default = false];
+}
+
+message LabelSpecificHardMarginParameter {
+  optional float positive_weight = 1 [default = 0.5];
+}
+
+message LabelSpecificStatisticsParameter {
+  optional bool scale_for_angle = 1 [default = true];
+  optional float scale_factor = 2 [default = 30.0];
+}
+
+message LabelSpecificAddParameter {
+  optional float bias = 1 [default = 0.0];
+  optional bool transform_test = 2 [default = false];
+  optional float bias_base = 3 [default = 0.0];
+  optional float bias_gamma = 4 [default = 0.0];
+  optional float bias_power = 5 [default = 1.0];
+  optional float bias_min = 6 [default =0.0];
+  optional float bias_max = 7 [default =0.0];
+  optional uint32 iteration = 8 [default = 0];
+}
+
+
 // Sample a bbox in the normalized space [0, 1] with provided constraints.
 message Sampler {
   // Minimum scale of the sampled bbox.
@@ -1429,6 +1482,117 @@ update(
   optional string ap_version = 53 [default = "Integral"];
   // If true, display per class result.
   optional bool show_per_class_result = 44 [default = false];
-}`,)
+}`);
+
+update(
+`message InnerProductParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+  optional FillerParameter weight_filler = 3; // The filler for the weight
+  optional FillerParameter bias_filler = 4; // The filler for the bias
+
+  // The first axis to be lumped into a single inner product computation;
+  // all preceding axes are retained in the output.
+  // May be negative to index from the end (e.g., -1 for the last axis).
+  optional int32 axis = 5 [default = 1];
+  // Specify whether to transpose the weight matrix or not.
+  // If transpose == true, any operations will be performed on the transpose
+  // of the weight matrix. The weight matrix itself is not going to be transposed
+  // but rather the transfer flag of operations will be toggled accordingly.
+  optional bool transpose = 6 [default = false];
+}`,
+`message InnerProductParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+  optional FillerParameter weight_filler = 3; // The filler for the weight
+  optional FillerParameter bias_filler = 4; // The filler for the bias
+
+  // The first axis to be lumped into a single inner product computation;
+  // all preceding axes are retained in the output.
+  // May be negative to index from the end (e.g., -1 for the last axis).
+  optional int32 axis = 5 [default = 1];
+  // Specify whether to transpose the weight matrix or not.
+  // If transpose == true, any operations will be performed on the transpose
+  // of the weight matrix. The weight matrix itself is not going to be transposed
+  // but rather the transfer flag of operations will be toggled accordingly.
+  optional bool transpose = 6 [default = false];
+  optional bool normalize = 7 [default = false]; // happynear/caffe-windows
+}`);
+
+update(
+`message ScaleParameter {
+  // The first axis of bottom[0] (the first input Blob) along which to apply
+  // bottom[1] (the second input Blob).  May be negative to index from the end
+  // (e.g., -1 for the last axis).
+  //
+  // For example, if bottom[0] is 4D with shape 100x3x40x60, the output
+  // top[0] will have the same shape, and bottom[1] may have any of the
+  // following shapes (for the given value of axis):
+  //    (axis == 0 == -4) 100; 100x3; 100x3x40; 100x3x40x60
+  //    (axis == 1 == -3)          3;     3x40;     3x40x60
+  //    (axis == 2 == -2)                   40;       40x60
+  //    (axis == 3 == -1)                                60
+  // Furthermore, bottom[1] may have the empty shape (regardless of the value of
+  // "axis") -- a scalar multiplier.
+  optional int32 axis = 1 [default = 1];
+
+  // (num_axes is ignored unless just one bottom is given and the scale is
+  // a learned parameter of the layer.  Otherwise, num_axes is determined by the
+  // number of axes by the second bottom.)
+  // The number of axes of the input (bottom[0]) covered by the scale
+  // parameter, or -1 to cover all axes of bottom[0] starting from \`axis\`.
+  // Set num_axes := 0, to multiply with a zero-axis Blob: a scalar.
+  optional int32 num_axes = 2 [default = 1];
+
+  // (filler is ignored unless just one bottom is given and the scale is
+  // a learned parameter of the layer.)
+  // The initialization for the learned scale parameter.
+  // Default is the unit (1) initialization, resulting in the ScaleLayer
+  // initially performing the identity operation.
+  optional FillerParameter filler = 3;
+
+  // Whether to also learn a bias (equivalent to a ScaleLayer+BiasLayer, but
+  // may be more efficient).  Initialized with bias_filler (defaults to 0).
+  optional bool bias_term = 4 [default = false];
+  optional FillerParameter bias_filler = 5;
+}`,
+`message ScaleParameter {
+  // The first axis of bottom[0] (the first input Blob) along which to apply
+  // bottom[1] (the second input Blob).  May be negative to index from the end
+  // (e.g., -1 for the last axis).
+  //
+  // For example, if bottom[0] is 4D with shape 100x3x40x60, the output
+  // top[0] will have the same shape, and bottom[1] may have any of the
+  // following shapes (for the given value of axis):
+  //    (axis == 0 == -4) 100; 100x3; 100x3x40; 100x3x40x60
+  //    (axis == 1 == -3)          3;     3x40;     3x40x60
+  //    (axis == 2 == -2)                   40;       40x60
+  //    (axis == 3 == -1)                                60
+  // Furthermore, bottom[1] may have the empty shape (regardless of the value of
+  // "axis") -- a scalar multiplier.
+  optional int32 axis = 1 [default = 1];
+
+  // (num_axes is ignored unless just one bottom is given and the scale is
+  // a learned parameter of the layer.  Otherwise, num_axes is determined by the
+  // number of axes by the second bottom.)
+  // The number of axes of the input (bottom[0]) covered by the scale
+  // parameter, or -1 to cover all axes of bottom[0] starting from \`axis\`.
+  // Set num_axes := 0, to multiply with a zero-axis Blob: a scalar.
+  optional int32 num_axes = 2 [default = 1];
+
+  // (filler is ignored unless just one bottom is given and the scale is
+  // a learned parameter of the layer.)
+  // The initialization for the learned scale parameter.
+  // Default is the unit (1) initialization, resulting in the ScaleLayer
+  // initially performing the identity operation.
+  optional FillerParameter filler = 3;
+
+  // Whether to also learn a bias (equivalent to a ScaleLayer+BiasLayer, but
+  // may be more efficient).  Initialized with bias_filler (defaults to 0).
+  optional bool bias_term = 4 [default = false];
+  optional FillerParameter bias_filler = 5;
+  optional float min_value = 6; // happynear/caffe-windows
+  optional float max_value = 7; // happynear/caffe-windows
+}`);
 
 fs.writeFileSync(file, data, 'utf-8');

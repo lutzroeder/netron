@@ -3061,6 +3061,9 @@
             LayerParameter.prototype.video_data_param = null;
             LayerParameter.prototype.split_param = null;
             LayerParameter.prototype.region_loss_param = null;
+            LayerParameter.prototype.label_specific_affine_param = null;
+            LayerParameter.prototype.label_specific_hard_margin_param = null;
+            LayerParameter.prototype.label_specific_add_param = null;
             LayerParameter.prototype.eval_detection_param = null;
             LayerParameter.prototype.yolo_detection_output_param = null;
             LayerParameter.prototype.yolov3_detection_output_param = null;
@@ -3089,6 +3092,7 @@
             LayerParameter.prototype.ring_pad_param = null;
             LayerParameter.prototype.upsample_param = null;
             LayerParameter.prototype.dense_image_data_param = null;
+            LayerParameter.prototype.center_loss_param = null;
             LayerParameter.prototype.force_backward = false;
             LayerParameter.prototype.smooth_l1_loss_param = null;
     
@@ -3378,6 +3382,15 @@
                     case 209:
                         message.region_loss_param = $root.caffe.RegionLossParameter.decode(reader, reader.uint32());
                         break;
+                    case 238:
+                        message.label_specific_affine_param = $root.caffe.LabelSpecificAffineParameter.decode(reader, reader.uint32());
+                        break;
+                    case 239:
+                        message.label_specific_hard_margin_param = $root.caffe.LabelSpecificHardMarginParameter.decode(reader, reader.uint32());
+                        break;
+                    case 241:
+                        message.label_specific_add_param = $root.caffe.LabelSpecificAddParameter.decode(reader, reader.uint32());
+                        break;
                     case 301:
                         message.eval_detection_param = $root.caffe.EvalDetectionParameter.decode(reader, reader.uint32());
                         break;
@@ -3461,6 +3474,9 @@
                         break;
                     case 5138:
                         message.dense_image_data_param = $root.caffe.DenseImageDataParameter.decode(reader, reader.uint32());
+                        break;
+                    case 6147:
+                        message.center_loss_param = $root.caffe.CenterLossParameter.decode(reader, reader.uint32());
                         break;
                     case 4000:
                         message.force_backward = reader.bool();
@@ -3749,6 +3765,15 @@
                     case "region_loss_param":
                         message.region_loss_param = $root.caffe.RegionLossParameter.decodeText(reader, true);
                         break;
+                    case "label_specific_affine_param":
+                        message.label_specific_affine_param = $root.caffe.LabelSpecificAffineParameter.decodeText(reader, true);
+                        break;
+                    case "label_specific_hard_margin_param":
+                        message.label_specific_hard_margin_param = $root.caffe.LabelSpecificHardMarginParameter.decodeText(reader, true);
+                        break;
+                    case "label_specific_add_param":
+                        message.label_specific_add_param = $root.caffe.LabelSpecificAddParameter.decodeText(reader, true);
+                        break;
                     case "eval_detection_param":
                         message.eval_detection_param = $root.caffe.EvalDetectionParameter.decodeText(reader, true);
                         break;
@@ -3832,6 +3857,9 @@
                         break;
                     case "dense_image_data_param":
                         message.dense_image_data_param = $root.caffe.DenseImageDataParameter.decodeText(reader, true);
+                        break;
+                    case "center_loss_param":
+                        message.center_loss_param = $root.caffe.CenterLossParameter.decodeText(reader, true);
                         break;
                     case "force_backward":
                         message.force_backward = reader.bool();
@@ -4286,6 +4314,21 @@
                     if (error)
                         return "region_loss_param." + error;
                 }
+                if (message.label_specific_affine_param != null && message.hasOwnProperty("label_specific_affine_param")) {
+                    var error = $root.caffe.LabelSpecificAffineParameter.verify(message.label_specific_affine_param);
+                    if (error)
+                        return "label_specific_affine_param." + error;
+                }
+                if (message.label_specific_hard_margin_param != null && message.hasOwnProperty("label_specific_hard_margin_param")) {
+                    var error = $root.caffe.LabelSpecificHardMarginParameter.verify(message.label_specific_hard_margin_param);
+                    if (error)
+                        return "label_specific_hard_margin_param." + error;
+                }
+                if (message.label_specific_add_param != null && message.hasOwnProperty("label_specific_add_param")) {
+                    var error = $root.caffe.LabelSpecificAddParameter.verify(message.label_specific_add_param);
+                    if (error)
+                        return "label_specific_add_param." + error;
+                }
                 if (message.eval_detection_param != null && message.hasOwnProperty("eval_detection_param")) {
                     var error = $root.caffe.EvalDetectionParameter.verify(message.eval_detection_param);
                     if (error)
@@ -4423,6 +4466,11 @@
                     var error = $root.caffe.DenseImageDataParameter.verify(message.dense_image_data_param);
                     if (error)
                         return "dense_image_data_param." + error;
+                }
+                if (message.center_loss_param != null && message.hasOwnProperty("center_loss_param")) {
+                    var error = $root.caffe.CenterLossParameter.verify(message.center_loss_param);
+                    if (error)
+                        return "center_loss_param." + error;
                 }
                 if (message.force_backward != null && message.hasOwnProperty("force_backward"))
                     if (typeof message.force_backward !== "boolean")
@@ -4878,6 +4926,21 @@
                         throw TypeError(".caffe.LayerParameter.region_loss_param: object expected");
                     message.region_loss_param = $root.caffe.RegionLossParameter.fromObject(object.region_loss_param);
                 }
+                if (object.label_specific_affine_param != null) {
+                    if (typeof object.label_specific_affine_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.label_specific_affine_param: object expected");
+                    message.label_specific_affine_param = $root.caffe.LabelSpecificAffineParameter.fromObject(object.label_specific_affine_param);
+                }
+                if (object.label_specific_hard_margin_param != null) {
+                    if (typeof object.label_specific_hard_margin_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.label_specific_hard_margin_param: object expected");
+                    message.label_specific_hard_margin_param = $root.caffe.LabelSpecificHardMarginParameter.fromObject(object.label_specific_hard_margin_param);
+                }
+                if (object.label_specific_add_param != null) {
+                    if (typeof object.label_specific_add_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.label_specific_add_param: object expected");
+                    message.label_specific_add_param = $root.caffe.LabelSpecificAddParameter.fromObject(object.label_specific_add_param);
+                }
                 if (object.eval_detection_param != null) {
                     if (typeof object.eval_detection_param !== "object")
                         throw TypeError(".caffe.LayerParameter.eval_detection_param: object expected");
@@ -5015,6 +5078,11 @@
                         throw TypeError(".caffe.LayerParameter.dense_image_data_param: object expected");
                     message.dense_image_data_param = $root.caffe.DenseImageDataParameter.fromObject(object.dense_image_data_param);
                 }
+                if (object.center_loss_param != null) {
+                    if (typeof object.center_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.center_loss_param: object expected");
+                    message.center_loss_param = $root.caffe.CenterLossParameter.fromObject(object.center_loss_param);
+                }
                 if (object.force_backward != null)
                     message.force_backward = Boolean(object.force_backward);
                 if (object.smooth_l1_loss_param != null) {
@@ -5115,6 +5183,9 @@
                     object.video_data_param = null;
                     object.split_param = null;
                     object.region_loss_param = null;
+                    object.label_specific_affine_param = null;
+                    object.label_specific_hard_margin_param = null;
+                    object.label_specific_add_param = null;
                     object.eval_detection_param = null;
                     object.yolo_detection_output_param = null;
                     object.yolov3_detection_output_param = null;
@@ -5143,6 +5214,7 @@
                     object.upsample_param = null;
                     object.dense_image_data_param = null;
                     object.smooth_l1_loss_param = null;
+                    object.center_loss_param = null;
                     object.roi_pooling_param_2 = null;
                     object.normalize_bbox_param = null;
                 }
@@ -5336,6 +5408,12 @@
                     object.split_param = $root.caffe.SplitParameter.toObject(message.split_param, options);
                 if (message.region_loss_param != null && message.hasOwnProperty("region_loss_param"))
                     object.region_loss_param = $root.caffe.RegionLossParameter.toObject(message.region_loss_param, options);
+                if (message.label_specific_affine_param != null && message.hasOwnProperty("label_specific_affine_param"))
+                    object.label_specific_affine_param = $root.caffe.LabelSpecificAffineParameter.toObject(message.label_specific_affine_param, options);
+                if (message.label_specific_hard_margin_param != null && message.hasOwnProperty("label_specific_hard_margin_param"))
+                    object.label_specific_hard_margin_param = $root.caffe.LabelSpecificHardMarginParameter.toObject(message.label_specific_hard_margin_param, options);
+                if (message.label_specific_add_param != null && message.hasOwnProperty("label_specific_add_param"))
+                    object.label_specific_add_param = $root.caffe.LabelSpecificAddParameter.toObject(message.label_specific_add_param, options);
                 if (message.eval_detection_param != null && message.hasOwnProperty("eval_detection_param"))
                     object.eval_detection_param = $root.caffe.EvalDetectionParameter.toObject(message.eval_detection_param, options);
                 if (message.yolo_detection_output_param != null && message.hasOwnProperty("yolo_detection_output_param"))
@@ -5392,6 +5470,8 @@
                     object.dense_image_data_param = $root.caffe.DenseImageDataParameter.toObject(message.dense_image_data_param, options);
                 if (message.smooth_l1_loss_param != null && message.hasOwnProperty("smooth_l1_loss_param"))
                     object.smooth_l1_loss_param = $root.caffe.SmoothL1LossParameter.toObject(message.smooth_l1_loss_param, options);
+                if (message.center_loss_param != null && message.hasOwnProperty("center_loss_param"))
+                    object.center_loss_param = $root.caffe.CenterLossParameter.toObject(message.center_loss_param, options);
                 if (message.roi_pooling_param_2 != null && message.hasOwnProperty("roi_pooling_param_2"))
                     object.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.toObject(message.roi_pooling_param_2, options);
                 if (message.normalize_bbox_param != null && message.hasOwnProperty("normalize_bbox_param"))
@@ -11733,6 +11813,7 @@
             InnerProductParameter.prototype.bias_filler = null;
             InnerProductParameter.prototype.axis = 1;
             InnerProductParameter.prototype.transpose = false;
+            InnerProductParameter.prototype.normalize = false;
     
             InnerProductParameter.create = function create(properties) {
                 return new InnerProductParameter(properties);
@@ -11762,6 +11843,9 @@
                         break;
                     case 6:
                         message.transpose = reader.bool();
+                        break;
+                    case 7:
+                        message.normalize = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -11797,6 +11881,9 @@
                     case "transpose":
                         message.transpose = reader.bool();
                         break;
+                    case "normalize":
+                        message.normalize = reader.bool();
+                        break;
                     default:
                         reader.handle(tag);
                         break;
@@ -11830,6 +11917,9 @@
                 if (message.transpose != null && message.hasOwnProperty("transpose"))
                     if (typeof message.transpose !== "boolean")
                         return "transpose: boolean expected";
+                if (message.normalize != null && message.hasOwnProperty("normalize"))
+                    if (typeof message.normalize !== "boolean")
+                        return "normalize: boolean expected";
                 return null;
             };
     
@@ -11855,6 +11945,8 @@
                     message.axis = object.axis | 0;
                 if (object.transpose != null)
                     message.transpose = Boolean(object.transpose);
+                if (object.normalize != null)
+                    message.normalize = Boolean(object.normalize);
                 return message;
             };
     
@@ -11869,6 +11961,7 @@
                     object.bias_filler = null;
                     object.axis = 1;
                     object.transpose = false;
+                    object.normalize = false;
                 }
                 if (message.num_output != null && message.hasOwnProperty("num_output"))
                     object.num_output = message.num_output;
@@ -11882,6 +11975,8 @@
                     object.axis = message.axis;
                 if (message.transpose != null && message.hasOwnProperty("transpose"))
                     object.transpose = message.transpose;
+                if (message.normalize != null && message.hasOwnProperty("normalize"))
+                    object.normalize = message.normalize;
                 return object;
             };
     
@@ -13864,6 +13959,8 @@
             ScaleParameter.prototype.filler = null;
             ScaleParameter.prototype.bias_term = false;
             ScaleParameter.prototype.bias_filler = null;
+            ScaleParameter.prototype.min_value = 0;
+            ScaleParameter.prototype.max_value = 0;
     
             ScaleParameter.create = function create(properties) {
                 return new ScaleParameter(properties);
@@ -13890,6 +13987,12 @@
                         break;
                     case 5:
                         message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 6:
+                        message.min_value = reader.float();
+                        break;
+                    case 7:
+                        message.max_value = reader.float();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -13922,6 +14025,12 @@
                     case "bias_filler":
                         message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
+                    case "min_value":
+                        message.min_value = reader.float();
+                        break;
+                    case "max_value":
+                        message.max_value = reader.float();
+                        break;
                     default:
                         reader.handle(tag);
                         break;
@@ -13952,6 +14061,12 @@
                     if (error)
                         return "bias_filler." + error;
                 }
+                if (message.min_value != null && message.hasOwnProperty("min_value"))
+                    if (typeof message.min_value !== "number")
+                        return "min_value: number expected";
+                if (message.max_value != null && message.hasOwnProperty("max_value"))
+                    if (typeof message.max_value !== "number")
+                        return "max_value: number expected";
                 return null;
             };
     
@@ -13975,6 +14090,10 @@
                         throw TypeError(".caffe.ScaleParameter.bias_filler: object expected");
                     message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
                 }
+                if (object.min_value != null)
+                    message.min_value = Number(object.min_value);
+                if (object.max_value != null)
+                    message.max_value = Number(object.max_value);
                 return message;
             };
     
@@ -13988,6 +14107,8 @@
                     object.filler = null;
                     object.bias_term = false;
                     object.bias_filler = null;
+                    object.min_value = 0;
+                    object.max_value = 0;
                 }
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
@@ -13999,6 +14120,10 @@
                     object.bias_term = message.bias_term;
                 if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
                     object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
+                if (message.min_value != null && message.hasOwnProperty("min_value"))
+                    object.min_value = options.json && !isFinite(message.min_value) ? String(message.min_value) : message.min_value;
+                if (message.max_value != null && message.hasOwnProperty("max_value"))
+                    object.max_value = options.json && !isFinite(message.max_value) ? String(message.max_value) : message.max_value;
                 return object;
             };
     
@@ -17452,6 +17577,830 @@
             };
     
             return PReLUParameter;
+        })();
+    
+        caffe.CenterLossParameter = (function() {
+    
+            function CenterLossParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            CenterLossParameter.prototype.num_output = 0;
+            CenterLossParameter.prototype.center_filler = null;
+            CenterLossParameter.prototype.axis = 1;
+    
+            CenterLossParameter.create = function create(properties) {
+                return new CenterLossParameter(properties);
+            };
+    
+            CenterLossParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.CenterLossParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.num_output = reader.uint32();
+                        break;
+                    case 2:
+                        message.center_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.axis = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            CenterLossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.CenterLossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "center_filler":
+                        message.center_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            CenterLossParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
+                if (message.center_filler != null && message.hasOwnProperty("center_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.center_filler);
+                    if (error)
+                        return "center_filler." + error;
+                }
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    if (!$util.isInteger(message.axis))
+                        return "axis: integer expected";
+                return null;
+            };
+    
+            CenterLossParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.CenterLossParameter)
+                    return object;
+                var message = new $root.caffe.CenterLossParameter();
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
+                if (object.center_filler != null) {
+                    if (typeof object.center_filler !== "object")
+                        throw TypeError(".caffe.CenterLossParameter.center_filler: object expected");
+                    message.center_filler = $root.caffe.FillerParameter.fromObject(object.center_filler);
+                }
+                if (object.axis != null)
+                    message.axis = object.axis | 0;
+                return message;
+            };
+    
+            CenterLossParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.num_output = 0;
+                    object.center_filler = null;
+                    object.axis = 1;
+                }
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
+                if (message.center_filler != null && message.hasOwnProperty("center_filler"))
+                    object.center_filler = $root.caffe.FillerParameter.toObject(message.center_filler, options);
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    object.axis = message.axis;
+                return object;
+            };
+    
+            CenterLossParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return CenterLossParameter;
+        })();
+    
+        caffe.LabelSpecificAffineParameter = (function() {
+    
+            function LabelSpecificAffineParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            LabelSpecificAffineParameter.prototype.scale_base = 1;
+            LabelSpecificAffineParameter.prototype.scale_gamma = 0;
+            LabelSpecificAffineParameter.prototype.scale_power = 1;
+            LabelSpecificAffineParameter.prototype.scale_max = 1;
+            LabelSpecificAffineParameter.prototype.transform_test = false;
+            LabelSpecificAffineParameter.prototype.iteration = 0;
+            LabelSpecificAffineParameter.prototype.bias_base = 0;
+            LabelSpecificAffineParameter.prototype.bias_gamma = 0;
+            LabelSpecificAffineParameter.prototype.bias_power = 1;
+            LabelSpecificAffineParameter.prototype.bias_max = 0;
+            LabelSpecificAffineParameter.prototype.power_base = 1;
+            LabelSpecificAffineParameter.prototype.power_gamma = 0;
+            LabelSpecificAffineParameter.prototype.power_power = -1;
+            LabelSpecificAffineParameter.prototype.power_min = 0.5;
+            LabelSpecificAffineParameter.prototype.auto_tune = false;
+            LabelSpecificAffineParameter.prototype.reset = false;
+    
+            LabelSpecificAffineParameter.create = function create(properties) {
+                return new LabelSpecificAffineParameter(properties);
+            };
+    
+            LabelSpecificAffineParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.LabelSpecificAffineParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.scale_base = reader.float();
+                        break;
+                    case 2:
+                        message.scale_gamma = reader.float();
+                        break;
+                    case 3:
+                        message.scale_power = reader.float();
+                        break;
+                    case 4:
+                        message.scale_max = reader.float();
+                        break;
+                    case 5:
+                        message.transform_test = reader.bool();
+                        break;
+                    case 6:
+                        message.iteration = reader.uint32();
+                        break;
+                    case 7:
+                        message.bias_base = reader.float();
+                        break;
+                    case 8:
+                        message.bias_gamma = reader.float();
+                        break;
+                    case 9:
+                        message.bias_power = reader.float();
+                        break;
+                    case 10:
+                        message.bias_max = reader.float();
+                        break;
+                    case 11:
+                        message.power_base = reader.float();
+                        break;
+                    case 12:
+                        message.power_gamma = reader.float();
+                        break;
+                    case 13:
+                        message.power_power = reader.float();
+                        break;
+                    case 14:
+                        message.power_min = reader.float();
+                        break;
+                    case 15:
+                        message.auto_tune = reader.bool();
+                        break;
+                    case 16:
+                        message.reset = reader.bool();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificAffineParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LabelSpecificAffineParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "scale_base":
+                        message.scale_base = reader.float();
+                        break;
+                    case "scale_gamma":
+                        message.scale_gamma = reader.float();
+                        break;
+                    case "scale_power":
+                        message.scale_power = reader.float();
+                        break;
+                    case "scale_max":
+                        message.scale_max = reader.float();
+                        break;
+                    case "transform_test":
+                        message.transform_test = reader.bool();
+                        break;
+                    case "iteration":
+                        message.iteration = reader.uint32();
+                        break;
+                    case "bias_base":
+                        message.bias_base = reader.float();
+                        break;
+                    case "bias_gamma":
+                        message.bias_gamma = reader.float();
+                        break;
+                    case "bias_power":
+                        message.bias_power = reader.float();
+                        break;
+                    case "bias_max":
+                        message.bias_max = reader.float();
+                        break;
+                    case "power_base":
+                        message.power_base = reader.float();
+                        break;
+                    case "power_gamma":
+                        message.power_gamma = reader.float();
+                        break;
+                    case "power_power":
+                        message.power_power = reader.float();
+                        break;
+                    case "power_min":
+                        message.power_min = reader.float();
+                        break;
+                    case "auto_tune":
+                        message.auto_tune = reader.bool();
+                        break;
+                    case "reset":
+                        message.reset = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificAffineParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.scale_base != null && message.hasOwnProperty("scale_base"))
+                    if (typeof message.scale_base !== "number")
+                        return "scale_base: number expected";
+                if (message.scale_gamma != null && message.hasOwnProperty("scale_gamma"))
+                    if (typeof message.scale_gamma !== "number")
+                        return "scale_gamma: number expected";
+                if (message.scale_power != null && message.hasOwnProperty("scale_power"))
+                    if (typeof message.scale_power !== "number")
+                        return "scale_power: number expected";
+                if (message.scale_max != null && message.hasOwnProperty("scale_max"))
+                    if (typeof message.scale_max !== "number")
+                        return "scale_max: number expected";
+                if (message.transform_test != null && message.hasOwnProperty("transform_test"))
+                    if (typeof message.transform_test !== "boolean")
+                        return "transform_test: boolean expected";
+                if (message.iteration != null && message.hasOwnProperty("iteration"))
+                    if (!$util.isInteger(message.iteration))
+                        return "iteration: integer expected";
+                if (message.bias_base != null && message.hasOwnProperty("bias_base"))
+                    if (typeof message.bias_base !== "number")
+                        return "bias_base: number expected";
+                if (message.bias_gamma != null && message.hasOwnProperty("bias_gamma"))
+                    if (typeof message.bias_gamma !== "number")
+                        return "bias_gamma: number expected";
+                if (message.bias_power != null && message.hasOwnProperty("bias_power"))
+                    if (typeof message.bias_power !== "number")
+                        return "bias_power: number expected";
+                if (message.bias_max != null && message.hasOwnProperty("bias_max"))
+                    if (typeof message.bias_max !== "number")
+                        return "bias_max: number expected";
+                if (message.power_base != null && message.hasOwnProperty("power_base"))
+                    if (typeof message.power_base !== "number")
+                        return "power_base: number expected";
+                if (message.power_gamma != null && message.hasOwnProperty("power_gamma"))
+                    if (typeof message.power_gamma !== "number")
+                        return "power_gamma: number expected";
+                if (message.power_power != null && message.hasOwnProperty("power_power"))
+                    if (typeof message.power_power !== "number")
+                        return "power_power: number expected";
+                if (message.power_min != null && message.hasOwnProperty("power_min"))
+                    if (typeof message.power_min !== "number")
+                        return "power_min: number expected";
+                if (message.auto_tune != null && message.hasOwnProperty("auto_tune"))
+                    if (typeof message.auto_tune !== "boolean")
+                        return "auto_tune: boolean expected";
+                if (message.reset != null && message.hasOwnProperty("reset"))
+                    if (typeof message.reset !== "boolean")
+                        return "reset: boolean expected";
+                return null;
+            };
+    
+            LabelSpecificAffineParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.LabelSpecificAffineParameter)
+                    return object;
+                var message = new $root.caffe.LabelSpecificAffineParameter();
+                if (object.scale_base != null)
+                    message.scale_base = Number(object.scale_base);
+                if (object.scale_gamma != null)
+                    message.scale_gamma = Number(object.scale_gamma);
+                if (object.scale_power != null)
+                    message.scale_power = Number(object.scale_power);
+                if (object.scale_max != null)
+                    message.scale_max = Number(object.scale_max);
+                if (object.transform_test != null)
+                    message.transform_test = Boolean(object.transform_test);
+                if (object.iteration != null)
+                    message.iteration = object.iteration >>> 0;
+                if (object.bias_base != null)
+                    message.bias_base = Number(object.bias_base);
+                if (object.bias_gamma != null)
+                    message.bias_gamma = Number(object.bias_gamma);
+                if (object.bias_power != null)
+                    message.bias_power = Number(object.bias_power);
+                if (object.bias_max != null)
+                    message.bias_max = Number(object.bias_max);
+                if (object.power_base != null)
+                    message.power_base = Number(object.power_base);
+                if (object.power_gamma != null)
+                    message.power_gamma = Number(object.power_gamma);
+                if (object.power_power != null)
+                    message.power_power = Number(object.power_power);
+                if (object.power_min != null)
+                    message.power_min = Number(object.power_min);
+                if (object.auto_tune != null)
+                    message.auto_tune = Boolean(object.auto_tune);
+                if (object.reset != null)
+                    message.reset = Boolean(object.reset);
+                return message;
+            };
+    
+            LabelSpecificAffineParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.scale_base = 1;
+                    object.scale_gamma = 0;
+                    object.scale_power = 1;
+                    object.scale_max = 1;
+                    object.transform_test = false;
+                    object.iteration = 0;
+                    object.bias_base = 0;
+                    object.bias_gamma = 0;
+                    object.bias_power = 1;
+                    object.bias_max = 0;
+                    object.power_base = 1;
+                    object.power_gamma = 0;
+                    object.power_power = -1;
+                    object.power_min = 0.5;
+                    object.auto_tune = false;
+                    object.reset = false;
+                }
+                if (message.scale_base != null && message.hasOwnProperty("scale_base"))
+                    object.scale_base = options.json && !isFinite(message.scale_base) ? String(message.scale_base) : message.scale_base;
+                if (message.scale_gamma != null && message.hasOwnProperty("scale_gamma"))
+                    object.scale_gamma = options.json && !isFinite(message.scale_gamma) ? String(message.scale_gamma) : message.scale_gamma;
+                if (message.scale_power != null && message.hasOwnProperty("scale_power"))
+                    object.scale_power = options.json && !isFinite(message.scale_power) ? String(message.scale_power) : message.scale_power;
+                if (message.scale_max != null && message.hasOwnProperty("scale_max"))
+                    object.scale_max = options.json && !isFinite(message.scale_max) ? String(message.scale_max) : message.scale_max;
+                if (message.transform_test != null && message.hasOwnProperty("transform_test"))
+                    object.transform_test = message.transform_test;
+                if (message.iteration != null && message.hasOwnProperty("iteration"))
+                    object.iteration = message.iteration;
+                if (message.bias_base != null && message.hasOwnProperty("bias_base"))
+                    object.bias_base = options.json && !isFinite(message.bias_base) ? String(message.bias_base) : message.bias_base;
+                if (message.bias_gamma != null && message.hasOwnProperty("bias_gamma"))
+                    object.bias_gamma = options.json && !isFinite(message.bias_gamma) ? String(message.bias_gamma) : message.bias_gamma;
+                if (message.bias_power != null && message.hasOwnProperty("bias_power"))
+                    object.bias_power = options.json && !isFinite(message.bias_power) ? String(message.bias_power) : message.bias_power;
+                if (message.bias_max != null && message.hasOwnProperty("bias_max"))
+                    object.bias_max = options.json && !isFinite(message.bias_max) ? String(message.bias_max) : message.bias_max;
+                if (message.power_base != null && message.hasOwnProperty("power_base"))
+                    object.power_base = options.json && !isFinite(message.power_base) ? String(message.power_base) : message.power_base;
+                if (message.power_gamma != null && message.hasOwnProperty("power_gamma"))
+                    object.power_gamma = options.json && !isFinite(message.power_gamma) ? String(message.power_gamma) : message.power_gamma;
+                if (message.power_power != null && message.hasOwnProperty("power_power"))
+                    object.power_power = options.json && !isFinite(message.power_power) ? String(message.power_power) : message.power_power;
+                if (message.power_min != null && message.hasOwnProperty("power_min"))
+                    object.power_min = options.json && !isFinite(message.power_min) ? String(message.power_min) : message.power_min;
+                if (message.auto_tune != null && message.hasOwnProperty("auto_tune"))
+                    object.auto_tune = message.auto_tune;
+                if (message.reset != null && message.hasOwnProperty("reset"))
+                    object.reset = message.reset;
+                return object;
+            };
+    
+            LabelSpecificAffineParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return LabelSpecificAffineParameter;
+        })();
+    
+        caffe.LabelSpecificHardMarginParameter = (function() {
+    
+            function LabelSpecificHardMarginParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            LabelSpecificHardMarginParameter.prototype.positive_weight = 0.5;
+    
+            LabelSpecificHardMarginParameter.create = function create(properties) {
+                return new LabelSpecificHardMarginParameter(properties);
+            };
+    
+            LabelSpecificHardMarginParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.LabelSpecificHardMarginParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.positive_weight = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificHardMarginParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LabelSpecificHardMarginParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "positive_weight":
+                        message.positive_weight = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificHardMarginParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.positive_weight != null && message.hasOwnProperty("positive_weight"))
+                    if (typeof message.positive_weight !== "number")
+                        return "positive_weight: number expected";
+                return null;
+            };
+    
+            LabelSpecificHardMarginParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.LabelSpecificHardMarginParameter)
+                    return object;
+                var message = new $root.caffe.LabelSpecificHardMarginParameter();
+                if (object.positive_weight != null)
+                    message.positive_weight = Number(object.positive_weight);
+                return message;
+            };
+    
+            LabelSpecificHardMarginParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.positive_weight = 0.5;
+                if (message.positive_weight != null && message.hasOwnProperty("positive_weight"))
+                    object.positive_weight = options.json && !isFinite(message.positive_weight) ? String(message.positive_weight) : message.positive_weight;
+                return object;
+            };
+    
+            LabelSpecificHardMarginParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return LabelSpecificHardMarginParameter;
+        })();
+    
+        caffe.LabelSpecificStatisticsParameter = (function() {
+    
+            function LabelSpecificStatisticsParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            LabelSpecificStatisticsParameter.prototype.scale_for_angle = true;
+            LabelSpecificStatisticsParameter.prototype.scale_factor = 30;
+    
+            LabelSpecificStatisticsParameter.create = function create(properties) {
+                return new LabelSpecificStatisticsParameter(properties);
+            };
+    
+            LabelSpecificStatisticsParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.LabelSpecificStatisticsParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.scale_for_angle = reader.bool();
+                        break;
+                    case 2:
+                        message.scale_factor = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificStatisticsParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LabelSpecificStatisticsParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "scale_for_angle":
+                        message.scale_for_angle = reader.bool();
+                        break;
+                    case "scale_factor":
+                        message.scale_factor = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificStatisticsParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.scale_for_angle != null && message.hasOwnProperty("scale_for_angle"))
+                    if (typeof message.scale_for_angle !== "boolean")
+                        return "scale_for_angle: boolean expected";
+                if (message.scale_factor != null && message.hasOwnProperty("scale_factor"))
+                    if (typeof message.scale_factor !== "number")
+                        return "scale_factor: number expected";
+                return null;
+            };
+    
+            LabelSpecificStatisticsParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.LabelSpecificStatisticsParameter)
+                    return object;
+                var message = new $root.caffe.LabelSpecificStatisticsParameter();
+                if (object.scale_for_angle != null)
+                    message.scale_for_angle = Boolean(object.scale_for_angle);
+                if (object.scale_factor != null)
+                    message.scale_factor = Number(object.scale_factor);
+                return message;
+            };
+    
+            LabelSpecificStatisticsParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.scale_for_angle = true;
+                    object.scale_factor = 30;
+                }
+                if (message.scale_for_angle != null && message.hasOwnProperty("scale_for_angle"))
+                    object.scale_for_angle = message.scale_for_angle;
+                if (message.scale_factor != null && message.hasOwnProperty("scale_factor"))
+                    object.scale_factor = options.json && !isFinite(message.scale_factor) ? String(message.scale_factor) : message.scale_factor;
+                return object;
+            };
+    
+            LabelSpecificStatisticsParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return LabelSpecificStatisticsParameter;
+        })();
+    
+        caffe.LabelSpecificAddParameter = (function() {
+    
+            function LabelSpecificAddParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            LabelSpecificAddParameter.prototype.bias = 0;
+            LabelSpecificAddParameter.prototype.transform_test = false;
+            LabelSpecificAddParameter.prototype.bias_base = 0;
+            LabelSpecificAddParameter.prototype.bias_gamma = 0;
+            LabelSpecificAddParameter.prototype.bias_power = 1;
+            LabelSpecificAddParameter.prototype.bias_min = 0;
+            LabelSpecificAddParameter.prototype.bias_max = 0;
+            LabelSpecificAddParameter.prototype.iteration = 0;
+    
+            LabelSpecificAddParameter.create = function create(properties) {
+                return new LabelSpecificAddParameter(properties);
+            };
+    
+            LabelSpecificAddParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.LabelSpecificAddParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.bias = reader.float();
+                        break;
+                    case 2:
+                        message.transform_test = reader.bool();
+                        break;
+                    case 3:
+                        message.bias_base = reader.float();
+                        break;
+                    case 4:
+                        message.bias_gamma = reader.float();
+                        break;
+                    case 5:
+                        message.bias_power = reader.float();
+                        break;
+                    case 6:
+                        message.bias_min = reader.float();
+                        break;
+                    case 7:
+                        message.bias_max = reader.float();
+                        break;
+                    case 8:
+                        message.iteration = reader.uint32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificAddParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LabelSpecificAddParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "bias":
+                        message.bias = reader.float();
+                        break;
+                    case "transform_test":
+                        message.transform_test = reader.bool();
+                        break;
+                    case "bias_base":
+                        message.bias_base = reader.float();
+                        break;
+                    case "bias_gamma":
+                        message.bias_gamma = reader.float();
+                        break;
+                    case "bias_power":
+                        message.bias_power = reader.float();
+                        break;
+                    case "bias_min":
+                        message.bias_min = reader.float();
+                        break;
+                    case "bias_max":
+                        message.bias_max = reader.float();
+                        break;
+                    case "iteration":
+                        message.iteration = reader.uint32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LabelSpecificAddParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.bias != null && message.hasOwnProperty("bias"))
+                    if (typeof message.bias !== "number")
+                        return "bias: number expected";
+                if (message.transform_test != null && message.hasOwnProperty("transform_test"))
+                    if (typeof message.transform_test !== "boolean")
+                        return "transform_test: boolean expected";
+                if (message.bias_base != null && message.hasOwnProperty("bias_base"))
+                    if (typeof message.bias_base !== "number")
+                        return "bias_base: number expected";
+                if (message.bias_gamma != null && message.hasOwnProperty("bias_gamma"))
+                    if (typeof message.bias_gamma !== "number")
+                        return "bias_gamma: number expected";
+                if (message.bias_power != null && message.hasOwnProperty("bias_power"))
+                    if (typeof message.bias_power !== "number")
+                        return "bias_power: number expected";
+                if (message.bias_min != null && message.hasOwnProperty("bias_min"))
+                    if (typeof message.bias_min !== "number")
+                        return "bias_min: number expected";
+                if (message.bias_max != null && message.hasOwnProperty("bias_max"))
+                    if (typeof message.bias_max !== "number")
+                        return "bias_max: number expected";
+                if (message.iteration != null && message.hasOwnProperty("iteration"))
+                    if (!$util.isInteger(message.iteration))
+                        return "iteration: integer expected";
+                return null;
+            };
+    
+            LabelSpecificAddParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.LabelSpecificAddParameter)
+                    return object;
+                var message = new $root.caffe.LabelSpecificAddParameter();
+                if (object.bias != null)
+                    message.bias = Number(object.bias);
+                if (object.transform_test != null)
+                    message.transform_test = Boolean(object.transform_test);
+                if (object.bias_base != null)
+                    message.bias_base = Number(object.bias_base);
+                if (object.bias_gamma != null)
+                    message.bias_gamma = Number(object.bias_gamma);
+                if (object.bias_power != null)
+                    message.bias_power = Number(object.bias_power);
+                if (object.bias_min != null)
+                    message.bias_min = Number(object.bias_min);
+                if (object.bias_max != null)
+                    message.bias_max = Number(object.bias_max);
+                if (object.iteration != null)
+                    message.iteration = object.iteration >>> 0;
+                return message;
+            };
+    
+            LabelSpecificAddParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.bias = 0;
+                    object.transform_test = false;
+                    object.bias_base = 0;
+                    object.bias_gamma = 0;
+                    object.bias_power = 1;
+                    object.bias_min = 0;
+                    object.bias_max = 0;
+                    object.iteration = 0;
+                }
+                if (message.bias != null && message.hasOwnProperty("bias"))
+                    object.bias = options.json && !isFinite(message.bias) ? String(message.bias) : message.bias;
+                if (message.transform_test != null && message.hasOwnProperty("transform_test"))
+                    object.transform_test = message.transform_test;
+                if (message.bias_base != null && message.hasOwnProperty("bias_base"))
+                    object.bias_base = options.json && !isFinite(message.bias_base) ? String(message.bias_base) : message.bias_base;
+                if (message.bias_gamma != null && message.hasOwnProperty("bias_gamma"))
+                    object.bias_gamma = options.json && !isFinite(message.bias_gamma) ? String(message.bias_gamma) : message.bias_gamma;
+                if (message.bias_power != null && message.hasOwnProperty("bias_power"))
+                    object.bias_power = options.json && !isFinite(message.bias_power) ? String(message.bias_power) : message.bias_power;
+                if (message.bias_min != null && message.hasOwnProperty("bias_min"))
+                    object.bias_min = options.json && !isFinite(message.bias_min) ? String(message.bias_min) : message.bias_min;
+                if (message.bias_max != null && message.hasOwnProperty("bias_max"))
+                    object.bias_max = options.json && !isFinite(message.bias_max) ? String(message.bias_max) : message.bias_max;
+                if (message.iteration != null && message.hasOwnProperty("iteration"))
+                    object.iteration = message.iteration;
+                return object;
+            };
+    
+            LabelSpecificAddParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return LabelSpecificAddParameter;
         })();
     
         caffe.Sampler = (function() {
