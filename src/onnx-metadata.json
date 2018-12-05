@@ -3565,23 +3565,23 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[0:3, 0:10]\nstarts = np.array([0, 0], dtype=np.long)\nends = np.array([3, 10], dtype=np.long)\naxes = np.array([0, 1], dtype=np.long)\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice')",
+          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[0:3, 0:10]\nstarts = np.array([0, 0], dtype=np.int64)\nends = np.array([3, 10], dtype=np.int64)\naxes = np.array([0, 1], dtype=np.int64)\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice')",
           "summary": "dynamic_slice"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0, 0, 3], dtype=np.long)\nends = np.array([20, 10, 4], dtype=np.long)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x, starts, ends], outputs=[y],\n       name='test_dynamic_slice_default_axes')",
+          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0, 0, 3], dtype=np.int64)\nends = np.array([20, 10, 4], dtype=np.int64)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x, starts, ends], outputs=[y],\n       name='test_dynamic_slice_default_axes')",
           "summary": "dynamic_slice_default_axes"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1], dtype=np.long)\nends = np.array([1000], dtype=np.long)\naxes = np.array([1], dtype=np.long)\ny = x[:, 1:1000]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_end_out_of_bounds')",
+          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\ny = x[:, 1:1000]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_end_out_of_bounds')",
           "summary": "dynamic_slice_end_out_of_bounds"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0], dtype=np.long)\nends = np.array([-1], dtype=np.long)\naxes = np.array([1], dtype=np.long)\ny = x[:, 0:-1]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_neg')",
+          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0], dtype=np.int64)\nends = np.array([-1], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\ny = x[:, 0:-1]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_neg')",
           "summary": "dynamic_slice_neg"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1000], dtype=np.long)\nends = np.array([1000], dtype=np.long)\naxes = np.array([1], dtype=np.long)\ny = x[:, 1000:1000]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_start_out_of_bounds')",
+          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1000], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\ny = x[:, 1000:1000]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_start_out_of_bounds')",
           "summary": "dynamic_slice_start_out_of_bounds"
         }
       ],
@@ -12121,7 +12121,7 @@
           "type": "int"
         }
       ],
-      "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+      "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n \n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -12156,6 +12156,103 @@
         }
       ],
       "since_version": 8,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Int64 tensor",
+          "type_param_str": "I"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "All Tensor types",
+          "type_param_str": "V"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Scan",
+    "schema": {
+      "attributes": [
+        {
+          "description": "An optional list of M flags. The i-th element of the list specifies the axis to be scanned (the sequence axis) for the i-th scan_input. If omitted, 0 will be used as the scan axis for every scan_input.",
+          "name": "axes",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "The graph run each iteration. It has N+M inputs: (loop state variables..., scan_input_elts...). It has N+K outputs: (loop state variables..., scan_output_elts...). Each scan_output is created by concatenating the value of the specified scan_output_elt value at the end of each iteration of the loop. It is an error if the dimensions of these values change across loop iterations.",
+          "name": "body",
+          "required": true,
+          "type": "graph"
+        },
+        {
+          "description": "An attribute specifying the number of scan_inputs M. ",
+          "name": "num_scan_inputs",
+          "required": true,
+          "type": "int"
+        },
+        {
+          "description": "An optional list of M flags. The i-th element of the list specifies the direction to be scanned for the i-th scan_input tensor: 0 indicates forward direction and 1 indicates reverse direction. If omitted, all scan_input tensors will be scanned in the forward direction.",
+          "name": "scan_input_directions",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "An optional list of K flags, one for each scan_output. The i-th element of the list specifies whether the i-th scan_output should be constructed by appending or prepending a new value in each iteration: 0 indicates appending and 1 indicates prepending. If omitted, all scan_output tensors will be produced by appending a value in each iteration.",
+          "name": "scan_output_directions",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum')",
+          "summary": "scan"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Initial values of the loop's N state variables followed by M scan_inputs",
+          "name": "initial_state_and_scan_inputs",
+          "option": "variadic",
+          "type": "V"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 2147483647,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Final values of the loop's N state variables followed by K scan_outputs",
+          "name": "final_state_and_scan_outputs",
+          "option": "variadic",
+          "type": "V"
+        }
+      ],
+      "since_version": 9,
       "support_level": "common",
       "type_constraints": [
         {
@@ -12481,6 +12578,58 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sign",
+    "schema": {
+      "description": "Calculate the sign of the given input tensor element-wise.\nIf input > 0, output 1. if input < 0, output -1. if input == 0, output 0.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sign',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array(range(-5, 6)).astype(np.float32)\ny = np.sign(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sign')",
+          "summary": "sign"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The sign of the input tensor computed element-wise. It has the same shape and type of the input.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to all numeric tensors.",
           "type_param_str": "T"
         }
       ]
