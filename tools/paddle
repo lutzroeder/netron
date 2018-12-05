@@ -27,7 +27,7 @@ git_sync () {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
         git -C "${third_party}/${1}" fetch -p --quiet
-        git -C "${third_party}/${1}" reset --quiet --hard origin/develop
+        git -C "${third_party}/${1}" reset --quiet --hard origin/$(git -C "${third_party}/${1}" rev-parse --abbrev-ref HEAD)
     else
         echo "Clone ${2}..."
         git -C "${third_party}" clone --recursive ${2} ${1}
