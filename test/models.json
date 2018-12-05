@@ -3238,6 +3238,13 @@
   },
   {
     "type":   "torch",
+    "target": "openface.nn4.small2.v1.t7",
+    "source": "https://raw.githubusercontent.com/pyannote/pyannote-data/master/openface.nn4.small2.v1.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/pyannote/pyannote-data"
+  },
+  {
+    "type":   "torch",
     "target": "portrait_584_net_D_cpu.t7",
     "source": "https://drive.google.com/uc?export=download&id=1KJMUW0sOZ3CRjshCEsJPd76DN4GT6Otv",
     "format": "Torch v7",

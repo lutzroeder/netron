@@ -248,10 +248,19 @@ torch.Node = class {
         delete module.gradBias;
         delete module.scaleT;
         delete module._input;
+        delete module._output;
+        delete module._gradInput;
         delete module._gradOutput;
+        delete module.buffer;
+        delete module.buffer2;
         switch (type) {
             case 'nn.Linear':
                 delete module.addBuffer;
+                break;
+            case 'nn.Normalize':
+                delete module.addBuffer;
+                delete module.normp;
+                delete module.norm;
                 break;
             case 'cudnn.SpatialConvolution':
             case 'cudnn.SpatialFullConvolution':
@@ -276,6 +285,8 @@ torch.Node = class {
                 delete module.save_mean;
                 delete module.save_std;
                 delete module.gradWeight;
+                delete module.normalized;
+                delete module.centered;
                 if (module.running_mean) {
                     module.mean = module.running_mean;
                     delete module.running_mean;
@@ -289,6 +300,9 @@ torch.Node = class {
                     delete module.running_std;
                 }
                 delete module.bn; // TODO InstanceNormalization
+                break;
+            case 'nn.SpatialCrossMapLRN':
+                delete module.scale;
                 break;
             case 'cudnn.SpatialMaxPooling':
             case 'cudnn.SpatialAveragePooling':
@@ -538,6 +552,8 @@ torch.T7Reader = class {
         this._registry['nn.LeakyReLU'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Linear'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Mean'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.MulConstant'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.Normalize'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Parallel'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ReLU'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Reshape'] = function(reader, version) { reader.nn(this); };
@@ -548,11 +564,15 @@ torch.T7Reader = class {
         this._registry['nn.SpatialBatchNormalization'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialConvolution'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialConvolutionMM'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.SpatialCrossMapLRN'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialDilatedConvolution'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialFullConvolution'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.SpatialLPPooling'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialReflectionPadding'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialZeroPadding'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.Square'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.Sqrt'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Tanh'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.View'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.gModule'] = function(reader, version) { reader.nn(this); };

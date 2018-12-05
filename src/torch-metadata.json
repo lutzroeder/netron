@@ -225,6 +225,22 @@
     }
   },
   {
+    "name": "Normalize",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "SpatialCrossMapLRN",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+      ]
+    }
+  },
+  {
     "name": "Mean",
     "schema": {
       "attributes": [

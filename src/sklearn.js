@@ -59,6 +59,10 @@ sklearn.ModelFactory = class {
                                 this.itemsize = Number(obj.substring(1));
                                 this.name = 'object';
                             }
+                            else if (obj.startsWith('S')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'string';
+                            }
                             else {
                                 throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
                             }
@@ -190,6 +194,9 @@ sklearn.ModelFactory = class {
                         var obj = {};
                         obj.__type__ = cls;
                         return obj;
+                    }
+                    if (base == '__builtin__.tuple') {
+                        return state;
                     }
                     throw new sklearn.Error("Unknown base type '" + base + "'.");
                 };
