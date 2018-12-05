@@ -9,6 +9,10 @@ torch.ModelFactory = class {
     match(context, host) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 't7') {
+            var buffer = context.buffer;
+            if (buffer.length >= 1 && buffer[0] > 58) {
+                return false;
+            }
             return true;
         }
         return false;
@@ -236,16 +240,22 @@ torch.Node = class {
         Object.keys(module).forEach((key) => {
             var obj = module[key];
             if (obj.__type__ && obj.__type__ == 'torch.LongStorage') {
-                module[key] = obj.read();
+                var array = [];
+                obj.reset();
+                for (var i = 0; i < obj.size; i++) {
+                    array.push(obj.read());    
+                }
+                module[key] = array;
             }
         });
         delete module.iSize;
-        delete module.gradInput;
         delete module.finput;
         delete module.fgradInput;
         delete module.output;
+        delete module.gradInput;
         delete module.gradWeight;
         delete module.gradBias;
+        delete module.grad_tmp;
         delete module.scaleT;
         delete module._input;
         delete module._output;
@@ -271,6 +281,7 @@ torch.Node = class {
                 delete module.ones;
                 delete module.input_slice;
                 delete module.output_slice;
+                delete module.convDescData;
                 this._updateSize(module, 'adj');
                 this._updateSize(module, 'd');
                 this._updateSize(module, 'dilation');
@@ -472,7 +483,84 @@ torch.Tensor = class {
     }
 
     get state() {
-        return 'Not implemented.';
+        return this._context().state || null;
+    }
+
+    get value() {
+        var context = this._context();
+        if (context.state) {
+            return null;
+        }
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
+    }
+
+    toString() {
+        var context = this._context();
+        if (context.state) {
+            return '';
+        }
+        context.limit = 1000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
+    }
+
+    _context() {
+        var context = {};
+        context.state = null;
+        context.index = 0;
+        context.count = 0;
+        if (!this._storage || !this._storage.reader) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+        switch (this._type.dataType) {
+            case 'uint8':
+            case 'int8':
+            case 'int16':
+            case 'int32':
+            case 'int64':
+            case 'float32':
+            case 'float64':
+                break;
+            default:
+                context.state = 'Tensor data type is not implemented.';
+                break;
+        }
+        context.dimensions = this._type.shape.dimensions;
+        if (!context.dimensions && context.dimensions.length == 0) {
+            context.state =  'Tensor has no dimensions.';
+            return context;
+        }
+        context.storage = this._storage;
+        context.storage.reset();
+        return context;
+    }
+
+    _decode(context, dimension) {
+        var results = [];
+        var size = context.dimensions[dimension];
+        if (dimension == context.dimensions.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(context.storage.read());
+                context.index++;
+                context.count++;
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decode(context, dimension + 1));
+            }
+        }
+        return results;
     }
 };
 
@@ -765,64 +853,28 @@ torch.T7Reader = class {
         obj.dataType = dataType;
         obj.itemSize = itemSize;
         obj.size = this.int64();
-        obj.data = this._reader.storage(obj.size, obj.itemSize);
+        obj.reader = this._reader.storage(obj.size, obj.itemSize);
+        obj.reset = function() {
+            this.reader.reset();
+        };
         obj.read = function() {
-            var array = null;
-            var size = this.size;
-            var reader = this.data;
-            var dataType = this.dataType;
             switch (dataType) {
                 case 'uint8':
-                    array = new Uint8Array(size);
-                    break;
+                    return this.reader.byte();
                 case 'int8':
-                    array = new Int8Array(size);
-                    break;
+                    return this.reader.int8();
                 case 'int16':
-                    array = new Int16Array(size);
-                    break;
+                    return this.reader.int16();
                 case 'int32':
-                    array = new Int32Array(size);
-                    break;
+                    return this.reader.int32();
                 case 'int64':
-                    array = new Float64Array(size);
-                    break;
+                    return this.reader.int64();
                 case 'float32':
-                    array = new Float32Array(size);
-                    break;
+                    return this.reader.float32();
                 case 'float64':
-                    array = new Float64Array(size);
-                    break;
-                default:
-                    throw new torch.Error("Unknown storage data type '" + this.dataType + "'.");
+                    return this.reader.float64();
             }
-            reader.reset();
-            for (var i = 0; i < size; i++) {
-                switch (dataType) {
-                    case 'uint8':
-                        array[i] = reader.byte();
-                        break;
-                    case 'int8':
-                        array[i] = reader.int8();
-                        break;
-                    case 'int16':
-                        array[i] = reader.int16();
-                        break;
-                    case 'int32':
-                        array[i] = reader.int32();
-                        break;
-                    case 'int64':
-                        array[i] = reader.int64();
-                        break;
-                    case 'float32':
-                        array[i] = reader.float32();
-                        break;
-                    case 'float64':
-                        array[i] = reader.float64();
-                        break;
-                }
-            }
-            return [].slice.call(array);
+            return null;
         };
     }
 };
