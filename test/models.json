@@ -2694,6 +2694,13 @@
   },
   {
     "type":   "tf",
+    "target": "graphdef_saved_model.pb",
+    "source": "https://github.com/lutzroeder/netron/files/2528688/saved_model.zip[saved_model.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/171"
+  },
+  {
+    "type":   "tf",
     "target": "half_plus_two_saved_model.pb",
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/cc/saved_model/testdata/half_plus_two/00000123/saved_model.pb",
     "format": "TensorFlow Saved Model v1",
@@ -3002,7 +3009,7 @@
     "target": "densenet.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]"
   },
-  {
+    {
     "type":   "tflite",
     "target": "inception_resnet_v2.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_resnet_v2_2018_04_27.tgz[./inception_resnet_v2.tflite]"

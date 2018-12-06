@@ -95,8 +95,11 @@ tf.ModelFactory = class {
                     }
                 }
                 catch (error) {
-                    callback(new tf.Error("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'."), null);
-                    return;
+                    var buffer = context.buffer;
+                    if (buffer.length > 3 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x12) {
+                        callback(new tf.Error("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'."), null);
+                        return;
+                    }
                 }
                 try {
                     if (!savedModel && extension == 'meta') {
