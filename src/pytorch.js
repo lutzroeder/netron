@@ -10,7 +10,7 @@ pytorch.ModelFactory = class {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 'model') {
+        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 'dms' || extension == 'model') {
             var buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > torch.length + 2 && 
@@ -667,6 +667,10 @@ pytorch.Attribute = class {
                     this._visible = false;
                 }
             }
+        }
+
+        if (Array.isArray(value) && value.every((obj) => obj.__type__ && obj.__type__.startsWith('torch.nn'))) {
+            this._value = '?';
         }
     }
 
