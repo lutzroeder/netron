@@ -40,6 +40,7 @@
         { "name": "bias_term", "visible": false },
         { "name": "weight_filler", "visible": false },
         { "name": "bias_filler", "visible": false },
+        { "name": "num_output", "visible": false },
         { "name": "pad", "default": [] },
         { "name": "kernel_size", "default": [] },
         { "name": "stride", "default": [] },
@@ -51,6 +52,12 @@
     "name": "DepthwiseConvolution",
     "schema": {
       "category": "Layer",
+      "attributes": [
+        { "name": "bias_term", "visible": false },
+        { "name": "weight_filler", "visible": false },
+        { "name": "bias_filler", "visible": false },
+        { "name": "num_output", "visible": false }
+      ],
       "inputs": [
         { "name": "input" },
         { "name": "filter" },

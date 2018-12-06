@@ -67,7 +67,7 @@
                         message.meta_graphs.push($root.tensorflow.MetaGraphDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -261,7 +261,7 @@
                         message.asset_file_def.push($root.tensorflow.AssetFileDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -506,7 +506,7 @@
                             message.stripped_default_attrs = reader.bool();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -704,7 +704,7 @@
                         message.any_list = $root.tensorflow.CollectionDef.AnyList.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -884,7 +884,7 @@
                             message.value.push(reader.string());
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -989,7 +989,7 @@
                             message.value.push(reader.bytes());
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -1102,7 +1102,7 @@
                             message.value.push(reader.int64());
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -1222,7 +1222,7 @@
                             message.value.push(reader.float());
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -1327,7 +1327,7 @@
                             message.value.push($root.google.protobuf.Any.decodeText(reader, true));
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -1463,7 +1463,7 @@
                         message.tensor_shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1847,7 +1847,7 @@
                             message.dense_shape_tensor_name = reader.string();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -1995,7 +1995,7 @@
                         message.method_name = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2145,7 +2145,7 @@
                         message.filename = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2289,7 +2289,7 @@
                         message.version = reader.enum($root.tensorflow.SaverDef.CheckpointFormatVersion);
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2478,7 +2478,7 @@
                         message.library = $root.tensorflow.FunctionDefLibrary.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2704,7 +2704,7 @@
                         message.allows_uninitialized_input = reader.bool();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2970,7 +2970,7 @@
                             message.is_ref = reader.bool();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -3387,7 +3387,7 @@
                             message.allowed_values = $root.tensorflow.AttrValue.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -3558,7 +3558,7 @@
                         message.explanation = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3660,7 +3660,7 @@
                         message.op.push($root.tensorflow.OpDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3777,7 +3777,7 @@
                         message.unknown_rank = reader.bool();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3895,7 +3895,7 @@
                             message.name = reader.string();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -4107,7 +4107,7 @@
                         reader.assert("}");
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -4285,7 +4285,7 @@
                         message.bad_consumers.push(reader.int32());
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -4420,7 +4420,7 @@
                         message.gradient.push($root.tensorflow.GradientDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -4603,7 +4603,7 @@
                         reader.assert("}");
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -4779,7 +4779,7 @@
                         message.gradient_func = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -4946,7 +4946,7 @@
                         message.placeholder = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -5545,7 +5545,7 @@
                             message.func.push($root.tensorflow.NameAttrList.decodeText(reader, true));
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -6077,7 +6077,7 @@
                         reader.assert("}");
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -6420,7 +6420,7 @@
                         message.uint64_val.push(reader.uint64());
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -7099,7 +7099,7 @@
                         message.tensors.push($root.tensorflow.TensorProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -7259,7 +7259,7 @@
                         message.maybe_type_name = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -7414,7 +7414,7 @@
                             message.value = reader.bytes();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }

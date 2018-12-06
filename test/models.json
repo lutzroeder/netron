@@ -448,7 +448,6 @@
     "type":   "caffe",
     "target": "ResNet-50_merged.qconv.winograd.cwl.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-50_merged.qconv.winograd.cwl.prototxt",
-    "error":  "File text format is not caffe.NetParameter (Unknown field 'evaluation_method' at 13:3) in 'ResNet-50_merged.qconv.winograd.cwl.prototxt'.",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {

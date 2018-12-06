@@ -93,7 +93,7 @@
                         message.strides.push(reader.int64());
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -431,7 +431,7 @@
                         message.segment = $root.caffe2.TensorProto.Segment.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -880,7 +880,7 @@
                             message.end = reader.int64();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -1087,7 +1087,7 @@
                         message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1345,7 +1345,7 @@
                         message.protos.push($root.caffe2.TensorProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1498,7 +1498,7 @@
                         message.name = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1728,7 +1728,7 @@
                         message.shapes.push($root.caffe2.TensorShape.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1960,7 +1960,7 @@
                         message.nets.push($root.caffe2.NetDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2302,7 +2302,7 @@
                         message.extra_info.push(reader.string());
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2541,7 +2541,7 @@
                         message.op_version = reader.int64();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2861,7 +2861,7 @@
                         message.external_output.push(reader.string());
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3165,7 +3165,7 @@
                         message.num_concurrent_instances = reader.int32();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3433,7 +3433,7 @@
                         message.execution_step.push($root.caffe2.ExecutionStep.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3615,7 +3615,7 @@
                         message.content_chunk_id = reader.int32();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3792,7 +3792,7 @@
                         message.key = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }

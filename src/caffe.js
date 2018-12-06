@@ -37,8 +37,16 @@ caffe.ModelFactory = class {
                 if (extension == 'pbtxt' || extension == 'prototxt') {
                     var tags = context.tags;
                     if (tags.net || tags.train_net || tags.net_param) {
-                        try { 
-                            var solver = caffe.proto.SolverParameter.decodeText(context.text);
+                        try {
+                            var reader = new protobuf.TextReader(context.text);
+                            reader.handle = function(tag, message) {
+                                if (message instanceof caffe.proto.SolverParameter) {
+                                    message[tag] = this.skip();
+                                    return;
+                                }
+                                throw new Error("Unknown field '" + tag + "'" + this.location());
+                            };
+                            var solver = caffe.proto.SolverParameter.decodeText(reader);
                             if (solver.net_param) {
                                 this._openNetParameter(solver.net_param, host, callback);
                                 return;
@@ -84,7 +92,41 @@ caffe.ModelFactory = class {
 
     _openNetParameterText(identifier, text, host, callback) {
         try {
-            var netParameter = caffe.proto.NetParameter.decodeText(text);
+            var reader = new protobuf.TextReader(text);
+            var modelFactory = this;
+            reader.handle = function(tag, message) {
+                var type = message.constructor.name;
+                if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
+                    message[tag] = caffe.ModelFactory._decodeText(reader, true);
+                    return;
+                }  
+                else if (message.constructor.name.endsWith('Parameter')) {
+                    if (message[tag]) {
+                        if (!Array.isArray(message[tag])) {
+                            message[tag] = [ message[tag] ];
+                        }
+                        message[tag].push(this.skip());
+                    }
+                    else {
+                        message[tag] = this.skip();
+                    }
+                    return;
+                }
+                throw new Error("Unknown field '" + tag + "'" + this.location());
+            };
+            reader.enum = function(type) {
+                this.assert(":");
+                var token = this.read();
+                if (!Object.prototype.hasOwnProperty.call(type, token)) {
+                    var value = Number.parseInt(token, 10);
+                    if (!Number.isNaN(token - value)) {
+                        return value;
+                    }
+                    return token;
+                }
+                return type[token];
+            };
+            var netParameter = caffe.proto.NetParameter.decodeText(reader);
             this._openNetParameter(netParameter, host, callback);
         }
         catch (error) {
@@ -103,6 +145,24 @@ caffe.ModelFactory = class {
             callback(new caffe.Error(error.message), null);
             return;
         }
+    }
+
+    static _decodeText(reader, block) {
+        var message = {};
+        reader.start(block);
+        while (!reader.end(block)) {
+            var tag = reader.tag();
+            if (message[tag]) { 
+                if (!Array.isArray(message[tag])) {
+                    message[tag] = [ message[tag] ];
+                }
+                message[tag].push(reader.skip());
+            }
+            else {
+                message[tag] = reader.skip();
+            }
+        }
+        return message;
     }
 };
 
@@ -357,22 +417,20 @@ caffe.Node = class {
             case 1:
             case 2:
                 Object.keys(layer).forEach((key) => {
-                    if (key.endsWith('_param')) {
+                    if (key.endsWith('_param') || key == 'transform_param') {
                         var param = layer[key];
                         var type = this._type;
                         if (type == 'Deconvolution') {
                             type = 'Convolution';
                         }
-                        if (param.constructor.name == type + 'Parameter' || key == 'transform_param') {
-                            var prototype = Object.getPrototypeOf(param);
-                            Object.keys(param).forEach((name) => {
-                                var defaultValue = prototype[name];
-                                var value = param[name];
-                                if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
-                                    this._attributes.push(new caffe.Attribute(this.operator, name, value));
-                                }
-                            });
-                        }
+                        var prototype = Object.getPrototypeOf(param);
+                        Object.keys(param).forEach((name) => {
+                            var defaultValue = prototype[name];
+                            var value = param[name];
+                            if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
+                                this._attributes.push(new caffe.Attribute(this.operator, name, value));
+                            }
+                        });
                     }
                 });
                 if (layer.include && layer.include.length > 0) {

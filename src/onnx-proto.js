@@ -190,7 +190,7 @@
                         message.graphs.push($root.onnx.GraphProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -589,7 +589,7 @@
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -756,7 +756,7 @@
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1002,7 +1002,7 @@
                         message.metadata_props.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1231,7 +1231,7 @@
                         message.value = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1395,7 +1395,7 @@
                         message.value_info.push($root.onnx.ValueInfoProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -1787,7 +1787,7 @@
                         message.uint64_data.push(reader.uint64());
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2211,7 +2211,7 @@
                             message.end = reader.int64();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -2344,7 +2344,7 @@
                         message.dim.push($root.onnx.TensorShapeProto.Dimension.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2467,7 +2467,7 @@
                             message.denotation = reader.string();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -2637,7 +2637,7 @@
                         message.denotation = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -2828,7 +2828,7 @@
                             message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -3018,7 +3018,7 @@
                             message.elem_type = $root.onnx.TypeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -3118,7 +3118,7 @@
                             message.value_type = $root.onnx.TypeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -3315,7 +3315,7 @@
                             message.name = reader.string();
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -3419,7 +3419,7 @@
                             message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag);
+                            reader.handle(tag, message);
                             break;
                         }
                     }
@@ -3619,7 +3619,7 @@
                         message.version = reader.int64();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -3806,7 +3806,7 @@
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -4054,7 +4054,7 @@
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
@@ -4260,7 +4260,7 @@
                         message.functions.push($root.onnx.FunctionProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag);
+                        reader.handle(tag, message);
                         break;
                     }
                 }
