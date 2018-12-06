@@ -601,10 +601,6 @@ tf.Attribute = class {
                 this._value = value.s;
             }
         }
-        else if (value.hasOwnProperty('tensor')) {
-            this._type = 'tensor';
-            this._value = new tf.Tensor(value.tensor);
-        }
         else if (value.hasOwnProperty('list')) {
             var list = value.list;
             this._value = [];
