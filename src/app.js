@@ -112,7 +112,7 @@ class Application {
         var showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
-                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth', 't7', 'pkl', 'joblib', 'pbtxt', 'prototxt', 'xml', 'dot' ] }
+                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth', 't7', 'pkl', 'joblib', 'pbtxt', 'prototxt', 'xml' ] }
                 /* 
                 { name: 'ONNX Model', extensions: [ 'onnx', 'pb', 'pbtxt' ] },
                 { name: 'Keras Model', extensions: [ 'h5', 'hdf5', 'json', 'keras' ] },
