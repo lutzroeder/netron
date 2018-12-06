@@ -6408,6 +6408,57 @@
     }
   },
   {
+    "name": "IsNaN",
+    "schema": {
+      "description": "Returns which elements of the input are NaN.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'IsNaN',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([3.0, np.nan, 4.0, np.nan], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name='test_isnan')",
+          "summary": "isnan"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "input",
+          "name": "X",
+          "type": "T1"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "output",
+          "name": "Y",
+          "type": "T2"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input types to float tensors.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Constrain output types to boolean tensors.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
     "name": "LRN",
     "schema": {
       "attributes": [
@@ -9302,7 +9353,7 @@
           "type": "int"
         }
       ],
-      "description": "Produces a one-hot tensor based on inputs.\n    The locations represented by the index values in the 'indices' input tensor will have 'on_value' \n    and the other locations will have 'off_value' in the output tensor, where 'on_value' and 'off_value' \n    are specified as part of required input argument 'values', which is a two-element tensor of format  \n    [off_value, on_value]. The rank of the output tensor will be one greater than the rank of the \n    input tensor. The additional dimension is for one-hot representation. The additional dimension will \n    be inserted at the position specified by 'axis'. If 'axis' is not specified then then additional \n    dimension will be inserted as the innermost dimension, i.e. axis=-1. The size of the additional \n    dimension is specified by required scalar input 'depth'. The type of the output tensor is the same \n    as the type of the 'values' input. Any entries in the 'indices' input tensor with values outside \n    the range [0, depth) will result in one-hot representation with all 'off_value' values in the \n    output tensor.\n",
+      "description": "Produces a one-hot tensor based on inputs.\n    The locations represented by the index values in the 'indices' input tensor will have 'on_value'\n    and the other locations will have 'off_value' in the output tensor, where 'on_value' and 'off_value'\n    are specified as part of required input argument 'values', which is a two-element tensor of format\n    [off_value, on_value]. The rank of the output tensor will be one greater than the rank of the\n    input tensor. The additional dimension is for one-hot representation. The additional dimension will\n    be inserted at the position specified by 'axis'. If 'axis' is not specified then then additional\n    dimension will be inserted as the innermost dimension, i.e. axis=-1. The size of the additional\n    dimension is specified by required scalar input 'depth'. The type of the output tensor is the same\n    as the type of the 'values' input. Any entries in the 'indices' input tensor with values outside\n    the range [0, depth) will result in one-hot representation with all 'off_value' values in the\n    output tensor.\n",
       "domain": "ai.onnx",
       "examples": [
         {
