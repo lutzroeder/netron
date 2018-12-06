@@ -14903,28 +14903,6 @@
     }
   },
   {
-    "name": "EnqueueInQueueDataset",
-    "schema": {
-      "attributes": [
-        {
-          "minimum": 1,
-          "name": "Tcomponents",
-          "type": "list(type)"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "queue",
-          "type": 21
-        },
-        {
-          "name": "components",
-          "typeListAttr": "Tcomponents"
-        }
-      ]
-    }
-  },
-  {
     "name": "EnsureShape",
     "schema": {
       "attributes": [
@@ -15456,6 +15434,27 @@
     }
   },
   {
+    "name": "ExperimentalDatasetCardinality",
+    "schema": {
+      "description": "Returns the cardinality of `input_dataset`.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the dataset to return cardinality for.",
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The cardinality of `input_dataset`. Named constants are used to represent\ninfinite and unknown cardinality.",
+          "name": "cardinality",
+          "type": 9
+        }
+      ],
+      "summary": "Returns the cardinality of `input_dataset`."
+    }
+  },
+  {
     "name": "ExperimentalDatasetToTFRecord",
     "schema": {
       "inputs": [
@@ -15923,6 +15922,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": false,
+          "name": "preserve_cardinality",
+          "type": "bool"
         }
       ],
       "description": "Creates a dataset that applies `f` to the outputs of `input_dataset` and then\nbatches `batch_size` of them.\n\nUnlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `batch_size * num_parallel_batches` copies of `f` in parallel.",
@@ -15988,6 +15992,11 @@
         {
           "default": true,
           "name": "use_inter_op_parallelism",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "preserve_cardinality",
           "type": "bool"
         }
       ],
@@ -16145,6 +16154,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": false,
+          "name": "preserve_cardinality",
+          "type": "bool"
         }
       ],
       "description": "Creates a dataset that applies `f` to the outputs of `input_dataset` and then\nbatches `batch_size` of them.\n\nUnlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `batch_size * num_parallel_batches` copies of `f` in parallel.\n\nUnlike \"MapAndBatchDatasetV2\", this dataset uses a NUMA-aware thread scheduling\npolicy. Because it uses the single-threaded executor, it only supports the\nfunction-based control flow ops.",
@@ -16386,6 +16400,99 @@
         }
       ],
       "summary": "Creates a dataset that uses a custom thread pool to compute `input_dataset`."
+    }
+  },
+  {
+    "name": "ExperimentalRandomDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A scalar seed for the random number generator. If either seed or\nseed2 is set to be non-zero, the random number generator is seeded\nby the given seed.  Otherwise, a random seed is used.",
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "description": "A second scalar seed to avoid seed collision.",
+          "name": "seed2",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a Dataset that returns pseudorandom numbers."
+    }
+  },
+  {
+    "name": "ExperimentalScanDataset",
+    "schema": {
+      "attributes": [
+        {
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "minimum": 1,
+          "name": "Tstate",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": false,
+          "name": "preserve_cardinality",
+          "type": "bool"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "initial_state",
+          "typeListAttr": "Tstate"
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset successively reduces `f` over the elements of `input_dataset`."
     }
   },
   {
@@ -23404,6 +23511,74 @@
     }
   },
   {
+    "name": "Lu",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "output_idx_type",
+          "type": "type"
+        }
+      ],
+      "description": "The input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices.\n\nThe input has to be invertible.\n\nThe output consists of two tensors LU and P containing the LU decomposition\nof all input submatrices `[..., :, :]`. LU encodes the lower triangular and\nupper triangular factors.\n\nFor each input submatrix of shape `[M, M]`, L is a lower triangular matrix of\nshape `[M, M]` with unit diagonal whose entries correspond to the strictly lower\ntriangular part of LU. U is a upper triangular matrix of shape `[M, M]` whose\nentries correspond to the upper triangular part, including the diagonal, of LU.\n\nP represents a permutation matrix encoded as a list of indices each between `0`\nand `M-1`, inclusive. If P_mat denotes the permutation matrix corresponding to\nP, then the L, U and P satisfies P_mat * input = L * U.",
+      "inputs": [
+        {
+          "description": "A tensor of shape `[..., M, M]` whose inner-most 2 dimensions form matrices of\nsize `[M, M]`.",
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A tensor of shape `[..., M, M]` whose strictly lower triangular part denotes the\nlower triangular factor `L` with unit diagonal, and whose upper triangular part\ndenotes the upper triangular factor `U`.",
+          "name": "lu",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Permutation of the rows encoded as a list of indices in `0..M-1`. Shape is\n`[..., M]`.\n@compatibility(scipy)\nSimilar to `scipy.linalg.lu`, except the triangular factors `L` and `U` are\npacked into a single tensor, the permutation is applied to `input` instead of\nthe right hand side and the permutation `P` is returned as a list of indices\ninstead of a permutation matrix.\n@end_compatibility",
+          "name": "p",
+          "typeAttr": "output_idx_type"
+        }
+      ],
+      "summary": "Computes the LU decomposition of one or more square matrices."
+    }
+  },
+  {
     "name": "MakeIterator",
     "schema": {
       "description": "This operation may be executed multiple times. Each execution will reset the\niterator in `iterator` to the first element of `dataset`.",
@@ -23480,6 +23655,11 @@
         {
           "default": true,
           "name": "use_inter_op_parallelism",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "preserve_cardinality",
           "type": "bool"
         }
       ],
@@ -29339,6 +29519,11 @@
           "default": false,
           "name": "sloppy",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "preserve_cardinality",
+          "type": "bool"
         }
       ],
       "description": "Unlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `num_parallel_calls` copies of `f` in parallel.",
@@ -30454,53 +30639,6 @@
         }
       ],
       "summary": "Creates a dataset that asynchronously prefetches elements from `input_dataset`."
-    }
-  },
-  {
-    "name": "PrependFromQueueAndPaddedBatchDataset",
-    "schema": {
-      "attributes": [
-        {
-          "minimum": 1,
-          "name": "Toutput_types",
-          "type": "list(type)"
-        },
-        {
-          "minimum": 1,
-          "name": "output_shapes",
-          "type": "list(shape)"
-        },
-        {
-          "minimum": 1,
-          "name": "N",
-          "type": "int"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "input_dataset",
-          "type": 21
-        },
-        {
-          "name": "batch_size",
-          "type": 9
-        },
-        {
-          "name": "padded_shapes",
-          "numberAttr": "N",
-          "type": 9
-        },
-        {
-          "name": "padding_values",
-          "typeListAttr": "Toutput_types"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ]
     }
   },
   {
@@ -33908,42 +34046,6 @@
         }
       ],
       "summary": "Randomly crop `image`."
-    }
-  },
-  {
-    "name": "RandomDataset",
-    "schema": {
-      "attributes": [
-        {
-          "minimum": 1,
-          "name": "output_types",
-          "type": "list(type)"
-        },
-        {
-          "minimum": 1,
-          "name": "output_shapes",
-          "type": "list(shape)"
-        }
-      ],
-      "inputs": [
-        {
-          "description": "A scalar seed for the random number generator. If either seed or\nseed2 is set to be non-zero, the random number generator is seeded\nby the given seed.  Otherwise, a random seed is used.",
-          "name": "seed",
-          "type": 9
-        },
-        {
-          "description": "A second scalar seed to avoid seed collision.",
-          "name": "seed2",
-          "type": 9
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ],
-      "summary": "Creates a Dataset that returns pseudorandom numbers."
     }
   },
   {
@@ -37618,6 +37720,152 @@
     }
   },
   {
+    "name": "ResourceApplyAdamWithAmsgrad",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, updating of the var, m, and v tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
+          "name": "use_locking",
+          "type": "bool"
+        }
+      ],
+      "description": "$$lr_t := \\text{learning\\_rate} * \\sqrt{1 - beta_2^t} / (1 - beta_1^t)$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$vhat_t := max{vhat_{t-1}, v_t}$$\n$$variable := variable - lr_t * m_t / (\\sqrt{vhat_t} + \\epsilon)$$",
+      "inputs": [
+        {
+          "description": "Should be from a Variable().",
+          "name": "var",
+          "type": 20
+        },
+        {
+          "description": "Should be from a Variable().",
+          "name": "m",
+          "type": 20
+        },
+        {
+          "description": "Should be from a Variable().",
+          "name": "v",
+          "type": 20
+        },
+        {
+          "description": "Should be from a Variable().",
+          "name": "vhat",
+          "type": 20
+        },
+        {
+          "description": "Must be a scalar.",
+          "name": "beta1_power",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Must be a scalar.",
+          "name": "beta2_power",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Scaling factor. Must be a scalar.",
+          "name": "lr",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Momentum factor. Must be a scalar.",
+          "name": "beta1",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Momentum factor. Must be a scalar.",
+          "name": "beta2",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Ridge term. Must be a scalar.",
+          "name": "epsilon",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient.",
+          "name": "grad",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Update '*var' according to the Adam algorithm."
+    }
+  },
+  {
     "name": "ResourceApplyAddSign",
     "schema": {
       "attributes": [
@@ -38247,6 +38495,128 @@
         }
       ],
       "summary": "Update '*var' by subtracting 'alpha' * 'delta' from it."
+    }
+  },
+  {
+    "name": "ResourceApplyKerasMomentum",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
+          "name": "use_locking",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "If `True`, the tensor passed to compute grad will be\nvar + momentum * accum, so in the end, the var you get is actually\nvar + momentum * accum.",
+          "name": "use_nesterov",
+          "type": "bool"
+        }
+      ],
+      "description": "want to use Nesterov momentum.\n\naccum = accum * momentum - lr * grad\nvar += accum",
+      "inputs": [
+        {
+          "description": "Should be from a Variable().",
+          "name": "var",
+          "type": 20
+        },
+        {
+          "description": "Should be from a Variable().",
+          "name": "accum",
+          "type": 20
+        },
+        {
+          "description": "Scaling factor. Must be a scalar.",
+          "name": "lr",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient.",
+          "name": "grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Momentum. Must be a scalar.",
+          "name": "momentum",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Update '*var' according to the momentum scheme. Set use_nesterov = True if you"
     }
   },
   {
@@ -40667,6 +41037,147 @@
     }
   },
   {
+    "name": "ResourceSparseApplyKerasMomentum",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
+          "name": "use_locking",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "If `True`, the tensor passed to compute grad will be\nvar + momentum * accum, so in the end, the var you get is actually\nvar + momentum * accum.",
+          "name": "use_nesterov",
+          "type": "bool"
+        }
+      ],
+      "description": "Set use_nesterov = True if you want to use Nesterov momentum.\n\nThat is for rows we have grad for, we update var and accum as follows:\n\naccum = accum * momentum - lr * grad\nvar += accum",
+      "inputs": [
+        {
+          "description": "Should be from a Variable().",
+          "name": "var",
+          "type": 20
+        },
+        {
+          "description": "Should be from a Variable().",
+          "name": "accum",
+          "type": 20
+        },
+        {
+          "description": "Learning rate. Must be a scalar.",
+          "name": "lr",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient.",
+          "name": "grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A vector of indices into the first dimension of var and accum.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "Momentum. Must be a scalar.",
+          "name": "momentum",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Update relevant entries in '*var' and '*accum' according to the momentum scheme."
+    }
+  },
+  {
     "name": "ResourceSparseApplyMomentum",
     "schema": {
       "attributes": [
@@ -42474,58 +42985,6 @@
         }
       ],
       "summary": "Outputs a `Summary` protocol buffer with scalar values."
-    }
-  },
-  {
-    "name": "ScanDataset",
-    "schema": {
-      "attributes": [
-        {
-          "name": "f",
-          "type": "func"
-        },
-        {
-          "minimum": 1,
-          "name": "Tstate",
-          "type": "list(type)"
-        },
-        {
-          "minimum": 0,
-          "name": "Targuments",
-          "type": "list(type)"
-        },
-        {
-          "minimum": 1,
-          "name": "output_types",
-          "type": "list(type)"
-        },
-        {
-          "minimum": 1,
-          "name": "output_shapes",
-          "type": "list(shape)"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "input_dataset",
-          "type": 21
-        },
-        {
-          "name": "initial_state",
-          "typeListAttr": "Tstate"
-        },
-        {
-          "name": "other_arguments",
-          "typeListAttr": "Targuments"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ],
-      "summary": "Creates a dataset successively reduces `f` over the elements of `input_dataset`."
     }
   },
   {
