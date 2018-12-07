@@ -172,6 +172,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
+                constructorTable['sklearn.preprocessing.label.LabelEncoder'] = function() {};
                 constructorTable['sklearn.svm.classes.SVC'] = function() {};
                 constructorTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
                     this.n_features = n_features;
@@ -188,6 +189,8 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.tree.tree.DecisionTreeRegressor'] = function() {};
                 constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {};
                 constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
+                constructorTable['xgboost.core.Booster'] = function() {};
+                constructorTable['xgboost.sklearn.XGBClassifier'] = function() {};
 
                 functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
                     if (base == '__builtin__.object') {
@@ -233,6 +236,9 @@ sklearn.ModelFactory = class {
                 functionTable['collections.defaultdict'] = function(default_factory) {
                     return {};
                 };
+                functionTable['__builtin__.bytearray'] = function(data, encoding) {
+                    return { data: data, encoding: encoding };
+                };
 
                 var function_call = (name, args) => {
                     var func = functionTable[name];
@@ -269,6 +275,7 @@ sklearn.ModelFactory = class {
                 try {
                     var model = new sklearn.Model(obj);
                     callback(null, model);
+                    return;
                 }
                 catch (error) {
                     host.exception(error, false);

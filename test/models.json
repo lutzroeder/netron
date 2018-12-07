@@ -2581,8 +2581,15 @@
   {
     "type":   "sklearn",
     "target": "forest_iris_DecisionTreeClassifier.pkl",
-    "source": "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_DecisionTreeClassifier.pkl     ]",
+    "source": "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_DecisionTreeClassifier.pkl]",
     "format": "scikit-learn 0.19.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":   "sklearn",
+    "target": "pima.xgboost.joblib.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/2656501/pima.xgboost.joblib.pkl.zip[pima.xgboost.joblib.pkl]",
+    "format": "scikit-learn",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
