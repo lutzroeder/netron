@@ -10,12 +10,21 @@ onnx.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'onnx' || extension == 'pb') {
+        if (extension == 'onnx') {
+            return true;
+        }
+        if (extension == 'pb') {
             if (identifier.endsWith('saved_model.pb')) {
                 return false;
             }
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('predict_net.pb') || identifier == 'init_net.pb') {
                 return false;
+            }
+            if (identifier == 'input_0.pb' || identifier == 'output_0.pb') {
+                var buffer = context.buffer;
+                if (buffer.length > 5 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x08 && (buffer[3] == 0xE8 || buffer[3] == 0x03)) {
+                    return false;
+                }
             }
             return true;
         }

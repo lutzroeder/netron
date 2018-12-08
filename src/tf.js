@@ -16,7 +16,16 @@ tf.ModelFactory = class {
             case 'init_net.pb':
                 return false;
         }
-        if (extension == 'meta' || extension == 'pb') {
+        if (extension == 'meta') {
+            return true;
+        }
+        if (extension == 'pb') {
+            if (identifier == 'input_0.pb' || identifier == 'output_0.pb') {
+                var buffer = context.buffer;
+                if (buffer.length > 5 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x08 && (buffer[3] == 0xE8 || buffer[3] == 0x03)) {
+                    return false;
+                }
+            }
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
