@@ -91,7 +91,7 @@ mxnet.ModelFactory = class {
         if (!manifestEntry) {
             var folders = Object.keys(entries).filter((name) => name.endsWith('/')).filter((name) => entries[name + 'MANIFEST.json']);
             if (folders.length != 1) {
-                callback(new mxnet.Error('Manifest not found.'), null);
+                callback(new mxnet.Error("Manifest not found in '" + context.identifier + "'."), null);
                 return;
             }
             rootFolder = folders[0];
@@ -176,7 +176,7 @@ mxnet.ModelFactory = class {
     }
 
     _openModel(format, manifest, symbol, signature, params, host, callback) {
-        mxnet.OperatorMetadata.open(host, 'mxnet-metadata.json', (err, metadata) => {
+        mxnet.Metadata.open(host, 'mxnet-metadata.json', (err, metadata) => {
             var parameters = {};
             if (params) {
                 try {
@@ -937,17 +937,17 @@ mxnet.TensorShape = class {
     }
 };
 
-mxnet.OperatorMetadata = class {
+mxnet.Metadata = class {
 
     static open(host, file, callback) {
-        mxnet.OperatorMetadata._map = {};
-        if (mxnet.OperatorMetadata._map[file]) {
-            callback(null, mxnet.OperatorMetadata._map[file]);
+        mxnet.Metadata._metadata = {};
+        if (mxnet.Metadata._metadata[file]) {
+            callback(null, mxnet.Metadata._metadata[file]);
             return;
         }
         host.request(null, file, 'utf-8', (err, data) => {
-            mxnet.OperatorMetadata._map[file] = new mxnet.OperatorMetadata(data);
-            callback(null, mxnet.OperatorMetadata._map[file]);
+            mxnet.Metadata._metadata[file] = new mxnet.Metadata(data);
+            callback(null, mxnet.Metadata._metadata[file]);
             return;
         });
     }

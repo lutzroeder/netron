@@ -69,9 +69,9 @@ cntk.ModelFactory = class {
                 callback(new cntk.Error("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'."), null);
                 return;
             }
-            cntk.OperatorMetadata.open(host, (err, metadata) => {
+            cntk.Metadata.open(host, (err, metadata) => {
                 try {
-                    var model = new cntk.Model(version, obj);
+                    var model = new cntk.Model(metadata, version, obj);
                     callback(null, model);
                 }
                 catch (error) {
@@ -128,7 +128,7 @@ cntk.ModelFactory = class {
 
 cntk.Model = class {
 
-    constructor(version, obj) {
+    constructor(metadata, version, obj) {
         switch (version) {
             case 1:
                 this._format = 'CNTK v1' + (obj.version ? ('.' + obj.version.toString()) : '');
@@ -138,7 +138,7 @@ cntk.Model = class {
                 break;
         }
         this._graphs = [];
-        this._graphs.push(new cntk.Graph(version, obj));
+        this._graphs.push(new cntk.Graph(metadata, version, obj));
     }
 
     get graphs() {
@@ -152,7 +152,7 @@ cntk.Model = class {
 
 cntk.Graph = class {
 
-    constructor(version, obj) {
+    constructor(metadata, version, obj) {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -180,7 +180,7 @@ cntk.Graph = class {
             Object.keys(obj.nodes).forEach((name) => {
                 var node = obj.nodes[name];
                 if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
-                    this._nodes.push(new cntk.Node(version, node, connections));
+                    this._nodes.push(new cntk.Node(metadata, version, node, connections));
                 }
             });
 
@@ -221,7 +221,7 @@ cntk.Graph = class {
                         var name = list.shift();
                         var node = nodeMap[name];
                         if (node) {
-                            nodes.push(new cntk.Node(version, node, connections));
+                            nodes.push(new cntk.Node(metadata, version, node, connections));
                             nodeMap[name] = null;
                             node.inputs.forEach((input) => {
                                 var parts = input.split('_');
@@ -241,7 +241,7 @@ cntk.Graph = class {
 
             obj.primitive_functions.forEach((node) => {
                 if (nodeMap[node.uid]) {
-                    this._nodes.push(new cntk.Node(version, node, connections));
+                    this._nodes.push(new cntk.Node(metadata, version, node, connections));
                 }
             });
         }
@@ -381,8 +381,9 @@ cntk.Connection = class {
 
 cntk.Node = class { 
 
-    constructor(version, obj, connections) {
+    constructor(metadata, version, obj, connections) {
 
+        this._metadata = metadata;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
@@ -397,7 +398,7 @@ cntk.Node = class {
                 this._name = obj.name;
                 Object.keys(obj).forEach((key) => {
                     if (key != '__type__' && key != 'name' && key != 'inputs' && key != 'precision') {
-                        this._attributes.push(new cntk.Attribute(this._operator, key, obj[key]));
+                        this._attributes.push(new cntk.Attribute(this._metadata, this._operator, key, obj[key]));
                     }
                 });
                 inputs = obj.inputs.map((input) => { 
@@ -419,13 +420,13 @@ cntk.Node = class {
                     }
                 }
                 else {
-                    this._operator = cntk.OperatorMetadata.operatorMetadata.getOperatorName(obj.op);
+                    this._operator = this._metadata.getOperatorName(obj.op);
                     if (this._operator == null) {
                         this._operator = obj.op.toString();
                     }                
                 }
                 Object.keys(obj.attributes).forEach((key) => {
-                    this._attributes.push(new cntk.Attribute(this._operator, key, obj.attributes[key]));
+                    this._attributes.push(new cntk.Attribute(this._metadata, this._operator, key, obj.attributes[key]));
                 });
                 obj.inputs.forEach((input) => {
                     var connection = connections[input];
@@ -446,7 +447,7 @@ cntk.Node = class {
         }
 
         var inputIndex = 0;
-        var schema = cntk.OperatorMetadata.operatorMetadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        var schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputSchema) => {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
@@ -503,7 +504,7 @@ cntk.Node = class {
     }
 
     get category() {
-        var schema = cntk.OperatorMetadata.operatorMetadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        var schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
@@ -526,7 +527,7 @@ cntk.Node = class {
 
 cntk.Attribute = class {
 
-    constructor(operator, name, value) {
+    constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
         this._type = null;
@@ -542,7 +543,7 @@ cntk.Attribute = class {
             this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
         }
 
-        var schema = cntk.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        var schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -792,16 +793,16 @@ cntk.TensorShape = class {
     }
 };
 
-cntk.OperatorMetadata = class {
+cntk.Metadata = class {
 
     static open(host, callback) {
-        if (cntk.OperatorMetadata.operatorMetadata) {
-            callback(null, cntk.OperatorMetadata.operatorMetadata);
+        if (cntk.Metadata._metadata) {
+            callback(null, cntk.Metadata._metadata);
         }
         else {
             host.request(null, 'cntk-metadata.json', 'utf-8', (err, data) => {
-                cntk.OperatorMetadata.operatorMetadata = new cntk.OperatorMetadata(data);
-                callback(null, cntk.OperatorMetadata.operatorMetadata);
+                cntk.Metadata._metadata = new cntk.Metadata(data);
+                callback(null, cntk.Metadata._metadata);
             });
         }    
     }

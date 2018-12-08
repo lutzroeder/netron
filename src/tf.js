@@ -129,37 +129,36 @@ tf.ModelFactory = class {
                 }
             }
 
-            try {
-                var model = new tf.Model(savedModel, format);
-        
-                tf.OperatorMetadata.open(host, (err, metadata) => {
+            tf.Metadata.open(host, (err, metadata) => {
+                try {
+                    var model = new tf.Model(metadata, savedModel, format);
                     callback(null, model);
-                });
-            }
-            catch (error) {
-                host.exception(error, false);
-                callback(new tf.Error(error.message), null);
-            }
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new tf.Error(error.message), null);
+                }
+            });
         });
     }
 };
 
 tf.Model = class {
 
-    constructor(model, format) {
+    constructor(metadata, model, format) {
         this._model = model;
         this._format = format;
         this._graphs = [];
-        for (var i = 0; i < this._model.meta_graphs.length; i++) {
-            var metaGraph = this._model.meta_graphs[i];
+        for (var i = 0; i < model.meta_graphs.length; i++) {
+            var metaGraph = model.meta_graphs[i];
             var name = null;
             if (metaGraph.any_info) {
                 name = metaGraph.any_info.toString();
             }
-            else if (this._model.meta_graphs.length > 1) {
+            else if (model.meta_graphs.length > 1) {
                 name = '(' + i.toString() + ')';
             }
-            this._graphs.push(new tf.Graph(this, metaGraph, name));
+            this._graphs.push(new tf.Graph(metadata, metaGraph, name));
         }
         this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
     }
@@ -179,11 +178,10 @@ tf.Model = class {
 
 tf.Graph = class {
 
-    constructor(model, metaGraph, name) {
-        this._model = model;
+    constructor(metadata, metaGraph, name) {
         this._metaGraph = metaGraph;
         this._version = null;
-        this._metadata = new tf.GraphOperatorMetadata(metaGraph.meta_info_def);
+        this._metadata = new tf.GraphMetadata(metadata, metaGraph.meta_info_def);
         this._name = name;
         this._operators = {};
         this._inputMap = {};
@@ -209,10 +207,6 @@ tf.Graph = class {
 
     get operators() {
         return this._operators;
-    }
-
-    get model() {
-        return this._model;
     }
 
     get name() {
@@ -458,9 +452,7 @@ tf.Node = class {
     constructor(graph, node) {
         this._graph = graph;
         this._node = node;
-
         var metadata = graph.metadata;
-
         this._attributes = [];
         if (node.attr) {
             Object.keys(node.attr).forEach((name) => {
@@ -598,7 +590,7 @@ tf.Attribute = class {
         }
         else if (value.hasOwnProperty('s')) {
             if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
-                this._value = tf.OperatorMetadata.textDecoder.decode(value.s);
+                this._value = tf.Metadata.textDecoder.decode(value.s);
             }
             else {
                 this._value = value.s;
@@ -614,7 +606,7 @@ tf.Attribute = class {
                 else {
                     this._value = list.s.map((s) => {
                         if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                            return tf.OperatorMetadata.textDecoder.decode(value.s);
+                            return tf.Metadata.textDecoder.decode(value.s);
                         }
                         return s.map(v => v.toString()).join(', ');    
                     });
@@ -661,8 +653,8 @@ tf.Attribute = class {
                 this._visible = false;
             }
             else if (schema.hasOwnProperty('default')) {
-                var valueText = tf.GraphOperatorMetadata._formatAttributeValue(this._value);
-                var defaultValueText = tf.GraphOperatorMetadata._formatAttributeValue(schema.default);
+                var valueText = tf.GraphMetadata._formatAttributeValue(this._value);
+                var defaultValueText = tf.GraphMetadata._formatAttributeValue(schema.default);
                 if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {
                     this._visible = false;
                 }
@@ -901,7 +893,7 @@ tf.Tensor = class {
     _decodeDataValue(context) {
         var value = context.data[context.index++];
         if (this._tensor.dtype == tf.proto.DataType.DT_STRING) {
-            return tf.OperatorMetadata.textDecoder.decode(value);
+            return tf.Metadata.textDecoder.decode(value);
         }
         return value;
     }
@@ -986,9 +978,10 @@ tf.TensorShape = class {
     }
 };
 
-tf.GraphOperatorMetadata = class {
+tf.GraphMetadata = class {
 
-    constructor(meta_info_def) {
+    constructor(metadata, meta_info_def) {
+        this._metadata = metadata;
         this._map = {};
         if (meta_info_def && meta_info_def.strippedOpList && meta_info_def.strippedOpList.op) {
             meta_info_def.strippedOpList.op.forEach((opDef) => {
@@ -997,7 +990,7 @@ tf.GraphOperatorMetadata = class {
     }
 
     getSchema(operator) {
-        var schema = tf.OperatorMetadata.operatorMetadata.getSchema(operator);
+        var schema = this._metadata.getSchema(operator);
         if (!schema) {
             schema = this._map[operator];
         }
@@ -1198,14 +1191,14 @@ tf.GraphOperatorMetadata = class {
                 schema.attributes.forEach((attribute) => {
                     var description = attribute.description;
                     if (attribute.allowedValues) {
-                        var allowedValues = tf.GraphOperatorMetadata._formatAttributeValue(attribute.allowedValues);
+                        var allowedValues = tf.GraphMetadata._formatAttributeValue(attribute.allowedValues);
                         allowedValues = Array.isArray(allowedValues) ? allowedValues : [ allowedValues ];
                         allowedValues = allowedValues.map((item) => '`' + item + '`').join(', ');
                         allowedValues = 'Must be one of the following: ' + allowedValues + '.';
                         description = description ? (allowedValues + ' ' + description) : allowedValues;
                     }
                     if (attribute.defaultValue) {
-                        var defaultValue = tf.GraphOperatorMetadata._formatAttributeValue(attribute.defaultValue);
+                        var defaultValue = ƒ._formatAttributeValue(attribute.defaultValue);
                         defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
                         defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
                         defaultValue = 'Defaults to ' + defaultValue + '.';
@@ -1229,7 +1222,7 @@ tf.GraphOperatorMetadata = class {
             value = value.toNumber();
         }
         if (Array.isArray(value)) {
-            return value.map((item) => tf.GraphOperatorMetadata._formatAttributeValue(item));
+            return value.map((item) => tf.GraphMetadata._formatAttributeValue(item));
         }
         if (value === Object(value)) {
             switch (value.type) {
@@ -1248,19 +1241,19 @@ tf.GraphOperatorMetadata = class {
     }
 };
 
-tf.OperatorMetadata = class {
+tf.Metadata = class {
 
     static open(host, callback) {
 
-        tf.OperatorMetadata.textDecoder = tf.OperatorMetadata.textDecoder || new TextDecoder('utf-8');
+        tf.Metadata.textDecoder = tf.Metadata.textDecoder || new TextDecoder('utf-8');
 
-        if (tf.OperatorMetadata.operatorMetadata) {
-            callback(null, tf.OperatorMetadata.operatorMetadata);
+        if (tf.Metadata._metadata) {
+            callback(null, tf.Metadata._metadata);
         }
         else {
             host.request(null, 'tf-metadata.json', 'utf-8', (err, data) => {
-                tf.OperatorMetadata.operatorMetadata = new tf.OperatorMetadata(data);
-                callback(null, tf.OperatorMetadata.operatorMetadata);
+                tf.Metadata._metadata = new tf.Metadata(data);
+                callback(null, tf.Metadata._metadata);
             });
         }
     }

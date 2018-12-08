@@ -19,7 +19,7 @@ torch.ModelFactory = class {
     }
 
     open(context, host, callback) {
-        torch.OperatorMetadata.open(host, (err, metadata) => {
+        torch.Metadata.open(host, (err, metadata) => {
             var identifier = context.identifier;
             try {
                 var reader = new torch.T7Reader(context.buffer, (name) => {
@@ -1079,16 +1079,16 @@ torch.TextReader = class {
     }
 };
 
-torch.OperatorMetadata = class {
+torch.Metadata = class {
 
     static open(host, callback) {
-        if (torch.OperatorMetadata._metadata) {
-            callback(null, torch.OperatorMetadata._metadata);
+        if (torch.Metadata._metadata) {
+            callback(null, torch.Metadata._metadata);
             return;
         }
         host.request(null, 'torch-metadata.json', 'utf-8', (err, data) => {
-            torch.OperatorMetadata._metadata = new torch.OperatorMetadata(data);
-            callback(null, torch.OperatorMetadata._metadata);
+            torch.Metadata._metadata = new torch.Metadata(data);
+            callback(null, torch.Metadata._metadata);
             return;
         });
     }

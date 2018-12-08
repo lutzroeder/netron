@@ -36,9 +36,9 @@ tflite.ModelFactory = class {
                 return;
             }
     
-            tflite.OperatorMetadata.open(host, (err, metadata) => {
+            tflite.Metadata.open(host, (err, metadata) => {
                 try {
-                    callback(null, new tflite.Model(model));
+                    callback(null, new tflite.Model(metadata, model));
                 }
                 catch (error) {
                     host.exception(error, false);
@@ -51,7 +51,7 @@ tflite.ModelFactory = class {
 
 tflite.Model = class {
 
-    constructor(model) {
+    constructor(metadata, model) {
         this._graphs = [];
         this._format = 'TensorFlow Lite v' + model.version().toString();
         var description = model.description();
@@ -73,7 +73,7 @@ tflite.Model = class {
         var subgraphsLength = model.subgraphsLength();
         for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
             var name = (subgraphsLength > 1) ? ('(' + subgraph.toString() + ')') : '';
-            this._graphs.push(new tflite.Graph(model.subgraphs(subgraph), name, operatorCodeList, model));
+            this._graphs.push(new tflite.Graph(metadata, model.subgraphs(subgraph), name, operatorCodeList, model));
         }
     }
 
@@ -92,7 +92,7 @@ tflite.Model = class {
 
 tflite.Graph = class {
 
-    constructor(graph, name, operatorCodeList, model) {
+    constructor(metadata, graph, name, operatorCodeList, model) {
         this._graph = graph;
         this._name = this._graph.name() || name;
         this._nodes = [];
@@ -115,7 +115,7 @@ tflite.Graph = class {
             var operator = this._graph.operators(j);
             var opcodeIndex = operator.opcodeIndex();
             var operatorName = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : ('(' + opcodeIndex.toString() + ')');
-            var node = new tflite.Node(operator, operatorName, connections);
+            var node = new tflite.Node(metadata, operator, operatorName, connections);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             this._nodes.push(node);
         }
@@ -156,10 +156,11 @@ tflite.Graph = class {
 
 tflite.Node = class {
 
-    constructor(node, operator, connections) {
+    constructor(metadata, node, operator, connections) {
+        this._metadata = metadata;
         this._operator = operator;
 
-        var inputs = tflite.OperatorMetadata.operatorMetadata.getInputs(node, this.operator);
+        var inputs = this._metadata.getInputs(node, this.operator);
         this._inputs = inputs.map((input) => {
             return new tflite.Argument(input.name, input.visible != false, input.connections.map((connection) => {
                 return connections[connection.id];
@@ -169,12 +170,11 @@ tflite.Node = class {
         for (var i = 0; i < node.outputsLength(); i++) {
             var index = node.outputs(i);
             var connection = connections[index];
-            var name = tflite.OperatorMetadata.operatorMetadata.getOutputName(this.operator, i);
+            var name = this._metadata.getOutputName(this.operator, i);
             this._outputs.push(new tflite.Argument(name, true, [ connection ]));
         }
 
         this._attributes = [];
-        var metadata = tflite.OperatorMetadata.operatorMetadata;
         var optionsTypeName = this._operator + 'Options';
         var optionsType = tflite.Node._getType(optionsTypeName);
         if (typeof optionsType === 'function') {
@@ -210,7 +210,7 @@ tflite.Node = class {
                     else {
                         value = options[name]();
                     }
-                    this._attributes.push(new tflite.Attribute(metadata, operator, name, value));
+                    this._attributes.push(new tflite.Attribute(this._metadata, operator, name, value));
                 }
             });
         }
@@ -241,7 +241,7 @@ tflite.Node = class {
     }
 
     get category() {
-        var schema = tflite.OperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
@@ -597,16 +597,16 @@ tflite.TensorShape = class {
     }
 };
 
-tflite.OperatorMetadata = class {
+tflite.Metadata = class {
 
     static open(host, callback) {
-        if (tflite.OperatorMetadata.operatorMetadata) {
-            callback(null, tflite.OperatorMetadata.operatorMetadata);
+        if (tflite.Metadata._metadata) {
+            callback(null, tflite.Metadata._metadata);
         }
         else {
             host.request(null, 'tflite-metadata.json', 'utf-8', (err, data) => {
-                tflite.OperatorMetadata.operatorMetadata = new tflite.OperatorMetadata(data);
-                callback(null, tflite.OperatorMetadata.operatorMetadata);
+                tflite.Metadata._metadata = new tflite.Metadata(data);
+                callback(null, tflite.Metadata._metadata);
             });    
         }
     }

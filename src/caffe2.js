@@ -49,7 +49,7 @@ caffe2.ModelFactory = class {
                     return;
                 }    
             }
-            caffe2.OperatorMetadata.open(host, (err, metadata) => {
+            caffe2.Metadata.open(host, (err, metadata) => {
                 context.request('init_net.pb', null, (err, data) => {
                     var init = null;
                     if (!err && data) {
@@ -62,7 +62,7 @@ caffe2.ModelFactory = class {
 
                     var model = null;
                     try {
-                        model = new caffe2.Model(netDef, init);
+                        model = new caffe2.Model(metadata, netDef, init);
                     }
                     catch (error) {
                         host.exception(error, false);
@@ -79,8 +79,8 @@ caffe2.ModelFactory = class {
 
 caffe2.Model = class {
 
-    constructor(netDef, init) {
-        var graph = new caffe2.Graph(netDef, init);
+    constructor(metadata, netDef, init) {
+        var graph = new caffe2.Graph(metadata, netDef, init);
         this._graphs = [ graph ];
     }
 
@@ -95,7 +95,7 @@ caffe2.Model = class {
 
 caffe2.Graph = class {
 
-    constructor(netDef, init) {
+    constructor(metadata, netDef, init) {
         this._name = netDef.name ? netDef.name : '';
         this._type = netDef.type ? netDef.type : '';
         this._nodes = [];
@@ -157,7 +157,7 @@ caffe2.Graph = class {
 
         netDef.op.forEach((op) => {
             this._operators[op.type] = (this._operators[op.type] || 0) + 1;
-            this._nodes.push(new caffe2.Node(op, initializers));
+            this._nodes.push(new caffe2.Node(metadata, op, initializers));
         });
 
         this._inputs = [];
@@ -247,20 +247,21 @@ caffe2.Connection = class {
 
 caffe2.Node = class {
 
-    constructor(op, initializers) {
+    constructor(metadata, op, initializers) {
         if (op.name) {
             this._name = op.name;
         }
         if (op.engine) {
             this._device = op.engine;
         }
+        this._metadata = metadata;
         this._operator = op.type;
         this._inputs = op.input;
         this._outputs = op.output;
 
         this._attributes = [];
         op.arg.forEach((arg) => {
-            this._attributes.push(new caffe2.Attribute(this, arg));
+            this._attributes.push(new caffe2.Attribute(this._metadata, this, arg));
         });
 
         this._initializers = {};
@@ -288,16 +289,16 @@ caffe2.Node = class {
     }
 
     get category() {
-        var schema = caffe2.OperatorMetadata.operatorMetadata.getSchema(this._operator);
+        var schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
     get documentation() {
-        return caffe2.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._operator);
+        return this._metadata.getOperatorDocumentation(this._operator);
     }
 
     get inputs() {
-        var inputs = caffe2.OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs);
+        var inputs = this._metadata.getInputs(this._operator, this._inputs);
         return inputs.map((input) => {
             return new caffe2.Argument(input.name, input.connections.map((connection) => {
                 return new caffe2.Connection(connection.id, null, this._initializers[connection.id]);
@@ -306,7 +307,7 @@ caffe2.Node = class {
     }
 
     get outputs() {
-        var outputs = caffe2.OperatorMetadata.operatorMetadata.getOutputs(this._operator, this._outputs);
+        var outputs = this._metadata.getOutputs(this._operator, this._outputs);
         return outputs.map((output) => {
             return new caffe2.Argument(output.name, output.connections.map((connection) => {
                 return new caffe2.Connection(connection.id, null, null);
@@ -321,7 +322,7 @@ caffe2.Node = class {
 
 caffe2.Attribute = class {
 
-    constructor(node, arg) {
+    constructor(metadata, node, arg) {
         this._node = node;
         this._name = arg.name;
         if (arg.floats && arg.floats.length > 0) {
@@ -331,11 +332,11 @@ caffe2.Attribute = class {
             this._value = arg.ints;
         }
         else if (arg.nets && arg.nets.length > 0) {
-            this._value = arg.nets.map((net) => new caffe2.Graph(net, null));
+            this._value = arg.nets.map((net) => new caffe2.Graph(metadata, net, null));
             this._type = 'graph[]';
         }
         else if (arg.n) {
-            this._value = new caffe2.Graph(arg.n, null);
+            this._value = new caffe2.Graph(metadata, arg.n, null);
             this._type = 'graph';
         }
         else if (arg.i != 0) {
@@ -345,7 +346,7 @@ caffe2.Attribute = class {
             this._value = arg.i;
         }
 
-        var schema = caffe2.OperatorMetadata.operatorMetadata.getAttributeSchema(this._node.operator, this._name);
+        var schema = metadata.getAttributeSchema(this._node.operator, this._name);
         if (schema) {
             if (schema.hasOwnProperty('type')) {
                 this._type = schema.type;
@@ -538,16 +539,16 @@ caffe2.TensorShape = class {
     }
 };
 
-caffe2.OperatorMetadata = class {
+caffe2.Metadata = class {
 
     static open(host, callback) {
-        if (caffe2.OperatorMetadata.operatorMetadata) {
-            callback(null, caffe2.OperatorMetadata.operatorMetadata);
+        if (caffe2.Metadata._metadata) {
+            callback(null, caffe2.Metadata._metadata);
         }
         else {
             host.request(null, 'caffe2-metadata.json', 'utf-8', (err, data) => {
-                caffe2.OperatorMetadata.operatorMetadata = new caffe2.OperatorMetadata(data);
-                callback(null, caffe2.OperatorMetadata.operatorMetadata);
+                caffe2.Metadata._metadata = new caffe2.Metadata(data);
+                callback(null, caffe2.Metadata._metadata);
             });
         }    
     }

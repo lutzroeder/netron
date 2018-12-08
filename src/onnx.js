@@ -64,9 +64,9 @@ onnx.ModelFactory = class {
                     return;
                 }
             }
-            onnx.OperatorMetadata.open(host, (err, metadata) => {
+            onnx.Metadata.open(host, (err, metadata) => {
                 try {
-                    var result = new onnx.Model(model);
+                    var result = new onnx.Model(metadata, model);
                     callback(null, result);
                 }
                 catch (error) {
@@ -81,7 +81,7 @@ onnx.ModelFactory = class {
 
 onnx.Model = class {
 
-    constructor(model) {
+    constructor(metadata, model) {
         this._graphs = [];
         this._irVersion = model.ir_version;
         this._opsetImport = model.opset_import;
@@ -126,8 +126,8 @@ onnx.Model = class {
         }
         this._graphs = [];
         if (model && model.graph) {
-            var metadata = new onnx.GraphOperatorMetadata(this._opsetImport);
-            var graph = new onnx.Graph(metadata, model.graph, 0, this._imageFormat);
+            var graphMetadata = new onnx.GraphMetadata(metadata, this._opsetImport);
+            var graph = new onnx.Graph(graphMetadata, model.graph, 0, this._imageFormat);
             this._graphs.push(graph);
         }
     }
@@ -1092,9 +1092,10 @@ onnx.OpaqueType = class {
     }
 };
 
-onnx.GraphOperatorMetadata = class {
+onnx.GraphMetadata = class {
 
-    constructor(opsetImport) {
+    constructor(metadata, opsetImport) {
+        this._metadata = metadata;
         this._cache = {};
         this._imports = {};
         if (opsetImport) {
@@ -1117,7 +1118,7 @@ onnx.GraphOperatorMetadata = class {
     getSchema(operator) {
         var schema = this._cache[operator];
         if (!schema) {
-            schema = onnx.OperatorMetadata.operatorMetadata.getSchema(operator, this._imports);
+            schema = this._metadata.getSchema(operator, this._imports);
             if (schema) {
                 this._cache[operator] = schema;
             }
@@ -1213,16 +1214,16 @@ onnx.GraphOperatorMetadata = class {
     }
 };
 
-onnx.OperatorMetadata = class {
+onnx.Metadata = class {
 
     static open(host, callback) {
-        if (onnx.OperatorMetadata.operatorMetadata) {
-            callback(null, onnx.OperatorMetadata.operatorMetadata);
+        if (onnx.Metadata._metadata) {
+            callback(null, onnx.Metadata._metadata);
         }
         else {
             host.request(null, 'onnx-metadata.json', 'utf-8', (err, data) => {
-                onnx.OperatorMetadata.operatorMetadata = new onnx.OperatorMetadata(data);
-                callback(null, onnx.OperatorMetadata.operatorMetadata);
+                onnx.Metadata._metadata = new onnx.Metadata(data);
+                callback(null, onnx.Metadata._metadata);
             });
         }    
     }

@@ -32,7 +32,7 @@ caffe.ModelFactory = class {
                 return;
             }
             caffe.proto = protobuf.roots.caffe.caffe;
-            caffe.OperatorMetadata.open(host, (err, metadata) => {
+            caffe.Metadata.open(host, (err, metadata) => {
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
                     var tags = context.tags;
@@ -48,7 +48,7 @@ caffe.ModelFactory = class {
                             };
                             var solver = caffe.proto.SolverParameter.decodeText(reader);
                             if (solver.net_param) {
-                                this._openNetParameter(solver.net_param, host, callback);
+                                this._openNetParameter(metadata, solver.net_param, host, callback);
                                 return;
                             }
                             else if (solver.net || solver.train_net) {
@@ -61,7 +61,7 @@ caffe.ModelFactory = class {
                                         callback(new caffe.Error("Failed to load '" + file + "' (" + message + ")."), null);
                                         return;
                                     }
-                                    this._openNetParameterText(context.identifier, text, host, callback);
+                                    this._openNetParameterText(metadata, context.identifier, text, host, callback);
                                 });
                                 return;
                             }
@@ -69,19 +69,19 @@ caffe.ModelFactory = class {
                         catch (error) {
                         }
                     }
-                    this._openNetParameterText(context.identifier, context.text, host, callback);
+                    this._openNetParameterText(metadata, context.identifier, context.text, host, callback);
                 }
                 else {
-                    this._openNetParameterBuffer(context.identifier, context.buffer, host, callback);
+                    this._openNetParameterBuffer(metadata, context.identifier, context.buffer, host, callback);
                 }
             });
         });
     }
 
-    _openNetParameterBuffer(identifier, buffer, host, callback) {
+    _openNetParameterBuffer(metadata, identifier, buffer, host, callback) {
         try {
             var netParameter = caffe.proto.NetParameter.decode(buffer);
-            this._openNetParameter(netParameter, host, callback);
+            this._openNetParameter(metadata, netParameter, host, callback);
         }
         catch (error) {
             host.exception(error, false);
@@ -90,7 +90,7 @@ caffe.ModelFactory = class {
         }
     }
 
-    _openNetParameterText(identifier, text, host, callback) {
+    _openNetParameterText(metadata, identifier, text, host, callback) {
         try {
             var reader = new protobuf.TextReader(text);
             var modelFactory = this;
@@ -127,7 +127,7 @@ caffe.ModelFactory = class {
                 return type[token];
             };
             var netParameter = caffe.proto.NetParameter.decodeText(reader);
-            this._openNetParameter(netParameter, host, callback);
+            this._openNetParameter(metadata, netParameter, host, callback);
         }
         catch (error) {
             host.exception(error, false);
@@ -135,9 +135,9 @@ caffe.ModelFactory = class {
         }
     }
 
-    _openNetParameter(netParameter, host, callback) {
+    _openNetParameter(metadata, netParameter, host, callback) {
         try {
-            var model = new caffe.Model(netParameter);
+            var model = new caffe.Model(metadata, netParameter);
             callback(null, model);
         }
         catch (error) {
@@ -168,7 +168,7 @@ caffe.ModelFactory = class {
 
 caffe.Model = class {
 
-    constructor(netParameter) {
+    constructor(metadata, netParameter) {
         this._name = netParameter.name;
         if (netParameter.layers && netParameter.layers.length > 0) {
             if (netParameter.layers.every((layer) => layer.hasOwnProperty('layer'))) {
@@ -181,7 +181,7 @@ caffe.Model = class {
         else if (netParameter.layer && netParameter.layer.length > 0) {
             this._version = 2;
         }
-        var graph = new caffe.Graph(netParameter, this._version);
+        var graph = new caffe.Graph(metadata, netParameter, this._version);
         this._graphs = [ graph ];
     }
 
@@ -196,7 +196,7 @@ caffe.Model = class {
 
 caffe.Graph = class {
 
-    constructor(netParameter, version)
+    constructor(metadata, netParameter, version)
     {
         this._nodes = [];
         this._inputs = [];
@@ -229,7 +229,7 @@ caffe.Graph = class {
         });
 
         layers.forEach((layer) => {
-            var node = new caffe.Node(layer, version);
+            var node = new caffe.Node(metadata, layer, version);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             if (!this.translateInput(node)) {
                 this._nodes.push(node);
@@ -380,7 +380,9 @@ caffe.Connection = class {
 
 caffe.Node = class {
 
-    constructor(layer, version) {
+    constructor(metadata, layer, version) {
+
+        this._metadata = metadata;
 
         switch (version) {
             case 0:
@@ -407,7 +409,7 @@ caffe.Node = class {
                 Object.keys(layer.layer).forEach((attributeName) => {
                     if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
                         var attributeValue = layer.layer[attributeName];
-                        this._attributes.push(new caffe.Attribute(this.operator, attributeName, attributeValue));
+                        this._attributes.push(new caffe.Attribute(this._metadata, this.operator, attributeName, attributeValue));
                     }
                 });
                 layer.layer.blobs.forEach((blob) => {
@@ -428,19 +430,19 @@ caffe.Node = class {
                             var defaultValue = prototype[name];
                             var value = param[name];
                             if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
-                                this._attributes.push(new caffe.Attribute(this.operator, name, value));
+                                this._attributes.push(new caffe.Attribute(this._metadata, this.operator, name, value));
                             }
                         });
                     }
                 });
                 if (layer.include && layer.include.length > 0) {
-                    this._attributes.push(new caffe.Attribute(this.operator, 'include', layer.include));
+                    this._attributes.push(new caffe.Attribute(this._metadata, this.operator, 'include', layer.include));
                 }
                 if (layer.exclude && layer.exclude.length > 0) {
-                    this._attributes.push(new caffe.Attribute(this.operator, 'exclude', layer.exclude));
+                    this._attributes.push(new caffe.Attribute(this._metadata, this.operator, 'exclude', layer.exclude));
                 }
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
-                    this._attributes.push(new caffe.Attribute(this.operator, 'shape', layer.input_param.shape));
+                    this._attributes.push(new caffe.Attribute(this._metadata, this.operator, 'shape', layer.input_param.shape));
                 }
                 layer.blobs.forEach((blob) => {
                     this._initializers.push(new caffe.Tensor(blob));
@@ -454,7 +456,7 @@ caffe.Node = class {
     }
 
     get category() {
-        var schema = caffe.OperatorMetadata.operatorMetadata.getSchema(this._type);
+        var schema = this._metadata.getSchema(this._type);
         return (schema && schema.category) ? schema.category : null;
     }
 
@@ -466,7 +468,7 @@ caffe.Node = class {
         var inputs = this._inputs.concat(this._initializers);
         var args = [];
         var index = 0;
-        var schema = caffe.OperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = this._metadata.getSchema(this.operator);
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputDef) => {
                 if (index < inputs.length || inputDef.option != 'optional') {
@@ -507,7 +509,7 @@ caffe.Node = class {
         var args = [];
         var index = 0;
         var outputs = this._outputs;
-        var schema = caffe.OperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = this._metadata.getSchema(this.operator);
         if (schema && schema.outputs) {
             schema.outputs.forEach((outputDef) => {
                 if (index < outputs.length || outputDef.option != 'optional') {
@@ -560,7 +562,7 @@ caffe.Node = class {
 
 caffe.Attribute = class {
 
-    constructor(operator, name, value) {
+    constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
 
@@ -570,7 +572,7 @@ caffe.Attribute = class {
             };
         }
 
-        var schema = caffe.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name);
+        var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
@@ -752,16 +754,16 @@ caffe.TensorShape = class {
     }
 };
 
-caffe.OperatorMetadata = class {
+caffe.Metadata = class {
 
     static open(host, callback) {
-        if (caffe.OperatorMetadata.operatorMetadata) {
-            callback(null, caffe.OperatorMetadata.operatorMetadata);
+        if (caffe.Metadata._metadata) {
+            callback(null, caffe.Metadata._metadata);
         }
         else {
             host.request(null, 'caffe-metadata.json', 'utf-8', (err, data) => {
-                caffe.OperatorMetadata.operatorMetadata = new caffe.OperatorMetadata(data);
-                callback(null, caffe.OperatorMetadata.operatorMetadata);
+                caffe.Metadata._metadata = new caffe.Metadata(data);
+                callback(null, caffe.Metadata._metadata);
             });
         }
     }
