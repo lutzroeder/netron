@@ -334,7 +334,7 @@ tflite_schema.CustomQuantization.getRootAsCustomQuantization = function(bb, obj)
  */
 tflite_schema.CustomQuantization.prototype.custom = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
+  return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
 };
 
 /**
@@ -346,11 +346,11 @@ tflite_schema.CustomQuantization.prototype.customLength = function() {
 };
 
 /**
- * @returns {Int8Array}
+ * @returns {Uint8Array}
  */
 tflite_schema.CustomQuantization.prototype.customArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
