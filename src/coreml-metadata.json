@@ -6,9 +6,9 @@
       "description": "A layer that performs spatial convolution or deconvolution.",
       "attributes": [
         { "name": "outputShape", "type": "tuple | None", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "visible": false },
-        { "name": "outputChannels", "type": "int", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
-        { "name": "kernelChannels", "type": "int", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
-        { "name": "nGroups", "type": "int", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1.", "default": 1 },
+        { "name": "outputChannels", "type": "int32", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
+        { "name": "kernelChannels", "type": "int32", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
+        { "name": "nGroups", "type": "int32", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1.", "default": 1 },
         { "name": "isDeconvolution", "type": "boolean", "description": "lag to specify whether it is a deconvolution layer." },
         { "name": "valid", "visible": false },
         { "name": "same", "visible": false },
@@ -156,7 +156,9 @@
       "category": "Normalization",
       "description": "A layer that performs batch normalization, which is performed along the channel axis, and repeated along the other axes, if present.",
       "attributes": [
-        { "name": "epsilon", "default": 1e-5 }
+        { "name": "epsilon", "default": 0.000009999999747378752 },
+        { "name": "computeMeanVar", "visible": false },
+        { "name": "instanceNormalization", "visible": false }
       ]
     }
   },
@@ -186,6 +188,8 @@
         { "name": "includeLastPixel", "visible": false },
         { "name": "same", "visible": false },
         { "name": "valid", "visible": false },
+        { "name": "type", "type": "PoolingLayerParams.PoolingType" },
+        { "name": "globalPooling", "type": "boolean", "default": false },
         { "name": "stride", "default": [ 1, 1 ] },
         { "name": "kernelSize", "default": [ 3, 3 ] },
         { "name": "avgPoolExcludePadding", "default": false }
@@ -283,7 +287,14 @@
   {
     "name": "multiply",
     "schema": {
-      "description": "A layer that performs elementwise multiplication."
+      "description": "A layer that performs elementwise multiplication.",
+      "inputs": [
+        { "name": "x" },
+        { "name": "y" }
+      ],
+      "outputs": [
+        { "name": "z" }
+      ]
     }
   },
   {
@@ -307,7 +318,19 @@
   {
     "name": "unary",
     "schema": {
-      "description": "A layer that applies a unary function."
+      "description": "A layer that applies a unary function.",
+      "attributes": [
+        { "name": "type", "type": "UnaryFunctionLayerParams.Operation" },
+        { "name": "alpha", "default": 1.0 },
+        { "name": "scale", "default": 1.0 },
+        { "name": "epsilon", "default": 9.999999974752427e-7 }
+      ],
+      "inputs": [
+        { "name": "x" }
+      ],
+      "outputs": [
+        { "name": "z" }
+      ]
     }
   },
   {

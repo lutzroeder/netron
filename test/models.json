@@ -1507,6 +1507,13 @@
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/VisualSentimentCNN.mlmodel"
   },
   {
+    "type":   "coreml",
+    "target": "wave.mlmodel",
+    "source": "https://raw.githubusercontent.com/UnusualWolf/coreML/master/StyleArt-master/StyleArt/CoreMLModels/wave.mlmodel",
+    "format": "CoreML v1",
+    "link":   "https://github.com/UnusualWolf/coreML"
+  },
+  {
     "type":   "keras",
     "target": "babi_rnn.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[babi_rnn.h5]",

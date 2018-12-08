@@ -26,9 +26,9 @@ coreml.ModelFactory = class {
                 callback(new coreml.Error('File format is not coreml.Model (' + error.message + ').'), null);
                 return;
             }
-            coreml.OperatorMetadata.open(host, (err, metadata) => {
+            coreml.Metadata.open(host, (err, metadata) => {
                 try {
-                    var model = new coreml.Model(decodedBuffer);
+                    var model = new coreml.Model(metadata, decodedBuffer);
                     callback(null, model);
                 }
                 catch (error) {
@@ -43,24 +43,24 @@ coreml.ModelFactory = class {
 
 coreml.Model = class {
 
-    constructor(model) {
+    constructor(metadata, model) {
         this._specificationVersion = model.specificationVersion;
-        this._graphs = [ new coreml.Graph(model) ];
+        this._graphs = [ new coreml.Graph(metadata, model) ];
         if (model.description && model.description.metadata) {
-            var metadata = model.description.metadata;
-            if (metadata.versionString) {
-                this._version = metadata.versionString;
+            var properties = model.description.metadata;
+            if (properties.versionString) {
+                this._version = properties.versionString;
             }
-            if (metadata.author) {
-                this._author = metadata.author;
+            if (properties.author) {
+                this._author = properties.author;
             }
-            if (metadata.shortDescription) {
-                this._description = metadata.shortDescription;
+            if (properties.shortDescription) {
+                this._description = properties.shortDescription;
             }
-            if (metadata.license) {
-                this._license = metadata.license;
+            if (properties.license) {
+                this._license = properties.license;
             }
-            if (metadata.userDefined && Object.keys(metadata.userDefined).length > 0) {
+            if (metadata.userDefined && Object.keys(properties.userDefined).length > 0) {
                 debugger;
             }
         }
@@ -93,8 +93,9 @@ coreml.Model = class {
 
 coreml.Graph = class {
 
-    constructor(model)
+    constructor(metadata, model)
     {
+        this._metadata = metadata;
         this._description = model.description;
         this._groups = false; 
         this._inputs = [];
@@ -165,7 +166,7 @@ coreml.Graph = class {
             var labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
             var operator = classifier.ClassLabels;
             this._operators[operator] = (this._operators[operator] || 0) + 1;
-            this._nodes.push(new coreml.Node(group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
+            this._nodes.push(new coreml.Node(this._metadata, this._group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
     }
 
@@ -383,7 +384,7 @@ coreml.Graph = class {
             return output;
         });
 
-        var node = new coreml.Node(group, operator, name, data, inputs, outputs);
+        var node = new coreml.Node(this._metadata, group, operator, name, data, inputs, outputs);
         this._nodes.push(node);
         return node;
     }
@@ -487,7 +488,8 @@ coreml.Connection = class {
 
 coreml.Node = class {
 
-    constructor(group, operator, name, data, inputs, outputs) {
+    constructor(metadata, group, operator, name, data, inputs, outputs) {
+        this._metadata = metadata;
         if (group) {
             this._group = group;
         }
@@ -501,7 +503,7 @@ coreml.Node = class {
             var initializerMap = this._initialize(data);
             Object.keys(data).forEach((key) => {
                 if (!initializerMap[key]) {
-                    this._attributes.push(new coreml.Attribute(this.operator, key, data[key]));
+                    this._attributes.push(new coreml.Attribute(this._metadata, this.operator, key, data[key]));
                 }
             });
         }
@@ -516,12 +518,12 @@ coreml.Node = class {
     }
 
     get category() {
-        var schema = coreml.OperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
     get documentation() {
-        var schema = coreml.OperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = this._metadata.getSchema(this.operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this.operator;
@@ -559,14 +561,14 @@ coreml.Node = class {
     }
 
     get inputs() {
-        var inputs = coreml.OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).map((input) => {
+        var inputs = this._metadata.getInputs(this._operator, this._inputs).map((input) => {
             return new coreml.Argument(input.name, true, input.connections.map((connection) => {
                 return new coreml.Connection(connection.id, connection.type, null, null);
             }));
         });
         this._initializers.forEach((initializer) => {
             var connection = new coreml.Connection(null, null, null, initializer);
-            var visible = coreml.OperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name);
+            var visible = this._metadata.getInputVisible(this._operator, initializer.name);
             inputs.push(new coreml.Argument(initializer.name, visible, [ connection ]));
         });
         return inputs;
@@ -574,7 +576,7 @@ coreml.Node = class {
 
     get outputs() {
         return this._outputs.map((output, index) => {
-            var name = coreml.OperatorMetadata.operatorMetadata.getOutputName(this._operator, index);
+            var name = this._metadata.getOutputName(this._operator, index);
             return new coreml.Argument(name, true, [ new coreml.Connection(output, null, null, null) ]);
         });
     }
@@ -708,11 +710,25 @@ coreml.Node = class {
 
 coreml.Attribute = class {
 
-    constructor(operator, name, value) {
+    constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
-        var schema = coreml.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name);
+        var schema = metadata.getAttributeSchema(operator, this._name)
         if (schema) {
+            if (schema.type) {
+                this._type = schema.type;
+            }
+            if (this._type && coreml.proto) {
+                var type = coreml.proto;
+                var parts = this._type.split('.');
+                while (type && parts.length > 0) {
+                    type = type[parts.shift()];
+                }
+                if (type && type[this._value]) {
+                    this._value = type[this.value];
+                }
+            }
+
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
@@ -734,6 +750,10 @@ coreml.Attribute = class {
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get value() {
@@ -960,16 +980,16 @@ coreml.OptionalType = class {
     }
 }
 
-coreml.OperatorMetadata = class {
+coreml.Metadata = class {
 
     static open(host, callback) {
-        if (coreml.OperatorMetadata.operatorMetadata) {
-            callback(null, coreml.OperatorMetadata.operatorMetadata);
+        if (coreml.Metadata._metadata) {
+            callback(null, coreml.Metadata._metadata);
         }
         else {
             host.request(null, 'coreml-metadata.json', 'utf-8', (err, data) => {
-                coreml.OperatorMetadata.operatorMetadata = new coreml.OperatorMetadata(data);
-                callback(null, coreml.OperatorMetadata.operatorMetadata);
+                coreml.Metadata._metadata = new coreml.Metadata(data);
+                callback(null, coreml.Metadata._metadata);
             });
         }    
     }
