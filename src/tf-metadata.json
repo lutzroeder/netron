@@ -33832,7 +33832,7 @@
           "type": 9
         },
         {
-          "description": "The `inner_values` for the `params` RaggedTensor. There was a terminology change\nat the python level from dense_values to inner_values, so dense_values is the\ndeprecated name.",
+          "description": "The `flat_values` for the `params` RaggedTensor. There was a terminology change\nat the python level from dense_values to flat_values, so dense_values is the\ndeprecated name.",
           "name": "params_dense_values",
           "typeAttr": "Tvalues"
         },
@@ -33849,7 +33849,7 @@
           "type": 9
         },
         {
-          "description": "The `inner_values` for the returned RaggedTensor.",
+          "description": "The `flat_values` for the returned RaggedTensor.",
           "name": "output_dense_values",
           "typeAttr": "Tvalues"
         }
@@ -33917,7 +33917,7 @@
           "type": 9
         },
         {
-          "description": "The `inner_values` for the returned `RaggedTensor`.",
+          "description": "The `flat_values` for the returned `RaggedTensor`.",
           "name": "rt_dense_values",
           "typeAttr": "T"
         }
@@ -33949,7 +33949,7 @@
           "type": 9
         },
         {
-          "description": "The `inner_values` for the `RaggedTensor`.",
+          "description": "The `flat_values` for the `RaggedTensor`.",
           "name": "rt_dense_values",
           "typeAttr": "T"
         }
