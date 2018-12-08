@@ -2594,6 +2594,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "resnet50.pkl",
+    "source": "https://s3.amazonaws.com/lasagne/recipes/pretrained/imagenet/resnet50.pkl",
+    "error":  "Root object has no type.",
+    "link":   "https://github.com/kundan2510/resnet50-feature-extractor"
+  },
+  {
+    "type":   "sklearn",
     "target": "svc.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.joblib.pkl]",
     "format": "scikit-learn 0.19.1",
