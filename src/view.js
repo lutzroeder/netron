@@ -21,7 +21,6 @@ view.View = class {
         this._showDetails = true;
         this._showNames = false;
         this._searchText = '';
-        this._zoomMode = 'd3';
         this._modelFactoryService = new view.ModelFactoryService(this._host);
         document.documentElement.style.overflow = 'hidden';
         document.body.scroll = 'no';
@@ -43,7 +42,7 @@ view.View = class {
         document.addEventListener('keydown', (e) => {
             this.clearSelection();
         });
-        if (this._zoomMode == 'scroll') {
+        if (this._host.environment('zoom') == 'scroll') {
             document.getElementById('graph-container').addEventListener('mousewheel', (e) => {
                 this._mouseWheelHandler(e);
             });
@@ -164,12 +163,7 @@ view.View = class {
     }
 
     zoomIn() {
-        switch (this._zoomMode) {
-            case 'd3':
-                if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(document.getElementById('graph')), 1.2);
-                }
-                break;
+        switch (this._host.environment('zoom')) {
             case 'scroll':
                 if (this._zoom) {
                     this._zoom = this._zoom * 1.05;
@@ -179,16 +173,16 @@ view.View = class {
                     this.applyZoom();
                 }
                 break;
+            default:
+                if (this._zoom) {
+                    this._zoom.scaleBy(d3.select(document.getElementById('graph')), 1.2);
+                }
+                break;
         }
     }
 
     zoomOut() {
-        switch (this._zoomMode) {
-            case 'd3':
-                if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(document.getElementById('graph')), 0.8);
-                }
-                break;
+        switch (this._host.environment('zoom')) {
             case 'scroll':
                 if (this._zoom) {
                     this._zoom = this._zoom * 0.95;
@@ -198,20 +192,25 @@ view.View = class {
                     this.applyZoom();
                 }
                 break;
+            default:
+                if (this._zoom) {
+                    this._zoom.scaleBy(d3.select(document.getElementById('graph')), 0.8);
+                }
+                break;
         }
     }
 
     resetZoom() { 
-        switch (this._zoomMode) {
-            case 'd3':
-                if (this._zoom) {
-                    this._zoom.scaleTo(d3.select(document.getElementById('graph')), 1);
-                }
-                break;
+        switch (this._host.environment('zoom')) {
             case 'scroll':
                 if (this._zoom) {
                     this._zoom = 1;
                     this.applyZoom();
+                }
+                break;
+            default:
+                if (this._zoom) {
+                    this._zoom.scaleTo(d3.select(document.getElementById('graph')), 1);
                 }
                 break;
         }
@@ -396,16 +395,16 @@ view.View = class {
                     graphElement.removeChild(graphElement.lastChild);
                 }
     
-                switch (this._zoomMode) {
-                    case 'd3':
-                        this._zoom = null;
-                        graphElement.style.position = 'absolute';
-                        graphElement.style.margin = '0';
-                        break;
+                switch (this._host.environment('zoom')) {
                     case 'scroll':
                         this._zoom = 0;
                         graphElement.style.position = 'static';
                         graphElement.style.margin = 'auto';
+                        break;
+                    default:
+                        this._zoom = null;
+                        graphElement.style.position = 'absolute';
+                        graphElement.style.margin = '0';
                         break;
                 }
     
@@ -702,7 +701,7 @@ view.View = class {
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
                 var backgroundElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
-                if (this._zoomMode == 'd3') {
+                if (this._host.environment('zoom') == 'scroll') {
                     backgroundElement.setAttribute('width', '100%');
                     backgroundElement.setAttribute('height', '100%');
                 }
@@ -714,7 +713,7 @@ view.View = class {
                 originElement.setAttribute('id', 'origin');
                 graphElement.appendChild(originElement);
             
-                if (this._zoomMode == 'd3') {
+                if (this._host.environment('zoom') != 'scroll') {
                     // Set up zoom support
                     var svg = d3.select(graphElement);
                     this._zoom = d3.zoom();
@@ -733,29 +732,7 @@ view.View = class {
             
                         var inputElements = graphElement.getElementsByClassName('graph-input');
 
-                        switch (this._zoomMode) {
-                            case 'd3':
-                                var svgSize = graphElement.getBoundingClientRect();
-                                if (inputElements && inputElements.length > 0) {
-                                    // Center view based on input elements
-                                    var xs = [];
-                                    var ys = [];
-                                    for (var i = 0; i < inputElements.length; i++) {
-                                        var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
-                                        xs.push(inputTransform.e);
-                                        ys.push(inputTransform.f);
-                                    }
-                                    var x = xs[0];
-                                    var y = ys[0];
-                                    if (ys.every(y => y == ys[0])) {
-                                        x = xs.reduce((a,b) => { return a + b; }) / xs.length;
-                                    }
-                                    this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
-                                }
-                                else {
-                                    this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
-                                }
-                                break;
+                        switch (this._host.environment('zoom')) {
                             case 'scroll':
                                 var size = graphElement.getBBox();
                                 var graphMin = Math.min(size.width, size.height);
@@ -781,6 +758,28 @@ view.View = class {
                                 }
                                 else {
                                     // this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                                }
+                                break;
+                            default:
+                                var svgSize = graphElement.getBoundingClientRect();
+                                if (inputElements && inputElements.length > 0) {
+                                    // Center view based on input elements
+                                    var xs = [];
+                                    var ys = [];
+                                    for (var i = 0; i < inputElements.length; i++) {
+                                        var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                                        xs.push(inputTransform.e);
+                                        ys.push(inputTransform.f);
+                                    }
+                                    var x = xs[0];
+                                    var y = ys[0];
+                                    if (ys.every(y => y == ys[0])) {
+                                        x = xs.reduce((a,b) => { return a + b; }) / xs.length;
+                                    }
+                                    this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+                                }
+                                else {
+                                    this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
                                 }
                                 break;
                         }

@@ -70,6 +70,8 @@ host.BrowserHost = class {
             return;
         }
 
+        this._zoom = this._getQueryParameter('zoom');
+
         this._view.show('Welcome');
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
@@ -102,8 +104,8 @@ host.BrowserHost = class {
     }
 
     environment(name) {
-        if (name == 'PROTOTXT') {
-            return true;
+        if (name == 'zoom') {
+            return this._zoom;
         }
         return null;
     }

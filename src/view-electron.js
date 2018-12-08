@@ -131,9 +131,9 @@ host.ElectronHost = class {
     }
 
     environment(name) {
-        if (name == 'PROTOTXT') {
-            return true;
-        }
+        // if (name == 'zoom') {
+        //     return 'scroll';
+        // }
         return null;
     }
 
