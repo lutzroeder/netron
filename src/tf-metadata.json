@@ -58771,6 +58771,23 @@
     }
   },
   {
+    "name": "UnwrapDatasetVariant",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "UpperBound",
     "schema": {
       "attributes": [
@@ -59240,6 +59257,23 @@
         }
       ],
       "summary": "A dataset that creates window datasets from the input dataset."
+    }
+  },
+  {
+    "name": "WrapDatasetVariant",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ]
     }
   },
   {
