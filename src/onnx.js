@@ -1039,7 +1039,10 @@ onnx.TensorShape = class {
     }
 
     toString() {
-        return (this._dimensions && this._dimensions.length) ? ('[' + this._dimensions.join(',') + ']') : '';
+        if (!this._dimensions || this._dimensions.length == 0) {
+            return '';
+        }
+        return '[' + this._dimensions.join(',') + ']';
     }
 };
 
