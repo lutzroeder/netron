@@ -2,6 +2,46 @@
   {
     "name": "Conv1d",
     "schema": {
+      "attributes": [
+        {
+          "name": "output_padding",
+          "visible": false
+        },
+        {
+          "name": "in_channels",
+          "visible": false
+        },
+        {
+          "name": "out_channels",
+          "visible": false
+        },
+        {
+          "default": 1,
+          "name": "groups"
+        },
+        {
+          "default": false,
+          "name": "transposed"
+        },
+        {
+          "default": [
+            0
+          ],
+          "name": "padding"
+        },
+        {
+          "default": [
+            1
+          ],
+          "name": "dilation"
+        },
+        {
+          "default": [
+            1
+          ],
+          "name": "stride"
+        }
+      ],
       "category": "Layer",
       "package": "torch.nn.modules.conv"
     }
@@ -9,6 +49,46 @@
   {
     "name": "ConvTranspose1d",
     "schema": {
+      "attributes": [
+        {
+          "name": "output_padding",
+          "visible": false
+        },
+        {
+          "name": "in_channels",
+          "visible": false
+        },
+        {
+          "name": "out_channels",
+          "visible": false
+        },
+        {
+          "default": 1,
+          "name": "groups"
+        },
+        {
+          "default": true,
+          "name": "transposed"
+        },
+        {
+          "default": [
+            0
+          ],
+          "name": "padding"
+        },
+        {
+          "default": [
+            1
+          ],
+          "name": "dilation"
+        },
+        {
+          "default": [
+            1
+          ],
+          "name": "stride"
+        }
+      ],
       "category": "Layer",
       "package": "torch.nn.modules.conv"
     }
