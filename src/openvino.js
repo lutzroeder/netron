@@ -238,7 +238,7 @@ openvino.AbstractNode = class {
         var schema = this._metadata.getSchema(this._type);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
+            schema.name = this._type;
             if (schema.description) {
                 schema.description = marked(schema.description);
             }
