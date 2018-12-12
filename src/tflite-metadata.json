@@ -410,6 +410,17 @@
     }
   },
   {
+    "name": "Logistic",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "ResizeBilinear",
     "schema": {
       "inputs": [
