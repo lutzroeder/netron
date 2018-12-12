@@ -1329,7 +1329,7 @@
         },
         {
           "default": false,
-          "description": "Boolean. Whether to return the last state\n    in addition to the output.",
+          "description": "Boolean. Whether to return the last state\n    in addition to the output. The returned elements of the\n    states list are the hidden state and the cell state, respectively.",
           "name": "return_state"
         },
         {
@@ -2175,7 +2175,7 @@
       ],
       "outputs": [
         {
-          "description": "\n- if `return_state`: a list of tensors. The first tensor is\n    the output. The remaining tensors are the last states,\n    each with shape `(batch_size, units)`.\n- if `return_sequences`: 3D tensor with shape\n    `(batch_size, timesteps, units)`.\n- else, 2D tensor with shape `(batch_size, units)`.\n",
+          "description": "\n- if `return_state`: a list of tensors. The first tensor is\n    the output. The remaining tensors are the last states,\n    each with shape `(batch_size, units)`. For example, the number of\n    state tensors is 1 (for RNN and GRU) or 2 (for LSTM).\n- if `return_sequences`: 3D tensor with shape\n    `(batch_size, timesteps, units)`.\n- else, 2D tensor with shape `(batch_size, units)`.\n",
           "name": "output"
         }
       ],
