@@ -11,12 +11,13 @@ cntk.ModelFactory = class {
     match(context, host) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         var buffer = null;
-        if (extension == 'model') {
+        if (extension == 'model' || extension == 'cmf' || extension == 'dnn') {
             buffer = context.buffer;
+            // Filter MXNet Model server ZIP files
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
                 return false;
             }
-            // Filter PyTorch models published with incorrect .h5 file extension.
+            // Filter PyTorch models published with incorrect file extension.
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > torch.length + 2 && 
                 buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
@@ -28,6 +29,7 @@ cntk.ModelFactory = class {
         }
         if (extension == 'cntk') {
             buffer = context.buffer;
+            // Check protobuf data to exclude .cntk text files
             if (buffer && buffer.length > 3 && buffer[0] == 0x08 && buffer[1] < 0x10 && buffer[2] == 0x12) {
                 return true;
             }
@@ -420,14 +422,27 @@ cntk.Node = class {
                     }
                 }
                 else {
-                    this._operator = this._metadata.getOperatorName(obj.op);
-                    if (this._operator == null) {
-                        this._operator = obj.op.toString();
-                    }                
+                    if (!obj.hasOwnProperty('op')) {
+                        this._operator = obj.type;
+                        // if ( === false
+                        if (obj.user_defined_state) {
+                            Object.keys(obj.user_defined_state).forEach((key) => {
+                                this._attributes.push(new cntk.Attribute(this._metadata, this._operator, key, obj.user_defined_state[key]));
+                            });
+                        }
+                    }
+                    else {
+                        this._operator = this._metadata.getOperatorName(obj.op);
+                        if (this._operator == null) {
+                            this._operator = obj.op ? obj.op.toString() : '?';
+                        }                
+                    }
                 }
-                Object.keys(obj.attributes).forEach((key) => {
-                    this._attributes.push(new cntk.Attribute(this._metadata, this._operator, key, obj.attributes[key]));
-                });
+                if (obj.attributes) {
+                    Object.keys(obj.attributes).forEach((key) => {
+                        this._attributes.push(new cntk.Attribute(this._metadata, this._operator, key, obj.attributes[key]));
+                    });
+                }
                 obj.inputs.forEach((input) => {
                     var connection = connections[input];
                     if (connection) {
@@ -830,7 +845,7 @@ cntk.Metadata = class {
 
     getOperatorName(code) {
         // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
-        return this._operatorMap[code.toString()] || null;
+        return this._operatorMap[code] || null;
     }
 
     getSchema(operator) {
@@ -1063,7 +1078,86 @@ cntk_v1.ComputationNetwork = class {
                 this.convertRunningVariancePending = true;
             }
         };
-        
+        op.Tanh = function(reader) {};
+        op.Sigmoid = function(reader) {};
+        op.Logistic = function(reader) {};
+        op.SquareError = function(reader) {};
+        op.ErrorPrediction = function(reader) {};
+        op.RowStack = function(reader) {
+            this.spliceDim = (reader.version >= 3) ? reader.int32() : 1;
+        };
+        op.Slice = function(reader) {
+            var num = 1;
+            if (reader.version >= 22) {
+                num = reader.int32();
+            }
+            this.index = [];
+            this.axis = [];
+            this.strideMultiplier = [];
+            for (var i = 0; i < num; i++) {
+                this.index.push([ [ reader.uint64(), reader.uint64() ] ]);
+                if (reader.version >= 3) {
+                    this.axis.push(reader.int32());
+                }
+                if (reader.version >= 27) {
+                    this.strideMultiplier.push(reader.int32());
+                }
+            }
+        };
+        op.PastValue = function(reader) {
+            this.timeStep = reader.int32();
+            if (reader.version > 3)
+            {
+                this.sampleLayout = new cntk_v1.TensorShape(reader, false);
+            }
+            else
+            {
+                var rows = reader.uint64();
+                reader.uint64();
+                this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
+            }
+            if (reader.version >= 2)
+            {
+                this.initialStateValue = reader.int32();
+            }
+        };
+        op.FutureValue = function(reader) {
+            this.timeStep = reader.int32();
+            if (reader.version > 3)
+            {
+                this.sampleLayout = new cntk_v1.TensorShape(reader, false);
+            }
+            else
+            {
+                var rows = reader.uint64();
+                reader.uint64();
+                this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
+            }
+            if (reader.version >= 2)
+            {
+                this.initialStateValue = reader.int32();
+            }
+        };
+        op.TransposeDimensions = function(reader) {
+            if (reader.version >= 3) 
+            {
+                this.axis1 = reader.int32();
+                this.axis2 = reader.int32();
+                if (reader.version >= 25 && this.axis1 == 0 && this.axis2 == 0)
+                {
+                    var size = reader.uint64();
+                    this.perm = [];
+                    for (var i = 0; i < size; i++) {
+                        this.perm.push(reader.uint64());
+                    }
+                }
+            }
+            else {
+                this.axis1 = 1;
+                this.axis2 = 2;
+            }
+        };
+
         var nodes = [];
         this.nodes = {};
         for (var i = 0; i < numNodes; i++) {

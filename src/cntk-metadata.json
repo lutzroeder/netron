@@ -156,6 +156,17 @@
     }
   },
   {
+    "name": "TransposeDimensions",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Where",
     "schema": {
       "operator": 13,
@@ -616,6 +627,13 @@
       "attributes": [
         { "name": "spatialScale", "default": 0.0625 },
         { "name": "poolKind", "type": "PoolKind", "default": "None" }
+      ],
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "ROIs" }
+      ],
+      "outputs": [
+        { "name": "outputs" }
       ]
     }
   },
@@ -966,6 +984,18 @@
         { "name": "input" },
         { "name": "W" },
         { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:Softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
       ],
       "outputs": [
         { "name": "output" }

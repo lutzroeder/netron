@@ -18,6 +18,12 @@ fileAssociations:
     ext: mlmodel
   - name: "MXNet Model"
     ext: model
+  - name: "CNTK Model"
+    ext: model
+  - name: "CNTK Model"
+    ext: cmf
+  - name: "CNTK Model"
+    ext: dnn
   - name: "Caffe Model"
     ext: caffemodel
   - name: "TensorFlow Meta Graph"

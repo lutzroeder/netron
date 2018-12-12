@@ -774,6 +774,13 @@
   },
   {
     "type":   "cntk",
+    "target": "v1/01_OneHidden.dnn",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/01_OneHidden.dnn",
+    "format": "CNTK v1.18",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
     "target": "v1/AlexNet.model",
     "source": "https://www.cntk.ai/Models/AlexNet/AlexNet.model",
     "format": "CNTK v1.14"
@@ -783,6 +790,20 @@
     "target": "v1/AlexNetBS.model",
     "source": "https://www.cntk.ai/Models/AlexNet/AlexNetBS.model",
     "format": "CNTK v1.15"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/cifar10.pretrained.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/ImageHandsOn/cifar10.pretrained.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/cifar10.ResNet.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/ImageHandsOn/cifar10.ResNet.cmf",
+    "format": "CNTK v1.10",
+    "link":   "https://github.com/Microsoft/CNTK"
   },
   {
     "type":   "cntk",
@@ -803,6 +824,41 @@
     "source": "https://www.cntk.ai/Models/FRCN_Grocery/Fast-RCNN_grocery100.model",
     "format": "CNTK v1.15",
     "link":   "https://github.com/Microsoft/CNTK/blob/7c838d3b6c448004e5a06aa00c984a629f880416/PretrainedModels/download_model.py"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/ResNet20_CIFAR10_DataAug.dnn",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/ResNet20_CIFAR10_DataAug.dnn",
+    "format": "CNTK v1.18",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.backward.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.backward.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.nobn.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.nobn.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.lookahead.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.lookahead.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
   },
   {
     "type":   "cntk",
@@ -850,6 +906,20 @@
     "source": "https://www.cntk.ai/Models/SuperResolution/DRNN.model",
     "format": "CNTK v2",
     "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
+  },
+  {
+    "type":   "cntk",
+    "target": "v2/HotailorPOC2.model",
+    "source": "https://privdatastorage.blob.core.windows.net/github/cntk-python-web-service-on-azure/HotailorPOC2.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/karolzak/cntk-python-web-service-on-azure"
+  },
+  {
+    "type":   "cntk",
+    "target": "v2/initial_policy_network.dnn",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/bindings/python/cntk/contrib/deeprl/tests/data/initial_policy_network.dnn",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK"
   },
   {
     "type":   "cntk",
@@ -3354,4 +3424,4 @@
     "format": "Torch v7",
     "link":   "https://github.com/cpra/fer-cnn-sota"
   }
- ]
+]
