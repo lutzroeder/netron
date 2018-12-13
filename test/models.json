@@ -2691,6 +2691,13 @@
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
+    "type":   "sklearn",
+    "target": "wiki-aa-mlp.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/2674319/wiki-aa-mlp.pkl.zip[wiki-aa-mlp.pkl]",
+    "format": "scikit-learn 0.19.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
     "type":   "tf",
     "target": "char-rnn-tensorflow.pb",
     "source": "https://github.com/lutzroeder/netron/files/2592462/char-rnn-tensorflow.pb.zip[char-rnn-tensorflow.pb]",
