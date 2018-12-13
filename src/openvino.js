@@ -235,44 +235,7 @@ openvino.AbstractNode = class {
     }
 
     get documentation() {
-        var schema = this._metadata.getSchema(this._type);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                });
-            }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                });
-            }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                });
-            }
-            if (schema.references) {
-                schema.references.forEach((reference) => {
-                    if (reference) {
-                        reference.description = marked(reference.description);
-                    }
-                });
-            }
-            return schema;
-        }
-        return null;
+        return this._metadata.getOperatorDocumentation(this.operator);
     }
 
     get attributes() {
@@ -568,10 +531,15 @@ openvino.TensorType = class {
 openvino.Metadata = class {
 
     static open(host, callback) {
-        if (!openvino.Metadata._metadata) {
-            openvino.Metadata._metadata = new openvino.Metadata();
+        if (openvino.Metadata._metadata) {
+            callback(null, openvino.Metadata._metadata);
         }
-        callback(null, openvino.Metadata._metadata);
+        else {
+            host.request(null, 'openvino-metadata.json', 'utf-8', (err, data) => {
+                openvino.Metadata._metadata = new openvino.Metadata(data);
+                callback(null, openvino.Metadata._metadata);
+            });
+        }
     }
 
     constructor(data) {
@@ -592,6 +560,47 @@ openvino.Metadata = class {
 
     getSchema(operator) {
         return this._map[operator];
+    }
+
+    getOperatorDocumentation(operator) {
+        var schema = this.getSchema(operator);
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            if (schema.references) {
+                schema.references.forEach((reference) => {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                });
+            }
+            return schema;
+        }
+        return '';
     }
 
     getInputs(type, inputs) {
