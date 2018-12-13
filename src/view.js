@@ -1080,6 +1080,7 @@ view.ModelFactoryService = class {
         this.register('./sklearn', [ '.pkl', '.joblib' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./openvino', [ '.xml', '.dot' ]);
+        this.register('./darknet', [ '.cfg' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
     }
 

@@ -1584,6 +1584,48 @@
     "link":   "https://github.com/UnusualWolf/coreML"
   },
   {
+    "type":   "darknet",
+    "target": "alexnet.cfg,alexnet.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg,https://pjreddie.com/media/files/alexnet.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "darknet53_448.cfg,darknet53_448.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg,https://pjreddie.com/media/files/darknet53_448.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "go.cfg,go.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/go.cfg,https://pjreddie.com/media/files/go.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/darkgo-go-in-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "jnet-conv.cfg,jnet-conv.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/nightmare"
+  },
+  {
+    "type":   "darknet",
+    "target": "grrm.cfg,grrm.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/rnn.cfg,https://pjreddie.com/media/files/grrm.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolov3-spp.cfg,yolov3-spp.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/yolo"
+  },
+  {
     "type":   "keras",
     "target": "babi_rnn.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[babi_rnn.h5]",

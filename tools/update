@@ -7,6 +7,7 @@ tools=$(cd $(dirname ${0})/..; pwd)/tools
 ${tools}/caffe sync schema
 ${tools}/coreml sync install schema
 ${tools}/cntk sync schema
+${tools}/darknet sync
 ${tools}/keras sync install metadata
 ${tools}/mxnet sync metadata
 ${tools}/onnx sync install schema metadata
