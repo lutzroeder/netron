@@ -774,6 +774,13 @@
   },
   {
     "type":   "cntk",
+    "target": "v1/01_OneHidden.dnn",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/01_OneHidden.dnn",
+    "format": "CNTK v1.18",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
     "target": "v1/AlexNet.model",
     "source": "https://www.cntk.ai/Models/AlexNet/AlexNet.model",
     "format": "CNTK v1.14"
@@ -783,6 +790,20 @@
     "target": "v1/AlexNetBS.model",
     "source": "https://www.cntk.ai/Models/AlexNet/AlexNetBS.model",
     "format": "CNTK v1.15"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/cifar10.pretrained.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/ImageHandsOn/cifar10.pretrained.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/cifar10.ResNet.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/ImageHandsOn/cifar10.ResNet.cmf",
+    "format": "CNTK v1.10",
+    "link":   "https://github.com/Microsoft/CNTK"
   },
   {
     "type":   "cntk",
@@ -803,6 +824,41 @@
     "source": "https://www.cntk.ai/Models/FRCN_Grocery/Fast-RCNN_grocery100.model",
     "format": "CNTK v1.15",
     "link":   "https://github.com/Microsoft/CNTK/blob/7c838d3b6c448004e5a06aa00c984a629f880416/PretrainedModels/download_model.py"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/ResNet20_CIFAR10_DataAug.dnn",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/ResNet20_CIFAR10_DataAug.dnn",
+    "format": "CNTK v1.18",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.backward.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.backward.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.nobn.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.nobn.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":   "cntk",
+    "target": "v1/slu.forward.lookahead.cmf",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.lookahead.cmf",
+    "format": "CNTK v1.14",
+    "link":   "https://github.com/Microsoft/CNTK"
   },
   {
     "type":   "cntk",
@@ -850,6 +906,20 @@
     "source": "https://www.cntk.ai/Models/SuperResolution/DRNN.model",
     "format": "CNTK v2",
     "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
+  },
+  {
+    "type":   "cntk",
+    "target": "v2/HotailorPOC2.model",
+    "source": "https://privdatastorage.blob.core.windows.net/github/cntk-python-web-service-on-azure/HotailorPOC2.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/karolzak/cntk-python-web-service-on-azure"
+  },
+  {
+    "type":   "cntk",
+    "target": "v2/initial_policy_network.dnn",
+    "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/bindings/python/cntk/contrib/deeprl/tests/data/initial_policy_network.dnn",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK"
   },
   {
     "type":   "cntk",
@@ -1512,6 +1582,48 @@
     "source": "https://raw.githubusercontent.com/UnusualWolf/coreML/master/StyleArt-master/StyleArt/CoreMLModels/wave.mlmodel",
     "format": "CoreML v1",
     "link":   "https://github.com/UnusualWolf/coreML"
+  },
+  {
+    "type":   "darknet",
+    "target": "alexnet.cfg,alexnet.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg,https://pjreddie.com/media/files/alexnet.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "darknet53_448.cfg,darknet53_448.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg,https://pjreddie.com/media/files/darknet53_448.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "go.cfg,go.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/go.cfg,https://pjreddie.com/media/files/go.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/darkgo-go-in-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "jnet-conv.cfg,jnet-conv.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/nightmare"
+  },
+  {
+    "type":   "darknet",
+    "target": "grrm.cfg,grrm.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/rnn.cfg,https://pjreddie.com/media/files/grrm.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolov3-spp.cfg,yolov3-spp.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/yolo"
   },
   {
     "type":   "keras",
@@ -2621,6 +2733,13 @@
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
+    "type":   "sklearn",
+    "target": "wiki-aa-mlp.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/2674319/wiki-aa-mlp.pkl.zip[wiki-aa-mlp.pkl]",
+    "format": "scikit-learn 0.19.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
     "type":   "tf",
     "target": "char-rnn-tensorflow.pb",
     "source": "https://github.com/lutzroeder/netron/files/2592462/char-rnn-tensorflow.pb.zip[char-rnn-tensorflow.pb]",
@@ -3230,6 +3349,13 @@
   },
   {
     "type":   "torch",
+    "target": "composition_vii.t7",
+    "source": "https://cs.stanford.edu/people/jcjohns/fast-neural-style/models/eccv16/composition_vii.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/jcjohnson/fast-neural-style"
+  },
+  {
+    "type":   "torch",
     "target": "cunet_art_14l_scale2.0x_model.t7",
     "source": "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/cunet/art/noise0_model.t7",
     "format": "Torch v7",
@@ -3276,6 +3402,13 @@
     "source": "https://drive.google.com/uc?export=download&id=1KJMUW0sOZ3CRjshCEsJPd76DN4GT6Otv",
     "format": "Torch v7",
     "link":   "https://github.com/robbiebarrat/art-DCGAN/issues/3"
+  },
+  {
+    "type":   "torch",
+    "target": "RefineNet.t7",
+    "source": "http://www.visionlab.cs.hku.hk/data/TOM-Net/TOM-Net_model.tgz[TOM-Net_model/RefineNet.t7]",
+    "format": "Torch v7",
+    "link":   "https://github.com/guanyingc/TOM-Net"
   },
   {
     "type":   "torch",
@@ -3353,5 +3486,12 @@
     "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/vgg.t7",
     "format": "Torch v7",
     "link":   "https://github.com/cpra/fer-cnn-sota"
+  },
+ {
+    "type":   "torch",
+    "target": "vgg16.t7",
+    "source": "https://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/jcjohnson/fast-neural-style"
   }
- ]
+]

@@ -113,6 +113,7 @@ setuptools.setup(
             'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
             'cntk.js', 'cntk-metadata.json', 'cntk-proto.js',
             'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
+            'darknet.js', 'darknet-metadata.json',
             'keras.js', 'keras-metadata.json', 'hdf5.js',
             'mxnet.js', 'mxnet-metadata.json',
             'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',

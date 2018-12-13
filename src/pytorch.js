@@ -318,6 +318,10 @@ pytorch.ModelFactory = class {
                 return;
             }
 
+            if (!root._modules && !root.__type__ && root.model && root.model._modules) {
+                root = root.model;
+            }
+
             if (!root._modules) {
                 callback(new pytorch.Error("Root object does not contain modules in '" + identifier + "'."), null);
                 return;

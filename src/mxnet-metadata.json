@@ -696,6 +696,41 @@
     }
   },
   {
+    "name": "_sub",
+    "schema": {
+      "inputs": [
+        { "name": "x" },
+        { "name": "y" }
+      ],
+      "outputs": [
+        { "name": "z" }
+      ]
+    }
+  },
+  {
+    "name": "_mul",
+    "schema": {
+      "inputs": [
+        { "name": "x" },
+        { "name": "y" }
+      ],
+      "outputs": [
+        { "name": "z" }
+      ]
+    }
+  },
+  {
+    "name": "MakeLoss",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "transpose",
     "schema": {
       "inputs": [

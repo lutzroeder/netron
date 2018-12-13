@@ -166,7 +166,8 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.feature_extraction.text.CountVectorizer​'] = function() {};
                 constructorTable['sklearn.feature_extraction.text.TfidfVectorizer​'] = function() {};
                 constructorTable['sklearn.impute.SimpleImputer'] = function() {};
-                constructorTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
+                constructorTable['sklearn.linear_model.base.LinearRegression'] = function() {};
+                constructorTable['sklearn.linear_model.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.LassoLars​'] = function() {};
                 constructorTable['sklearn.model_selection._search.GridSearchCV'] = function() {};
@@ -177,12 +178,16 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.neighbors.KNeighborsClassifier​'] = function() {};
                 constructorTable['sklearn.neighbors.KNeighborsRegressor'] = function() {};
                 constructorTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
+                constructorTable['sklearn.neural_network.multilayer_perceptron.MLPRegressor'] = function() {};
+                constructorTable['sklearn.neural_network._stochastic_optimizers.AdamOptimizer'] = function() {};
+                constructorTable['sklearn.neural_network._stochastic_optimizers.SGDOptimizer'] = function() {};
                 constructorTable['sklearn.pipeline.Pipeline'] = function() {};
                 constructorTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.label.LabelEncoder'] = function() {};
                 constructorTable['sklearn.svm.classes.SVC'] = function() {};
+                constructorTable['sklearn.svm.classes.SVR'] = function() {};
                 constructorTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
                     this.n_features = n_features;
                     this.n_classes = n_classes;
@@ -247,6 +252,9 @@ sklearn.ModelFactory = class {
                 };
                 functionTable['__builtin__.bytearray'] = function(data, encoding) {
                     return { data: data, encoding: encoding };
+                };
+                functionTable['numpy.random.__RandomState_ctor'] = function() {
+                    return {};
                 };
 
                 var function_call = (name, args) => {

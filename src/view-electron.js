@@ -231,7 +231,7 @@ host.ElectronHost = class {
                 if (err.stack) {
                     var match = err.stack.match(/\n    at (.*)\((.*)\)/);
                     if (match) {
-                        description.push(match[1] + '(' + match[2].split('/').pop() + ')');
+                        description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
                     }
                 }
     

@@ -124,6 +124,255 @@
     }
   },
   {
+    "name": "SVC",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "Penalty parameter C of the error term.\n",
+          "name": "C",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": "rbf",
+          "description": "Specifies the kernel type to be used in the algorithm.\nIt must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or\na callable.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
+          "name": "kernel",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": 3,
+          "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
+          "name": "degree",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "auto",
+          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.std())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
+          "name": "gamma",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 0.0,
+          "description": "Independent term in kernel function.\nIt is only significant in 'poly' and 'sigmoid'.\n",
+          "name": "coef0",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "Whether to use the shrinking heuristic.\n",
+          "name": "shrinking",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, and will slow down that method.\n",
+          "name": "probability",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": 0.001,
+          "description": "Tolerance for stopping criterion.\n",
+          "name": "tol",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "description": "Specify the size of the kernel cache (in MB).\n",
+          "name": "cache_size",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
+          "name": "class_weight",
+          "option": "optional"
+        },
+        {
+          "default": false,
+          "description": "Enable verbose output. Note that this setting takes advantage of a\nper-process runtime setting in libsvm that, if enabled, may not work\nproperly in a multithreaded context.\n",
+          "name": "verbose",
+          "type": "boolean"
+        },
+        {
+          "default": -1,
+          "description": "Hard limit on iterations within solver, or -1 for no limit.\n",
+          "name": "max_iter",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "ovr",
+          "description": "Whether to return a one-vs-rest ('ovr') decision function of shape\n(n_samples, n_classes) as all other classifiers, or the original\none-vs-one ('ovo') decision function of libsvm which has shape\n(n_samples, n_classes * (n_classes - 1) / 2). However, one-vs-one\n('ovo') is always used as multi-class strategy.\n\n.. versionchanged:: 0.19\ndecision_function_shape is 'ovr' by default.\n\n.. versionadded:: 0.17\n*decision_function_shape='ovr'* is recommended.\n\n.. versionchanged:: 0.17\nDeprecated *decision_function_shape='ovo' and None*.\n",
+          "name": "decision_function_shape"
+        },
+        {
+          "default": null,
+          "description": "The seed of the pseudo random number generator used when shuffling\nthe data for probability estimates. If int, random_state is the\nseed used by the random number generator; If RandomState instance,\nrandom_state is the random number generator; If None, the random\nnumber generator is the RandomState instance used by `np.random`.\n",
+          "name": "random_state",
+          "option": "optional"
+        }
+      ],
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to dataset with more than a couple of 10000 samples.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+      "package": "sklearn.svm"
+    }
+  },
+  {
+    "name": "MLPRegressor",
+    "schema": {
+      "attributes": [
+        {
+          "default": "(100,)",
+          "description": "The ith element represents the number of neurons in the ith\nhidden layer.\n",
+          "name": "hidden_layer_sizes"
+        },
+        {
+          "default": "relu",
+          "description": "Activation function for the hidden layer.\n\n- 'identity', no-op activation, useful to implement linear bottleneck,\nreturns f(x) = x\n\n- 'logistic', the logistic sigmoid function,\nreturns f(x) = 1 / (1 + exp(-x)).\n\n- 'tanh', the hyperbolic tan function,\nreturns f(x) = tanh(x).\n\n- 'relu', the rectified linear unit function,\nreturns f(x) = max(0, x)\n",
+          "name": "activation"
+        },
+        {
+          "default": "adam",
+          "description": "The solver for weight optimization.\n\n- 'lbfgs' is an optimizer in the family of quasi-Newton methods.\n\n- 'sgd' refers to stochastic gradient descent.\n\n- 'adam' refers to a stochastic gradient-based optimizer proposed by\nKingma, Diederik, and Jimmy Ba\n\nNote: The default solver 'adam' works pretty well on relatively\nlarge datasets (with thousands of training samples or more) in terms of\nboth training time and validation score.\nFor small datasets, however, 'lbfgs' can converge faster and perform\nbetter.\n",
+          "name": "solver"
+        },
+        {
+          "default": 0.0001,
+          "description": "L2 penalty (regularization term) parameter.\n",
+          "name": "alpha",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": "auto",
+          "description": "Size of minibatches for stochastic optimizers.\nIf the solver is 'lbfgs', the classifier will not use minibatch.\nWhen set to \"auto\", `batch_size=min(200, n_samples)`\n",
+          "name": "batch_size",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "constant",
+          "description": "Learning rate schedule for weight updates.\n\n- 'constant' is a constant learning rate given by\n'learning_rate_init'.\n\n- 'invscaling' gradually decreases the learning rate ``learning_rate_``\nat each time step 't' using an inverse scaling exponent of 'power_t'.\neffective_learning_rate = learning_rate_init / pow(t, power_t)\n\n- 'adaptive' keeps the learning rate constant to\n'learning_rate_init' as long as training loss keeps decreasing.\nEach time two consecutive epochs fail to decrease training loss by at\nleast tol, or fail to increase validation score by at least tol if\n'early_stopping' is on, the current learning rate is divided by 5.\n\nOnly used when solver='sgd'.\n",
+          "name": "learning_rate"
+        },
+        {
+          "default": "0.001",
+          "description": "The initial learning rate used. It controls the step-size\nin updating the weights. Only used when solver='sgd' or 'adam'.\n",
+          "name": "learning_rate_init",
+          "option": "optional"
+        },
+        {
+          "default": "0.5",
+          "description": "The exponent for inverse scaling learning rate.\nIt is used in updating effective learning rate when the learning_rate\nis set to 'invscaling'. Only used when solver='sgd'.\n",
+          "name": "power_t",
+          "option": "optional"
+        },
+        {
+          "default": 200,
+          "description": "Maximum number of iterations. The solver iterates until convergence\n(determined by 'tol') or this number of iterations. For stochastic\nsolvers ('sgd', 'adam'), note that this determines the number of epochs\n(how many times each data point will be used), not the number of\ngradient steps.\n",
+          "name": "max_iter",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": true,
+          "description": "Whether to shuffle samples in each iteration. Only used when\nsolver='sgd' or 'adam'.\n",
+          "name": "shuffle",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`.\n",
+          "name": "random_state",
+          "option": "optional"
+        },
+        {
+          "default": 0.0001,
+          "description": "Tolerance for the optimization. When the loss or score is not improving\nby at least ``tol`` for ``n_iter_no_change`` consecutive iterations,\nunless ``learning_rate`` is set to 'adaptive', convergence is\nconsidered to be reached and training stops.\n",
+          "name": "tol",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": false,
+          "description": "Whether to print progress messages to stdout.\n",
+          "name": "verbose",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "When set to True, reuse the solution of the previous\ncall to fit as initialization, otherwise, just erase the\nprevious solution. See :term:`the Glossary <warm_start>`.\n",
+          "name": "warm_start",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": 0.9,
+          "description": "Momentum for gradient descent update.  Should be between 0 and 1. Only\nused when solver='sgd'.\n",
+          "name": "momentum",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "Whether to use Nesterov's momentum. Only used when solver='sgd' and\nmomentum > 0.\n",
+          "name": "nesterovs_momentum",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Whether to use early stopping to terminate training when validation\nscore is not improving. If set to true, it will automatically set\naside 10% of training data as validation and terminate training when\nvalidation score is not improving by at least ``tol`` for\n``n_iter_no_change`` consecutive epochs.\nOnly effective when solver='sgd' or 'adam'\n",
+          "name": "early_stopping",
+          "type": "boolean"
+        },
+        {
+          "default": 0.1,
+          "description": "The proportion of training data to set aside as validation set for\nearly stopping. Must be between 0 and 1.\nOnly used if early_stopping is True\n",
+          "name": "validation_fraction",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 0.9,
+          "description": "Exponential decay rate for estimates of first moment vector in adam,\nshould be in [0, 1). Only used when solver='adam'\n",
+          "name": "beta_1",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 0.999,
+          "description": "Exponential decay rate for estimates of second moment vector in adam,\nshould be in [0, 1). Only used when solver='adam'\n",
+          "name": "beta_2",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 1e-08,
+          "description": "Value for numerical stability in adam. Only used when solver='adam'\n",
+          "name": "epsilon",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 10,
+          "description": "Maximum number of epochs to not meet ``tol`` improvement.\nOnly effective when solver='sgd' or 'adam'\n\n.. versionadded:: 0.20\n",
+          "name": "n_iter_no_change",
+          "option": "optional",
+          "type": "int32"
+        }
+      ],
+      "description": "Multi-layer Perceptron regressor.\n\nThis model optimizes the squared-loss using LBFGS or stochastic gradient\ndescent.\n\n.. versionadded:: 0.18\n",
+      "package": "sklearn.neural_network.multilayer_perceptron"
+    }
+  },
+  {
     "name": "DecisionTreeRegressor",
     "schema": {
       "attributes": [
@@ -1691,6 +1940,42 @@
           "name": "pandas_categorical"
         }
       ]
+    }
+  },
+  {
+    "name": "LinearRegression",
+    "schema": {
+      "attributes": [
+        {
+          "default": true,
+          "description": "whether to calculate the intercept for this model. If set\nto False, no intercept will be used in calculations\n(e.g. data is expected to be already centered).\n",
+          "name": "fit_intercept",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`sklearn.preprocessing.StandardScaler` before calling ``fit`` on\nan estimator with ``normalize=False``.\n",
+          "name": "normalize",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "description": "If True, X will be copied; else, it may be overwritten.\n",
+          "name": "copy_X",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": null,
+          "description": "The number of jobs to use for the computation. This will only provide\nspeedup for n_targets > 1 and sufficient large problems.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "name": "n_jobs",
+          "option": "optional"
+        }
+      ],
+      "description": "\nOrdinary least squares Linear Regression.\n",
+      "package": "sklearn.linear_model.base"
     }
   }
 ]

@@ -74,7 +74,9 @@ paddle.Graph = class {
         var initializers = {};
         var types = {};
         block.vars.forEach((variable) => {
-            if (variable.persistable) {
+            if (variable.persistable && variable.type && 
+                variable.type.type != paddle.proto.VarType.Type.FETCH_LIST && 
+                variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
                 initializers[variable.name] = new paddle.Tensor(variable);
             }
             else {
@@ -135,7 +137,6 @@ paddle.Graph = class {
         switch (variable.type.type) {
             case paddle.proto.VarType.Type.LOD_TENSOR:
                 return new paddle.TensorType(variable.type.lod_tensor.tensor);
-                break;
             default:
                 debugger;
                 break;
@@ -219,6 +220,10 @@ paddle.Node = class {
                 this._outputs.push(new paddle.Argument(output.parameter, connections));              
             }
         });
+        this._update(this._inputs, 'X');
+        this._update(this._inputs, 'Input');
+        this._update(this._outputs, 'Y');
+        this._update(this._outputs, 'Out');
     }
 
     get operator() {
@@ -240,6 +245,20 @@ paddle.Node = class {
 
     get outputs() {
         return this._outputs;
+    }
+
+    _update(list, name) {
+        var item = null;
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].name == name) {
+                item = list[i];
+                list.splice(i, 1);
+                break;
+            }
+        }
+        if (item) {
+            list.splice(0, 0, item);
+        }
     }
 };
 
