@@ -96,9 +96,27 @@
               }
           ],
           "category": "Layer",
-          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/convolution.html)\n**Detailed description**: [Reference](http://cs231n.github.io/convolutional-networks/#conv)\n**Parameters**: *Convolution* layer parameters should be specified in the `convolution_data` node, which is a child of the layer node.\n**Weights Layout** Weights layout is GOIYX, which means that *X* is changing the fastest, then *Y*, then *Input*, *Output*, then *Group*.\n**Mathematical Formulation**\n*   For the convolutional layer, the number of output features in each dimension is calculated using the formula:\n\\f[\nn_{out} = \\left ( \\frac{n_{in} + 2p - k}{s} \\right ) + 1\n\\f]\n*   The receptive field in each layer is calculated using the formulas:\n    *   Jump in the output feature map:\n        \\f[\n        j_{out} = j_{in} * s\n        \\f]\n    *   Size of the receptive field of output feature:\n        \\f[\n        r_{out} = r_{in} + ( k - 1 ) * j_{in}\n        \\f]\n    *   Center position of the receptive field of the first output feature:\n        \\f[\n        start_{out} = start_{in} + ( \\frac{k - 1}{2} - p ) * j_{in}\n        \\f]\n    *   Output is calculated using the following formula:\n        \\f[\n        out = \\sum_{i = 0}^{n}w_{i}x_{i} + b\n        \\f]\n**Example**\n\n```html\n<layer ... type=\"Convolution\" ... >\n        <convolution_data stride-x=\"4\" stride-y=\"4\" pad-x=\"0\" pad-y=\"0\" kernel-x=\"11\" kernel-y=\"11\" output=\"96\" group=\"1\" dilation-x=\"2\" dilation-y=\"2\"/>\n        <input> ... </input>\n        <output> ... </output>\n        <weights ... />\n        <biases ... />\n    </layer>\n```",
-          "inputs": null,
-          "outputs": null,
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/convolution.html)<br>**Detailed description**: [Reference](http://cs231n.github.io/convolutional-networks/#conv)\n**Parameters**: *Convolution* layer parameters should be specified in the `convolution_data` node, which is a child of the layer node.\n**Weights Layout** Weights layout is GOIYX, which means that *X* is changing the fastest, then *Y*, then *Input*, *Output*, then *Group*.\n**Mathematical Formulation**\n*   For the convolutional layer, the number of output features in each dimension is calculated using the formula:\n\\f[\nn_{out} = \\left ( \\frac{n_{in} + 2p - k}{s} \\right ) + 1\n\\f]\n*   The receptive field in each layer is calculated using the formulas:\n    *   Jump in the output feature map:\n        \\f[\n        j_{out} = j_{in} * s\n        \\f]\n    *   Size of the receptive field of output feature:\n        \\f[\n        r_{out} = r_{in} + ( k - 1 ) * j_{in}\n        \\f]\n    *   Center position of the receptive field of the first output feature:\n        \\f[\n        start_{out} = start_{in} + ( \\frac{k - 1}{2} - p ) * j_{in}\n        \\f]\n    *   Output is calculated using the following formula:\n        \\f[\n        out = \\sum_{i = 0}^{n}w_{i}x_{i} + b\n        \\f]\n**Example**\n\n```html\n<layer ... type=\"Convolution\" ... >\n        <convolution_data stride-x=\"4\" stride-y=\"4\" pad-x=\"0\" pad-y=\"0\" kernel-x=\"11\" kernel-y=\"11\" output=\"96\" group=\"1\" dilation-x=\"2\" dilation-y=\"2\"/>\n        <input> ... </input>\n        <output> ... </output>\n        <weights ... />\n        <biases ... />\n    </layer>\n```",
+          "inputs": [
+            {
+              "name": "inputs",
+              "option": "variadic"
+            },
+            {
+              "description": "*(type: Tensor`<float>`)* List of input tensors.",
+              "name": "X1, X2, ..."
+            }
+          ],
+          "outputs": [
+            {
+              "description": "*(type: Tensor`<float>`)* Concatenated tensor.",
+              "name": "concat_result"
+            },
+            {
+              "description": "*(type: Tensor`<int>`)* The dimensions of the inputs.",
+              "name": "split_info"
+            }
+          ],
           "support_level": "default"
       }
   },
@@ -191,7 +209,7 @@
                   "type": "\n    * *ceil*\n    * *floor*"
               }
           ],
-          "category": "Layer",
+          "category": "Pool",
           "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/pooling.html)\n**Detailed description**: [Reference](http://cs231n.github.io/convolutional-networks/#pool)\n**Parameters**: Specify pooling layer parameters in the `pooling_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*   For *max pool-method*:\n    \\f[\n    output_{j} = MAX\\{ x_{0}, ... x_{i}\\}\n    \\f]\n*   For *avg pool-method*:\n    \\f[\n    output_{j} = \\frac{\\sum_{i = 0}^{n}x_{i}}{n}\n    \\f]\n**Example**\n\n```html\n<layer ... type=\"Pooling\" ... >\n        <pooling_data kernel-x=\"3\" kernel-y=\"3\" pad-x=\"0\" pad-y=\"0\" stride-x=\"2\" stride-y=\"2\" pool-method=\"max\" exclude-pad=\"true\" rounding_type=\"floor\"/>\n        <input> ... </input>\n        <output> ... </output>\n    </layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -262,7 +280,7 @@
                   "type": " double values starting from 0"
               }
           ],
-          "category": "Layer",
+          "category": "Activation",
           "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/relu.html)\n**Detailed description**: [Reference](https://github.com/Kulbear/deep-learning-nano-foundation/wiki/ReLU-and-Softmax-Activation-Functions#rectified-linear-units)\n**Parameters**: *ReLU* layer parameters can be (not mandatory) specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\nY_{i}^{( l )} = max(0, Y_{i}^{( l - 1 )})\n\\f]\n**Example**\n\n```html\n<layer ... type=\"ReLU\" ... >\n    <data negative_slope=\"0.100000\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -281,7 +299,7 @@
                   "type": "\n    * *sigmoid* - sigmoid activation function. Learn more from the **Detailed description** section.\n    * *tanh* - tanh activation function. Learn more from the **Detailed description** section.\n    * *elu* - elu activation function. Learn more from the **Detailed description** section.\n    * *relu6* - relu6 activation function."
               }
           ],
-          "category": "Layer",
+          "category": "Activation",
           "description": "**Short description**: *Activation* layer represents an activation function of each neuron in a layer, which is used to add non-linearity to the computational flow.\n**Detailed description**: [Reference](https://medium.com/the-theory-of-everything/understanding-activation-functions-in-neural-networks-9491262884e0)\n**Parameters**: *Activation layer* parameters should be specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*   Sigmoid function:\n    \\f[\n    f( x ) = \\frac{1}{1+e^{-x}}\n    \\f]\n*   Tahn function:\n    \\f[\n    f ( x ) = \\frac{2}{1+e^{-2x}} - 1 = 2sigmoid(2x) - 1\n    \\f]\n*\tElu function:\n\t\\f[\n    f(x) = \\left\\{\\begin{array}{ll}\n\t\te^{x} - 1 \\quad \\mbox{if } x < 0 \\\\\n\t\tx \\quad \\mbox{if } x \\geq  0\n\t\\end{array}\\right.\n\t\\f]\n*\tRelu6 function:\n\t\\f[\n         f(x) = min(max(0, x), 6)\n\t\\f]\n**Example**\n\n```html\n<layer ... type=\"Activation\" ... >\n    <data type=\"sigmoid\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -300,7 +318,7 @@
                   "type": " positive integer values"
               }
           ],
-          "category": "Layer",
+          "category": "Activation",
           "description": "**Short description**: [Reference](https://github.com/Kulbear/deep-learning-nano-foundation/wiki/ReLU-and-Softmax-Activation-Functions#softmax)\n**Detailed description**: [Reference](http://cs231n.github.io/linear-classify/#softmax)\n**Parameters**: *SoftMax* layer parameters can be (not mandatory) specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\ny_{c} = \\frac{e^{Z_{c}}}{\\sum_{d=1}^{C}e^{Z_{d}}}\n\\f]\nwhere \\f$C\\f$ is a number of classes\n**Example**\n\n```html\n<layer ... type=\"SoftMax\" ... >\n    <data axis=\"1\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -443,7 +461,7 @@
                   "type": " positive integer bigger than zero"
               }
           ],
-          "category": "Layer",
+          "category": "Normalization",
           "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/lrn.html)\n**Detailed description**: [Reference](http://yeephycho.github.io/2016/08/03/Normalizations-in-neural-networks/#Local-Response-Normalization-LRN)\n**Parameters**: *Norm* layer parameters should be specified in the `norm_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[o_{i} = \\left( 1 + \\left( \\frac{\\alpha}{n} \\right)\\sum_{i}x_{i}^{2} \\right)^{\\beta}\\f]\nWhere \\f$n\\f$ is the size of each local region.\n**Example**\n\n```html\n<layer ... type=\"Norm\" ... >\n    <norm_data alpha=\"9.9999997e-05\" beta=\"0.75\" local-size=\"5\" region=\"across\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -647,7 +665,7 @@
                   "type": " positive floating point number"
               }
           ],
-          "category": "Layer",
+          "category": "Normalization",
           "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/batchnorm.html)\n**Detailed description**: [Reference](https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html)\n**Parameters**: *BatchNormalization* layer parameters should be specified as the `batch_norm_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*BatchNormalization* is the normalization of the output in each hidden layer.\n*   **Input**: Values of \\f$x\\f$ over a mini-batch:\n    \\f[\n    \\beta = \\{ x_{1...m} \\}\n    \\f]\n*   **Parameters to learn**: \\f$ \\gamma, \\beta\\f$\n*   **Output**:\n    \\f[\n    \\{ o_{i} = BN_{\\gamma, \\beta} ( b_{i} ) \\}\n    \\f]\n*   **Mini-batch mean**:\n    \\f[\n    \\mu_{\\beta} \\leftarrow \\frac{1}{m}\\sum_{i=1}^{m}b_{i}\n    \\f]\n*   **Mini-batch variance**:\n    \\f[\n    \\sigma_{\\beta }^{2}\\leftarrow \\frac{1}{m}\\sum_{i=1}^{m} ( b_{i} - \\mu_{\\beta} )^{2}\n    \\f]\n*   **Normalize**:\n    \\f[\n    \\hat{b_{i}} \\leftarrow \\frac{b_{i} - \\mu_{\\beta}}{\\sqrt{\\sigma_{\\beta }^{2} + \\epsilon }}\n    \\f]\n*   **Scale and shift**:\n    \\f[\n    o_{i} \\leftarrow \\gamma\\hat{b_{i}} + \\beta = BN_{\\gamma ,\\beta } ( b_{i} )\n    \\f]\n**Example**\n\n```html\n<layer ... type=\"BatchNormalization\" ... >\n    <batch_norm_data epsilon=\"9.99e-06\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -680,7 +698,7 @@
                   "type": " positive floating point number"
               }
           ],
-          "category": "Layer",
+          "category": "Normalization",
           "description": "**Short description**: *Normalize* layer performs l-p normalization of 1 of input blob.\n**Parameters**: *Normalize* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\no_{i} = \\sum_{i}^{H*W}\\frac{\\left ( n*C*H*W \\right )* scale}{\\sqrt{\\sum_{i=0}^{C*H*W}\\left ( n*C*H*W \\right )^{2}}}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Normalize\" ... >\n    <data across_spatial=\"0\" channel_shared=\"0\" eps=\"0.000000\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -1061,7 +1079,7 @@
                   "type": " positive floating point value"
               }
           ],
-          "category": "Layer",
+          "category": "Pool",
           "description": "**Short description**: *PSROIPooling* layer compute position-sensitive max pooling on regions of interest specified by input, takes as input N position-sensitive score maps and a list of R regions of interest.\n**Detailed description**: [Reference](https://arxiv.org/pdf/1703.06211.pdf)\n**Parameters**: *PSRoiPooling* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nThe output value for \\f$(i, j)\\f$-th bin is obtained by summation from one score map \\f$x_{i,j}\\f$ corresponding to that bin. In short, the difference from *RoIPooling* is that a general feature map \\f$x\\f$ is replaced by a specific positive-sensitive score map \\f$x_{i,j}\\f$.\n**Example**\n\n```html\n<layer ... type=\"PSROIPooling\" ... >\n    <data output_dim=\"10\" out_max_val=\"1\" spatial_scale=\"0.1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -1080,7 +1098,7 @@
                   "type": " floating point value"
               }
           ],
-          "category": "Layer",
+          "category": "Normalization",
           "description": "**Short description**: *GRN* is Global Response Normalization with L2 norm (across channels only).\n**Parameters**: GRN layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*GRN* computes L2 norm by channels for input blob. *GRN* generally does the following with the input blob:\n\\f[\noutput_{i} = \\frac{input_{i}}{\\sqrt{\\sum_{i}^{C} input_{i}}}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"GRN\" ... >\n    <data bias=\"1.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -1127,7 +1145,7 @@
                   "type": " integer"
               }
           ],
-          "category": "Layer",
+          "category": "Activation",
           "description": "**Short description**: *PReLU* is the Parametric Rectifier Linear Unit. The difference from *ReLU* is that negative slopes can vary across channels.\n**Parameters**: *PReLU* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*PReLU* accepts one input with four dimensions. The produced blob has the same dimensions as input.\n*PReLU* does the following with the input blob:\n\\f[\no_{i} = max(0, x_{i}) + w_{i} * min(0,x_{i})\n\\f]\nwhere \\f$w_{i}\\f$ is from weights blob.\n**Example**\n\n```html\n<layer ... type=\"PReLU\" ... >\n    <data bias=\"1.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -1315,7 +1333,7 @@
                   "type": " positive floating point number"
               }
           ],
-          "category": "Layer",
+          "category": "Normalization",
           "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/mvn.html)\n**Parameters**: *MVN* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*MVN* subtracts mean from the input blob:\n\\f[\no_{i} = i_{i} - \\frac{\\sum{i_{k}}}{C * H * W}\n\\f]\nIf *normalize_variance* is set to 1, the output blob is divided by variance:\n\\f[\no_{i}=\\frac{o_{i}}{\\sum \\sqrt {o_{k}^2}+\\epsilon}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"MVN\">\n    <data across_channels=\"1\" eps=\"9.999999717180685e-10\" normalize_variance=\"1\"/>\n    <input>\n        ...\n    </input>\n    <output>\n        ...\n    </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
