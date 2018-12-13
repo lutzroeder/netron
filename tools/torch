@@ -21,7 +21,7 @@ git_sync() {
         git -C "${third_party}/${1}" reset --quiet --hard origin/master
     else
         echo "Clone ${2}..."
-        git -C "${third_party}" clone --recursive ${2}
+        git -C "${third_party}" clone --recursive ${2} ${1}
     fi
     git -C "${third_party}" submodule update --init
 }
