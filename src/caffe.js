@@ -93,7 +93,6 @@ caffe.ModelFactory = class {
     _openNetParameterText(metadata, identifier, text, host, callback) {
         try {
             var reader = new protobuf.TextReader(text);
-            var modelFactory = this;
             reader.handle = function(tag, message) {
                 var type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
