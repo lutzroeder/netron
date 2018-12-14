@@ -523,7 +523,74 @@ tf.Node = class {
     }
 
     get documentation() {
-        return this._graph.metadata.getOperatorDocumentation(this.operator);       
+        var schema = this._graph.metadata.getSchema(this.operator);
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this.operator;
+            if (schema.summary) {
+                schema.summary = marked(schema.summary);
+            }
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.type) {
+                        input.type = tf.Tensor.formatDataType(input.type);
+                    }
+                    else if (input.typeAttr) {
+                        input.type = input.typeAttr;
+                    }
+                    else if (input.typeListAttr) {
+                        input.type = input.typeListAttr;
+                    }
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.type) {
+                        output.type = tf.Tensor.formatDataType(output.type);
+                    }
+                    else if (output.typeAttr) {
+                        output.type = output.typeAttr;
+                    }
+                    else if (output.typeListAttr) {
+                        output.type = output.typeListAttr;
+                    }
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    var description = attribute.description;
+                    if (attribute.allowedValues) {
+                        var allowedValues = tf.GraphMetadata._formatAttributeValue(attribute.allowedValues);
+                        allowedValues = Array.isArray(allowedValues) ? allowedValues : [ allowedValues ];
+                        allowedValues = allowedValues.map((item) => '`' + item + '`').join(', ');
+                        allowedValues = 'Must be one of the following: ' + allowedValues + '.';
+                        description = description ? (allowedValues + ' ' + description) : allowedValues;
+                    }
+                    if (attribute.defaultValue) {
+                        var defaultValue = ƒ._formatAttributeValue(attribute.defaultValue);
+                        defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
+                        defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
+                        defaultValue = 'Defaults to ' + defaultValue + '.';
+                        description = description ? (defaultValue + ' ' + description) : defaultValue;
+                    }
+                    if (description) {
+                        attribute.description = marked(description);
+                    }
+                });
+            }
+            return schema;
+        }
+        return null;
+
     }
 
     get category() {
@@ -1151,76 +1218,6 @@ tf.GraphMetadata = class {
             });
         }
         return results;
-    }
-
-    getOperatorDocumentation(operator) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
-            if (schema.summary) {
-                schema.summary = marked(schema.summary);
-            }
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.type) {
-                        input.type = tf.Tensor.formatDataType(input.type);
-                    }
-                    else if (input.typeAttr) {
-                        input.type = input.typeAttr;
-                    }
-                    else if (input.typeListAttr) {
-                        input.type = input.typeListAttr;
-                    }
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                });
-            }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.type) {
-                        output.type = tf.Tensor.formatDataType(output.type);
-                    }
-                    else if (output.typeAttr) {
-                        output.type = output.typeAttr;
-                    }
-                    else if (output.typeListAttr) {
-                        output.type = output.typeListAttr;
-                    }
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                });
-            }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    var description = attribute.description;
-                    if (attribute.allowedValues) {
-                        var allowedValues = tf.GraphMetadata._formatAttributeValue(attribute.allowedValues);
-                        allowedValues = Array.isArray(allowedValues) ? allowedValues : [ allowedValues ];
-                        allowedValues = allowedValues.map((item) => '`' + item + '`').join(', ');
-                        allowedValues = 'Must be one of the following: ' + allowedValues + '.';
-                        description = description ? (allowedValues + ' ' + description) : allowedValues;
-                    }
-                    if (attribute.defaultValue) {
-                        var defaultValue = ƒ._formatAttributeValue(attribute.defaultValue);
-                        defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
-                        defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
-                        defaultValue = 'Defaults to ' + defaultValue + '.';
-                        description = description ? (defaultValue + ' ' + description) : defaultValue;
-                    }
-                    if (description) {
-                        attribute.description = marked(description);
-                    }
-                });
-            }
-            return schema;
-        }
-        return null;
     }
 
     static _formatAttributeValue(value) {
