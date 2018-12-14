@@ -4032,6 +4032,7 @@
             NodeDef.prototype.input = $util.emptyArray;
             NodeDef.prototype.device = "";
             NodeDef.prototype.attr = $util.emptyObject;
+            NodeDef.prototype.experimental_debug_info = null;
     
             NodeDef.create = function create(properties) {
                 return new NodeDef(properties);
@@ -4065,6 +4066,9 @@
                         key = reader.string();
                         reader.pos++;
                         message.attr[key] = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
+                        break;
+                    case 6:
+                        message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4106,6 +4110,9 @@
                         message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
                         reader.assert("}");
                         break;
+                    case "experimental_debug_info":
+                        message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decodeText(reader, true);
+                        break;
                     default:
                         reader.handle(tag, message);
                         break;
@@ -4143,6 +4150,11 @@
                             return "attr." + error;
                     }
                 }
+                if (message.experimental_debug_info != null && message.hasOwnProperty("experimental_debug_info")) {
+                    var error = $root.tensorflow.NodeDef.ExperimentalDebugInfo.verify(message.experimental_debug_info);
+                    if (error)
+                        return "experimental_debug_info." + error;
+                }
                 return null;
             };
     
@@ -4173,6 +4185,11 @@
                         message.attr[keys[i]] = $root.tensorflow.AttrValue.fromObject(object.attr[keys[i]]);
                     }
                 }
+                if (object.experimental_debug_info != null) {
+                    if (typeof object.experimental_debug_info !== "object")
+                        throw TypeError(".tensorflow.NodeDef.experimental_debug_info: object expected");
+                    message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.fromObject(object.experimental_debug_info);
+                }
                 return message;
             };
     
@@ -4188,6 +4205,7 @@
                     object.name = "";
                     object.op = "";
                     object.device = "";
+                    object.experimental_debug_info = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -4206,12 +4224,119 @@
                     for (var j = 0; j < keys2.length; ++j)
                         object.attr[keys2[j]] = $root.tensorflow.AttrValue.toObject(message.attr[keys2[j]], options);
                 }
+                if (message.experimental_debug_info != null && message.hasOwnProperty("experimental_debug_info"))
+                    object.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.toObject(message.experimental_debug_info, options);
                 return object;
             };
     
             NodeDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
+    
+            NodeDef.ExperimentalDebugInfo = (function() {
+    
+                function ExperimentalDebugInfo(properties) {
+                    this.original_node_names = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ExperimentalDebugInfo.prototype.original_node_names = $util.emptyArray;
+    
+                ExperimentalDebugInfo.create = function create(properties) {
+                    return new ExperimentalDebugInfo(properties);
+                };
+    
+                ExperimentalDebugInfo.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.NodeDef.ExperimentalDebugInfo();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.original_node_names && message.original_node_names.length))
+                                message.original_node_names = [];
+                            message.original_node_names.push(reader.string());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                ExperimentalDebugInfo.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.NodeDef.ExperimentalDebugInfo();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "original_node_names":
+                            if (!(message.original_node_names && message.original_node_names.length))
+                                message.original_node_names = [];
+                            message.original_node_names.push(reader.string());
+                            break;
+                        default:
+                            reader.handle(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                ExperimentalDebugInfo.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.original_node_names != null && message.hasOwnProperty("original_node_names")) {
+                        if (!Array.isArray(message.original_node_names))
+                            return "original_node_names: array expected";
+                        for (var i = 0; i < message.original_node_names.length; ++i)
+                            if (!$util.isString(message.original_node_names[i]))
+                                return "original_node_names: string[] expected";
+                    }
+                    return null;
+                };
+    
+                ExperimentalDebugInfo.fromObject = function fromObject(object) {
+                    if (object instanceof $root.tensorflow.NodeDef.ExperimentalDebugInfo)
+                        return object;
+                    var message = new $root.tensorflow.NodeDef.ExperimentalDebugInfo();
+                    if (object.original_node_names) {
+                        if (!Array.isArray(object.original_node_names))
+                            throw TypeError(".tensorflow.NodeDef.ExperimentalDebugInfo.original_node_names: array expected");
+                        message.original_node_names = [];
+                        for (var i = 0; i < object.original_node_names.length; ++i)
+                            message.original_node_names[i] = String(object.original_node_names[i]);
+                    }
+                    return message;
+                };
+    
+                ExperimentalDebugInfo.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.original_node_names = [];
+                    if (message.original_node_names && message.original_node_names.length) {
+                        object.original_node_names = [];
+                        for (var j = 0; j < message.original_node_names.length; ++j)
+                            object.original_node_names[j] = message.original_node_names[j];
+                    }
+                    return object;
+                };
+    
+                ExperimentalDebugInfo.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return ExperimentalDebugInfo;
+            })();
     
             return NodeDef;
         })();
