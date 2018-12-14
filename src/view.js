@@ -512,12 +512,15 @@ view.View = class {
                             if (this._showDetails) {
                                 if (input.visible) {
                                     var types = input.connections.map(connection => connection.type || '').join('\n');
-                                    formatter.addItem(input.name, inputId, [ inputClass ], types, () => {
-                                        this.showNodeProperties(node, input);
-                                    });    
+                                    var initializer = input.connections.every(connection => connection.initializer != null);
+                                    if (initializer) {
+                                        formatter.addItem(input.name, inputId, [ inputClass ], types, () => {
+                                            this.showNodeProperties(node, input);
+                                        });    
+                                    }
                                 }
                             }
-            
+
                             input.connections.forEach((connection) => {
                                 if (!connection.initializer) {
                                     var tuple = edgeMap[connection.id];

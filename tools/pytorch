@@ -62,8 +62,8 @@ fi
     source ${virtualenv}/bin/activate
     pushd "${third_party}/pytorch" > /dev/null
     ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
-    ${python} setup.py install --quiet
     ${pip} install --quiet torchvision
+    ${python} setup.py install --quiet
     popd > /dev/null
     deactivate
 }

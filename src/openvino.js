@@ -1,6 +1,7 @@
             /*jshint esversion: 6 */
 
 var openvino = openvino || {};
+var marked = marked || require('marked');
 openvino.ir = openvino.ir || {};
 openvino.dot = openvino.dot || {};
 

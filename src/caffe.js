@@ -385,16 +385,32 @@ caffe.Node = class {
 
         switch (version) {
             case 0:
-                this._type = layer.layer.type;
                 this._name = layer.layer.name;
+                this._type = layer.layer.type;
                 break;
             case 1:
-                this._type = caffe.Node.getOperator(layer.type);
                 this._name = layer.name;
+                var typeIndex = layer.type;
+                if (typeIndex === undefined) {
+                    this._type = '?';
+                }
+                else {
+                    if (!caffe.Node._operatorMap) {
+                        caffe.Node._operatorMap = {};
+                        var known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
+                        Object.keys(caffe.proto.V1LayerParameter.LayerType).forEach((key) => {
+                            var index = caffe.proto.V1LayerParameter.LayerType[key];
+                            caffe.Node._operatorMap[index] = key.split('_').map((item) => {
+                                return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
+                            }).join('');
+                        });
+                    }
+                    this._type = caffe.Node._operatorMap[typeIndex] || typeIndex.toString();
+                }
                 break;
             case 2:
-                this._type = layer.type;
                 this._name = layer.name;
+                this._type = layer.type;
                 break;
         }
 
@@ -535,27 +551,6 @@ caffe.Node = class {
 
     get attributes() {
         return this._attributes;
-    }
-
-    static getOperator(index) {
-        if (!caffe.Node._operatorMap) {
-            caffe.Node._operatorMap = {};
-            var known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
-            Object.keys(caffe.proto.V1LayerParameter.LayerType).forEach((key) => {
-                var index = caffe.proto.V1LayerParameter.LayerType[key];
-                caffe.Node._operatorMap[index] = key.split('_').map((item) => {
-                    return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
-                }).join('');
-            });
-        }
-        if (index === undefined) {
-            return '?';
-        }
-        var type = caffe.Node._operatorMap[index];
-        if (type) {
-            return type;
-        }
-        return index.toString();
     }
 };
 
