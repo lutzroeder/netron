@@ -613,47 +613,6 @@ openvino.Metadata = class {
         return this._map[operator];
     }
 
-    getOperatorDocumentation(operator) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                });
-            }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                });
-            }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                });
-            }
-            if (schema.references) {
-                schema.references.forEach((reference) => {
-                    if (reference) {
-                        reference.description = marked(reference.description);
-                    }
-                });
-            }
-            return schema;
-        }
-        return '';
-    }
-
     getInputs(type, inputs) {
         var results = [];
         var index = 0;
