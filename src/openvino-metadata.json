@@ -1,0 +1,1460 @@
+[
+  {
+      "name": "Convolution",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
+                  "name": "stride",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *stride-x* is a distance (in pixels) to slide the filter on the feature map over the x axis. For example, *stride-x* equal 1 means sliding the filter 1 pixel at a time over the x axis.",
+                  "name": "stride-x",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *stride-y* is a distance (in pixels) to slide the filter on the feature map over the y axis. For example, *stride-y* equal 1 means sliding the filter 1 pixel at a time over the y axis.",
+                  "name": "stride-y",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad-x",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad-y",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel* is a width and height of each filter. For example, *kernel* equal 3 (3, 3) means that each filter has width and height equal to 3.",
+                  "name": "kernel",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel-x* is a width of each filter. For example, *kernel* equal 3 means that each filter has width equal to 3.",
+                  "name": "kernel-x",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel-y* is a height of each filter. For example, *kernel-y* equal 3 means that each filter has height equal to 3.",
+                  "name": "kernel-y",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *output* is a number of output feature maps per whole output (when *group* > 1, *output* still matches the number of output features regardless of *group* value). For example, *output* equals 1 means that there is 1 output feature map in a layer.",
+                  "name": "output",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *group* denotes the number of groups to which *output* and *input* should be split. For example, *group* equal 1 means that all the filters are applied to full input (usual convolution), *group* equals 2 means that both *input* and *output* channels are separated into 2 groups and *i-th output* group is connected to *i-th input* group channels. *group* equals number of output feature maps denotes depth-wise separable convolution ([Reference](https://medium.com/towards-data-science/types-of-convolutions-in-deep-learning-717013397f4d#6f51)).",
+                  "name": "group",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *dilation* denotes the distance in width and height between elements (weights) in the filter. For example, *dilation* equal \"1,1\" means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation* equal \"2,2\" means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
+                  "name": "dilation",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *dilation-y* denotes the distance in height between elements (weights) in the filter. For example, *dilation-y* equal 1 means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation-y* equal 2 means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
+                  "name": "dilation-y",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/convolution.html)<br>**Detailed description**: [Reference](http://cs231n.github.io/convolutional-networks/#conv)\n**Parameters**: *Convolution* layer parameters should be specified in the `convolution_data` node, which is a child of the layer node.\n**Weights Layout** Weights layout is GOIYX, which means that *X* is changing the fastest, then *Y*, then *Input*, *Output*, then *Group*.\n**Mathematical Formulation**\n*   For the convolutional layer, the number of output features in each dimension is calculated using the formula:\n\\f[\nn_{out} = \\left ( \\frac{n_{in} + 2p - k}{s} \\right ) + 1\n\\f]\n*   The receptive field in each layer is calculated using the formulas:\n    *   Jump in the output feature map:\n        \\f[\n        j_{out} = j_{in} * s\n        \\f]\n    *   Size of the receptive field of output feature:\n        \\f[\n        r_{out} = r_{in} + ( k - 1 ) * j_{in}\n        \\f]\n    *   Center position of the receptive field of the first output feature:\n        \\f[\n        start_{out} = start_{in} + ( \\frac{k - 1}{2} - p ) * j_{in}\n        \\f]\n    *   Output is calculated using the following formula:\n        \\f[\n        out = \\sum_{i = 0}^{n}w_{i}x_{i} + b\n        \\f]\n**Example**\n\n```html\n<layer ... type=\"Convolution\" ... >\n        <convolution_data stride-x=\"4\" stride-y=\"4\" pad-x=\"0\" pad-y=\"0\" kernel-x=\"11\" kernel-y=\"11\" output=\"96\" group=\"1\" dilation-x=\"2\" dilation-y=\"2\"/>\n        <input> ... </input>\n        <output> ... </output>\n        <weights ... />\n        <biases ... />\n    </layer>\n```",
+          "inputs": [
+            {
+              "name": "inputs",
+              "option": "variadic"
+            },
+            {
+              "description": "*(type: Tensor`<float>`)* List of input tensors.",
+              "name": "X1, X2, ..."
+            }
+          ],
+          "outputs": [
+            {
+              "description": "*(type: Tensor`<float>`)* Concatenated tensor.",
+              "name": "concat_result"
+            },
+            {
+              "description": "*(type: Tensor`<int>`)* The dimensions of the inputs.",
+              "name": "split_info"
+            }
+          ],
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Pooling",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
+                  "name": "stride",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *stride-x* is a distance (in pixels) to slide the filter on the feature map over the x axis. For example, *stride-x* equal 1 means sliding the filter 1 pixel at a time over the x axis.",
+                  "name": "stride-x",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *stride-y* is a distance (in pixels) to slide the filter on the feature map over the y axis. For example, *stride-y* equal 1 means sliding the filter 1 pixel at a time over the y axis.",
+                  "name": "stride-y",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad-x",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad-y",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel* is a width and height of each filter. For example, *kernel* equal 3 (3, 3) means that each filter has width and height equal to 3.",
+                  "name": "kernel",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel-x* is a width of each filter. For example, *kernel* equal 3 means that each filter has width equal to 3.",
+                  "name": "kernel-x",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel-y* is a height of each filter. For example, *kernel-y* equal 3 means that each filter has height equal to 3.",
+                  "name": "kernel-y",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pool-method* is a type of pooling strategy for values.",
+                  "name": "pool-method",
+                  "option": "required",
+                  "type": ""
+              },
+              {
+                  "default": 1,
+                  "description": " *exclude-pad* is a type of pooling strategy for values in the padding area. For example, if *exclude-pad* is \"true\", zero-values in the padding are not used.",
+                  "name": "exclude-pad",
+                  "option": "required",
+                  "type": " \"true\" or \"false\""
+              },
+              {
+                  "default": 1,
+                  "description": " *rounding_type* is a type of rounding to be applied.",
+                  "name": "rounding_type",
+                  "option": "required",
+                  "type": "\n    * *ceil*\n    * *floor*"
+              }
+          ],
+          "category": "Pool",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/pooling.html)\n**Detailed description**: [Reference](http://cs231n.github.io/convolutional-networks/#pool)\n**Parameters**: Specify pooling layer parameters in the `pooling_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*   For *max pool-method*:\n    \\f[\n    output_{j} = MAX\\{ x_{0}, ... x_{i}\\}\n    \\f]\n*   For *avg pool-method*:\n    \\f[\n    output_{j} = \\frac{\\sum_{i = 0}^{n}x_{i}}{n}\n    \\f]\n**Example**\n\n```html\n<layer ... type=\"Pooling\" ... >\n        <pooling_data kernel-x=\"3\" kernel-y=\"3\" pad-x=\"0\" pad-y=\"0\" stride-x=\"2\" stride-y=\"2\" pool-method=\"max\" exclude-pad=\"true\" rounding_type=\"floor\"/>\n        <input> ... </input>\n        <output> ... </output>\n    </layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "ROIPooling",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *pooled_h* is a height of the ROI output feature map. For example, *pooled_h* equal 6 means that the height of the output of *ROIpooling* is 6.",
+                  "name": "pooled_h",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pooled_w* is a width of the ROI output feature map. For example, *pooled_w* equal 6 means that the width of the output of *ROIpooling* is 6.",
+                  "name": "pooled_w",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *spatial_scale* is a ratio of the input feature map over the input image size.",
+                  "name": "spatial_scale",
+                  "option": "required",
+                  "type": " positive floating point value"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: It is a *pooling layer* with *max* pooling strategy (see *max* option in the *<a href=\"IRLayersCatalogSpec.html#pooling-layer\">Pooling layer</a>* parameters description). It is used over feature maps of non-uniform sizes and outputs another feature map of a fixed size.\n**Detailed description**: [deepsense.io reference](https://blog.deepsense.ai/region-of-interest-pooling-explained/)\n**Parameters**: Specify *ROIPooling* layer parameters in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\noutput_{j} = MAX\\{ x_{0}, ... x_{i}\\}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"ROIPooling\" ... >\n        <data pooled_h=\"6\" pooled_w=\"6\" spatial_scale=\"0.062500\"/>\n        <input> ... </input>\n        <output> ... </output>\n    </layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "FullyConnected",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *out-size* is a length of the output vector. For example, *out-size* equal 4096 means that the output vector length is 4096.",
+                  "name": "out-size",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/innerproduct.html)\n**Detailed description**: [Reference](http://cs231n.github.io/convolutional-networks/#fc)\n**Parameters**: Specify *FullyConnected* layer parameters in the `fc_data` node, which is a child of the layer node.\n**Weights Layout** OI, which means that Input is changing the fastest, then Output.\n**Mathematical Formulation**\n*   If previous layer is *FullyConnected*:\n    \\f[\n    y_{i} = f( z_{i} ) \\quad with \\quad z_{i} = \\sum_{j=1}^{m_{1}^{( l-1 )}}w_{i,j}^{( l )}y_{i}^{ ( l -1  )}\n    \\f]\n*   Otherwise:\n    \\f[\n    y_{i} = f( z_{i} ) \\quad with \\quad z_{i}^{ ( l )} = \\sum_{j=1}^{m_{1}^{( l-1 )}}\\sum_{r=1}^{m_{2}^{ ( l-1  )}}\\sum_{s=1}^{m_{3}^{ ( l-1 )}}w_{i,j,r,s}^{ ( l )} ( Y_{i}^{ (l-1) })_{r,s}\n    \\f]\n**Example**\n\n```html\n<layer ... type=\"FullyConnected\" ... >\n        <fc_data out-size=\"4096\"/>\n        <input> ... </input>\n        <output> ... </output>\n    </layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "ReLU",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *negative_slope* is a multiplier, which is used if the unit is not active (that is negative). For example, *negative_slope* equal 0.1 means that an inactive unit value would be multiplied by 0.1 and this is the [Leaky ReLU](https://keras.io/layers/advanced-activations/#leakyrelu). If *negative_slope* is equal to 0, this is the usual *ReLU*.",
+                  "name": "negative_slope",
+                  "option": "required",
+                  "type": " double values starting from 0"
+              }
+          ],
+          "category": "Activation",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/relu.html)\n**Detailed description**: [Reference](https://github.com/Kulbear/deep-learning-nano-foundation/wiki/ReLU-and-Softmax-Activation-Functions#rectified-linear-units)\n**Parameters**: *ReLU* layer parameters can be (not mandatory) specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\nY_{i}^{( l )} = max(0, Y_{i}^{( l - 1 )})\n\\f]\n**Example**\n\n```html\n<layer ... type=\"ReLU\" ... >\n    <data negative_slope=\"0.100000\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Activation",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *type* represents particular activation function. For example, *type* equal *sigmoid* means that neurons of this layer have a sigmoid activation function.",
+                  "name": "type",
+                  "option": "required",
+                  "type": "\n    * *sigmoid* - sigmoid activation function. Learn more from the **Detailed description** section.\n    * *tanh* - tanh activation function. Learn more from the **Detailed description** section.\n    * *elu* - elu activation function. Learn more from the **Detailed description** section.\n    * *relu6* - relu6 activation function."
+              }
+          ],
+          "category": "Activation",
+          "description": "**Short description**: *Activation* layer represents an activation function of each neuron in a layer, which is used to add non-linearity to the computational flow.\n**Detailed description**: [Reference](https://medium.com/the-theory-of-everything/understanding-activation-functions-in-neural-networks-9491262884e0)\n**Parameters**: *Activation layer* parameters should be specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*   Sigmoid function:\n    \\f[\n    f( x ) = \\frac{1}{1+e^{-x}}\n    \\f]\n*   Tahn function:\n    \\f[\n    f ( x ) = \\frac{2}{1+e^{-2x}} - 1 = 2sigmoid(2x) - 1\n    \\f]\n*\tElu function:\n\t\\f[\n    f(x) = \\left\\{\\begin{array}{ll}\n\t\te^{x} - 1 \\quad \\mbox{if } x < 0 \\\\\n\t\tx \\quad \\mbox{if } x \\geq  0\n\t\\end{array}\\right.\n\t\\f]\n*\tRelu6 function:\n\t\\f[\n         f(x) = min(max(0, x), 6)\n\t\\f]\n**Example**\n\n```html\n<layer ... type=\"Activation\" ... >\n    <data type=\"sigmoid\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "SoftMax",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *axis* represents the axis of which the *SoftMax* is calculated. *axis* equal 1 is a default value.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " positive integer values"
+              }
+          ],
+          "category": "Activation",
+          "description": "**Short description**: [Reference](https://github.com/Kulbear/deep-learning-nano-foundation/wiki/ReLU-and-Softmax-Activation-Functions#softmax)\n**Detailed description**: [Reference](http://cs231n.github.io/linear-classify/#softmax)\n**Parameters**: *SoftMax* layer parameters can be (not mandatory) specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\ny_{c} = \\frac{e^{Z_{c}}}{\\sum_{d=1}^{C}e^{Z_{d}}}\n\\f]\nwhere \\f$C\\f$ is a number of classes\n**Example**\n\n```html\n<layer ... type=\"SoftMax\" ... >\n    <data axis=\"1\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Deconvolution",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
+                  "name": "stride",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *stride-x* is a distance (in pixels) to slide the filter on the feature map over the x axis. For example, *stride-x* equal 1 means sliding the filter 1 pixel at a time over the x axis.",
+                  "name": "stride-x",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *stride-y* is a distance (in pixels) to slide the filter on the feature map over the y axis. For example, *stride-y* equal 1 means sliding the filter 1 pixel at a time over the y axis.",
+                  "name": "stride-y",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad-x",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
+                  "name": "pad-y",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel* is a width and height of each filter. For example, *kernel* equal 3 (3, 3) means that each filter has width and height equal to 3.",
+                  "name": "kernel",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel-x* is a width of each filter. For example, *kernel* equal 3 means that each filter has width equal to 3.",
+                  "name": "kernel-x",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *kernel-y* is a height of each filter. For example, *kernel-y* equal 3 means that each filter has height equal to 3.",
+                  "name": "kernel-y",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *output* is a number of output feature maps per whole output (when *group* > 1, *output* still matches the number of output features regardless of *group* value). For example, *output* equals 1 means that there is 1 output feature map in a layer.",
+                  "name": "output",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *group* denotes the number of groups to which *output* and *input* should be split. For example, *group* equal 1 means that all the filters are applied to full input (usual convolution), *group* equals 2 means that both *input* and *output* channels are separated into 2 groups and *i-th output* group is connected to *i-th input* group channels. *group* equals number of output feature maps denotes depth-wise separable convolution ([Reference](https://medium.com/towards-data-science/types-of-convolutions-in-deep-learning-717013397f4d#6f51)).",
+                  "name": "group",
+                  "option": "required",
+                  "type": " integer values starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *dilation* denotes the distance in width and height between elements (weights) in the filter. For example, *dilation* equal \"1,1\" means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation* equal \"2,2\" means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
+                  "name": "dilation",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *dilation-y* denotes the distance in height between elements (weights) in the filter. For example, *dilation-y* equal 1 means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation-y* equal 2 means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
+                  "name": "dilation-y",
+                  "option": "required",
+                  "type": " integer value starting from 0"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Deconvolution* layer is applied for upsampling the output to the higher image resolution.\n**Detailed description**: [Reference](https://distill.pub/2016/deconv-checkerboard/)\n**Parameters**: *Deconvolution* layer parameters should be specified in the `deconvolution_data` node, which is a child of the layer node.\n**Parameters**: *Convolution* layer parameters should be specified in the `convolution_data` node, which is a child of the layer node.\n**Weights Layout** Weights layout is the following: GOIYX, which means that *X* is changing the fastest, then *Y*, then *Input*, *Output*, then *Group*.\n**Mathematical Formulation**\n*Deconvolution* is also called transpose convolution and performs operation, reverse to convolution.\nThe number of output features for each dimensions is calculated:\n\\f[S_{o}=stride(S_{i} - 1 ) + S_{f} - 2pad \\f]\nWhere \\f$S\\f$ is size of output, input and filter.\nOutput is calculated in the same way as for convolution layer:\n\\f[out = \\sum_{i = 0}^{n}w_{i}x_{i} + b\\f]\n**Example**\n\n```html\n<layer ... type=\"Deconvolution\" ... >\n    <deconvolution_data stride-x=\"2\" stride-y=\"2\" pad-x=\"1\" pad-y=\"1\" kernel-x=\"4\" kernel-y=\"4\" output=\"19\" group=\"1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Norm",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *alpha* represents the scaling parameter for the normalizing sum. For example, *alpha* equal 0.0001 means that the normalizing sum is multiplied by 0.0001.",
+                  "name": "alpha",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *beta* represents the exponent for the normalizing sum. For example, *beta* equal 0.75 means that the normalizing sum is raised to the power of 0.75.",
+                  "name": "beta",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *region* represents strategy of local regions extension. For example, *region* equal *across* means that the normalizing sum is performed over adjacent channels.",
+                  "name": "region",
+                  "option": "required",
+                  "type": ""
+              },
+              {
+                  "default": 1,
+                  "description": " *local-size* represents the side length of the region to be used for the normalization sum or number of channels depending on the strategy specified in the *region* parameter. For example, *local-size* equal 5 for the across strategy means application of sum across 5 adjacent channels.",
+                  "name": "local-size",
+                  "option": "required",
+                  "type": " positive integer bigger than zero"
+              }
+          ],
+          "category": "Normalization",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/lrn.html)\n**Detailed description**: [Reference](http://yeephycho.github.io/2016/08/03/Normalizations-in-neural-networks/#Local-Response-Normalization-LRN)\n**Parameters**: *Norm* layer parameters should be specified in the `norm_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[o_{i} = \\left( 1 + \\left( \\frac{\\alpha}{n} \\right)\\sum_{i}x_{i}^{2} \\right)^{\\beta}\\f]\nWhere \\f$n\\f$ is the size of each local region.\n**Example**\n\n```html\n<layer ... type=\"Norm\" ... >\n    <norm_data alpha=\"9.9999997e-05\" beta=\"0.75\" local-size=\"5\" region=\"across\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Concat",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *axis* is the number of axis over which input blobs are concatenated. For example, *axis* equal 1 means that input blobs are concatenated over the first axis.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " positive number greater or equal to 0"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/concat.html)\n**Parameters**: *Concat* layer parameters should be specified in the `concat_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Axis* parameter specifies a blob dimension to concat values. For example, for two input blobs *B1xC1xH1xW1* and *B2xC2xh4xW2* if axis: 1, output blob is****: *B1xC1+C2xH1xW1*. This is only possible if *B1=B2*, *H1=H4*, *W1=W2*.\n**Example**\n\n```html\n<layer ... type=\"Concat\" ... >\n    <concat_data axis=\"1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Split",
+      "schema": {
+          "attributes": [],
+          "category": "Layer",
+          "description": "**Short description**: *Split* layer splits the input into several output groups. Group sizes are denoted by the number and the size of output ports.\n**Detailed description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/split.html)\n**Parameters**: *None*\n**Mathematical Formulation**\nSplits input blob among children. For example, blob is *BxC+CxHxW* and there are two children. Then, output blob is *BxCxHxW*.\n**Example**\n\n```html\n<layer ... type=\"Split\" ... >\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Reshape",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *axis* is the number of the starting axis for reshape. For example, *axis* equal 1 means that *Reshape* replaces dimensions starting from the next after the first dimension.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " positive number greater or equal to 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *dim* is a set of numbers separated with comma, which denote the dimensions of output blob. For example, *dim* equal 88,1,71 means that output blob gets following dimensions: first dimension equals 88, second dimension equals 1, third dimension equals 71. For more information, refer to the **Description** block. If *dim* is equal to two numbers, it performs [flattening](http://caffe.berkeleyvision.org/tutorial/layers/flatten.html).",
+                  "name": "dim",
+                  "option": "required",
+                  "type": " set of positive integer numbers separated with comma"
+              },
+              {
+                  "default": 1,
+                  "description": " *num_axes* is the number of dimensions to be replaced with a reshaped blob starting from the dimension number specified in *axis* property. For example, *num_axes* equal 2 means that 2 dimensions are replaced with reshaped blob.",
+                  "name": "num_axes",
+                  "option": "required",
+                  "type": ""
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Reshape* layer changes dimensions of the input blob according to the specified order. Input blob volume is equal to output blob volume, where volume is the product of dimensions.\n**Detailed description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/reshape.html)\n**Parameters**: *Reshape* layer parameters should be specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nIf you want to reshape input blob *BxCxHxW* into *Bx1x(C*H)xW*, the *dim* parameters of your layer should be:\n```html\n layer {\n    name: \"reshape\"\n    type: \"Reshape\"\n    bottom: \"input\"\n    top: \"output\"\n    reshape_param {\n      shape {\n        dim: 0  # copy the dimension from below\n        dim: 1\n        dim: -1 # infer it from the other dimensions\n        dim: 0\n      }\n    }\n  }\n```\n**Example**\n\n```html\n<layer ... type=\"Reshape\" ... >\n    <data axis=\"0\" dim=\"1, 1001\" num_axes=\"-1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Eltwise",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *operation* is the simple mathematical operation to be performed over inputs. For example, *operation* equal *mul* means that input blobs are multiplied.",
+                  "name": "operation",
+                  "option": "required",
+                  "type": ""
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Eltwise* layer performs element-wise operation, which is specified in parameters, over given inputs.\n**Parameters**: *Eltwise* layer parameters should be specified in the `elementwise_data` node, which is placed as a child of the layer node.\n**Mathematical Formulation** *Eltwise* accepts 2 inputs of any number of dimensions - from 1 to 4, however, it is required for both of them to have absolutely same dimensions. The produced blob is also of the same dimension as each of its parents\n*Eltwise* does the following with the input blobs:\n\\f[\no_{i} = f(b_{i}^{1}, b_{i}^{2})\n\\f]\nwhere \\f$b_{i}^{1}\\f$ - first blob \\f$i\\f$-th element, \\f$b_{i}^{2}\\f$ - second blob \\f$i\\f$-th element, \\f$o_{i}\\f$ - output blob \\f$i\\f$-th element, \\f$f(a, b)\\f$ - is a function that performs an operation over its two arguments \\f$a, b\\f$.\n*   For *sum* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = a + b\n    \\f]\n*   For *mul* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = a * b\n    \\f]\n*   For *max* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = \\left\\{\\begin{array}{ll}\n\t\ta \\quad \\mbox{if } a \\geq b \\\\\n\t\tb \\quad \\mbox{if } b > a\n\t\\end{array}\\right. \\f]\n**Example**\n\n```html\n<layer ... type=\"Eltwise\" ... >\n    <elementwise_data operation=\"sum\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "ScaleShift",
+      "schema": {
+          "attributes": [],
+          "category": "Layer",
+          "description": "**Short description**: *ScaleShift* layer performs linear transformation of the input blobs. Weights denote scaling parameter, biases - a shift.\n**Parameters**: *ScaleShift* layer does not have additional parameters.\n**Mathematical Formulation**\n\\f[\no_{i} =\\gamma b_{i} + \\beta\n\\f]\n**Example**\n\n```\n<layer ... type=\"ScaleShift\" ... >\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Crop",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *axis* is a number of a dimension to be used for cropping. For example, *axis* equal to 1 means that cropping is performed over the first dimension.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " a list of unique integers, where each element is greater than or equal to 0 and less than input shape length."
+              },
+              {
+                  "default": 1,
+                  "description": " *offset* denotes the starting point for crop in the input blob. For example, *offset* equal to 2 means that crop is starting from the second value in the given axis.",
+                  "name": "offset",
+                  "option": "required",
+                  "type": " a list of integers of the length equal to the length of *axis* attribute. In the list, `offset[i]` is greater than or equal to 0 and less than or equal to `input_shape[axis[i]] - crop_size[axis[i]]`, where `crop_size` is the shape of the second input."
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Crop* layer changes selected dimensions of the input blob according to the specified parameters.\n**Parameters**: *Crop* layer parameters should be specified in `data` section, which is placed as a child of the layer node. Due to various representation of Crop attributes in existing frameworks, this layer can be described in three independent ways: *Crop* **Type 1** layer takes two input blobs, and the shape of the second blob specifies the *Crop* size. The layer has two attributes: *axis* and *offset*. Crop layer takes two input blobs, and the shape of the second blob specifies the *Crop* size.  The *Crop* layer of this type supports shape inference.\n**Inputs**\n*   **1**:  Multidimensional input blob *(for example, NCHW, NCH, or NC)*\n*   **2**:  Shape of this input will be used for crop\n**Example**\n\n```html\n<layer id=\"39\" name=\"score_pool4c\" precision=\"FP32\" type=\"Crop\">\n    <data axis=\"2,3\" offset=\"0,0\"/>\n    <input>\n        <port id=\"0\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>44</dim>\n            <dim>44</dim>\n        </port>\n        <port id=\"1\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </input>\n    <output>\n        <port id=\"2\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Crop",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *axis* is a number of a dimension to be used for cropping. For example, *axis* equal to 1 means that cropping is performed over the first dimension.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " a list of unique integers, where each element is greater than or equal to 0 and less than input shape length"
+              },
+              {
+                  "default": 1,
+                  "description": " *offset* denotes the starting point for crop in the input blob. For example, *offset* equal to 2 means that cropping starts from the second value in the given axis.",
+                  "name": "offset",
+                  "option": "required",
+                  "type": " a list of integers with the length equal to length of *axis* attribute, where `offset[i]` is greater than or equal to 0 and less or equal to `input_shape[axis[i]] - dim[i]`"
+              },
+              {
+                  "default": 1,
+                  "description": " *dim* is the resulting size of the output blob for the given axis. For example, *dim* equal to 88 means that the output blob gets the dimension equal to 88 for the given axis.",
+                  "name": "dim",
+                  "option": "required",
+                  "type": " a list of integers"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Crop* layer changes selected dimensions of the input blob according to the specified parameters.\n**Parameters**: *Crop* layer parameters should be specified in `data` section, which is placed as a child of the layer node. Due to various representation of Crop attributes in existing frameworks, this layer can be described in three independent ways: *Crop* **Type 2** layer takes one input blob to Crop and has three attributes: *axis*, *offset*, and *dim*. *Crop* layer takes one input blob to Crop and has *axis*, *offset*, and *dim* attributes. The *Crop* layer of this type supports shape inference only when shape propagation is applied to dimensions that are not specified in the *axis* attribute.\n**Example**\n\n```html\n<layer id=\"39\" name=\"score_pool4c\" precision=\"FP32\" type=\"Crop\">\n    <data axis=\"2,3\" offset=\"0,0\" dim=\"34,34\"/>\n    <input>\n        <port id=\"0\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>44</dim>\n            <dim>44</dim>\n        </port>\n    </input>\n    <output>\n        <port id=\"1\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Crop",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *axis* is the number of the dimension to be used for cropping. For example, *axis* equal 1 means that cropping is performed over the first dimension.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " a list of unique integers, where each element is greater than or equal to 0 and less than input shape length"
+              },
+              {
+                  "default": 1,
+                  "description": " *crop_begin* specifies the starting offset for crop in the input blob for given axes.",
+                  "name": "crop_begin",
+                  "option": "required",
+                  "type": " a list of integers, where `crop_begin[i]` is greater than or equal to 0 and less than `input_shape[axis[i]] - crop_end[i]`"
+              },
+              {
+                  "default": 1,
+                  "description": " *crop_end* specifies the ending offset for crop in the input blob for given axes.",
+                  "name": "crop_end",
+                  "option": "required",
+                  "type": " a list of integers, where `crop_end[i]` is greater than or equal to 0 and less than `input_shape[axis[i]] - crop_begin[i]`"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Crop* layer changes selected dimensions of the input blob according to the specified parameters.\n**Parameters**: *Crop* layer parameters should be specified in `data` section, which is placed as a child of the layer node. Due to various representation of Crop attributes in existing frameworks, this layer can be described in three independent ways: *Crop* **Type 3** layer takes one input blob to Crop and has three attributes: *axis*, *crop_begin*, and *crop_end*. *Crop* layer takes one input blob to Crop and has *axis*, *crop_begin*, and *crop_end* attributes. The *Crop* layer of this type supports shape inference.\n**Example**\n\n```html\n<layer id=\"39\" name=\"score_pool4c\" precision=\"FP32\" type=\"Crop\">\n    <data axis=\"2,3\" crop_begin=\"4,4\" crop_end=\"6,6\"/>\n    <input>\n        <port id=\"0\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>44</dim>\n            <dim>44</dim>\n        </port>\n    </input>\n    <output>\n        <port id=\"1\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "BatchNormalization",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *epsilon* is the number to be added to the variance to avoid division by zero when normalizing the value. For example, *epsilon* equal 0.001 means that 0.001 is added to the variance.",
+                  "name": "epsilon",
+                  "option": "required",
+                  "type": " positive floating point number"
+              }
+          ],
+          "category": "Normalization",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/batchnorm.html)\n**Detailed description**: [Reference](https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html)\n**Parameters**: *BatchNormalization* layer parameters should be specified as the `batch_norm_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*BatchNormalization* is the normalization of the output in each hidden layer.\n*   **Input**: Values of \\f$x\\f$ over a mini-batch:\n    \\f[\n    \\beta = \\{ x_{1...m} \\}\n    \\f]\n*   **Parameters to learn**: \\f$ \\gamma, \\beta\\f$\n*   **Output**:\n    \\f[\n    \\{ o_{i} = BN_{\\gamma, \\beta} ( b_{i} ) \\}\n    \\f]\n*   **Mini-batch mean**:\n    \\f[\n    \\mu_{\\beta} \\leftarrow \\frac{1}{m}\\sum_{i=1}^{m}b_{i}\n    \\f]\n*   **Mini-batch variance**:\n    \\f[\n    \\sigma_{\\beta }^{2}\\leftarrow \\frac{1}{m}\\sum_{i=1}^{m} ( b_{i} - \\mu_{\\beta} )^{2}\n    \\f]\n*   **Normalize**:\n    \\f[\n    \\hat{b_{i}} \\leftarrow \\frac{b_{i} - \\mu_{\\beta}}{\\sqrt{\\sigma_{\\beta }^{2} + \\epsilon }}\n    \\f]\n*   **Scale and shift**:\n    \\f[\n    o_{i} \\leftarrow \\gamma\\hat{b_{i}} + \\beta = BN_{\\gamma ,\\beta } ( b_{i} )\n    \\f]\n**Example**\n\n```html\n<layer ... type=\"BatchNormalization\" ... >\n    <batch_norm_data epsilon=\"9.99e-06\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Normalize",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *across_spatial* is a flag that denotes if normalization is performed over CHW or HW. For example, *across_spatial* equals 0 means that normalization is not shared across channels.",
+                  "name": "across_spatial",
+                  "option": "required",
+                  "type": "\n    * 0\n    * 1 - not supported"
+              },
+              {
+                  "default": 1,
+                  "description": " *channel_shared* is a flag that denotes if scale parameters are shared across channels. For example, *channel_shared* equal 0 means that scale parameters are not shared across channels.",
+                  "name": "channel_shared",
+                  "option": "required",
+                  "type": "\n    * 0 - scale parameters are not shared across channels\n    * 1 - not supported"
+              },
+              {
+                  "default": 1,
+                  "description": " *eps* is the epsilon used to avoid division by zero when normalizing the value. For example, *eps* equals 0.001 means that 0.001 is used if all the values in normalization are equal to zero.",
+                  "name": "eps",
+                  "option": "required",
+                  "type": " positive floating point number"
+              }
+          ],
+          "category": "Normalization",
+          "description": "**Short description**: *Normalize* layer performs l-p normalization of 1 of input blob.\n**Parameters**: *Normalize* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\no_{i} = \\sum_{i}^{H*W}\\frac{\\left ( n*C*H*W \\right )* scale}{\\sqrt{\\sum_{i=0}^{C*H*W}\\left ( n*C*H*W \\right )^{2}}}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Normalize\" ... >\n    <data across_spatial=\"0\" channel_shared=\"0\" eps=\"0.000000\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Tile",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *axis* is the index of the axis to tile. For example, *axis* equals 3 means that fourth axis is used for tiling.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *tiles* is a size of the specified axis in the output blob. For example, *tiles* equal 88 means that output blob gets 88 copies of data from specified axis.",
+                  "name": "tiles",
+                  "option": "required",
+                  "type": " positive integer number"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Tile* layer extends input blob with copies of data along specific axis.\n**Detailed description**: [Reference](http://caffe.help/manual/layers/tile.html)\n**Parameters**: *Tile* layer parameters should be specified as the `tile_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Tile* extends input blobs and filling in output blobs following rules:\n\\f[\nout_i=input_i[inner\\_dim*t]\n\\f]\n\\f[\nt \\in \\left ( 0, \\quad tiles \\right )\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Tile\" ... >\n    <tile_data axis=\"3\" tiles=\"88\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Permute",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *order* is the set of dimensions indexes for output blob. For example, *order* equal 0,2,3,1 means that the output blob has following dimensions: first dimension from the input blob, third dimension from the input blob, fourth dimension from the input blob, second dimension from the input blob.",
+                  "name": "order",
+                  "option": "required",
+                  "type": " set of positive integer numbers separated by comma"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Permute* layer performs reordering of input blob dimensions.\n**Detailed description**: [Reference](http://caffe.help/manual/layers/tile.html)\n**Parameters**: *Permute* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Permute* layer performs reordering input blob. Source indexes and destination indexes are bound by formula:\n\\f[\nsrc\\_ind_{offset} = n * ordered[1] * ordered[2] * ordered[3] + (h * ordered[3] + w)\n\\f]\n\\f[\nn \\in ( 0, order[0] )\n\\f]\n\\f[\nh \\in ( 0, order[2] )\n\\f]\n\\f[\nw \\in ( 0, order[3] )\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Permute\" ... >\n    <data order=\"0,2,3,1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "PriorBox",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *min_size (max_size)* is the minimum (maximum) box size (in pixels). For example, *min_size (max_size)* equal 15 means that the minimum (maximum) box size is 15.",
+                  "name": "min_size (max_size)",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *aspect_ratio* is a variance of aspect ratios. Duplicate values are ignored. For example, *aspect_ratio* equal 2.000000,3.000000 means that for the first box aspect_ratio is equal to 2 and for the second box - 3.",
+                  "name": "aspect_ratio",
+                  "option": "required",
+                  "type": " set of positive integer numbers"
+              },
+              {
+                  "default": 1,
+                  "description": " *flip* is a flag that denotes that each *aspect_ratio* is duplicated and flipped. For example, *flip* equals 1 and *aspect_ratio* equals 3 mean that aspect_ratio is equal to 1/3.",
+                  "name": "flip",
+                  "option": "required",
+                  "type": "\n    * 0 - each *aspect_ratio* is flipped\n    * 1 - each *aspect_ratio* is not flipped"
+              },
+              {
+                  "default": 1,
+                  "description": " *clip* is a flag that denotes if each value in the output blob is within [0,1]. For example, *clip* equal 1 means that each value in the output blob is within [0,1].",
+                  "name": "clip",
+                  "option": "required",
+                  "type": "\n    * 0 - clipping is not performed\n    * 1 - each value in the output blob is within [0,1]"
+              },
+              {
+                  "default": 1,
+                  "description": " *step* is a distance between box centers. For example, *step* equal 85 means that the distance between neighborhood prior boxes centers is 85.",
+                  "name": "step",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *offset* is a shift of box respectively to top left corner. For example, *offset* equal 85 means that the shift of neighborhood prior boxes centers is 85.",
+                  "name": "offset",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *variance* denotes a variance of adjusting bounding boxes. For example, *variance* equals 85 means that the shift of neighborhood prior boxes centers is 85.",
+                  "name": "variance",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *scale_all_sizes* is a flag that denotes type of inference. For example, *scale_all_sizes* equals 0 means that priorbox layer is inferd in MXNet-like manner. In particular, *max_size* parameter is ignored.",
+                  "name": "scale_all_sizes",
+                  "option": "required",
+                  "type": "\n    * 0 - *max_size* is ignored\n    * 1 - default value. *max_size* is used"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *PriorBox* layer generates prior boxes of specified sizes and aspect ratios across all dimensions.\n**Parameters**: *PriorBox* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**:\n*PriorBox* computes coordinates of prior boxes by following:\n1.  First calculates *center_x* and *center_y* of prior box:\n    \\f[\n    W \\equiv Width \\quad Of \\quad Image\n    \\f]\n    \\f[\n    H \\equiv Height \\quad Of \\quad Image\n    \\f]\n    *   If step equals 0:\n        \\f[\n        center_x=(w+0.5)\n        \\f]\n        \\f[\n        center_y=(h+0.5)\n        \\f]\n    *   else:\n        \\f[\n        center_x=(w+offset)*step\n        \\f]\n        \\f[\n        center_y=(h+offset)*step\n        \\f]\n        \\f[\n        w \\subset \\left( 0, W \\right )\n        \\f]\n        \\f[\n        h \\subset \\left( 0, H \\right )\n        \\f]\n2.  Then, for each \\f$ s \\subset \\left( 0, min_sizes \\right ) \\f$ calculates coordinates of priorboxes:\n    \\f[\n    xmin = \\frac{\\frac{center_x - s}{2}}{W}\n    \\f]\n    \\f[\n    ymin = \\frac{\\frac{center_y - s}{2}}{H}\n    \\f]\n    \\f[\n    xmax = \\frac{\\frac{center_x + s}{2}}{W}\n    \\f]\n    \\f[\n    ymin = \\frac{\\frac{center_y + s}{2}}{H}\n    \\f]\n**Example**\n\n```html\n<layer ... type=\"PriorBox\" ... >\n    <data step=\"64.000000\" min_size=\"162.000000\" max_size=\"213.000000\" offset=\"0.500000\" flip=\"1\" clip=\"0\" aspect_ratio=\"2.000000,3.000000\" variance=\"0.100000,0.100000,0.200000,0.200000\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "SimplerNMS",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *pre_nms_topn (post_nms_topn)* is the quantity of bounding boxes before (after) applying NMS operation. For example, *pre_nms_topn (post_nms_topn)* equals 15 means that the minimum (maximum) box size is 15.",
+                  "name": "pre_nms_topn (post_nms_topn)",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *cls_threshold* is the minimum value of the proposal to be taken into consideration. For example, *cls_threshold* equal 0.5 means that all boxes with prediction probability less than 0.5 are filtered out.",
+                  "name": "cls_threshold",
+                  "option": "required",
+                  "type": " positive floating point number"
+              },
+              {
+                  "default": 1,
+                  "description": " *iou_threshold* is the minimum ratio of boxes overlapping to be taken into consideration. For example, *iou_threshold* equal 0.7 means that all boxes with overlapping ratio less than 0.7 are filtered out.",
+                  "name": "iou_threshold",
+                  "option": "required",
+                  "type": " positive floating point number"
+              },
+              {
+                  "default": 1,
+                  "description": " *feat_stride* is the step size to slide over boxes (in pixels). For example, *feat_stride* equal 16 means that all boxes are analyzed with the slide 16.",
+                  "name": "feat_stride",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *min_bbox_size* is the minimum size of box to be taken into consideration. For example, *min_bbox_size* equal 35 means that all boxes with box size less than 35 are filtered out.",
+                  "name": "min_bbox_size",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *scale* is array of scales for anchor boxes generating.",
+                  "name": "scale",
+                  "option": "required",
+                  "type": " positive integer number"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *SimplerNMS* layer performs filtering of bounding boxes and outputs only those with the highest confidence of prediction.\n**Parameters**: *SimplerNMS* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*SimplerNMS* accepts three inputs with four dimensions. Produced blob has two dimensions, the first one equals *post_nms_topn*.\n*SimplerNMS* does the following with the input blob:\n1.  Generates initial anchor boxes. Left top corner of all boxes is (0, 0). Width and height of boxes are calculated based on scaled (according to the scale parameter) default widths and heights\n2.  For each point in the first input blob:\n    *   pins anchor boxes to picture according to the second input blob, which contains four deltas for each box: for x and y of center, for width, and for height\n    *   finds out score in the first input blob\n3.  Filters out boxes with size less than *min_bbox_size.*\n4.  Sorts all proposals (*box, score*) by score from highest to lowest\n5.  Takes top *pre_nms_topn* proposals\n6.  Calculates intersections for boxes and filters out all with \\f$intersection/union > iou\\_threshold\\f$\n7.  Takes top *post_nms_topn* proposals\n8.  Returns top proposals\n**Example**\n\n```html\n<layer ... type=\"SimplerNMS\" ... >\n    <data cls_threshold=\"0.500000\" iou_threshold=\"0.700000\" min_bbox_size=\"16\" feat_stride=\"16\" pre_nms_topn=\"6000\" post_nms_topn=\"150\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "DetectionOutput",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " number of classes to be predicted",
+                  "name": "num_classes",
+                  "option": "required",
+                  "type": " positive integer values"
+              },
+              {
+                  "default": 1,
+                  "description": " background label id. If there is no background class, set it to -1.",
+                  "name": "background_label_id",
+                  "option": "required",
+                  "type": " integer values"
+              },
+              {
+                  "default": 1,
+                  "description": " maximum number of results to be kept on NMS stage",
+                  "name": "top_k",
+                  "option": "required",
+                  "type": " integer values"
+              },
+              {
+                  "default": 1,
+                  "description": " if \"true\", variance is encoded in target. Otherwise, we need to adjust the predicted offset accordingly.",
+                  "name": "variance_encoded_in_target",
+                  "option": "required",
+                  "type": " logical values"
+              },
+              {
+                  "default": 1,
+                  "description": " number of total bboxes to be kept per image after NMS step. -1 means keeping all bboxes after NMS step.",
+                  "name": "keep_top_k",
+                  "option": "required",
+                  "type": " integer values"
+              },
+              {
+                  "default": 1,
+                  "description": null,
+                  "name": "num_orient_classes",
+                  "option": "required",
+                  "type": " integer values"
+              },
+              {
+                  "default": 1,
+                  "description": " type of coding method for bounding boxes",
+                  "name": "code_type",
+                  "option": "required",
+                  "type": " caffe.PriorBoxParameter.CENTER_SIZE and others"
+              },
+              {
+                  "default": 1,
+                  "description": " bounding boxes are shared among different classes.",
+                  "name": "share_location",
+                  "option": "required",
+                  "type": " logical values"
+              },
+              {
+                  "default": 1,
+                  "description": null,
+                  "name": "interpolate_orientation",
+                  "option": "required",
+                  "type": " integer values"
+              },
+              {
+                  "default": 1,
+                  "description": " threshold to be used in NMS stage",
+                  "name": "nms_threshold",
+                  "option": "required",
+                  "type": " floating point values"
+              },
+              {
+                  "default": 1,
+                  "description": " only consider detections whose confidences are larger than a threshold. If not provided, consider all boxes.",
+                  "name": "confidence_threshold",
+                  "option": "required",
+                  "type": " floating point values"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *DetectionOutput* layer performs non-maximum suppression to generate the detection output using information on location and confidence predictions.\n**Detailed description**: [Reference](https://arxiv.org/pdf/1512.02325.pdf)\n**Parameters**: *DetectionOutput* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nAt each feature map cell, *DetectionOutput* predicts the offsets relative to the default box shapes in the cell, as well as the per-class scores that indicate the presence of a class instance in each of those boxes. Specifically, for each box out of k at a given location, *DetectionOutput* computes class scores and the four offsets relative to the original default box shape. This results in a total of \\f$(c + 4)k\\f$ filters that are applied around each location in the feature map, yielding \\f$(c + 4)kmn\\f$ outputs for a m \u00d7 n feature map.\n**Example**\n\n```html\n<layer ... type=\"DetectionOutput\" ... >\n    <data num_classes=\"21\" share_location=\"1\" background_label_id=\"0\" nms_threshold=\"0.450000\" top_k=\"400\" eta=\"1.000000\" output_directory=\"\" output_name_prefix=\"\" output_format=\"\" label_map_file=\"\" name_size_file=\"\" num_test_image=\"0\" prob=\"1.000000\" resize_mode=\"caffe.ResizeParameter.WARP\" height=\"0\" width=\"0\" height_scale=\"0\" width_scale=\"0\" pad_mode=\"caffe.ResizeParameter.CONSTANT\" pad_value=\"#\" interp_mode=\"#\" code_type=\"caffe.PriorBoxParameter.CENTER_SIZE\" variance_encoded_in_target=\"0\" keep_top_k=\"200\" confidence_threshold=\"0.010000\" visualize=\"0\" visualize_threshold=\"0.000000\" save_file=\"\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Memory",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *id* is the id of the pair of *Memory* layers. For example, *id* equals r_27-28 means that layers with id 27 and 28 are in one pair.",
+                  "name": "id",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *index* represents if the given layer is input or output. For example, *index* equal 0 means this layer is output one.",
+                  "name": "index",
+                  "option": "required",
+                  "type": "\n    * 0 - current layer is output one\n    * 1 - current layer is input one"
+              },
+              {
+                  "default": 1,
+                  "description": " *size* represents the size of the group. For example, *size* equals 2 means this group is a pair.",
+                  "name": "size",
+                  "option": "required",
+                  "type": " only 2 is supported"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Memory* layer represents delay layer in terms of LSTM terminology. To read more about LSTM topologies please refer this [link](http://colah.github.io/posts/2015-08-Understanding-LSTMs).\n**Detailed description**: *Memory* layer saves state between two infer requests. In the topology, it is the single layer, however, in the Intermediate Representation, it is always represented as a pair of **Memory** layers. One of these layers does not have outputs and another does not have inputs (in terms of the Intermediate Representation).\n**Parameters**: *Memory* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Memory* save data from the input blob.\n**Example**\n\n```html\n<layer ... type=\"Memory\" ... >\n    <data id=\"r_27-28\" index=\"0\" size=\"2\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Clamp",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *min* is the lower bound of values in the output shape. Any value in the input shape that is smaller than the bound, is replaced by the *min* value. For example, *min* equal 10 means that any value in the input shape that is smaller than the bound, is replaced by 10.",
+                  "name": "min",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *max* is the upper bound of values in the output shape. Any value in the input shape that is greater than the bound, is replaced by the *max* value. For example, *max* equals 50 means that any value in the input shape that is greater than the bound, is replaced by 50.",
+                  "name": "max",
+                  "option": "required",
+                  "type": " positive integer number"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Clamp* layer represents clipping activation operation.\n**Detailed description**: [Reference](https://www.tensorflow.org/versions/r1.2/api_docs/MO_DG/prepare_model/python/tf/clip_by_value)\n**Parameters**: *Clamp* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Clamp* generally does the following with the input blobs:\n\\f[\nout_i=\\left\\{\\begin{array}{ll}\n\tmax\\_value \\quad \\mbox{if } \\quad input_i>max\\_value \\\\\n\tmin\\_value \\quad \\mbox{if } \\quad input_i\n\\end{array}\\right.\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Clamp\" ... >\n    <data min=\"10\" max=\"50\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "ArgMax",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " if *out_max_val* equals 1, output is a vector of pairs *(max_ind, max_val)*, unless axis is set. Then output is *max_val* along the specified axis.",
+                  "name": "top_k",
+                  "option": "required",
+                  "type": " positive integer number\n 0 or 1"
+              },
+              {
+                  "default": 1,
+                  "description": " if *out_max_val* equals 1, output is a vector of pairs *(max_ind, max_val)*, unless axis is set. Then output is *max_val* along the specified axis.",
+                  "name": "top_k",
+                  "option": "required",
+                  "type": " positive integer number\n 0 or 1"
+              },
+              {
+                  "default": 1,
+                  "description": " if set, maximizes along the specified axis, else maximizes the flattened trailing dimensions for each index of the first / num dimension.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " integer values"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *ArgMax* layer compute the index of the *K* maximum values for each datum across all dimensions *CxHxW*.\n**Detailed description**: Intended for use after a classification layer to produce a prediction. If parameter *out_max_val* is set to \"true\", output is a vector of pairs *(max_ind, max_val)* for each image. The *axis* parameter specifies an axis along which to maximize.\n**Parameters**: *ArgMax* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*ArgMax* generally does the following with the input blobs:\n\\f[\no_{i} = \\left\\{\nx| x \\in S  \\wedge \\forall y \\in S : f(y) \\leq f(x)\n\\right\\}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"ArgMax\" ... >\n    <data top_k=\"10\" out_max_val=\"1\" axis=\"-1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "PSROIPooling",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " pooled output channel number",
+                  "name": "output_dim",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " number of groups to encode position-sensitive score maps",
+                  "name": "group_size",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling",
+                  "name": "spatial_scale",
+                  "option": "required",
+                  "type": " positive floating point value"
+              }
+          ],
+          "category": "Pool",
+          "description": "**Short description**: *PSROIPooling* layer compute position-sensitive max pooling on regions of interest specified by input, takes as input N position-sensitive score maps and a list of R regions of interest.\n**Detailed description**: [Reference](https://arxiv.org/pdf/1703.06211.pdf)\n**Parameters**: *PSRoiPooling* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nThe output value for \\f$(i, j)\\f$-th bin is obtained by summation from one score map \\f$x_{i,j}\\f$ corresponding to that bin. In short, the difference from *RoIPooling* is that a general feature map \\f$x\\f$ is replaced by a specific positive-sensitive score map \\f$x_{i,j}\\f$.\n**Example**\n\n```html\n<layer ... type=\"PSROIPooling\" ... >\n    <data output_dim=\"10\" out_max_val=\"1\" spatial_scale=\"0.1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "GRN",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *bias* is added to the variance.",
+                  "name": "bias",
+                  "option": "required",
+                  "type": " floating point value"
+              }
+          ],
+          "category": "Normalization",
+          "description": "**Short description**: *GRN* is Global Response Normalization with L2 norm (across channels only).\n**Parameters**: GRN layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*GRN* computes L2 norm by channels for input blob. *GRN* generally does the following with the input blob:\n\\f[\noutput_{i} = \\frac{input_{i}}{\\sqrt{\\sum_{i}^{C} input_{i}}}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"GRN\" ... >\n    <data bias=\"1.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "PReLU",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *channel_shared* shows if negative slope shared across channels or not.",
+                  "name": "channel_shared",
+                  "option": "required",
+                  "type": " 0 or 1"
+              },
+              {
+                  "default": 1,
+                  "description": " *filler_type* defines initialization type for negative slope.",
+                  "name": "filler_type",
+                  "option": "required",
+                  "type": " string"
+              },
+              {
+                  "default": 1,
+                  "description": " *filler_value* defines the value in constant filler.",
+                  "name": "filler_value",
+                  "option": "required",
+                  "type": " integer"
+              },
+              {
+                  "default": 1,
+                  "description": " *min(max)* defines the minimal(maximal) value in uniform filler.",
+                  "name": "min(max)",
+                  "option": "required",
+                  "type": " integer"
+              },
+              {
+                  "default": 1,
+                  "description": " *mean* defines the mean value in Gaussian filler.",
+                  "name": "mean",
+                  "option": "required",
+                  "type": " integer"
+              }
+          ],
+          "category": "Activation",
+          "description": "**Short description**: *PReLU* is the Parametric Rectifier Linear Unit. The difference from *ReLU* is that negative slopes can vary across channels.\n**Parameters**: *PReLU* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*PReLU* accepts one input with four dimensions. The produced blob has the same dimensions as input.\n*PReLU* does the following with the input blob:\n\\f[\no_{i} = max(0, x_{i}) + w_{i} * min(0,x_{i})\n\\f]\nwhere \\f$w_{i}\\f$ is from weights blob.\n**Example**\n\n```html\n<layer ... type=\"PReLU\" ... >\n    <data bias=\"1.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "RegionYolo",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *coords* is num coordinates for each region",
+                  "name": "coords",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *classes* is num classes for each region",
+                  "name": "classes",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *num* is number of regions",
+                  "name": "num",
+                  "option": "required",
+                  "type": " integer value"
+              },
+              {
+                  "default": 1,
+                  "description": " *do_softmax* is a flag which specifies the method of infer",
+                  "name": "do_softmax",
+                  "option": "required",
+                  "type": "\n    * *0* - softmax is not performed\n    * *1* - softmax is performed"
+              },
+              {
+                  "default": 1,
+                  "description": " *anchors* coordinates regions",
+                  "name": "anchors",
+                  "option": "required",
+                  "type": " floating point values"
+              },
+              {
+                  "default": 1,
+                  "description": " *mask* specifies which anchors to use",
+                  "name": "mask",
+                  "option": "required",
+                  "type": " integer values"
+              },
+              {
+                  "default": 1,
+                  "description": " *mask* specifies which anchors to use",
+                  "name": "mask",
+                  "option": "required",
+                  "type": " integer values"
+              },
+              {
+                  "default": 1,
+                  "description": " *axis* is the number of the dimension from which flattening is performed. For example, *axis* equals 1 means that flattening is started from the 1st dimension.",
+                  "name": "axis",
+                  "option": "required",
+                  "type": " positive number greater or equal to 0"
+              },
+              {
+                  "default": 1,
+                  "description": " *end_axis* is the number of the dimension on which flattening is ended. For example, *end_axis* equals -1 means that flattening is performed till the last dimension.",
+                  "name": "end_axis",
+                  "option": "required",
+                  "type": " positive number greater or equal to 0"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *RegionYolo* computes coordinates of regions with probability for each class.\n**Detailed description**:  [Reference][p_yolo]\n**Parameters**: *RegionYolo* layer parameters should be specified as the `data` node, which is a child of the `layer` node.\n**Example**\n\n```html\n<layer ... type=\"RegionYolo\" ... >\n    <data bias=\"1.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n    <weights .../>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "ReorgYolo",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *stride* is distance of cut throws in output blobs.",
+                  "name": "stride",
+                  "option": "required",
+                  "type": " integer values"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *ReorgYolo* reorganizes input blob taking into account strides.\n**Detailed description**: [Reference][p_yolo]\n**Parameters**: *ReorgYolo* layer parameters should be specified as the `data` node, which is a child of the `layer` node.\n**Example**\n\n```html\n<layer ... type=\"ReorgYolo\" ... >\n    <data stride=\"1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "PriorBoxClustered",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *width (height)* is a parameter that specifies desired boxes widths (heights) in pixels.",
+                  "name": "width (height)",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *clip* is a flag that denotes if each value in the output blob is within [0,1]. For example, *clip* equal 1 means that each value in the output blob is within [0,1].",
+                  "name": "clip",
+                  "option": "required",
+                  "type": "\n    * 0 - clipping is not performed\n    * 1 - each value in the output blob is within [0,1]"
+              },
+              {
+                  "default": 1,
+                  "description": " *flip* is a flag that denotes whether the list of boxes is augmented with the flipped ones.",
+                  "name": "flip",
+                  "option": "required",
+                  "type": "\n    * 0 - list of boxes is not augmented with the flipped ones\n    * 1 - list of boxes is augmented with the flipped ones"
+              },
+              {
+                  "default": 1,
+                  "description": " *step (step_w, step_h)* is a distance between box centers. For example, *step* equal 85 means that the distance between neighborhood prior boxes centers is 85.",
+                  "name": "step (step_w, step_h)",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *offset* is a shift of box respectively to top left corner. For example, *offset* equal 85 means that the shift of neighborhood prior boxes centers is 85.",
+                  "name": "offset",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *variance* denotes a variance of adjusting bounding boxes. For example, *variance* equal 85 means that the shift of neighborhood prior boxes centers is 85.",
+                  "name": "variance",
+                  "option": "required",
+                  "type": " floating point positive number"
+              },
+              {
+                  "default": 1,
+                  "description": " *img_h (img_w)* specifies height (width) of input image. These parameters are calculated unless provided explicitly.",
+                  "name": "img_h (img_w)",
+                  "option": "required",
+                  "type": " floating point positive number"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *PriorBoxClustered* layer generates prior boxes of specified sizes.\n**Parameters**: *PriorBoxClustered* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*PriorBoxClustered* computes coordinates of prior boxes by following:\n1.  Calculates the *center_x* and *center_y* of prior box:\n    \\f[\n    W \\equiv Width \\quad Of \\quad Image\n    \\f]\n    \\f[\n    H \\equiv Height \\quad Of \\quad Image\n    \\f]\n    \\f[\n    center_x=(w+offset)*step\n    \\f]\n    \\f[\n    center_y=(h+offset)*step\n    \\f]\n    \\f[\n    w \\subset \\left( 0, W \\right )\n    \\f]\n    \\f[\n    h \\subset \\left( 0, H \\right )\n    \\f]\n2.  For each \\f$s \\subset \\left( 0, W \\right )\\f$ calculates the prior boxes coordinates:\n    \\f[\n    xmin = \\frac{center_x - \\frac{width_s}{2}}{W}\n    \\f]\n\t\\f[\n\tymin = \\frac{center_y - \\frac{height_s}{2}}{H}\n\t\\f]\n\t\\f[\n\txmax = \\frac{center_x - \\frac{width_s}{2}}{W}\n\t\\f]\n\t\\f[\n\tymax = \\frac{center_y - \\frac{height_s}{2}}{H}\n\t\\f]\nIf *clip* is defined, the coordinates of prior boxes are recalculated with the formula:\n\\f$coordinate = \\min(\\max(coordinate,0), 1)\\f$\n**Example**\n\n```html\n<layer ... type=\"PriorBoxClustered\">\n    <data clip=\"0\" flip=\"0\" height=\"44.0,10.0,30.0,19.0,94.0,32.0,61.0,53.0,17.0\" offset=\"0.5\" step=\"16.0\" variance=\"0.1,0.1,0.2,0.2\"\n     width=\"86.0,13.0,57.0,39.0,68.0,34.0,142.0,50.0,23.0\"/>\n    <input>\n        ...\n    </input>\n    <output>\n        ...\n    </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "MVN",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *across_channels* is a flag that denotes if mean values are shared across channels. For example, *across_channels* equal 0 means that mean values are not shared across channels.",
+                  "name": "across_channels",
+                  "option": "required",
+                  "type": "\n    * 0 - mean values are not shared across channels\n    * 1 - mean values are shared across channels"
+              },
+              {
+                  "default": 1,
+                  "description": " *normalize_variance* is a flag that denotes whether to perform variance normalization.",
+                  "name": "normalize_variance",
+                  "option": "required",
+                  "type": "\n    * 0 - variance normalization is not performed\n    * 1 - variance normalization is performed"
+              },
+              {
+                  "default": 1,
+                  "description": " *eps* is the number to be added to the variance to avoid division by zero when normalizing the value. For example, *epsilon* equal 0.001 means that 0.001 is added to the variance.",
+                  "name": "eps",
+                  "option": "required",
+                  "type": " positive floating point number"
+              }
+          ],
+          "category": "Normalization",
+          "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/mvn.html)\n**Parameters**: *MVN* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*MVN* subtracts mean from the input blob:\n\\f[\no_{i} = i_{i} - \\frac{\\sum{i_{k}}}{C * H * W}\n\\f]\nIf *normalize_variance* is set to 1, the output blob is divided by variance:\n\\f[\no_{i}=\\frac{o_{i}}{\\sum \\sqrt {o_{k}^2}+\\epsilon}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"MVN\">\n    <data across_channels=\"1\" eps=\"9.999999717180685e-10\" normalize_variance=\"1\"/>\n    <input>\n        ...\n    </input>\n    <output>\n        ...\n    </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "CTCGreadyDecoder",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *ctc_merge_repeated* is a flag for collapsing the repeated labels during the ctc calculation.",
+                  "name": "ctc_merge_repeated",
+                  "option": "required",
+                  "type": " 0 or 1"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *CTCGreadyDecoder* performs greedy decoding on the logits given in input (best path).\n**Detailed description**: [Reference](https://www.tensorflow.org/api_docs/python/tf/nn/ctc_greedy_decoder)\n**Parameters**: *CTCGreadyDecoder* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nGiven an input sequence \\f$X\\f$ of length \\f$T\\f$, *CTCGreadyDecoder* assumes the probability of a length \\f$T\\f$ character sequence \\f$C\\f$ is given by\n\\f[\np(C|X) = \\prod_{t=1}^{T} p(c_{t}|X)\n\\f]\n**Example**\n\n```html\n<layer ... type=\"CTCGreadyDecoder\" ... >\n    <data stride=\"1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Proposal",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *pre_nms_topn (post_nms_topn)* is the quantity of bounding boxes before (after) applying NMS operation. For example, *pre_nms_topn (post_nms_topn)* equal 15 means that the minimum (maximum) box size is 15.",
+                  "name": "pre_nms_topn (post_nms_topn)",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *nms_thresh* is the minimum value of the proposal to be taken into consideration. For example, *nms_thresh* equal 0.5 means that all boxes with prediction probability less than 0.5 are filtered out.",
+                  "name": "nms_thresh",
+                  "option": "required",
+                  "type": " positive floating point number"
+              },
+              {
+                  "default": 1,
+                  "description": " *feat_stride* is the step size to slide over boxes (in pixels). For example, *feat_stride* equal 16 means that all boxes are analyzed with the slide 16.",
+                  "name": "feat_stride",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *min_size* is the minimum size of box to be taken into consideration. For example, *min_size* equal 35 means that all boxes with box size less than 35 are filtered out.",
+                  "name": "min_size",
+                  "option": "required",
+                  "type": " positive integer number"
+              },
+              {
+                  "default": 1,
+                  "description": " *ratio* is the ratios for anchor generation.",
+                  "name": "ratio",
+                  "option": "required",
+                  "type": " array of float numbers"
+              },
+              {
+                  "default": 1,
+                  "description": " *ratio* is the ratios for anchor generation.",
+                  "name": "ratio",
+                  "option": "required",
+                  "type": " array of float numbers"
+              },
+              {
+                  "default": 1,
+                  "description": " *scale* is the scales for anchor generation.",
+                  "name": "scale",
+                  "option": "required",
+                  "type": " array of float numbers"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Proposal* layer performs filtering of only those bounding boxes and outputs with the highest confidence of prediction.\n**Parameters**: Proposal layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Proposal* layer accepts three inputs with four dimensions. The produced blob has two dimensions: first one equals *batch_size * post_nms_topn*.\n*Proposal* does the following with the input blob:\n1.  Generates initial anchor boxes Left top corner of all boxes in (0, 0). Width and height of boxes are calculated from *base_size* with scale and ratio parameters\n2.  For each point in the first input blob:\n    *   pins anchor boxes to the image according to the second input blob that contains four deltas for each box: for *x* and *y* of center, for *width* and for *height*\n    *   finds out score in the first input blob\n3.  Filters out boxes with size less than *min_size*\n4.  Sorts all proposals (*box*, *score*) by score from highest to lowest\n5.  Takes top *pre_nms_topn* proposals\n6.  Calculates intersections for boxes and filter out all with \\f$intersection/union > nms\\_thresh\\f$\n7.  Takes top *post_nms_topn* proposals\n8.  Returns top proposals\n**Example**\n\n```html\n<layer ... type=\"Proposal\" ... >\n    <data base_size=\"16\" feat_stride=\"16\" min_size=\"16\" nms_thresh=\"0.6\" post_nms_topn=\"200\" pre_nms_topn=\"6000\"\n     ratio=\"2.67\" scale=\"4.0,6.0,9.0,16.0,24.0,32.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Resample",
+      "schema": {
+          "attributes": [
+              {
+                  "default": 1,
+                  "description": " *type* parameter specifies type of blob interpolation.",
+                  "name": "type",
+                  "option": "required",
+                  "type": "\n    * *LINEAR* - linear blob interpolation\n    * *CUBIC* - cubic blob interpolation\n    * *NEAREST* - nearest-neighbor blob interpolation"
+              },
+              {
+                  "default": 1,
+                  "description": " *antialias* is a flag that denotes whether to perform anti-aliasing.",
+                  "name": "antialias",
+                  "option": "required",
+                  "type": "\n    * 0 - anti-aliasing is not performed\n    * 1 - anti-aliasing is performed"
+              }
+          ],
+          "category": "Layer",
+          "description": "**Short description**: *Resample* layer scales the input blob by the specified parameters.\n**Parameters**: Resample layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Example**\n\n```html\n<layer type=\"Resample\">\n  <data antialias=\"0\" factor=\"1.0\" height=\"227\" type=\"caffe.ResampleParameter.LINEAR\" width=\"227\"/>\n      <input>\n      ...\n      </input>\n      <output>\n      ...\n      </output>\n\u200b</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  },
+  {
+      "name": "Power",
+      "schema": {
+          "attributes": [],
+          "category": "Layer",
+          "description": "**Short description**: *Power* layer computes the output as (shift + scale * x) ^ power for each input element x.\n**Parameters**: Power layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\np = (shift + scale * x)^{power}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Power\" ... >\n    <data power=\"2\" scale=\"0.1\" shift=\"5\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
+          "inputs": null,
+          "outputs": null,
+          "support_level": "default"
+      }
+  }
+]

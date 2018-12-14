@@ -1,6 +1,7 @@
             /*jshint esversion: 6 */
 
 var openvino = openvino || {};
+var marked = marked || require('marked');
 openvino.ir = openvino.ir || {};
 openvino.dot = openvino.dot || {};
 
@@ -568,10 +569,15 @@ openvino.TensorType = class {
 openvino.Metadata = class {
 
     static open(host, callback) {
-        if (!openvino.Metadata._metadata) {
-            openvino.Metadata._metadata = new openvino.Metadata();
+        if (openvino.Metadata._metadata) {
+            callback(null, openvino.Metadata._metadata);
         }
-        callback(null, openvino.Metadata._metadata);
+        else {
+            host.request(null, 'openvino-metadata.json', 'utf-8', (err, data) => {
+                openvino.Metadata._metadata = new openvino.Metadata(data);
+                callback(null, openvino.Metadata._metadata);
+            });
+        }
     }
 
     constructor(data) {

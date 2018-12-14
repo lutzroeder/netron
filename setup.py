@@ -116,7 +116,7 @@ setuptools.setup(
             'darknet.js', 'darknet-metadata.json',
             'keras.js', 'keras-metadata.json', 'hdf5.js',
             'mxnet.js', 'mxnet-metadata.json',
-            'openvino.js', 'openvino-parser.js',
+            'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn.js', 'sklearn-metadata.json',
