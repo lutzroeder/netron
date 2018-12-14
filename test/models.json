@@ -1,6 +1,13 @@
 [
   {
     "type":   "caffe",
+    "target": "1D_lstm.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/1D_lstm.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "type":   "caffe",
     "target": "age_net.caffemodel",
     "source": "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/age_net.caffemodel",
     "format": "Caffe v1",
@@ -2443,13 +2450,6 @@
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]"
   },
   {
-    "type":   "onnx",
-    "target": "1D_lstm.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/1D_lstm.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
     "type":   "openvino",
     "target": "age-gender-recognition-retail-0013.xml",
     "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml",
@@ -3381,6 +3381,13 @@
     "source": "https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/models/facades_photo2label.t7",
     "format": "Torch v7",
     "link":   "https://github.com/junyanz/CycleGAN"
+  },
+  {
+    "type":   "torch",
+    "target": "Helen_8x.t7",
+    "source": "https://raw.githubusercontent.com/tyshiwo/FSRNet/master/models/Helen_8x.t7",
+    "format": "Torch v7",
+    "link":   "https://github.com/tyshiwo/FSRNet"
   },
   {
     "type":   "torch",
