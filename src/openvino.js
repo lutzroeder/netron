@@ -38,8 +38,21 @@ openvino.ModelFactory = class {
                     try {
                         parsed = openvino_parser.IrParser.parse(context.text);
                     } catch (error) {
-                        callback(new openvino.Error('Failed to read OpenVINO IR file.'), null);
-                        return;
+                        try {
+                            if (error.message.indexOf(' found') !== -1) {
+                                context._text = context.text.replace('"()"', '""')
+                                                            .replace('(', '_')
+                                                            .replace(')', '_')
+                                                            .replace('+', '_');
+                                parsed = openvino_parser.IrParser.parse(context.text);
+                            } else {
+                                callback(new openvino.Error('Failed to read OpenVINO IR file.'), null);
+                                return;
+                            }
+                        } catch(error) {
+                            callback(new openvino.Error('Failed to read OpenVINO IR file.'), null);
+                            return;
+                        }
                     }
                     try {
                         model = new openvino.ir.Model(metadata, parsed);

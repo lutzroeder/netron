@@ -2458,6 +2458,69 @@
   },
   {
     "type":   "openvino",
+    "target": "emotions-recognition-retail-0003.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/emotions-recognition-retail-0003/FP32/emotions-recognition-retail-0003.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "face-detection-adas-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/face-detection-adas-0001/FP32/face-detection-adas-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "face-detection-retail-0004.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/face-detection-retail-0004/FP32/face-detection-retail-0004.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "face-person-detection-retail-0002.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/face-person-detection-retail-0002/FP32/face-person-detection-retail-0002.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "face-reidentification-retail-0071.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/face-reidentification-retail-0071/FP32/face-reidentification-retail-0071.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "face-reidentification-retail-0071.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/face-reidentification-retail-0071/FP32/face-reidentification-retail-0071.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "facial-landmarks-35-adas-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/facial-landmarks-35-adas-0001/FP32/facial-landmarks-35-adas-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "head-pose-estimation-adas-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "human-pose-estimation-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/human-pose-estimation-0001/FP32/human-pose-estimation-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
     "target": "i8_normalized_squeezenet_ssd.dot",
     "source": "https://github.com/lutzroeder/netron/files/2618902/i8_normalized_squeezenet_ssd.dot.zip[i8_normalized_squeezenet_ssd.dot]",
     "format": "OpenVINO IR Dot",
@@ -2479,15 +2542,8 @@
   },
   {
     "type":   "openvino",
-    "target": "rm_cnn4a.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_cnn4a_smbr/rm_cnn4a.xml",
-    "format": "OpenVINO IR",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "wsj_dnn5b.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/wsj_dnn5b_smbr/wsj_dnn5b.xml",
+    "target": "landmarks-regression-retail-0009.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009.xml",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
@@ -2500,8 +2556,141 @@
   },
   {
     "type":   "openvino",
+    "target": "license-plate-recognition-barrier-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/license-plate-recognition-barrier-0001/FP32/license-plate-recognition-barrier-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "pedestrian-and-vehicle-detector-adas-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/pedestrian-and-vehicle-detector-adas-0001/FP32/pedestrian-and-vehicle-detector-adas-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "pedestrian-detection-adas-0002.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/pedestrian-detection-adas-0002/FP32/pedestrian-detection-adas-0002.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-attributes-recognition-crossroad-0031.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-attributes-recognition-crossroad-0031/FP32/person-attributes-recognition-crossroad-0031.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-detection-action-recognition-0003.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-detection-action-recognition-0003/FP32/person-detection-action-recognition-0003.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-detection-retail-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-detection-retail-0001/FP32/person-detection-retail-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-detection-retail-0013.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-detection-retail-0013/FP32/person-detection-retail-0013.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-reidentification-retail-0031.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-reidentification-retail-0031/FP32/person-reidentification-retail-0031.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-reidentification-retail-0076.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-reidentification-retail-0076/FP32/person-reidentification-retail-0076.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-reidentification-retail-0079.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-reidentification-retail-0079/FP32/person-reidentification-retail-0079.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "person-vehicle-bike-detection-crossroad-0078.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/person-vehicle-bike-detection-crossroad-0078/FP32/person-vehicle-bike-detection-crossroad-0078.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "road-segmentation-adas-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/road-segmentation-adas-0001/FP32/road-segmentation-adas-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "rm_cnn4a.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_cnn4a_smbr/rm_cnn4a.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
     "target": "rm_lstm4f.xml",
     "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_lstm4f/rm_lstm4f.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "semantic-segmentation-adas-0001.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/semantic-segmentation-adas-0001/FP32/semantic-segmentation-adas-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "single-image-super-resolution-0034.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/single-image-super-resolution-0034/FP32/single-image-super-resolution-0034.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "vehicle-attributes-recognition-barrier-0039.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/vehicle-attributes-recognition-barrier-0039/FP32/vehicle-attributes-recognition-barrier-0039.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "vehicle-detection-adas-0002.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/vehicle-detection-adas-0002/FP32/vehicle-detection-adas-0002.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "vehicle-license-plate-detection-barrier-0106.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/vehicle-license-plate-detection-barrier-0106/FP32/vehicle-license-plate-detection-barrier-0106.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "wsj_dnn5b.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/wsj_dnn5b_smbr/wsj_dnn5b.xml",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
