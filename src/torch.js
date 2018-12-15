@@ -241,7 +241,7 @@ torch.Node = class {
             this._name = this._group ? (this._group + ':' + name) : name;
         }
         var type = module.__type__;
-        this._operator = type ? type.split('.').pop() : 'Object';
+        this._operator = type ? type.split('.').pop() : 'Unknown';
         var initializers = [];
         Object.keys(module).forEach((key) => {
             var obj = module[key];
@@ -347,28 +347,30 @@ torch.Node = class {
                 break;
         }
         this._attributes = [];
-        Object.keys(module).forEach((key) => {
-            if (key == '__type__' || key == '_type') {
-                return;
-            }
-            var obj = module[key];
-            if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
-                if (obj.size.length == 0) {
-                    debugger;
-                    // console.log("  " + type + "::" + key);
+        if (module.__type__) {
+            Object.keys(module).forEach((key) => {
+                if (key == '__type__' || key == '_type') {
+                    return;
                 }
-                initializers.push(new torch.Argument(key, true, [ 
-                    new torch.Connection(key, null, new torch.Tensor(obj))
-                ]));
-                return;
-            }
-            if (key == 'modules' || obj.__type__) {
-                debugger;                
-                // console.log("  " + type + "::" + key);
-                return;
-            }
-            this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
-        });
+                var obj = module[key];
+                if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
+                    if (obj.size.length == 0) {
+                        debugger;
+                        // console.log("  " + type + "::" + key);
+                    }
+                    initializers.push(new torch.Argument(key, true, [ 
+                        new torch.Connection(key, null, new torch.Tensor(obj))
+                    ]));
+                    return;
+                }
+                if (key == 'modules' || obj.__type__) {
+                    debugger;                
+                    // console.log("  " + type + "::" + key);
+                    return;
+                }
+                this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
+            });
+        }
         this._inputs = [];
         if (inputs.length == 0) {
             inputs.push(new torch.Connection(this._name + ':in', null, null));
@@ -699,8 +701,10 @@ torch.T7Reader = class {
         this._registry['nn.JoinTable'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.LeakyReLU'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Linear'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.LogSoftMax'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Mean'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.MulConstant'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.MM'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Normalize'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Parallel'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ParallelTable'] = function(reader, version) { reader.nn(this); };

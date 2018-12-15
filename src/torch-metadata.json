@@ -183,6 +183,12 @@
     }
   },
   {
+    "name": "nn.LogSoftMax",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "Tanh",
     "schema": {
       "category": "Activation",
@@ -263,6 +269,11 @@
       "attributes": [
         { "name": "inplace", "default": false, "visible": false }
       ]
+    }
+  },
+  {
+    "name": "MM",
+    "schema": {
     }
   }
 ]
