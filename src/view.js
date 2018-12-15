@@ -1075,7 +1075,7 @@ view.ModelFactoryService = class {
         this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
-        this.register('./caffe2', [ 'predict_net.pb', 'predict_net.pbtxt', 'predict_net.prototxt' ]);
+        this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model', '.dms' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite' ]);

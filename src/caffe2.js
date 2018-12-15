@@ -8,8 +8,19 @@ caffe2.ModelFactory = class {
 
     match(context, host) {
         var identifier = context.identifier.toLowerCase();
-        if (identifier.endsWith('predict_net.pb')) {
-            return true;
+        var extension = identifier.split('.').pop().toLowerCase();
+        if (extension == 'pb') {
+            if (identifier.endsWith('predict_net.pb')) {
+                return true;
+            }
+            var buffer = context.buffer;
+            if (buffer.length > 3 && buffer[0] == 0x0A) {
+                var size = buffer[1];
+                if (size < 64 && buffer.length > 2 + size + 1 && buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
+                    buffer[2 + size] == 0x12) {
+                    return true;
+                }
+            }
         }
         if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
             var tags = context.tags;
@@ -81,12 +92,17 @@ caffe2.ModelFactory = class {
 caffe2.Model = class {
 
     constructor(metadata, netDef, init) {
+        this._domain = netDef.domain || null;
         var graph = new caffe2.Graph(metadata, netDef, init);
         this._graphs = [ graph ];
     }
 
     get format() {
         return 'Caffe2';
+    }
+
+    get domain() {
+        return this._domain;
     }
 
     get graphs() {
@@ -97,8 +113,8 @@ caffe2.Model = class {
 caffe2.Graph = class {
 
     constructor(metadata, netDef, init) {
-        this._name = netDef.name ? netDef.name : '';
-        this._type = netDef.type ? netDef.type : '';
+        this._name = netDef.name || '';
+        this._type = netDef.type || '';
         this._nodes = [];
         this._operators = {};
 
