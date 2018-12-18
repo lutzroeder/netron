@@ -203,6 +203,90 @@ pytorch.ModelFactory = class {
                     this.stride = state[3];
                 };
             };
+            constructorTable['numpy.dtype'] = function(obj, align, copy) { 
+                switch (obj) {
+                    case 'i1': this.name = 'int8'; this.itemsize = 1; break;
+                    case 'i2': this.name = 'int16'; this.itemsize = 2; break;
+                    case 'i4': this.name = 'int32'; this.itemsize = 4; break;
+                    case 'i8': this.name = 'int64'; this.itemsize = 8; break;
+                    case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
+                    case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
+                    case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
+                    case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
+                    case 'f4': this.name = 'float32'; this.itemsize = 4; break;
+                    case 'f8': this.name = 'float64'; this.itemsize = 8; break;
+                    default:
+                        if (obj.startsWith('V')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'void' + (this.itemsize * 8).toString();
+                        }
+                        else if (obj.startsWith('O')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'object';
+                        }
+                        else if (obj.startsWith('S')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'string';
+                        }
+                        else {
+                            throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
+                        }
+                        break;
+                }
+                this.align = align;
+                this.copy = copy;
+                this.__setstate__ = function(state) {
+                    switch (state.length) {
+                        case 8:
+                            this.version = state[0];
+                            this.byteorder = state[1];
+                            this.subarray = state[2];
+                            this.names = state[3];
+                            this.fields = state[4];
+                            this.elsize = state[5];
+                            this.alignment = state[6];
+                            this.int_dtypeflags = state[7];
+                            break;
+                        default:
+                            throw new sklearn.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                    }
+                };
+            };
+            constructorTable['numpy.core.multiarray._reconstruct'] = function(subtype, shape, dtype) {
+                this.subtype = subtype;
+                this.shape = shape;
+                this.dtype = dtype;
+                this.__setstate__ = function(state) {
+                    this.version = state[0];
+                    this.shape = state[1];
+                    this.typecode = state[2];
+                    this.is_f_order = state[3];
+                    this.rawdata = state[4];
+                };
+                this.__read__ = function(unpickler) {
+                    var array = {};
+                    array.__type__ = this.subtype;
+                    array.dtype = this.typecode;
+                    array.shape = this.shape;
+                    var size = array.dtype.itemsize;
+                    for (var i = 0; i < array.shape.length; i++) {
+                        size = size * array.shape[i];                                
+                    }
+                    if (typeof this.rawdata == 'string') {
+                        array.data = unpickler.unescape(this.rawdata, size);
+                        if (array.data.length != size) {
+                            throw new sklearn.Error('Invalid string array data size.');
+                        }
+                    }
+                    else {
+                        array.data = this.rawdata;
+                        if (array.data.length != size) {
+                            throw new sklearn.Error('Invalid array data size.');
+                        }
+                    }
+                    return array;
+                };
+            };
 
             functionTable['collections.OrderedDict'] = function(args) {
                 var obj = [];
