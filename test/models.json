@@ -655,6 +655,13 @@
   },
   {
     "type":   "caffe2",
+    "target": "bvlc_alexnet/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "type":   "caffe2",
     "target": "bvlc_alexnet/predict_net.pbtxt,bvlc_alexnet/init_net.pb",
     "source": "https://raw.githubusercontent.com/caffe2/models/master/bvlc_alexnet/predict_net.pbtxt,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
     "format": "Caffe2",
@@ -2383,7 +2390,22 @@
     "type":   "onnx",
     "target": "squeezenet1.1.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
-    "format": "ONNX v3"
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
+  },
+  {
+    "type":   "onnx",
+    "target": "squeezenet1.1.pb",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
+  },
+  {
+    "type":   "onnx",
+    "target": "squeezenet1.1.tgz",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.tar.gz",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
   },
   {
     "type":   "onnx",
@@ -2729,6 +2751,13 @@
     "format": "PyTorch",
     "error":  "PyTorch legacy tar format not supported.",
     "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py"
+  },
+  {
+    "type":   "pytorch",
+    "target": "coco_resnet_50_map_0_335.pt",
+    "source": "https://drive.google.com//uc?export=docswnload&id=1hCtM35R_t6T8RJVSd74K4gB-A1MR-TxC",
+    "format": "PyTorch",
+    "link":   "https://github.com/yhenon/pytorch-retinanet/issues/2"
   },
   {
     "type":   "pytorch",

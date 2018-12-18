@@ -9,15 +9,17 @@ caffe.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
+        var tags = null;
         if (extension == 'caffemodel') {
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
             if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt' ||
-                identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+                identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            var tags = context.tags;
+            var tags = context.tags('pbtxt');
             if (tags.layer || tags.layers || tags.net || tags.train_net || tags.net_param) {
                 return true;
             }
@@ -35,7 +37,7 @@ caffe.ModelFactory = class {
             caffe.Metadata.open(host, (err, metadata) => {
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    var tags = context.tags;
+                    var tags = context.tags('pbtxt');
                     if (tags.net || tags.train_net || tags.net_param) {
                         try {
                             var reader = new protobuf.TextReader(context.text);

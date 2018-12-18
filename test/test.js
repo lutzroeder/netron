@@ -165,6 +165,7 @@ class SVGElement {
 class TestContext {
 
     constructor(host, folder, identifier, buffer) {
+        this._tags = {};
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
@@ -193,22 +194,43 @@ class TestContext {
         return this._text;
     }
 
-    get tags() {
-        if (!this._tags) {
-            this._tags = {};
+    tags(extension) {
+        var tags = this._tags[extension];
+        if (!tags) {
+            tags = {};
             try {
-                var reader = protobuf.TextReader.create(this.text);
-                reader.start(false);
-                while (!reader.end(false)) {
-                    var tag = reader.tag();
-                    this._tags[tag] = true;
-                    reader.skip();
+                var reader = null;
+                switch (extension) {
+                    case 'pbtxt':
+                        reader = protobuf.TextReader.create(this.text);
+                        reader.start(false);
+                        while (!reader.end(false)) {
+                            var tag = reader.tag();
+                            tags[tag] = true;
+                            reader.skip();
+                        }
+                        break;
+                    case 'pb':
+                        reader = new protobuf.Reader.create(this.buffer);
+                        while (tags != null && reader.pos < reader.len) {
+                            var tagType = reader.uint32();
+                            tags[tagType >>> 3] = tagType & 7;
+                            switch (tagType & 7) {
+                                case 0: reader.int64(); break;
+                                case 1: reader.fixed64(); break;
+                                case 2: reader.bytes(); break;
+                                default: tags = {}; break;
+                            }
+                        }
+                        break;
                 }
             }
             catch (error) {
+                tags = {};
             }
+            this._tags[extension] = tags;
         }
-        return this._tags;
+        return tags;
     }
 }
 

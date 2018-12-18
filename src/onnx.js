@@ -13,29 +13,34 @@ onnx.ModelFactory = class {
         if (extension == 'onnx') {
             return true;
         }
+        var tags = null;
         if (extension == 'pb') {
             if (identifier.endsWith('saved_model.pb')) {
                 return false;
             }
-            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('predict_net.pb') || identifier == 'init_net.pb') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return false;
             }
-            if (identifier == 'input_0.pb' || identifier == 'output_0.pb') {
-                var buffer = context.buffer;
-                if (buffer.length > 5 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x08 && (buffer[3] == 0xE8 || buffer[3] == 0x03)) {
-                    return false;
-                }
+            tags = context.tags('pb');
+            if (Object.keys(tags).length == 0) {
+                return false;
+            }
+            // input_0.pb, output_0.pb
+            if (tags[1] == 0 && tags[2] == 0 && tags[9] == 2) {
+                return false;
+            }
+            // ir_version not int32
+            if (tags[1] && tags[1] != 0) {
+                return false;
             }
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
-                return false;
-            }
-            var tags = context.tags;
+            tags = context.tags('pbtxt');
             if (tags.ir_version || tags.graph) {
                 return true;
             }

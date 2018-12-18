@@ -9,21 +9,32 @@ caffe2.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier.toLowerCase();
         var extension = identifier.split('.').pop().toLowerCase();
+        var tags = null;
         if (extension == 'pb') {
-            if (identifier.endsWith('predict_net.pb')) {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return true;
             }
-            var buffer = context.buffer;
-            if (buffer.length > 3 && buffer[0] == 0x0A) {
-                var size = buffer[1];
-                if (size < 64 && buffer.length > 2 + size + 1 && buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
-                    buffer[2 + size] == 0x12) {
+            tags = context.tags('pb');
+            if (Object.keys(tags).length > 0 &&
+                (!tags.hasOwnProperty(1) || tags[1] == 2) &&
+                (!tags.hasOwnProperty(2) || tags[2] == 2) &&
+                (!tags.hasOwnProperty(7) || tags[7] == 2) &&
+                (!tags.hasOwnProperty(8) || tags[8] == 2)) {
+                var buffer = context.buffer;
+                if (buffer.length > 3 && buffer[0] == 0x0A) {
+                    var size = buffer[1];
+                    if (size < 64 && buffer.length > 2 + size + 1 && buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) && buffer[2 + size] == 0x12) {
+                        return true;
+                    }
+                }
+                if (buffer.length > 3 && buffer[0] == 0x12) {
                     return true;
                 }
             }
         }
-        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
-            var tags = context.tags;
+        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+            identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+            tags = context.tags('pbtxt');
             if (tags.op) {
                 return true;
             }

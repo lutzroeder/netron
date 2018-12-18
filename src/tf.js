@@ -11,28 +11,29 @@ tf.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
-        switch (identifier) {
-            case 'predict_net.pb':
-            case 'init_net.pb':
-                return false;
+        if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+            return false;
         }
         if (extension == 'meta') {
             return true;
         }
+        var tags = null;
         if (extension == 'pb') {
-            if (identifier == 'input_0.pb' || identifier == 'output_0.pb') {
-                var buffer = context.buffer;
-                if (buffer.length > 5 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x08 && (buffer[3] == 0xE8 || buffer[3] == 0x03)) {
-                    return false;
-                }
+            tags = context.tags('pb');
+            if (Object.keys(tags).length == 0) {
+                return false;
+            }
+            if (tags[1] == 0 && tags[2] == 0 && tags[9] == 2) {
+                return false;
             }
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            var tags = context.tags;
+            tags = context.tags('pbtxt');
             if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
                 return true;
             }
@@ -54,7 +55,7 @@ tf.ModelFactory = class {
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
-                var tags = context.tags;
+                var tags = context.tags('pbtxt');
                 if (tags.saved_model_schema_version || tags.meta_graphs) {
                     try {
                         if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {

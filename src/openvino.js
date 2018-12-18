@@ -161,7 +161,7 @@ openvino.ir.Graph = class {
                     const parent = this._nodes.find((layer) => layer._id === parentID);
                     if (!nestedNode._inputs){
                         nestedNode._inputs = [];
-                        nestedNode._inputs.push(parent.id)
+                        nestedNode._inputs.push(parent.id);
                     } else {
                         nestedNode._inputs[nestedInput.internal_port_id] = parent.id;
                     }
@@ -173,7 +173,7 @@ openvino.ir.Graph = class {
             });
 
             singleTensorIteratorNode.mappingForNestedIR.output.forEach((nestedOutput) => {
-                const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNode.id}_${nestedOutput.internal_layer_id}`)
+                const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNode.id}_${nestedOutput.internal_layer_id}`);
 
                 const candidate_edges = netDef.edges.filter((edge) => {
                     return edge['from-layer'] === singleTensorIteratorNode.id && edge['from-port'] === nestedOutput.external_port_id;
@@ -186,7 +186,7 @@ openvino.ir.Graph = class {
                     const child = this._nodes.find((layer) => layer._id === childID);
                     if (!nestedNode._outputs){
                         nestedNode._outputs = [];
-                        nestedNode._inputs.push(child.id)
+                        nestedNode._inputs.push(child.id);
                     } else {
                         nestedNode._outputs.push(child.id);
                     }

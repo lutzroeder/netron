@@ -679,7 +679,7 @@ view.View = class {
                     });
                     g.setNode(nodeId++, { label: element.format(graphElement) } ); 
                 });
-            
+
                 Object.keys(edgeMap).forEach((edge) => {
                     var tuple = edgeMap[edge];
                     if (tuple.from != null) {
@@ -992,6 +992,7 @@ view.View = class {
 class ArchiveContext {
 
     constructor(entries, rootFolder, identifier, buffer) {
+        this._tags = {};
         this._entries = {};
         if (entries) {
             entries.forEach((entry) => {
@@ -1036,22 +1037,43 @@ class ArchiveContext {
         return this._text;
     }
 
-    get tags() {
-        if (!this._tags) {
-            this._tags = {};
+    tags(extension) {
+        var tags = this._tags[extension];
+        if (!tags) {
+            tags = {};
             try {
-                var reader = protobuf.TextReader.create(this.text);
-                reader.start(false);
-                while (!reader.end(false)) {
-                    var tag = reader.tag();
-                    this._tags[tag] = true;
-                    reader.skip();
+                var reader = null;
+                switch (extension) {
+                    case 'pbtxt':
+                        reader = protobuf.TextReader.create(this.text);
+                        reader.start(false);
+                        while (!reader.end(false)) {
+                            var tag = reader.tag();
+                            tags[tag] = true;
+                            reader.skip();
+                        }
+                        break;
+                    case 'pb':
+                        reader = new protobuf.Reader.create(this.buffer);
+                        while (tags != null && reader.pos < reader.len) {
+                            var tagType = reader.uint32();
+                            tags[tagType >>> 3] = tagType & 7;
+                            switch (tagType & 7) {
+                                case 0: reader.int64(); break;
+                                case 1: reader.fixed64(); break;
+                                case 2: reader.bytes(); break;
+                                default: tags = {}; break;
+                            }
+                        }
+                        break;
                 }
             }
             catch (error) {
+                tags = {};
             }
+            this._tags[extension] = tags;
         }
-        return this._tags;
+        return tags;
     }
 }
 
@@ -1158,21 +1180,22 @@ view.ModelFactoryService = class {
     }
 
     _openArchive(context, callback) {
-        try {
-            var extension;
-            var archive;
-            var entry;
-    
-            var identifier = context.identifier;
-            var buffer = context.buffer;
+        var extension;
+        var archive;
+        var entry;
+        var message;
 
+        var identifier = context.identifier;
+        var buffer = context.buffer;
+
+        try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'gz' || extension == 'tgz') {
                 archive = new gzip.Archive(buffer);
                 if (archive.entries.length == 1) {
                     entry = archive.entries[0];
                     if (entry.name) {
-                          
+                            
                         identifier = entry.name;
                     }
                     else {
@@ -1185,8 +1208,17 @@ view.ModelFactoryService = class {
                     archive = null;
                 }
             }
+        }
+        catch (error) {
+            message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            callback(new ArchiveError(message + " in '" + identifier + "'."), null);
+            return;
+        }
 
-            switch (identifier.split('.').pop().toLowerCase()) {
+        try {
+            extension = identifier.split('.').pop().toLowerCase();
+            switch (extension) {
                 case 'tar':
                     archive = new tar.Archive(buffer);
                     break;
@@ -1194,81 +1226,92 @@ view.ModelFactoryService = class {
                     archive = new zip.Archive(buffer);
                     break;
             }
-
-            if (archive) {
-                var folders = {};
-                archive.entries.forEach((entry) => {
-                    if (entry.name.indexOf('/') != -1) {
-                        folders[entry.name.split('/').shift() + '/'] = true;
-                    }
-                    else {
-                        folders['/'] = true;
-                    }
-                });
-                var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
-                rootFolder = rootFolder == '/' ? '' : rootFolder;
-                var matches = [];
-                var entries = archive.entries.slice();
-                var nextEntry = () => {
-                    if (entries.length > 0) {
-                        var entry = entries.shift();
-                        if (entry.name.startsWith(rootFolder)) {
-                            var identifier = entry.name.substring(rootFolder.length);
-                            if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                                var context = new ArchiveContext(null, rootFolder, entry.name, entry.data);
-                                var modules = this._filter(context);
-                                var nextModule = () => {
-                                    if (modules.length > 0) {
-                                        var id = modules.shift();
-                                        this._host.require(id, (err, module) => {
-                                            if (err) {
-                                                callback(err, null);
-                                                return;
-                                            }
-                                            if (!module.ModelFactory) {
-                                                callback(new ArchiveError("Failed to load module '" + id + "'.", null), null);
-                                            }
-                                            var factory = new module.ModelFactory();
-                                            if (factory.match(context, this._host)) {
-                                                matches.push(entry);
-                                                modules = [];
-                                            }
-                                            nextModule();
-                                            return;
-                                        });
-                                    }
-                                    else {
-                                        nextEntry();
-                                        return;
-                                    }
-                                };
-                                nextModule();
-                                return;
-                            }
-                        }
-                        nextEntry();
-                    }
-                    else {
-                        if (matches.length == 0) {
-                            callback(new ArchiveError('Root does not contain model file.'), null);
-                            return;
-                        }
-                        else if (matches.length > 1) {
-                            callback(new ArchiveError('Root contains multiple model files.'), null);
-                            return;
-                        }
-                        var match = matches[0];
-                        callback(null, new ArchiveContext(entries, rootFolder, match.name, match.data));
-                        return;
-                    }
-                };
-                nextEntry();
-                return;
-            }
-            callback(null, context);
+        }
+        catch (error) {
+            message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            callback(new ArchiveError(message + " in '" + identifier + "'."), null);
             return;
         }
-        catch (err) {
+
+        try {
+            if (!archive) {
+                callback(null, context);
+                return;
+            }
+            var folders = {};
+            archive.entries.forEach((entry) => {
+                if (entry.name.indexOf('/') != -1) {
+                    folders[entry.name.split('/').shift() + '/'] = true;
+                }
+                else {
+                    folders['/'] = true;
+                }
+            });
+            if (extension == 'tar') {
+                delete folders['PaxHeader/'];
+            }
+            var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
+            rootFolder = rootFolder == '/' ? '' : rootFolder;
+            var matches = [];
+            var entries = archive.entries.slice();
+            var nextEntry = () => {
+                if (entries.length > 0) {
+                    var entry = entries.shift();
+                    if (entry.name.startsWith(rootFolder)) {
+                        var identifier = entry.name.substring(rootFolder.length);
+                        if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
+                            var context = new ArchiveContext(null, rootFolder, entry.name, entry.data);
+                            var modules = this._filter(context);
+                            var nextModule = () => {
+                                if (modules.length > 0) {
+                                    var id = modules.shift();
+                                    this._host.require(id, (err, module) => {
+                                        if (err) {
+                                            callback(err, null);
+                                            return;
+                                        }
+                                        if (!module.ModelFactory) {
+                                            callback(new ArchiveError("Failed to load module '" + id + "'.", null), null);
+                                        }
+                                        var factory = new module.ModelFactory();
+                                        if (factory.match(context, this._host)) {
+                                            matches.push(entry);
+                                            modules = [];
+                                        }
+                                        nextModule();
+                                        return;
+                                    });
+                                }
+                                else {
+                                    nextEntry();
+                                    return;
+                                }
+                            };
+                            nextModule();
+                            return;
+                        }
+                    }
+                    nextEntry();
+                }
+                else {
+                    if (matches.length == 0) {
+                        callback(new ArchiveError('Root does not contain model file.'), null);
+                        return;
+                    }
+                    else if (matches.length > 1) {
+                        callback(new ArchiveError('Root contains multiple model files.'), null);
+                        return;
+                    }
+                    var match = matches[0];
+                    callback(null, new ArchiveContext(entries, rootFolder, match.name, match.data));
+                    return;
+                }
+            };
+            nextEntry();
+            return;
+        }
+        catch (error) {
             callback(new ArchiveError(err.message), null);
             return;
         }

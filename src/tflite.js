@@ -163,6 +163,7 @@ tflite.Node = class {
         this._inputs = [];
         this._outputs = [];
         if (node) {
+            var schema = this._metadata.getSchema(this.operator);
             var inputs = this._metadata.getInputs(node, this.operator);
             this._inputs = inputs.map((input) => {
                 return new tflite.Argument(input.name, input.visible != false, input.connections.map((connection) => {
@@ -173,8 +174,14 @@ tflite.Node = class {
             for (var i = 0; i < node.outputsLength(); i++) {
                 var index = node.outputs(i);
                 var connection = connections[index];
-                var name = this._metadata.getOutputName(this.operator, i);
-                this._outputs.push(new tflite.Argument(name, true, [ connection ]));
+                var outputName = i.toString();
+                if (schema && schema.outputs && i < schema.outputs.length) {
+                    var output = schema.outputs[i];
+                    if (output && (!output.option || output.opcodeIndex != 'variadic') && output.name) {
+                        outputName = output.name;
+                    }
+                }
+                this._outputs.push(new tflite.Argument(outputName, true, [ connection ]));
             }
             this._attributes = [];
             var optionsTypeName = this._operator + 'Options';
@@ -700,25 +707,6 @@ tflite.Metadata = class {
             results.push(result);
         }
         return results;
-    }
-
-    getOutputName(operator, index) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var outputs = schema.outputs;
-            if (outputs && index < outputs.length) {
-                var output = outputs[index];
-                if (output) {
-                    if (!output.option || output.option != 'variadic') {
-                        var name = output.name;
-                        if (name) {
-                            return name;
-                        }
-                    }
-                } 
-            }
-        }
-        return '(' + index.toString() + ')';
     }
 };
 
