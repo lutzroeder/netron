@@ -23,6 +23,10 @@ host.BrowserHost = class {
         };
     }
 
+    get document() {
+        return window.document;
+    }
+
     get name() {
         return 'Netron';
     }
@@ -53,6 +57,8 @@ host.BrowserHost = class {
         this._version = meta.version ? meta.version[0] : null;
         this._type = meta.type ? meta.type[0] : 'Browser';
 
+        this._zoom = this._getQueryParameter('zoom') || 'd3';
+
         if (meta.file) {
             this._openModel(meta.file[0], null);
             return;
@@ -69,8 +75,6 @@ host.BrowserHost = class {
             this._openGist(gistParam);
             return;
         }
-
-        this._zoom = this._getQueryParameter('zoom');
 
         this._view.show('Welcome');
         var openFileButton = document.getElementById('open-file-button');
@@ -388,7 +392,11 @@ host.BrowserHost = class {
                     e.preventDefault();
                     break;
                 case 68: // D
-                    this._view.toggleDetails();
+                    this._view.toggleAttributes();
+                    e.preventDefault();
+                    break;
+                case 73: // I
+                    this._view.toggleInitializers();
                     e.preventDefault();
                     break;
                 case 85: // U

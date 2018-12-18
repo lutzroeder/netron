@@ -95,7 +95,7 @@ darknet.Graph = class {
             }
         });
         cfg.forEach((layer, index) => {
-            this._nodes.push(new darknet.Node(metadata, layer));
+            this._nodes.push(new darknet.Node(metadata, layer, index.toString()));
         });
 
         if (cfg.length > 0) {
@@ -168,12 +168,14 @@ darknet.Connection = class {
 
 darknet.Node = class {
 
-    constructor(metadata, layer) {
+    constructor(metadata, layer, name) {
+        this._name = name;
         this._metadata = metadata;
         this._operator = layer.__type__;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
+        this._chain = [];
         if (layer._inputs && layer._inputs.length > 0) {
             this._inputs.push(new darknet.Argument(layer._inputs.length <= 1 ? 'input' : 'inputs', true, layer._inputs.map((input) => {
                 return new darknet.Connection(input, null, null);
@@ -187,20 +189,27 @@ darknet.Node = class {
         switch (layer.__type__) {
             case 'convolutional':
                 this._initializer('biases');
-                if (layer.batch_normalize == 1) {
-                    this._initializer('gamma');
-                    this._initializer('mean');
-                    this._initializer('var');
+                this._initializer('weights');
+
+                if (layer.batch_normalize == "1") {
+                    var batchNormalizeLayer = { __type__: 'batch_normalize', _inputs: [], _outputs: [] }; 
+                    this._chain.push(new darknet.Node(metadata, batchNormalizeLayer, this._name + ':batch_normalize'));
+                    delete layer.batch_normalize;
                 }
-                this._initializer('kernel');
+                if (layer.activation) {
+                    var activationLayer = { __type__: layer.activation, _inputs: [], _outputs: [] };
+                    this._chain.push(new darknet.Node(metadata, activationLayer, this._name + ':activation'));
+                    delete layer.activation;
+                }
+                break;
+            case 'batch_normalize':
+                this._initializer('scale');
+                this._initializer('mean');
+                this._initializer('variance');
                 break;
             case 'connected':
                 this._initializer('biases');
                 this._initializer('weights');
-                break;
-            case 'connected':
-                this._initializer('biases');
-                this._initializer('kernels');
                 break;
         }
 
@@ -217,6 +226,10 @@ darknet.Node = class {
                 this._attributes.push(new darknet.Attribute(metadata, this._operator, key, layer[key]));
             }
         });
+    }
+
+    get name() {
+        return this._name;
     }
 
     get operator() {
@@ -240,9 +253,14 @@ darknet.Node = class {
         return this._outputs;
     }
 
+    get chain() {
+        return this._chain;
+    }
+
     _initializer(name) {
+        var id = this._name.toString() + '_' + name;
         this._inputs.push(new darknet.Argument(name, true, [
-            new darknet.Connection(name, null, new darknet.Tensor())
+            new darknet.Connection(id, null, new darknet.Tensor(id))
         ]));
     }
 };
@@ -300,7 +318,12 @@ darknet.Attribute = class {
 
 darknet.Tensor = class {
 
-    constructor() {
+    constructor(id) {
+        this._id = id;
+    }
+
+    get name() {
+        return this._id;
     }
 
     get type() {

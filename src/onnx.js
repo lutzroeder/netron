@@ -436,10 +436,6 @@ onnx.Node = class {
         return this._description || null;
     }
 
-    get primitive() {
-        return null;
-    }
-
     get documentation() {
         var schema = this._metadata.getSchema(this._operator);
         if (schema) {

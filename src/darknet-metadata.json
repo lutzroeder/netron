@@ -102,9 +102,45 @@
     }
   },
   {
+    "name": "batch_normalize",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
     "name": "route",
     "schema": {
       "category": "Tensor"
+    }
+  },
+  {
+    "name": "relu",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "leaky",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "linear",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "logistic",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "ramp",
+    "schema": {
+      "category": "Activation"
     }
   }
 ]

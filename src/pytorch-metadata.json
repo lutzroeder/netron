@@ -467,16 +467,13 @@
           "name": "bias"
         },
         {
-          "name": "running_mean",
-          "visible": false
+          "name": "running_mean"
         },
         {
-          "name": "running_var",
-          "visible": false
+          "name": "running_var"
         },
         {
-          "name": "num_batches_tracked",
-          "visible": false
+          "name": "num_batches_tracked"
         }
       ],
       "package": "torch.nn.modules.batchnorm"

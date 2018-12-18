@@ -172,9 +172,27 @@ caffe2.Graph = class {
             });
         });
 
+        var lastNode = null;
+        var lastOutput = null;
         netDef.op.forEach((op) => {
             this._operators[op.type] = (this._operators[op.type] || 0) + 1;
-            this._nodes.push(new caffe2.Node(metadata, op, initializers));
+            var node = new caffe2.Node(metadata, op, initializers);
+            if (op.input.length == 1 &&
+                op.output.length >= 1 && 
+                op.input[0].split('\n').shift() == op.output[0].split('\n').shift() && 
+                lastNode &&
+                lastOutput == op.input[0].split('\n').shift()) {
+                lastNode.chain.push(node);
+            }
+            else {
+                this._nodes.push(node);
+                lastNode = null;
+                lastOutput = null;
+                if (op.output.length == 1) {
+                    lastNode = node;
+                    lastOutput = op.output[0].split('\n').shift();
+                }
+            }
         });
 
         this._inputs = [];
@@ -275,7 +293,7 @@ caffe2.Node = class {
         this._operator = op.type;
         this._inputs = op.input;
         this._outputs = op.output;
-
+        this._chain = [];
         this._attributes = [];
         op.arg.forEach((arg) => {
             this._attributes.push(new caffe2.Attribute(this._metadata, this, arg));
@@ -371,6 +389,10 @@ caffe2.Node = class {
 
     get attributes() {
         return this._attributes;
+    }
+
+    get chain() {
+        return this._chain;
     }
 };
 

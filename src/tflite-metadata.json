@@ -157,6 +157,30 @@
     }
   },
   {
+    "name": "Relu6",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
+      ]
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
+      ]
+    }
+  },
+  {
     "name": "Reshape",
     "schema": {
       "category": "Shape",

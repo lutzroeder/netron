@@ -37,6 +37,10 @@ host.ElectronHost = class {
         document.body.style.opacity = 1;
     }
 
+    get document() {
+        return window.document;
+    }
+
     _updateTheme() {
         if (electron.remote.systemPreferences.isDarkMode &&
             electron.remote.systemPreferences.isDarkMode()) {
@@ -81,9 +85,13 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('selectall', (event, data) => {
             this._view.selectAll();
         });
-        electron.ipcRenderer.on('toggle-details', (event, data) => {
-            this._view.toggleDetails();
-            this._update('show-details', this._view.showDetails);
+        electron.ipcRenderer.on('toggle-attributes', (event, data) => {
+            this._view.toggleAttributes();
+            this._update('show-attributes', this._view.showAttributes);
+        });
+        electron.ipcRenderer.on('toggle-initializers', (event, data) => {
+            this._view.toggleInitializers();
+            this._update('show-initializers', this._view.showInitializers);
         });
         electron.ipcRenderer.on('toggle-names', (event, data) => {
             this._view.toggleNames();
@@ -131,9 +139,9 @@ host.ElectronHost = class {
     }
 
     environment(name) {
-        // if (name == 'zoom') {
-        //     return 'scroll';
-        // }
+        if (name == 'zoom') {
+            return 'd3';
+        }
         return null;
     }
 
@@ -297,7 +305,8 @@ host.ElectronHost = class {
                     if (model) {
                         this._update('path', file);
                     }
-                    this._update('show-details', this._view.showDetails);
+                    this._update('show-attributes', this._view.showAttributes);
+                    this._update('show-initializers', this._view.showInitializers);
                     this._update('show-names', this._view.showNames);
                 });
             });

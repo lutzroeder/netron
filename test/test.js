@@ -26,6 +26,20 @@ class TestHost {
 
     constructor() {
         this._exceptions = [];
+        this.document = new HTMLDocument();
+    }
+
+    initialize(view) {
+    }
+
+    environment(name) {
+        if (name == 'zoom') {
+            return 'none';
+        }
+        return null;
+    }
+
+    screen(name) {
     }
 
     require(id, callback) {
@@ -58,6 +72,9 @@ class TestHost {
         });
     }
 
+    event(category, action, label, value) {
+    }
+
     exception(err, fatal) {
         this._exceptions.push(err);
     }
@@ -65,6 +82,84 @@ class TestHost {
     get exceptions() {
         return this._exceptions;
     }
+}
+
+class HTMLDocument {
+
+    constructor() {
+        this._elements = {};
+        this.documentElement = new HTMLHtmlElement();
+        this.body = new HTMLBodyElement();
+    }
+
+    createElementNS(namespace, name) {
+        return new HTMLHtmlElement();
+    }
+
+    createTextNode(text) {
+        return new HTMLHtmlElement();
+    }
+
+    getElementById(id) {
+        var element = this._elements[id];
+        if (!element) {
+            element = new HTMLHtmlElement();
+            this._elements[id] = element;
+        }
+        return element;
+    }
+
+    addEventListener(event, callback) {
+    }
+
+    removeEventListener(event, callback) {
+    }
+}
+
+class HTMLHtmlElement {
+
+    constructor() {
+        this.style = new CSSStyleDeclaration();
+    }
+
+    appendChild(node) {
+    }
+
+    setAttribute(name, value) {
+    }
+
+    getBBox() {
+        return { x: 0, y: 0, width: 10, height: 10 };
+    }
+    
+    getElementsByClassName(name) {
+        return null;
+    }
+
+    addEventListener(event, callback) {
+    }
+
+    removeEventListener(event, callback) {
+    }
+}
+
+class HTMLBodyElement {
+
+    constructor() {
+        this.style = new CSSStyleDeclaration();
+    }
+
+    addEventListener(event, callback) {
+    }
+}
+
+class CSSStyleDeclaration {
+
+    setProperty(name, value) {
+    }
+}
+
+class SVGElement {
 }
 
 class TestContext {
@@ -122,96 +217,6 @@ function makeDir(dir) {
         makeDir(path.dirname(dir));
         fs.mkdirSync(dir);
     }
-}
-
-function loadModel(target, item, callback) {
-    var host = new TestHost();
-    var folder = path.dirname(target);
-    var identifier = path.basename(target);
-    var size = fs.statSync(target).size;
-    var buffer = new Uint8Array(size);
-    var fd = fs.openSync(target, 'r');
-    fs.readSync(fd, buffer, 0, size, 0);
-    fs.closeSync(fd);
-    var context = new TestContext(host, folder, identifier, buffer);
-    var modelFactoryService = new view.ModelFactoryService(host);
-    var opened = false;
-    modelFactoryService.open(context, (err, model) => {
-        if (opened) {
-            callback(new Error("Model opened more than once '" + target + "'."), null);
-            process.exit();
-            return;
-        }
-        opened = true;
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        if (!model.format || (item.format && model.format != item.format)) {
-            callback(new Error("Invalid model format '" + model.format + "'."), null);
-            return;
-        }
-        if (item.producer && model.producer != item.producer) {
-            callback(new Error("Invalid producer '" + model.producer + "'."), null);
-            return;
-        }
-        try {
-            model.graphs.forEach((graph) => {
-                graph.inputs.forEach((input) => {
-                    input.connections.forEach((connection) => {
-                        if (connection.type) {
-                            connection.type.toString();
-                        }
-                    });
-                });
-                graph.outputs.forEach((output) => {
-                    output.connections.forEach((connection) => {
-                        if (connection.type) {
-                            connection.type.toString();
-                        }
-                    });
-                });
-                graph.nodes.forEach((node) => {
-                    var documentation = node.documentation;
-                    var category = node.category;
-                    node.attributes.forEach((attribute) => {
-                        var value = view.View.formatAttributeValue(attribute.value, attribute.type)
-                        if (value && value.length > 1000) {
-                            value = value.substring(0, 1000) + '...';
-                        }
-                        value = value.split('<');
-                    });
-                    node.inputs.forEach((input) => {
-                        input.connections.forEach((connection) => {
-                            if (connection.type) {
-                                connection.type.toString();
-                            }
-                            if (connection.initializer) {
-                                var value = connection.initializer.toString();
-                            }
-                        });
-                    });
-                    node.outputs.forEach((output) => {
-                        output.connections.forEach((connection) => {
-                            if (connection.type) {
-                                connection.type.toString();
-                            }
-                        });
-                    });
-                });
-            });
-        }
-        catch (error) {
-            callback(error, null);
-            return;
-        }
-        if (host.exceptions.length > 0) {
-            callback(host.exceptions[0], null);
-            return;
-        }
-        callback(null, model);
-        return;
-    });
 }
 
 function decompress(buffer, identifier) {
@@ -389,6 +394,110 @@ function download(folder, targets, sources, completed, callback) {
     });
 }
 
+function loadModel(target, item, callback) {
+    var host = new TestHost();
+    var folder = path.dirname(target);
+    var identifier = path.basename(target);
+    var size = fs.statSync(target).size;
+    var buffer = new Uint8Array(size);
+    var fd = fs.openSync(target, 'r');
+    fs.readSync(fd, buffer, 0, size, 0);
+    fs.closeSync(fd);
+    var context = new TestContext(host, folder, identifier, buffer);
+    var modelFactoryService = new view.ModelFactoryService(host);
+    var opened = false;
+    modelFactoryService.open(context, (err, model) => {
+        if (opened) {
+            callback(new Error("Model opened more than once '" + target + "'."), null);
+            process.exit();
+            return;
+        }
+        opened = true;
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        if (!model.format || (item.format && model.format != item.format)) {
+            callback(new Error("Invalid model format '" + model.format + "'."), null);
+            return;
+        }
+        if (item.producer && model.producer != item.producer) {
+            callback(new Error("Invalid producer '" + model.producer + "'."), null);
+            return;
+        }
+        try {
+            model.graphs.forEach((graph) => {
+                graph.inputs.forEach((input) => {
+                    input.connections.forEach((connection) => {
+                        if (connection.type) {
+                            connection.type.toString();
+                        }
+                    });
+                });
+                graph.outputs.forEach((output) => {
+                    output.connections.forEach((connection) => {
+                        if (connection.type) {
+                            connection.type.toString();
+                        }
+                    });
+                });
+                graph.nodes.forEach((node) => {
+                    var documentation = node.documentation;
+                    var category = node.category;
+                    node.attributes.forEach((attribute) => {
+                        var value = view.View.formatAttributeValue(attribute.value, attribute.type)
+                        if (value && value.length > 1000) {
+                            value = value.substring(0, 1000) + '...';
+                        }
+                        value = value.split('<');
+                    });
+                    node.inputs.forEach((input) => {
+                        input.connections.forEach((connection) => {
+                            if (connection.type) {
+                                connection.type.toString();
+                            }
+                            if (connection.initializer) {
+                                var value = connection.initializer.toString();
+                            }
+                        });
+                    });
+                    node.outputs.forEach((output) => {
+                        output.connections.forEach((connection) => {
+                            if (connection.type) {
+                                connection.type.toString();
+                            }
+                        });
+                    });
+                });
+            });
+        }
+        catch (error) {
+            callback(error, null);
+            return;
+        }
+        if (host.exceptions.length > 0) {
+            callback(host.exceptions[0], null);
+            return;
+        }
+        callback(null, model);
+        return;
+    });
+}
+
+function render(model, callback) {
+    var host = new TestHost();
+    var currentView = new view.View(host);
+    if (!currentView.showAttributes) {
+        currentView.toggleAttributes();
+    }
+    if (!currentView.showInitializers) {
+        currentView.toggleInitializers();
+    }
+    currentView.renderGraph(model.graphs[0], (err) => {
+        callback(err);
+    });
+}
+
 function next() {
     if (models.length == 0) {
         return;
@@ -432,8 +541,24 @@ function next() {
                     console.log(err);
                     return;
                 }
+                next();
             }
-            next();
+            else {
+                if (item.render != 'skip') {
+                    render(model, (err) => {
+                        if (err) {
+                            if (!item.error && item.error != err.message) {
+                                console.log(err);
+                                return;
+                            }
+                        }
+                        next();
+                    });
+                }
+                else {
+                    next();
+                }
+            }
         });
     });
 }

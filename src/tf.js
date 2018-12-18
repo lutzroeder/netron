@@ -506,18 +506,6 @@ tf.Node = class {
         return null;
     }
 
-    get primitive() {
-        /*
-        switch (this._node.op) {
-            case 'Add': return '+';
-            case 'Mul': return '*';
-            case 'Sub': return '-';
-            case 'Identity': return 'I';
-        }
-        */
-        return null;
-    }
-
     get domain() {
         return null;
     }

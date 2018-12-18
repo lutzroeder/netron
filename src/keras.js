@@ -470,6 +470,7 @@ keras.Node = class {
         if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
             if (this._config && this._config.layer) {
                 var inner = this._config.layer;
+                delete this._config.layer;
                 this._inner = new keras.Node(this._metadata, inner.class_name, inner.config, [], [], null, null);
             }
         }
@@ -686,9 +687,6 @@ keras.Attribute = class {
         }
 
         if (name == 'trainable') {
-            this._visible = false;
-        }
-        else if (name == 'layer' && (operator == 'Bidirectional' || operator == 'TimeDistributed')) {
             this._visible = false;
         }
         else {

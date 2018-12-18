@@ -227,11 +227,26 @@ caffe.Graph = class {
             });
         });
 
+        var lastNode = null;
+        var lastTop = null;
         layers.forEach((layer) => {
             var node = new caffe.Node(metadata, layer, version);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
-            if (!this.translateInput(node)) {
+            if (layer.top.length == 1 && 
+                layer.bottom.length >= 1 && 
+                layer.top[0].split('\n').shift() == layer.bottom[0].split('\n').shift() &&
+                lastNode &&
+                lastTop == layer.top[0].split('\n').shift()) {
+                lastNode.chain.push(node);
+            }
+            else if (!this.translateInput(node)) {
                 this._nodes.push(node);
+                lastNode = null;
+                lastTop = null;
+                if (layer.top.length == 1) {
+                    lastNode = node;
+                    lastTop = layer.top[0].split('\n').shift();
+                }
             }
         });
 
@@ -382,6 +397,7 @@ caffe.Node = class {
     constructor(metadata, layer, version) {
 
         this._metadata = metadata;
+        this._chain = [];
 
         switch (version) {
             case 0:
@@ -551,6 +567,10 @@ caffe.Node = class {
 
     get attributes() {
         return this._attributes;
+    }
+
+    get chain() {
+        return this._chain;
     }
 };
 

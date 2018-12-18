@@ -304,18 +304,6 @@ torch.Node = class {
                 delete module.gradWeight;
                 delete module.normalized;
                 delete module.centered;
-                if (module.running_mean) {
-                    module.mean = module.running_mean;
-                    delete module.running_mean;
-                }
-                if (module.running_var) {
-                    module.var = module.running_var;
-                    delete module.running_var;
-                }
-                if (module.running_std) {
-                    module.std = module.running_std;
-                    delete module.running_std;
-                }
                 delete module.bn; // TODO InstanceNormalization
                 break;
             case 'nn.SpatialCrossMapLRN':
