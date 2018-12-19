@@ -14,8 +14,40 @@ const zip = require('../src/zip');
 const gzip = require('../src/gzip');
 const tar = require('../src/tar');
 
-global.TextDecoder = require('util').TextDecoder;
 global.protobuf = protobuf;
+
+global.TextDecoder = class {
+
+    constructor(encoding) {
+        global.TextDecoder._TextDecoder = global.TextDecoder._TextDecoder || require('util').TextDecoder;
+        if (encoding !== 'ascii') {
+            this._textDecoder = new global.TextDecoder._TextDecoder(encoding);
+        }
+    }
+
+    decode(data) {
+        if (this._textDecoder) {
+            return this._textDecoder.decode(data);
+        }
+
+        if (data.length < 32) {
+            return String.fromCharCode.apply(null, data);
+        }
+
+        var buffer = [];
+        var start = 0;
+        do {
+            var end = start + 32;
+            if (end > data.length) {
+                end = data.length;
+            }
+            buffer.push(String.fromCharCode.apply(null, data.subarray(start, end)));
+            start = end;
+        }
+        while (start < data.length);
+        return buffer.join('');
+    }
+};
 
 var type = process.argv.length > 2 ? process.argv[2] : null;
 
