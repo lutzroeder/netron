@@ -1067,27 +1067,20 @@
   {
     "type":   "coreml",
     "target": "AgeNet.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/AgeNet.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "AnimeScale2x.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/AnimeScale2x.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "DocumentClassification.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/DocumentClassification.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "CarRecognition.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/CarRecognition.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mT1J3T1BEeWx4TWc",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
     "target": "CNNEmotions.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/CNNEmotions.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mTlYtRGdXNFlpWDQ",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
+  },
+  {
+    "type":   "coreml",
+    "target": "DocumentClassification.mlmodel",
+    "source": "https://raw.githubusercontent.com/toddkramer/DocumentClassifier/master/Sources/DocumentClassification.mlmodel",
+    "link":   "https://github.com/toddkramer/DocumentClassifier"
   },
   {
     "type":   "coreml",
@@ -1117,8 +1110,51 @@
   },
   {
     "type":   "coreml",
+    "target": "FlickrStyle.mlmodel",
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6maFFWR3drLUFNQ1E",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Candy.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Candy.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Feathers.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Feathers.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-La-Muse.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-La-Muse.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Mosaic.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Mosaic.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-The-Scream.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-The-Scream.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Udnie.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Udnie.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
     "target": "Food101.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Food101.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B5TjkH3njRqnVjBPZGRZbkNITjA",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1318,48 +1354,15 @@
   },
   {
     "type":   "coreml",
-    "target": "FlickrStyle.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FlickrStyle.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Candy.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Candy.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Feathers.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Feathers.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-La-Muse.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-La-Muse.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Mosaic.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Mosaic.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-The-Scream.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-The-Scream.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Udnie.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Udnie.mlmodel"
-  },
-  {
-    "type":   "coreml",
     "target": "GenderNet.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/GenderNet.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mYkNsZHlyc2ZuaFk",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
     "target": "GestureAI.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/GestureAI.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mYkNsZHlyc2ZuaFk",
+    "link":   "https://github.com/akimach/GestureAI-CoreML-iOS"
   },
   {
     "type":   "coreml",
@@ -1369,17 +1372,20 @@
   {
     "type":   "coreml",
     "target": "HED_so.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_so.mlmodel"
+    "source": "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_so.mlmodel",
+    "link":   "https://github.com/s1ddok/HED-CoreML"
   },
   {
     "type":   "coreml",
     "target": "HED_so3.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_so3.mlmodel"
+    "source": "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_so3.mlmodel",
+    "link":   "https://github.com/s1ddok/HED-CoreML"
   },
   {
     "type":   "coreml",
     "target": "HED_fuse.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_fuse.mlmodel"
+    "source": "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_fuse.mlmodel",
+    "link":   "https://github.com/s1ddok/HED-CoreML"
   },
   {
     "type":   "coreml",
@@ -1410,12 +1416,14 @@
   {
     "type":   "coreml",
     "target": "MessageClassifier.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/MessageClassifier.mlmodel"
+    "source": "https://raw.githubusercontent.com/llSourcell/A_guide_to_coreML/master/MessageClassifier.mlmodel",
+    "link":   "https://github.com/llSourcell/A_guide_to_coreML"
   },
   {
     "type":   "coreml",
     "target": "MNIST.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/MNIST.mlmodel"
+    "source": "https://github.com/ph1ps/MNIST-CoreML/raw/master/MNISTPrediction/MNIST.mlmodel",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1432,12 +1440,8 @@
   {
     "type":   "coreml",
     "target": "NamesDT.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/NamesDT.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "Nudity.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Nudity.mlmodel"
+    "source": "https://github.com/cocoa-ai/NamesCoreMLDemo/raw/master/Names/Resources/NamesDT.mlmodel",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1448,7 +1452,8 @@
   {
     "type":   "coreml",
     "target": "Oxford102.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Oxford102.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6meDBHT2NaZGxkNzQ",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1471,13 +1476,9 @@
   },
   {
     "type":   "coreml",
-    "target": "RN1015k500.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/RN1015k500.mlmodel"
-  },
-  {
-    "type":   "coreml",
     "target": "SentimentPolarity.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/SentimentPolarity.mlmodel"
+    "source": "https://github.com/cocoa-ai/SentimentCoreMLDemo/raw/master/SentimentPolarity/Resources/SentimentPolarity.mlmodel",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1595,7 +1596,8 @@
   {
     "type":   "coreml",
     "target": "VisualSentimentCNN.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/VisualSentimentCNN.mlmodel"
+    "source": "https://drive.google.com//uc?export=download&id=0B1ghKa_MYL6mZ0dITW5uZlgyNTg",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -2755,7 +2757,7 @@
   {
     "type":   "pytorch",
     "target": "coco_resnet_50_map_0_335.pt",
-    "source": "https://drive.google.com//uc?export=docswnload&id=1hCtM35R_t6T8RJVSd74K4gB-A1MR-TxC",
+    "source": "https://drive.google.com/uc?export=download&id=1hCtM35R_t6T8RJVSd74K4gB-A1MR-TxC",
     "format": "PyTorch",
     "link":   "https://github.com/yhenon/pytorch-retinanet/issues/2"
   },
@@ -2804,7 +2806,7 @@
   {
     "type":   "pytorch",
     "target": "SiamRPNBIG.model",
-    "source": "https://drive.google.com/uc?export=docswnload&id=1-vNVZxfbIplXHrqMHiJJYWXYWsOIvGsf",
+    "source": "https://drive.google.com/uc?export=download&id=1-vNVZxfbIplXHrqMHiJJYWXYWsOIvGsf",
     "format": "PyTorch",
     "error":  "File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data.",
     "link":   "https://github.com/foolwood/DaSiamRPN"
