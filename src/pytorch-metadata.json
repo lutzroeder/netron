@@ -487,6 +487,13 @@
     }
   },
   {
+    "name": "LayerNorm",
+    "schema": {
+      "category": "Normalization",
+      "package": "torch.nn.modules.normalization"
+    }
+  },
+  {
     "name": "Dropout2d",
     "schema": {
       "attributes": [
@@ -524,6 +531,13 @@
   },
   {
     "name": "GRU",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
+    "name": "GRUCell",
     "schema": {
       "category": "Layer",
       "package": "torch.nn.modules.rnn"
@@ -596,6 +610,13 @@
           "visible": false
         }
       ],
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
+    "name": "LSTMCell",
+    "schema": {
+      "category": "Layer",
       "package": "torch.nn.modules.rnn"
     }
   },
