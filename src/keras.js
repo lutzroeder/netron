@@ -12,11 +12,8 @@ keras.ModelFactory = class {
             // Filter PyTorch models published with incorrect .h5 file extension.
             var buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > torch.length + 2 && 
-                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
-                if (torch.every((value, index) => value == buffer[index + 2])) {
-                    return false;
-                }
+            if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
+                return false;
             }
             return true;
         }
@@ -56,14 +53,7 @@ keras.ModelFactory = class {
             try {
                 var extension = identifier.split('.').pop().toLowerCase();
                 if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
-                    var file = null;
-                    try {
-                        file = new hdf5.File(context.buffer);
-                    }
-                    catch (error) {
-                        callback(new keras.Error(error.name + ": " + error.message.replace(/\.$/, '') + " in '" + identifier + "'."), null);
-                        return;
-                    }
+                    var file = new hdf5.File(context.buffer);
                     rootGroup = file.rootGroup;
                     if (!rootGroup.attributes.model_config) {
                         callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
@@ -83,7 +73,9 @@ keras.ModelFactory = class {
             }
             catch (error) {
                 host.exception(error, false);
-                callback(new keras.Error(error.message), null);
+                var message = error && error.message ? error.message : error.toString();
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                callback(new keras.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
     

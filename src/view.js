@@ -1102,7 +1102,7 @@ view.ModelFactoryService = class {
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model', '.dms' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model', '.dms', '.pth.tar' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
@@ -1220,7 +1220,11 @@ view.ModelFactoryService = class {
             extension = identifier.split('.').pop().toLowerCase();
             switch (extension) {
                 case 'tar':
-                    archive = new tar.Archive(buffer);
+                    // handle .pth.tar
+                    var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+                    if (!buffer || buffer.length < 14 || buffer[0] != 0x80 || !torch.every((v, i) => v == buffer[i + 2])) {
+                        archive = new tar.Archive(buffer);
+                    }
                     break;
                 case 'zip':
                     archive = new zip.Archive(buffer);

@@ -400,8 +400,10 @@ mxnet.Graph = class {
         var nodeIndex = input[0];
         var node = nodes[nodeIndex];
         var outputIndex = input[1];
-        while (outputIndex >= node.outputs.length) {
-            node.outputs.push([ nodeIndex, node.outputs.length ]);
+        if (node) {
+            while (outputIndex >= node.outputs.length) {
+                node.outputs.push([ nodeIndex, node.outputs.length ]);
+            }
         }
         return [ nodeIndex, outputIndex ];
     }

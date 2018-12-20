@@ -359,7 +359,7 @@ tf.Graph = class {
                     if (value && value.hasOwnProperty('tensor')) {
                         var output = node.output[0];
                         if (output) {
-                            this._initializerMap[output] = new tf.Tensor(value.tensor, output, node.name, 'Constant');
+                            this._initializerMap[output] = new tf.Tensor(value.tensor, node.name, 'Constant');
                         }
                     }
                 }
@@ -760,18 +760,13 @@ tf.Attribute = class {
 
 tf.Tensor = class {
 
-    constructor(tensor, id, name, kind) {
+    constructor(tensor, name, kind) {
         this._tensor = tensor;
-        this._id = id;
         this._name = name;
         if (kind) {
             this._kind = kind;
         }
         this._type = new tf.TensorType(this._tensor.dtype, this._tensor.tensor_shape);
-    }
-
-    get id() {
-        return this._id;
     }
 
     get name() {

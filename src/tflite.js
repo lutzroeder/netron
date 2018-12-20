@@ -106,7 +106,7 @@ tflite.Graph = class {
             var initializer = null;
             var buffer = model.buffers(tensor.buffer());
             if (buffer.dataLength() > 0) {
-                initializer = new tflite.Tensor(tensor, i, buffer);
+                initializer = new tflite.Tensor(tensor, buffer);
             }
             connections.push(new tflite.Connection(tensor, i, initializer));
             names.push(tensor.name());
@@ -431,15 +431,10 @@ tflite.Connection = class {
 
 tflite.Tensor = class {
 
-    constructor(tensor, index, buffer) {
-        this._id = index;
+    constructor(tensor, buffer) {
         this._name = tensor.name();
         this._type = new tflite.TensorType(tensor);
         this._data = buffer.dataLength() > 0 ? buffer.dataArray() : null;
-    }
-
-    get id() {
-        return this._id.toString();
     }
 
     get name() {

@@ -35,13 +35,10 @@ tar.Entry = class {
         reader.string(8); // owner
         reader.string(8); // group
         var size = parseInt(reader.string(12).trim(), 8); // size
-        if (isNaN(size)) {
-            throw new tar.Error('Invalid size.');
-        }
         reader.string(12); // timestamp
         var checksum = parseInt(reader.string(8).trim(), 8); // checksum
         if (isNaN(checksum) || sum != checksum) {
-            throw new tar.Error('Invalid checksum.');
+            throw new tar.Error('Invalid tar archive.');
         }
         reader.string(1); // link indicator
         reader.string(100); // name of linked file

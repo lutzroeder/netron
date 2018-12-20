@@ -314,7 +314,7 @@ class NodeAttributeView {
             typeLine.className = 'sidebar-view-item-value-line-border';
             var type = this._attribute.type;
             var value = this._attribute.value;
-            if (type == 'tensor') {
+            if (type == 'tensor' && value.type) {
                 typeLine.innerHTML = 'type: ' + '<code><b>' + value.type.toString() + '</b></code>';
                 this._element.appendChild(typeLine);
             }

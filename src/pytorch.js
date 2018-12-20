@@ -9,15 +9,14 @@ var tar = tar || require('./tar');
 pytorch.ModelFactory = class {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 'dms' || extension == 'model') {
+        var identifier = context.identifier; 
+        var extension = identifier.split('.').pop().toLowerCase();
+        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || 
+            extension == 'dms' || extension == 'model' || identifier.endsWith('.pth.tar')) {
             var buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > torch.length + 2 && 
-                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
-                if (torch.every((value, index) => value == buffer[index + 2])) {
-                    return true;
-                }
+            if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
+                return true;
             }
             if (this._isLegacyFormat(buffer)) {
                 return true;
@@ -114,6 +113,8 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm2d'] = function() {};
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
+            constructorTable['torch.nn.modules.loss.BCELoss'] = function () {};
+            constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function () {};
             constructorTable['torch.nn.modules.loss.MSELoss'] = function () {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
             constructorTable['torch.nn.modules.normalization.LayerNorm'] = function () {};

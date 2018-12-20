@@ -242,7 +242,7 @@ onnx.Graph = class {
 
             var initializers = {};
             graph.initializer.forEach((tensor) => {
-                initializers[tensor.name] = new onnx.Tensor(tensor, tensor.name, 'Initializer');
+                initializers[tensor.name] = new onnx.Tensor(tensor, 'Initializer');
             });
             var nodes = [];
             var outputCountMap = {};
@@ -259,7 +259,7 @@ onnx.Graph = class {
                     if (outputCountMap[name] == 1) {
                         var attribute = node.attribute.find((attribute) => { return attribute.name == 'value' && attribute.t; }); 
                         if (attribute) {
-                            initializers[name] = new onnx.Tensor(attribute.t, name, 'Constant');
+                            initializers[name] = new onnx.Tensor(attribute.t, 'Constant');
                             initializerNode = true;
                         }
                     }
@@ -648,9 +648,9 @@ onnx.Attribute = class {
 
 onnx.Tensor = class {
 
-    constructor(tensor, id, kind) {
+    constructor(tensor, kind) {
         this._tensor = tensor;
-        this._id = id;
+        this._name = tensor.name || '';
         this._kind = kind || null;
         this._type = new onnx.TensorType(this._tensor.data_type, new onnx.TensorShape(this._tensor.dims.map((dim) => dim)), null);
 
@@ -665,12 +665,8 @@ onnx.Tensor = class {
         }
     }
 
-    get id() {
-        return this._id;
-    }
-
     get name() {
-        return this._tensor.name ? this._tensor.name : this._id; 
+        return this._name;
     }
 
     get kind() {
