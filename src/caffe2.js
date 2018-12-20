@@ -15,6 +15,13 @@ caffe2.ModelFactory = class {
                 return true;
             }
             tags = context.tags('pb');
+            // ignore input_0.pb, output_0.pb
+            if (Object.keys(tags).length > 0 &&
+                tags.hasOwnProperty(1) && tags[1] == 0 && 
+                tags.hasOwnProperty(2) && tags[2] == 0 && 
+                tags.hasOwnProperty(9) && tags[9] == 2) {
+                return false;
+            }
             if (Object.keys(tags).length > 0 &&
                 (!tags.hasOwnProperty(1) || tags[1] == 2) &&
                 (!tags.hasOwnProperty(2) || tags[2] == 2) &&
@@ -54,10 +61,17 @@ caffe2.ModelFactory = class {
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
                     caffe2.proto = protobuf.roots.caffe2.caffe2;
-                    netDef = caffe2.proto.NetDef.decodeText(context.text);
+                    var reader = new protobuf.TextReader(context.text);
+                    reader.handle = function(tag, message) {
+                        if (message instanceof caffe2.proto.DeviceOption) {
+                            message[tag] = this.skip();
+                            return;
+                        }
+                        throw new Error("Unknown field '" + tag + "'" + this.location());
+                    };
+                    netDef = caffe2.proto.NetDef.decodeText(reader);
                 }
                 catch (error) {
-                    host.exception(error, false);
                     callback(new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }    

@@ -648,6 +648,14 @@
   },
   {
     "type":   "caffe2",
+    "target": "lenet/predict_net.pbtxt,lenet/init_net.pbtxt",
+    "source": "https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/predict_net.pbtxt,https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/init_net.pbtxt",
+    "format": "Caffe2",
+    "link":   "https://github.com/jolibrain/deepdetect/tree/master/templates/caffe2"
+  },
+
+  {
+    "type":   "caffe2",
     "target": "bvlc_alexnet/predict_net.pb,bvlc_alexnet/init_net.pb",
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
     "format": "Caffe2",

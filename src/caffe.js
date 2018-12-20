@@ -19,7 +19,7 @@ caffe.ModelFactory = class {
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            var tags = context.tags('pbtxt');
+            tags = context.tags('pbtxt');
             if (tags.layer || tags.layers || tags.net || tags.train_net || tags.net_param) {
                 return true;
             }
@@ -86,7 +86,6 @@ caffe.ModelFactory = class {
             this._openNetParameter(metadata, netParameter, host, callback);
         }
         catch (error) {
-            host.exception(error, false);
             callback(new caffe.Error("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
             return;
         }
@@ -131,7 +130,6 @@ caffe.ModelFactory = class {
             this._openNetParameter(metadata, netParameter, host, callback);
         }
         catch (error) {
-            host.exception(error, false);
             callback(new caffe.Error("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
         }
     }

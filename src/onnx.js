@@ -25,12 +25,16 @@ onnx.ModelFactory = class {
             if (Object.keys(tags).length == 0) {
                 return false;
             }
-            // input_0.pb, output_0.pb
-            if (tags[1] == 0 && tags[2] == 0 && tags[9] == 2) {
+            // ignore input_0.pb, output_0.pb
+            if (Object.keys(tags).length > 0 &&
+                tags.hasOwnProperty(1) && tags[1] == 0 && 
+                tags.hasOwnProperty(2) && tags[2] == 0 && 
+                tags.hasOwnProperty(9) && tags[9] == 2) {
                 return false;
             }
             // ir_version not int32
-            if (tags[1] && tags[1] != 0) {
+            if (Object.keys(tags).length > 0 &&
+                tags.hasOwnProperty(1) && tags[1] != 0) {
                 return false;
             }
             return true;
@@ -63,7 +67,6 @@ onnx.ModelFactory = class {
                     model = onnx.proto.ModelProto.decodeText(context.text);
                 }
                 catch (error) {
-                    host.exception(error, false);
                     callback(new onnx.Error("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }
