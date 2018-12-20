@@ -1742,7 +1742,7 @@
                         message.dims.push(reader.int64());
                         break;
                     case "data_type":
-                        message.data_type = reader.enum($root.onnx.TensorProto.DataType);
+                        message.data_type = reader.int32();
                         break;
                     case "segment":
                         message.segment = $root.onnx.TensorProto.Segment.decodeText(reader, true);
@@ -1805,28 +1805,8 @@
                             return "dims: integer|Long[] expected";
                 }
                 if (message.data_type != null && message.hasOwnProperty("data_type"))
-                    switch (message.data_type) {
-                    default:
-                        return "data_type: enum value expected";
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                        break;
-                    }
+                    if (!$util.isInteger(message.data_type))
+                        return "data_type: integer expected";
                 if (message.segment != null && message.hasOwnProperty("segment")) {
                     var error = $root.onnx.TensorProto.Segment.verify(message.segment);
                     if (error)
@@ -1904,76 +1884,8 @@
                         else if (typeof object.dims[i] === "object")
                             message.dims[i] = new $util.LongBits(object.dims[i].low >>> 0, object.dims[i].high >>> 0).toNumber();
                 }
-                switch (object.data_type) {
-                case "UNDEFINED":
-                case 0:
-                    message.data_type = 0;
-                    break;
-                case "FLOAT":
-                case 1:
-                    message.data_type = 1;
-                    break;
-                case "UINT8":
-                case 2:
-                    message.data_type = 2;
-                    break;
-                case "INT8":
-                case 3:
-                    message.data_type = 3;
-                    break;
-                case "UINT16":
-                case 4:
-                    message.data_type = 4;
-                    break;
-                case "INT16":
-                case 5:
-                    message.data_type = 5;
-                    break;
-                case "INT32":
-                case 6:
-                    message.data_type = 6;
-                    break;
-                case "INT64":
-                case 7:
-                    message.data_type = 7;
-                    break;
-                case "STRING":
-                case 8:
-                    message.data_type = 8;
-                    break;
-                case "BOOL":
-                case 9:
-                    message.data_type = 9;
-                    break;
-                case "FLOAT16":
-                case 10:
-                    message.data_type = 10;
-                    break;
-                case "DOUBLE":
-                case 11:
-                    message.data_type = 11;
-                    break;
-                case "UINT32":
-                case 12:
-                    message.data_type = 12;
-                    break;
-                case "UINT64":
-                case 13:
-                    message.data_type = 13;
-                    break;
-                case "COMPLEX64":
-                case 14:
-                    message.data_type = 14;
-                    break;
-                case "COMPLEX128":
-                case 15:
-                    message.data_type = 15;
-                    break;
-                case "BFLOAT16":
-                case 16:
-                    message.data_type = 16;
-                    break;
-                }
+                if (object.data_type != null)
+                    message.data_type = object.data_type | 0;
                 if (object.segment != null) {
                     if (typeof object.segment !== "object")
                         throw TypeError(".onnx.TensorProto.segment: object expected");
@@ -2064,7 +1976,7 @@
                     object.uint64_data = [];
                 }
                 if (options.defaults) {
-                    object.data_type = options.enums === String ? "UNDEFINED" : 0;
+                    object.data_type = 0;
                     object.segment = null;
                     object.name = "";
                     if (options.bytes === String)
@@ -2085,7 +1997,7 @@
                             object.dims[j] = options.longs === String ? $util.Long.prototype.toString.call(message.dims[j]) : options.longs === Number ? new $util.LongBits(message.dims[j].low >>> 0, message.dims[j].high >>> 0).toNumber() : message.dims[j];
                 }
                 if (message.data_type != null && message.hasOwnProperty("data_type"))
-                    object.data_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.data_type] : message.data_type;
+                    object.data_type = message.data_type;
                 if (message.segment != null && message.hasOwnProperty("segment"))
                     object.segment = $root.onnx.TensorProto.Segment.toObject(message.segment, options);
                 if (message.float_data && message.float_data.length) {
@@ -2822,7 +2734,7 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "elem_type":
-                            message.elem_type = reader.enum($root.onnx.TensorProto.DataType);
+                            message.elem_type = reader.int32();
                             break;
                         case "shape":
                             message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
@@ -2839,28 +2751,8 @@
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     if (message.elem_type != null && message.hasOwnProperty("elem_type"))
-                        switch (message.elem_type) {
-                        default:
-                            return "elem_type: enum value expected";
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 15:
-                        case 16:
-                            break;
-                        }
+                        if (!$util.isInteger(message.elem_type))
+                            return "elem_type: integer expected";
                     if (message.shape != null && message.hasOwnProperty("shape")) {
                         var error = $root.onnx.TensorShapeProto.verify(message.shape);
                         if (error)
@@ -2873,76 +2765,8 @@
                     if (object instanceof $root.onnx.TypeProto.Tensor)
                         return object;
                     var message = new $root.onnx.TypeProto.Tensor();
-                    switch (object.elem_type) {
-                    case "UNDEFINED":
-                    case 0:
-                        message.elem_type = 0;
-                        break;
-                    case "FLOAT":
-                    case 1:
-                        message.elem_type = 1;
-                        break;
-                    case "UINT8":
-                    case 2:
-                        message.elem_type = 2;
-                        break;
-                    case "INT8":
-                    case 3:
-                        message.elem_type = 3;
-                        break;
-                    case "UINT16":
-                    case 4:
-                        message.elem_type = 4;
-                        break;
-                    case "INT16":
-                    case 5:
-                        message.elem_type = 5;
-                        break;
-                    case "INT32":
-                    case 6:
-                        message.elem_type = 6;
-                        break;
-                    case "INT64":
-                    case 7:
-                        message.elem_type = 7;
-                        break;
-                    case "STRING":
-                    case 8:
-                        message.elem_type = 8;
-                        break;
-                    case "BOOL":
-                    case 9:
-                        message.elem_type = 9;
-                        break;
-                    case "FLOAT16":
-                    case 10:
-                        message.elem_type = 10;
-                        break;
-                    case "DOUBLE":
-                    case 11:
-                        message.elem_type = 11;
-                        break;
-                    case "UINT32":
-                    case 12:
-                        message.elem_type = 12;
-                        break;
-                    case "UINT64":
-                    case 13:
-                        message.elem_type = 13;
-                        break;
-                    case "COMPLEX64":
-                    case 14:
-                        message.elem_type = 14;
-                        break;
-                    case "COMPLEX128":
-                    case 15:
-                        message.elem_type = 15;
-                        break;
-                    case "BFLOAT16":
-                    case 16:
-                        message.elem_type = 16;
-                        break;
-                    }
+                    if (object.elem_type != null)
+                        message.elem_type = object.elem_type | 0;
                     if (object.shape != null) {
                         if (typeof object.shape !== "object")
                             throw TypeError(".onnx.TypeProto.Tensor.shape: object expected");
@@ -2956,11 +2780,11 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.elem_type = options.enums === String ? "UNDEFINED" : 0;
+                        object.elem_type = 0;
                         object.shape = null;
                     }
                     if (message.elem_type != null && message.hasOwnProperty("elem_type"))
-                        object.elem_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.elem_type] : message.elem_type;
+                        object.elem_type = message.elem_type;
                     if (message.shape != null && message.hasOwnProperty("shape"))
                         object.shape = $root.onnx.TensorShapeProto.toObject(message.shape, options);
                     return object;
@@ -3112,7 +2936,7 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "key_type":
-                            message.key_type = reader.enum($root.onnx.TensorProto.DataType);
+                            message.key_type = reader.int32();
                             break;
                         case "value_type":
                             message.value_type = $root.onnx.TypeProto.decodeText(reader, true);
@@ -3129,28 +2953,8 @@
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     if (message.key_type != null && message.hasOwnProperty("key_type"))
-                        switch (message.key_type) {
-                        default:
-                            return "key_type: enum value expected";
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 15:
-                        case 16:
-                            break;
-                        }
+                        if (!$util.isInteger(message.key_type))
+                            return "key_type: integer expected";
                     if (message.value_type != null && message.hasOwnProperty("value_type")) {
                         var error = $root.onnx.TypeProto.verify(message.value_type);
                         if (error)
@@ -3163,76 +2967,8 @@
                     if (object instanceof $root.onnx.TypeProto.Map)
                         return object;
                     var message = new $root.onnx.TypeProto.Map();
-                    switch (object.key_type) {
-                    case "UNDEFINED":
-                    case 0:
-                        message.key_type = 0;
-                        break;
-                    case "FLOAT":
-                    case 1:
-                        message.key_type = 1;
-                        break;
-                    case "UINT8":
-                    case 2:
-                        message.key_type = 2;
-                        break;
-                    case "INT8":
-                    case 3:
-                        message.key_type = 3;
-                        break;
-                    case "UINT16":
-                    case 4:
-                        message.key_type = 4;
-                        break;
-                    case "INT16":
-                    case 5:
-                        message.key_type = 5;
-                        break;
-                    case "INT32":
-                    case 6:
-                        message.key_type = 6;
-                        break;
-                    case "INT64":
-                    case 7:
-                        message.key_type = 7;
-                        break;
-                    case "STRING":
-                    case 8:
-                        message.key_type = 8;
-                        break;
-                    case "BOOL":
-                    case 9:
-                        message.key_type = 9;
-                        break;
-                    case "FLOAT16":
-                    case 10:
-                        message.key_type = 10;
-                        break;
-                    case "DOUBLE":
-                    case 11:
-                        message.key_type = 11;
-                        break;
-                    case "UINT32":
-                    case 12:
-                        message.key_type = 12;
-                        break;
-                    case "UINT64":
-                    case 13:
-                        message.key_type = 13;
-                        break;
-                    case "COMPLEX64":
-                    case 14:
-                        message.key_type = 14;
-                        break;
-                    case "COMPLEX128":
-                    case 15:
-                        message.key_type = 15;
-                        break;
-                    case "BFLOAT16":
-                    case 16:
-                        message.key_type = 16;
-                        break;
-                    }
+                    if (object.key_type != null)
+                        message.key_type = object.key_type | 0;
                     if (object.value_type != null) {
                         if (typeof object.value_type !== "object")
                             throw TypeError(".onnx.TypeProto.Map.value_type: object expected");
@@ -3246,11 +2982,11 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.key_type = options.enums === String ? "UNDEFINED" : 0;
+                        object.key_type = 0;
                         object.value_type = null;
                     }
                     if (message.key_type != null && message.hasOwnProperty("key_type"))
-                        object.key_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.key_type] : message.key_type;
+                        object.key_type = message.key_type;
                     if (message.value_type != null && message.hasOwnProperty("value_type"))
                         object.value_type = $root.onnx.TypeProto.toObject(message.value_type, options);
                     return object;
@@ -3413,7 +3149,7 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "elem_type":
-                            message.elem_type = reader.enum($root.onnx.TensorProto.DataType);
+                            message.elem_type = reader.int32();
                             break;
                         case "shape":
                             message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
@@ -3430,28 +3166,8 @@
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     if (message.elem_type != null && message.hasOwnProperty("elem_type"))
-                        switch (message.elem_type) {
-                        default:
-                            return "elem_type: enum value expected";
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 15:
-                        case 16:
-                            break;
-                        }
+                        if (!$util.isInteger(message.elem_type))
+                            return "elem_type: integer expected";
                     if (message.shape != null && message.hasOwnProperty("shape")) {
                         var error = $root.onnx.TensorShapeProto.verify(message.shape);
                         if (error)
@@ -3464,76 +3180,8 @@
                     if (object instanceof $root.onnx.TypeProto.SparseTensor)
                         return object;
                     var message = new $root.onnx.TypeProto.SparseTensor();
-                    switch (object.elem_type) {
-                    case "UNDEFINED":
-                    case 0:
-                        message.elem_type = 0;
-                        break;
-                    case "FLOAT":
-                    case 1:
-                        message.elem_type = 1;
-                        break;
-                    case "UINT8":
-                    case 2:
-                        message.elem_type = 2;
-                        break;
-                    case "INT8":
-                    case 3:
-                        message.elem_type = 3;
-                        break;
-                    case "UINT16":
-                    case 4:
-                        message.elem_type = 4;
-                        break;
-                    case "INT16":
-                    case 5:
-                        message.elem_type = 5;
-                        break;
-                    case "INT32":
-                    case 6:
-                        message.elem_type = 6;
-                        break;
-                    case "INT64":
-                    case 7:
-                        message.elem_type = 7;
-                        break;
-                    case "STRING":
-                    case 8:
-                        message.elem_type = 8;
-                        break;
-                    case "BOOL":
-                    case 9:
-                        message.elem_type = 9;
-                        break;
-                    case "FLOAT16":
-                    case 10:
-                        message.elem_type = 10;
-                        break;
-                    case "DOUBLE":
-                    case 11:
-                        message.elem_type = 11;
-                        break;
-                    case "UINT32":
-                    case 12:
-                        message.elem_type = 12;
-                        break;
-                    case "UINT64":
-                    case 13:
-                        message.elem_type = 13;
-                        break;
-                    case "COMPLEX64":
-                    case 14:
-                        message.elem_type = 14;
-                        break;
-                    case "COMPLEX128":
-                    case 15:
-                        message.elem_type = 15;
-                        break;
-                    case "BFLOAT16":
-                    case 16:
-                        message.elem_type = 16;
-                        break;
-                    }
+                    if (object.elem_type != null)
+                        message.elem_type = object.elem_type | 0;
                     if (object.shape != null) {
                         if (typeof object.shape !== "object")
                             throw TypeError(".onnx.TypeProto.SparseTensor.shape: object expected");
@@ -3547,11 +3195,11 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.elem_type = options.enums === String ? "UNDEFINED" : 0;
+                        object.elem_type = 0;
                         object.shape = null;
                     }
                     if (message.elem_type != null && message.hasOwnProperty("elem_type"))
-                        object.elem_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.elem_type] : message.elem_type;
+                        object.elem_type = message.elem_type;
                     if (message.shape != null && message.hasOwnProperty("shape"))
                         object.shape = $root.onnx.TensorShapeProto.toObject(message.shape, options);
                     return object;

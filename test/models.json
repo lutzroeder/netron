@@ -2258,7 +2258,7 @@
   {
     "type":   "onnx",
     "target": "eisber_model3.pbtxt",
-    "source": "https://github.com/lutzroeder/netron/files/2592471/eisber_model3.zip[eisber_model3.pbtxt]",
+    "source": "https://github.com/lutzroeder/netron/files/2696775/eisber_model3.pbtxt.zip[eisber_model3.pbtxt]",
     "format": "ONNX v3",
     "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
@@ -2324,7 +2324,7 @@
   {
     "type":   "onnx",
     "target": "Kmeans.pbtxt",
-    "source": "https://github.com/lutzroeder/netron/files/2636415/Kmeans.pbtxt.zip[Kmeans.pbtxt]",
+    "source": "https://github.com/lutzroeder/netron/files/2696776/Kmeans.pbtxt.zip[Kmeans.pbtxt]",
     "format": "ONNX v3", "producer": "ML.NET 0.7.27009.0",
     "link":   "https://github.com/lutzroeder/netron/issues/139"
   },
