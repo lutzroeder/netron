@@ -50,14 +50,18 @@ sync() {
 
 install() {
     bold "pytorch install"
-if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
-brew bundle --file=- <<-EOS
+    case "$(uname)" in
+        "Darwin")
+            if [ -z "$(which cmake)" ]; then
+                brew bundle --file=- <<-EOS
 brew "automake"
 brew "cmake"
 brew "gflags"
 brew "glog"
 EOS
-fi
+            fi
+            ;;
+    esac
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     pushd "${third_party}/pytorch" > /dev/null
