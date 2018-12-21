@@ -179,7 +179,7 @@ def metadata():
                 update_argument(schema, arg)
             for input_desc in op_schema.input_desc:
                 update_input(schema, input_desc)
-            if operator_name != 'Int8ConvRelu' and operator_name != 'Int8AveragePoolRelu':
+            if operator_name != 'Int8ConvRelu' and operator_name != 'Int8AveragePoolRelu' and operator_name != 'Int8AveragePool':
                 for output_desc in op_schema.output_desc:
                     update_output(operator_name, schema, output_desc)
             schema['support_level'] = get_support_level(os.path.dirname(op_schema.file))
