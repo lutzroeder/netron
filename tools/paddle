@@ -46,7 +46,9 @@ sync() {
 
 install() {
     bold "paddle install"
-    virtualenv --quiet -p ${python} ${virtualenv}
+    if [ ! -d "${virtualenv}" ]; then
+        virtualenv --quiet -p ${python} ${virtualenv}
+    fi
     source ${virtualenv}/bin/activate
     ${pip} install --quiet ${third_party}/${identifier}
     deactivate

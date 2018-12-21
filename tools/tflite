@@ -20,11 +20,11 @@ bold() {
 git_sync () {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" fetch --quiet -q
         git -C "${third_party}/${1}" reset --quiet --hard origin/master
     else
         echo "Clone ${2}..."
-        git -C "${third_party}" clone --recursive ${2}
+        git -C "${third_party}" clone --quiet --recursive ${2}
     fi
 }
 
@@ -42,12 +42,26 @@ sync() {
 
 install() {
     bold "flatbuffers install"
+    case "$(uname)" in
+        "Linux")
+            if [ -z "$(which cmake)" ]; then
+                sudo apt install cmake
+            fi
+            ;;
+        "Darwin")
+            if [ -z "$(which cmake)" ]; then
+                brew install cmake
+            fi
+            ;;
+    esac
     echo "Build flatbuffers..."
     pushd "${third_party}/flatbuffers" > /dev/null
     cmake -G "Unix Makefiles"
     make
     popd > /dev/null
-    virtualenv --quiet -p ${python} ${virtualenv}
+    if [ ! -d "${virtualenv}" ]; then
+        virtualenv --quiet -p ${python} ${virtualenv}
+    fi
 }
 
 schema() {

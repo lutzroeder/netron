@@ -1176,7 +1176,6 @@
       ],
       "outputs": [
         {
-          "description": "/Users/lutzroeder/Projects/netron/third_party/pytorch/caffe2/operators/quantized/int8_conv_op.cc",
           "name": "Y"
         }
       ],
@@ -1260,7 +1259,6 @@
       ],
       "outputs": [
         {
-          "description": "/Users/lutzroeder/Projects/netron/third_party/pytorch/caffe2/operators/quantized/int8_average_pool_op.cc",
           "name": "Y"
         }
       ],

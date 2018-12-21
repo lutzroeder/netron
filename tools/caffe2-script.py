@@ -106,38 +106,42 @@ def update_argument(schema, arg):
     return
 
 def update_input(schema, input_desc):
-    name = input_desc[0]
+    input_name = input_desc[0]
     description = input_desc[1]
     if not 'inputs' in schema:
         schema['inputs'] = []
     input_arg = None
     for current_input in schema['inputs']:
-        if 'name' in current_input and current_input['name'] == name:
+        if 'name' in current_input and current_input['name'] == input_name:
             input_arg = current_input
             break
     if not input_arg:
         input_arg = {}
-        input_arg['name'] = name
+        input_arg['name'] = input_name
         schema['inputs'].append(input_arg)
     input_arg['description'] = description
     if len(input_desc) > 2:
         return
 
-def update_output(schema, output_desc):
-    name = output_desc[0]
+def update_output(operator_name, schema, output_desc):
+    output_name = output_desc[0]
     description = output_desc[1]
     if not 'outputs' in schema:
         schema['outputs'] = []
     output_arg = None
     for current_output in schema['outputs']:
-        if 'name' in current_output and current_output['name'] == name:
+        if 'name' in current_output and current_output['name'] == output_name:
             output_arg = current_output
             break
     if not output_arg:
         output_arg = {}
-        output_arg['name'] = name
+        output_arg['name'] = output_name
         schema['outputs'].append(output_arg)
-    output_arg['description'] = description
+    if (operator_name == 'Int8Conv' or operator_name == 'Int8AveragePool') and output_name == 'Y':
+        if 'description' in output_arg:
+            del output_arg['description']
+    else:
+        output_arg['description'] = description
     if len(output_desc) > 2:
         return
 
@@ -158,26 +162,26 @@ def metadata():
     schema_map = {}
 
     for entry in json_root:
-        name = entry['name']
+        operator_name = entry['name']
         schema = entry['schema']
-        schema_map[name] = schema
+        schema_map[operator_name] = schema
 
-    for name in caffe2.python.core._GetRegisteredOperators():
-        op_schema = caffe2.python.workspace.C.OpSchema.get(name)
+    for operator_name in caffe2.python.core._GetRegisteredOperators():
+        op_schema = caffe2.python.workspace.C.OpSchema.get(operator_name)
         if op_schema:
-            if name in schema_map:
-                schema = schema_map[name]
+            if operator_name in schema_map:
+                schema = schema_map[operator_name]
             else:
                 schema = {}
-                schema_map[name] = { 'name': name, 'schema': schema }
+                schema_map[operator_name] = { 'name': operator_name, 'schema': schema }
             schema['description'] = op_schema.doc
             for arg in op_schema.args:
                 update_argument(schema, arg)
             for input_desc in op_schema.input_desc:
                 update_input(schema, input_desc)
-            if name != 'Int8ConvRelu' and name != 'Int8AveragePoolRelu':
+            if operator_name != 'Int8ConvRelu' and operator_name != 'Int8AveragePoolRelu':
                 for output_desc in op_schema.output_desc:
-                    update_output(schema, output_desc)
+                    update_output(operator_name, schema, output_desc)
             schema['support_level'] = get_support_level(os.path.dirname(op_schema.file))
 
     with io.open(json_file, 'w', newline='') as fout:

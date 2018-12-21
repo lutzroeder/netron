@@ -28,13 +28,12 @@ bold() {
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch -p --quiet
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" fetch --quiet -p
+        git -C "${third_party}/${1}" reset --quiet --hard origin/$(git -C "${third_party}/${1}" rev-parse --abbrev-ref HEAD)
     else
-        echo "Clone ${2}..."
-        git -C "${third_party}" clone --recursive ${2}
+        git -C "${third_party}" clone --quiet --recursive ${2}
     fi
-    git -C "${third_party}" submodule update --init
+    git -C "${third_party}" submodule update --quiet --init
 }
 
 clean() {
@@ -62,12 +61,14 @@ EOS
             fi
             ;;
     esac
-    virtualenv --quiet -p ${python} ${virtualenv}
+    if [ ! -d "${virtualenv}" ]; then
+        virtualenv --quiet -p ${python} ${virtualenv}
+    fi
     source ${virtualenv}/bin/activate
     pushd "${third_party}/pytorch" > /dev/null
     ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
     ${pip} install --quiet torchvision
-    ${python} setup.py install --quiet
+    ${pip} install --quiet .
     popd > /dev/null
     deactivate
 }
@@ -79,9 +80,9 @@ schema() {
 }
 
 metadata() {
-    bold "pytorch metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
+    bold "pytorch metadata"
     ${python} pytorch-script.py metadata
     bold "caffe2 metadata"
     ${python} caffe2-script.py metadata
