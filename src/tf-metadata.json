@@ -28153,6 +28153,49 @@
     }
   },
   {
+    "name": "NextAfter",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This operation returns the same result as the C++ std::nextafter function.\n\nIt can also return a subnormal number.\n\n@compatibility(cpp)\nEquivalent to C++ std::nextafter function.\n@end_compatibility",
+      "inputs": [
+        {
+          "name": "x1",
+          "typeAttr": "T"
+        },
+        {
+          "name": "x2",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the next representable value of `x1` in the direction of `x2`, element-wise."
+    }
+  },
+  {
     "name": "NextIteration",
     "schema": {
       "attributes": [
