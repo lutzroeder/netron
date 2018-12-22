@@ -855,6 +855,9 @@ class MenuService {
         menuTemplate.forEach((menuTemplateMenu) => {
             menuTemplateMenu.submenu.forEach((menuTemplateItem) => {
                 if (menuTemplateItem.id) {
+                    if (!menuTemplateItem.label) {
+                        menuTemplateItem.label = '';
+                    }
                     this._itemTable[menuTemplateItem.id] = menuTemplateItem;
                 }
             });
