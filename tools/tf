@@ -47,6 +47,18 @@ sync() {
 
 install() {
     bold "tf install"
+    case "$(uname)" in
+        "Linux")
+            if [ -z "$(which protoc)" ]; then
+                sudo apt install protobuf-compiler libprotoc-dev
+            fi
+            ;;
+        "Darwin")
+            if [ -z "$(which protoc)" ]; then
+                brew install protobuf
+            fi
+            ;;
+    esac
     if [ ! -d "${virtualenv}" ]; then
         virtualenv --quiet -p ${python} ${virtualenv}
     fi
@@ -77,13 +89,13 @@ metadata() {
     bold "tf metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/types.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor_shape.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/resource_handle.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/api_def.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/op_def.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/types.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/tensor_shape.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/api_def.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/op_def.proto --python_out=${tools}
     touch ${tools}/tensorflow/__init__.py
     touch ${tools}/tensorflow/core/__init__.py
     touch ${tools}/tensorflow/core/framework/__init__.py
