@@ -26,15 +26,14 @@ onnx.ModelFactory = class {
                 return false;
             }
             // ignore input_0.pb, output_0.pb
-            if (Object.keys(tags).length > 0 &&
-                tags.hasOwnProperty(1) && tags[1] == 0 && 
+            if (tags.hasOwnProperty(1) && tags[1] == 0 && 
                 tags.hasOwnProperty(2) && tags[2] == 0 && 
                 tags.hasOwnProperty(9) && tags[9] == 2) {
                 return false;
             }
-            // ir_version not int32
-            if (Object.keys(tags).length > 0 &&
-                tags.hasOwnProperty(1) && tags[1] != 0) {
+            // check ir_version and graph present
+            if (!tags.hasOwnProperty(1) || tags[1] != 0 ||
+                !tags.hasOwnProperty(7) || tags[7] != 2) {
                 return false;
             }
             return true;
