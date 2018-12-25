@@ -228,8 +228,6 @@ sklearn.ModelFactory = class {
                         case 'float64':
                             return dataView.getFloat64(0, true);
                         case 'int64':
-                            // var offset = (position * dtype.itemsize) + dataView.byteOffset;
-                            // return new base.Int64(new Uint8Array(dataView.buffer.slice(offset, offset + dtype.itemsize)));
                             return new base.Int64(data.subarray(0, dtype.itemsize));
                     }
                     throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");

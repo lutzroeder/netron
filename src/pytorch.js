@@ -330,6 +330,26 @@ pytorch.ModelFactory = class {
                 obj.backward_hooks = backward_hooks;
                 return obj;
             };
+            functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
+                var data = rawData;
+                if (rawData.constructor !== Uint8Array) {
+                    data = new Uint8Array(rawData.length);
+                    for (var i = 0; i < rawData.length; i++) {
+                        data[i] = rawData.charCodeAt(i);
+                    }
+                }
+                var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                switch (dtype.name) {
+                    case 'float64':
+                        return dataView.getFloat64(0, true);
+                    case 'int64':
+                        return new base.Int64(data.subarray(0, dtype.itemsize));
+                }
+                throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
+            };
+            functionTable['_codecs.encode'] = function(obj, econding) {
+                return obj;
+            };
 
             var function_call = (name, args) => {
                 var func = functionTable[name];

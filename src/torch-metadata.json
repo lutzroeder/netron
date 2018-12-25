@@ -183,7 +183,7 @@
     }
   },
   {
-    "name": "nn.LogSoftMax",
+    "name": "LogSoftMax",
     "schema": {
       "category": "Activation"
     }
@@ -234,6 +234,12 @@
       "attributes": [
         { "name": "v2", "visible": false }
       ]
+    }
+  },
+  {
+    "name": "SpatialDropout",
+    "schema": {
+      "category": "Dropout"
     }
   },
   {
