@@ -11,14 +11,20 @@ tf.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
-        if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-            return false;
-        }
         if (extension == 'meta') {
             return true;
         }
         var tags = null;
         if (extension == 'pb') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+                return false;
+            }
+            if (identifier == 'tfhub_module.pb') {
+                var buffer = context.buffer;
+                if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
+                    return false;
+                }
+            }
             tags = context.tags('pb');
             if (Object.keys(tags).length == 0) {
                 return false;
