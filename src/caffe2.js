@@ -171,6 +171,12 @@ caffe2.Graph = class {
                         case 'GivenTensorStringFill':
                             dataType = 'string';
                             break;
+                        case 'Int8GivenIntTensorFill':
+                            dataType = 'int32';
+                            break;
+                        case 'Int8GivenTensorFill':
+                            dataType = 'int8';
+                            break;
                         default:
                             debugger;
                             break;
@@ -298,6 +304,13 @@ caffe2.Connection = class {
             return this._initializer.type;
         }
         return this._type;
+    }
+
+    get quantization() {
+        if (this._initializer) {
+            return this._initializer.quantization;
+        }
+        return null;
     }
 
     get initializer() {
@@ -499,6 +512,8 @@ caffe2.Tensor = class {
         if (args.values) {
             this._values = args.values;
         }
+        this._scale = args.hasOwnProperty('Y_scale') ? args.Y_scale.f : 0;
+        this._zeroPoint = args.hasOwnProperty('Y_zero_point') ? args.Y_zero_point.i : 0;
         this._type = new caffe2.TensorType(tensor.dataType, new caffe2.TensorShape(shape));
     }
 
@@ -512,6 +527,13 @@ caffe2.Tensor = class {
 
     get kind() {
         return this._kind;
+    }
+
+    get quantization() {
+        if (this._scale != 0 || this._zeroPoint != 0) {
+            return this._scale.toString() + ' * ' + (this._zeroPoint == 0 ? 'q' : ('(q - ' + this._zeroPoint.toString() + ')'));
+        }
+        return null;
     }
 
     get state() {
@@ -534,7 +556,7 @@ caffe2.Tensor = class {
         }
         context.limit = 10000;
         var value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
+        return caffe2.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
@@ -555,6 +577,12 @@ caffe2.Tensor = class {
                 context.data = this._values.floats;
                 break;
             case 'boolean':
+                context.data = this._values.ints;
+                break;
+            case 'int8':
+                context.data = this._values.s;
+                break;
+            case 'int32':
                 context.data = this._values.ints;
                 break;
             default:
@@ -583,6 +611,12 @@ caffe2.Tensor = class {
                     case 'boolean':
                         results.push(context.data[context.index] == 0 ? false : true);
                         break;
+                    case 'int8':
+                        results.push(context.data[context.index]);
+                        break;
+                    case 'int32':
+                        results.push(context.data[context.index]);
+                        break;
                     default:
                         context.state = 'Unknown data type.';
                         debugger;
@@ -602,6 +636,32 @@ caffe2.Tensor = class {
             }
         }
         return results;
+    }
+
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            var result = [];
+            result.push(indentation + '[');
+            var items = value.map((item) => caffe2.Tensor._stringify(item, indentation + indent, indent));
+            if (items.length > 0) {
+                result.push(items.join(',\n'));
+            }
+            result.push(indentation + ']');
+            return result.join('\n');
+        }
+        if (typeof value == 'string') {
+            return indentation + value;
+        }
+        if (value == Infinity) {
+            return indentation + 'Infinity';
+        }
+        if (value == -Infinity) {
+            return indentation + '-Infinity';
+        }
+        if (isNaN(value)) {
+            return indentation + 'NaN';
+        }
+        return indentation + value.toString();
     }
 };
 
