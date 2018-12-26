@@ -1,49 +1,67 @@
 [
   {
-      "name": "convolutional",
-      "schema": {
-          "category": "Layer",
-          "attributes": [
-            { "name": "filters", "visible": false },
-            { "name": "stride", "default": 1 },
-            { "name": "pad", "type": "boolean", "default": false },
-            { "name": "batch_normalize", "type": "boolean", "default": false },
-            { "name": "activation", "default": "logistic" }
-          ]
-      }
+    "name": "convolutional",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "filters", "visible": false, "default": 1 },
+        { "name": "size", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "groups", "default": 1 },
+        { "name": "padding", "default": 0 },
+        { "name": "pad", "type": "boolean", "default": false },
+        { "name": "batch_normalize", "type": "boolean", "default": false },
+        { "name": "activation", "default": "logistic" }
+      ]
+    }
+  },
+  {
+    "name": "deconvolutional",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "filters", "visible": false, "default": 1 },
+        { "name": "size", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "padding", "default": 0 },
+        { "name": "pad", "type": "boolean", "default": false },
+        { "name": "batch_normalize", "type": "boolean", "default": false },
+        { "name": "activation", "default": "logistic" }
+      ]
+    }
   },
   {
     "name": "dropout",
     "schema": {
-        "category": "Dropout",
-        "attributes": [
-          { "name": "probability", "default": 0.5 }
-        ]
+      "category": "Dropout",
+      "attributes": [
+        { "name": "probability", "default": 0.5 }
+      ]
     }
   },
   {
     "name": "maxpool",
     "schema": {
-        "category": "Pool",
-        "attributes": [
-          { "name": "stride", "default": 2 }
-        ]
+      "category": "Pool",
+      "attributes": [
+        { "name": "stride", "default": 1 }
+      ]
     }
   },
   {
     "name": "avgpool",
     "schema": {
-        "category": "Pool"
+      "category": "Pool"
     }
   },
   {
     "name": "connected",
     "schema": {
-        "category": "Layer",
-        "attributes": [
-          { "name": "output", "visible": false },
-          { "name": "activation", "default": "logistic" }
-        ]
+      "category": "Layer",
+      "attributes": [
+        { "name": "output", "visible": false, "default": 1 },
+        { "name": "activation", "default": "logistic" }
+      ]
     }
   },
   {
@@ -58,22 +76,44 @@
   {
     "name": "gru",
     "schema": {
-        "category": "Pool",
-        "attributes": [
-          { "name": "output", "visible": false }
-        ]
+      "category": "Layer",
+      "attributes": [
+        { "name": "output", "visible": false, "default": 1 },
+        { "name": "batch_normalize", "type": "boolean", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "lstm",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "output", "visible": false, "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "crnn",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "batch_normalize", "type": "boolean", "default": false },
+        { "name": "activation", "default": "logistic" },
+        { "name": "output_filters", "default": 1 },
+        { "name": "hidden_filters", "default": 1 }
+      ]
     }
   },
   {
     "name": "rnn",
     "schema": {
-        "category": "Layer",
-        "attributes": [
-          { "name": "output", "visible": false },
-          { "name": "hidden", "visible": false },
-          { "name": "batch_normalize", "type": "boolean", "default": false }
-        ]
-      }
+      "category": "Layer",
+      "attributes": [
+        { "name": "output", "visible": false },
+        { "name": "hidden", "visible": false },
+        { "name": "batch_normalize", "type": "boolean", "default": false }
+      ]
+    }
   },
   {
     "name": "crop",
@@ -91,20 +131,38 @@
     "name": "reorg",
     "schema": {
       "attributes": [
-        { "name": "stride", "default": 1 }
+        { "name": "stride", "default": 1 },
+        { "name": "reverse", "type": "boolean", "default": false },
+        { "name": "flatten", "type": "boolean", "default": false },
+        { "name": "extra", "type": "boolean", "default": false }
       ]
     }
   },
   {
     "name": "shortcut",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "attributes": [
+        { "name": "activation", "default": "linear" }
+      ]
     }
   },
   {
     "name": "batch_normalize",
     "schema": {
       "category": "Normalization"
+    }
+  },
+  {
+    "name": "normalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "alpha", "default": 0.0001 },
+        { "name": "beta", "default": 0.75 },
+        { "name": "kappa", "default": 1 },
+        { "name": "size", "default": 1 }
+      ]
     }
   },
   {
@@ -141,6 +199,28 @@
     "name": "ramp",
     "schema": {
       "category": "Activation"
+    }
+  },
+  {
+    "name": "upsample",
+    "schema": {
+      "attributes": [
+        { "name": "stride", "default": 2 }
+      ]
+    }
+  },
+  {
+    "name": "yolo",
+    "schema": {
+      "attributes": [
+        { "name": "classes", "default": 20 },
+        { "name": "num", "default": 1 },
+        { "name": "jitter", "default": 0.2 },
+        { "name": "max", "default": 90 },
+        { "name": "ignore_thresh", "default": 0.5 },
+        { "name": "truth_thresh", "default": 1 },
+        { "name": "random", "default": 0 }
+      ]
     }
   }
 ]

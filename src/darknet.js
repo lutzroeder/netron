@@ -188,28 +188,39 @@ darknet.Node = class {
         }
         switch (layer.__type__) {
             case 'convolutional':
+            case 'deconvolutional':
                 this._initializer('biases');
                 this._initializer('weights');
-
-                if (layer.batch_normalize == "1") {
-                    var batchNormalizeLayer = { __type__: 'batch_normalize', _inputs: [], _outputs: [] }; 
-                    this._chain.push(new darknet.Node(metadata, batchNormalizeLayer, this._name + ':batch_normalize'));
-                    delete layer.batch_normalize;
-                }
-                if (layer.activation) {
-                    var activationLayer = { __type__: layer.activation, _inputs: [], _outputs: [] };
-                    this._chain.push(new darknet.Node(metadata, activationLayer, this._name + ':activation'));
-                    delete layer.activation;
-                }
+                this._batch_normalize(metadata, layer);
+                this._activation(metadata, layer, 'logistic');
+                break;
+            case 'connected':
+                this._initializer('biases');
+                this._initializer('weights');
+                this._batch_normalize(metadata, layer);
+                this._activation(metadata, layer, 'logistic');
+                break;
+            case 'crnn':
+                this._batch_normalize(metadata, layer);
+                this._activation(metadata, layer, "logistic");
+                break;
+            case 'rnn':
+                this._batch_normalize(metadata, layer);
+                this._activation(metadata, layer, "logistic");
+                break;
+            case 'gru':
+                this._batch_normalize(metadata, layer);
+                break;
+            case 'lstm':
+                this._batch_normalize(metadata, layer);
+                break;
+            case 'shortcut':
+                this._activation(metadata, layer, "linear");
                 break;
             case 'batch_normalize':
                 this._initializer('scale');
                 this._initializer('mean');
                 this._initializer('variance');
-                break;
-            case 'connected':
-                this._initializer('biases');
-                this._initializer('weights');
                 break;
         }
 
@@ -262,6 +273,21 @@ darknet.Node = class {
         this._inputs.push(new darknet.Argument(name, true, [
             new darknet.Connection(id, null, new darknet.Tensor(id))
         ]));
+    }
+
+    _batch_normalize(metadata, layer) {
+        if (layer.batch_normalize == "1") {
+            var batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [] };
+            this._chain.push(new darknet.Node(metadata, batch_normalize_layer, this._name + ':batch_normalize'));
+            delete layer.batch_normalize;
+        }
+    }
+
+    _activation(metadata, layer, defaultValue) {
+        if (layer.activation && layer.activation != defaultValue) {
+            this._chain.push(new darknet.Node(metadata, { __type__: layer.activation, _inputs: [], _outputs: [] }, this._name + ':activation'));
+            delete layer.activation;
+        }
     }
 };
 

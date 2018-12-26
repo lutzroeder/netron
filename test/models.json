@@ -1638,7 +1638,7 @@
   {
     "type":   "darknet",
     "target": "jnet-conv.cfg,jnet-conv.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/nightmare"
   },
@@ -1652,7 +1652,7 @@
   {
     "type":   "darknet",
     "target": "yolov3-spp.cfg,yolov3-spp.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/yolo"
   },

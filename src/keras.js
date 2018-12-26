@@ -51,28 +51,29 @@ keras.ModelFactory = class {
             var rootJson = null;
             var identifier = context.identifier;
             try {
-                var extension = identifier.split('.').pop().toLowerCase();
-                if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
-                    var file = new hdf5.File(context.buffer);
-                    rootGroup = file.rootGroup;
-                    if (!rootGroup.attributes.model_config) {
-                        callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
-                        return;
-                    }
-                    model_config = JSON.parse(rootGroup.attributes.model_config);
-                }
-                else if (extension == 'json') {
-                    var json = context.text;
-                    model_config = JSON.parse(json);
-                    if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
-                        format = 'TensorFlow.js ' + format;
-                        rootJson = model_config;
-                        model_config = model_config.modelTopology.model_config;
-                    }
+                switch (identifier.split('.').pop().toLowerCase()) {
+                    case 'keras':
+                    case 'h5':
+                    case 'hdf5':
+                        var file = new hdf5.File(context.buffer);
+                        rootGroup = file.rootGroup;
+                        if (!rootGroup.attributes.model_config) {
+                            callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
+                            return;
+                        }
+                        model_config = JSON.parse(rootGroup.attributes.model_config);
+                        break;
+                    case 'json':
+                        model_config = JSON.parse(context.text);
+                        if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
+                            format = 'TensorFlow.js ' + format;
+                            rootJson = model_config;
+                            model_config = model_config.modelTopology.model_config;
+                        }
+                        break;
                 }
             }
             catch (error) {
-                host.exception(error, false);
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 callback(new keras.Error(message + " in '" + identifier + "'."), null);
@@ -92,10 +93,13 @@ keras.ModelFactory = class {
                 try {
                     var model = new keras.Model(metadata, format, model_config, rootGroup, rootJson);
                     callback(null, model);
+                    return;
                 }
                 catch (error) {
-                    host.exception(error, false);
-                    callback(new keras.Error(error.message), null);
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    callback(new keras.Error(message + " in '" + identifier + "'."), null);
+                    return;
                 }
             });
         });
