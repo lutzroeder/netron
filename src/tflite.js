@@ -222,18 +222,16 @@ tflite.Node = class {
                         var attribute = new tflite.Attribute(this._metadata, operator, name, value);
                         if (attribute.name == 'fused_activation_function') {
                             value = attribute.value;
-                            if (value != 'NONE') {
+                            if (attribute.value != 'NONE') {
                                 var activationFunctionMap = { 'RELU': 'Relu', 'RELU_N1_TO_1': "ReluN1To1", "RELU6": "Relu6", "TANH": "Tanh", "SIGN_BIT": "SignBit" };
                                 if (activationFunctionMap[value]) {
                                     value = activationFunctionMap[value];
                                 }
                                 this._chain = [];
-                                this._chain.push(new tflite.Node(metadata, null, value, this._name + '_fused_activation_function', []));
+                                this._chain.push(new tflite.Node(metadata, null, value, null, []));
                             }
                         }
-                        else {
-                            this._attributes.push(attribute);
-                        }
+                        this._attributes.push(attribute);
                     }
                 });
             }
@@ -312,7 +310,7 @@ tflite.Attribute = class {
         for (var i = 0; i < name.length; i++) {
             this._name += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
         }
-    
+
         var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.type) {
@@ -327,6 +325,12 @@ tflite.Attribute = class {
                     this._value = type[this.value];
                 }
             }
+        }
+
+        if (this._name == 'fused_activation_function') {
+            this._visible = false;
+        }
+        else if (schema) {
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
