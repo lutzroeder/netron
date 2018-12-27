@@ -565,6 +565,12 @@ function next() {
     if (process.stdout.clearLine) {
         process.stdout.clearLine();
     }
+
+    if (targets[0].indexOf('[') !== -1) {
+        targets[0] = targets[0].split('[')[1].split(']')[0];
+        console.log('New name ' + targets[0]);
+    }
+
     var folder = dataFolder + '/' + item.type;
     process.stdout.write(item.type + '/' + targets[0] + '\n');
     var sources = item.source;
