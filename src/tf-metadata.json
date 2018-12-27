@@ -40230,7 +40230,7 @@
           "type": "bool"
         }
       ],
-      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8], use_resource=True)\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_add(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 12, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "description": "`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that addition would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8], use_resource=True)\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nadd = tf.scatter_nd_add(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(add)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A resource handle. Must be from a VarHandleOp.",
@@ -40248,7 +40248,57 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Adds sparse `updates` to individual values or slices within a given"
+      "summary": "Applies sparse addition to individual values or slices in a Variable."
+    }
+  },
+  {
+    "name": "ResourceScatterNdSub",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": true,
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "bool"
+        }
+      ],
+      "description": "`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8], use_resource=True)\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nsub = tf.scatter_nd_sub(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(sub)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "inputs": [
+        {
+          "description": "A resource handle. Must be from a VarHandleOp.",
+          "name": "ref",
+          "type": 20
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of\nvalues to add to ref.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Applies sparse subtraction to individual values or slices in a Variable."
     }
   },
   {
@@ -44130,7 +44180,7 @@
           "type": "bool"
         }
       ],
-      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `\\\\([d_0, ..., d_{Q-2}, K]\\\\)` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].$$\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to 8\nelements. In Python, that addition would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    add = tf.scatter_nd_add(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(add)\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "description": "`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that addition would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nadd = tf.scatter_nd_add(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(add)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A mutable Tensor. Should be from a Variable node.",
@@ -44157,7 +44207,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Applies sparse addition between `updates` and individual values or slices"
+      "summary": "Applies sparse addition to individual values or slices in a Variable."
     }
   },
   {
@@ -44384,7 +44434,7 @@
           "type": "bool"
         }
       ],
-      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape \\\\([d_0, ..., d_{Q-2}, K]\\\\) where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].$$\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    sub = tf.scatter_nd_sub(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(sub)\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nsub = tf.scatter_nd_sub(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(sub)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A mutable Tensor. Should be from a Variable node.",
@@ -44411,7 +44461,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Applies sparse subtraction between `updates` and individual values or slices"
+      "summary": "Applies sparse subtraction to individual values or slices in a Variable."
     }
   },
   {
