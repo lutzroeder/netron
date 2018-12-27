@@ -11,10 +11,14 @@ tf.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
+        var tags = null;
         if (extension == 'meta') {
+            tags = context.tags('pb');
+            if (Object.keys(tags).length == 0) {
+                return false;
+            }
             return true;
         }
-        var tags = null;
         if (extension == 'pb') {
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return false;

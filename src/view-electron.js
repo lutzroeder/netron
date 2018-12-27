@@ -404,14 +404,14 @@ class ElectonContext {
                         break;
                     case 'pb':
                         reader = new protobuf.Reader.create(this.buffer);
-                        while (tags != null && reader.pos < reader.len) {
+                        while (reader.pos < reader.len) {
                             var tagType = reader.uint32();
                             tags[tagType >>> 3] = tagType & 7;
                             switch (tagType & 7) {
                                 case 0: reader.int64(); break;
                                 case 1: reader.fixed64(); break;
                                 case 2: reader.bytes(); break;
-                                default: tags = {}; break;
+                                default: tags = {}; reader.pos = reader.len; break;
                             }
                         }
                         break;
