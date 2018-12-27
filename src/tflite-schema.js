@@ -135,7 +135,8 @@ tflite_schema.BuiltinOperator = {
   SQUARED_DIFFERENCE: 99, 99: 'SQUARED_DIFFERENCE',
   MIRROR_PAD: 100, 100: 'MIRROR_PAD',
   ABS: 101, 101: 'ABS',
-  SPLIT_V: 102, 102: 'SPLIT_V'
+  SPLIT_V: 102, 102: 'SPLIT_V',
+  UNIQUE: 103, 103: 'UNIQUE'
 };
 
 /**
@@ -221,7 +222,8 @@ tflite_schema.BuiltinOptions = {
   SquaredDifferenceOptions: 76, 76: 'SquaredDifferenceOptions',
   MirrorPadOptions: 77, 77: 'MirrorPadOptions',
   AbsOptions: 78, 78: 'AbsOptions',
-  SplitVOptions: 79, 79: 'SplitVOptions'
+  SplitVOptions: 79, 79: 'SplitVOptions',
+  UniqueOptions: 80, 80: 'UniqueOptions'
 };
 
 /**
@@ -6606,6 +6608,73 @@ tflite_schema.MirrorPadOptions.addMode = function(builder, mode) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.MirrorPadOptions.endMirrorPadOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.UniqueOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.UniqueOptions}
+ */
+tflite_schema.UniqueOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.UniqueOptions=} obj
+ * @returns {tflite_schema.UniqueOptions}
+ */
+tflite_schema.UniqueOptions.getRootAsUniqueOptions = function(bb, obj) {
+  return (obj || new tflite_schema.UniqueOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {tflite_schema.TensorType}
+ */
+tflite_schema.UniqueOptions.prototype.idxOutType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {tflite_schema.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite_schema.TensorType.INT32;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.UniqueOptions.startUniqueOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.TensorType} idxOutType
+ */
+tflite_schema.UniqueOptions.addIdxOutType = function(builder, idxOutType) {
+  builder.addFieldInt8(0, idxOutType, tflite_schema.TensorType.INT32);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.UniqueOptions.endUniqueOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
