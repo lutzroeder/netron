@@ -407,9 +407,14 @@ class Application {
             label: '&View',
             submenu: [
                 {
-                    id: 'view.show-details',
+                    id: 'view.show-attributes',
                     accelerator: 'CmdOrCtrl+D',
-                    click: () => this.execute('toggle-details', null),
+                    click: () => this.execute('toggle-attributes', null),
+                },
+                {
+                    id: 'view.show-initializers',
+                    accelerator: 'CmdOrCtrl+I',
+                    click: () => this.execute('toggle-initializers', null),
                 },
                 {
                     id: 'view.show-names',
@@ -512,9 +517,13 @@ class Application {
         commandTable['edit.find'] = {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
         };
-        commandTable['view.show-details'] = {
+        commandTable['view.show-attributes'] = {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-details') ? 'Show &Details' : 'Hide &Details'; }
+            label: (context) => { return !context.view || !context.view.get('show-attributes') ? 'Show &Attributes' : 'Hide &Attributes'; }
+        };
+        commandTable['view.show-initializers'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            label: (context) => { return !context.view || !context.view.get('show-initializers') ? 'Show &Initializers' : 'Hide &Initializers'; }
         };
         commandTable['view.show-names'] = {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
@@ -846,6 +855,9 @@ class MenuService {
         menuTemplate.forEach((menuTemplateMenu) => {
             menuTemplateMenu.submenu.forEach((menuTemplateItem) => {
                 if (menuTemplateItem.id) {
+                    if (!menuTemplateItem.label) {
+                        menuTemplateItem.label = '';
+                    }
                     this._itemTable[menuTemplateItem.id] = menuTemplateItem;
                 }
             });

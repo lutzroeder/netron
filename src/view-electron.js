@@ -37,6 +37,10 @@ host.ElectronHost = class {
         document.body.style.opacity = 1;
     }
 
+    get document() {
+        return window.document;
+    }
+
     _updateTheme() {
         if (electron.remote.systemPreferences.isDarkMode &&
             electron.remote.systemPreferences.isDarkMode()) {
@@ -81,9 +85,13 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('selectall', (event, data) => {
             this._view.selectAll();
         });
-        electron.ipcRenderer.on('toggle-details', (event, data) => {
-            this._view.toggleDetails();
-            this._update('show-details', this._view.showDetails);
+        electron.ipcRenderer.on('toggle-attributes', (event, data) => {
+            this._view.toggleAttributes();
+            this._update('show-attributes', this._view.showAttributes);
+        });
+        electron.ipcRenderer.on('toggle-initializers', (event, data) => {
+            this._view.toggleInitializers();
+            this._update('show-initializers', this._view.showInitializers);
         });
         electron.ipcRenderer.on('toggle-names', (event, data) => {
             this._view.toggleNames();
@@ -131,9 +139,9 @@ host.ElectronHost = class {
     }
 
     environment(name) {
-        // if (name == 'zoom') {
-        //     return 'scroll';
-        // }
+        if (name == 'zoom') {
+            return 'd3';
+        }
         return null;
     }
 
@@ -297,7 +305,8 @@ host.ElectronHost = class {
                     if (model) {
                         this._update('path', file);
                     }
-                    this._update('show-details', this._view.showDetails);
+                    this._update('show-attributes', this._view.showAttributes);
+                    this._update('show-initializers', this._view.showInitializers);
                     this._update('show-names', this._view.showNames);
                 });
             });
@@ -348,6 +357,7 @@ host.ElectronHost = class {
 class ElectonContext {
 
     constructor(host, folder, identifier, buffer) {
+        this._tags = {};
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
@@ -376,22 +386,43 @@ class ElectonContext {
         return this._text;
     }
 
-    get tags() {
-        if (!this._tags) {
-            this._tags = {};
+    tags(extension) {
+        var tags = this._tags[extension];
+        if (!tags) {
+            tags = {};
             try {
-                var reader = protobuf.TextReader.create(this.text);
-                reader.start(false);
-                while (!reader.end(false)) {
-                    var tag = reader.tag();
-                    this._tags[tag] = true;
-                    reader.skip();
+                var reader = null;
+                switch (extension) {
+                    case 'pbtxt':
+                        reader = protobuf.TextReader.create(this.text);
+                        reader.start(false);
+                        while (!reader.end(false)) {
+                            var tag = reader.tag();
+                            tags[tag] = true;
+                            reader.skip();
+                        }
+                        break;
+                    case 'pb':
+                        reader = new protobuf.Reader.create(this.buffer);
+                        while (reader.pos < reader.len) {
+                            var tagType = reader.uint32();
+                            tags[tagType >>> 3] = tagType & 7;
+                            switch (tagType & 7) {
+                                case 0: reader.int64(); break;
+                                case 1: reader.fixed64(); break;
+                                case 2: reader.bytes(); break;
+                                default: tags = {}; reader.pos = reader.len; break;
+                            }
+                        }
+                        break;
                 }
             }
             catch (error) {
+                tags = {};
             }
+            this._tags[extension] = tags;
         }
-        return this._tags;
+        return tags;
     }
 }
 

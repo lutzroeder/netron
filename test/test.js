@@ -14,8 +14,40 @@ const zip = require('../src/zip');
 const gzip = require('../src/gzip');
 const tar = require('../src/tar');
 
-global.TextDecoder = require('util').TextDecoder;
 global.protobuf = protobuf;
+
+global.TextDecoder = class {
+
+    constructor(encoding) {
+        global.TextDecoder._TextDecoder = global.TextDecoder._TextDecoder || require('util').TextDecoder;
+        if (encoding !== 'ascii') {
+            this._textDecoder = new global.TextDecoder._TextDecoder(encoding);
+        }
+    }
+
+    decode(data) {
+        if (this._textDecoder) {
+            return this._textDecoder.decode(data);
+        }
+
+        if (data.length < 32) {
+            return String.fromCharCode.apply(null, data);
+        }
+
+        var buffer = [];
+        var start = 0;
+        do {
+            var end = start + 32;
+            if (end > data.length) {
+                end = data.length;
+            }
+            buffer.push(String.fromCharCode.apply(null, data.subarray(start, end)));
+            start = end;
+        }
+        while (start < data.length);
+        return buffer.join('');
+    }
+};
 
 var type = process.argv.length > 2 ? process.argv[2] : null;
 
@@ -26,6 +58,20 @@ class TestHost {
 
     constructor() {
         this._exceptions = [];
+        this.document = new HTMLDocument();
+    }
+
+    initialize(view) {
+    }
+
+    environment(name) {
+        if (name == 'zoom') {
+            return 'none';
+        }
+        return null;
+    }
+
+    screen(name) {
     }
 
     require(id, callback) {
@@ -58,6 +104,9 @@ class TestHost {
         });
     }
 
+    event(category, action, label, value) {
+    }
+
     exception(err, fatal) {
         this._exceptions.push(err);
     }
@@ -67,9 +116,88 @@ class TestHost {
     }
 }
 
+class HTMLDocument {
+
+    constructor() {
+        this._elements = {};
+        this.documentElement = new HTMLHtmlElement();
+        this.body = new HTMLBodyElement();
+    }
+
+    createElementNS(namespace, name) {
+        return new HTMLHtmlElement();
+    }
+
+    createTextNode(text) {
+        return new HTMLHtmlElement();
+    }
+
+    getElementById(id) {
+        var element = this._elements[id];
+        if (!element) {
+            element = new HTMLHtmlElement();
+            this._elements[id] = element;
+        }
+        return element;
+    }
+
+    addEventListener(event, callback) {
+    }
+
+    removeEventListener(event, callback) {
+    }
+}
+
+class HTMLHtmlElement {
+
+    constructor() {
+        this.style = new CSSStyleDeclaration();
+    }
+
+    appendChild(node) {
+    }
+
+    setAttribute(name, value) {
+    }
+
+    getBBox() {
+        return { x: 0, y: 0, width: 10, height: 10 };
+    }
+    
+    getElementsByClassName(name) {
+        return null;
+    }
+
+    addEventListener(event, callback) {
+    }
+
+    removeEventListener(event, callback) {
+    }
+}
+
+class HTMLBodyElement {
+
+    constructor() {
+        this.style = new CSSStyleDeclaration();
+    }
+
+    addEventListener(event, callback) {
+    }
+}
+
+class CSSStyleDeclaration {
+
+    setProperty(name, value) {
+    }
+}
+
+class SVGElement {
+}
+
 class TestContext {
 
     constructor(host, folder, identifier, buffer) {
+        this._tags = {};
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
@@ -98,22 +226,43 @@ class TestContext {
         return this._text;
     }
 
-    get tags() {
-        if (!this._tags) {
-            this._tags = {};
+    tags(extension) {
+        var tags = this._tags[extension];
+        if (!tags) {
+            tags = {};
             try {
-                var reader = protobuf.TextReader.create(this.text);
-                reader.start(false);
-                while (!reader.end(false)) {
-                    var tag = reader.tag();
-                    this._tags[tag] = true;
-                    reader.skip();
+                var reader = null;
+                switch (extension) {
+                    case 'pbtxt':
+                        reader = protobuf.TextReader.create(this.text);
+                        reader.start(false);
+                        while (!reader.end(false)) {
+                            var tag = reader.tag();
+                            tags[tag] = true;
+                            reader.skip();
+                        }
+                        break;
+                    case 'pb':
+                        reader = new protobuf.Reader.create(this.buffer);
+                        while (reader.pos < reader.len) {
+                            var tagType = reader.uint32();
+                            tags[tagType >>> 3] = tagType & 7;
+                            switch (tagType & 7) {
+                                case 0: reader.int64(); break;
+                                case 1: reader.fixed64(); break;
+                                case 2: reader.bytes(); break;
+                                default: tags = {}; reader.pos = reader.len; break;
+                            }
+                        }
+                        break;
                 }
             }
             catch (error) {
+                tags = {};
             }
+            this._tags[extension] = tags;
         }
-        return this._tags;
+        return tags;
     }
 }
 
@@ -122,96 +271,6 @@ function makeDir(dir) {
         makeDir(path.dirname(dir));
         fs.mkdirSync(dir);
     }
-}
-
-function loadModel(target, item, callback) {
-    var host = new TestHost();
-    var folder = path.dirname(target);
-    var identifier = path.basename(target);
-    var size = fs.statSync(target).size;
-    var buffer = new Uint8Array(size);
-    var fd = fs.openSync(target, 'r');
-    fs.readSync(fd, buffer, 0, size, 0);
-    fs.closeSync(fd);
-    var context = new TestContext(host, folder, identifier, buffer);
-    var modelFactoryService = new view.ModelFactoryService(host);
-    var opened = false;
-    modelFactoryService.open(context, (err, model) => {
-        if (opened) {
-            callback(new Error("Model opened more than once '" + target + "'."), null);
-            process.exit();
-            return;
-        }
-        opened = true;
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        if (!model.format || (item.format && model.format != item.format)) {
-            callback(new Error("Invalid model format '" + model.format + "'."), null);
-            return;
-        }
-        if (item.producer && model.producer != item.producer) {
-            callback(new Error("Invalid producer '" + model.producer + "'."), null);
-            return;
-        }
-        try {
-            model.graphs.forEach((graph) => {
-                graph.inputs.forEach((input) => {
-                    input.connections.forEach((connection) => {
-                        if (connection.type) {
-                            connection.type.toString();
-                        }
-                    });
-                });
-                graph.outputs.forEach((output) => {
-                    output.connections.forEach((connection) => {
-                        if (connection.type) {
-                            connection.type.toString();
-                        }
-                    });
-                });
-                graph.nodes.forEach((node) => {
-                    var documentation = node.documentation;
-                    var category = node.category;
-                    node.attributes.forEach((attribute) => {
-                        var value = view.View.formatAttributeValue(attribute.value, attribute.type)
-                        if (value && value.length > 1000) {
-                            value = value.substring(0, 1000) + '...';
-                        }
-                        value = value.split('<');
-                    });
-                    node.inputs.forEach((input) => {
-                        input.connections.forEach((connection) => {
-                            if (connection.type) {
-                                connection.type.toString();
-                            }
-                            if (connection.initializer) {
-                                var value = connection.initializer.toString();
-                            }
-                        });
-                    });
-                    node.outputs.forEach((output) => {
-                        output.connections.forEach((connection) => {
-                            if (connection.type) {
-                                connection.type.toString();
-                            }
-                        });
-                    });
-                });
-            });
-        }
-        catch (error) {
-            callback(error, null);
-            return;
-        }
-        if (host.exceptions.length > 0) {
-            callback(host.exceptions[0], null);
-            return;
-        }
-        callback(null, model);
-        return;
-    });
 }
 
 function decompress(buffer, identifier) {
@@ -389,6 +448,110 @@ function download(folder, targets, sources, completed, callback) {
     });
 }
 
+function loadModel(target, item, callback) {
+    var host = new TestHost();
+    var folder = path.dirname(target);
+    var identifier = path.basename(target);
+    var size = fs.statSync(target).size;
+    var buffer = new Uint8Array(size);
+    var fd = fs.openSync(target, 'r');
+    fs.readSync(fd, buffer, 0, size, 0);
+    fs.closeSync(fd);
+    var context = new TestContext(host, folder, identifier, buffer);
+    var modelFactoryService = new view.ModelFactoryService(host);
+    var opened = false;
+    modelFactoryService.open(context, (err, model) => {
+        if (opened) {
+            callback(new Error("Model opened more than once '" + target + "'."), null);
+            process.exit();
+            return;
+        }
+        opened = true;
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        if (!model.format || (item.format && model.format != item.format)) {
+            callback(new Error("Invalid model format '" + model.format + "'."), null);
+            return;
+        }
+        if (item.producer && model.producer != item.producer) {
+            callback(new Error("Invalid producer '" + model.producer + "'."), null);
+            return;
+        }
+        try {
+            model.graphs.forEach((graph) => {
+                graph.inputs.forEach((input) => {
+                    input.connections.forEach((connection) => {
+                        if (connection.type) {
+                            connection.type.toString();
+                        }
+                    });
+                });
+                graph.outputs.forEach((output) => {
+                    output.connections.forEach((connection) => {
+                        if (connection.type) {
+                            connection.type.toString();
+                        }
+                    });
+                });
+                graph.nodes.forEach((node) => {
+                    var documentation = node.documentation;
+                    var category = node.category;
+                    node.attributes.forEach((attribute) => {
+                        var value = view.View.formatAttributeValue(attribute.value, attribute.type)
+                        if (value && value.length > 1000) {
+                            value = value.substring(0, 1000) + '...';
+                        }
+                        value = value.split('<');
+                    });
+                    node.inputs.forEach((input) => {
+                        input.connections.forEach((connection) => {
+                            if (connection.type) {
+                                connection.type.toString();
+                            }
+                            if (connection.initializer) {
+                                var value = connection.initializer.toString();
+                            }
+                        });
+                    });
+                    node.outputs.forEach((output) => {
+                        output.connections.forEach((connection) => {
+                            if (connection.type) {
+                                connection.type.toString();
+                            }
+                        });
+                    });
+                });
+            });
+        }
+        catch (error) {
+            callback(error, null);
+            return;
+        }
+        if (host.exceptions.length > 0) {
+            callback(host.exceptions[0], null);
+            return;
+        }
+        callback(null, model);
+        return;
+    });
+}
+
+function render(model, callback) {
+    var host = new TestHost();
+    var currentView = new view.View(host);
+    if (!currentView.showAttributes) {
+        currentView.toggleAttributes();
+    }
+    if (!currentView.showInitializers) {
+        currentView.toggleInitializers();
+    }
+    currentView.renderGraph(model.graphs[0], (err) => {
+        callback(err);
+    });
+}
+
 function next() {
     if (models.length == 0) {
         return;
@@ -432,8 +595,24 @@ function next() {
                     console.log(err);
                     return;
                 }
+                next();
             }
-            next();
+            else {
+                if (item.render != 'skip') {
+                    render(model, (err) => {
+                        if (err) {
+                            if (!item.error && item.error != err.message) {
+                                console.log(err);
+                                return;
+                            }
+                        }
+                        next();
+                    });
+                }
+                else {
+                    next();
+                }
+            }
         });
     });
 }

@@ -106,7 +106,7 @@ tflite.Graph = class {
             var initializer = null;
             var buffer = model.buffers(tensor.buffer());
             if (buffer.dataLength() > 0) {
-                initializer = new tflite.Tensor(tensor, i, buffer);
+                initializer = new tflite.Tensor(tensor, buffer);
             }
             connections.push(new tflite.Connection(tensor, i, initializer));
             names.push(tensor.name());
@@ -115,7 +115,7 @@ tflite.Graph = class {
             var operator = this._graph.operators(j);
             var opcodeIndex = operator.opcodeIndex();
             var operatorName = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : ('(' + opcodeIndex.toString() + ')');
-            var node = new tflite.Node(metadata, operator, operatorName, connections);
+            var node = new tflite.Node(metadata, operator, operatorName, j.toString(), connections);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             this._nodes.push(node);
         }
@@ -156,63 +156,85 @@ tflite.Graph = class {
 
 tflite.Node = class {
 
-    constructor(metadata, node, operator, connections) {
+    constructor(metadata, node, operator, name, connections) {
         this._metadata = metadata;
         this._operator = operator;
-
-        var inputs = this._metadata.getInputs(node, this.operator);
-        this._inputs = inputs.map((input) => {
-            return new tflite.Argument(input.name, input.visible != false, input.connections.map((connection) => {
-                return connections[connection.id];
-            }));
-        });
+        this._name = name;
+        this._inputs = [];
         this._outputs = [];
-        for (var i = 0; i < node.outputsLength(); i++) {
-            var index = node.outputs(i);
-            var connection = connections[index];
-            var name = this._metadata.getOutputName(this.operator, i);
-            this._outputs.push(new tflite.Argument(name, true, [ connection ]));
-        }
-
-        this._attributes = [];
-        var optionsTypeName = this._operator + 'Options';
-        var optionsType = tflite.Node._getType(optionsTypeName);
-        if (typeof optionsType === 'function') {
-            var options = Reflect.construct(optionsType, []);
-            node.builtinOptions(options);
-            var attributeNames = [];
-            var attributeNamesMap = {};
-            Object.keys(Object.getPrototypeOf(options)).forEach((attributeName) => {
-                if (attributeName != '__init') {
-                    attributeNames.push(attributeName);
-                }
-                attributeNamesMap[attributeName] = true;
+        if (node) {
+            var schema = this._metadata.getSchema(this.operator);
+            var inputs = this._metadata.getInputs(node, this.operator);
+            this._inputs = inputs.map((input) => {
+                return new tflite.Argument(input.name, input.visible != false, input.connections.map((connection) => {
+                    return connections[connection.id];
+                }));
             });
-            var attributeArrayNamesMap = {}; 
-            Object.keys(attributeNamesMap).forEach((attributeName) => {
-                if (attributeNamesMap[attributeName + 'Array'] && attributeNamesMap[attributeName + 'Length']) {
-                    attributeArrayNamesMap[attributeName] = true;
-                    attributeNames = attributeNames.filter((item) => item != (attributeName + 'Array') && item != (attributeName + 'Length'));
+            this._outputs = [];
+            for (var i = 0; i < node.outputsLength(); i++) {
+                var index = node.outputs(i);
+                var connection = connections[index];
+                var outputName = i.toString();
+                if (schema && schema.outputs && i < schema.outputs.length) {
+                    var output = schema.outputs[i];
+                    if (output && (!output.option || output.opcodeIndex != 'variadic') && output.name) {
+                        outputName = output.name;
+                    }
                 }
-            });
-            attributeNames.forEach((name) => {
-                if (options[name] && typeof options[name] == 'function') {
-                    var value = null;
-                    if (attributeArrayNamesMap[name]) {
-                        var array = [];
-                        var length = options[name + 'Length']();
-                        var a = options[name + 'Array']();
-                        for (var i = 0; i < length; i++) {
-                            array.push(a[i]);
+                this._outputs.push(new tflite.Argument(outputName, true, [ connection ]));
+            }
+            this._attributes = [];
+            var optionsTypeName = this._operator + 'Options';
+            var optionsType = tflite.Node._getType(optionsTypeName);
+            if (typeof optionsType === 'function') {
+                var options = Reflect.construct(optionsType, []);
+                node.builtinOptions(options);
+                var attributeNames = [];
+                var attributeNamesMap = {};
+                Object.keys(Object.getPrototypeOf(options)).forEach((attributeName) => {
+                    if (attributeName != '__init') {
+                        attributeNames.push(attributeName);
+                    }
+                    attributeNamesMap[attributeName] = true;
+                });
+                var attributeArrayNamesMap = {}; 
+                Object.keys(attributeNamesMap).forEach((attributeName) => {
+                    if (attributeNamesMap[attributeName + 'Array'] && attributeNamesMap[attributeName + 'Length']) {
+                        attributeArrayNamesMap[attributeName] = true;
+                        attributeNames = attributeNames.filter((item) => item != (attributeName + 'Array') && item != (attributeName + 'Length'));
+                    }
+                });
+                attributeNames.forEach((name) => {
+                    if (options[name] && typeof options[name] == 'function') {
+                        var value = null;
+                        if (attributeArrayNamesMap[name]) {
+                            var array = [];
+                            var length = options[name + 'Length']();
+                            var a = options[name + 'Array']();
+                            for (var i = 0; i < length; i++) {
+                                array.push(a[i]);
+                            }
+                            value = array;
                         }
-                        value = array;
+                        else {
+                            value = options[name]();
+                        }
+                        var attribute = new tflite.Attribute(this._metadata, operator, name, value);
+                        if (attribute.name == 'fused_activation_function') {
+                            value = attribute.value;
+                            if (attribute.value != 'NONE') {
+                                var activationFunctionMap = { 'RELU': 'Relu', 'RELU_N1_TO_1': "ReluN1To1", "RELU6": "Relu6", "TANH": "Tanh", "SIGN_BIT": "SignBit" };
+                                if (activationFunctionMap[value]) {
+                                    value = activationFunctionMap[value];
+                                }
+                                this._chain = [];
+                                this._chain.push(new tflite.Node(metadata, null, value, null, []));
+                            }
+                        }
+                        this._attributes.push(attribute);
                     }
-                    else {
-                        value = options[name]();
-                    }
-                    this._attributes.push(new tflite.Attribute(this._metadata, operator, name, value));
-                }
-            });
+                });
+            }
         }
     }
 
@@ -221,14 +243,10 @@ tflite.Node = class {
     }
 
     get name() {
-        return null;
+        return this._name;
     }
 
     get domain() {
-        return null;
-    }
-
-    get primitive() {
         return null;
     }
 
@@ -251,6 +269,10 @@ tflite.Node = class {
 
     get outputs() {
         return this._outputs;
+    }
+
+    get chain() {
+        return this._chain;
     }
 
     get dependencies() {
@@ -288,7 +310,7 @@ tflite.Attribute = class {
         for (var i = 0; i < name.length; i++) {
             this._name += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
         }
-    
+
         var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.type) {
@@ -303,6 +325,12 @@ tflite.Attribute = class {
                     this._value = type[this.value];
                 }
             }
+        }
+
+        if (this._name == 'fused_activation_function') {
+            this._visible = false;
+        }
+        else if (schema) {
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
@@ -407,15 +435,10 @@ tflite.Connection = class {
 
 tflite.Tensor = class {
 
-    constructor(tensor, index, buffer) {
-        this._id = index;
+    constructor(tensor, buffer) {
         this._name = tensor.name();
         this._type = new tflite.TensorType(tensor);
         this._data = buffer.dataLength() > 0 ? buffer.dataArray() : null;
-    }
-
-    get id() {
-        return this._id.toString();
     }
 
     get name() {
@@ -683,25 +706,6 @@ tflite.Metadata = class {
             results.push(result);
         }
         return results;
-    }
-
-    getOutputName(operator, index) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var outputs = schema.outputs;
-            if (outputs && index < outputs.length) {
-                var output = outputs[index];
-                if (output) {
-                    if (!output.option || output.option != 'variadic') {
-                        var name = output.name;
-                        if (name) {
-                            return name;
-                        }
-                    }
-                } 
-            }
-        }
-        return '(' + index.toString() + ')';
     }
 };
 

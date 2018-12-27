@@ -11,28 +11,43 @@ tf.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
-        switch (identifier) {
-            case 'predict_net.pb':
-            case 'init_net.pb':
-                return false;
-        }
+        var tags = null;
         if (extension == 'meta') {
+            tags = context.tags('pb');
+            if (Object.keys(tags).length == 0) {
+                return false;
+            }
             return true;
         }
         if (extension == 'pb') {
-            if (identifier == 'input_0.pb' || identifier == 'output_0.pb') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+                return false;
+            }
+            if (identifier == 'tfhub_module.pb') {
                 var buffer = context.buffer;
-                if (buffer.length > 5 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x08 && (buffer[3] == 0xE8 || buffer[3] == 0x03)) {
+                if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
                     return false;
                 }
+            }
+            tags = context.tags('pb');
+            if (Object.keys(tags).length == 0) {
+                return false;
+            }
+            // ignore input_0.pb, output_0.pb
+            if (Object.keys(tags).length > 0 &&
+                tags.hasOwnProperty(1) && tags[1] == 0 && 
+                tags.hasOwnProperty(2) && tags[2] == 0 && 
+                tags.hasOwnProperty(9) && tags[9] == 2) {
+                return false;
             }
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            var tags = context.tags;
+            tags = context.tags('pbtxt');
             if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
                 return true;
             }
@@ -54,7 +69,7 @@ tf.ModelFactory = class {
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
-                var tags = context.tags;
+                var tags = context.tags('pbtxt');
                 if (tags.saved_model_schema_version || tags.meta_graphs) {
                     try {
                         if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
@@ -358,7 +373,7 @@ tf.Graph = class {
                     if (value && value.hasOwnProperty('tensor')) {
                         var output = node.output[0];
                         if (output) {
-                            this._initializerMap[output] = new tf.Tensor(value.tensor, output, node.name, 'Constant');
+                            this._initializerMap[output] = new tf.Tensor(value.tensor, node.name, 'Constant');
                         }
                     }
                 }
@@ -503,18 +518,6 @@ tf.Node = class {
     }
 
     get description() {
-        return null;
-    }
-
-    get primitive() {
-        /*
-        switch (this._node.op) {
-            case 'Add': return '+';
-            case 'Mul': return '*';
-            case 'Sub': return '-';
-            case 'Identity': return 'I';
-        }
-        */
         return null;
     }
 
@@ -771,18 +774,13 @@ tf.Attribute = class {
 
 tf.Tensor = class {
 
-    constructor(tensor, id, name, kind) {
+    constructor(tensor, name, kind) {
         this._tensor = tensor;
-        this._id = id;
         this._name = name;
         if (kind) {
             this._kind = kind;
         }
         this._type = new tf.TensorType(this._tensor.dtype, this._tensor.tensor_shape);
-    }
-
-    get id() {
-        return this._id;
     }
 
     get name() {

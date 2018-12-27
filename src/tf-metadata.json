@@ -11356,6 +11356,150 @@
     }
   },
   {
+    "name": "CudnnRNNBackpropV3",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            "rnn_relu",
+            "rnn_tanh",
+            "lstm",
+            "gru"
+          ],
+          "default": "lstm",
+          "name": "rnn_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "linear_input",
+            "skip_input",
+            "auto_select"
+          ],
+          "default": "linear_input",
+          "name": "input_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "unidirectional",
+            "bidirectional"
+          ],
+          "default": "unidirectional",
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "dropout",
+          "type": "float"
+        },
+        {
+          "default": 0,
+          "name": "seed",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "name": "seed2",
+          "type": "int"
+        }
+      ],
+      "description": "Compute the backprop of both data and weights in a RNN. Takes an extra\n    \"sequence_lengths\" input than CudnnRNNBackprop.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n    the actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\noutput_backprop: A 3-D tensor with the same shape as output in the forward pass.\noutput_h_backprop: A 3-D tensor with the same shape as output_h in the forward\n    pass.\noutput_c_backprop: A 3-D tensor with the same shape as output_c in the forward\n    pass.\nreserve_space: The same reserve_space produced in the forward operation.\ninput_backprop: The backprop to input in the forward pass. Has the same shape\n    as input.\ninput_h_backprop: The backprop to input_h in the forward pass. Has the same\n    shape as input_h.\ninput_c_backprop: The backprop to input_c in the forward pass. Has the same\n    shape as input_c.\nparams_backprop: The backprop to the params buffer in the forward pass. Has the\n    same shape as params.",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_h",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "params",
+          "typeAttr": "T"
+        },
+        {
+          "name": "sequence_lengths",
+          "type": 3
+        },
+        {
+          "name": "output",
+          "typeAttr": "T"
+        },
+        {
+          "name": "output_h",
+          "typeAttr": "T"
+        },
+        {
+          "name": "output_c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "output_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "output_h_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "output_c_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "reserve_space",
+          "typeAttr": "T"
+        },
+        {
+          "name": "host_reserved",
+          "type": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "input_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_h_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_c_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "params_backprop",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Backprop step of CudnnRNNV3."
+    }
+  },
+  {
     "name": "CudnnRNNCanonicalToParams",
     "schema": {
       "attributes": [
@@ -11763,6 +11907,127 @@
         {
           "name": "params",
           "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        },
+        {
+          "name": "output_h",
+          "typeAttr": "T"
+        },
+        {
+          "name": "output_c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "reserve_space",
+          "typeAttr": "T"
+        },
+        {
+          "name": "host_reserved",
+          "type": 6
+        }
+      ],
+      "summary": "A RNN backed by cuDNN."
+    }
+  },
+  {
+    "name": "CudnnRNNV3",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            "rnn_relu",
+            "rnn_tanh",
+            "lstm",
+            "gru"
+          ],
+          "default": "lstm",
+          "name": "rnn_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "linear_input",
+            "skip_input",
+            "auto_select"
+          ],
+          "default": "linear_input",
+          "name": "input_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "unidirectional",
+            "bidirectional"
+          ],
+          "default": "unidirectional",
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "dropout",
+          "type": "float"
+        },
+        {
+          "default": 0,
+          "name": "seed",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "name": "seed2",
+          "type": "int"
+        },
+        {
+          "default": true,
+          "name": "is_training",
+          "type": "bool"
+        }
+      ],
+      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Accepts one extra input \"sequence_lengths\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_h",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "params",
+          "typeAttr": "T"
+        },
+        {
+          "name": "sequence_lengths",
+          "type": 3
         }
       ],
       "outputs": [
@@ -27888,6 +28153,49 @@
     }
   },
   {
+    "name": "NextAfter",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This operation returns the same result as the C++ std::nextafter function.\n\nIt can also return a subnormal number.\n\n@compatibility(cpp)\nEquivalent to C++ std::nextafter function.\n@end_compatibility",
+      "inputs": [
+        {
+          "name": "x1",
+          "typeAttr": "T"
+        },
+        {
+          "name": "x2",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the next representable value of `x1` in the direction of `x2`, element-wise."
+    }
+  },
+  {
     "name": "NextIteration",
     "schema": {
       "attributes": [
@@ -39922,7 +40230,7 @@
           "type": "bool"
         }
       ],
-      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8], use_resource=True)\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_add(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 12, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "description": "`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that addition would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8], use_resource=True)\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nadd = tf.scatter_nd_add(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(add)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A resource handle. Must be from a VarHandleOp.",
@@ -39940,7 +40248,57 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Adds sparse `updates` to individual values or slices within a given"
+      "summary": "Applies sparse addition to individual values or slices in a Variable."
+    }
+  },
+  {
+    "name": "ResourceScatterNdSub",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": true,
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "bool"
+        }
+      ],
+      "description": "`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8], use_resource=True)\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nsub = tf.scatter_nd_sub(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(sub)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "inputs": [
+        {
+          "description": "A resource handle. Must be from a VarHandleOp.",
+          "name": "ref",
+          "type": 20
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of\nvalues to add to ref.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Applies sparse subtraction to individual values or slices in a Variable."
     }
   },
   {
@@ -42988,6 +43346,134 @@
     }
   },
   {
+    "name": "ScaleAndTranslate",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": "lanczos3",
+          "name": "kernel_type",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "images",
+          "typeAttr": "T"
+        },
+        {
+          "name": "size",
+          "type": 3
+        },
+        {
+          "name": "scale",
+          "type": 1
+        },
+        {
+          "name": "translation",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "resized_images",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScaleAndTranslateGrad",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": "lanczos3",
+          "name": "kernel_type",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "grads",
+          "typeAttr": "T"
+        },
+        {
+          "name": "original_image",
+          "typeAttr": "T"
+        },
+        {
+          "name": "scale",
+          "type": 1
+        },
+        {
+          "name": "translation",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "ScatterAdd",
     "schema": {
       "attributes": [
@@ -43694,7 +44180,7 @@
           "type": "bool"
         }
       ],
-      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `\\\\([d_0, ..., d_{Q-2}, K]\\\\)` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].$$\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to 8\nelements. In Python, that addition would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    add = tf.scatter_nd_add(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(add)\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "description": "`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that addition would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nadd = tf.scatter_nd_add(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(add)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A mutable Tensor. Should be from a Variable node.",
@@ -43721,7 +44207,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Applies sparse addition between `updates` and individual values or slices"
+      "summary": "Applies sparse addition to individual values or slices in a Variable."
     }
   },
   {
@@ -43948,7 +44434,7 @@
           "type": "bool"
         }
       ],
-      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape \\\\([d_0, ..., d_{Q-2}, K]\\\\) where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].$$\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    sub = tf.scatter_nd_sub(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(sub)\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
+      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]]\n```\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n```python\nref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\nindices = tf.constant([[4], [3], [1], [7]])\nupdates = tf.constant([9, 10, 11, 12])\nsub = tf.scatter_nd_sub(ref, indices, updates)\nwith tf.Session() as sess:\n  print sess.run(sub)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee `tf.scatter_nd` for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A mutable Tensor. Should be from a Variable node.",
@@ -43975,7 +44461,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Applies sparse subtraction between `updates` and individual values or slices"
+      "summary": "Applies sparse subtraction to individual values or slices in a Variable."
     }
   },
   {
@@ -53389,7 +53875,7 @@
           "type": "int"
         }
       ],
-      "description": "The values of `value` are assigned to the positions in the variable\n`ref` that are selected by the slice parameters. The slice parameters\n`begin, `end`, `strides`, etc. work exactly as in `StridedSlice`.\n\nNOTE this op currently does not support broadcasting and so `value`'s\nshape must be exactly the shape produced by the slice of `ref`.",
+      "description": "The values of `value` are assigned to the positions in the variable\n`ref` that are selected by the slice parameters. The slice parameters\n`begin`, `end`, `strides`, etc. work exactly as in `StridedSlice`.\n\nNOTE this op currently does not support broadcasting and so `value`'s\nshape must be exactly the shape produced by the slice of `ref`.",
       "inputs": [
         {
           "isRef": true,

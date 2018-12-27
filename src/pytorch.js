@@ -9,15 +9,14 @@ var tar = tar || require('./tar');
 pytorch.ModelFactory = class {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 'dms' || extension == 'model') {
+        var identifier = context.identifier; 
+        var extension = identifier.split('.').pop().toLowerCase();
+        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || 
+            extension == 'dms' || extension == 'model' || identifier.endsWith('.pth.tar')) {
             var buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > torch.length + 2 && 
-                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
-                if (torch.every((value, index) => value == buffer[index + 2])) {
-                    return true;
-                }
+            if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
+                return true;
             }
             if (this._isLegacyFormat(buffer)) {
                 return true;
@@ -114,8 +113,11 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm2d'] = function() {};
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
+            constructorTable['torch.nn.modules.loss.BCELoss'] = function () {};
+            constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function () {};
             constructorTable['torch.nn.modules.loss.MSELoss'] = function () {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
+            constructorTable['torch.nn.modules.normalization.LayerNorm'] = function () {};
             constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function () {};
             constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function () {};
             constructorTable['torch.nn.modules.padding.ReplicationPad1d'] = function () {};
@@ -144,6 +146,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.rnn.GRU'] = function () {};
             constructorTable['torch.nn.modules.rnn.GRUCell'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
+            constructorTable['torch.nn.modules.rnn.LSTMCell'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
             constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
@@ -203,6 +206,90 @@ pytorch.ModelFactory = class {
                     this.stride = state[3];
                 };
             };
+            constructorTable['numpy.dtype'] = function(obj, align, copy) { 
+                switch (obj) {
+                    case 'i1': this.name = 'int8'; this.itemsize = 1; break;
+                    case 'i2': this.name = 'int16'; this.itemsize = 2; break;
+                    case 'i4': this.name = 'int32'; this.itemsize = 4; break;
+                    case 'i8': this.name = 'int64'; this.itemsize = 8; break;
+                    case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
+                    case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
+                    case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
+                    case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
+                    case 'f4': this.name = 'float32'; this.itemsize = 4; break;
+                    case 'f8': this.name = 'float64'; this.itemsize = 8; break;
+                    default:
+                        if (obj.startsWith('V')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'void' + (this.itemsize * 8).toString();
+                        }
+                        else if (obj.startsWith('O')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'object';
+                        }
+                        else if (obj.startsWith('S')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'string';
+                        }
+                        else {
+                            throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
+                        }
+                        break;
+                }
+                this.align = align;
+                this.copy = copy;
+                this.__setstate__ = function(state) {
+                    switch (state.length) {
+                        case 8:
+                            this.version = state[0];
+                            this.byteorder = state[1];
+                            this.subarray = state[2];
+                            this.names = state[3];
+                            this.fields = state[4];
+                            this.elsize = state[5];
+                            this.alignment = state[6];
+                            this.int_dtypeflags = state[7];
+                            break;
+                        default:
+                            throw new sklearn.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                    }
+                };
+            };
+            constructorTable['numpy.core.multiarray._reconstruct'] = function(subtype, shape, dtype) {
+                this.subtype = subtype;
+                this.shape = shape;
+                this.dtype = dtype;
+                this.__setstate__ = function(state) {
+                    this.version = state[0];
+                    this.shape = state[1];
+                    this.typecode = state[2];
+                    this.is_f_order = state[3];
+                    this.rawdata = state[4];
+                };
+                this.__read__ = function(unpickler) {
+                    var array = {};
+                    array.__type__ = this.subtype;
+                    array.dtype = this.typecode;
+                    array.shape = this.shape;
+                    var size = array.dtype.itemsize;
+                    for (var i = 0; i < array.shape.length; i++) {
+                        size = size * array.shape[i];                                
+                    }
+                    if (typeof this.rawdata == 'string') {
+                        array.data = unpickler.unescape(this.rawdata, size);
+                        if (array.data.length != size) {
+                            throw new sklearn.Error('Invalid string array data size.');
+                        }
+                    }
+                    else {
+                        array.data = this.rawdata;
+                        if (array.data.length != size) {
+                            throw new sklearn.Error('Invalid array data size.');
+                        }
+                    }
+                    return array;
+                };
+            };
 
             functionTable['collections.OrderedDict'] = function(args) {
                 var obj = [];
@@ -241,6 +328,26 @@ pytorch.ModelFactory = class {
                 obj.__type__ = 'torch.nn.parameter.Parameter';
                 constructorTable[obj.__type__].apply(obj, [ data, requires_grad ]);
                 obj.backward_hooks = backward_hooks;
+                return obj;
+            };
+            functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
+                var data = rawData;
+                if (rawData.constructor !== Uint8Array) {
+                    data = new Uint8Array(rawData.length);
+                    for (var i = 0; i < rawData.length; i++) {
+                        data[i] = rawData.charCodeAt(i);
+                    }
+                }
+                var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                switch (dtype.name) {
+                    case 'float64':
+                        return dataView.getFloat64(0, true);
+                    case 'int64':
+                        return new base.Int64(data.subarray(0, dtype.itemsize));
+                }
+                throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
+            };
+            functionTable['_codecs.encode'] = function(obj, econding) {
                 return obj;
             };
 

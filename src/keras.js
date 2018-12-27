@@ -12,11 +12,8 @@ keras.ModelFactory = class {
             // Filter PyTorch models published with incorrect .h5 file extension.
             var buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > torch.length + 2 && 
-                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
-                if (torch.every((value, index) => value == buffer[index + 2])) {
-                    return false;
-                }
+            if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
+                return false;
             }
             return true;
         }
@@ -54,36 +51,32 @@ keras.ModelFactory = class {
             var rootJson = null;
             var identifier = context.identifier;
             try {
-                var extension = identifier.split('.').pop().toLowerCase();
-                if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
-                    var file = null;
-                    try {
-                        file = new hdf5.File(context.buffer);
-                    }
-                    catch (error) {
-                        callback(new keras.Error(error.name + ": " + error.message.replace(/\.$/, '') + " in '" + identifier + "'."), null);
-                        return;
-                    }
-                    rootGroup = file.rootGroup;
-                    if (!rootGroup.attributes.model_config) {
-                        callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
-                        return;
-                    }
-                    model_config = JSON.parse(rootGroup.attributes.model_config);
-                }
-                else if (extension == 'json') {
-                    var json = context.text;
-                    model_config = JSON.parse(json);
-                    if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
-                        format = 'TensorFlow.js ' + format;
-                        rootJson = model_config;
-                        model_config = model_config.modelTopology.model_config;
-                    }
+                switch (identifier.split('.').pop().toLowerCase()) {
+                    case 'keras':
+                    case 'h5':
+                    case 'hdf5':
+                        var file = new hdf5.File(context.buffer);
+                        rootGroup = file.rootGroup;
+                        if (!rootGroup.attributes.model_config) {
+                            callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
+                            return;
+                        }
+                        model_config = JSON.parse(rootGroup.attributes.model_config);
+                        break;
+                    case 'json':
+                        model_config = JSON.parse(context.text);
+                        if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
+                            format = 'TensorFlow.js ' + format;
+                            rootJson = model_config;
+                            model_config = model_config.modelTopology.model_config;
+                        }
+                        break;
                 }
             }
             catch (error) {
-                host.exception(error, false);
-                callback(new keras.Error(error.message), null);
+                var message = error && error.message ? error.message : error.toString();
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                callback(new keras.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
     
@@ -100,10 +93,13 @@ keras.ModelFactory = class {
                 try {
                     var model = new keras.Model(metadata, format, model_config, rootGroup, rootJson);
                     callback(null, model);
+                    return;
                 }
                 catch (error) {
-                    host.exception(error, false);
-                    callback(new keras.Error(error.message), null);
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    callback(new keras.Error(message + " in '" + identifier + "'."), null);
+                    return;
                 }
             });
         });
@@ -470,6 +466,7 @@ keras.Node = class {
         if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
             if (this._config && this._config.layer) {
                 var inner = this._config.layer;
+                delete this._config.layer;
                 this._inner = new keras.Node(this._metadata, inner.class_name, inner.config, [], [], null, null);
             }
         }
@@ -686,9 +683,6 @@ keras.Attribute = class {
         }
 
         if (name == 'trainable') {
-            this._visible = false;
-        }
-        else if (name == 'layer' && (operator == 'Bidirectional' || operator == 'TimeDistributed')) {
             this._visible = false;
         }
         else {

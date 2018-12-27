@@ -10,43 +10,48 @@ var tar = tar || require('./tar');
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
 
+var sidebar = sidebar || require('./view-sidebar');
+var grapher = grapher || require('./view-grapher');
+
 view.View = class {
 
     constructor(host) {
         this._host = host;
         this._model = null;
         this._selection = [];
-        this._sidebar = new Sidebar();
+        this._sidebar = new sidebar.Sidebar(this._host);
         this._host.initialize(this);
-        this._showDetails = true;
+        this._showAttributes = false;
+        this._showInitializers = true;
         this._showNames = false;
         this._searchText = '';
         this._modelFactoryService = new view.ModelFactoryService(this._host);
-        document.documentElement.style.overflow = 'hidden';
-        document.body.scroll = 'no';
-        document.getElementById('model-properties-button').addEventListener('click', (e) => {
+        var document = this._host.document;
+        this._host.document.documentElement.style.overflow = 'hidden';
+        this._host.document.body.scroll = 'no';
+        this._host.document.getElementById('model-properties-button').addEventListener('click', (e) => {
             this.showModelProperties();
         });
-        document.getElementById('zoom-in-button').addEventListener('click', (e) => {
+        this._host.document.getElementById('zoom-in-button').addEventListener('click', (e) => {
             this.zoomIn();
         });
-        document.getElementById('zoom-out-button').addEventListener('click', (e) => {
+        this._host.document.getElementById('zoom-out-button').addEventListener('click', (e) => {
             this.zoomOut();
         });
-        document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
+        this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
             this.preventZoom(e);
         });
-        document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
+        this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
             this.preventZoom(e);
         });
-        document.addEventListener('keydown', (e) => {
+        this._host.document.addEventListener('keydown', (e) => {
             this.clearSelection();
         });
         if (this._host.environment('zoom') == 'scroll') {
-            document.getElementById('graph-container').addEventListener('mousewheel', (e) => {
+            this._host.document.getElementById('graph-container').addEventListener('mousewheel', (e) => {
                 this._mouseWheelHandler(e);
             });
-            document.getElementById('graph').addEventListener('mousewheel', (e) => {
+            this._host.document.getElementById('graph').addEventListener('mousewheel', (e) => {
                 this._mouseWheelHandler(e);
             });
         }
@@ -62,14 +67,14 @@ view.View = class {
 
         this._sidebar.close();
 
-        var welcomeElement = document.getElementById('welcome');
-        var openFileButton = document.getElementById('open-file-button');
-        var spinnerElement = document.getElementById('spinner');
-        var graphElement = document.getElementById('graph');
-        var toolbarElement = document.getElementById('toolbar');
+        var welcomeElement = this._host.document.getElementById('welcome');
+        var openFileButton = this._host.document.getElementById('open-file-button');
+        var spinnerElement = this._host.document.getElementById('spinner');
+        var graphElement = this._host.document.getElementById('graph');
+        var toolbarElement = this._host.document.getElementById('toolbar');
     
         if (page == 'Welcome') {
-            document.body.style.cursor = 'default';
+            this._host.document.body.style.cursor = 'default';
             welcomeElement.style.display = 'block';
             openFileButton.style.display = 'block';
             openFileButton.style.opacity = 1;
@@ -80,7 +85,7 @@ view.View = class {
         }
 
         if (page == 'Spinner') {
-            document.body.style.cursor = 'wait';
+            this._host.document.body.style.cursor = 'wait';
             welcomeElement.style.display = 'block';
             spinnerElement.style.display = 'block';
             openFileButton.style.display = 'block';
@@ -97,31 +102,31 @@ view.View = class {
             graphElement.style.display = 'block';
             graphElement.style.opacity = 1;
             toolbarElement.style.display = 'block';
-            document.body.style.cursor = 'default';
+            this._host.document.body.style.cursor = 'default';
         }
     }
 
     cut() {
-        document.execCommand('cut');
+        this._host.document.execCommand('cut');
     }
 
     copy() {
-        document.execCommand('copy');
+        this._host.document.execCommand('copy');
     }
 
     paste() {
-        document.execCommand('paste');
+        this._host.document.execCommand('paste');
     }
 
     selectAll() {
-        document.execCommand('selectall');
+        this._host.document.execCommand('selectall');
     }
 
     find() {
         if (this._activeGraph) {
             this.clearSelection();
             var graphElement = document.getElementById('graph');
-            var view = new FindSidebar(graphElement, this._activeGraph);
+            var view = new sidebar.FindSidebar(graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -134,8 +139,8 @@ view.View = class {
         }
     }
 
-    toggleDetails() {
-        this._showDetails = !this._showDetails;
+    toggleAttributes() {
+        this._showAttributes = !this._showAttributes;
         this.show('Spinner');
         this.updateGraph(this._model, this._activeGraph, (err) => {
             if (err) {
@@ -144,8 +149,22 @@ view.View = class {
         });
     }
 
-    get showDetails() {
-        return this._showDetails;
+    get showAttributes() {
+        return this._showAttributes;
+    }
+
+    toggleInitializers() {
+        this._showInitializers = !this._showInitializers;
+        this.show('Spinner');
+        this.updateGraph(this._model, this._activeGraph, (err) => {
+            if (err) {
+                this.error('Graph update failed.', err);
+            }
+        });
+    }
+
+    get showInitializers() {
+        return this._showInitializers;
     }
 
     toggleNames() {
@@ -173,9 +192,9 @@ view.View = class {
                     this.applyZoom();
                 }
                 break;
-            default:
+            case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(document.getElementById('graph')), 1.2);
+                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph')), 1.2);
                 }
                 break;
         }
@@ -192,9 +211,9 @@ view.View = class {
                     this.applyZoom();
                 }
                 break;
-            default:
+            case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(document.getElementById('graph')), 0.8);
+                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph')), 0.8);
                 }
                 break;
         }
@@ -208,9 +227,9 @@ view.View = class {
                     this.applyZoom();
                 }
                 break;
-            default:
+            case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleTo(d3.select(document.getElementById('graph')), 1);
+                    this._zoom.scaleTo(d3.select(this._host.document.getElementById('graph')), 1);
                 }
                 break;
         }
@@ -223,7 +242,7 @@ view.View = class {
     }
 
     applyZoom() {
-        var svgElement = document.getElementById('graph');
+        var svgElement = this._host.document.getElementById('graph');
         svgElement.setAttribute('style', 'zoom: ' + this._zoom + ';');
         // svgElement.setAttribute('style', 'transform: scale(' + this._zoom + ',' + this._zoom + ')');
         // svgElement.setAttribute('width', this._width * this._zoom);
@@ -258,7 +277,7 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            var graphElement = document.getElementById('graph');
+            var graphElement = this._host.document.getElementById('graph');
             var graphRect = graphElement.getBoundingClientRect();
             var x = 0;
             var y = 0;
@@ -390,7 +409,7 @@ view.View = class {
                 callback(null);
             }
             else {
-                var graphElement = document.getElementById('graph');
+                var graphElement = this._host.document.getElementById('graph');
                 while (graphElement.lastChild) {
                     graphElement.removeChild(graphElement.lastChild);
                 }
@@ -401,7 +420,7 @@ view.View = class {
                         graphElement.style.position = 'static';
                         graphElement.style.margin = 'auto';
                         break;
-                    default:
+                    case 'd3':
                         this._zoom = null;
                         graphElement.style.position = 'absolute';
                         graphElement.style.margin = '0';
@@ -446,154 +465,140 @@ view.View = class {
                     });
                 }
     
+                var self = this;
+
                 nodes.forEach((node) => {
     
-                    var formatter = new grapher.NodeElement();
+                    var element = new grapher.NodeElement(this._host.document);
 
-                    if (node.function) {
-                        formatter.addItem('+', null, [ 'node-item-function' ], null, () => { 
-                            debugger;
+                    function addNode(element, node, edges) {
+
+                        var header =  element.block('header');
+                        var styles = [ 'node-item-operator' ];
+                        var category = node.category;
+                        if (category) {
+                            styles.push('node-item-operator-' + category.toLowerCase());
+                        }
+                        var content = self.showNames && node.name ? node.name : node.operator;
+                        var tooltip = self.showNames && node.name ? node.operator : node.name;
+                        header.add(null, styles, content, tooltip, () => { 
+                            self.showNodeProperties(node, null);
                         });
-                    }
 
-                    function addOperator(view, formatter, node) {
-                        if (node) {
-                            var styles = [ 'node-item-operator' ];
-                            var category = node.category;
-                            if (category) {
-                                styles.push('node-item-operator-' + category.toLowerCase());
-                            }
-                            var text = view.showNames && node.name ? node.name : (node.primitive ? node.primitive : node.operator);
-                            var title = view.showNames && node.name ? node.operator : node.name;
-                            formatter.addItem(text, null, styles, title, () => { 
-                                view.showNodeProperties(node, null);
+                        if (node.function) {
+                            header.add(null, [ 'node-item-function' ], '+', null, () => {
+                                debugger;
                             });
                         }
-                    }
-    
-                    addOperator(this, formatter, node);
-                    addOperator(this, formatter, node.inner);
-            
-                    var primitive = node.primitive;
-            
-                    var hiddenInputs = false;
-                    var hiddenInitializers = false;
-            
-                    node.inputs.forEach((input) => {
-                        // TODO what about mixed input & initializer
-                        if (input.connections.length > 0) {
-                            var initializers = input.connections.filter(connection => connection.initializer);
-                            var inputId = null;
-                            var inputClass = 'node-item-input';
-                            if (initializers.length == 0) {
-                                inputClass = 'node-item-input';
-                                if (!input.visible) {
-                                    hiddenInputs = true;
-                                }
-                            }
-                            else {
-                                if (initializers.length == 1) {
-                                    inputId = 'initializer-' + initializers[0].initializer.name;
-                                }
-                                if (initializers.length == input.connections.length) {
-                                    inputClass = 'node-item-constant';
-                                    if (!input.visible) {
-                                        hiddenInitializers = true;
-                                    }
-                                }
-                                else {
-                                    inputClass = 'node-item-constant';
-                                    if (!input.visible) {
-                                        hiddenInputs = true;
-                                    }
-                                }
-                            }
-            
-                            if (this._showDetails) {
-                                if (input.visible) {
-                                    var types = input.connections.map(connection => connection.type || '').join('\n');
-                                    var initializer = input.connections.every(connection => connection.initializer != null);
-                                    if (initializer) {
-                                        formatter.addItem(input.name, inputId, [ inputClass ], types, () => {
-                                            this.showNodeProperties(node, input);
-                                        });    
-                                    }
-                                }
-                            }
 
-                            input.connections.forEach((connection) => {
-                                if (!connection.initializer) {
-                                    var tuple = edgeMap[connection.id];
-                                    if (!tuple) {
-                                        tuple = { from: null, to: [] };
-                                        edgeMap[connection.id] = tuple;
-                                    }
-                                    tuple.to.push({ 
-                                        node: nodeId, 
-                                        name: input.name
-                                    });
+                        var initializers = [];
+                        var hiddenInitializers = false;
+                        if (self._showInitializers) {
+                            node.inputs.forEach((input) => {
+                                if (input.visible && input.connections.length == 1 && input.connections[0].initializer != null) {
+                                    initializers.push(input);
                                 }
-                            });    
+                                if (!input.visible && input.connections.some((connection) => connection.initializer != null)) {
+                                    hiddenInitializers = true;
+                                }
+                            });
                         }
-                    });
-            
-                    if (this._showDetails) {
-                        if (hiddenInputs) {
-                            formatter.addItem('...', null, [ 'node-item-input' ], '', () => {
-                                this.showNodeProperties(node, null);
-                            });    
+                        var attributes = [];
+                        if (self.showAttributes && node.attributes) {
+                            attributes = node.attributes.filter((attribute) => attribute.visible);
                         }
-                        if (hiddenInitializers) {
-                            formatter.addItem('...', null, [ 'node-item-constant' ], '', () => {
-                                this.showNodeProperties(node, null);
-                            });    
-                        }
-                    }
-            
-                    node.outputs.forEach((output) => {
-                        output.connections.forEach((connection) => {
-                            var tuple = edgeMap[connection.id];
-                            if (!tuple) {
-                                tuple = { from: null, to: [] };
-                                edgeMap[connection.id] = tuple;
-                            }
-                            tuple.from = { 
-                                node: nodeId,
-                                name: output.name,
-                                type: connection.type
+                        if (initializers.length > 0 || hiddenInitializers || attributes.length > 0) {
+                            var block = element.block('list');
+                            block.handler = () => {
+                                self.showNodeProperties(node);
                             };
-                        });
-                    });
-            
-                    var dependencies = node.dependencies;
-                    if (dependencies && dependencies.length > 0) {
-                        formatter.setControlDependencies();
-                    }
-            
-                    if (this._showDetails) {
-                        var attributes = node.attributes; 
-                        if (attributes && !primitive) {
-                            formatter.setAttributeHandler(() => { 
-                                this.showNodeProperties(node, null);
+                            initializers.forEach((initializer) => {
+                                var connection = initializer.connections[0];
+                                var type = connection.type;
+                                var shape = '';
+                                if (type && type.shape && type.shape.dimensions && type.shape.dimensions.hasOwnProperty('length')) {
+                                    shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
+                                }
+                                block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', '');
                             });
+                            if (hiddenInitializers) {
+                                block.add(null, '\u3008' + '...' + '\u3009', '', null, '');
+                            }    
                             attributes.forEach((attribute) => {
                                 if (attribute.visible) {
                                     var attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
                                         attributeValue = attributeValue.substring(0, 25) + '...';
                                     }
-                                    formatter.addAttribute(attribute.name, attributeValue, attribute.type);
+                                    block.add(null, attribute.name, attributeValue, attribute.type, ' = ');
                                 }
                             });
                         }
+                
+                        if (edges) {
+                            var inputs = node.inputs;
+                            inputs.forEach((input) => {
+                                input.connections.forEach((connection) => {
+                                    if (!connection.initializer) {
+                                        var tuple = edgeMap[connection.id];
+                                        if (!tuple) {
+                                            tuple = { from: null, to: [] };
+                                            edgeMap[connection.id] = tuple;
+                                        }
+                                        tuple.to.push({ 
+                                            node: nodeId, 
+                                            name: input.name
+                                        });
+                                    }
+                                });    
+                            });
+                            var outputs = node.outputs;
+                            if (node.chain && node.chain.length > 0) {
+                                var chainOutputs = node.chain[node.chain.length - 1].outputs
+                                if (chainOutputs.length > 0) {
+                                    outputs = chainOutputs;
+                                }
+                            }
+                            outputs.forEach((output) => {
+                                output.connections.forEach((connection) => {
+                                    var tuple = edgeMap[connection.id];
+                                    if (!tuple) {
+                                        tuple = { from: null, to: [] };
+                                        edgeMap[connection.id] = tuple;
+                                    }
+                                    tuple.from = { 
+                                        node: nodeId,
+                                        name: output.name,
+                                        type: connection.type
+                                    };
+                                });
+                            });
+                        }
+    
+                        if (node.chain && node.chain.length > 0) {
+                            node.chain.forEach((node) => {
+                                addNode(element, node, false);
+                            });
+                        }
+
+                        if (node.inner) {
+                            addNode(element, node.inner, false);
+                        }
                     }
     
+                    addNode(element, node, true);
+
+                    var dependencies = node.dependencies;
+                    if (dependencies && dependencies.length > 0) {
+                        element.setControlDependencies();
+                    }
+                    
                     var name = node.name;
                     if (name) {
-                        g.setNode(nodeId, { label: formatter.format(graphElement), id: 'node-' + name });
+                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + name });
                     }
                     else {
-                        g.setNode(nodeId, { label: formatter.format(graphElement), id: 'node-' + id.toString() });
+                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + id.toString() });
                         id++;
                     }
             
@@ -648,11 +653,12 @@ view.View = class {
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
     
-                    var formatter = new grapher.NodeElement();
-                    formatter.addItem(input.name, null, [ 'graph-item-input' ], types, () => {
+                    var element = new grapher.NodeElement(this._host.document);
+                    var header = element.block('header');
+                    header.add(null, [ 'graph-item-input' ], input.name, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: formatter.format(graphElement), class: 'graph-input' } ); 
+                    g.setNode(nodeId++, { label: element.format(graphElement), class: 'graph-input' } ); 
                 });
             
                 graph.outputs.forEach((output) => {
@@ -666,13 +672,14 @@ view.View = class {
                     });
                     var types = output.connections.map(connection => connection.type || '').join('\n');
             
-                    var formatter = new grapher.NodeElement();
-                    formatter.addItem(output.name, null, [ 'graph-item-output' ], types, () => {
+                    var element = new grapher.NodeElement(this._host.document);
+                    var header = element.block('header');
+                    header.add(null, [ 'graph-item-output' ], output.name, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: formatter.format(graphElement) } ); 
+                    g.setNode(nodeId++, { label: element.format(graphElement) } ); 
                 });
-            
+
                 Object.keys(edgeMap).forEach((edge) => {
                     var tuple = edgeMap[edge];
                     if (tuple.from != null) {
@@ -685,9 +692,6 @@ view.View = class {
             
                             if (this._showNames) {
                                 text = edge.split('\n').shift(); // custom connection id
-                            }
-                            if (!this._showDetails) {
-                                text = '';
                             }
     
                             if (to.dependency) { 
@@ -702,7 +706,7 @@ view.View = class {
             
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-                var backgroundElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                var backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
                 if (this._host.environment('zoom') == 'scroll') {
                     backgroundElement.setAttribute('width', '100%');
@@ -712,11 +716,11 @@ view.View = class {
                 backgroundElement.setAttribute('pointer-events', 'all');
                 graphElement.appendChild(backgroundElement);
             
-                var originElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                var originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
                 graphElement.appendChild(originElement);
             
-                if (this._host.environment('zoom') != 'scroll') {
+                if (this._host.environment('zoom') == 'd3') {
                     // Set up zoom support
                     var svg = d3.select(graphElement);
                     this._zoom = d3.zoom();
@@ -730,9 +734,9 @@ view.View = class {
 
                 setTimeout(() => {
                     try {
-                        var graphRenderer = new grapher.Renderer(originElement);
+                        var graphRenderer = new grapher.Renderer(this._host.document, originElement);
                         graphRenderer.render(g);
-            
+
                         var inputElements = graphElement.getElementsByClassName('graph-input');
 
                         switch (this._host.environment('zoom')) {
@@ -763,7 +767,7 @@ view.View = class {
                                     // this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
                                 }
                                 break;
-                            default:
+                            case 'd3':
                                 var svgSize = graphElement.getBoundingClientRect();
                                 if (inputElements && inputElements.length > 0) {
                                     // Center view based on input elements
@@ -801,8 +805,8 @@ view.View = class {
 
     applyStyleSheet(element, name) {
         var rules = [];
-        for (var i = 0; i < document.styleSheets.length; i++) {
-            var styleSheet = document.styleSheets[i];
+        for (var i = 0; i < this._host.document.styleSheets.length; i++) {
+            var styleSheet = this._host.document.styleSheets[i];
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
                 rules = styleSheet.cssRules;
                 break;
@@ -830,7 +834,7 @@ view.View = class {
             extension = file.substring(lastIndex + 1);
         }
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
-            var graphElement = document.getElementById('graph');
+            var graphElement = this._host.document.getElementById('graph');
             var exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
@@ -872,26 +876,26 @@ view.View = class {
                 imageElement.onload = () => {
                     var max = Math.max(width, height);
                     var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
-                    var canvas = document.createElement('canvas');
+                    var canvas = this._host.document.createElement('canvas');
                     canvas.width = Math.ceil(width * scale);
                     canvas.height = Math.ceil(height * scale);    
                     var context = canvas.getContext('2d');
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
-                    document.body.removeChild(imageElement);
+                    this._host.document.body.removeChild(imageElement);
                     canvas.toBlob((blob) => {
                         this._host.export(file, blob);
                     }, 'image/png');
                 };
                 imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
-                document.body.insertBefore(imageElement, document.body.firstChild);
+                this._host.document.body.insertBefore(imageElement, this._host.document.body.firstChild);
             }
         }
     }
 
     showModelProperties() {
         if (this._model) {
-            var view = new ModelSidebar(this._model, this._host);
+            var view = new sidebar.ModelSidebar(this._model, this._host);
             view.on('update-active-graph', (sender, name) => {
                 this.updateActiveGraph(name);
             });
@@ -901,7 +905,7 @@ view.View = class {
     
     showNodeProperties(node, input) {
         if (node) {
-            var view = new NodeSidebar(node, this._host);
+            var view = new sidebar.NodeSidebar(node, this._host);
             view.on('show-documentation', (sender, e) => {
                 this.showOperatorDocumentation(node);
             });
@@ -931,7 +935,7 @@ view.View = class {
     showOperatorDocumentation(node) {
         var documentation = node.documentation;
         if (documentation) {
-            var view = new OperatorDocumentationSidebar(documentation);
+            var view = new sidebar.OperatorDocumentationSidebar(documentation);
             view.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
@@ -988,6 +992,7 @@ view.View = class {
 class ArchiveContext {
 
     constructor(entries, rootFolder, identifier, buffer) {
+        this._tags = {};
         this._entries = {};
         if (entries) {
             entries.forEach((entry) => {
@@ -1032,22 +1037,43 @@ class ArchiveContext {
         return this._text;
     }
 
-    get tags() {
-        if (!this._tags) {
-            this._tags = {};
+    tags(extension) {
+        var tags = this._tags[extension];
+        if (!tags) {
+            tags = {};
             try {
-                var reader = protobuf.TextReader.create(this.text);
-                reader.start(false);
-                while (!reader.end(false)) {
-                    var tag = reader.tag();
-                    this._tags[tag] = true;
-                    reader.skip();
+                var reader = null;
+                switch (extension) {
+                    case 'pbtxt':
+                        reader = protobuf.TextReader.create(this.text);
+                        reader.start(false);
+                        while (!reader.end(false)) {
+                            var tag = reader.tag();
+                            tags[tag] = true;
+                            reader.skip();
+                        }
+                        break;
+                    case 'pb':
+                        reader = new protobuf.Reader.create(this.buffer);
+                        while (reader.pos < reader.len) {
+                            var tagType = reader.uint32();
+                            tags[tagType >>> 3] = tagType & 7;
+                            switch (tagType & 7) {
+                                case 0: reader.int64(); break;
+                                case 1: reader.fixed64(); break;
+                                case 2: reader.bytes(); break;
+                                default: tags = {}; reader.pos = reader.len; break;
+                            }
+                        }
+                        break;
                 }
             }
             catch (error) {
+                tags = {};
             }
+            this._tags[extension] = tags;
         }
-        return this._tags;
+        return tags;
     }
 }
 
@@ -1075,8 +1101,8 @@ view.ModelFactoryService = class {
         this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
-        this.register('./caffe2', [ 'predict_net.pb', 'predict_net.pbtxt', 'predict_net.prototxt' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model', '.dms' ]);
+        this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model', '.dms', '.pth.tar' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
@@ -1154,21 +1180,22 @@ view.ModelFactoryService = class {
     }
 
     _openArchive(context, callback) {
-        try {
-            var extension;
-            var archive;
-            var entry;
-    
-            var identifier = context.identifier;
-            var buffer = context.buffer;
+        var extension;
+        var archive;
+        var entry;
+        var message;
 
+        var identifier = context.identifier;
+        var buffer = context.buffer;
+
+        try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'gz' || extension == 'tgz') {
                 archive = new gzip.Archive(buffer);
                 if (archive.entries.length == 1) {
                     entry = archive.entries[0];
                     if (entry.name) {
-                          
+                            
                         identifier = entry.name;
                     }
                     else {
@@ -1181,90 +1208,114 @@ view.ModelFactoryService = class {
                     archive = null;
                 }
             }
+        }
+        catch (error) {
+            message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            callback(new ArchiveError(message + " in '" + identifier + "'."), null);
+            return;
+        }
 
-            switch (identifier.split('.').pop().toLowerCase()) {
+        try {
+            extension = identifier.split('.').pop().toLowerCase();
+            switch (extension) {
                 case 'tar':
-                    archive = new tar.Archive(buffer);
+                    // handle .pth.tar
+                    var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+                    if (!buffer || buffer.length < 14 || buffer[0] != 0x80 || !torch.every((v, i) => v == buffer[i + 2])) {
+                        archive = new tar.Archive(buffer);
+                    }
                     break;
                 case 'zip':
                     archive = new zip.Archive(buffer);
                     break;
             }
-
-            if (archive) {
-                var folders = {};
-                archive.entries.forEach((entry) => {
-                    if (entry.name.indexOf('/') != -1) {
-                        folders[entry.name.split('/').shift() + '/'] = true;
-                    }
-                    else {
-                        folders['/'] = true;
-                    }
-                });
-                var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
-                rootFolder = rootFolder == '/' ? '' : rootFolder;
-                var matches = [];
-                var entries = archive.entries.slice();
-                var nextEntry = () => {
-                    if (entries.length > 0) {
-                        var entry = entries.shift();
-                        if (entry.name.startsWith(rootFolder)) {
-                            var identifier = entry.name.substring(rootFolder.length);
-                            if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                                var context = new ArchiveContext(null, rootFolder, entry.name, entry.data);
-                                var modules = this._filter(context);
-                                var nextModule = () => {
-                                    if (modules.length > 0) {
-                                        var id = modules.shift();
-                                        this._host.require(id, (err, module) => {
-                                            if (err) {
-                                                callback(err, null);
-                                                return;
-                                            }
-                                            if (!module.ModelFactory) {
-                                                callback(new ArchiveError("Failed to load module '" + id + "'.", null), null);
-                                            }
-                                            var factory = new module.ModelFactory();
-                                            if (factory.match(context, this._host)) {
-                                                matches.push(entry);
-                                                modules = [];
-                                            }
-                                            nextModule();
-                                            return;
-                                        });
-                                    }
-                                    else {
-                                        nextEntry();
-                                        return;
-                                    }
-                                };
-                                nextModule();
-                                return;
-                            }
-                        }
-                        nextEntry();
-                    }
-                    else {
-                        if (matches.length == 0) {
-                            callback(new ArchiveError('Root does not contain model file.'), null);
-                            return;
-                        }
-                        else if (matches.length > 1) {
-                            callback(new ArchiveError('Root contains multiple model files.'), null);
-                            return;
-                        }
-                        var match = matches[0];
-                        callback(null, new ArchiveContext(entries, rootFolder, match.name, match.data));
-                        return;
-                    }
-                };
-                nextEntry();
-                return;
-            }
-            callback(null, context);
+        }
+        catch (error) {
+            message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            callback(new ArchiveError(message + " in '" + identifier + "'."), null);
             return;
         }
-        catch (err) {
+
+        try {
+            if (!archive) {
+                callback(null, context);
+                return;
+            }
+            var folders = {};
+            archive.entries.forEach((entry) => {
+                if (entry.name.indexOf('/') != -1) {
+                    folders[entry.name.split('/').shift() + '/'] = true;
+                }
+                else {
+                    folders['/'] = true;
+                }
+            });
+            if (extension == 'tar') {
+                delete folders['PaxHeader/'];
+            }
+            var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
+            rootFolder = rootFolder == '/' ? '' : rootFolder;
+            var matches = [];
+            var entries = archive.entries.slice();
+            var nextEntry = () => {
+                if (entries.length > 0) {
+                    var entry = entries.shift();
+                    if (entry.name.startsWith(rootFolder)) {
+                        var identifier = entry.name.substring(rootFolder.length);
+                        if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
+                            var context = new ArchiveContext(null, rootFolder, entry.name, entry.data);
+                            var modules = this._filter(context);
+                            var nextModule = () => {
+                                if (modules.length > 0) {
+                                    var id = modules.shift();
+                                    this._host.require(id, (err, module) => {
+                                        if (err) {
+                                            callback(err, null);
+                                            return;
+                                        }
+                                        if (!module.ModelFactory) {
+                                            callback(new ArchiveError("Failed to load module '" + id + "'.", null), null);
+                                        }
+                                        var factory = new module.ModelFactory();
+                                        if (factory.match(context, this._host)) {
+                                            matches.push(entry);
+                                            modules = [];
+                                        }
+                                        nextModule();
+                                        return;
+                                    });
+                                }
+                                else {
+                                    nextEntry();
+                                    return;
+                                }
+                            };
+                            nextModule();
+                            return;
+                        }
+                    }
+                    nextEntry();
+                }
+                else {
+                    if (matches.length == 0) {
+                        callback(new ArchiveError('Root does not contain model file.'), null);
+                        return;
+                    }
+                    else if (matches.length > 1) {
+                        callback(new ArchiveError('Root contains multiple model files.'), null);
+                        return;
+                    }
+                    var match = matches[0];
+                    callback(null, new ArchiveContext(entries, rootFolder, match.name, match.data));
+                    return;
+                }
+            };
+            nextEntry();
+            return;
+        }
+        catch (error) {
             callback(new ArchiveError(err.message), null);
             return;
         }

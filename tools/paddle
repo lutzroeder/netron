@@ -29,7 +29,6 @@ git_sync () {
         git -C "${third_party}/${1}" fetch -p --quiet
         git -C "${third_party}/${1}" reset --quiet --hard origin/$(git -C "${third_party}/${1}" rev-parse --abbrev-ref HEAD)
     else
-        echo "Clone ${2}..."
         git -C "${third_party}" clone --recursive ${2} ${1}
     fi
 }
@@ -46,7 +45,9 @@ sync() {
 
 install() {
     bold "paddle install"
-    virtualenv --quiet -p ${python} ${virtualenv}
+    if [ ! -d "${virtualenv}" ]; then
+        virtualenv --quiet -p ${python} ${virtualenv}
+    fi
     source ${virtualenv}/bin/activate
     ${pip} install --quiet ${third_party}/${identifier}
     deactivate

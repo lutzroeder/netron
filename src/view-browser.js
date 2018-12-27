@@ -23,6 +23,10 @@ host.BrowserHost = class {
         };
     }
 
+    get document() {
+        return window.document;
+    }
+
     get name() {
         return 'Netron';
     }
@@ -53,6 +57,8 @@ host.BrowserHost = class {
         this._version = meta.version ? meta.version[0] : null;
         this._type = meta.type ? meta.type[0] : 'Browser';
 
+        this._zoom = this._getQueryParameter('zoom') || 'd3';
+
         if (meta.file) {
             this._openModel(meta.file[0], null);
             return;
@@ -69,8 +75,6 @@ host.BrowserHost = class {
             this._openGist(gistParam);
             return;
         }
-
-        this._zoom = this._getQueryParameter('zoom');
 
         this._view.show('Welcome');
         var openFileButton = document.getElementById('open-file-button');
@@ -388,7 +392,11 @@ host.BrowserHost = class {
                     e.preventDefault();
                     break;
                 case 68: // D
-                    this._view.toggleDetails();
+                    this._view.toggleAttributes();
+                    e.preventDefault();
+                    break;
+                case 73: // I
+                    this._view.toggleInitializers();
                     e.preventDefault();
                     break;
                 case 85: // U
@@ -558,6 +566,7 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 class BrowserContext {
 
     constructor(host, url, identifier, buffer) {
+        this._tags = {};
         this._host = host;
         this._buffer = buffer;
         if (identifier) {
@@ -596,22 +605,43 @@ class BrowserContext {
         return this._text;
     }
 
-    get tags() {
-        if (!this._tags) {
-            this._tags = {};
+    tags(extension) {
+        var tags = this._tags[extension];
+        if (!tags) {
+            tags = {};
             try {
-                var reader = protobuf.TextReader.create(this.text);
-                reader.start(false);
-                while (!reader.end(false)) {
-                    var tag = reader.tag();
-                    this._tags[tag] = true;
-                    reader.skip();
+                var reader = null;
+                switch (extension) {
+                    case 'pbtxt':
+                        reader = protobuf.TextReader.create(this.text);
+                        reader.start(false);
+                        while (!reader.end(false)) {
+                            var tag = reader.tag();
+                            tags[tag] = true;
+                            reader.skip();
+                        }
+                        break;
+                    case 'pb':
+                        reader = new protobuf.Reader.create(this.buffer);
+                        while (reader.pos < reader.len) {
+                            var tagType = reader.uint32();
+                            tags[tagType >>> 3] = tagType & 7;
+                            switch (tagType & 7) {
+                                case 0: reader.int64(); break;
+                                case 1: reader.fixed64(); break;
+                                case 2: reader.bytes(); break;
+                                default: tags = {}; reader.pos = reader.len; break;
+                            }
+                        }
+                        break;
                 }
             }
             catch (error) {
+                tags = {};
             }
+            this._tags[extension] = tags;
         }
-        return this._tags;
+        return tags;
     }
 }
 

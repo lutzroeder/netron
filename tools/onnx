@@ -27,13 +27,12 @@ bold() {
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" fetch --quiet -p
         git -C "${third_party}/${1}" reset --quiet --hard origin/master
     else
-        echo "Clone ${2}..."
-        git -C "${third_party}" clone --recursive ${2}
+        git -C "${third_party}" clone --quiet --recursive ${2}
     fi
-    git -C "${third_party}" submodule update --init
+    git -C "${third_party}" submodule update --quiet --init
 }
 
 clean() {
@@ -51,8 +50,29 @@ sync() {
 
 install() {
     bold "onnx install"
-    virtualenv --quiet -p ${python} ${virtualenv}
+    case "$(uname)" in
+        "Linux")
+            if [ -z "$(which cmake)" ]; then
+                sudo apt install cmake
+            fi
+            if [ -z "$(which protoc)" ]; then
+                sudo apt install protobuf-compiler libprotoc-dev
+            fi
+            ;;
+        "Darwin")
+            if [ -z "$(which cmake)" ]; then
+                brew install cmake
+            fi
+            if [ -z "$(which protoc)" ]; then
+                brew install protobuf
+            fi
+            ;;
+    esac
+    if [ ! -d "${virtualenv}" ]; then
+        virtualenv --quiet -p ${python} ${virtualenv}
+    fi
     source ${virtualenv}/bin/activate
+    ${pip} install --quiet protobuf
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
     ${pip} install --quiet ${third_party}/onnx

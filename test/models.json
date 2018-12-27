@@ -648,8 +648,23 @@
   },
   {
     "type":   "caffe2",
+    "target": "lenet/predict_net.pbtxt,lenet/init_net.pbtxt",
+    "source": "https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/predict_net.pbtxt,https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/init_net.pbtxt",
+    "format": "Caffe2",
+    "link":   "https://github.com/jolibrain/deepdetect/tree/master/templates/caffe2"
+  },
+
+  {
+    "type":   "caffe2",
     "target": "bvlc_alexnet/predict_net.pb,bvlc_alexnet/init_net.pb",
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "type":   "caffe2",
+    "target": "bvlc_alexnet/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/caffe2/models"
   },
@@ -760,7 +775,7 @@
   },
   {
     "type":   "caffe2",
-    "target": "squeezenet/predict_net.pb,squeezenet/init_net.pb",
+    "target": "squeezenet/squeezenet.pb,squeezenet/init_net.pb",
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/squeezenet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/squeezenet/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/caffe2/models"
@@ -881,7 +896,7 @@
   },
   {
     "type":   "cntk",
-    "target": "v2/Bean.model",
+    "target": "v2/Bean.cntk",
     "source": "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/Bean/Bean.cntk.zip[Bean.cntk]",
     "format": "CNTK v2",
     "link":   "https://github.com/Microsoft/ELL-models"
@@ -934,6 +949,13 @@
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/InceptionV3_ImageNet_CNTK.model",
     "format": "CNTK v2",
     "link":   "https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/examples/cntk/extract_model.py"
+  },
+  {
+    "type":   "cntk",
+    "target": "v2/mobilenetv2-1.0.dnn",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-mobilenet/mobilenetv2-1.0.model",
+    "error":  "Unsupported file content for extension '.dnn' in 'mobilenetv2-1.0.dnn'.",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "cntk",
@@ -1053,27 +1075,20 @@
   {
     "type":   "coreml",
     "target": "AgeNet.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/AgeNet.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "AnimeScale2x.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/AnimeScale2x.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "DocumentClassification.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/DocumentClassification.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "CarRecognition.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/CarRecognition.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mT1J3T1BEeWx4TWc",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
     "target": "CNNEmotions.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/CNNEmotions.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mTlYtRGdXNFlpWDQ",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
+  },
+  {
+    "type":   "coreml",
+    "target": "DocumentClassification.mlmodel",
+    "source": "https://raw.githubusercontent.com/toddkramer/DocumentClassifier/master/Sources/DocumentClassification.mlmodel",
+    "link":   "https://github.com/toddkramer/DocumentClassifier"
   },
   {
     "type":   "coreml",
@@ -1103,8 +1118,51 @@
   },
   {
     "type":   "coreml",
+    "target": "FlickrStyle.mlmodel",
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6maFFWR3drLUFNQ1E",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Candy.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Candy.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Feathers.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Feathers.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-La-Muse.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-La-Muse.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Mosaic.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Mosaic.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-The-Scream.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-The-Scream.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
+    "target": "FNS-Udnie.mlmodel",
+    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Udnie.mlmodel",
+    "link":   "https://github.com/ileafsolutions/StyleArt"
+  },
+  {
+    "type":   "coreml",
     "target": "Food101.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Food101.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B5TjkH3njRqnVjBPZGRZbkNITjA",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1304,48 +1362,15 @@
   },
   {
     "type":   "coreml",
-    "target": "FlickrStyle.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FlickrStyle.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Candy.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Candy.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Feathers.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Feathers.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-La-Muse.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-La-Muse.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Mosaic.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Mosaic.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-The-Scream.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-The-Scream.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Udnie.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FNS-Udnie.mlmodel"
-  },
-  {
-    "type":   "coreml",
     "target": "GenderNet.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/GenderNet.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mYkNsZHlyc2ZuaFk",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
     "target": "GestureAI.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/GestureAI.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mYkNsZHlyc2ZuaFk",
+    "link":   "https://github.com/akimach/GestureAI-CoreML-iOS"
   },
   {
     "type":   "coreml",
@@ -1355,17 +1380,20 @@
   {
     "type":   "coreml",
     "target": "HED_so.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_so.mlmodel"
+    "source": "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_so.mlmodel",
+    "link":   "https://github.com/s1ddok/HED-CoreML"
   },
   {
     "type":   "coreml",
     "target": "HED_so3.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_so3.mlmodel"
+    "source": "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_so3.mlmodel",
+    "link":   "https://github.com/s1ddok/HED-CoreML"
   },
   {
     "type":   "coreml",
     "target": "HED_fuse.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/HED_fuse.mlmodel"
+    "source": "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_fuse.mlmodel",
+    "link":   "https://github.com/s1ddok/HED-CoreML"
   },
   {
     "type":   "coreml",
@@ -1396,12 +1424,14 @@
   {
     "type":   "coreml",
     "target": "MessageClassifier.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/MessageClassifier.mlmodel"
+    "source": "https://raw.githubusercontent.com/llSourcell/A_guide_to_coreML/master/MessageClassifier.mlmodel",
+    "link":   "https://github.com/llSourcell/A_guide_to_coreML"
   },
   {
     "type":   "coreml",
     "target": "MNIST.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/MNIST.mlmodel"
+    "source": "https://github.com/ph1ps/MNIST-CoreML/raw/master/MNISTPrediction/MNIST.mlmodel",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1418,12 +1448,8 @@
   {
     "type":   "coreml",
     "target": "NamesDT.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/NamesDT.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "Nudity.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Nudity.mlmodel"
+    "source": "https://github.com/cocoa-ai/NamesCoreMLDemo/raw/master/Names/Resources/NamesDT.mlmodel",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1434,7 +1460,8 @@
   {
     "type":   "coreml",
     "target": "Oxford102.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Oxford102.mlmodel"
+    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6meDBHT2NaZGxkNzQ",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1457,13 +1484,9 @@
   },
   {
     "type":   "coreml",
-    "target": "RN1015k500.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/RN1015k500.mlmodel"
-  },
-  {
-    "type":   "coreml",
     "target": "SentimentPolarity.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/SentimentPolarity.mlmodel"
+    "source": "https://github.com/cocoa-ai/SentimentCoreMLDemo/raw/master/SentimentPolarity/Resources/SentimentPolarity.mlmodel",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1581,7 +1604,8 @@
   {
     "type":   "coreml",
     "target": "VisualSentimentCNN.mlmodel",
-    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/VisualSentimentCNN.mlmodel"
+    "source": "https://drive.google.com//uc?export=download&id=0B1ghKa_MYL6mZ0dITW5uZlgyNTg",
+    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1614,7 +1638,7 @@
   {
     "type":   "darknet",
     "target": "jnet-conv.cfg,jnet-conv.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/nightmare"
   },
@@ -1628,7 +1652,7 @@
   {
     "type":   "darknet",
     "target": "yolov3-spp.cfg,yolov3-spp.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/yolo"
   },
@@ -2242,7 +2266,7 @@
   {
     "type":   "onnx",
     "target": "eisber_model3.pbtxt",
-    "source": "https://github.com/lutzroeder/netron/files/2592471/eisber_model3.zip[eisber_model3.pbtxt]",
+    "source": "https://github.com/lutzroeder/netron/files/2696775/eisber_model3.pbtxt.zip[eisber_model3.pbtxt]",
     "format": "ONNX v3",
     "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
@@ -2270,6 +2294,13 @@
     "target": "FastStyleNet.onnx",
     "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/chainer-fast-neuralstyle/FastStyleNet.onnx",
     "format": "ONNX v1", "producer": "Chainer 3.2.0"
+  },
+  {
+    "type":   "onnx",
+    "target": "input_0.pb",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/test_data_set_0/input_0.pb]",
+    "error":  "Unsupported file content for extension '.pb' in 'input_0.pb'.",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
   },
   {
     "type":   "onnx",
@@ -2301,7 +2332,7 @@
   {
     "type":   "onnx",
     "target": "Kmeans.pbtxt",
-    "source": "https://github.com/lutzroeder/netron/files/2636415/Kmeans.pbtxt.zip[Kmeans.pbtxt]",
+    "source": "https://github.com/lutzroeder/netron/files/2696776/Kmeans.pbtxt.zip[Kmeans.pbtxt]",
     "format": "ONNX v3", "producer": "ML.NET 0.7.27009.0",
     "link":   "https://github.com/lutzroeder/netron/issues/139"
   },
@@ -2369,7 +2400,22 @@
     "type":   "onnx",
     "target": "squeezenet1.1.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
-    "format": "ONNX v3"
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
+  },
+  {
+    "type":   "onnx",
+    "target": "squeezenet1.1.pb",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
+  },
+  {
+    "type":   "onnx",
+    "target": "squeezenet1.1.tgz",
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.tar.gz",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
   },
   {
     "type":   "onnx",
@@ -2521,8 +2567,36 @@
   },
   {
     "type":   "openvino",
+    "target": "i8_normalized_squeezenet_ssd.dot",
+    "source": "https://github.com/lutzroeder/netron/files/2618902/i8_normalized_squeezenet_ssd.dot.zip[i8_normalized_squeezenet_ssd.dot]",
+    "format": "OpenVINO IR Dot",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "i8_normalized_squeezenet11.dot",
+    "source": "https://github.com/lutzroeder/netron/files/2618904/i8_normalized_squeezenet11.dot.zip[i8_normalized_squeezenet11.dot]",
+    "format": "OpenVINO IR Dot",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "i8_normalized_vgg16.dot",
+    "source": "https://github.com/lutzroeder/netron/files/2618905/i8_normalized_vgg16.dot.zip[i8_normalized_vgg16.dot]",
+    "format": "OpenVINO IR Dot",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
     "target": "landmarks-regression-retail-0009.xml",
     "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "landmarks-regression-retail-0009-fp16.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
@@ -2612,6 +2686,20 @@
   },
   {
     "type":   "openvino",
+    "target": "rm_cnn4a.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_cnn4a_smbr/rm_cnn4a.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "rm_lstm4f.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_lstm4f/rm_lstm4f.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
     "target": "semantic-segmentation-adas-0001.xml",
     "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/semantic-segmentation-adas-0001/FP32/semantic-segmentation-adas-0001.xml",
     "format": "OpenVINO IR",
@@ -2647,50 +2735,8 @@
   },
   {
     "type":   "openvino",
-    "target": "i8_normalized_squeezenet_ssd.dot",
-    "source": "https://github.com/lutzroeder/netron/files/2618902/i8_normalized_squeezenet_ssd.dot.zip[i8_normalized_squeezenet_ssd.dot]",
-    "format": "OpenVINO IR Dot",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "i8_normalized_squeezenet11.dot",
-    "source": "https://github.com/lutzroeder/netron/files/2618904/i8_normalized_squeezenet11.dot.zip[i8_normalized_squeezenet11.dot]",
-    "format": "OpenVINO IR Dot",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "i8_normalized_vgg16.dot",
-    "source": "https://github.com/lutzroeder/netron/files/2618905/i8_normalized_vgg16.dot.zip[i8_normalized_vgg16.dot]",
-    "format": "OpenVINO IR Dot",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "rm_cnn4a.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_cnn4a_smbr/rm_cnn4a.xml",
-    "format": "OpenVINO IR",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
     "target": "wsj_dnn5b.xml",
     "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/wsj_dnn5b_smbr/wsj_dnn5b.xml",
-    "format": "OpenVINO IR",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "landmarks-regression-retail-0009-fp16.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml",
-    "format": "OpenVINO IR",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "rm_lstm4f.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_lstm4f/rm_lstm4f.xml",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
@@ -2715,6 +2761,13 @@
     "format": "PyTorch",
     "error":  "PyTorch legacy tar format not supported.",
     "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py"
+  },
+  {
+    "type":   "pytorch",
+    "target": "coco_resnet_50_map_0_335.pt",
+    "source": "https://drive.google.com/uc?export=download&id=1hCtM35R_t6T8RJVSd74K4gB-A1MR-TxC",
+    "format": "PyTorch",
+    "link":   "https://github.com/yhenon/pytorch-retinanet/issues/2"
   },
   {
     "type":   "pytorch",
@@ -2761,7 +2814,7 @@
   {
     "type":   "pytorch",
     "target": "SiamRPNBIG.model",
-    "source": "https://drive.google.com/uc?export=docswnload&id=1-vNVZxfbIplXHrqMHiJJYWXYWsOIvGsf",
+    "source": "https://drive.google.com/uc?export=download&id=1-vNVZxfbIplXHrqMHiJJYWXYWsOIvGsf",
     "format": "PyTorch",
     "error":  "File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data.",
     "link":   "https://github.com/foolwood/DaSiamRPN"
@@ -2933,6 +2986,7 @@
     "target": "char-rnn-tensorflow.pb",
     "source": "https://github.com/lutzroeder/netron/files/2592462/char-rnn-tensorflow.pb.zip[char-rnn-tensorflow.pb]",
     "format": "TensorFlow Graph",
+    "render": "skip",
     "link":   "https://github.com/lutzroeder/netron/issues/187"
   },
   {
@@ -2980,6 +3034,7 @@
     "target": "exDeepFM-criteo.meta",
     "source": "https://raw.githubusercontent.com/Leavingseason/xDeepFM/master/exdeepfm/checkpoint/epoch_0.meta",
     "format": "TensorFlow MetaGraph",
+    "render": "skip",
     "link":   "https://github.com/Leavingseason/xDeepFM"
   },
   {
@@ -2987,6 +3042,7 @@
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_saved_model.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/saved_model/saved_model.pb]",
     "format": "TensorFlow Saved Model v1",
+    "render": "skip",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
@@ -2994,6 +3050,7 @@
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph",
+    "render": "skip",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
@@ -3001,24 +3058,28 @@
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
+    "render": "skip",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
     "type":   "tf",
     "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/frozen_inference_graph.pb]",
+    "render": "skip",
     "format": "TensorFlow Graph"
   },
   {
     "type":   "tf",
     "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/model.ckpt.meta]",
+    "render": "skip",
     "format": "TensorFlow MetaGraph"
   },
   {
     "type":   "tf",
     "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08_saved_model.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/saved_model/saved_model.pb]",
+    "render": "skip",
     "format": "TensorFlow Saved Model v1"
   },
   {
@@ -3101,19 +3162,22 @@
     "type":   "tf",
     "target": "mask_rcnn_resnet50_atrous_coco_2018_01_28_saved_model.pb",
     "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/saved_model/saved_model.pb]",
-    "format": "TensorFlow Saved Model v1"
+    "format": "TensorFlow Saved Model v1",
+    "render": "skip"
   },
   {
     "type":   "tf",
     "target": "mask_rcnn_resnet50_atrous_coco_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/frozen_inference_graph.pb]",
-    "format": "TensorFlow Graph"
+    "format": "TensorFlow Graph",
+    "render": "skip"
   },
   {
     "type":   "tf",
     "target": "mask_rcnn_resnet50_atrous_coco_2018_01_28.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/model.ckpt.meta]",
-    "format": "TensorFlow MetaGraph"
+    "format": "TensorFlow MetaGraph",
+    "render": "skip"
   },
   {
     "type":   "tf",
@@ -3146,6 +3210,7 @@
     "target": "mobilenet_v1_1.0_224_quant.ckpt.meta",
     "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224_quant.tgz[./mobilenet_v1_1.0_224_quant.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
+    "render": "skip",
     "link":   "https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.md"
   },
   {
@@ -3160,6 +3225,7 @@
     "target": "mobilenet_v2_1.4_224.ckpt.meta",
     "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
+    "render": "skip",
     "link":   "https://www.tensorflow.org/lite/models"
   },
   {
@@ -3256,6 +3322,7 @@
     "target": "ssd_mobilenet_v1_coco_11_06_2017_graph.pbtxt",
     "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/graph.pbtxt]",
     "format": "TensorFlow Graph",
+    "render": "skip",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
@@ -3270,6 +3337,7 @@
     "target": "ssd_mobilenet_v1_coco_11_06_2017.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
+    "render": "skip",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {

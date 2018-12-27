@@ -9,15 +9,17 @@ caffe.ModelFactory = class {
     match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
+        var tags = null;
         if (extension == 'caffemodel') {
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
             if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt' ||
-                identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+                identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            var tags = context.tags;
+            tags = context.tags('pbtxt');
             if (tags.layer || tags.layers || tags.net || tags.train_net || tags.net_param) {
                 return true;
             }
@@ -35,7 +37,7 @@ caffe.ModelFactory = class {
             caffe.Metadata.open(host, (err, metadata) => {
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    var tags = context.tags;
+                    var tags = context.tags('pbtxt');
                     if (tags.net || tags.train_net || tags.net_param) {
                         try {
                             var reader = new protobuf.TextReader(context.text);
@@ -84,7 +86,6 @@ caffe.ModelFactory = class {
             this._openNetParameter(metadata, netParameter, host, callback);
         }
         catch (error) {
-            host.exception(error, false);
             callback(new caffe.Error("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
             return;
         }
@@ -129,7 +130,6 @@ caffe.ModelFactory = class {
             this._openNetParameter(metadata, netParameter, host, callback);
         }
         catch (error) {
-            host.exception(error, false);
             callback(new caffe.Error("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
         }
     }
@@ -227,11 +227,26 @@ caffe.Graph = class {
             });
         });
 
+        var lastNode = null;
+        var lastTop = null;
         layers.forEach((layer) => {
             var node = new caffe.Node(metadata, layer, version);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
-            if (!this.translateInput(node)) {
+            if (layer.top.length == 1 && 
+                layer.bottom.length >= 1 && 
+                layer.top[0].split('\n').shift() == layer.bottom[0].split('\n').shift() &&
+                lastNode &&
+                lastTop == layer.top[0].split('\n').shift()) {
+                lastNode.chain.push(node);
+            }
+            else if (!this.translateInput(node)) {
                 this._nodes.push(node);
+                lastNode = null;
+                lastTop = null;
+                if (layer.top.length == 1) {
+                    lastNode = node;
+                    lastTop = layer.top[0].split('\n').shift();
+                }
             }
         });
 
@@ -382,6 +397,7 @@ caffe.Node = class {
     constructor(metadata, layer, version) {
 
         this._metadata = metadata;
+        this._chain = [];
 
         switch (version) {
             case 0:
@@ -551,6 +567,10 @@ caffe.Node = class {
 
     get attributes() {
         return this._attributes;
+    }
+
+    get chain() {
+        return this._chain;
     }
 };
 

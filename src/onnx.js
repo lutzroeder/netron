@@ -13,29 +13,37 @@ onnx.ModelFactory = class {
         if (extension == 'onnx') {
             return true;
         }
+        var tags = null;
         if (extension == 'pb') {
             if (identifier.endsWith('saved_model.pb')) {
                 return false;
             }
-            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('predict_net.pb') || identifier == 'init_net.pb') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return false;
             }
-            if (identifier == 'input_0.pb' || identifier == 'output_0.pb') {
-                var buffer = context.buffer;
-                if (buffer.length > 5 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x08 && (buffer[3] == 0xE8 || buffer[3] == 0x03)) {
-                    return false;
-                }
+            tags = context.tags('pb');
+            if (Object.keys(tags).length == 0) {
+                return false;
+            }
+            // ignore input_0.pb, output_0.pb
+            if (tags.hasOwnProperty(1) && tags[1] == 0 && 
+                tags.hasOwnProperty(2) && tags[2] == 0 && 
+                tags.hasOwnProperty(9) && tags[9] == 2) {
+                return false;
+            }
+            // check ir_version and graph present
+            if (!tags.hasOwnProperty(1) || tags[1] != 0 ||
+                !tags.hasOwnProperty(7) || tags[7] != 2) {
+                return false;
             }
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
-                return false;
-            }
-            var tags = context.tags;
+            tags = context.tags('pbtxt');
             if (tags.ir_version || tags.graph) {
                 return true;
             }
@@ -58,7 +66,6 @@ onnx.ModelFactory = class {
                     model = onnx.proto.ModelProto.decodeText(context.text);
                 }
                 catch (error) {
-                    host.exception(error, false);
                     callback(new onnx.Error("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }
@@ -136,7 +143,7 @@ onnx.Model = class {
         this._graphs = [];
         if (model && model.graph) {
             var graphMetadata = new onnx.GraphMetadata(metadata, this._opsetImport);
-            var graph = new onnx.Graph(graphMetadata, model.graph, 0, this._imageFormat);
+            var graph = new onnx.Graph(graphMetadata, this._imageFormat, model.graph);
             this._graphs.push(graph);
         }
     }
@@ -223,23 +230,21 @@ onnx.Model = class {
 
 onnx.Graph = class {
 
-    constructor(metadata, graph, index, imageFormat) {
-        this._metadata = metadata;
+    constructor(metadata, imageFormat, graph) {
         this._node = '';
         this._description = '';
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
         this._operators = {};
-        this._imageFormat = imageFormat;
 
         if (graph) {
-            this._name = graph.name || ('(' + index.toString() + ')');
+            this._name = graph.name || null;
             this._description = graph.doc_string || '';
 
             var initializers = {};
             graph.initializer.forEach((tensor) => {
-                initializers[tensor.name] = new onnx.Tensor(tensor, tensor.name, 'Initializer');
+                initializers[tensor.name] = new onnx.Tensor(tensor, 'Initializer');
             });
             var nodes = [];
             var outputCountMap = {};
@@ -256,7 +261,7 @@ onnx.Graph = class {
                     if (outputCountMap[name] == 1) {
                         var attribute = node.attribute.find((attribute) => { return attribute.name == 'value' && attribute.t; }); 
                         if (attribute) {
-                            initializers[name] = new onnx.Tensor(attribute.t, name, 'Constant');
+                            initializers[name] = new onnx.Tensor(attribute.t, 'Constant');
                             initializerNode = true;
                         }
                     }
@@ -284,7 +289,7 @@ onnx.Graph = class {
             nodes.forEach((node) => {
                 var inputs = [];
                 if (node.input) {
-                    inputs = this._metadata.getInputs(node.op_type, node.input);
+                    inputs = metadata.getInputs(node.op_type, node.input);
                     inputs = inputs.map((input) => {
                         return new onnx.Argument(input.name, input.connections.map((connection) => {
                             return this._connection(connections, connection.id, null, null, initializers[connection.id]);
@@ -293,14 +298,14 @@ onnx.Graph = class {
                 }
                 var outputs = [];
                 if (node.output) {
-                    outputs = this._metadata.getOutputs(node.op_type, node.output);
+                    outputs = metadata.getOutputs(node.op_type, node.output);
                     outputs = outputs.map((output) => {
                         return new onnx.Argument(output.name, output.connections.map((connection) => {
                             return this._connection(connections, connection.id, null, null, initializers[connection.id]);
                         }));
                     });
                 }
-                this._nodes.push(new onnx.Node(this, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
+                this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
             });
         }
     }
@@ -404,8 +409,8 @@ onnx.Connection = class {
 
 onnx.Node = class {
 
-    constructor(graph, operator, domain, name, description, attributes, inputs, outputs) {
-        this._graph = graph;
+    constructor(metadata, imageFormat, operator, domain, name, description, attributes, inputs, outputs) {
+        this._metadata = metadata;
         this._operator = operator;
         if (domain) {
             this._domain = domain;
@@ -419,7 +424,7 @@ onnx.Node = class {
         this._attributes = [];
         if (attributes && attributes.length > 0) {
             attributes.forEach((attribute) => { 
-                this._attributes.push(new onnx.Attribute(this.graph.metadata, this.operator, attribute));
+                this._attributes.push(new onnx.Attribute(this._metadata, imageFormat, this.operator, attribute));
             });
         }            
         this._inputs = inputs;
@@ -438,12 +443,8 @@ onnx.Node = class {
         return this._description || null;
     }
 
-    get primitive() {
-        return null;
-    }
-
     get documentation() {
-        var schema = this._graph.metadata.getSchema(this._operator);
+        var schema = this._metadata.getSchema(this._operator);
         if (schema) {
             var options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
             schema = JSON.parse(JSON.stringify(schema));
@@ -498,7 +499,7 @@ onnx.Node = class {
     }
 
     get category() {
-        var schema = this._graph.metadata.getSchema(this._operator);
+        var schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
@@ -521,15 +522,11 @@ onnx.Node = class {
     get dependencies() {
         return [];
     }
-
-    get graph() {
-        return this._graph;
-    }
 };
 
 onnx.Attribute = class {
 
-    constructor(metadata, operator, attribute) {
+    constructor(metadata, imageFormat, operator, attribute) {
         this._name = attribute.name;
         this._type = null;
         this._value = null;
@@ -570,7 +567,7 @@ onnx.Attribute = class {
             }
         }
         else if (attribute.graphs && attribute.graphs.length > 0) {
-            this._value = arg.graphs.map((graph) => new onnx.Graph(metadata, graph));
+            this._value = arg.graphs.map((graph) => new onnx.Graph(metadata, imageFormat, graph));
             this._type = 'graph[]';
         }
         else if (attribute.s && attribute.s.length > 0) {
@@ -593,7 +590,7 @@ onnx.Attribute = class {
         }
         else if (attribute.hasOwnProperty('g')) {
             this._type = 'graph';
-            this._value = new onnx.Graph(metadata, attribute.g);
+            this._value = new onnx.Graph(metadata, imageFormat, attribute.g);
         }
 
         var attributeSchema = metadata.getAttributeSchema(operator, attribute.name);
@@ -653,9 +650,9 @@ onnx.Attribute = class {
 
 onnx.Tensor = class {
 
-    constructor(tensor, id, kind) {
+    constructor(tensor, kind) {
         this._tensor = tensor;
-        this._id = id;
+        this._name = tensor.name || '';
         this._kind = kind || null;
         this._type = new onnx.TensorType(this._tensor.data_type, new onnx.TensorShape(this._tensor.dims.map((dim) => dim)), null);
 
@@ -670,12 +667,8 @@ onnx.Tensor = class {
         }
     }
 
-    get id() {
-        return this._id;
-    }
-
     get name() {
-        return this._tensor.name ? this._tensor.name : this._id; 
+        return this._name;
     }
 
     get kind() {

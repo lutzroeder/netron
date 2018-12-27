@@ -8,11 +8,40 @@ caffe2.ModelFactory = class {
 
     match(context, host) {
         var identifier = context.identifier.toLowerCase();
-        if (identifier.endsWith('predict_net.pb')) {
-            return true;
+        var extension = identifier.split('.').pop().toLowerCase();
+        var tags = null;
+        if (extension == 'pb') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+                return true;
+            }
+            tags = context.tags('pb');
+            // ignore input_0.pb, output_0.pb
+            if (Object.keys(tags).length > 0 &&
+                tags.hasOwnProperty(1) && tags[1] == 0 && 
+                tags.hasOwnProperty(2) && tags[2] == 0 && 
+                tags.hasOwnProperty(9) && tags[9] == 2) {
+                return false;
+            }
+            if (Object.keys(tags).length > 0 &&
+                (!tags.hasOwnProperty(1) || tags[1] == 2) &&
+                (!tags.hasOwnProperty(2) || tags[2] == 2) &&
+                (!tags.hasOwnProperty(7) || tags[7] == 2) &&
+                (!tags.hasOwnProperty(8) || tags[8] == 2)) {
+                var buffer = context.buffer;
+                if (buffer.length > 3 && buffer[0] == 0x0A) {
+                    var size = buffer[1];
+                    if (size < 64 && buffer.length > 2 + size + 1 && buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) && buffer[2 + size] == 0x12) {
+                        return true;
+                    }
+                }
+                if (buffer.length > 3 && buffer[0] == 0x12) {
+                    return true;
+                }
+            }
         }
-        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
-            var tags = context.tags;
+        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+            identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+            tags = context.tags('pbtxt');
             if (tags.op) {
                 return true;
             }
@@ -32,10 +61,17 @@ caffe2.ModelFactory = class {
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
                     caffe2.proto = protobuf.roots.caffe2.caffe2;
-                    netDef = caffe2.proto.NetDef.decodeText(context.text);
+                    var reader = new protobuf.TextReader(context.text);
+                    reader.handle = function(tag, message) {
+                        if (message instanceof caffe2.proto.DeviceOption) {
+                            message[tag] = this.skip();
+                            return;
+                        }
+                        throw new Error("Unknown field '" + tag + "'" + this.location());
+                    };
+                    netDef = caffe2.proto.NetDef.decodeText(reader);
                 }
                 catch (error) {
-                    host.exception(error, false);
                     callback(new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }    
@@ -81,12 +117,17 @@ caffe2.ModelFactory = class {
 caffe2.Model = class {
 
     constructor(metadata, netDef, init) {
+        this._domain = netDef.domain || null;
         var graph = new caffe2.Graph(metadata, netDef, init);
         this._graphs = [ graph ];
     }
 
     get format() {
         return 'Caffe2';
+    }
+
+    get domain() {
+        return this._domain;
     }
 
     get graphs() {
@@ -97,8 +138,8 @@ caffe2.Model = class {
 caffe2.Graph = class {
 
     constructor(metadata, netDef, init) {
-        this._name = netDef.name ? netDef.name : '';
-        this._type = netDef.type ? netDef.type : '';
+        this._name = netDef.name || '';
+        this._type = netDef.type || '';
         this._nodes = [];
         this._operators = {};
 
@@ -130,6 +171,12 @@ caffe2.Graph = class {
                         case 'GivenTensorStringFill':
                             dataType = 'string';
                             break;
+                        case 'Int8GivenIntTensorFill':
+                            dataType = 'int32';
+                            break;
+                        case 'Int8GivenTensorFill':
+                            dataType = 'int8';
+                            break;
                         default:
                             debugger;
                             break;
@@ -156,9 +203,27 @@ caffe2.Graph = class {
             });
         });
 
+        var lastNode = null;
+        var lastOutput = null;
         netDef.op.forEach((op) => {
             this._operators[op.type] = (this._operators[op.type] || 0) + 1;
-            this._nodes.push(new caffe2.Node(metadata, op, initializers));
+            var node = new caffe2.Node(metadata, op, initializers);
+            if (op.input.length == 1 &&
+                op.output.length >= 1 && 
+                op.input[0].split('\n').shift() == op.output[0].split('\n').shift() && 
+                lastNode &&
+                lastOutput == op.input[0].split('\n').shift()) {
+                lastNode.chain.push(node);
+            }
+            else {
+                this._nodes.push(node);
+                lastNode = null;
+                lastOutput = null;
+                if (op.output.length == 1) {
+                    lastNode = node;
+                    lastOutput = op.output[0].split('\n').shift();
+                }
+            }
         });
 
         this._inputs = [];
@@ -241,6 +306,13 @@ caffe2.Connection = class {
         return this._type;
     }
 
+    get quantization() {
+        if (this._initializer) {
+            return this._initializer.quantization;
+        }
+        return null;
+    }
+
     get initializer() {
         return this._initializer;
     }
@@ -259,7 +331,7 @@ caffe2.Node = class {
         this._operator = op.type;
         this._inputs = op.input;
         this._outputs = op.output;
-
+        this._chain = [];
         this._attributes = [];
         op.arg.forEach((arg) => {
             this._attributes.push(new caffe2.Attribute(this._metadata, this, arg));
@@ -356,6 +428,10 @@ caffe2.Node = class {
     get attributes() {
         return this._attributes;
     }
+
+    get chain() {
+        return this._chain;
+    }
 };
 
 caffe2.Attribute = class {
@@ -436,6 +512,8 @@ caffe2.Tensor = class {
         if (args.values) {
             this._values = args.values;
         }
+        this._scale = args.hasOwnProperty('Y_scale') ? args.Y_scale.f : 0;
+        this._zeroPoint = args.hasOwnProperty('Y_zero_point') ? args.Y_zero_point.i : 0;
         this._type = new caffe2.TensorType(tensor.dataType, new caffe2.TensorShape(shape));
     }
 
@@ -449,6 +527,13 @@ caffe2.Tensor = class {
 
     get kind() {
         return this._kind;
+    }
+
+    get quantization() {
+        if (this._scale != 0 || this._zeroPoint != 0) {
+            return this._scale.toString() + ' * ' + (this._zeroPoint == 0 ? 'q' : ('(q - ' + this._zeroPoint.toString() + ')'));
+        }
+        return null;
     }
 
     get state() {
@@ -471,7 +556,7 @@ caffe2.Tensor = class {
         }
         context.limit = 10000;
         var value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
+        return caffe2.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
@@ -492,6 +577,12 @@ caffe2.Tensor = class {
                 context.data = this._values.floats;
                 break;
             case 'boolean':
+                context.data = this._values.ints;
+                break;
+            case 'int8':
+                context.data = this._values.s;
+                break;
+            case 'int32':
                 context.data = this._values.ints;
                 break;
             default:
@@ -520,6 +611,12 @@ caffe2.Tensor = class {
                     case 'boolean':
                         results.push(context.data[context.index] == 0 ? false : true);
                         break;
+                    case 'int8':
+                        results.push(context.data[context.index]);
+                        break;
+                    case 'int32':
+                        results.push(context.data[context.index]);
+                        break;
                     default:
                         context.state = 'Unknown data type.';
                         debugger;
@@ -539,6 +636,32 @@ caffe2.Tensor = class {
             }
         }
         return results;
+    }
+
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            var result = [];
+            result.push(indentation + '[');
+            var items = value.map((item) => caffe2.Tensor._stringify(item, indentation + indent, indent));
+            if (items.length > 0) {
+                result.push(items.join(',\n'));
+            }
+            result.push(indentation + ']');
+            return result.join('\n');
+        }
+        if (typeof value == 'string') {
+            return indentation + value;
+        }
+        if (value == Infinity) {
+            return indentation + 'Infinity';
+        }
+        if (value == -Infinity) {
+            return indentation + '-Infinity';
+        }
+        if (isNaN(value)) {
+            return indentation + 'NaN';
+        }
+        return indentation + value.toString();
     }
 };
 

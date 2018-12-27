@@ -183,6 +183,12 @@
     }
   },
   {
+    "name": "LogSoftMax",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "Tanh",
     "schema": {
       "category": "Activation",
@@ -231,6 +237,12 @@
     }
   },
   {
+    "name": "SpatialDropout",
+    "schema": {
+      "category": "Dropout"
+    }
+  },
+  {
     "name": "Normalize",
     "schema": {
       "category": "Normalization",
@@ -263,6 +275,11 @@
       "attributes": [
         { "name": "inplace", "default": false, "visible": false }
       ]
+    }
+  },
+  {
+    "name": "MM",
+    "schema": {
     }
   }
 ]

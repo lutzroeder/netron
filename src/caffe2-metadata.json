@@ -2,6 +2,16 @@
   {
     "name": "Conv",
     "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "pad"
+        },
+        {
+          "default": 1,
+          "name": "stride"
+        }
+      ],
       "category": "Layer",
       "description": "\nThe convolution operator consumes an input vector, a filter blob\nand a bias blob and computes the output. \nThe Conv2D operator computes a 2D convolution operation over an input blob $(X)$, with a filter blob $(filter)$ and a bias blob $(bias)$, and outputs a single output blob $(Y)$. Although there are several options for order, the convention is that the input $(X)$ is a blob of shape $(N,C_{in},H_{in},W_{in})$ and the output $(Y)$ is a blob of shape $(N,C_{out},H_{out},W_{out})$. Here, $N$ is the batch size, $C$ is the number of channels, $H$ is the spatial height, and $W$ is the spatial width. For example, if your input data was a batch of five, 100x120pixel RGB images, $X$ would have shape $(5,3,120,100)$.\n\nThe $filter$ input blob may contain multiple filters and has shape $(M, C_{in}, K_H, K_W)$. Here, $M$ is the number of individual filters contained in the blob, $C_{in}$ is the number of channels of each filter (by convention in 2D convolution it is the same as the number of channels in the input), $K_H$ is the spatial height of the kernel, and $K_W$ is the spatial width of the kernel. The $bias$ blob is a vector of length $M$, where there is one bias for each filter in the $filter$ blob.\n\nGiven the shape of the input blob and the filter blob, we can calculate the shape of the output blob as follows. The number of items in the batch $N$ will stay the same. The number of channels in the output will equal the number of kernels in the filter blob, so $C_{out} = M.$ With stride and pad defined below, the spatial height and width of the output ($H_{out}$ and $W_{out}$) are calculated as\n\n$$H_{out} = \\left \\lfloor{\\frac{H_{in} - K_H + 2*pad}{stride}+1}\\right \\rfloor$$\n\n\n$$W_{out} = \\left \\lfloor{\\frac{W_{in} - K_W + 2*pad}{stride}+1}\\right \\rfloor$$\n\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_op.cc\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_pool_op_base.h\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Conv\",\n    [\"X\", \"filter\", \"bias\"],\n    [\"Y\"],\n    kernel=5,\n    pad=1,\n    stride=2\n)\n\n// Create X: (N,C,H,W)\ndata = np.random.randn(1,1,8,8).astype(np.float32)\nprint(\"Data shape: \",data.shape)\n\n// Create W: (M,C,Kh,Kw)\nfilters = np.random.randn(3,1,5,5).astype(np.float32)\nprint(\"Filter shape: \",filters.shape)\n\n// Create b: M\nbias = np.array([1.,1.,1.]).astype(np.float32)\nprint(\"Bias shape: \",bias.shape)\n\n// Put the inputs into the workspace\nworkspace.FeedBlob(\"X\", data)\nworkspace.FeedBlob(\"filter\", filters)\nworkspace.FeedBlob(\"bias\", bias)\n\n// Run the operator\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nData shape:  (1, 1, 8, 8)\nFilter shape:  (3, 1, 5, 5)\nBias shape:  (3,)\nY:\n [[[[  0.6406407    0.8620521    0.56461596]\n   [ -1.5042953   -0.79549205 -10.683343  ]\n   [ -0.5240259    3.4538248   -3.9564204 ]]\n\n  [[  0.6876496    4.8328524   -1.9525816 ]\n   [  1.2995434   -2.3895378    7.2670045 ]\n   [  3.9929862    1.8126237    5.4699917 ]]\n\n  [[  3.55949      4.7934155    0.76086235]\n   [  3.9588015   -1.3251319    4.413117  ]\n   [ -1.5296054   -1.4924102   -3.2552304 ]]]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
@@ -425,6 +435,16 @@
   {
     "name": "MaxPool",
     "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "name": "pad"
+        }
+      ],
       "category": "Pool",
       "description": "MaxPool \nconsumes an input blob and applies max pooling across the the blob according to\nkernel sizes, stride sizes, pad lengths and dilation. Max pooling consists of\ntaking the maximum value of a subset of the input tensor according to the kernel\nsize and downsampling the data into the output blob for further processing. The\n`brew` module has a wrapper for this operator for use in a `ModelHelper` object.\n\nPooling layers reduce the spatial dimensionality of the input blob. Each of the\noutput blob's dimensions will reduce according to:\n\n$$dim_{out}=\\frac{dim_{in}-kernel+2*pad}{stride}+1$$\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/pool_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/pool_op.cc\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_pool_op_base.h\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"MaxPool\",\n    [\"X\"],\n    [\"Y\"],\n    kernel=2,\n    stride=2,\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(1, 1, 6, 6).astype(np.float32)) // NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nX:\n [[[[-2.8534958e-01 -1.7719941e+00 -8.2277227e-04  1.1088650e+00\n    -2.1476576e+00 -3.5070452e-01]\n   [-9.0058845e-01 -3.0070004e-01 -1.7907504e+00 -7.1746534e-01\n     1.2798511e+00 -3.2214901e-01]\n   [ 1.5806322e+00  1.6845188e+00 -2.6633200e-01 -3.8576153e-01\n    -9.6424848e-02 -3.9696163e-01]\n   [ 1.2572408e-01  6.3612902e-01 -3.9554062e-01 -6.9735396e-01\n    -9.1898698e-01 -1.9609968e-01]\n   [-1.1587460e+00  2.4605224e+00 -1.5497679e+00  1.3020347e-01\n    -8.1293899e-01 -7.8803545e-01]\n   [ 1.4323474e+00  1.3618395e+00  9.8975077e-02 -1.1307785e-01\n     7.2035044e-01  2.7642491e-01]]]]\n\nY:\n [[[[-0.28534958  1.108865    1.2798511 ]\n   [ 1.6845188  -0.266332   -0.09642485]\n   [ 2.4605224   0.13020347  0.72035044]]]]\n\n```\n\n</details>\n\n",
       "inputs": [
@@ -594,6 +614,7 @@
           "type": "float"
         },
         {
+          "default": 0,
           "description": "Order of blob dimensions.",
           "name": "order",
           "option": "optional",
@@ -1063,6 +1084,288 @@
         {
           "name": "final_and_scan_outputs",
           "option": "variadic"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8Quantize",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization offset"
+        },
+        {
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        }
+      ],
+      "description": null,
+      "inputs": [
+        {
+          "description": "FP32 Tensor X.",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Int8 Tensor qX representing X with linear quantization.",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8Conv",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "name": "pad"
+        },
+        {
+          "default": 1,
+          "name": "stride"
+        }
+      ],
+      "category": "Layer",
+      "description": "\nThe convolution operator consumes an input vector, a filter blob\nand a bias blob and computes the output. \n[Only NHWC order is supported now]Note that other parameters, such as the stride and\nkernel size, or the pads' sizes in each direction are not necessary for input\nbecause they are provided by the ConvPoolOpBase operator. Various dimension\nchecks are done implicitly, and the sizes are specified in the Input docs for\nthis operator. As is expected, the filter is convolved with a subset of the\nimage and the bias is added; this is done throughout the image data and the\noutput is computed. As a side note on the implementation layout:\nconv_op_impl.h is the templated implementation of the conv_op.h file, which is\nwhy they are separate files.\n",
+      "inputs": [
+        {
+          "description": "Input data blob from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the NCHW usage. On the other hand, the NHWC Op has a different set of dimension constraints. ",
+          "name": "X"
+        },
+        {
+          "description": "The filter blob that will be used in the convolutions; has size (M x C x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel.",
+          "name": "filter"
+        },
+        {
+          "description": "The 1D bias blob that is added through the convolution; has size (M).",
+          "name": "bias"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8FC",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        }
+      ],
+      "category": "Layer",
+      "description": "\nComputes the result of passing an input vector X into a fully\nconnected layer with 2D weight matrix W and 1D bias vector b. That is,\nthe layer computes Y = X * W^T + b, where X has size (M x K),\nW has size (N x K), b has size (N), and Y has size (M x N),\nwhere M is often the batch size.\n\n\nNOTE: X does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1 * ... * a_{n-1}]. Only this case is supported!\nLastly, even though b is a 1D vector of size N, it is copied/resized to\nbe size (M x N) implicitly and added to each vector in the batch.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "inputs": [
+        {
+          "description": "input tensor that's coerced into a 2D matrix of size (MxK) as described above",
+          "name": "X"
+        },
+        {
+          "description": "A tensor that is coerced into a 2D blob of size (KxN) containing fully connected weight matrix",
+          "name": "W"
+        },
+        {
+          "description": "1D blob containing bias vector",
+          "name": "b"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "2D output tensor",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8AveragePool",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        }
+      ],
+      "category": "Pool",
+      "description": "AveragePool \nconsumes an input blob X and applies average pooling across the\nthe blob according to kernel sizes, stride sizes, and pad lengths defined by the\nConvPoolOpBase operator. Average pooling consisting of averaging all values of a\nsubset of the input tensor according to the kernel size and downsampling the\ndata into the output blob Y for further processing.\n",
+      "inputs": [
+        {
+          "description": "Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case.",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8Sum",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        }
+      ],
+      "description": null,
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8Softmax",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        },
+        {
+          "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
+          "name": "axis",
+          "option": "optional"
+        }
+      ],
+      "category": "Activation",
+      "description": "\nThe operator computes the softmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the softmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "inputs": [
+        {
+          "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above.",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The softmax normalized output values with the same shape as input tensor.",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8Relu",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "order"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "default": 0,
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        }
+      ],
+      "category": "Activation",
+      "description": "\nRelu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = max(0, x), is applied to\nthe tensor elementwise.\n",
+      "inputs": [
+        {
+          "description": "1D input tensor",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1D input tensor",
+          "name": "Y"
         }
       ],
       "support_level": "default"

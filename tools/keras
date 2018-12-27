@@ -21,13 +21,12 @@ bold() {
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" fetch --quiet -p
         git -C "${third_party}/${1}" reset --quiet --hard origin/master
     else
-        echo "Clone ${2}..."
-        git -C "${third_party}" clone --recursive ${2}
+        git -C "${third_party}" clone --quiet --recursive ${2}
     fi
-    git -C "${third_party}" submodule update --init
+    git -C "${third_party}" submodule update --quiet --init
 }
 
 clean() {
@@ -43,7 +42,9 @@ sync() {
 
 install() {
     bold "keras install"
-    virtualenv --quiet -p ${python} ${virtualenv}
+    if [ ! -d "${virtualenv}" ]; then
+        virtualenv --quiet -p ${python} ${virtualenv}
+    fi
     source ${virtualenv}/bin/activate
     ${pip} install --quiet tensorflow
     ${pip} install --quiet ${third_party}/${identifier}

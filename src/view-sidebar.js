@@ -1,10 +1,13 @@
 /*jshint esversion: 6 */
 
+var sidebar = sidebar || {};
+
 var Handlebars = Handlebars || require('handlebars');
 
-class Sidebar {
+sidebar.Sidebar = class {
     
-    constructor() {
+    constructor(host) {
+        this._host = host;
         this._closeSidebarHandler = (e) => {
             this.close();
         };
@@ -15,7 +18,7 @@ class Sidebar {
             }
         };
         this._resizeSidebarHandler = (e) => {
-            var contentElement = document.getElementById('sidebar-content');
+            var contentElement = this._host.document.getElementById('sidebar-content');
             if (contentElement) {
                 contentElement.style.height = window.innerHeight - 60;
             }
@@ -23,14 +26,14 @@ class Sidebar {
     }
 
     open(content, title, width) {
-        var sidebarElement = document.getElementById('sidebar');
-        var titleElement = document.getElementById('sidebar-title');
-        var contentElement = document.getElementById('sidebar-content');
-        var closeButtonElement = document.getElementById('sidebar-closebutton');
+        var sidebarElement = this._host.document.getElementById('sidebar');
+        var titleElement = this._host.document.getElementById('sidebar-title');
+        var contentElement = this._host.document.getElementById('sidebar-content');
+        var closeButtonElement = this._host.document.getElementById('sidebar-closebutton');
         if (sidebarElement && contentElement && closeButtonElement && titleElement) {
             titleElement.innerHTML = title ? title.toUpperCase() : '';
             window.addEventListener('resize', this._resizeSidebarHandler);
-            document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
+            this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
             closeButtonElement.addEventListener('click', this._closeSidebarHandler);
             closeButtonElement.style.color = '#818181';
             contentElement.style.height = window.innerHeight - 60;
@@ -59,20 +62,20 @@ class Sidebar {
     }
     
     close() {
-        var sidebarElement = document.getElementById('sidebar');
-        var contentElement = document.getElementById('sidebar-content');
-        var closeButtonElement = document.getElementById('sidebar-closebutton');
+        var sidebarElement = this._host.document.getElementById('sidebar');
+        var contentElement = this._host.document.getElementById('sidebar-content');
+        var closeButtonElement = this._host.document.getElementById('sidebar-closebutton');
         if (sidebarElement && contentElement && closeButtonElement) {
-            document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
+            this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
             sidebarElement.removeEventListener('resize', this._resizeSidebarHandler);
             closeButtonElement.removeEventListener('click', this._closeSidebarHandler);
             closeButtonElement.style.color = '#f8f8f8';
             sidebarElement.style.width = '0';
         }
     }
-}
+};
 
-class NodeSidebar {
+sidebar.NodeSidebar = class {
 
     constructor(node, host) {
         this._host = host;
@@ -99,19 +102,19 @@ class NodeSidebar {
         }
 
         if (node.name) {
-            this.addProperty('name', new ValueTextView(node.name));
+            this.addProperty('name', new sidebar.ValueTextView(node.name));
         }
 
         if (node.domain) {
-            this.addProperty('domain', new ValueTextView(node.domain));
+            this.addProperty('domain', new sidebar.ValueTextView(node.domain));
         }
 
         if (node.description) {
-            this.addProperty('description', new ValueTextView(node.description));
+            this.addProperty('description', new sidebar.ValueTextView(node.description));
         }
 
         if (node.device) {
-            this.addProperty('device', new ValueTextView(node.device));
+            this.addProperty('device', new sidebar.ValueTextView(node.device));
         }
 
         var attributes = node.attributes;
@@ -155,23 +158,23 @@ class NodeSidebar {
     }
 
     addProperty(name, value) {
-        var item = new NameValueView(name, value);
+        var item = new sidebar.NameValueView(name, value);
         this._elements.push(item.element);
     }
 
     addAttribute(name, attribute) {
-        var item = new NameValueView(name, new NodeAttributeView(attribute));
+        var item = new sidebar.NameValueView(name, new NodeAttributeView(attribute));
         this._attributes.push(item);
         this._elements.push(item.element);
     }
 
     addInput(name, input) {
         if (input.connections.length > 0) {
-            var view = new ArgumentView(input, this._host);
+            var view = new sidebar.ArgumentView(input, this._host);
             view.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
-            var item = new NameValueView(name, view);
+            var item = new sidebar.NameValueView(name, view);
             this._inputs.push(item);
             this._elements.push(item.element);
         }
@@ -179,7 +182,7 @@ class NodeSidebar {
 
     addOutput(name, output) {
         if (output.connections.length > 0) {
-            var item = new NameValueView(name, new ArgumentView(output));
+            var item = new sidebar.NameValueView(name, new sidebar.ArgumentView(output));
             this._outputs.push(item);
             this._elements.push(item.element);
         }
@@ -206,9 +209,9 @@ class NodeSidebar {
             });
         }
     }
-}
+};
 
-class NameValueView {
+sidebar.NameValueView = class {
     constructor(name, value) {
         this._name = name;
         this._value = value;
@@ -247,9 +250,9 @@ class NameValueView {
     toggle() {
         this._value.toggle();
     }
-}
+};
 
-class ValueTextView {
+sidebar.ValueTextView = class {
 
     constructor(value) {
         this._elements = [];
@@ -268,7 +271,7 @@ class ValueTextView {
 
     toggle() {
     }
-}
+};
 
 class NodeAttributeView {
 
@@ -311,7 +314,7 @@ class NodeAttributeView {
             typeLine.className = 'sidebar-view-item-value-line-border';
             var type = this._attribute.type;
             var value = this._attribute.value;
-            if (type == 'tensor') {
+            if (type == 'tensor' && value.type) {
                 typeLine.innerHTML = 'type: ' + '<code><b>' + value.type.toString() + '</b></code>';
                 this._element.appendChild(typeLine);
             }
@@ -347,14 +350,14 @@ class NodeAttributeView {
     }
 }
 
-class ArgumentView {
+sidebar.ArgumentView = class {
 
     constructor(list, host) {
         this._list = list;
         this._elements = [];
         this._items = [];
         list.connections.forEach((connection) => {
-            var item = new ConnectionView(connection, host);
+            var item = new sidebar.ConnectionView(connection, host);
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
@@ -386,9 +389,10 @@ class ArgumentView {
             });
         }
     }
-}
+};
 
-class ConnectionView {
+sidebar.ConnectionView = class {
+
     constructor(connection, host) {
         this._connection = connection;
         this._host = host;
@@ -541,9 +545,9 @@ class ConnectionView {
             });
         }
     }
-}
+};
 
-class ModelSidebar {
+sidebar.ModelSidebar = class {
 
     constructor(model, host) {
         this._host = host;
@@ -551,46 +555,46 @@ class ModelSidebar {
         this._elements = [];
 
         if (this._model.format) {
-            this.addProperty('format', new ValueTextView(this._model.format));
+            this.addProperty('format', new sidebar.ValueTextView(this._model.format));
         }
         if (this._model.producer) {
-            this.addProperty('producer', new ValueTextView(this._model.producer));
+            this.addProperty('producer', new sidebar.ValueTextView(this._model.producer));
         }
         if (this._model.source) {
-            this.addProperty('source', new ValueTextView(this._model.source));
+            this.addProperty('source', new sidebar.ValueTextView(this._model.source));
         }
         if (this._model.name) {
-            this.addProperty('name', new ValueTextView(this._model.name));
+            this.addProperty('name', new sidebar.ValueTextView(this._model.name));
         }
         if (this._model.version) {
-            this.addProperty('version', new ValueTextView(this._model.version));
+            this.addProperty('version', new sidebar.ValueTextView(this._model.version));
         }
         if (this._model.description) {
-            this.addProperty('description', new ValueTextView(this._model.description));
+            this.addProperty('description', new sidebar.ValueTextView(this._model.description));
         }
         if (this._model.author) {
-            this.addProperty('author', new ValueTextView(this._model.author));
+            this.addProperty('author', new sidebar.ValueTextView(this._model.author));
         }
         if (this._model.company) {
-            this.addProperty('company', new ValueTextView(this._model.company));
+            this.addProperty('company', new sidebar.ValueTextView(this._model.company));
         }    
         if (this._model.license) {
-            this.addProperty('license', new ValueTextView(this._model.license));
+            this.addProperty('license', new sidebar.ValueTextView(this._model.license));
         }
         if (this._model.domain) {
-            this.addProperty('domain', new ValueTextView(this._model.domain));
+            this.addProperty('domain', new sidebar.ValueTextView(this._model.domain));
         }
         if (this._model.imports) {
-            this.addProperty('imports', new ValueTextView(this._model.imports));
+            this.addProperty('imports', new sidebar.ValueTextView(this._model.imports));
         }
         if (this._model.runtime) {
-            this.addProperty('runtime', new ValueTextView(this._model.runtime));
+            this.addProperty('runtime', new sidebar.ValueTextView(this._model.runtime));
         }
 
         var metadata = this._model.metadata;
         if (metadata) {
             this._model.metadata.forEach((property) => {
-                this.addProperty(property.name, new ValueTextView(property.value));
+                this.addProperty(property.name, new sidebar.ValueTextView(property.value));
             });
         }
 
@@ -618,23 +622,23 @@ class ModelSidebar {
             this._elements.push(graphTitleElement);
     
             if (graph.name) {
-                this.addProperty('name', new ValueTextView(graph.name));
+                this.addProperty('name', new sidebar.ValueTextView(graph.name));
             }
             if (graph.version) {
-                this.addProperty('version', new ValueTextView(graph.version));
+                this.addProperty('version', new sidebar.ValueTextView(graph.version));
             }
             if (graph.type) {
-                this.addProperty('type', new ValueTextView(graph.type));                
+                this.addProperty('type', new sidebar.ValueTextView(graph.type));                
             }
             if (graph.tags) {
-                this.addProperty('tags', new ValueTextView(graph.tags));
+                this.addProperty('tags', new sidebar.ValueTextView(graph.tags));
             }
             if (graph.description) {
-                this.addProperty('description', new ValueTextView(graph.description));                
+                this.addProperty('description', new sidebar.ValueTextView(graph.description));                
             }
 
             if (graph.operators) {
-                var item = new NameValueView('operators', new GraphOperatorListView(graph.operators));
+                var item = new sidebar.NameValueView('operators', new sidebar.GraphOperatorListView(graph.operators));
                 this._elements.push(item.element);
             }
 
@@ -666,14 +670,14 @@ class ModelSidebar {
     }
 
     addProperty(name, value) {
-        var item = new NameValueView(name, value);
+        var item = new sidebar.NameValueView(name, value);
         this._elements.push(item.element);
     }
 
     addArgument(name, argument) {
-        var view = new ArgumentView(argument, this._host);
+        var view = new sidebar.ArgumentView(argument, this._host);
         view.toggle();
-        var item = new NameValueView(name, view);
+        var item = new sidebar.NameValueView(name, view);
         this._elements.push(item.element);
     }
 
@@ -690,9 +694,9 @@ class ModelSidebar {
             });
         }
     }
-}
+};
 
-class GraphOperatorListView {
+sidebar.GraphOperatorListView = class {
 
     constructor(operators) {
 
@@ -745,9 +749,9 @@ class GraphOperatorListView {
             }
         }
     }
-}
+};
 
-class OperatorDocumentationSidebar {
+sidebar.OperatorDocumentationSidebar = class {
 
     constructor(documentation) {
         this._elements = [];
@@ -862,9 +866,9 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
             });
         }
     }
-}
+};
 
-class FindSidebar {
+sidebar.FindSidebar = class {
 
     constructor(graphElement, graph) {
         this._graphElement = graphElement;
@@ -1015,6 +1019,12 @@ class FindSidebar {
     get content() {
         return this._contentElement;
     }
+};
 
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Sidebar = sidebar.Sidebar;
+    module.exports.ModelSidebar = sidebar.ModelSidebar;
+    module.exports.NodeSidebar = sidebar.NodeSidebar;
+    module.exports.OperatorDocumentationSidebar = sidebar.OperatorDocumentationSidebar;
+    module.exports.FindSidebar = sidebar.FindSidebar;
 }
-

@@ -467,16 +467,13 @@
           "name": "bias"
         },
         {
-          "name": "running_mean",
-          "visible": false
+          "name": "running_mean"
         },
         {
-          "name": "running_var",
-          "visible": false
+          "name": "running_var"
         },
         {
-          "name": "num_batches_tracked",
-          "visible": false
+          "name": "num_batches_tracked"
         }
       ],
       "package": "torch.nn.modules.batchnorm"
@@ -484,6 +481,13 @@
   },
   {
     "name": "GroupNorm",
+    "schema": {
+      "category": "Normalization",
+      "package": "torch.nn.modules.normalization"
+    }
+  },
+  {
+    "name": "LayerNorm",
     "schema": {
       "category": "Normalization",
       "package": "torch.nn.modules.normalization"
@@ -527,6 +531,13 @@
   },
   {
     "name": "GRU",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
+    "name": "GRUCell",
     "schema": {
       "category": "Layer",
       "package": "torch.nn.modules.rnn"
@@ -599,6 +610,13 @@
           "visible": false
         }
       ],
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
+    "name": "LSTMCell",
+    "schema": {
+      "category": "Layer",
       "package": "torch.nn.modules.rnn"
     }
   },

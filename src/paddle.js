@@ -102,6 +102,8 @@ paddle.Graph = class {
             });
         });
 
+        var lastNode = null;
+        var lastOutput = null;
         block.ops.forEach((op) => {
             if (op.type == 'feed') {
                 var inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
@@ -116,7 +118,23 @@ paddle.Graph = class {
                 })));
             }
             else {
-                this._nodes.push(new paddle.Node(metadata, op, initializers, types));
+                var node = new paddle.Node(metadata, op, initializers, types);
+                if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
+                    op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
+                    op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() && 
+                    lastNode &&
+                    lastOutput == op.inputs[0].arguments[0].split('\n').shift()) {
+                    lastNode.chain.push(node);
+                }
+                else {
+                    this._nodes.push(node);
+                    lastNode = null;
+                    lastOutput = null;
+                    if (op.outputs.length == 1 && op.outputs[0].arguments.length == 1) {
+                        lastNode = node;
+                        lastOutput = op.outputs[0].arguments[0].split('\n').shift();
+                    }
+                }
             }
         });
     }
@@ -205,6 +223,7 @@ paddle.Node = class {
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
+        this._chain = [];
         op.attrs.forEach((attr) => {
             this._attributes.push(new paddle.Attribute(metadata, this._operator, attr));
         });
@@ -245,6 +264,10 @@ paddle.Node = class {
 
     get outputs() {
         return this._outputs;
+    }
+
+    get chain() {
+        return this._chain;
     }
 
     _update(list, name) {

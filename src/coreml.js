@@ -791,10 +791,6 @@ coreml.Tensor = class {
         this._type = new coreml.TensorType(dataType, new coreml.TensorShape(shape));
     }
 
-    get id() {
-        return this._name;
-    }
-
     get name() {
         return this._name;
     }

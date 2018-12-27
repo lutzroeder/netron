@@ -11,30 +11,21 @@ cntk.ModelFactory = class {
     match(context, host) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         var buffer = null;
-        if (extension == 'model' || extension == 'cmf' || extension == 'dnn') {
+        if (extension == 'model' || extension == 'cmf' || extension == 'dnn' || extension == 'cntk') {
             buffer = context.buffer;
-            // Filter MXNet Model server ZIP files
-            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
-                return false;
-            }
-            // Filter PyTorch models published with incorrect file extension.
-            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > torch.length + 2 && 
-                buffer[0] == 0x80 && buffer[1] > 0x00 && buffer[1] < 0x05) {
-                if (torch.every((value, index) => value == buffer[index + 2])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        if (extension == 'cntk') {
-            buffer = context.buffer;
-            // Check protobuf data to exclude .cntk text files
-            if (buffer && buffer.length > 3 && buffer[0] == 0x08 && buffer[1] < 0x10 && buffer[2] == 0x12) {
+            // CNTK v1
+            if (buffer && buffer.length >= 8 && 
+                buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
+                buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
                 return true;
             }
+            // CNTK v2
+            var tags = context.tags('pb');
+            if (tags[1] == 0 && tags[2] == 2) {
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     open(context, host, callback) { 
