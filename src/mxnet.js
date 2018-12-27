@@ -362,7 +362,8 @@ mxnet.Graph = class {
         this._inputs = [];
         Object.keys(argumentMap).forEach((key) => {
             var argument = argumentMap[key];
-            if ((!argument.inputs || argument.inputs.length == 0) &&
+            if (argument &&
+                (!argument.inputs || argument.inputs.length == 0) &&
                 (argument.outputs && argument.outputs.length == 1)) {
                 var inputId = argument.outputs[0];
                 var inputName = argument.name;
