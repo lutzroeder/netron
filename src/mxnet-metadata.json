@@ -6,7 +6,7 @@
         {
           "default": false,
           "name": "cudnn_off",
-          "type": "bool"
+          "type": "boolean"
         },
         {
           "default": "off",
@@ -24,7 +24,7 @@
         {
           "visible": false,
           "name": "no_bias",
-          "type": "bool"
+          "type": "boolean"
         },
         {
           "type": "int32",
@@ -113,12 +113,12 @@
     "schema": {
       "attributes": [
         {
-          "type": "type",
+          "type": "boolean",
           "default": true,
           "name": "flatten"
         },
         {
-          "type": "bool",
+          "type": "boolean",
           "visible": false,
           "name": "no_bias"
         },
@@ -401,12 +401,12 @@
           "name": "momentum"
         },
         {
-          "type": "bool",
+          "type": "boolean",
           "default": true,
           "name": "fix_gamma"
         },
         {
-          "type": "bool",
+          "type": "boolean",
           "default": false,
           "name": "use_global_stats"
         }
@@ -488,7 +488,7 @@
       "category": "Layer",
       "attributes": [
         { 
-          "type": "bool",
+          "type": "boolean",
           "name": "bidirectional", 
           "default": false
         },
@@ -501,7 +501,7 @@
           "name": "num_layers"
         },
         { 
-          "type": "bool",
+          "type": "boolean",
           "default": false,
           "name": "state_outputs"
         },

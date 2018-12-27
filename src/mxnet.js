@@ -654,12 +654,14 @@ mxnet.Attribute = class {
         var schema = metadata.getAttributeSchema(operator, name);
         if (schema && schema.type) {
             switch (schema.type) {
-                case 'bool':
-                    if (this._value == 'True') {
-                        this._value = true;
-                    }
-                    else if (this._value == 'False') {
-                        this._value = false;
+                case 'boolean':
+                    switch (value) {
+                        case 'True':
+                            this._value = true;
+                            break;
+                        case 'False':
+                            this._value = false;
+                            break;
                     }
                     break;
                 case 'int32':
