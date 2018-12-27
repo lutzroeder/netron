@@ -13,7 +13,9 @@
     "scripts": {
         "start": "[ -d node_modules ] || npm install && npx electron .",
         "server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@",
-        "test": "[ -d node_modules ] || npm install && node ./test/test.js"
+        "test": "[ -d node_modules ] || npm install && node ./test/test.js",
+        "update": "[ -d node_modules ] || npm install && ./tools/update",
+        "reset": "git fetch -p && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)"
     },
     "dependencies": {
         "d3": "latest",
