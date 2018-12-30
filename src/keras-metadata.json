@@ -2898,7 +2898,7 @@
           "description": "[A guide to convolution arithmetic for deep learning]( https://arxiv.org/abs/1603.07285v1)"
         },
         {
-          "description": "[Deconvolutional Networks]( http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf)"
+          "description": "[Deconvolutional Networks]( https://www.matthewzeiler.com/mattzeiler/deconvolutionalnetworks.pdf)"
         }
       ]
     }
