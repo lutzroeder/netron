@@ -629,7 +629,7 @@
         },
         {
           "default": false,
-          "description": "Whether bootstrap samples are used when building trees.\n",
+          "description": "Whether bootstrap samples are used when building trees. If False, the\nwhole datset is used to build each tree.\n",
           "name": "bootstrap",
           "option": "optional",
           "type": "boolean"
@@ -839,7 +839,7 @@
         },
         {
           "default": true,
-          "description": "Whether bootstrap samples are used when building trees.\n",
+          "description": "Whether bootstrap samples are used when building trees. If False, the\nwhole datset is used to build each tree.\n",
           "name": "bootstrap",
           "option": "optional",
           "type": "boolean"
@@ -955,7 +955,7 @@
         },
         {
           "default": true,
-          "description": "Whether bootstrap samples are used when building trees.\n",
+          "description": "Whether bootstrap samples are used when building trees. If False, the\nwhole datset is used to build each tree.\n",
           "name": "bootstrap",
           "option": "optional",
           "type": "boolean"
