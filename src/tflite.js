@@ -24,8 +24,8 @@ tflite.ModelFactory = class {
                 tflite.schema = tflite_schema;
                 if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
                 {
-                    var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
-                    callback(new tflite.Error("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
+                    var signature = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
+                    callback(new tflite.Error("Invalid FlatBuffers signature '" + signature + "' in '" + context.identifier + "'."));
                     return;
                 }
                 model = tflite.schema.Model.getRootAsModel(byteBuffer);

@@ -38,8 +38,8 @@ pytorch.ModelFactory = class {
     }
 
     _openModel(metadata, context, host, pickle, callback) {
+        var identifier = context.identifier;
         try {
-            var identifier = context.identifier;
             var buffer = context.buffer;
             var unpickler = new pickle.Unpickler(buffer);
 
@@ -232,7 +232,7 @@ pytorch.ModelFactory = class {
                             this.name = 'string';
                         }
                         else {
-                            throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
+                            throw new pytorch.Error("Unknown dtype '" + obj.toString() + "'.");
                         }
                         break;
                 }
@@ -251,7 +251,7 @@ pytorch.ModelFactory = class {
                             this.int_dtypeflags = state[7];
                             break;
                         default:
-                            throw new sklearn.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                            throw new pytorch.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                     }
                 };
             };
@@ -278,13 +278,13 @@ pytorch.ModelFactory = class {
                     if (typeof this.rawdata == 'string') {
                         array.data = unpickler.unescape(this.rawdata, size);
                         if (array.data.length != size) {
-                            throw new sklearn.Error('Invalid string array data size.');
+                            throw new pytorch.Error('Invalid string array data size.');
                         }
                     }
                     else {
                         array.data = this.rawdata;
                         if (array.data.length != size) {
-                            throw new sklearn.Error('Invalid array data size.');
+                            throw new pytorch.Error('Invalid array data size.');
                         }
                     }
                     return array;
@@ -345,7 +345,7 @@ pytorch.ModelFactory = class {
                     case 'int64':
                         return new base.Int64(data.subarray(0, dtype.itemsize));
                 }
-                throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
+                throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
             };
             functionTable['_codecs.encode'] = function(obj, econding) {
                 return obj;
@@ -438,8 +438,9 @@ pytorch.ModelFactory = class {
             callback(null, model);
         }
         catch (error) {
-            host.exception(error, false);
-            callback(new pytorch.Error(error.message), null);
+            var message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            callback(new pytorch.Error(message + " in '" + identifier + "'."), null);
             return;
         }
     }
@@ -1023,6 +1024,7 @@ pytorch.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -1040,17 +1042,18 @@ pytorch.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
+        var attributeMap = this._attributeCache[operator];
+        if (!attributeMap) {
+            attributeMap = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
+                    attributeMap[attribute.name] = attribute;
                 });
             }
-            return schema.attributesMap[name] || null;
+            this._attributeCache[operator] = attributeMap;
         }
-        return null;
+        return attributeMap[name] || null;
     }
 };
 

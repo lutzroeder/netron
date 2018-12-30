@@ -29,8 +29,8 @@ sklearn.ModelFactory = class {
             }
             
             var obj = null;
+            var identifier = context.identifier;
             try {
-                var identifier = context.identifier;
                 var unpickler = new pickle.Unpickler(context.buffer);
 
                 var constructorTable = {};
@@ -279,11 +279,12 @@ sklearn.ModelFactory = class {
                 }
             }
             catch (error) {
-                host.exception(error, false);
-                callback(error);
+                var message = error && error.message ? error.message : error.toString();
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                callback(new sklearn.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
-
+    
             sklearn.Metadata.open(host, (err, metadata) => {
                 try {
                     var model = new sklearn.Model(metadata, obj);
@@ -823,6 +824,7 @@ sklearn.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -840,17 +842,18 @@ sklearn.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this.getSchema(operator);
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributeMap) {
-                schema.attributeMap = {};
+        var attributeMap = this._attributeCache[operator];
+        if (!attributeMap) {
+            attributeMap = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema.attributeMap[attribute.name] = attribute;
+                    attributeMap[attribute.name] = attribute;
                 });
             }
-            return schema.attributeMap[name] || null;
+            this._attributeCache[operator] = attributeMap;
         }
-        return null;
+        return attributeMap[name] || null;
     }
 };
 

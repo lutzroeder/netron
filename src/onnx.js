@@ -1102,6 +1102,7 @@ onnx.GraphMetadata = class {
     constructor(metadata, opsetImport) {
         this._metadata = metadata;
         this._cache = {};
+        this._attributeCache = {};
         this._imports = {};
         if (opsetImport) {
             opsetImport.forEach((opsetImport) => {
@@ -1132,24 +1133,18 @@ onnx.GraphMetadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    schema.attributes.forEach((attribute) => {
-                        attributeMap[attribute.name] = attribute;
-                    });
-                }
-                schema.attributeMap = attributeMap;
+        var attributeMap = this._attributeCache[operator];
+        if (!attributeMap) {
+            attributeMap = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    attributeMap[attribute.name] = attribute;
+                });
             }
-            var attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema; 
-            }
+            this._attributeCache[operator] = attributeMap;
         }
-        return null;
+        return attributeMap[name] || null;
     }
 
     getInputs(operator, inputs) {
