@@ -155,6 +155,14 @@
     }
   },
   {
+    "name": "SpatialReplicationPadding",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [ 
+      ]
+    }
+  },
+  {
     "name": "Concat",
     "schema": {
       "category": "Tensor",
