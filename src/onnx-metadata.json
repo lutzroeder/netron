@@ -2572,7 +2572,7 @@
           "type": "float"
         }
       ],
-      "description": "Generate a tensor with specific constant value. The value can be specified by the 'value' \nattribute. The shape of the output tensor is the same as the input tensor, if the input \ntensor is provided, or the shape provided in the 'shape' attribute (if both are provided, \nthe input tensor shape takes precendence). The data type can be specified by the 'dtype' \nargument. If 'dtype' is not specified, then the type of input tensor is used. If input \ntensor is also not specified, then the type defaults to 'float'.\n\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
+      "description": "Generate a tensor with specific constant value. The value can be specified by the 'value'\nattribute. The shape of the output tensor is the same as the input tensor, if the input\ntensor is provided, or the shape provided in the 'shape' attribute (if both are provided,\nthe input tensor shape takes precendence). The data type can be specified by the 'dtype'\nargument. If 'dtype' is not specified, then the type of input tensor is used. If input\ntensor is also not specified, then the type defaults to 'float'.\n\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -2644,6 +2644,81 @@
             "tensor(bool)"
           ],
           "description": "Constrain output types. Strings and complex are not supported.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ConstantOfShape",
+    "schema": {
+      "attributes": [
+        {
+          "description": "(Optional) The value of the output elements.Should be a one-element tensor. ",
+          "name": "value",
+          "required": false,
+          "type": "tensor"
+        }
+      ],
+      "description": "Generate a tensor with given value and shape.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "x = np.array([4, 3, 2])\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.FLOAT,\n                                       [1], [1])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\n\ny = np.ones(x, dtype=np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_float_ones')",
+          "summary": "float_ones"
+        },
+        {
+          "code": "x = np.array([10, 6])\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.INT32,\n                                       [1], [1])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_int_zeros')",
+          "summary": "int_zeros"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "1D tensor, The shape of the expected output tensor. If empty tensor is given, the output would be a scalar.",
+          "name": "input",
+          "type": "T1"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor, using input as shape.If attribute 'value' exist, all value and datatype of output tensor equal to 'value'.Else, all value equal to 0, and datatype default to float32",
+          "name": "output",
+          "type": "T2"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)"
+          ],
+          "description": "Constrain input types. Shape must be unsigned integers.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(bool)"
+          ],
+          "description": "Constrain output types to be numerics.",
           "type_param_str": "T2"
         }
       ]
@@ -4142,7 +4217,7 @@
           "type": "int"
         }
       ],
-      "description": "Generate a 2D tensor (matrix) with ones on the diagonal and zeros everywhere else. Only 2D \ntensors are supported, i.e. input T1 must be of rank 2. The shape of the output tensor is the \nsame as the input tensor. The data type can be specified by the 'dtype' argument. If \n'dtype' is not specified, then the type of input tensor is used. By default, the main diagonal \nis populated with ones, but attribute 'k' can be used to populate upper or lower diagonals.\n\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
+      "description": "Generate a 2D tensor (matrix) with ones on the diagonal and zeros everywhere else. Only 2D\ntensors are supported, i.e. input T1 must be of rank 2. The shape of the output tensor is the\nsame as the input tensor. The data type can be specified by the 'dtype' argument. If\n'dtype' is not specified, then the type of input tensor is used. By default, the main diagonal\nis populated with ones, but attribute 'k' can be used to populate upper or lower diagonals.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -10608,7 +10683,7 @@
           "type": "float"
         }
       ],
-      "description": "Generate a tensor with random values drawn from a normal distribution. \nThe shape of the output tensor is copied from the shape of the input tensor, \nand the parameters of the normal distribution are specified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided. \nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message, and be valid as an output type.\n",
+      "description": "Generate a tensor with random values drawn from a normal distribution.\nThe shape of the output tensor is copied from the shape of the input tensor,\nand the parameters of the normal distribution are specified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message, and be valid as an output type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -10759,7 +10834,7 @@
           "type": "float"
         }
       ],
-      "description": "Generate a tensor with random values drawn from a uniform distribution. \nThe shape of the output tensor is copied from the shape of the input tensor, \nand the parameters of the uniform distribution are specified by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided. \nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
+      "description": "Generate a tensor with random values drawn from a uniform distribution.\nThe shape of the output tensor is copied from the shape of the input tensor,\nand the parameters of the uniform distribution are specified by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
