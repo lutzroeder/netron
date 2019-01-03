@@ -56833,6 +56833,29 @@
     }
   },
   {
+    "name": "TensorListResize",
+    "schema": {
+      "description": "\ninput_handle: the input list\nsize: size of the output list\n",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "size",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ],
+      "summary": "Resizes the list."
+    }
+  },
+  {
     "name": "TensorListScatter",
     "schema": {
       "attributes": [
