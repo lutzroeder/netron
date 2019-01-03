@@ -26,6 +26,9 @@ pickle.Unpickler = class {
                 case pickle.OpCode.GLOBAL:
                     stack.push([ reader.line(), reader.line() ].join('.'));
                     break;
+                case pickle.OpCode.STACK_GLOBAL:
+                    stack.push([ stack.pop(), stack.pop() ].reverse().join('.'));
+                    break;
                 case pickle.OpCode.PUT:
                     table[reader.line()] = stack[stack.length - 1];
                     break;
@@ -190,6 +193,9 @@ pickle.Unpickler = class {
                 case pickle.OpCode.BINUNICODE:
                     stack.push(reader.string(reader.uint32(), 'utf-8'));
                     break;
+                case pickle.OpCode.SHORT_BINUNICODE:
+                    stack.push(reader.string(reader.byte(), 'utf-8'));
+                    break;
                 case pickle.OpCode.BUILD:
                     var dict = stack.pop();
                     var obj = stack.pop();
@@ -247,6 +253,12 @@ pickle.Unpickler = class {
                     var b = stack.pop();
                     var a = stack.pop();
                     stack.push([a, b, c]);
+                    break;
+                case pickle.OpCode.MEMOIZE:
+                    table[Object.keys(table).length] = stack[stack.length - 1];
+                    break;
+                case pickle.OpCode.FRAME:
+                    reader.bytes(8);
                     break;
                 case pickle.OpCode.NONE:
                     stack.push(null);
@@ -356,57 +368,67 @@ pickle.Unpickler = class {
 // https://svn.python.org/projects/python/trunk/Lib/pickletools.py
 // https://github.com/python/cpython/blob/master/Lib/pickle.py
 pickle.OpCode = {
-    MARK: 40,            // '('
-    EMPTY_TUPLE: 41,     // ')'
-    STOP: 46,            // '.'
-    POP: 48,             // '0'
-    POP_MARK: 49,        // '1'
-    DUP: 50,             // '2'
-    BINBYTES: 66,        // 'B' (Protocol 3)
-    SHORT_BINBYTES: 67,  // 'C' (Protocol 3)
-    FLOAT: 70,           // 'F'
-    BINFLOAT: 71,        // 'G'
-    INT: 73,             // 'I'
-    BININT: 74,          // 'J'
-    BININT1: 75,         // 'K'
-    LONG: 76,            // 'L'
-    BININT2: 77,         // 'M'
-    NONE: 78,            // 'N'
-    PERSID: 80,          // 'P'
-    BINPERSID: 81,       // 'Q'
-    REDUCE: 82,          // 'R'
-    STRING: 83,          // 'S'
-    BINSTRING: 84,       // 'T'
-    SHORT_BINSTRING: 85, // 'U'
-    UNICODE: 86,         // 'V'
-    BINUNICODE: 88,      // 'X'
-    EMPTY_LIST: 93,      // ']'
-    APPEND: 97,          // 'a'
-    BUILD: 98,           // 'b'
-    GLOBAL: 99,          // 'c'
-    DICT: 100,           // 'd'
-    APPENDS: 101,        // 'e'
-    GET: 103,            // 'g'
-    BINGET: 104,         // 'h'
-    LONG_BINGET: 106,    // 'j'
-    LIST: 108,           // 'l'
-    OBJ: 111,            // 'o'
-    PUT: 112,            // 'p'
-    BINPUT: 113,         // 'q'
-    LONG_BINPUT: 114,    // 'r'
-    SETITEM: 115,        // 's'
-    TUPLE: 116,          // 't'
-    SETITEMS: 117,       // 'u'
-    EMPTY_DICT: 125,     // '}'
+    MARK: 40,              // '('
+    EMPTY_TUPLE: 41,       // ')'
+    STOP: 46,              // '.'
+    POP: 48,               // '0'
+    POP_MARK: 49,          // '1'
+    DUP: 50,               // '2'
+    BINBYTES: 66,          // 'B' (Protocol 3)
+    SHORT_BINBYTES: 67,    // 'C' (Protocol 3)
+    FLOAT: 70,             // 'F'
+    BINFLOAT: 71,          // 'G'
+    INT: 73,               // 'I'
+    BININT: 74,            // 'J'
+    BININT1: 75,           // 'K'
+    LONG: 76,              // 'L'
+    BININT2: 77,           // 'M'
+    NONE: 78,              // 'N'
+    PERSID: 80,            // 'P'
+    BINPERSID: 81,         // 'Q'
+    REDUCE: 82,            // 'R'
+    STRING: 83,             // 'S'
+    BINSTRING: 84,         // 'T'
+    SHORT_BINSTRING: 85,   // 'U'
+    UNICODE: 86,           // 'V'
+    BINUNICODE: 88,        // 'X'
+    EMPTY_LIST: 93,        // ']'
+    APPEND: 97,            // 'a'
+    BUILD: 98,             // 'b'
+    GLOBAL: 99,            // 'c'
+    DICT: 100,             // 'd'
+    APPENDS: 101,          // 'e'
+    GET: 103,              // 'g'
+    BINGET: 104,           // 'h'
+    LONG_BINGET: 106,      // 'j'
+    LIST: 108,             // 'l'
+    OBJ: 111,              // 'o'
+    PUT: 112,              // 'p'
+    BINPUT: 113,           // 'q'
+    LONG_BINPUT: 114,      // 'r'
+    SETITEM: 115,          // 's'
+    TUPLE: 116,            // 't'
+    SETITEMS: 117,         // 'u'
+    EMPTY_DICT: 125,       // '}'
     PROTO: 128,
     NEWOBJ: 129,
-    TUPLE1: 133,         // '\x85'
-    TUPLE2: 134,         // '\x86'
-    TUPLE3: 135,         // '\x87'
-    NEWTRUE: 136,        // '\x88'
-    NEWFALSE: 137,       // '\x89'
-    LONG1: 138,          // '\x8a'
-    LONG4: 139           // '\x8b'
+    TUPLE1: 133,           // '\x85'
+    TUPLE2: 134,           // '\x86'
+    TUPLE3: 135,           // '\x87'
+    NEWTRUE: 136,          // '\x88'
+    NEWFALSE: 137,         // '\x89'
+    LONG1: 138,            // '\x8a'
+    LONG4: 139,            // '\x8b'
+    SHORT_BINUNICODE: 140, // '\x8c' (Protocol 4)
+    BINUNICODE8: 141,      // '\x8d' (Protocol 4)
+    BINBYTES8: 142,        // '\x8e' (Protocol 4)
+    EMPTY_SET: 143,        // '\x8f' (Protocol 4)
+    ADDITEMS: 144,         // '\x90' (Protocol 4)
+    FROZENSET: 145,        // '\x91' (Protocol 4)
+    NEWOBJ_EX: 146,        // '\x92' (Protocol 4)
+    STACK_GLOBAL: 147,     // '\x93' (Protocol 4)
+    MEMOIZE: 148,          // '\x94' (Protocol 4)
+    FRAME: 149             // '\x95' (Protocol 4)
 };
 
 pickle.Reader = class { 
