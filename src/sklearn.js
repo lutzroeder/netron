@@ -184,6 +184,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.label.LabelEncoder'] = function() {};
+                constructorTable['sklearn.svm.classes.LinearSVC'] = function() {};
                 constructorTable['sklearn.svm.classes.SVC'] = function() {};
                 constructorTable['sklearn.svm.classes.SVR'] = function() {};
                 constructorTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
