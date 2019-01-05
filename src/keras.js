@@ -969,6 +969,7 @@ keras.Metadata = class {
     
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -986,17 +987,18 @@ keras.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this.getSchema(operator);
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributeMap) {
-                schema.attributeMap = {};
-                schema.attributes.forEach(attribute => {
-                    schema.attributeMap[attribute.name] = attribute;
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    map[attribute.name] = attribute;
                 });
             }
-            return schema.attributeMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 };
 

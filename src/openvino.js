@@ -342,16 +342,12 @@ openvino.AbstractNode = class {
     }
 
     get inputs() {
-        const list = this._inputs.concat(this._initializers);
-        const inputs = this._metadata.getInputs(this._type, list);
-        return inputs.map((input) => {
+        var inputs = this._metadata.getInputs(this._type, this._inputs).map((input) => {
             return new openvino.Argument(input.name, input.connections.map((connection) => {
-                if (connection.id instanceof openvino.Tensor) {
-                    return new openvino.Connection('', null, connection.id);
-                }
                 return new openvino.Connection(connection.id, null, null);
             }));
         });
+        return inputs.concat(this._initializers);
     }
 
     get outputs() {
@@ -386,33 +382,36 @@ openvino.ir.Node = class extends openvino.AbstractNode {
         this._initializers = [];
         this._attributes = [];
 
-        this._attributes.push(new openvino.Attribute(this, 'precision', layer.precision));
+        // this._attributes.push(new openvino.Attribute(metadata, this, '  ', layer.precision));
 
         if (layer.data) {
             this._attributes = Object.keys(layer.data).map((key) => {
-                return new openvino.Attribute(this, key, layer.data[key]);
+                return new openvino.Attribute(metadata, this, key, layer.data[key]);
             });
+        }
+
+        if (layer.weights) {
+            const value = this._concatBinaryAttributes(layer.weights);
+            this._initializers.push(new openvino.Argument('weights', [
+                new openvino.Connection('weights', null, new openvino.Tensor(layer.precision, null,value))
+            ]));
+
+            // this._initializers.push(new openvinoTensor({data: [],
+            //     shape: layer[0].output[0].dims,
+            //     precision: layer.precision
+            // }));
         }
 
         if (layer.biases) {
             const value = this._concatBinaryAttributes(layer.biases);
-            this._attributes.push(new openvino.Attribute(this, 'biases', value));
+            this._initializers.push(new openvino.Argument('biases', [
+                new openvino.Connection('biases', null, new openvino.Tensor(layer.precision, null, value))
+            ]));
 
             // TODO: complex to extract the size of the bias
             // TODO: compute from the overall size?
             // this._initializers.push(new openvinoTensor({data: [],
             //     shape: [layer[0].output[0].dims[1]],
-            //     precision: layer.precision
-            // }));
-        }
-
-        if (layer.weights) {
-            const value = this._concatBinaryAttributes(layer.weights);
-            this._attributes.push(new openvino.Attribute(this, 'weights', value));
-
-
-            // this._initializers.push(new openvinoTensor({data: [],
-            //     shape: layer[0].output[0].dims,
             //     precision: layer.precision
             // }));
         }
@@ -465,10 +464,20 @@ openvino.Connection = class {
 
 openvino.Attribute = class {
 
-    constructor(node, name, value) {
+    constructor(metadata, node, name, value) {
         this._node = node;
         this._name = name;
         this._value = value;
+
+        // TODO remove once schema.default fitltering is implemented
+        // this._visible = false;
+        
+        var schema = metadata.getAttributeSchema(node.operator, name);
+        if (schema && schema.hasOwnProperty('default')) {
+            if (value == schema.default) {
+                this._visible = false;
+            }
+        }
     }
 
     get name() {
@@ -478,19 +487,19 @@ openvino.Attribute = class {
     get value() {
         return this._value;
     }
+
+    get visible() {
+        return this._visible == false ? false : true;
+    }
 };
 
 openvino.Tensor = class {
 
-    constructor({data, shape, precision}) {
+    constructor(precision, shape, data) {
         this._data = data;
         this._shape = shape;
-        const dataType = precision === 'FP32' ? 'float32' : '?';
+        var dataType = precision === 'FP32' ? 'float32' : '?';
         this._type = new openvino.TensorType(dataType, this._shape);
-    }
-
-    get kind() {
-        return 'Blob';
     }
 
     get type() {
@@ -528,7 +537,9 @@ openvino.Tensor = class {
         context.data = this._data;
         if (!this._data) {
             context.state = 'Tensor data is empty.';
+            return context;
         }
+        context.state = this._data.toString();
         return context;
     }
 
@@ -575,7 +586,7 @@ openvino.TensorType = class {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return this.dataType + '[?]';
     }
 };
 
@@ -595,6 +606,7 @@ openvino.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -611,6 +623,21 @@ openvino.Metadata = class {
 
     getSchema(operator) {
         return this._map[operator];
+    }
+
+    getAttributeSchema(operator, name) {
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    map[attribute.name] = attribute;
+                });
+            }
+            this._attributeCache[operator] = map;
+        }
+        return map[name] || null;
     }
 
     getInputs(type, inputs) {
@@ -738,7 +765,7 @@ openvino.dot.Node = class extends openvino.AbstractNode {
                 this[`_${name}`] = value;
             }
 
-            this._attributes.push(new openvino.Attribute(this, name, value));
+            this._attributes.push(new openvino.Attribute(metadata, this, name, value));
         });
 
         if (!this._type){

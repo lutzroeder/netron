@@ -843,18 +843,18 @@ sklearn.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var attributeMap = this._attributeCache[operator];
-        if (!attributeMap) {
-            attributeMap = {};
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    attributeMap[attribute.name] = attribute;
+                    map[attribute.name] = attribute;
                 });
             }
-            this._attributeCache[operator] = attributeMap;
+            this._attributeCache[operator] = map;
         }
-        return attributeMap[name] || null;
+        return map[name] || null;
     }
 };
 

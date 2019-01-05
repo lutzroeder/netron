@@ -815,6 +815,7 @@ cntk.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         this._operatorMap = {};
         if (data) {
             var items = JSON.parse(data);
@@ -844,17 +845,18 @@ cntk.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema._attributesMap) {
-                schema._attributesMap = {};
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema._attributesMap[attribute.name] = attribute;
+                    map[attribute.name] = attribute;
                 });
             }
-            return schema._attributesMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 };
 

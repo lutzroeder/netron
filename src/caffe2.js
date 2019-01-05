@@ -716,6 +716,7 @@ caffe2.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -730,6 +731,21 @@ caffe2.Metadata = class {
 
     getSchema(operator) {
         return this._map[operator] || null;
+    }
+
+    getAttributeSchema(operator, name) {
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    map[attribute.name] = attribute;
+                });
+            }
+            this._attributeCache[operator] = map;
+        }
+        return map[name] || null;
     }
 
     getInputs(type, inputs) {
@@ -798,20 +814,6 @@ caffe2.Metadata = class {
 
         }
         return results;
-    }
-
-    getAttributeSchema(operator, name, value) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
-                schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
-                });
-            }
-            return schema.attributesMap[name] || null;
-        }
-        return null;
     }
 };
 

@@ -1057,6 +1057,7 @@ tf.GraphMetadata = class {
     constructor(metadata, meta_info_def) {
         this._metadata = metadata;
         this._map = {};
+        this._attributeCache = {};
         if (meta_info_def && meta_info_def.strippedOpList && meta_info_def.strippedOpList.op) {
             meta_info_def.strippedOpList.op.forEach((opDef) => {
             });
@@ -1071,22 +1072,19 @@ tf.GraphMetadata = class {
         return schema;
     }
 
-    getAttributeSchema(operator, name, value) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    schema.attributes.forEach((attribute) => {
-                        attributeMap[attribute.name] = attribute;
-                    });
-                }
-                schema.attributeMap = attributeMap;
+    getAttributeSchema(operator, name) {
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    map[attribute.name] = attribute;
+                });
             }
-            return attributeMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;        
+        return map[name] || null;
     }
 
     getAttributeVisibleMap(operator) {
