@@ -154,6 +154,8 @@ pytorch.ModelFactory = class {
                 this.data = data; this.requires_grad = requires_grad;
             };
             constructorTable['torch.nn.utils.spectral_norm.SpectralNorm'] = function () {};
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNormStateDictHook'] = function () {};
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook'] = function () {};
             constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function () {};
             constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
             constructorTable['torchvision.models.densenet.DenseNet'] = function () {};
