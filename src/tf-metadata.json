@@ -36234,7 +36234,7 @@
           "type": 7
         },
         {
-          "description": "The rewrite to be applied to the matched expresion.",
+          "description": "The rewrite to be applied to the matched expression.",
           "name": "rewrite",
           "type": 7
         }
@@ -56502,6 +56502,14 @@
         {
           "name": "element_dtype",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "shape",
+            "value": "?"
+          },
+          "name": "element_shape",
+          "type": "shape"
         }
       ],
       "description": "Requires that all tensors have the same shape except the first dimension.\n\ninput_handle: The input list.\ntensor: The concated result.\nlengths: Output tensor containing sizes of the 0th dimension of tensors in the list, used for computing the gradient.\n",
