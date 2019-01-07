@@ -190,6 +190,12 @@ hdf5.Reader = class {
         this._lengthSize = this.byte();
     }
 
+    int8() {
+        var value = this._dataView.getInt8(this._position + this._offset);
+        this._offset++;
+        return value;
+    }
+
     byte() {
         var value = this._dataView.getUint8(this._position + this._offset);
         this._offset++;
@@ -206,9 +212,21 @@ hdf5.Reader = class {
         return data;
     }
 
+    int16() {
+        var value = this._dataView.getInt16(this._position + this._offset, true);
+        this._offset += 2;
+        return value;
+    }
+
     uint16() {
         var value = this._dataView.getUint16(this._position + this._offset, true);
         this._offset += 2;
+        return value;
+    }
+
+    int32() {
+        var value = this._dataView.getInt32(this._position + this._offset, true);
+        this._offset += 4;
         return value;
     }
 
@@ -216,6 +234,16 @@ hdf5.Reader = class {
         var value = this._dataView.getUint32(this._position + this._offset, true);
         this._offset += 4;
         return value;
+    }
+
+    int64() {
+        var lo = this._dataView.getInt32(this._position + this._offset, true);
+        var hi = this._dataView.getUint32(this._position + this._offset + 4, true);
+        this._offset += 8;
+        if (hi != 0) {
+            throw new hdf5.Error('uint32 outside 32-bit range.');
+        }
+        return lo;
     }
 
     uint64() {
@@ -226,7 +254,7 @@ hdf5.Reader = class {
             return -1;
         } 
         if (hi != 0) {
-            throw new hdf5.Error('File address outside 32-bit range.');
+            throw new hdf5.Error('uint64 outside 32-bit range.');
         }
         return lo;
     }
@@ -506,6 +534,20 @@ hdf5.Datatype = class {
 
     readData(reader) {
         switch (this._class) {
+            case 0: // fixed-point
+                if (this._size == 1) {
+                    return ((this._flags & 0x8) != 0) ? reader.int8() : reader.byte();
+                }
+                else if (this._size == 2) {
+                    return ((this._flags & 0x8) != 0) ? reader.int16() : reader.uint16();
+                }
+                else if (this._size == 4) {
+                    return ((this._flags & 0x8) != 0) ? reader.int32() : reader.uint32();
+                }
+                else if (this._size == 8) {
+                    return ((this._flags & 0x8) != 0) ? reader.int64() : reader.uint64();
+                }
+                throw new hdf5.Error('Unsupported fixed-point datatype.');
             case 1: // floating-point
                 if (this._size == 2 && this._flags == 0x0f20) {
                     return reader.float16();
@@ -539,6 +581,8 @@ hdf5.Datatype = class {
 
     decodeData(data, globalHeap) {
         switch (this._class) {
+            case 0: // fixed-point
+                return data;
             case 1: // floating-point
                 return data;            
             case 3: // string
