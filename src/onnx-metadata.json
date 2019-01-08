@@ -2550,111 +2550,11 @@
     }
   },
   {
-    "name": "ConstantLike",
-    "schema": {
-      "attributes": [
-        {
-          "description": "(Optional) The data type for the elements of the output tensor. If not specified,the data type of the input tensor T1 is used. If input tensor T1 is also not specified, then output tensor type defaults to 'float'.",
-          "name": "dtype",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "(Optional) The shape of the output tensor. If input tensor T1 is provided, then 'shape' attribute is ignored and the output follows the shape of the input. One of either input tensor T1 or 'shape' attribute must be provided.",
-          "name": "shape",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "(Optional) The value for the elements of the output tensor.",
-          "name": "value",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "description": "Generate a tensor with specific constant value. The value can be specified by the 'value'\nattribute. The shape of the output tensor is the same as the input tensor, if the input\ntensor is provided, or the shape provided in the 'shape' attribute (if both are provided,\nthe input tensor shape takes precendence). The data type can be specified by the 'dtype'\nargument. If 'dtype' is not specified, then the type of input tensor is used. If input\ntensor is also not specified, then the type defaults to 'float'.\n\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
-      "domain": "ai.onnx",
-      "examples": [
-        {
-          "code": "shape = (4, 3, 2)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    inputs=['x'],\n    outputs=['y'],\n    value=1.0,\n)\nx = np.random.randint(0, 100, size=shape, dtype=np.int32)\ny = np.ones(shape, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y], name='test_constantlike_ones_with_input')",
-          "summary": "ones_with_input"
-        },
-        {
-          "code": "shape = (3, 4)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    shape=shape,\n    inputs=[],\n    outputs=['y'],\n    value=3.0,\n    dtype=onnx.TensorProto.DOUBLE,  # 11: DOUBLE\n)\n\ny = 3.0 * np.ones(shape, dtype=np.float64)\nexpect(node, inputs=[], outputs=[y], name='test_constantlike_threes_with_shape_and_dtype')",
-          "summary": "threes_with_shape_and_dtype"
-        },
-        {
-          "code": "shape = (2, 5, 1)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    inputs=[],\n    outputs=['y'],\n    shape=shape,\n)\ny = np.zeros(shape, dtype=np.float32)\nexpect(node, inputs=[], outputs=[y], name='test_constantlike_zeros_without_input_dtype')",
-          "summary": "zeros_without_input_dtype"
-        }
-      ],
-      "inputs": [
-        {
-          "description": "Input tensor to copy shape, and optionally, type information from. One of either input tensor T1 or 'shape' attribute must be provided.",
-          "name": "input",
-          "option": "optional",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 0,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Output tensor, same shape as input tensor T1.",
-          "name": "output",
-          "type": "T2"
-        }
-      ],
-      "since_version": 9,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int8)",
-            "tensor(int16)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)",
-            "tensor(bool)"
-          ],
-          "description": "Constrain input types. Strings and complex are not supported.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int8)",
-            "tensor(int16)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)",
-            "tensor(bool)"
-          ],
-          "description": "Constrain output types. Strings and complex are not supported.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
     "name": "ConstantOfShape",
     "schema": {
       "attributes": [
         {
-          "description": "(Optional) The value of the output elements.Should be a one-element tensor. ",
+          "description": "(Optional) The value of the output elements.Should be a one-element tensor. If not specified, it defaults to a tensor of value 0 and datatype float32",
           "name": "value",
           "required": false,
           "type": "tensor"
@@ -2674,7 +2574,7 @@
       ],
       "inputs": [
         {
-          "description": "1D tensor, The shape of the expected output tensor. If empty tensor is given, the output would be a scalar.",
+          "description": "1D tensor. The shape of the expected output tensor. If empty tensor is given, the output would be a scalar.",
           "name": "input",
           "type": "T1"
         }
@@ -2685,7 +2585,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor, using input as shape.If attribute 'value' exist, all value and datatype of output tensor equal to 'value'.Else, all value equal to 0, and datatype default to float32",
+          "description": "Output tensor of shape specified by 'input'.If attribute 'value' is specified, the value and datatype of the output tensor is taken from 'value'.If attribute 'value' is not specified, the value in the output defaults to 0, and the datatype defaults to float32.",
           "name": "output",
           "type": "T2"
         }
@@ -2695,10 +2595,8 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)"
+            "tensor(int32)",
+            "tensor(int64)"
           ],
           "description": "Constrain input types. Shape must be unsigned integers.",
           "type_param_str": "T1"
