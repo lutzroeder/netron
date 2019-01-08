@@ -342,8 +342,16 @@ pytorch.ModelFactory = class {
                 }
                 var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                 switch (dtype.name) {
+                    case 'float32':
+                        return dataView.getFloat32(0, true);
                     case 'float64':
                         return dataView.getFloat64(0, true);
+                    case 'int8':
+                        return dataView.getInt8(0, true);
+                    case 'int16':
+                        return dataView.getInt16(0, true);
+                    case 'int32':
+                        return dataView.getInt32(0, true);
                     case 'int64':
                         return new base.Int64(data.subarray(0, dtype.itemsize));
                 }
