@@ -32,8 +32,15 @@ onnx.ModelFactory = class {
                 return false;
             }
             // check ir_version and graph present
-            if (!tags.hasOwnProperty(1) || tags[1] != 0 ||
-                !tags.hasOwnProperty(7) || tags[7] != 2) {
+            if ( tags.hasOwnProperty(1) && tags[1] != 0 ||
+                 tags.hasOwnProperty(2) && tags[2] != 2 ||
+                 tags.hasOwnProperty(3) && tags[3] != 2 ||
+                 tags.hasOwnProperty(4) && tags[4] != 2 ||
+                 tags.hasOwnProperty(5) && tags[5] != 0 ||
+                 tags.hasOwnProperty(6) && tags[6] != 2 ||
+                 tags.hasOwnProperty(8) && tags[8] != 2 ||
+                 tags.hasOwnProperty(14) && tags[14] != 2 ||
+                (!tags.hasOwnProperty(7) || tags[7] != 2)) {
                 return false;
             }
             return true;

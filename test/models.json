@@ -2227,6 +2227,13 @@
   },
   {
     "type":   "onnx",
+    "target": "conv_autopad.pb",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/conv_autopad.pb",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
     "target": "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
     "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format": "ONNX v3",
@@ -2304,6 +2311,20 @@
   },
   {
     "type":   "onnx",
+    "target": "fuse_add_1.pb",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/fuse_add_1.pb",
+    "format": "ONNX v0",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
+    "target": "gru_1.pb",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/gru_1.pb",
+    "format": "ONNX v0",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
     "target": "input_0.pb",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/test_data_set_0/input_0.pb]",
     "error":  "Unsupported file content for extension '.pb' in 'input_0.pb'.",
@@ -2345,6 +2366,20 @@
   },
   {
     "type":   "onnx",
+    "target": "LabelEncoder.pb",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/LabelEncoder.pb",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
+    "target": "lstm_1.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/lstm_1.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
     "target": "mnist.onnx",
     "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
     "format": "ONNX v3",
@@ -2354,6 +2389,20 @@
     "type":   "onnx",
     "target": "mnist_opset_9.onnx",
     "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/mnist/mnist.tar.gz[mnist/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "mlnet_encoder.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/mlnet_encoder.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
+    "target": "optional_1.pb",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/optional_1.pb",
+    "format": "ONNX v0",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
   {
     "type":   "onnx",
@@ -2453,6 +2502,20 @@
   },
   {
     "type":   "onnx",
+    "target": "test_LSTM_tanh_bidirectional.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/CNTK/test_LSTM.tanh.bidirectional//model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
+    "target": "test_RNN_bidirectional_one_layer_relu.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/CNTK/test_RNN.bidirectional.one_layer.relu//model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
     "target": "test_lstm_with_peepholes.onnx",
     "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/node/test_lstm_with_peepholes/model.onnx",
     "format": "ONNX v3",
@@ -2501,6 +2564,13 @@
     "type":   "onnx",
     "target": "zfnet512_opset_9.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]"
+  },
+  {
+    "type":   "onnx",
+    "target": "zipmap_int64float.pb",
+    "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/zipmap_int64float.pb",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
   {
     "type":   "openvino",
