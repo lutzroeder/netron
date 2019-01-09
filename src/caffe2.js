@@ -580,7 +580,7 @@ caffe2.Tensor = class {
                 context.data = this._values.ints;
                 break;
             case 'int8':
-                context.data = this._values.s;
+                context.data = new Int8Array(this._values.s);
                 break;
             case 'int32':
                 context.data = this._values.ints;
