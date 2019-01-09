@@ -147,6 +147,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.rnn.GRUCell'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTMCell'] = function () {};
+            constructorTable['torch.nn.modules.rnn.RNN'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
             constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 

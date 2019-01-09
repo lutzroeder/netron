@@ -621,6 +621,13 @@
     }
   },
   {
+    "name": "RNN",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
     "name": "Embedding",
     "schema": {
       "attributes": [
