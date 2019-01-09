@@ -9699,11 +9699,18 @@
         {
           "allowedValues": [
             "SAME",
-            "VALID"
+            "VALID",
+            "EXPLICIT"
           ],
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+          "name": "explicit_paddings",
+          "type": "list(int)"
         },
         {
           "allowedValues": [
@@ -9790,11 +9797,18 @@
         {
           "allowedValues": [
             "SAME",
-            "VALID"
+            "VALID",
+            "EXPLICIT"
           ],
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+          "name": "explicit_paddings",
+          "type": "list(int)"
         },
         {
           "allowedValues": [
@@ -9884,11 +9898,18 @@
         {
           "allowedValues": [
             "SAME",
-            "VALID"
+            "VALID",
+            "EXPLICIT"
           ],
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+          "name": "explicit_paddings",
+          "type": "list(int)"
         },
         {
           "allowedValues": [
@@ -58892,7 +58913,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "A tensor whose shape is a prefix of `data.shape`.END\n  }\n  out_arg {\n    name: \"output\"\n    description: <<END\nHas same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
+          "description": "A tensor whose shape is a prefix of `data.shape`.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         },
@@ -58903,6 +58924,7 @@
       ],
       "outputs": [
         {
+          "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
           "name": "output",
           "typeAttr": "T"
         }
