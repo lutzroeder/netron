@@ -190,6 +190,12 @@ tflite.Node = class {
             }
             this._attributes = [];
             var optionsTypeName = this._operator + 'Options';
+            switch (this._operator) {
+                case 'MaxPool2D':
+                case 'AveragePool2D':
+                    optionsTypeName = 'Pool2DOptions';
+                    break;
+            }
             var optionsType = tflite.Node._getType(optionsTypeName);
             if (typeof optionsType === 'function') {
                 var options = Reflect.construct(optionsType, []);
