@@ -2778,7 +2778,7 @@
         }
       ],
       "category": "Layer",
-      "description": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output. \n\nIf the pads parameter is provided the shape of the output is calculated via the following equation:\n\n  output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - pads[start_i] - pads[end_i]\n\noutput_shape can also be explicitly specified in which case pads values are auto generated using these equations:\n\n  total_padding[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - output_shape[i]\n  If (auto_pads != SAME_UPPER): pads[start_i] = total_padding[i]/2; pads[end_i] = total_padding[i] - (total_padding[i]/2)\n  Else: pads[start_i] = total_padding[i] - (total_padding[i]/2); pads[end_i] = (total_padding[i]/2).\n\n    ",
+      "description": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output.\n\nIf the pads parameter is provided the shape of the output is calculated via the following equation:\n\n  output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - pads[start_i] - pads[end_i]\n\noutput_shape can also be explicitly specified in which case pads values are auto generated using these equations:\n\n  total_padding[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - output_shape[i]\n  If (auto_pads != SAME_UPPER): pads[start_i] = total_padding[i]/2; pads[end_i] = total_padding[i] - (total_padding[i]/2)\n  Else: pads[start_i] = total_padding[i] - (total_padding[i]/2); pads[end_i] = (total_padding[i]/2).\n\n    ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7709,13 +7709,15 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "A maximum trip-count for the loop specified at runtime. Optional. pass empty string to skip.",
+          "description": "A maximum trip-count for the loop specified at runtime. Optional. Pass empty string to skip.",
           "name": "M",
+          "option": "optional",
           "type": "I"
         },
         {
-          "description": "A boolean termination condition. Pass empty string to skip.",
+          "description": "A boolean termination condition. Optional. Pass empty string to skip.",
           "name": "cond",
+          "option": "optional",
           "type": "B"
         },
         {
@@ -7763,16 +7765,16 @@
         },
         {
           "allowed_type_strs": [
-            "int64"
+            "tensor(int64)"
           ],
-          "description": "Only int64",
+          "description": "tensor of int64, which should be a scalar.",
           "type_param_str": "I"
         },
         {
           "allowed_type_strs": [
-            "bool"
+            "tensor(bool)"
           ],
-          "description": "Only bool",
+          "description": "tensor of bool, which should be a scalar.",
           "type_param_str": "B"
         }
       ]
@@ -12643,6 +12645,77 @@
           ],
           "description": "Constrain output to int64 tensor.",
           "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Shrink",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The bias value added to output. Default is 0.",
+          "name": "bias",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": 0.5,
+          "description": "The lambd value for the Shrink formulation. Default is 0.5.",
+          "name": "lambd",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "description": "Shrink takes one input data (Tensor<numeric>) and produces one Tensor output,\nhaving same datatype and shape with input. It has two attributes, lambd and\nbias. The formula of this operator is: If x < -lambd, y = x + bias;\nIf x > lambd, y = x - bias; Otherwise, y = 0.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Shrink',\n    inputs=['x'],\n    outputs=['y'],\n    lambd=1.5,\n)\nX = np.arange(-2.0, 2.1, dtype=np.float32)\nY = np.array([-2, 0, 0, 0, 2], dtype=np.float32)\nexpect(node, inputs=[X], outputs=[Y],\n       name='test_shrink_hard')",
+          "summary": "hard_shrink"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Shrink',\n    inputs=['x'],\n    outputs=['y'],\n    lambd=1.5,\n    bias=1.5,\n)\nX = np.arange(-2.0, 2.1, dtype=np.float32)\nY = np.array([-0.5, 0, 0, 0, 0.5], dtype=np.float32)\nexpect(node, inputs=[X], outputs=[Y],\n       name='test_shrink_soft')",
+          "summary": "soft_shrink"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The input data as Tensor.",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The output.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrains input to only numeric types.",
+          "type_param_str": "T"
         }
       ]
     }
