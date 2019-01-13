@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 var keras = keras || {};
+var base = base || require('./base');
 var marked = marked || require('marked');
 
 keras.ModelFactory = class {

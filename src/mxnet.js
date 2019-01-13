@@ -2,7 +2,7 @@
 
 var mxnet = mxnet || {};
 var marked = marked || require('marked');
-var base = base || require('./base');
+var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 
 mxnet.ModelFactory = class {
@@ -858,7 +858,7 @@ mxnet.Tensor = class {
                         context.count++;
                         break;
                     case 6: // int64
-                        results.push(new base.Int64(context.data.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
                         break;

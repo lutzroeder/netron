@@ -2,7 +2,7 @@
 
 var view = view || {};
 
-var base = base || require('./base');
+var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
@@ -950,10 +950,10 @@ view.View = class {
         if (typeof value === 'string' && type && type != 'string') {
             return value;
         }
-        if (value && value.__isLong__) {
+        if (value && long.Long.isLong(value)) {
             return value.toString();
         }
-        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
+        if (value && long.Long.isLong(value)) {
             return value.toString();
         }
         if (Number.isNaN(value)) {
@@ -976,7 +976,7 @@ view.View = class {
         }
         if (Array.isArray(value)) {
             return value.map((item) => {
-                if (item && item.__isLong__) {
+                if (item && long.Long.isLong(item)) {
                     return item.toString();
                 }
                 if (Number.isNaN(item)) {

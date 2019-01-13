@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 var caffe = caffe || {};
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var marked = marked || require('marked');
 
@@ -752,7 +753,7 @@ caffe.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions.map((dimension) => {
-            if (dimension && dimension.__isLong__) {
+            if (dimension && long.Long.isLong(dimension)) {
                 return dimension.toNumber();
             }
             return dimension;

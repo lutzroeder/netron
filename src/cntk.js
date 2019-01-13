@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 var cntk = cntk || {};
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 
 var cntk_v1 = {};
@@ -745,7 +746,7 @@ cntk.TensorType = class {
                 this._shape = new cntk.TensorShape(version, shape);
                 break;
             case 2:
-                if (dataType.__isLong__) {
+                if (long.Long.isLong(dataType)) {
                     dataType = dataType.toNumber(); 
                 }
                 switch (dataType) {
@@ -781,7 +782,7 @@ cntk.TensorShape = class {
                     if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
                         return -1;
                     }
-                    if (dimension && dimension.__isLong__) {
+                    if (dimension && long.Long.isLong(dimension)) {
                         return dimension.toNumber();
                     }
                     return dimension;            

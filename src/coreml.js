@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
 var coreml = coreml || {};
+var base = base || require('./base');
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var marked = marked || require('marked');
 
@@ -735,7 +737,7 @@ coreml.Attribute = class {
             else if (schema.hasOwnProperty('default')) {
                 if (Array.isArray(value)) {
                     value = value.map((item) => {
-                        if (item && item.__isLong__) {
+                        if (item && long.Long.isLong(item)) {
                             return item.toNumber();
                         }
                         return item;

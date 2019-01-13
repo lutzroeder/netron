@@ -1,9 +1,10 @@
 /*jshint esversion: 6 */
 
 var onnx = onnx || {};
+var base = base || require('./base');
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var marked = marked || require('marked');
-var base = base || require('./base');
 
 onnx.ModelFactory = class {
 
@@ -778,7 +779,7 @@ onnx.Tensor = class {
                     context.data = this._tensor.uint64_data;
                 }
                 else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = this._tensor.raw_data;
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -789,7 +790,7 @@ onnx.Tensor = class {
                     context.data = this._tensor.int64_data;
                 }
                 else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = this._tensor.raw_data;
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -800,7 +801,7 @@ onnx.Tensor = class {
                     context.data = this._tensor.uint64_data;
                 }
                 else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = this._tensor.raw_data;
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -880,12 +881,12 @@ onnx.Tensor = class {
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT64:
-                            results.push(new base.Int64(context.rawData.subarray(context.index, context.index + 8)));
+                            results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                             context.index += 8;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT64:
-                            results.push(new base.Uint64(context.rawData.subarray(context.index, context.index + 8)));
+                            results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                             context.index += 8;
                             context.count++;
                             break;

@@ -4,6 +4,7 @@
 
 var pytorch = pytorch || {};
 var base = base || require('./base');
+var long = long || { Long: require('long') };
 var tar = tar || require('./tar');
 
 pytorch.ModelFactory = class {
@@ -234,6 +235,10 @@ pytorch.ModelFactory = class {
                             this.itemsize = Number(obj.substring(1));
                             this.name = 'string';
                         }
+                        else if (obj.startsWith('U')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'string';
+                        }
                         else {
                             throw new pytorch.Error("Unknown dtype '" + obj.toString() + "'.");
                         }
@@ -354,7 +359,7 @@ pytorch.ModelFactory = class {
                     case 'int32':
                         return dataView.getInt32(0, true);
                     case 'int64':
-                        return new base.Int64(data.subarray(0, dtype.itemsize));
+                        return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), true);
                 }
                 throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
             };
@@ -914,7 +919,7 @@ pytorch.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new base.Int64(context.data.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.dataView.getUint32(context.index, true), context.dataView.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
                         break;
@@ -962,7 +967,7 @@ pytorch.Tensor = class {
             result.push(indentation + ']');
             return result.join('\n');
         }
-        if (value instanceof base.Int64 || value instanceof base.Uint64) {
+        if (value && long.Long.isLong(value)) {
             return indentation + value.toString();
         }
         if (typeof value == 'string') {

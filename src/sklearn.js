@@ -3,8 +3,8 @@
 // Experimental
 
 var sklearn = sklearn || {};
+var long = long || { Long: require('long') };
 var marked = marked || require('marked');
-var base = base || require('./base');
 
 sklearn.ModelFactory = class {
 
@@ -58,6 +58,10 @@ sklearn.ModelFactory = class {
                                 this.name = 'object';
                             }
                             else if (obj.startsWith('S')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'string';
+                            }
+                            else if (obj.startsWith('U')) {
                                 this.itemsize = Number(obj.substring(1));
                                 this.name = 'string';
                             }
@@ -226,10 +230,18 @@ sklearn.ModelFactory = class {
                     }
                     var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.name) {
+                        case 'float32':
+                            return dataView.getFloat32(0, true);
                         case 'float64':
                             return dataView.getFloat64(0, true);
+                        case 'int8':
+                            return dataView.getInt8(0, true);
+                        case 'int16':
+                            return dataView.getInt16(0, true);
+                        case 'int32':
+                            return dataView.getInt32(0, true);
                         case 'int64':
-                            return new base.Int64(data.subarray(0, dtype.itemsize));
+                            return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), true);
                     }
                     throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
                 };
@@ -689,11 +701,9 @@ sklearn.Tensor = class {
             case 'float64':
             case 'int32':
             case 'uint32':
-                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
             case 'int64':
             case 'uint64':
-                context.rawData = this._data;
+                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 break;
             default:
                 context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
@@ -735,12 +745,12 @@ sklearn.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new base.Int64(context.rawData.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'uint64':
-                        results.push(new base.Uint64(context.rawData.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), false));
                         context.index += 8;
                         context.count++;
                         break;

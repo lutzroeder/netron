@@ -3,6 +3,7 @@
 // Experimental
 
 var tf = tf || {};
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var marked = marked || require('marked');
 
@@ -215,7 +216,7 @@ tf.Graph = class {
                 this._version = 'v' + graph.versions.producer.toString();
             }
             else if (graph.version) {
-                debugger;
+                this._version = graph.version;
             }
             else if (metaGraph.meta_info_def && metaGraph.meta_info_def.tensorflow_version) {
                 this._version = metaGraph.meta_info_def.tensorflow_version;
@@ -1220,7 +1221,7 @@ tf.GraphMetadata = class {
         if (value == null) {
             return null;
         }
-        if (value && value.__isLong__) {
+        if (value && long.Long.isLong(value)) {
             value = value.toNumber();
         }
         if (Array.isArray(value)) {

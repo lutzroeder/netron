@@ -526,7 +526,7 @@ if (typeof TextEncoder === "undefined") {
         }
     };
     TextEncoder.prototype.toString = function() { 
-        return "[object TextEncoder]"
+        return "[object TextEncoder]";
     };
     try {
         Object.defineProperty(TextEncoder.prototype,"encoding", {
