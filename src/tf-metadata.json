@@ -8989,6 +8989,11 @@
         {
           "name": "subdiv_offsets",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "wait_for",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -22196,6 +22201,68 @@
     }
   },
   {
+    "name": "KMC2ChainInitialization",
+    "schema": {
+      "description": "Entries in distances are assumed to be squared distances of candidate points to\nthe already sampled centers in the seed set. The op constructs one Markov chain\nof the k-MC^2 algorithm and returns the index of one candidate point to be added\nas an additional cluster center.",
+      "inputs": [
+        {
+          "description": "Vector with squared distances to the closest previously sampled cluster center\nfor each candidate point.",
+          "name": "distances",
+          "type": 1
+        },
+        {
+          "description": "Scalar. Seed for initializing the random number generator.",
+          "name": "seed",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Scalar with the index of the sampled point.",
+          "name": "index",
+          "type": 9
+        }
+      ],
+      "summary": "Returns the index of a data point that should be added to the seed set."
+    }
+  },
+  {
+    "name": "KmeansPlusPlusInitialization",
+    "schema": {
+      "description": "Rows of points are assumed to be input points. One row is selected at random.\nSubsequent rows are sampled with probability proportional to the squared L2\ndistance from the nearest row selected thus far till num_to_sample rows have\nbeen sampled.",
+      "inputs": [
+        {
+          "description": "Matrix of shape (n, d). Rows are assumed to be input points.",
+          "name": "points",
+          "type": 1
+        },
+        {
+          "description": "Scalar. The number of rows to sample. This value must not be larger than n.",
+          "name": "num_to_sample",
+          "type": 9
+        },
+        {
+          "description": "Scalar. Seed for initializing the random number generator.",
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "description": "Scalar. For each row that is sampled, this parameter\nspecifies the number of additional points to draw from the current\ndistribution before selecting the best. If a negative value is specified, a\nheuristic is used to sample O(log(num_to_sample)) additional points.",
+          "name": "num_retries_per_sample",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Matrix of shape (num_to_sample, d). The sampled rows.",
+          "name": "samples",
+          "type": 1
+        }
+      ],
+      "summary": "Selects num_to_sample rows of input using the KMeans++ criterion."
+    }
+  },
+  {
     "name": "L2Loss",
     "schema": {
       "attributes": [
@@ -28066,6 +28133,42 @@
         }
       ],
       "summary": "Reduces `input` from `num_devices` using `reduction` to a single device."
+    }
+  },
+  {
+    "name": "NearestNeighbors",
+    "schema": {
+      "description": "Rows of points are assumed to be input points. Rows of centers are assumed to be\nthe list of candidate centers. For each point, the k centers that have least L2\ndistance to it are computed.",
+      "inputs": [
+        {
+          "description": "Matrix of shape (n, d). Rows are assumed to be input points.",
+          "name": "points",
+          "type": 1
+        },
+        {
+          "description": "Matrix of shape (m, d). Rows are assumed to be centers.",
+          "name": "centers",
+          "type": 1
+        },
+        {
+          "description": "Number of nearest centers to return for each point. If k is larger than m, then\nonly m centers are returned.",
+          "name": "k",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Matrix of shape (n, min(m, k)). Each row contains the indices of the centers\nclosest to the corresponding point, ordered by increasing distance.",
+          "name": "nearest_center_indices",
+          "type": 9
+        },
+        {
+          "description": "Matrix of shape (n, min(m, k)). Each row contains the squared L2 distance to the\ncorresponding center in nearest_center_indices.",
+          "name": "nearest_center_distances",
+          "type": 1
+        }
+      ],
+      "summary": "Selects the k nearest centers for each point."
     }
   },
   {
@@ -59728,6 +59831,11 @@
           "default": [],
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": 10,
+          "name": "parallel_iterations",
+          "type": "int"
         }
       ],
       "inputs": [
