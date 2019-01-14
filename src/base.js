@@ -64,3 +64,25 @@ if (!DataView.prototype.setFloat16) {
         }
     }
 }
+
+if (!DataView.prototype.getBits) {
+    DataView.prototype.getBits = function(offset, bits, signed) {
+        offset = offset * bits;
+        var available = (this.byteLength << 3) - offset;
+        if (bits > available) {
+            throw new RangeError();
+        }
+        var value = 0;
+        var index = 0;
+        while (index < bits) {
+            var remainder = offset & 7;
+            var size = Math.min(bits - index, 8 - remainder);
+			value <<= size;
+			value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
+            offset += size;
+            index += size;
+        }
+        return value;
+    };
+}
+

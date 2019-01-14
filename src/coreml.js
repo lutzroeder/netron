@@ -483,6 +483,13 @@ coreml.Connection = class {
         return this._description;
     }
 
+    get quantization() {
+        if (this._initializer) {
+            return this._initializer.quantization;
+        }
+        return null;
+    }
+
     get initializer() {
         return this._initializer;
     }
@@ -568,12 +575,7 @@ coreml.Node = class {
                 return new coreml.Connection(connection.id, connection.type, null, null);
             }));
         });
-        this._initializers.forEach((initializer) => {
-            var connection = new coreml.Connection(null, null, null, initializer);
-            var visible = this._metadata.getInputVisible(this._operator, initializer.name);
-            inputs.push(new coreml.Argument(initializer.name, visible, [ connection ]));
-        });
-        return inputs;
+        return inputs.concat(this._initializers);
     }
 
     get outputs() {
@@ -595,64 +597,64 @@ coreml.Node = class {
                     weightsShape[0] = data.kernelChannels;
                     weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
                 }    
-                this._initializers.push(new coreml.Tensor('Weights', 'weights', weightsShape, data.weights));
+                this._initializer('Weights', 'weights', weightsShape, data.weights);
                 if (data.hasBias) {
-                    this._initializers.push(new coreml.Tensor('Weights', 'bias', [ data.outputChannels ], data.bias));
+                    this._initializer('Weights', 'bias', [ data.outputChannels ], data.bias);
                 }
 
                 return { 'weights': true, 'bias': data.hasBias };
             case 'innerProduct':
-                this._initializers.push(new coreml.Tensor('Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights));
+                this._initializer('Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights);
                 if (data.hasBias) {
-                    this._initializers.push(new coreml.Tensor('Weights', 'bias', [ data.outputChannels ], data.bias));
+                    this._initializer('Weights', 'bias', [ data.outputChannels ], data.bias);
                 }
                 return { 'weights': true, 'bias': data.hasBias };
             case 'batchnorm':
-                this._initializers.push(new coreml.Tensor('Weights', 'gamma', [ data.channels ], data.gamma));
-                this._initializers.push(new coreml.Tensor('Weights', 'beta', [ data.channels ], data.beta));
+                this._initializer('Weights', 'gamma', [ data.channels ], data.gamma);
+                this._initializer('Weights', 'beta', [ data.channels ], data.beta);
                 if (data.mean) {
-                    this._initializers.push(new coreml.Tensor('Weights', 'mean', [ data.channels ], data.mean));
+                    this._initializer('Weights', 'mean', [ data.channels ], data.mean);
                 }
                 if (data.variance) {
-                    this._initializers.push(new coreml.Tensor('Weights', 'variance', [ data.channels ], data.variance));
+                    this._initializer('Weights', 'variance', [ data.channels ], data.variance);
                 }
                 return { 'gamma': true, 'beta': true, 'mean': true, 'variance': true };
             case 'embedding':
-                this._initializers.push(new coreml.Tensor('Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights));
+                this._initializer('Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights);
                 return { 'weights': true };
             case 'loadConstant':    
-                this._initializers.push(new coreml.Tensor('Weights', 'data', data.shape, data.data));            
+                this._initializer('Weights', 'data', data.shape, data.data);
                 return { 'data': true };
             case 'scale':
-                this._initializers.push(new coreml.Tensor('Weights', 'scale', data.shapeScale, data.scale));
+                this._initializer('Weights', 'scale', data.shapeScale, data.scale);
                 if (data.hasBias) {
-                    this._initializers.push(new coreml.Tensor('Weights', 'bias', data.shapeBias, data.bias));
+                    this._initializer('Weights', 'bias', data.shapeBias, data.bias);
                 }
                 return { 'scale': true, 'bias': data.hasBias };
             case 'bias':
-                this._initializers.push(new coreml.Tensor('Weights', 'bias', data.shapeBias, data.bias));
+                this._initializer('Weights', 'bias', data.shapeBias, data.bias);
                 return { 'bias': true };
             case 'simpleRecurrent':
-                this._initializers.push(new coreml.Tensor('Weights', 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix));
-                this._initializers.push(new coreml.Tensor('Weights', 'recurrent', [ data.outputVectorSize, data.inputVectorSize ], data.recursionMatrix));
+                this._initializer('Weights', 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix);
+                this._initializer('Weights', 'recurrent', [ data.outputVectorSize, data.inputVectorSize ], data.recursionMatrix);
                 if (data.hasBiasVectors) {
-                    this._initializers.push(new coreml.Tensor('Weights', 'bias', [ data.outputVectorSize ], data.biasVector));
+                    this._initializer('Weights', 'bias', [ data.outputVectorSize ], data.biasVector);
                 }
                 return { 'weightMatrix': true, 'recursionMatrix': true, 'biasVector': data.hasBiasVectors };
             case 'gru':
                 var recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
                 var weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
                 var biasVectorShape = [ data.outputVectorSize ];
-                this._initializers.push(new coreml.Tensor('Weights', 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix));
-                this._initializers.push(new coreml.Tensor('Weights', 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix));
-                this._initializers.push(new coreml.Tensor('Weights', 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix));
-                this._initializers.push(new coreml.Tensor('Weights', 'updateGateRecursionMatrix', recursionMatrixShape, data.updateGateRecursionMatrix));
-                this._initializers.push(new coreml.Tensor('Weights', 'resetGateRecursionMatrix', recursionMatrixShape, data.resetGateRecursionMatrix));
-                this._initializers.push(new coreml.Tensor('Weights', 'outputGateRecursionMatrix', recursionMatrixShape, data.outputGateRecursionMatrix));
+                this._initializer('Weights', 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix);
+                this._initializer('Weights', 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix);
+                this._initializer('Weights', 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix);
+                this._initializer('Weights', 'updateGateRecursionMatrix', recursionMatrixShape, data.updateGateRecursionMatrix);
+                this._initializer('Weights', 'resetGateRecursionMatrix', recursionMatrixShape, data.resetGateRecursionMatrix);
+                this._initializer('Weights', 'outputGateRecursionMatrix', recursionMatrixShape, data.outputGateRecursionMatrix);
                 if (data.hasBiasVectors) {
-                    this._initializers.push(new coreml.Tensor('Weights', 'updateGateBiasVector', biasVectorShape, data.updateGateBiasVector));
-                    this._initializers.push(new coreml.Tensor('Weights', 'resetGateBiasVector', biasVectorShape, data.resetGateBiasVector));
-                    this._initializers.push(new coreml.Tensor('Weights', 'outputGateBiasVector', biasVectorShape, data.outputGateBiasVector));
+                    this._initializer('Weights', 'updateGateBiasVector', biasVectorShape, data.updateGateBiasVector);
+                    this._initializer('Weights', 'resetGateBiasVector', biasVectorShape, data.resetGateBiasVector);
+                    this._initializer('Weights', 'outputGateBiasVector', biasVectorShape, data.outputGateBiasVector);
                 }  
                 return {
                     'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true, 
@@ -666,24 +668,24 @@ coreml.Node = class {
                 for (var i = 0; i < count; i++) {
                     var weights = count == 1 ? data.weightParams : data.weightParams[i];
                     var suffix = (i == 0) ? '' : '_rev';
-                    this._initializers.push(new coreml.Tensor('Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix));
-                    this._initializers.push(new coreml.Tensor('Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix));
-                    this._initializers.push(new coreml.Tensor('Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix));
-                    this._initializers.push(new coreml.Tensor('Weights', 'outputGateWeightMatrix' + suffix, matrixShape, weights.outputGateWeightMatrix));
-                    this._initializers.push(new coreml.Tensor('Weights', 'inputGateRecursionMatrix' + suffix, matrixShape, weights.inputGateRecursionMatrix));
-                    this._initializers.push(new coreml.Tensor('Weights', 'forgetGateRecursionMatrix' + suffix, matrixShape,weights.forgetGateRecursionMatrix));
-                    this._initializers.push(new coreml.Tensor('Weights', 'blockInputRecursionMatrix' + suffix, matrixShape, weights.blockInputRecursionMatrix));
-                    this._initializers.push(new coreml.Tensor('Weights', 'outputGateRecursionMatrix' + suffix, matrixShape, weights.outputGateRecursionMatrix));
+                    this._initializer('Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix);
+                    this._initializer('Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix);
+                    this._initializer('Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix);
+                    this._initializer('Weights', 'outputGateWeightMatrix' + suffix, matrixShape, weights.outputGateWeightMatrix);
+                    this._initializer('Weights', 'inputGateRecursionMatrix' + suffix, matrixShape, weights.inputGateRecursionMatrix);
+                    this._initializer('Weights', 'forgetGateRecursionMatrix' + suffix, matrixShape,weights.forgetGateRecursionMatrix);
+                    this._initializer('Weights', 'blockInputRecursionMatrix' + suffix, matrixShape, weights.blockInputRecursionMatrix);
+                    this._initializer('Weights', 'outputGateRecursionMatrix' + suffix, matrixShape, weights.outputGateRecursionMatrix);
                     if (data.params.hasBiasVectors) {
-                        this._initializers.push(new coreml.Tensor('Weights', 'inputGateBiasVector' + suffix, vectorShape, weights.inputGateBiasVector));
-                        this._initializers.push(new coreml.Tensor('Weights', 'forgetGateBiasVector' + suffix, vectorShape, weights.forgetGateBiasVector));
-                        this._initializers.push(new coreml.Tensor('Weights', 'blockInputBiasVector' + suffix, vectorShape, weights.blockInputBiasVector));
-                        this._initializers.push(new coreml.Tensor('Weights', 'outputGateBiasVector' + suffix, vectorShape, weights.outputGateBiasVector));
+                        this._initializer('Weights', 'inputGateBiasVector' + suffix, vectorShape, weights.inputGateBiasVector);
+                        this._initializer('Weights', 'forgetGateBiasVector' + suffix, vectorShape, weights.forgetGateBiasVector);
+                        this._initializer('Weights', 'blockInputBiasVector' + suffix, vectorShape, weights.blockInputBiasVector);
+                        this._initializer('Weights', 'outputGateBiasVector' + suffix, vectorShape, weights.outputGateBiasVector);
                     }
                     if (data.params.hasPeepholeVectors) {
-                        this._initializers.push(new coreml.Tensor('Weights', 'inputGatePeepholeVector' + suffix, vectorShape, weights.inputGatePeepholeVector));
-                        this._initializers.push(new coreml.Tensor('Weights', 'forgetGatePeepholeVector' + suffix, vectorShape, weights.forgetGatePeepholeVector));
-                        this._initializers.push(new coreml.Tensor('Weights', 'outputGatePeepholeVector' + suffix, vectorShape, weights.outputGatePeepholeVector));
+                        this._initializer('Weights', 'inputGatePeepholeVector' + suffix, vectorShape, weights.inputGatePeepholeVector);
+                        this._initializer('Weights', 'forgetGatePeepholeVector' + suffix, vectorShape, weights.forgetGatePeepholeVector);
+                        this._initializer('Weights', 'outputGatePeepholeVector' + suffix, vectorShape, weights.outputGatePeepholeVector);
                     }
                 }
                 return { 'weightParams': true };
@@ -708,6 +710,17 @@ coreml.Node = class {
         }
         return value;
     }
+
+    _initializer(kind, name, shape, data) {
+        var initializer = new coreml.Tensor(kind, name, shape, data);
+        var connection = new coreml.Connection(null, null, null, initializer);
+        var visible = true;
+        var schema = this._metadata.getInputSchema(this._operator, name);
+        if (schema && schema.hasOwnProperty('visible') && !schema.visible) {
+            visible = false;
+        }
+        this._initializers.push(new coreml.Argument(name, visible, [ connection ]));
+    }
 };
 
 coreml.Attribute = class {
@@ -715,7 +728,7 @@ coreml.Attribute = class {
     constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
-        var schema = metadata.getAttributeSchema(operator, this._name)
+        var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -784,12 +797,17 @@ coreml.Tensor = class {
                 dataType = 'float16';
             }
             else if (data.rawValue && data.rawValue.length > 0) {
-                this._data = null;
-                dataType = 'uint8';
-                shape = [];
+                if (data.quantization) {
+                    this._data = data.rawValue;
+                    dataType = 'uint' + data.quantization.numberOfBits.toString();
+                }
+                else {
+                    shape = [];
+                }
             }
         }
 
+        this._quantization = data.quantization || null;
         this._type = new coreml.TensorType(dataType, new coreml.TensorShape(shape));
     }
 
@@ -803,6 +821,22 @@ coreml.Tensor = class {
 
     get type() {
         return this._type;
+    }
+
+    get quantization() {
+        if (this._quantization) {
+            if (this._quantization.lookupTableQuantization && 
+                this._quantization.lookupTableQuantization.floatValue &&
+                this._quantization.lookupTableQuantization.floatValue.length > 0) {
+                var map = [];
+                Object.keys(this._quantization.lookupTableQuantization.floatValue).forEach((key) => {
+                    map.push(key.toString() + ' = ' + this._quantization.lookupTableQuantization.floatValue[key].toString());
+                });
+                return map.join('; ');
+            }
+            return '?'; 
+        }
+        return null;
     }
 
     get state() {
@@ -842,11 +876,21 @@ coreml.Tensor = class {
         }
 
         switch (context.dataType) {
+            case 'float32':
+                context.data = this._data;
+                break;
             case 'float16':
                 context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 break;
             default:
-                context.data = this._data;
+                if (this._quantization) {
+                    context.dataType = 'quantization';
+                    context.bits = long.Long.isLong(this._quantization.numberOfBits) ? this._quantization.numberOfBits.toNumber() : this._quantization.numberOfBits;
+                    context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                }
+                else {
+                    context.state = 'Tensor data type is not implemented.';
+                }
                 break;
         }
 
@@ -871,6 +915,11 @@ coreml.Tensor = class {
                         results.push(context.data.getFloat16(context.index, true));
                         context.index += 2;
                         break;
+                    case 'quantization':
+                        results.push(context.data.getBits(context.index, context.bits));
+                        context.index++;
+                        break;
+
                 }
                 context.count++;
             }
@@ -979,7 +1028,7 @@ coreml.OptionalType = class {
     toString() {
         return this._type.toString() + '?';
     }
-}
+};
 
 coreml.Metadata = class {
 
@@ -998,6 +1047,7 @@ coreml.Metadata = class {
     constructor(data) {
         this._map = {};
         this._attributeCache = {};
+        this._inputCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -1025,6 +1075,21 @@ coreml.Metadata = class {
                 });
             }
             this._attributeCache[operator] = map;
+        }
+        return map[name] || null;
+    }
+
+    getInputSchema(operator, name) {
+        var map = this._inputCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.inputs && schema.inputs.length > 0) {
+                schema.inputs.forEach((input) => {
+                    map[input.name] = input;
+                });
+            }
+            this._inputCache[operator] = map;
         }
         return map[name] || null;
     }
@@ -1060,23 +1125,6 @@ coreml.Metadata = class {
             results.push(result);
         }
         return results;
-    }
-
-    getInputVisible(operator, name) {
-        var schema = this._map[operator];
-        if (schema && schema.inputs) {
-            if (!schema.inputsMap) {
-                schema.inputsMap = {};
-                schema.inputs.forEach((input) => {
-                    schema.inputsMap[input.name] = input;
-                });
-            }
-            var input = schema.inputsMap[name];
-            if (input && input.hasOwnProperty('visible')) {
-                return input.visible;
-            }
-        }
-        return true;
     }
 
     getOutputName(operator, index) {
