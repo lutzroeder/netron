@@ -1058,11 +1058,11 @@
           "summary": "averagepool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
           "summary": "averagepool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
           "summary": "averagepool_2d_same_upper"
         },
         {
@@ -1180,11 +1180,11 @@
           "summary": "averagepool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
           "summary": "averagepool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
           "summary": "averagepool_2d_same_upper"
         },
         {
@@ -8261,15 +8261,15 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
           "summary": "maxpool_1d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
           "summary": "maxpool_2d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
           "summary": "maxpool_2d_pads"
         },
         {
@@ -8285,19 +8285,19 @@
           "summary": "maxpool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
           "summary": "maxpool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
           "summary": "maxpool_2d_same_upper"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
           "summary": "maxpool_2d_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
           "summary": "maxpool_3d_default"
         },
         {
@@ -8383,15 +8383,15 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
           "summary": "maxpool_1d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
           "summary": "maxpool_2d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
           "summary": "maxpool_2d_pads"
         },
         {
@@ -8407,19 +8407,19 @@
           "summary": "maxpool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
           "summary": "maxpool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
           "summary": "maxpool_2d_same_upper"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
           "summary": "maxpool_2d_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
           "summary": "maxpool_3d_default"
         },
         {
@@ -12203,8 +12203,12 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum')",
-          "summary": "scan"
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 8)])",
+          "summary": "scan_8"
+        },
+        {
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=['initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((2,))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((2,))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan9_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 9)])",
+          "summary": "scan_9"
         }
       ],
       "inputs": [
@@ -12306,8 +12310,12 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum')",
-          "summary": "scan"
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 8)])",
+          "summary": "scan_8"
+        },
+        {
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=['initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((2,))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((2,))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan9_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 9)])",
+          "summary": "scan_9"
         }
       ],
       "inputs": [
@@ -15029,6 +15037,79 @@
             "tensor(complex128)"
           ],
           "description": "Constrain input 'X' and output 'Y' to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Where",
+    "schema": {
+      "description": "Return elements, either from X or Y, depending on condition\n    (with Numpy-style broadcasting support).\n    Where behaves like numpy.where with three parameters:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.where.html\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Where',\n    inputs=['condition', 'x', 'y'],\n    outputs=['z'],\n)\n\ncondition = np.array([[1, 0], [1, 1]], dtype=np.bool)\nx = np.array([[1, 2], [3, 4]], dtype=np.float32)\ny = np.array([[9, 8], [7, 6]], dtype=np.float32)\nz = np.where(condition, x, y)  # expected output [[1, 8], [3, 4]]\nexpect(node, inputs=[condition, x, y], outputs=[z],\n       name='test_where_example')",
+          "summary": "where"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "When True (nonzero), yield X, otherwise yield Y",
+          "name": "condition",
+          "type": "B"
+        },
+        {
+          "description": "values selected at indices where condition is True",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "values selected at indices where condition is False",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of shape equal to the broadcasted shape of condition, X, and Y.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Constrain to boolean tensors.",
+          "type_param_str": "B"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
