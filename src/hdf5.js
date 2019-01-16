@@ -560,16 +560,13 @@ hdf5.Datatype = class {
                 }
                 throw new hdf5.Error('Unsupported floating-point datatype.');
             case 3: // string
-                if ((this._flags & 0x0f) == 1) { // type
-                    switch ((this._flags >> 8) & 0x0f) { // character set
-                        case 0:
-                            return hdf5.Reader.decode(reader.bytes(this._size), 'ascii');
-                        case 1:
-                            return hdf5.Reader.decode(reader.bytes(this._size), 'utf-8');
-                    }
-                    throw new hdf5.Error('Unsupported character encoding.');
+                switch ((this._flags >> 8) & 0x0f) { // character set
+                    case 0:
+                        return hdf5.Reader.decode(reader.bytes(this._size), 'ascii');
+                    case 1:
+                        return hdf5.Reader.decode(reader.bytes(this._size), 'utf-8');
                 }
-                throw new hdf5.Error('Unsupported non-character variable-length datatype.');
+                throw new hdf5.Error('Unsupported character encoding.');
             case 9: // variable-length
                 return {
                     length: reader.uint32(),
@@ -610,30 +607,46 @@ hdf5.Datatype = class {
 hdf5.Dataspace = class {
     constructor(reader) {
         var version = reader.byte();
-        if (version == 1) {
-            this._dimensions = reader.byte();
-            this._flags = reader.byte();
-            reader.seek(1);
-            reader.seek(4);
-            this._sizes = [];
-            for (var i = 0; i < this._dimensions; i++) {
-                this._sizes.push(reader.length());
-            }
-            if ((this._flags & 0x01) != 0) {
-                this._maxSizes = [];
-                for (var j = 0; j < this._dimensions; j++) {
-                    this._maxSizes.push(reader.length());
-                    if (this._maxSizes[j] != this._sizes[j]) {
-                        throw new hdf5.Error('Max size is not supported.');
+        switch (version) {
+            case 1:
+                this._dimensions = reader.byte();
+                this._flags = reader.byte();
+                reader.seek(1);
+                reader.seek(4);
+                this._sizes = [];
+                for (var i = 0; i < this._dimensions; i++) {
+                    this._sizes.push(reader.length());
+                }
+                if ((this._flags & 0x01) != 0) {
+                    this._maxSizes = [];
+                    for (var j = 0; j < this._dimensions; j++) {
+                        this._maxSizes.push(reader.length());
+                        if (this._maxSizes[j] != this._sizes[j]) {
+                            throw new hdf5.Error('Max size is not supported.');
+                        }
                     }
                 }
-            }
-            if ((this._flags & 0x02) != 0) {
-                throw new hdf5.Error('Permutation indices not supported.');
-            }
-        }
-        else {
-            throw new hdf5.Error("Unsupported dataspace message version '" + version + "'.");
+                if ((this._flags & 0x02) != 0) {
+                    throw new hdf5.Error('Permutation indices not supported.');
+                }
+                break;
+            case 2:
+                this._dimensions = reader.byte();
+                this._flags = reader.byte();
+                this._type = reader.byte(); // 0 scalar, 1 simple, 2 null
+                for (var k = 0; k < this._dimensions; k++) {
+                    this._sizes.push(reader.length());
+                }
+                if ((this._flags & 0x01) != 0) {
+                    this._maxSizes = [];
+                    for (var l = 0; l < this._dimensions; l++) {
+                        this._maxSizes.push(reader.length());
+                    }
+                }
+                break;
+            default:
+                throw new hdf5.Error("Unsupported dataspace message version '" + version + "'.");
+    
         }
     }
 
