@@ -545,10 +545,18 @@ tflite_schema.QuantizationParameters.prototype.details = function(obj) {
 };
 
 /**
+ * @returns {number}
+ */
+tflite_schema.QuantizationParameters.prototype.quantizedDimension = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_schema.QuantizationParameters.startQuantizationParameters = function(builder) {
-  builder.startObject(6);
+  builder.startObject(7);
 };
 
 /**
@@ -681,6 +689,14 @@ tflite_schema.QuantizationParameters.addDetailsType = function(builder, detailsT
  */
 tflite_schema.QuantizationParameters.addDetails = function(builder, detailsOffset) {
   builder.addFieldOffset(5, detailsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} quantizedDimension
+ */
+tflite_schema.QuantizationParameters.addQuantizedDimension = function(builder, quantizedDimension) {
+  builder.addFieldInt32(6, quantizedDimension, 0);
 };
 
 /**
