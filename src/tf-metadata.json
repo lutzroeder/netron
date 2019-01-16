@@ -958,12 +958,32 @@
   {
     "name": "AdjustContrastv2",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
       "description": "`images` is a tensor of at least 3 dimensions.  The last 3 dimensions are\ninterpreted as `[height, width, channels]`.  The other dimensions only\nrepresent a collection of images, such as `[batch, height, width, channels].`\n\nContrast is adjusted independently for each channel of each image.\n\nFor each channel, the Op first computes the mean of the image pixels in the\nchannel and then adjusts each component of each pixel to\n`(x - mean) * contrast_factor + mean`.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
           "name": "images",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A float multiplier for adjusting contrast.",
@@ -975,7 +995,7 @@
         {
           "description": "The contrast-adjusted image or images.",
           "name": "output",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Adjust the contrast of one or more images."
@@ -984,12 +1004,32 @@
   {
     "name": "AdjustHue",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
       "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpretted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A delta is then applied all the hue values,\nand then remapped back to RGB colorspace.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
           "name": "images",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A float delta to add to the hue.",
@@ -1001,7 +1041,7 @@
         {
           "description": "The hue-adjusted image or images.",
           "name": "output",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Adjust the hue of one or more images."
@@ -1010,12 +1050,32 @@
   {
     "name": "AdjustSaturation",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
       "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpretted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A scale is then applied all the saturation\nvalues, and then remapped back to RGB colorspace.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
           "name": "images",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A float scale to add to the saturation.",
@@ -1027,7 +1087,7 @@
         {
           "description": "The hue-adjusted image or images.",
           "name": "output",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Adjust the saturation of one or more images."
@@ -53202,6 +53262,79 @@
         }
       ],
       "summary": "returns `f(inputs)`, where `f`'s body is placed and partitioned."
+    }
+  },
+  {
+    "name": "StatefulStandardNormal",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values will have mean 0 and standard deviation 1.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A tensor of the specified shape filled with random normal values.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random values from a normal distribution."
     }
   },
   {
