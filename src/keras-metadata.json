@@ -1037,11 +1037,11 @@
   {
     "name": "Masking",
     "schema": {
-      "description": "Masks a sequence by using a mask value to skip timesteps.\n\nFor each timestep in the input tensor (dimension #1 in the tensor),\nif all values in the input tensor at that timestep\nare equal to `mask_value`, then the timestep will be masked (skipped)\nin all downstream layers (as long as they support masking).\n\nIf any downstream layer does not support masking yet receives such\nan input mask, an exception will be raised.\n",
+      "description": "Masks a sequence by using a mask value to skip timesteps.\n\nIf all features for a given sample timestep are equal to `mask_value`,\nthen the sample timestep will be masked (skipped) in all downstream layers\n(as long as they support masking).\n\nIf any downstream layer does not support masking yet receives such\nan input mask, an exception will be raised.\n",
       "examples": [
         {
           "code": "model = Sequential()\nmodel.add(Masking(mask_value=0., input_shape=(timesteps, features)))\nmodel.add(LSTM(32))",
-          "summary": "Consider a Numpy data array `x` of shape `(samples, timesteps, features)`,\nto be fed to an LSTM layer.\nYou want to mask timestep #3 and #5 because you lack data for\nthese timesteps. You can:\n- set `x[:, 3, :] = 0.` and `x[:, 5, :] = 0.`\n- insert a `Masking` layer with `mask_value=0.` before the LSTM layer:"
+          "summary": "Consider a Numpy data array `x` of shape `(samples, timesteps, features)`,\nto be fed to an LSTM layer.\nYou want to mask sample #0 at timestep #3, and sample #2 at timestep #5,\nbecause you lack features for these sample timesteps. You can do:\n- set `x[0, 3, :] = 0.` and `x[2, 5, :] = 0.`\n- insert a `Masking` layer with `mask_value=0.` before the LSTM layer:"
         }
       ],
       "package": "keras.layers"
