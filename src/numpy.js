@@ -133,7 +133,7 @@ numpy.Array = class {
                         context.dataView.setInt32(context.position, data[i], true);
                         break;
                     case '<i8':
-                        context.data.set(data[i].toBuffer(), context.position);
+                        context.data.set(data[i].toBytesLE(), context.position);
                         break;
                     case '<u1':
                         context.dataView.setUint8(context.position, data[i], true);
@@ -145,7 +145,7 @@ numpy.Array = class {
                         context.dataView.setUint32(context.position, data[i], true);
                         break;
                     case '<u8':
-                        context.data.set(data[i].toBuffer(), context.position);
+                        context.data.set(data[i].toBytesLE(), context.position);
                         break;
                 }
                 context.position += context.itemSize;
