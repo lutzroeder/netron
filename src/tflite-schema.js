@@ -136,7 +136,8 @@ tflite_schema.BuiltinOperator = {
   MIRROR_PAD: 100, 100: 'MIRROR_PAD',
   ABS: 101, 101: 'ABS',
   SPLIT_V: 102, 102: 'SPLIT_V',
-  UNIQUE: 103, 103: 'UNIQUE'
+  UNIQUE: 103, 103: 'UNIQUE',
+  CEIL: 104, 104: 'CEIL'
 };
 
 /**
