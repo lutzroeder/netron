@@ -15785,6 +15785,35 @@
     }
   },
   {
+    "name": "ExperimentalChooseFastestDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 2,
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "name": "num_experiments",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_datasets",
+          "numberAttr": "N",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ExperimentalDatasetCardinality",
     "schema": {
       "description": "Returns the cardinality of `input_dataset`.",
@@ -17046,6 +17075,52 @@
         }
       ],
       "summary": "Produces a summary of any statistics recorded by the given statistics manager."
+    }
+  },
+  {
+    "name": "ExperimentalTakeWhileDataset",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A function returning a scalar boolean.",
+          "name": "predicate",
+          "type": "func"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "The `predicate` function must return a scalar boolean and accept the\nfollowing arguments:\n\n* One tensor for each component of an element of `input_dataset`.\n* One tensor for each value in `other_arguments`.",
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A list of tensors, typically values that were captured when\nbuilding a closure for `predicate`.",
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that stops iteration when predicate` is false."
     }
   },
   {
@@ -53946,7 +54021,7 @@
           "type": "string"
         },
         {
-          "description": "The rewrite to be applied to the matched expresion.",
+          "description": "The rewrite to be applied to the matched expression.",
           "name": "rewrite",
           "type": "string"
         },
