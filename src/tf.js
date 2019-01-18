@@ -41,6 +41,10 @@ tf.ModelFactory = class {
                 tags.hasOwnProperty(9) && tags[9] == 2) {
                 return false;
             }
+            if (Object.keys(tags).length > 0 &&
+                Object.keys(tags).some((tag) => tags[tag] == 5)) {
+                return false;
+            }
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {

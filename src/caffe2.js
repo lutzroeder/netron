@@ -23,6 +23,10 @@ caffe2.ModelFactory = class {
                 return false;
             }
             if (Object.keys(tags).length > 0 &&
+                Object.keys(tags).some((tag) => tags[tag] == 5)) {
+                return false;
+            }
+            if (Object.keys(tags).length > 0 &&
                 (!tags.hasOwnProperty(1) || tags[1] == 2) &&
                 (!tags.hasOwnProperty(2) || tags[2] == 2) &&
                 (!tags.hasOwnProperty(7) || tags[7] == 2) &&

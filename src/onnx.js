@@ -27,9 +27,14 @@ onnx.ModelFactory = class {
                 return false;
             }
             // ignore input_0.pb, output_0.pb
-            if (tags.hasOwnProperty(1) && tags[1] == 0 && 
+            if (Object.keys(tags).length > 0 &&
+                tags.hasOwnProperty(1) && tags[1] == 0 && 
                 tags.hasOwnProperty(2) && tags[2] == 0 && 
                 tags.hasOwnProperty(9) && tags[9] == 2) {
+                return false;
+            }
+            if (Object.keys(tags).length > 0 &&
+                Object.keys(tags).some((tag) => tags[tag] == 5)) {
                 return false;
             }
             // check ir_version and graph present
