@@ -1663,10 +1663,12 @@
           "type": "boolean"
         },
         {
+          "default": null,
           "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\n",
           "name": "preprocessor"
         },
         {
+          "default": null,
           "description": "Override the string tokenization step while preserving the\npreprocessing and n-grams generation steps.\nOnly applies if ``analyzer == 'word'``.\n",
           "name": "tokenizer"
         },
@@ -1703,6 +1705,7 @@
           "name": "max_features"
         },
         {
+          "default": null,
           "description": "Either a Mapping (e.g., a dict) where keys are terms and values are\nindices in the feature matrix, or an iterable over terms. If not\ngiven, a vocabulary is determined from the input documents.\n",
           "name": "vocabulary",
           "option": "optional"
@@ -1714,12 +1717,13 @@
           "type": "boolean"
         },
         {
+          "default": "float64",
           "description": "Type of the matrix returned by fit_transform() or transform().\n",
           "name": "dtype",
           "option": "optional"
         },
         {
-          "description": "Norm used to normalize term vectors. None for no normalization.\n",
+          "description": "Each output row will have unit norm, either:\n* 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n* 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`\n",
           "name": "norm"
         },
         {
@@ -1741,7 +1745,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to CountVectorizer followed by TfidfTransformer.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+      "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to :class:`CountVectorizer` followed by\n:class:`TfidfTransformer`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
       "package": "sklearn.feature_extraction.text"
     }
   },

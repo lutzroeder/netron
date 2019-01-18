@@ -108,7 +108,14 @@ def update_attributes(schema, lines):
             "{'word', 'char'} or callable",
             "string, {'word', 'char'} or callable",
             'int, float, None or string',
-            "'l1', 'l2' or None, optional"
+            "'l1', 'l2' or None, optional",
+            "{'strict', 'ignore', 'replace'} (default='strict')",
+            "{'ascii', 'unicode', None} (default=None)",
+            "string {'english'}, list, or None (default=None)",
+            "tuple (min_n, max_n) (default=(1, 1))",
+            "float in range [0.0, 1.0] or int (default=1.0)",
+            "float in range [0.0, 1.0] or int (default=1)",
+            "'l1', 'l2' or None, optional (default='l2')"
         }
         if line in skip_map:
             line = ''
