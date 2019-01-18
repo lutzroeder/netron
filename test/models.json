@@ -425,6 +425,13 @@
   },
   {
     "type":   "caffe",
+    "target": "pspnet50_ADE20K.caffemodel",
+    "source": "https://drive.google.com/uc?export=download&id=0BzaU285cX7TCN1R3QnUwQ0hoMTA",
+    "error":  "File format is not caffe.NetParameter (invalid wire type 7 at offset 8482) in 'pspnet50_ADE20K.caffemodel'.",
+    "link":   "https://github.com/hszhao/PSPNet"
+  },
+  {
+    "type":   "caffe",
     "target": "ResNet-18-deploy.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-18-deploy.prototxt",
     "format": "Caffe v2",
