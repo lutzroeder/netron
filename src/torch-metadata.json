@@ -145,6 +145,12 @@
     }
   },
   {
+    "name": "SpatialFractionalMaxPooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
     "name": "SpatialZeroPadding",
     "schema": {
       "category": "Tensor",
