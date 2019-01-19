@@ -1,117 +1,119 @@
+<!DOCTYPE html>
 <html>
 <head>
-<meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
-<link rel='stylesheet' type='text/css' href='../node_modules/npm-font-open-sans/open-sans.css'>
-<link rel='stylesheet' type='text/css' href='view-grapher.css'>
-<link rel='stylesheet' type='text/css' href='view-sidebar.css'>
-<link rel='stylesheet' type='text/css' href='view.css'>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Netron</title>
+<link rel="stylesheet" type="text/css" href="../node_modules/npm-font-open-sans/open-sans.css">
+<link rel="stylesheet" type="text/css" href="view-grapher.css">
+<link rel="stylesheet" type="text/css" href="view-sidebar.css">
+<link rel="stylesheet" type="text/css" href="view.css">
 </head>
-<body style='opacity: 0;'>
-<div id='welcome' class='background' style='display: block'>
-    <a class='center logo' href='https://github.com/lutzroeder/netron' target='_blank'>
-        <svg xmlns='http://www.w3.org/2000/svg' class='logo absolute' width='128' height='128' viewBox='0 0 1024 1024'>
-            <circle class='stroke' cx='512' cy='512' r='431' fill='none' stroke-width='32'/>
-            <circle class='border' cx='512' cy='512' r='450' fill='none' stroke-width='6' /> 
-            <circle class='border' cx='512' cy='512' r='412' fill='none' stroke-width='6' /> 
-            <line class='stroke' x1='296' y1='392' x2='540' y2='280' stroke-width='12' />
-            <line class='stroke' x1='296' y1='632' x2='540' y2='280' stroke-width='12' />
-            <line class='stroke' x1='296' y1='392' x2='540' y2='435' stroke-width='12' />
-            <line class='stroke' x1='296' y1='632' x2='540' y2='435' stroke-width='12' />
-            <line class='stroke' x1='296' y1='392' x2='540' y2='590' stroke-width='12' />
-            <line class='stroke' x1='296' y1='632' x2='540' y2='590' stroke-width='12' />
-            <line class='stroke' x1='296' y1='392' x2='540' y2='744' stroke-width='12' />
-            <line class='stroke' x1='296' y1='632' x2='540' y2='744' stroke-width='12' />
-            <line class='stroke' x1='540' y1='280' x2='785' y2='512' stroke-width='12' />
-            <line class='stroke' x1='540' y1='590' x2='785' y2='512' stroke-width='12' />
-            <line class='stroke' x1='540' y1='435' x2='785' y2='512' stroke-width='12' />
-            <line class='stroke' x1='540' y1='744' x2='785' y2='512' stroke-width='12' />
-            <g transform='translate(296, 392)'>
-                <circle class='fill' cx='0' cy='0' r='51' />
-                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+<body style="opacity: 0;">
+<div id="welcome" class="background" style="display: block">
+    <a class="center logo" href="https://github.com/lutzroeder/netron" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" class="logo absolute" width="128" height="128" viewbox="0 0 1024 1024">
+            <circle class="stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
+            <circle class="border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
+            <circle class="border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
+            <line class="stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
+            <line class="stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
+            <line class="stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
+            <line class="stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
+            <line class="stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
+            <line class="stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
+            <line class="stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
+            <line class="stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
+            <line class="stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
+            <line class="stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
+            <line class="stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
+            <line class="stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
+            <g transform="translate(296, 392)">
+                <circle class="fill" cx="0" cy="0" r="51"></circle>
+                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
-            <g transform='translate(296, 632)'>
-                <circle class='fill' cx='0' cy='0' r='51' />
-                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            <g transform="translate(296, 632)">
+                <circle class="fill" cx="0" cy="0" r="51"></circle>
+                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
-            <g transform='translate(540, 280)'>
-                <circle class='fill' cx='0' cy='0' r='51' />
-                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            <g transform="translate(540, 280)">
+                <circle class="fill" cx="0" cy="0" r="51"></circle>
+                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
-            <g transform='translate(540, 435)'>
-                <circle class='fill' cx='0' cy='0' r='51' />
-                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            <g transform="translate(540, 435)">
+                <circle class="fill" cx="0" cy="0" r="51"></circle>
+                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
-            <g transform='translate(540, 590)'>
-                <circle class='fill' cx='0' cy='0' r='51' />
-                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            <g transform="translate(540, 590)">
+                <circle class="fill" cx="0" cy="0" r="51"></circle>
+                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
-            <g transform='translate(540, 744)'>
-                <circle class='fill' cx='0' cy='0' r='51' />
-                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            <g transform="translate(540, 744)">
+                <circle class="fill" cx="0" cy="0" r="51"></circle>
+                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
-            <g transform='translate(785, 512)'>
-                <circle class='fill' cx='0' cy='0' r='51' />
-                <circle class='border' cx='0' cy='0' r='51' fill='none' stroke-width='6' />
+            <g transform="translate(785, 512)">
+                <circle class="fill" cx="0" cy="0" r="51"></circle>
+                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
         </svg>
-        <svg class='spinner logo absolute' id='spinner' viewBox='0 0 1024 1024' style='display: none;'>
-            <g id='spinner' transform='translate(512, 512)' style='opacity: 1'>
-                <path class='stroke' d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width='24' fill='None' />
+        <svg id="spinner" class="spinner logo absolute" viewbox="0 0 1024 1024" style="display: none;">
+            <g transform="translate(512, 512)" style="opacity: 1">
+                <path class="stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
             </g>
         </svg>
     </a>
-    <button id='open-file-button' class='center' style='top: 200px; width: 125px; opacity: 0;'>Open Model...</button>
+    <button id="open-file-button" class="center" style="top: 200px; width: 125px; opacity: 0;">Open Model...</button>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
-    <div style='font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;'>.</div>
-    <div style='font-weight: 600; color: rgba(0, 0, 0, 0.01); user-select: none;'>.</div>
-    <div style='font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;'>.</div>
+    <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+    <div style="font-weight: 600; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
 </div>
-<div id='graph-container' style='overflow: scroll; width: 100%; height: 100%'>
-    <svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet' width='100%' height='100%'></svg>
+<div id="graph-container" style="overflow: scroll; width: 100%; height: 100%">
+    <svg id="graph" class="graph" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
-<div id='toolbar' class='toolbar' style='position: absolute; top: 10px; left: 10px; display: none;'>
-    <button id='model-properties-button' title='Model Properties'>
-        <svg viewBox='0 0 100 100' class='icon'>
-            <rect class='border' x='12' y='12' width='76' height='76' rx='16' ry='16' stroke-width='8' />
-            <line class='border' x1='30' y1='37' x2='70' y2='37' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line class='border' x1='30' y1='50' x2='70' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line class='border' x1='30' y1='63' x2='70' y2='63' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <rect class='stroke' x='12' y='12' width='76' height='76' rx='16' ry='16' stroke-width='4' />
-            <line class='stroke' x1='30' y1='37' x2='70' y2='37' stroke-width='4' stroke-linecap='round' />
-            <line class='stroke' x1='30' y1='50' x2='70' y2='50' stroke-width='4' stroke-linecap='round' />
-            <line class='stroke' x1='30' y1='63' x2='70' y2='63' stroke-width='4' stroke-linecap='round' />
+<div id="toolbar" class="toolbar" style="position: absolute; top: 10px; left: 10px; display: none;">
+    <button id="model-properties-button" title="Model Properties">
+        <svg class="icon" viewbox="0 0 100 100">
+            <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
+            <line class="border" x1="30" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="30" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="30" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <rect class="stroke" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4"></rect>
+            <line class="stroke" x1="30" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="30" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="30" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
         </svg>
     </button>
-    <button id='zoom-in-button' title='Zoom In'>
-        <svg viewBox='0 0 100 100' class='icon'>
-            <circle class='border' cx='50' cy='50' r='35' stroke-width='8' stroke='#fff' />
-            <line class='border' x1='50' y1='38' x2='50' y2='62' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line class='border' x1='38' y1='50' x2='62' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line class='border' x1='78' y1='78' x2='82' y2='82' stroke-width='12' stroke-linecap='square' stroke='#fff' />
-            <circle class='stroke' cx='50' cy='50' r='35' stroke-width='4' />
-            <line class='stroke' x1='50' y1='38' x2='50' y2='62' stroke-width='4' stroke-linecap='round' />
-            <line class='stroke' x1='38' y1='50' x2='62' y2='50' stroke-width='4' stroke-linecap='round' />
-            <line class='stroke' x1='78' y1='78' x2='82' y2='82' stroke-width='8' stroke-linecap='square' />
+    <button id="zoom-in-button" title="Zoom In">
+        <svg class="icon" viewbox="0 0 100 100">
+            <circle class="border" cx="50" cy="50" r="35" stroke-width="8" stroke="#fff"></circle>
+            <line class="border" x1="50" y1="38" x2="50" y2="62" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="38" y1="50" x2="62" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="78" y1="78" x2="82" y2="82" stroke-width="12" stroke-linecap="square" stroke="#fff"></line>
+            <circle class="stroke" cx="50" cy="50" r="35" stroke-width="4"></circle>
+            <line class="stroke" x1="50" y1="38" x2="50" y2="62" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="38" y1="50" x2="62" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square"></line>
         </svg>
     </button>
-    <button id='zoom-out-button' title='Zoom Out'>
-        <svg viewBox='0 0 100 100' class='icon'>
-            <circle class='border' cx='50' cy='50' r='35' stroke-width='8' stroke='#fff' />
-            <line class='border' x1='38' y1='50' x2='62' y2='50' stroke-width='8' stroke-linecap='round' stroke='#fff' />
-            <line class='border' x1='78' y1='78' x2='82' y2='82' stroke-width='12' stroke-linecap='square' stroke='#fff' />
-            <circle class='stroke' cx='50' cy='50' r='35' stroke-width='4' />
-            <line class='stroke' x1='38' y1='50' x2='62' y2='50' stroke-width='4' stroke-linecap='round' />
-            <line class='stroke' x1='78' y1='78' x2='82' y2='82' stroke-width='8' stroke-linecap='square' />
+    <button id="zoom-out-button" title="Zoom Out">
+        <svg class="icon" viewbox="0 0 100 100">
+            <circle class="border" cx="50" cy="50" r="35" stroke-width="8" stroke="#fff"></circle>
+            <line class="border" x1="38" y1="50" x2="62" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="78" y1="78" x2="82" y2="82" stroke-width="12" stroke-linecap="square" stroke="#fff"></line>
+            <circle class="stroke" cx="50" cy="50" r="35" stroke-width="4"></circle>
+            <line class="stroke" x1="38" y1="50" x2="62" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square"></line>
         </svg>
     </button>
 </div>
-<div id='sidebar' class='sidebar'>
-    <h1 id='sidebar-title' class='sidebar-title'></h1>
-    <a href='javascript:void(0)' id='sidebar-closebutton' class='sidebar-closebutton'>&times;</a>
-    <div id='sidebar-content' class='sidebar-content'>
+<div id="sidebar" class="sidebar">
+    <h1 id="sidebar-title" class="sidebar-title"></h1>
+    <a href="javascript:void(0)" id="sidebar-closebutton" class="sidebar-closebutton">&times;</a>
+    <div id="sidebar-content" class="sidebar-content">
     </div>
 </div>
-<script type='text/javascript' src='view-electron.js'></script>
+<script type="text/javascript" src="view-electron.js"></script>
 </body>
 </html>
