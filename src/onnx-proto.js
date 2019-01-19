@@ -1582,6 +1582,7 @@
                 this.int32_data = [];
                 this.string_data = [];
                 this.int64_data = [];
+                this.external_data = [];
                 this.double_data = [];
                 this.uint64_data = [];
                 if (properties)
@@ -1600,6 +1601,8 @@
             TensorProto.prototype.name = "";
             TensorProto.prototype.doc_string = "";
             TensorProto.prototype.raw_data = $util.newBuffer([]);
+            TensorProto.prototype.external_data = $util.emptyArray;
+            TensorProto.prototype.data_location = 0;
             TensorProto.prototype.double_data = $util.emptyArray;
             TensorProto.prototype.uint64_data = $util.emptyArray;
     
@@ -1686,6 +1689,14 @@
                         break;
                     case 9:
                         message.raw_data = reader.bytes();
+                        break;
+                    case 13:
+                        if (!(message.external_data && message.external_data.length))
+                            message.external_data = [];
+                        message.external_data.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                        break;
+                    case 14:
+                        message.data_location = reader.int32();
                         break;
                     case 10:
                         if (!(message.double_data && message.double_data.length))
@@ -1776,6 +1787,14 @@
                     case "raw_data":
                         message.raw_data = reader.bytes();
                         break;
+                    case "external_data":
+                        if (!(message.external_data && message.external_data.length))
+                            message.external_data = [];
+                        message.external_data.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
+                        break;
+                    case "data_location":
+                        message.data_location = reader.enum($root.onnx.TensorProto.DataLocation);
+                        break;
                     case "double_data":
                         if (!(message.double_data && message.double_data.length))
                             message.double_data = [];
@@ -1849,6 +1868,23 @@
                 if (message.raw_data != null && message.hasOwnProperty("raw_data"))
                     if (!(message.raw_data && typeof message.raw_data.length === "number" || $util.isString(message.raw_data)))
                         return "raw_data: buffer expected";
+                if (message.external_data != null && message.hasOwnProperty("external_data")) {
+                    if (!Array.isArray(message.external_data))
+                        return "external_data: array expected";
+                    for (var i = 0; i < message.external_data.length; ++i) {
+                        var error = $root.onnx.StringStringEntryProto.verify(message.external_data[i]);
+                        if (error)
+                            return "external_data." + error;
+                    }
+                }
+                if (message.data_location != null && message.hasOwnProperty("data_location"))
+                    switch (message.data_location) {
+                    default:
+                        return "data_location: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
                 if (message.double_data != null && message.hasOwnProperty("double_data")) {
                     if (!Array.isArray(message.double_data))
                         return "double_data: array expected";
@@ -1938,6 +1974,26 @@
                         $util.base64.decode(object.raw_data, message.raw_data = $util.newBuffer($util.base64.length(object.raw_data)), 0);
                     else if (object.raw_data.length)
                         message.raw_data = object.raw_data;
+                if (object.external_data) {
+                    if (!Array.isArray(object.external_data))
+                        throw TypeError(".onnx.TensorProto.external_data: array expected");
+                    message.external_data = [];
+                    for (var i = 0; i < object.external_data.length; ++i) {
+                        if (typeof object.external_data[i] !== "object")
+                            throw TypeError(".onnx.TensorProto.external_data: object expected");
+                        message.external_data[i] = $root.onnx.StringStringEntryProto.fromObject(object.external_data[i]);
+                    }
+                }
+                switch (object.data_location) {
+                case "DEFAULT":
+                case 0:
+                    message.data_location = 0;
+                    break;
+                case "EXTERNAL":
+                case 1:
+                    message.data_location = 1;
+                    break;
+                }
                 if (object.double_data) {
                     if (!Array.isArray(object.double_data))
                         throw TypeError(".onnx.TensorProto.double_data: array expected");
@@ -1974,6 +2030,7 @@
                     object.int64_data = [];
                     object.double_data = [];
                     object.uint64_data = [];
+                    object.external_data = [];
                 }
                 if (options.defaults) {
                     object.data_type = 0;
@@ -1987,6 +2044,7 @@
                             object.raw_data = $util.newBuffer(object.raw_data);
                     }
                     object.doc_string = "";
+                    object.data_location = options.enums === String ? "DEFAULT" : 0;
                 }
                 if (message.dims && message.dims.length) {
                     object.dims = [];
@@ -2042,6 +2100,13 @@
                 }
                 if (message.doc_string != null && message.hasOwnProperty("doc_string"))
                     object.doc_string = message.doc_string;
+                if (message.external_data && message.external_data.length) {
+                    object.external_data = [];
+                    for (var j = 0; j < message.external_data.length; ++j)
+                        object.external_data[j] = $root.onnx.StringStringEntryProto.toObject(message.external_data[j], options);
+                }
+                if (message.data_location != null && message.hasOwnProperty("data_location"))
+                    object.data_location = options.enums === String ? $root.onnx.TensorProto.DataLocation[message.data_location] : message.data_location;
                 return object;
             };
     
@@ -2201,6 +2266,13 @@
                 };
     
                 return Segment;
+            })();
+    
+            TensorProto.DataLocation = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "DEFAULT"] = 0;
+                values[valuesById[1] = "EXTERNAL"] = 1;
+                return values;
             })();
     
             return TensorProto;
