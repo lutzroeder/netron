@@ -115,6 +115,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
             constructorTable['torch.nn.modules.loss.BCELoss'] = function () {};
+            constructorTable['torch.nn.modules.loss.BCEWithLogitsLoss'] = function () {}; 
             constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function () {};
             constructorTable['torch.nn.modules.loss.MSELoss'] = function () {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
