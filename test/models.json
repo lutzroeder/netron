@@ -3718,6 +3718,13 @@
   },
   {
     "type":   "tflite",
+    "target": "inception_v4_299_quant.tflite",
+    "source": "http://download.tensorflow.org/models/inception_v4_299_quant_20181026.tgz[inception_v4_299_quant.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "type":   "tflite",
     "target": "inceptionv3_slim_2016.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/inception_v3_slim_2016_android_2017_11_10.zip[inceptionv3_slim_2016.tflite]",
     "format": "TensorFlow Lite v3"
@@ -3829,11 +3836,6 @@
     "type":   "tflite",
     "target": "speech_tts_model_2017_11_14.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_tts_model_2017_11_14.tflite"
-  },
-  {
-    "type":   "tflite",
-    "target": "speech_terse_am_model_2017_11_14.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_terse_am_model_2017_11_14.tflite"
   },
   {
     "type":   "tflite",
