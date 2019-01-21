@@ -1665,6 +1665,20 @@
   },
   {
     "type":   "darknet",
+    "target": "resnet18.cfg,resnet18.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet18.cfg,https://pjreddie.com/media/files/resnet18.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "resnet152.cfg,resnet152.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet152.cfg,https://pjreddie.com/media/files/resnet152.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
     "target": "yolov3-spp.cfg,yolov3-spp.weights",
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
     "format": "Darknet",
