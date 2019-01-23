@@ -15,7 +15,8 @@
             values[valuesById[0] = "_START_VERSION"] = 0;
             values[valuesById[1] = "IR_VERSION_2017_10_10"] = 1;
             values[valuesById[2] = "IR_VERSION_2017_10_30"] = 2;
-            values[valuesById[3] = "IR_VERSION"] = 3;
+            values[valuesById[3] = "IR_VERSION_2017_11_3"] = 3;
+            values[valuesById[4] = "IR_VERSION"] = 4;
             return values;
         })();
     
