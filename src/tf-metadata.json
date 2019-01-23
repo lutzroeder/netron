@@ -56987,6 +56987,10 @@
         {
           "name": "indices",
           "type": 3
+        },
+        {
+          "name": "element_shape",
+          "type": 3
         }
       ],
       "outputs": [
@@ -57014,6 +57018,10 @@
         },
         {
           "name": "index",
+          "type": 3
+        },
+        {
+          "name": "element_shape",
           "type": 3
         }
       ],
@@ -57058,6 +57066,10 @@
         {
           "name": "input_handle",
           "type": 21
+        },
+        {
+          "name": "element_shape",
+          "type": 3
         }
       ],
       "outputs": [
@@ -57341,6 +57353,10 @@
         {
           "name": "input_handle",
           "type": 21
+        },
+        {
+          "name": "element_shape",
+          "type": 3
         }
       ],
       "outputs": [
