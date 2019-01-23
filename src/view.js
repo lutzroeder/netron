@@ -652,10 +652,14 @@ view.View = class {
                         };    
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
+                    var name = input.name;
+                    if (name.length > 16) {
+                        name = name.split('/').pop();
+                    }
     
                     var element = new grapher.NodeElement(this._host.document);
                     var header = element.block('header');
-                    header.add(null, [ 'graph-item-input' ], input.name, types, () => {
+                    header.add(null, [ 'graph-item-input' ], name, types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: element.format(graphElement), class: 'graph-input' } ); 
@@ -671,10 +675,14 @@ view.View = class {
                         tuple.to.push({ node: nodeId });
                     });
                     var types = output.connections.map(connection => connection.type || '').join('\n');
+                    var name = output.name;
+                    if (name.length > 16) {
+                        name = name.split('/').pop();
+                    }
             
                     var element = new grapher.NodeElement(this._host.document);
                     var header = element.block('header');
-                    header.add(null, [ 'graph-item-output' ], output.name, types, () => {
+                    header.add(null, [ 'graph-item-output' ], name, types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: element.format(graphElement) } ); 
