@@ -137,7 +137,8 @@ tflite_schema.BuiltinOperator = {
   ABS: 101, 101: 'ABS',
   SPLIT_V: 102, 102: 'SPLIT_V',
   UNIQUE: 103, 103: 'UNIQUE',
-  CEIL: 104, 104: 'CEIL'
+  CEIL: 104, 104: 'CEIL',
+  REVERSE_V2: 105, 105: 'REVERSE_V2'
 };
 
 /**
@@ -224,7 +225,8 @@ tflite_schema.BuiltinOptions = {
   MirrorPadOptions: 77, 77: 'MirrorPadOptions',
   AbsOptions: 78, 78: 'AbsOptions',
   SplitVOptions: 79, 79: 'SplitVOptions',
-  UniqueOptions: 80, 80: 'UniqueOptions'
+  UniqueOptions: 80, 80: 'UniqueOptions',
+  ReverseV2Options: 81, 81: 'ReverseV2Options'
 };
 
 /**
@@ -6692,6 +6694,57 @@ tflite_schema.UniqueOptions.addIdxOutType = function(builder, idxOutType) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.UniqueOptions.endUniqueOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.ReverseV2Options = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.ReverseV2Options}
+ */
+tflite_schema.ReverseV2Options.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.ReverseV2Options=} obj
+ * @returns {tflite_schema.ReverseV2Options}
+ */
+tflite_schema.ReverseV2Options.getRootAsReverseV2Options = function(bb, obj) {
+  return (obj || new tflite_schema.ReverseV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.ReverseV2Options.startReverseV2Options = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ReverseV2Options.endReverseV2Options = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
