@@ -65,6 +65,10 @@ sklearn.ModelFactory = class {
                                 this.itemsize = Number(obj.substring(1));
                                 this.name = 'string';
                             }
+                            else if (obj.startsWith('M')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'datetime';
+                            }
                             else {
                                 throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
                             }
