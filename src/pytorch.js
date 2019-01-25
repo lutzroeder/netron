@@ -87,6 +87,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.backends.cudnn.rnn.Unserializable'] = function () {};
             constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
             constructorTable['torch.nn.modules.activation.ELU'] = function () {};
+            constructorTable['torch.nn.modules.activation.Hardtanh'] = function () {};
             constructorTable['torch.nn.modules.activation.LeakyReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.LogSoftmax'] = function () {};
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};

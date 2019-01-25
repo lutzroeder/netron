@@ -289,6 +289,14 @@
     }
   },
   {
+    "name": "Hardtanh",
+    "schema": {
+      "attributes": [],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "LeakyReLU",
     "schema": {
       "attributes": [],
