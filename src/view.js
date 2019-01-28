@@ -369,7 +369,7 @@ view.View = class {
         setTimeout(() => {
             if (graph && graph != this._activeGraph) {
                 var nodes = graph.nodes;
-                if (nodes.length > 1500) {
+                if (nodes.length > 1400) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);

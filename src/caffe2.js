@@ -43,8 +43,10 @@ caffe2.ModelFactory = class {
                 }
             }
         }
-        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-            identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+        if (extension == 'pbtxt' || extension == 'prototxt') {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+                return true;
+            }
             tags = context.tags('pbtxt');
             if (tags.op) {
                 return true;
@@ -468,12 +470,21 @@ caffe2.Attribute = class {
         if (schema) {
             if (schema.hasOwnProperty('type')) {
                 this._type = schema.type;
+                if (this._type == 'boolean') {
+                    switch (this._value) {
+                        case 1: this._value = true; break;
+                        case 0: this._value = false; break;
+                    }
+                }
             }
+        }
+
+        if (schema) {
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
             else if (schema.hasOwnProperty('default')) {
-                if (this._value == schema.default.toString()) {
+                if (this._value == schema.default || (this._value && this._value.toString() == schema.default.toString())) {
                     this._visible = false;
                 }
             }

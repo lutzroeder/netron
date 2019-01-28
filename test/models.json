@@ -667,7 +667,6 @@
     "format": "Caffe2",
     "link":   "https://github.com/jolibrain/deepdetect/tree/master/templates/caffe2"
   },
-
   {
     "type":   "caffe2",
     "target": "bvlc_alexnet/predict_net.pb,bvlc_alexnet/init_net.pb",
@@ -730,6 +729,21 @@
     "source": "https://media.githubusercontent.com/media/zyddawn/caffe2-models/master/finetune_flickr_style/predict_net.pb,https://media.githubusercontent.com/media/zyddawn/caffe2-models/master/finetune_flickr_style/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/zyddawn/caffe2-models"
+  },
+  {
+    "type":   "caffe2",
+    "target": "generalized_rcnn/net.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/2801714/net.pbtxt.txt",
+    "format": "Caffe2",
+    "render": "skip",
+    "link":   "https://github.com/lutzroeder/netron/issues/223"
+  },
+  {
+    "type":   "caffe2",
+    "target": "generalized_rcnn/predict_net.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/2802044/predict_net.pbtxt.txt",
+    "format": "Caffe2",
+    "link":   "https://github.com/lutzroeder/netron/issues/223"
   },
   {
     "type":   "caffe2",

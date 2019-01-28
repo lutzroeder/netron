@@ -10,6 +10,11 @@
         {
           "default": 1,
           "name": "stride"
+        },
+        {
+          "name": "exhaustive_search",
+          "type": "boolean",
+          "visible": false
         }
       ],
       "category": "Layer",
@@ -334,6 +339,13 @@
   {
     "name": "Relu",
     "schema": {
+      "attributes": [
+        {
+          "name": "cudnn_exhaustive_search",
+          "type": "boolean",
+          "visible": false
+        }
+      ],
       "category": "Activation",
       "description": "\nApplies rectified linear unit operation to the input data element-wise. The Relu operation takes one input $X$, produces one output $Y$, and is defined as:\n\n$$Y = max(0,X)$$\n\nGithub Links:\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/relu_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/relu_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n  \"Relu\",\n  [\"X\"],\n  [\"Y\"]\n  )\n\nworkspace.FeedBlob(\"X\", np.random.randn(4, 4).astype(np.float32)) // NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\n\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nX:\n [[-1.4655551   0.64575136  0.7921748   0.4150579 ]\n [ 0.41085166 -0.2837964   0.9881425  -1.9300346 ]\n [ 0.39705405  0.44639114  0.9940703   0.2926532 ]\n [-0.6726489   0.01330667  1.101319    0.33858967]]\n\nY:\n [[0.         0.64575136 0.7921748  0.4150579 ]\n [0.41085166 0.         0.9881425  0.        ]\n [0.39705405 0.44639114 0.9940703  0.2926532 ]\n [0.         0.01330667 1.101319   0.33858967]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
@@ -443,6 +455,11 @@
         {
           "default": 0,
           "name": "pad"
+        },
+        {
+          "name": "cudnn_exhaustive_search",
+          "type": "boolean",
+          "visible": false
         }
       ],
       "category": "Pool",
@@ -485,7 +502,7 @@
   {
     "name": "SpatialBN",
     "schema": {
-      "attributes": [
+      "attributes ": [
         {
           "default": 0,
           "description": "If set to nonzero, run spatial batch normalization in test mode.",
@@ -1365,6 +1382,34 @@
       "outputs": [
         {
           "description": "1D input tensor",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "AffineChannel",
+    "schema": {
+      "category": "Normalization",
+      "description": "\nApplies a separate affine transformation to each channel of the input. Useful\nfor replacing spatial batch norm with its equivalent fixed transformation.\n",
+      "inputs": [
+        {
+          "description": "Feature map input with order NCHW or NHWC.",
+          "name": "X"
+        },
+        {
+          "description": "1D input of shape (C); the c-th element is the scale factor of the affine transformation for the c-th channel of the input.",
+          "name": "scale"
+        },
+        {
+          "description": "1D input of shape (C); the c-th element is the bias of the affine transformation for the c-th channel of the input.",
+          "name": "bias"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Output with the same order of Input.",
           "name": "Y"
         }
       ],
