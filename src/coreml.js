@@ -392,45 +392,47 @@ coreml.Graph = class {
     }
 
     static _formatFeatureType(type) {
-        var result = '';
-        switch (type.Type) {
-            case 'multiArrayType':
-                var shape = new coreml.TensorShape([]);
-                if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
-                    shape = new coreml.TensorShape(type.multiArrayType.shape);
-                }
-                var dataType = '?';
-                switch (type.multiArrayType.dataType) {
-                    case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
-                        dataType = 'float32';
-                        break;
-                    case coreml.proto.ArrayFeatureType.ArrayDataType.INT32:
-                        dataType = 'int32';
-                        break;
-                    case coreml.proto.ArrayFeatureType.ArrayDataType.DOUBLE:
-                        dataType = 'float64';
-                        break;
-                }
-                result = new coreml.TensorType(dataType, shape);
-                break;
-            case 'stringType':
-                result = new coreml.TensorType('string');
-                break;
-            case 'doubleType':
-                result = new coreml.TensorType('float64');
-                break;
-            case 'int64Type':
-                result = new coreml.TensorType('int64');
-                break;
-            case 'dictionaryType':
-                result = new coreml.MapType(type.dictionaryType.KeyType.replace('KeyType', ''), 'float64');
-                break;
-            case 'imageType':
-                result = new coreml.ImageType(type.imageType.colorSpace, type.imageType.width, type.imageType.height);
-                break;
-        }
-        if (type.isOptional) {
-            result = new coreml.OptionalType(result);
+        var result = '?';
+        if (type) {
+            switch (type.Type) {
+                case 'multiArrayType':
+                    var shape = new coreml.TensorShape([]);
+                    if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
+                        shape = new coreml.TensorShape(type.multiArrayType.shape);
+                    }
+                    var dataType = '?';
+                    switch (type.multiArrayType.dataType) {
+                        case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
+                            dataType = 'float32';
+                            break;
+                        case coreml.proto.ArrayFeatureType.ArrayDataType.INT32:
+                            dataType = 'int32';
+                            break;
+                        case coreml.proto.ArrayFeatureType.ArrayDataType.DOUBLE:
+                            dataType = 'float64';
+                            break;
+                    }
+                    result = new coreml.TensorType(dataType, shape);
+                    break;
+                case 'stringType':
+                    result = new coreml.TensorType('string');
+                    break;
+                case 'doubleType':
+                    result = new coreml.TensorType('float64');
+                    break;
+                case 'int64Type':
+                    result = new coreml.TensorType('int64');
+                    break;
+                case 'dictionaryType':
+                    result = new coreml.MapType(type.dictionaryType.KeyType.replace('KeyType', ''), 'float64');
+                    break;
+                case 'imageType':
+                    result = new coreml.ImageType(type.imageType.colorSpace, type.imageType.width, type.imageType.height);
+                    break;
+            }
+            if (type.isOptional) {
+                result = new coreml.OptionalType(result);
+            }
         }
         return result;
     }
