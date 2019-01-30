@@ -4941,10 +4941,6 @@
                         break;
                     }
                 }
-                if (!message.hasOwnProperty("min"))
-                    throw $util.ProtocolError("missing required 'min'", { instance: message });
-                if (!message.hasOwnProperty("max"))
-                    throw $util.ProtocolError("missing required 'max'", { instance: message });
                 return message;
             };
     
@@ -4967,20 +4963,18 @@
                         break;
                     }
                 }
-                if (!message.hasOwnProperty("min"))
-                    throw $util.ProtocolError("missing required 'min'", { instance: message });
-                if (!message.hasOwnProperty("max"))
-                    throw $util.ProtocolError("missing required 'max'", { instance: message });
                 return message;
             };
     
             ClipParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (typeof message.min !== "number")
-                    return "min: number expected";
-                if (typeof message.max !== "number")
-                    return "max: number expected";
+                if (message.min != null && message.hasOwnProperty("min"))
+                    if (typeof message.min !== "number")
+                        return "min: number expected";
+                if (message.max != null && message.hasOwnProperty("max"))
+                    if (typeof message.max !== "number")
+                        return "max: number expected";
                 return null;
             };
     

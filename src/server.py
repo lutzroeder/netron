@@ -114,6 +114,8 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 class HTTPServerThread(threading.Thread):
     def __init__(self, data, file, verbose, browse, port, host):
         threading.Thread.__init__(self)
+        self.port = port
+        self.host = host
         self.file = file
         self.url = 'http://' + host + ':' + str(port)
         self.browse = browse

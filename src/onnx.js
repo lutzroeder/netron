@@ -1,9 +1,10 @@
 /*jshint esversion: 6 */
 
 var onnx = onnx || {};
+var base = base || require('./base');
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var marked = marked || require('marked');
-var base = base || require('./base');
 
 onnx.ModelFactory = class {
 
@@ -26,14 +27,26 @@ onnx.ModelFactory = class {
                 return false;
             }
             // ignore input_0.pb, output_0.pb
-            if (tags.hasOwnProperty(1) && tags[1] == 0 && 
+            if (Object.keys(tags).length > 0 &&
+                tags.hasOwnProperty(1) && tags[1] == 0 && 
                 tags.hasOwnProperty(2) && tags[2] == 0 && 
                 tags.hasOwnProperty(9) && tags[9] == 2) {
                 return false;
             }
+            if (Object.keys(tags).length > 0 &&
+                Object.keys(tags).some((tag) => tags[tag] == 5)) {
+                return false;
+            }
             // check ir_version and graph present
-            if (!tags.hasOwnProperty(1) || tags[1] != 0 ||
-                !tags.hasOwnProperty(7) || tags[7] != 2) {
+            if ( tags.hasOwnProperty(1) && tags[1] != 0 ||
+                 tags.hasOwnProperty(2) && tags[2] != 2 ||
+                 tags.hasOwnProperty(3) && tags[3] != 2 ||
+                 tags.hasOwnProperty(4) && tags[4] != 2 ||
+                 tags.hasOwnProperty(5) && tags[5] != 0 ||
+                 tags.hasOwnProperty(6) && tags[6] != 2 ||
+                 tags.hasOwnProperty(8) && tags[8] != 2 ||
+                 tags.hasOwnProperty(14) && tags[14] != 2 ||
+                (!tags.hasOwnProperty(7) || tags[7] != 2)) {
                 return false;
             }
             return true;
@@ -717,6 +730,11 @@ onnx.Tensor = class {
             return context;
         }
 
+        if (this._tensor.external_data.some((item) => item && item.key == 'location' && item.value == onnx.proto.TensorProtoDataLocation.EXTERNAL)) {
+            context.state =  'External data not implemented.';
+            return context;
+        }
+
         context.dataType = this._type.dataType;
         context.shape = this._type.shape.dimensions;
 
@@ -771,7 +789,7 @@ onnx.Tensor = class {
                     context.data = this._tensor.uint64_data;
                 }
                 else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = this._tensor.raw_data;
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -782,7 +800,7 @@ onnx.Tensor = class {
                     context.data = this._tensor.int64_data;
                 }
                 else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = this._tensor.raw_data;
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -793,7 +811,7 @@ onnx.Tensor = class {
                     context.data = this._tensor.uint64_data;
                 }
                 else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = this._tensor.raw_data;
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -873,12 +891,12 @@ onnx.Tensor = class {
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT64:
-                            results.push(new base.Int64(context.rawData.subarray(context.index, context.index + 8)));
+                            results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                             context.index += 8;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT64:
-                            results.push(new base.Uint64(context.rawData.subarray(context.index, context.index + 8)));
+                            results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                             context.index += 8;
                             context.count++;
                             break;
@@ -1102,6 +1120,7 @@ onnx.GraphMetadata = class {
     constructor(metadata, opsetImport) {
         this._metadata = metadata;
         this._cache = {};
+        this._attributeCache = {};
         this._imports = {};
         if (opsetImport) {
             opsetImport.forEach((opsetImport) => {
@@ -1132,24 +1151,18 @@ onnx.GraphMetadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    schema.attributes.forEach((attribute) => {
-                        attributeMap[attribute.name] = attribute;
-                    });
-                }
-                schema.attributeMap = attributeMap;
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    map[attribute.name] = attribute;
+                });
             }
-            var attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema; 
-            }
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 
     getInputs(operator, inputs) {

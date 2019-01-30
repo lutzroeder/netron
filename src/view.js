@@ -2,7 +2,7 @@
 
 var view = view || {};
 
-var base = base || require('./base');
+var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
@@ -369,7 +369,7 @@ view.View = class {
         setTimeout(() => {
             if (graph && graph != this._activeGraph) {
                 var nodes = graph.nodes;
-                if (nodes.length > 1500) {
+                if (nodes.length > 1400) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);
@@ -652,10 +652,14 @@ view.View = class {
                         };    
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
+                    var name = input.name;
+                    if (name.length > 16) {
+                        name = name.split('/').pop();
+                    }
     
                     var element = new grapher.NodeElement(this._host.document);
                     var header = element.block('header');
-                    header.add(null, [ 'graph-item-input' ], input.name, types, () => {
+                    header.add(null, [ 'graph-item-input' ], name, types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: element.format(graphElement), class: 'graph-input' } ); 
@@ -671,10 +675,14 @@ view.View = class {
                         tuple.to.push({ node: nodeId });
                     });
                     var types = output.connections.map(connection => connection.type || '').join('\n');
+                    var name = output.name;
+                    if (name.length > 16) {
+                        name = name.split('/').pop();
+                    }
             
                     var element = new grapher.NodeElement(this._host.document);
                     var header = element.block('header');
-                    header.add(null, [ 'graph-item-output' ], output.name, types, () => {
+                    header.add(null, [ 'graph-item-output' ], name, types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: element.format(graphElement) } ); 
@@ -950,10 +958,10 @@ view.View = class {
         if (typeof value === 'string' && type && type != 'string') {
             return value;
         }
-        if (value && value.__isLong__) {
+        if (value && long.Long.isLong(value)) {
             return value.toString();
         }
-        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
+        if (value && long.Long.isLong(value)) {
             return value.toString();
         }
         if (Number.isNaN(value)) {
@@ -976,7 +984,7 @@ view.View = class {
         }
         if (Array.isArray(value)) {
             return value.map((item) => {
-                if (item && item.__isLong__) {
+                if (item && long.Long.isLong(item)) {
                     return item.toString();
                 }
                 if (Number.isNaN(item)) {
@@ -1058,11 +1066,12 @@ class ArchiveContext {
                         while (reader.pos < reader.len) {
                             var tagType = reader.uint32();
                             tags[tagType >>> 3] = tagType & 7;
-                            switch (tagType & 7) {
-                                case 0: reader.int64(); break;
-                                case 1: reader.fixed64(); break;
-                                case 2: reader.bytes(); break;
-                                default: tags = {}; reader.pos = reader.len; break;
+                            try {
+                                reader.skipType(tagType & 7);
+                            }
+                            catch (err) {
+                                tags = {};
+                                break;
                             }
                         }
                         break;

@@ -321,6 +321,7 @@ torch.Node = class {
                 break;
             case 'nn.SpatialZeroPadding':
             case 'nn.SpatialReflectionPadding':
+            case 'nn.SpatialReplicationPadding':
                 this._updateBox(module, 'pad');
                 break;
             case 'nn.SpatialFullConvolution':
@@ -622,6 +623,7 @@ torch.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -639,17 +641,18 @@ torch.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.__attributesMap) {
-                schema.__attributesMap = {};
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema.__attributesMap[attribute.name] = attribute;
+                    map[attribute.name] = attribute;
                 });
             }
-            return schema.__attributesMap[name];
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 };
 
@@ -667,9 +670,12 @@ torch.T7Reader = class {
         this._memo = {};
 
         this._registry = {};
+        this._registry['bnn.Binary'] = function(reader, version) { reader.nn(this); };
+        this._registry['bnn.SpatialConvolution'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.BatchNormalization'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.SpatialConvolution'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.ReLU'] = function(reader, version) { reader.nn(this); };
+        this._registry['cudnn.Sigmoid'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.SoftMax'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.SpatialAveragePooling'] = function(reader, version) { reader.nn(this); };
         this._registry['cudnn.SpatialBatchNormalization'] = function(reader, version) { reader.nn(this); };
@@ -679,11 +685,14 @@ torch.T7Reader = class {
         this._registry['inn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.BinActiveZ'] = function(reader, version) { reader.nn(this); }; // allenai/XNOR-Net
         this._registry['nn.CAddTable'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.CDivTable'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.CSubTable'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Concat'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Copy'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ConcatTable'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.DepthConcat'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Dropout'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.GenNoise'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Identity'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Inception'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.InstanceNormalization'] = function(reader, version) { reader.nn(this); };
@@ -695,9 +704,11 @@ torch.T7Reader = class {
         this._registry['nn.MulConstant'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.MM'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Normalize'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.NoiseFill'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Parallel'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ParallelTable'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ReLU'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.Replicate'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Reshape'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ShaveImage'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SelectTable'] = function(reader, version) { reader.nn(this); };
@@ -711,10 +722,14 @@ torch.T7Reader = class {
         this._registry['nn.SpatialCrossMapLRN'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialDilatedConvolution'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialDropout'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.SpatialFractionalMaxPooling'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialFullConvolution'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialLPPooling'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialReflectionPadding'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.SpatialReplicationPadding'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.SpatialSubtractiveNormalization'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.SpatialUpSamplingBilinear'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialUpSamplingNearest'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.SpatialZeroPadding'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Square'] = function(reader, version) { reader.nn(this); };

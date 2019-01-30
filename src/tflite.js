@@ -1,8 +1,9 @@
 /*jshint esversion: 6 */
 
 var tflite = tflite || {};
-var flatbuffers = flatbuffers || require('flatbuffers').flatbuffers;
 var base = base || require('./base');
+var flatbuffers = flatbuffers || require('flatbuffers').flatbuffers;
+var long = long || { Long: require('long') };
 
 tflite.ModelFactory = class {
 
@@ -17,6 +18,7 @@ tflite.ModelFactory = class {
                 callback(err, null);
                 return;
             }
+            var identifier = context.identifier;
             var model = null;
             try {
                 var buffer = context.buffer;
@@ -24,15 +26,17 @@ tflite.ModelFactory = class {
                 tflite.schema = tflite_schema;
                 if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
                 {
-                    var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
-                    callback(new tflite.Error("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
+                    var signature = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
+                    callback(new tflite.Error("Invalid FlatBuffers signature '" + signature + "' in '" + identifier + "'."));
                     return;
                 }
                 model = tflite.schema.Model.getRootAsModel(byteBuffer);
             }
             catch (error) {
                 host.exception(error, false);
-                callback(new tflite.Error(error.message), null);
+                var message = error && error.message ? error.message : error.toString();
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;        
+                callback(new tflite.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
     
@@ -41,8 +45,9 @@ tflite.ModelFactory = class {
                     callback(null, new tflite.Model(metadata, model));
                 }
                 catch (error) {
-                    host.exception(error, false);
-                    callback(new tflite.Error(error.message), null);
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;        
+                    callback(new tflite.Error(message + " in '" + identifier + "'."), null);
                 }
             });
         });
@@ -185,6 +190,12 @@ tflite.Node = class {
             }
             this._attributes = [];
             var optionsTypeName = this._operator + 'Options';
+            switch (this._operator) {
+                case 'MaxPool2D':
+                case 'AveragePool2D':
+                    optionsTypeName = 'Pool2DOptions';
+                    break;
+            }
             var optionsType = tflite.Node._getType(optionsTypeName);
             if (typeof optionsType === 'function') {
                 var options = Reflect.construct(optionsType, []);
@@ -540,7 +551,7 @@ tflite.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new base.Int64(context.rawData.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
                         break;

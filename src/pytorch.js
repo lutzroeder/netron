@@ -4,6 +4,7 @@
 
 var pytorch = pytorch || {};
 var base = base || require('./base');
+var long = long || { Long: require('long') };
 var tar = tar || require('./tar');
 
 pytorch.ModelFactory = class {
@@ -38,8 +39,8 @@ pytorch.ModelFactory = class {
     }
 
     _openModel(metadata, context, host, pickle, callback) {
+        var identifier = context.identifier;
         try {
-            var identifier = context.identifier;
             var buffer = context.buffer;
             var unpickler = new pickle.Unpickler(buffer);
 
@@ -86,6 +87,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.backends.cudnn.rnn.Unserializable'] = function () {};
             constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
             constructorTable['torch.nn.modules.activation.ELU'] = function () {};
+            constructorTable['torch.nn.modules.activation.Hardtanh'] = function () {};
             constructorTable['torch.nn.modules.activation.LeakyReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.LogSoftmax'] = function () {};
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
@@ -114,6 +116,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
             constructorTable['torch.nn.modules.loss.BCELoss'] = function () {};
+            constructorTable['torch.nn.modules.loss.BCEWithLogitsLoss'] = function () {}; 
             constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function () {};
             constructorTable['torch.nn.modules.loss.MSELoss'] = function () {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
@@ -147,6 +150,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.rnn.GRUCell'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.rnn.LSTMCell'] = function () {};
+            constructorTable['torch.nn.modules.rnn.RNN'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
             constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
@@ -154,6 +158,8 @@ pytorch.ModelFactory = class {
                 this.data = data; this.requires_grad = requires_grad;
             };
             constructorTable['torch.nn.utils.spectral_norm.SpectralNorm'] = function () {};
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNormStateDictHook'] = function () {};
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook'] = function () {};
             constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function () {};
             constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
             constructorTable['torchvision.models.densenet.DenseNet'] = function () {};
@@ -231,8 +237,16 @@ pytorch.ModelFactory = class {
                             this.itemsize = Number(obj.substring(1));
                             this.name = 'string';
                         }
+                        else if (obj.startsWith('U')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'string';
+                        }
+                        else if (obj.startsWith('M')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'datetime';
+                        }
                         else {
-                            throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
+                            throw new pytorch.Error("Unknown dtype '" + obj.toString() + "'.");
                         }
                         break;
                 }
@@ -251,7 +265,7 @@ pytorch.ModelFactory = class {
                             this.int_dtypeflags = state[7];
                             break;
                         default:
-                            throw new sklearn.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                            throw new pytorch.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                     }
                 };
             };
@@ -278,13 +292,13 @@ pytorch.ModelFactory = class {
                     if (typeof this.rawdata == 'string') {
                         array.data = unpickler.unescape(this.rawdata, size);
                         if (array.data.length != size) {
-                            throw new sklearn.Error('Invalid string array data size.');
+                            throw new pytorch.Error('Invalid string array data size.');
                         }
                     }
                     else {
                         array.data = this.rawdata;
                         if (array.data.length != size) {
-                            throw new sklearn.Error('Invalid array data size.');
+                            throw new pytorch.Error('Invalid array data size.');
                         }
                     }
                     return array;
@@ -340,12 +354,20 @@ pytorch.ModelFactory = class {
                 }
                 var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                 switch (dtype.name) {
+                    case 'float32':
+                        return dataView.getFloat32(0, true);
                     case 'float64':
                         return dataView.getFloat64(0, true);
+                    case 'int8':
+                        return dataView.getInt8(0, true);
+                    case 'int16':
+                        return dataView.getInt16(0, true);
+                    case 'int32':
+                        return dataView.getInt32(0, true);
                     case 'int64':
-                        return new base.Int64(data.subarray(0, dtype.itemsize));
+                        return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), true);
                 }
-                throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
+                throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
             };
             functionTable['_codecs.encode'] = function(obj, econding) {
                 return obj;
@@ -438,8 +460,9 @@ pytorch.ModelFactory = class {
             callback(null, model);
         }
         catch (error) {
-            host.exception(error, false);
-            callback(new pytorch.Error(error.message), null);
+            var message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            callback(new pytorch.Error(message + " in '" + identifier + "'."), null);
             return;
         }
     }
@@ -902,7 +925,7 @@ pytorch.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new base.Int64(context.data.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.dataView.getUint32(context.index, true), context.dataView.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
                         break;
@@ -950,7 +973,7 @@ pytorch.Tensor = class {
             result.push(indentation + ']');
             return result.join('\n');
         }
-        if (value instanceof base.Int64 || value instanceof base.Uint64) {
+        if (value && long.Long.isLong(value)) {
             return indentation + value.toString();
         }
         if (typeof value == 'string') {
@@ -1023,6 +1046,7 @@ pytorch.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -1040,17 +1064,18 @@ pytorch.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
+                    map[attribute.name] = attribute;
                 });
             }
-            return schema.attributesMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 };
 

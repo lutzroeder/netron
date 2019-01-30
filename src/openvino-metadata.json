@@ -480,7 +480,7 @@
                   "type": " positive number greater or equal to 0"
               }
           ],
-          "category": "Layer",
+          "category": "Tensor",
           "description": "**Short description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/concat.html)\n**Parameters**: *Concat* layer parameters should be specified in the `concat_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Axis* parameter specifies a blob dimension to concat values. For example, for two input blobs *B1xC1xH1xW1* and *B2xC2xh4xW2* if axis: 1, output blob is****: *B1xC1+C2xH1xW1*. This is only possible if *B1=B2*, *H1=H4*, *W1=W2*.\n**Example**\n\n```html\n<layer ... type=\"Concat\" ... >\n    <concat_data axis=\"1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -1456,5 +1456,11 @@
           "outputs": null,
           "support_level": "default"
       }
+  },
+  {
+    "name": "Flatten",
+    "schema": {
+      "category": "Shape"
+    }
   }
 ]

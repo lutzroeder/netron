@@ -3,8 +3,8 @@
 // Experimental
 
 var sklearn = sklearn || {};
+var long = long || { Long: require('long') };
 var marked = marked || require('marked');
-var base = base || require('./base');
 
 sklearn.ModelFactory = class {
 
@@ -29,8 +29,8 @@ sklearn.ModelFactory = class {
             }
             
             var obj = null;
+            var identifier = context.identifier;
             try {
-                var identifier = context.identifier;
                 var unpickler = new pickle.Unpickler(context.buffer);
 
                 var constructorTable = {};
@@ -60,6 +60,14 @@ sklearn.ModelFactory = class {
                             else if (obj.startsWith('S')) {
                                 this.itemsize = Number(obj.substring(1));
                                 this.name = 'string';
+                            }
+                            else if (obj.startsWith('U')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'string';
+                            }
+                            else if (obj.startsWith('M')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'datetime';
                             }
                             else {
                                 throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
@@ -184,6 +192,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.label.LabelEncoder'] = function() {};
+                constructorTable['sklearn.svm.classes.LinearSVC'] = function() {};
                 constructorTable['sklearn.svm.classes.SVC'] = function() {};
                 constructorTable['sklearn.svm.classes.SVR'] = function() {};
                 constructorTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
@@ -225,10 +234,18 @@ sklearn.ModelFactory = class {
                     }
                     var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.name) {
+                        case 'float32':
+                            return dataView.getFloat32(0, true);
                         case 'float64':
                             return dataView.getFloat64(0, true);
+                        case 'int8':
+                            return dataView.getInt8(0, true);
+                        case 'int16':
+                            return dataView.getInt16(0, true);
+                        case 'int32':
+                            return dataView.getInt32(0, true);
                         case 'int64':
-                            return new base.Int64(data.subarray(0, dtype.itemsize));
+                            return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), true);
                     }
                     throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
                 };
@@ -279,11 +296,12 @@ sklearn.ModelFactory = class {
                 }
             }
             catch (error) {
-                host.exception(error, false);
-                callback(error);
+                var message = error && error.message ? error.message : error.toString();
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                callback(new sklearn.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
-
+    
             sklearn.Metadata.open(host, (err, metadata) => {
                 try {
                     var model = new sklearn.Model(metadata, obj);
@@ -687,11 +705,9 @@ sklearn.Tensor = class {
             case 'float64':
             case 'int32':
             case 'uint32':
-                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
             case 'int64':
             case 'uint64':
-                context.rawData = this._data;
+                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 break;
             default:
                 context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
@@ -733,12 +749,12 @@ sklearn.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new base.Int64(context.rawData.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'uint64':
-                        results.push(new base.Uint64(context.rawData.subarray(context.index, context.index + 8)));
+                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), false));
                         context.index += 8;
                         context.count++;
                         break;
@@ -823,6 +839,7 @@ sklearn.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -840,17 +857,18 @@ sklearn.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this.getSchema(operator);
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributeMap) {
-                schema.attributeMap = {};
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema.attributeMap[attribute.name] = attribute;
+                    map[attribute.name] = attribute;
                 });
             }
-            return schema.attributeMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 };
 

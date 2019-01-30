@@ -127,8 +127,8 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "padding", "type": "Padding" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
+        { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -205,6 +205,10 @@
       ],
       "outputs": [
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },

@@ -289,6 +289,14 @@
     }
   },
   {
+    "name": "Hardtanh",
+    "schema": {
+      "attributes": [],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "LeakyReLU",
     "schema": {
       "attributes": [],
@@ -615,6 +623,13 @@
   },
   {
     "name": "LSTMCell",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.rnn"
+    }
+  },
+  {
+    "name": "RNN",
     "schema": {
       "category": "Layer",
       "package": "torch.nn.modules.rnn"

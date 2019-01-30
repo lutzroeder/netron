@@ -57,7 +57,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Abs',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.abs(x)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_abs')",
+          "code": "node = onnx.helper.make_node(\n    'Abs',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = abs(x)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_abs')",
           "summary": "abs"
         }
       ],
@@ -101,7 +101,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Abs',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.abs(x)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_abs')",
+          "code": "node = onnx.helper.make_node(\n    'Abs',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = abs(x)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_abs')",
           "summary": "abs"
         }
       ],
@@ -1058,11 +1058,11 @@
           "summary": "averagepool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
           "summary": "averagepool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
           "summary": "averagepool_2d_same_upper"
         },
         {
@@ -1180,11 +1180,11 @@
           "summary": "averagepool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
           "summary": "averagepool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
           "summary": "averagepool_2d_same_upper"
         },
         {
@@ -1498,7 +1498,7 @@
         }
       ],
       "category": "Normalization",
-      "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, mean, var, saved_mean, saved_var (training mode)\nOutput case #2: Y (test mode)\n    This operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Carries out batch normalization as described in the paper\n    https://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\n    there are multiple cases for the number of outputs, which we list below:\n    \n    Output case #1: Y, mean, var, saved_mean, saved_var (training mode)\n    Output case #2: Y (test mode)\n        This operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -1584,6 +1584,111 @@
     }
   },
   {
+    "name": "BatchNormalization",
+    "schema": {
+      "attributes": [
+        {
+          "default": 9.999999747378752e-06,
+          "description": "The epsilon value to use to avoid division by zero.",
+          "name": "epsilon",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": 0.8999999761581421,
+          "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum).",
+          "name": "momentum",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "category": "Normalization",
+      "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, mean, var, saved_mean, saved_var (training mode)\nOutput case #2: Y (test mode)\n\nFor previous (depreciated) non-spatial cases, implementors are suggested\nto flatten the input shape to (N x C*D1*D2 ..*Dn) before a BatchNormalization Op.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "def _batchnorm_test_mode(x, s, bias, mean, var, epsilon=1e-5):  # type: ignore\n    dims_x = len(x.shape)\n    dim_ones = (1,) * (dims_x - 2)\n    s = s.reshape(-1, *dim_ones)\n    bias = bias.reshape(-1, *dim_ones)\n    mean = mean.reshape(-1, *dim_ones)\n    var = var.reshape(-1, *dim_ones)\n    return s * (x - mean) / np.sqrt(var + epsilon) + bias\n\n# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')",
+          "summary": "batchnormalization"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor from the previous operator; dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size, C is the number of channels. Statistics are computed for every channel of C over N and D1 to Dn dimensions. For image data, input dimensions become (N x C x H x W). The op also accepts single dimension input of size N in which case C is assumed to be 1",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "Scale tensor of shape (C).",
+          "name": "scale",
+          "type": "T"
+        },
+        {
+          "description": "Bias tensor of shape (C).",
+          "name": "B",
+          "type": "T"
+        },
+        {
+          "description": "running (training) or estimated (testing) mean tensor of shape (C).",
+          "name": "mean",
+          "type": "T"
+        },
+        {
+          "description": "running (training) or estimated (testing) variance tensor of shape (C).",
+          "name": "var",
+          "type": "T"
+        }
+      ],
+      "max_input": 5,
+      "max_output": 5,
+      "min_input": 5,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The output tensor of the same shape as X",
+          "name": "Y",
+          "type": "T"
+        },
+        {
+          "description": "The running mean after the BatchNormalization operator.",
+          "name": "mean",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The running variance after the BatchNormalization operator.",
+          "name": "var",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Saved mean used during training to speed up gradient computation.",
+          "name": "saved_mean",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Saved variance used during training to speed up gradient computation.",
+          "name": "saved_var",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Binarizer",
     "schema": {
       "attributes": [
@@ -1635,7 +1740,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The data type to which the elements of the input tensor are cast.Strictly must be one of the types from DataType enum in TensorProto",
+          "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto",
           "name": "to",
           "required": true,
           "type": "string"
@@ -1645,7 +1750,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n]\n\nfor from_type, to_type in test_cases:\n    input = np.random.random_sample(shape).astype(\n        TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n\n    expect(node, inputs=[input], outputs=[output],\n           name='test_cast_' + from_type + '_to_' + to_type)",
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            output = input.astype(np.dtype('str'))\n            output = output.astype(np.dtype(np.object))\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([['0.47892547', '0.48033667', '0.49968487', '0.81910545'],\n           ['0.47031248', '0.816468', '0.21087195', '0.7229038'],\n           ['NaN', 'INF', '+INF', '-INF']], dtype=np.dtype(np.object))\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
           "summary": "cast"
         }
       ],
@@ -1714,7 +1819,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The data type to which the elements of the input tensor are cast.Strictly must be one of the types from DataType enum in TensorProto",
+          "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto",
           "name": "to",
           "required": true,
           "type": "int"
@@ -1724,7 +1829,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n]\n\nfor from_type, to_type in test_cases:\n    input = np.random.random_sample(shape).astype(\n        TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n\n    expect(node, inputs=[input], outputs=[output],\n           name='test_cast_' + from_type + '_to_' + to_type)",
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            output = input.astype(np.dtype('str'))\n            output = output.astype(np.dtype(np.object))\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([['0.47892547', '0.48033667', '0.49968487', '0.81910545'],\n           ['0.47031248', '0.816468', '0.21087195', '0.7229038'],\n           ['NaN', 'INF', '+INF', '-INF']], dtype=np.dtype(np.object))\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
           "summary": "cast"
         }
       ],
@@ -1783,6 +1888,87 @@
             "tensor(bool)"
           ],
           "description": "Constrain output types. Casting to strings and complex are not supported.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Cast",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto",
+          "name": "to",
+          "required": true,
+          "type": "int"
+        }
+      ],
+      "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message.\n\nCasting from string tensor in plain (e.g., \"3.14\" and \"1000\") and scientific numeric representations\n(e.g., \"1e-5\" and \"1E8\") to float types is supported. For example, converting string \"100.5\" to an integer may\nresult 100. There are some string literals reserved for special floating-point values;\n\"+INF\" (and \"INF\"), \"-INF\", and \"NaN\" are positive infinity, negative infinity, and not-a-number, respectively.\nAny string which can exactly match \"+INF\" in a case-insensitive way would be mapped to positive infinite. Similarly,\nthis case-insensitive rule is applied to \"INF\" and \"NaN\". When casting from numeric tensors\nto string tensors, plain floating-point representation (such as \"314.15926\") would be used. \nConverting non-numerical-literal string such as \"Hello World!\" is an undefined behavior. Cases \nof converting string representing floating-point arithmetic value, such as \"2.718\", to INT is an undefined behavior.\n\nConversion from a numerical type to any numerical type is always allowed.\nUser must be aware of precision loss and value change caused by range difference between two types.\nFor example, a 64-bit float 3.1415926459 may be round to a 32-bit float 3.141592. Similarly, converting\nan integer 36 to Boolean may produce 1 because we truncate bits which can't be stored in the targeted type.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            output = input.astype(np.dtype('str'))\n            output = output.astype(np.dtype(np.object))\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([['0.47892547', '0.48033667', '0.49968487', '0.81910545'],\n           ['0.47031248', '0.816468', '0.21087195', '0.7229038'],\n           ['NaN', 'INF', '+INF', '-INF']], dtype=np.dtype(np.object))\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
+          "summary": "cast"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor to be cast.",
+          "name": "input",
+          "type": "T1"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor with the same shape as input with type specified by the 'to' argument",
+          "name": "output",
+          "type": "T2"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(bool)",
+            "tensor(string)"
+          ],
+          "description": "Constrain input types. Casting from complex is not supported.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(bool)",
+            "tensor(string)"
+          ],
+          "description": "Constrain output types. Casting to complex is not supported.",
           "type_param_str": "T2"
         }
       ]
@@ -2467,142 +2653,42 @@
     }
   },
   {
-    "name": "ConstantFill",
+    "name": "ConstantOfShape",
     "schema": {
       "attributes": [
         {
-          "default": 1,
-          "description": "The data type for the elements of the output tensor.Strictly must be one of the types from DataType enum in TensorProto.",
-          "name": "dtype",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "The additional dimensions appended at the end of the shape indicatedby the input blob.Cannot set the extra_shape argument when there is no input blob.",
-          "name": "extra_shape",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "1D tensor containing the desired output shape.  First input must be in CPU context.",
-          "name": "input_as_shape",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "The shape of the output tensor. Cannot set the shape argument and pass in an input at the same time.",
-          "name": "shape",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "The value for the elements of the output tensor.",
+          "description": "(Optional) The value of the output elements.Should be a one-element tensor. If not specified, it defaults to a tensor of value 0 and datatype float32",
           "name": "value",
           "required": false,
-          "type": "float"
+          "type": "tensor"
         }
       ],
-      "description": "The operator fills the elements of the output tensor with a constant value\nspecified by the 'value' attribute.\n\nThe data type is specified by the 'dtype' attribute. The 'dtype' attribute must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message. If the 'dtype' attribute is not provided, the data type of\n'value' is used.\n\nThe output tensor shape is specified by the 'shape' attribute. If the number of\ninput is 1, the shape will be identical to that of the input at run time with\noptional additional dimensions appended at the end as specified by 'extra_shape'\nattribute. In that case the 'shape' attribute should not be set.\n\nIf input_as_shape is set to true, then the input should be a 1D tensor\ncontaining the desired output shape (the dimensions specified in extra_shape\nwill also be appended)\n\nNOTE: Currently, it supports data type of float, int32, int64, and bool.\n",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "Input tensor (optional) to provide shape information.",
-          "name": "input",
-          "option": "optional",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 0,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Output tensor of constant values specified by 'value'argument and its type is specified by the 'dtype' argument",
-          "name": "output",
-          "type": "T2"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(bool)"
-          ],
-          "description": "Constrain input types to float, int32, int64, bool tensors.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(bool)"
-          ],
-          "description": "Constrain output types to float, int32, int64, bool tensors.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
-    "name": "ConstantLike",
-    "schema": {
-      "attributes": [
-        {
-          "description": "(Optional) The data type for the elements of the output tensor. If not specified,the data type of the input tensor T1 is used. If input tensor T1 is also not specified, then output tensor type defaults to 'float'.",
-          "name": "dtype",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "(Optional) The shape of the output tensor. If input tensor T1 is provided, then 'shape' attribute is ignored and the output follows the shape of the input. One of either input tensor T1 or 'shape' attribute must be provided.",
-          "name": "shape",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "(Optional) The value for the elements of the output tensor.",
-          "name": "value",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "description": "Generate a tensor with specific constant value. The value can be specified by the 'value' \nattribute. The shape of the output tensor is the same as the input tensor, if the input \ntensor is provided, or the shape provided in the 'shape' attribute (if both are provided, \nthe input tensor shape takes precendence). The data type can be specified by the 'dtype' \nargument. If 'dtype' is not specified, then the type of input tensor is used. If input \ntensor is also not specified, then the type defaults to 'float'.\n\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
+      "description": "Generate a tensor with given value and shape.\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (4, 3, 2)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    inputs=['x'],\n    outputs=['y'],\n    value=1.0,\n)\nx = np.random.randint(0, 100, size=shape, dtype=np.int32)\ny = np.ones(shape, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y], name='test_constantlike_ones_with_input')",
-          "summary": "ones_with_input"
+          "code": "x = np.array([4, 3, 2])\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.FLOAT,\n                                       [1], [1])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\n\ny = np.ones(x, dtype=np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_float_ones')",
+          "summary": "float_ones"
         },
         {
-          "code": "shape = (3, 4)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    shape=shape,\n    inputs=[],\n    outputs=['y'],\n    value=3.0,\n    dtype=onnx.TensorProto.DOUBLE,  # 11: DOUBLE\n)\n\ny = 3.0 * np.ones(shape, dtype=np.float64)\nexpect(node, inputs=[], outputs=[y], name='test_constantlike_threes_with_shape_and_dtype')",
-          "summary": "threes_with_shape_and_dtype"
-        },
-        {
-          "code": "shape = (2, 5, 1)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    inputs=[],\n    outputs=['y'],\n    shape=shape,\n)\ny = np.zeros(shape, dtype=np.float32)\nexpect(node, inputs=[], outputs=[y], name='test_constantlike_zeros_without_input_dtype')",
-          "summary": "zeros_without_input_dtype"
+          "code": "x = np.array([10, 6])\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.INT32,\n                                       [1], [0])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_int_zeros')",
+          "summary": "int32_zeros"
         }
       ],
       "inputs": [
         {
-          "description": "Input tensor to copy shape, and optionally, type information from. One of either input tensor T1 or 'shape' attribute must be provided.",
+          "description": "1D tensor. The shape of the expected output tensor. If empty tensor is given, the output would be a scalar.",
           "name": "input",
-          "option": "optional",
           "type": "T1"
         }
       ],
       "max_input": 1,
       "max_output": 1,
-      "min_input": 0,
+      "min_input": 1,
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor, same shape as input tensor T1.",
+          "description": "Output tensor of shape specified by 'input'.If attribute 'value' is specified, the value and datatype of the output tensor is taken from 'value'.If attribute 'value' is not specified, the value in the output defaults to 0, and the datatype defaults to float32.",
           "name": "output",
           "type": "T2"
         }
@@ -2612,20 +2698,9 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int8)",
-            "tensor(int16)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)",
-            "tensor(bool)"
+            "tensor(int64)"
           ],
-          "description": "Constrain input types. Strings and complex are not supported.",
+          "description": "Constrain input types.",
           "type_param_str": "T1"
         },
         {
@@ -2643,7 +2718,7 @@
             "tensor(uint64)",
             "tensor(bool)"
           ],
-          "description": "Constrain output types. Strings and complex are not supported.",
+          "description": "Constrain output types to be numerics.",
           "type_param_str": "T2"
         }
       ]
@@ -2805,7 +2880,7 @@
         }
       ],
       "category": "Layer",
-      "description": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output. \n\nIf the pads parameter is provided the shape of the output is calculated via the following equation:\n\n  output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - pads[start_i] - pads[end_i]\n\noutput_shape can also be explicitly specified in which case pads values are auto generated using these equations:\n\n  total_padding[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - output_shape[i]\n  If (auto_pads != SAME_UPPER): pads[start_i] = total_padding[i]/2; pads[end_i] = total_padding[i] - (total_padding[i]/2)\n  Else: pads[start_i] = total_padding[i] - (total_padding[i]/2); pads[end_i] = (total_padding[i]/2).\n\n    ",
+      "description": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output.\n\nIf the pads parameter is provided the shape of the output is calculated via the following equation:\n\n  output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - pads[start_i] - pads[end_i]\n\noutput_shape can also be explicitly specified in which case pads values are auto generated using these equations:\n\n  total_padding[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - output_shape[i]\n  If (auto_pads != SAME_UPPER): pads[start_i] = total_padding[i]/2; pads[end_i] = total_padding[i] - (total_padding[i]/2)\n  Else: pads[start_i] = total_padding[i] - (total_padding[i]/2); pads[end_i] = (total_padding[i]/2).\n\n    ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -4142,7 +4217,7 @@
           "type": "int"
         }
       ],
-      "description": "Generate a 2D tensor (matrix) with ones on the diagonal and zeros everywhere else. Only 2D \ntensors are supported, i.e. input T1 must be of rank 2. The shape of the output tensor is the \nsame as the input tensor. The data type can be specified by the 'dtype' argument. If \n'dtype' is not specified, then the type of input tensor is used. By default, the main diagonal \nis populated with ones, but attribute 'k' can be used to populate upper or lower diagonals.\n\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
+      "description": "Generate a 2D tensor (matrix) with ones on the diagonal and zeros everywhere else. Only 2D\ntensors are supported, i.e. input T1 must be of rank 2. The shape of the output tensor is the\nsame as the input tensor. The data type can be specified by the 'dtype' argument. If\n'dtype' is not specified, then the type of input tensor is used. By default, the main diagonal\nis populated with ones, but attribute 'k' can be used to populate upper or lower diagonals.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7736,13 +7811,15 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "A maximum trip-count for the loop specified at runtime. Optional. pass empty string to skip.",
+          "description": "A maximum trip-count for the loop specified at runtime. Optional. Pass empty string to skip.",
           "name": "M",
+          "option": "optional",
           "type": "I"
         },
         {
-          "description": "A boolean termination condition. Pass empty string to skip.",
+          "description": "A boolean termination condition. Optional. Pass empty string to skip.",
           "name": "cond",
+          "option": "optional",
           "type": "B"
         },
         {
@@ -7790,16 +7867,16 @@
         },
         {
           "allowed_type_strs": [
-            "int64"
+            "tensor(int64)"
           ],
-          "description": "Only int64",
+          "description": "tensor of int64, which should be a scalar.",
           "type_param_str": "I"
         },
         {
           "allowed_type_strs": [
-            "bool"
+            "tensor(bool)"
           ],
-          "description": "Only bool",
+          "description": "tensor of bool, which should be a scalar.",
           "type_param_str": "B"
         }
       ]
@@ -8286,15 +8363,15 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
           "summary": "maxpool_1d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
           "summary": "maxpool_2d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
           "summary": "maxpool_2d_pads"
         },
         {
@@ -8310,19 +8387,19 @@
           "summary": "maxpool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
           "summary": "maxpool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
           "summary": "maxpool_2d_same_upper"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
           "summary": "maxpool_2d_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
           "summary": "maxpool_3d_default"
         },
         {
@@ -8408,15 +8485,15 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
           "summary": "maxpool_1d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
           "summary": "maxpool_2d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
           "summary": "maxpool_2d_pads"
         },
         {
@@ -8432,19 +8509,19 @@
           "summary": "maxpool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
           "summary": "maxpool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
           "summary": "maxpool_2d_same_upper"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
           "summary": "maxpool_2d_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
           "summary": "maxpool_3d_default"
         },
         {
@@ -9297,6 +9374,62 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to signed numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "NonZero",
+    "schema": {
+      "description": "Returns the indices of the elements that are non-zero\n    (in row-major order - by dimension).\n    NonZero behaves similar to numpy.nonzero:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.nonzero.html\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'NonZero',\n    inputs=['condition'],\n    outputs=['result'],\n)\n\ncondition = np.array([[1, 0], [1, 1]], dtype=np.bool)\nresult = np.array((np.nonzero(condition)))  # expected output [[0, 1, 1], [0, 0, 1]]\nexpect(node, inputs=[condition], outputs=[result],\n       name='test_nonzero_example')",
+          "summary": "nonzero"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "input",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "output (always 2D tensor)",
+          "name": "Y",
+          "type": "tensor(int64)"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -10608,7 +10741,7 @@
           "type": "float"
         }
       ],
-      "description": "Generate a tensor with random values drawn from a normal distribution. \nThe shape of the output tensor is copied from the shape of the input tensor, \nand the parameters of the normal distribution are specified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided. \nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message, and be valid as an output type.\n",
+      "description": "Generate a tensor with random values drawn from a normal distribution.\nThe shape of the output tensor is copied from the shape of the input tensor,\nand the parameters of the normal distribution are specified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message, and be valid as an output type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -10759,7 +10892,7 @@
           "type": "float"
         }
       ],
-      "description": "Generate a tensor with random values drawn from a uniform distribution. \nThe shape of the output tensor is copied from the shape of the input tensor, \nand the parameters of the uniform distribution are specified by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided. \nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
+      "description": "Generate a tensor with random values drawn from a uniform distribution.\nThe shape of the output tensor is copied from the shape of the input tensor,\nand the parameters of the uniform distribution are specified by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -12228,8 +12361,12 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum')",
-          "summary": "scan"
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 8)])",
+          "summary": "scan_8"
+        },
+        {
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=['initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((2,))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((2,))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan9_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 9)])",
+          "summary": "scan_9"
         }
       ],
       "inputs": [
@@ -12297,12 +12434,6 @@
     "schema": {
       "attributes": [
         {
-          "description": "An optional list of M flags. The i-th element of the list specifies the axis to be scanned (the sequence axis) for the i-th scan_input. If omitted, 0 will be used as the scan axis for every scan_input.",
-          "name": "axes",
-          "required": false,
-          "type": "int[]"
-        },
-        {
           "description": "The graph run each iteration. It has N+M inputs: (loop state variables..., scan_input_elts...). It has N+K outputs: (loop state variables..., scan_output_elts...). Each scan_output is created by concatenating the value of the specified scan_output_elt value at the end of each iteration of the loop. It is an error if the dimensions of these values change across loop iterations.",
           "name": "body",
           "required": true,
@@ -12315,8 +12446,20 @@
           "type": "int"
         },
         {
+          "description": "An optional list of M flags. The i-th element of the list specifies the axis to be scanned (the sequence axis) for the i-th scan_input. If omitted, 0 will be used as the scan axis for every scan_input.",
+          "name": "scan_input_axes",
+          "required": false,
+          "type": "int[]"
+        },
+        {
           "description": "An optional list of M flags. The i-th element of the list specifies the direction to be scanned for the i-th scan_input tensor: 0 indicates forward direction and 1 indicates reverse direction. If omitted, all scan_input tensors will be scanned in the forward direction.",
           "name": "scan_input_directions",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "An optional list of K flags. The i-th element of the list specifies the axis for the i-th scan_output. The scan outputs are accumulated along the specified axis. If omitted, 0 will be used as the scan axis for every scan_output.",
+          "name": "scan_output_axes",
           "required": false,
           "type": "int[]"
         },
@@ -12327,12 +12470,16 @@
           "type": "int[]"
         }
       ],
-      "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+      "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum')",
-          "summary": "scan"
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nno_sequence_lens = ''   # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=[no_sequence_lens, 'initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for batch-size 1, sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((1, 2))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((1, 3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((1, 2))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((1, 3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 8)])",
+          "summary": "scan_8"
+        },
+        {
+          "code": "# Given an input sequence [x1, ..., xN], sum up its elements using a scan\n# returning the final state (x1+x2+...+xN) as well the scan_output\n# [x1, x1+x2, ..., x1+x2+...+xN]\n#\n# create graph to represent scan body\nsum_in = onnx.helper.make_tensor_value_info('sum_in', onnx.TensorProto.FLOAT, [2])\nnext = onnx.helper.make_tensor_value_info('next', onnx.TensorProto.FLOAT, [2])\nsum_out = onnx.helper.make_tensor_value_info('sum_out', onnx.TensorProto.FLOAT, [2])\nscan_out = onnx.helper.make_tensor_value_info('scan_out', onnx.TensorProto.FLOAT, [2])\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['sum_in', 'next'],\n    outputs=['sum_out']\n)\nid_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['sum_out'],\n    outputs=['scan_out']\n)\nscan_body = onnx.helper.make_graph(\n    [add_node, id_node],\n    'scan_body',\n    [sum_in, next],\n    [sum_out, scan_out]\n)\n# create scan op node\nnode = onnx.helper.make_node(\n    'Scan',\n    inputs=['initial', 'x'],\n    outputs=['y', 'z'],\n    num_scan_inputs=1,\n    body=scan_body\n)\n# create inputs for sequence-length 3, inner dimension 2\ninitial = np.array([0, 0]).astype(np.float32).reshape((2,))\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.float32).reshape((3, 2))\n# final state computed = [1 + 3 + 5, 2 + 4 + 6]\ny = np.array([9, 12]).astype(np.float32).reshape((2,))\n# scan-output computed\nz = np.array([1, 2, 4, 6, 9, 12]).astype(np.float32).reshape((3, 2))\n\nexpect(node, inputs=[initial, x], outputs=[y, z],\n       name='test_scan9_sum', opset_imports=[onnx.helper.make_opsetid(\"\", 9)])",
+          "summary": "scan_9"
         }
       ],
       "inputs": [
@@ -12670,6 +12817,77 @@
           ],
           "description": "Constrain output to int64 tensor.",
           "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Shrink",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The bias value added to output. Default is 0.",
+          "name": "bias",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": 0.5,
+          "description": "The lambd value for the Shrink formulation. Default is 0.5.",
+          "name": "lambd",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "description": "Shrink takes one input data (Tensor<numeric>) and produces one Tensor output,\nhaving same datatype and shape with input. It has two attributes, lambd and\nbias. The formula of this operator is: If x < -lambd, y = x + bias;\nIf x > lambd, y = x - bias; Otherwise, y = 0.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Shrink',\n    inputs=['x'],\n    outputs=['y'],\n    lambd=1.5,\n)\nX = np.arange(-2.0, 2.1, dtype=np.float32)\nY = np.array([-2, 0, 0, 0, 2], dtype=np.float32)\nexpect(node, inputs=[X], outputs=[Y],\n       name='test_shrink_hard')",
+          "summary": "hard_shrink"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Shrink',\n    inputs=['x'],\n    outputs=['y'],\n    lambd=1.5,\n    bias=1.5,\n)\nX = np.arange(-2.0, 2.1, dtype=np.float32)\nY = np.array([-0.5, 0, 0, 0, 0.5], dtype=np.float32)\nexpect(node, inputs=[X], outputs=[Y],\n       name='test_shrink_soft')",
+          "summary": "soft_shrink"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The input data as Tensor.",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The output.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrains input to only numeric types.",
+          "type_param_str": "T"
         }
       ]
     }
@@ -14076,6 +14294,137 @@
     }
   },
   {
+    "name": "TfIdfVectorizer",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Maximum n-gram length. If this value is 3, 3-grams will be used to generate the output.",
+          "name": "max_gram_length",
+          "required": true,
+          "type": "int"
+        },
+        {
+          "description": "Maximum number of items (integers/strings) to be skipped when constructing an n-gram from X. If max_skip_count=1, min_gram_length=2, max_gram_length=3, this operator may generate 2-grams with skip_count=0 and skip_count=1, and 3-grams with skip_count=0 and skip_count=1",
+          "name": "max_skip_count",
+          "required": true,
+          "type": "int"
+        },
+        {
+          "description": "Minimum n-gram length. If this value is 2 and max_gram_length is 3, output may contain counts of 2-grams and 3-grams.",
+          "name": "min_gram_length",
+          "required": true,
+          "type": "int"
+        },
+        {
+          "description": "The weighting criteria. It can be one of \"TF\" (term frequency), \"IDF\" (inverse document frequency), and \"TFIDF\" (the combination of TF and IDF)",
+          "name": "mode",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "The starting indexes of 1-grams, 2-grams, and so on in pool. It is useful when determining the boundary between two consecutive collections of n-grams. For example, if ngram_counts is [0, 17, 36], the first index (zero-based) of 1-gram/2-gram/3-gram in pool are 0/17/36. This format is essentially identical to CSR (or CSC) sparse matrix format, and we choose to use this due to its popularity.",
+          "name": "ngram_counts",
+          "required": true,
+          "type": "int[]"
+        },
+        {
+          "description": "list of int64s (type: AttributeProto::INTS). This list is parallel to the specified 'pool_*' attribute. The i-th element in ngram_indexes indicate the coordinate of the i-th n-gram in the output tensor.",
+          "name": "ngram_indexes",
+          "required": true,
+          "type": "int[]"
+        },
+        {
+          "description": "List of int64 n-grams learned from the training set. Either this or pool_strings attributes must be present but not both. It's an 1-D tensor starting with the collections of all 1-grams and ending with the collections of n-grams. The i-th element in pool stores the n-gram that should be mapped to coordinate ngram_indexes[i] in the output vector.",
+          "name": "pool_int64s",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "List of strings n-grams learned from the training set. Either this or pool_int64s attributes must be present but not both. It's an 1-D tensor starting with the collections of all 1-grams and ending with the collections of n-grams. The i-th element in pool stores the n-gram that should be mapped to coordinate ngram_indexes[i] in the output vector.",
+          "name": "pool_strings",
+          "required": false,
+          "type": "string[]"
+        },
+        {
+          "description": "list of floats. This attribute stores the weight of each n-gram in pool. The i-th element in weights is the weight of the i-th n-gram in pool. Its length equals to the size of ngram_indexes. By default, weights is an all-one tensor.This attribute is used when mode is \"IDF\" or \"TFIDF\" to scale the associated word counts.",
+          "name": "weights",
+          "required": false,
+          "type": "float[]"
+        }
+      ],
+      "description": "This transform extracts n-grams from the input sequence and save them as a vector. Input can \nbe either a 1-D or 2-D tensor. For 1-D input, output is the n-gram representation of that input.  \nFor 2-D input, the output is also a  2-D tensor whose i-th row is the n-gram representation of the i-th input row. \nMore specifically, if input shape is [C], the corresponding output shape would be [max(ngram_indexes) + 1]. \nIf input shape is [N, C], this operator produces a [N, max(ngram_indexes) + 1]-tensor. \n \nIn contrast to standard n-gram extraction, here, the indexes of extracting an n-gram from the original \nsequence are not necessarily consecutive numbers. The discontinuity between indexes are controlled by the number of skips.  \nIf the number of skips is 2, we should skip two tokens when scanning through the original sequence. \nLet's consider an example. Assume that input sequence is [94, 17, 36, 12, 28] and the number of skips is 2. \nThe associated 2-grams are [94, 12] and [17, 28] respectively indexed by [0, 3] and [1, 4]. \nIf the number of skips becomes 0, the 2-grams generated are [94, 17], [17, 36], [36, 12], [12, 28] \nindexed by [0, 1], [1, 2], [2, 3], [3, 4], respectively.\n\nThe output vector (denoted by Y) stores the count of each n-gram; \nY[ngram_indexes[i]] indicates the times that the i-th n-gram is found. The attribute ngram_indexes is used to determine the mapping \nbetween index i and the corresponding n-gram's output coordinate. If pool_int64s is [94, 17, 17, 36], ngram_indexes is [1, 0],\nngram_counts=[0, 0], then the Y[0] (first element in Y) and Y[1] (second element in Y) are the counts of [17, 36] and [94, 17],\nrespectively. An n-gram which cannot be found in pool_strings/pool_int64s should be ignored and has no effect on the output. \nNote that we may consider all skips up to S when generating the n-grams. \n \nThe examples used above are true if mode is \"TF\". If mode is \"IDF\", all the counts larger than 1 would be truncated to 1 and \nthe i-th element in weights would be used to scale (by multiplication) the count of the i-th n-gram in pool. If mode is \"TFIDF\", \nthis operator first computes the counts of all n-grams and then scale them by the associated values in the weights attribute. \n \nOnly one of pool_strings and pool_int64s can be set. If pool_int64s is set, the input should be an integer tensor. \nIf pool_strings is set, the input must be a string tensor. \n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "input = np.array([[1, 1, 3, 3, 3, 7], [8, 6, 7, 5, 6, 8]]).astype(np.int32)\noutput = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 1., 0., 1.]]).astype(np.float32)\n\nngram_counts = np.array([0, 4]).astype(np.int64)\nngram_indexes = np.array([0, 1, 2, 3, 4, 5, 6]).astype(np.int64)\npool_int64s = np.array([2, 3, 5, 4,    # unigrams\n                        5, 6, 7, 8, 6, 7]).astype(np.int64)   # bigrams\n\nhelper = TfIdfVectorizerHelper(\n    mode='TF',\n    min_gram_length=2,\n    max_gram_length=2,\n    max_skip_count=0,\n    ngram_counts=ngram_counts,\n    ngram_indexes=ngram_indexes,\n    pool_int64s=pool_int64s\n)\nnode = helper.make_node_noweights()\nexpect(node, inputs=[input], outputs=[output], name='test_tfidfvectorizer_tf_batch_onlybigrams_skip0')",
+          "summary": "tf_batch_onlybigrams_skip0"
+        },
+        {
+          "code": "input = np.array([[1, 1, 3, 3, 3, 7], [8, 6, 7, 5, 6, 8]]).astype(np.int32)\noutput = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 1., 1., 1.]]).astype(np.float32)\n\nngram_counts = np.array([0, 4]).astype(np.int64)\nngram_indexes = np.array([0, 1, 2, 3, 4, 5, 6]).astype(np.int64)\npool_int64s = np.array([2, 3, 5, 4,    # unigrams\n                        5, 6, 7, 8, 6, 7]).astype(np.int64)   # bigrams\n\nhelper = TfIdfVectorizerHelper(\n    mode='TF',\n    min_gram_length=2,\n    max_gram_length=2,\n    max_skip_count=5,\n    ngram_counts=ngram_counts,\n    ngram_indexes=ngram_indexes,\n    pool_int64s=pool_int64s\n)\nnode = helper.make_node_noweights()\nexpect(node, inputs=[input], outputs=[output], name='test_tfidfvectorizer_tf_batch_onlybigrams_skip5')",
+          "summary": "tf_batch_onlybigrams_skip5"
+        },
+        {
+          "code": "input = np.array([[1, 1, 3, 3, 3, 7], [8, 6, 7, 5, 6, 8]]).astype(np.int32)\noutput = np.array([[0., 3., 0., 0., 0., 0., 0.], [0., 0., 1., 0., 1., 1., 1.]]).astype(np.float32)\n\nngram_counts = np.array([0, 4]).astype(np.int64)\nngram_indexes = np.array([0, 1, 2, 3, 4, 5, 6]).astype(np.int64)\npool_int64s = np.array([2, 3, 5, 4,    # unigrams\n                        5, 6, 7, 8, 6, 7]).astype(np.int64)   # bigrams\n\nhelper = TfIdfVectorizerHelper(\n    mode='TF',\n    min_gram_length=1,\n    max_gram_length=2,\n    max_skip_count=5,\n    ngram_counts=ngram_counts,\n    ngram_indexes=ngram_indexes,\n    pool_int64s=pool_int64s\n)\nnode = helper.make_node_noweights()\nexpect(node, inputs=[input], outputs=[output], name='test_tfidfvectorizer_tf_batch_uniandbigrams_skip5')",
+          "summary": "tf_batch_uniandbigrams_skip5"
+        },
+        {
+          "code": "input = np.array([1, 1, 3, 3, 3, 7, 8, 6, 7, 5, 6, 8]).astype(np.int32)\noutput = np.array([0., 0., 0., 0., 1., 1., 1.]).astype(np.float32)\n\nngram_counts = np.array([0, 4]).astype(np.int64)\nngram_indexes = np.array([0, 1, 2, 3, 4, 5, 6]).astype(np.int64)\npool_int64s = np.array([2, 3, 5, 4,    # unigrams\n                        5, 6, 7, 8, 6, 7]).astype(np.int64)    # bigrams\n\nhelper = TfIdfVectorizerHelper(\n    mode='TF',\n    min_gram_length=2,\n    max_gram_length=2,\n    max_skip_count=0,\n    ngram_counts=ngram_counts,\n    ngram_indexes=ngram_indexes,\n    pool_int64s=pool_int64s\n)\nnode = helper.make_node_noweights()\nexpect(node, inputs=[input], outputs=[output], name='test_tfidfvectorizer_tf_only_bigrams_skip0')",
+          "summary": "tf_only_bigrams_skip0"
+        },
+        {
+          "code": "input = np.array([1, 1, 3, 3, 3, 7, 8, 6, 7, 5, 6, 8]).astype(np.int32)\noutput = np.array([1., 1., 1.]).astype(np.float32)\n\nngram_counts = np.array([0, 0]).astype(np.int64)\nngram_indexes = np.array([0, 1, 2]).astype(np.int64)\npool_int64s = np.array([    # unigrams none\n                       5, 6, 7, 8, 6, 7]).astype(np.int64)    # bigrams\n\nhelper = TfIdfVectorizerHelper(\n    mode='TF',\n    min_gram_length=2,\n    max_gram_length=2,\n    max_skip_count=0,\n    ngram_counts=ngram_counts,\n    ngram_indexes=ngram_indexes,\n    pool_int64s=pool_int64s\n)\nnode = helper.make_node_noweights()\nexpect(node, inputs=[input], outputs=[output], name='test_tfidfvectorizer_tf_onlybigrams_levelempty')",
+          "summary": "tf_onlybigrams_levelempty"
+        },
+        {
+          "code": "input = np.array([1, 1, 3, 3, 3, 7, 8, 6, 7, 5, 6, 8]).astype(np.int32)\noutput = np.array([0., 0., 0., 0., 1., 3., 1.]).astype(np.float32)\n\nngram_counts = np.array([0, 4]).astype(np.int64)\nngram_indexes = np.array([0, 1, 2, 3, 4, 5, 6]).astype(np.int64)\npool_int64s = np.array([2, 3, 5, 4,    # unigrams\n                        5, 6, 7, 8, 6, 7]).astype(np.int64)    # bigrams\n\nhelper = TfIdfVectorizerHelper(\n    mode='TF',\n    min_gram_length=2,\n    max_gram_length=2,\n    max_skip_count=5,\n    ngram_counts=ngram_counts,\n    ngram_indexes=ngram_indexes,\n    pool_int64s=pool_int64s\n)\nnode = helper.make_node_noweights()\nexpect(node, inputs=[input], outputs=[output], name='test_tfidfvectorizer_tf_onlybigrams_skip5')",
+          "summary": "tf_onlybigrams_skip5"
+        },
+        {
+          "code": "input = np.array([1, 1, 3, 3, 3, 7, 8, 6, 7, 5, 6, 8]).astype(np.int32)\noutput = np.array([0., 3., 1., 0., 1., 3., 1.]).astype(np.float32)\n\nngram_counts = np.array([0, 4]).astype(np.int64)\nngram_indexes = np.array([0, 1, 2, 3, 4, 5, 6]).astype(np.int64)\npool_int64s = np.array([2, 3, 5, 4,    # unigrams\n                        5, 6, 7, 8, 6, 7]).astype(np.int64)    # bigrams\n\nhelper = TfIdfVectorizerHelper(\n    mode='TF',\n    min_gram_length=1,\n    max_gram_length=2,\n    max_skip_count=5,\n    ngram_counts=ngram_counts,\n    ngram_indexes=ngram_indexes,\n    pool_int64s=pool_int64s\n)\nnode = helper.make_node_noweights()\nexpect(node, inputs=[input], outputs=[output], name='test_tfidfvectorizer_tf_uniandbigrams_skip5')",
+          "summary": "tf_uniandbigrams_skip5"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input for n-gram extraction",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Ngram results",
+          "name": "Y",
+          "type": "T1"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(string)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Input is ether string UTF-8 or int32/int64",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(float)"
+          ],
+          "description": "1-D tensor of floats",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
     "name": "ThresholdedRelu",
     "schema": {
       "attributes": [
@@ -14983,6 +15332,79 @@
             "tensor(complex128)"
           ],
           "description": "Constrain input 'X' and output 'Y' to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Where",
+    "schema": {
+      "description": "Return elements, either from X or Y, depending on condition\n    (with Numpy-style broadcasting support).\n    Where behaves like numpy.where with three parameters:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.where.html\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Where',\n    inputs=['condition', 'x', 'y'],\n    outputs=['z'],\n)\n\ncondition = np.array([[1, 0], [1, 1]], dtype=np.bool)\nx = np.array([[1, 2], [3, 4]], dtype=np.float32)\ny = np.array([[9, 8], [7, 6]], dtype=np.float32)\nz = np.where(condition, x, y)  # expected output [[1, 8], [3, 4]]\nexpect(node, inputs=[condition, x, y], outputs=[z],\n       name='test_where_example')",
+          "summary": "where"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "When True (nonzero), yield X, otherwise yield Y",
+          "name": "condition",
+          "type": "B"
+        },
+        {
+          "description": "values selected at indices where condition is True",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "values selected at indices where condition is False",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of shape equal to the broadcasted shape of condition, X, and Y.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Constrain to boolean tensors.",
+          "type_param_str": "B"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]

@@ -15,6 +15,7 @@ node_dependencies = [
         'node_modules/handlebars/dist/handlebars.min.js',
         'node_modules/marked/marked.min.js',
         'node_modules/pako/dist/pako.min.js',
+        'node_modules/long/dist/long.js',
         'node_modules/protobufjs/dist/protobuf.min.js',
         'node_modules/flatbuffers/js/flatbuffers.js',
         'node_modules/npm-font-open-sans/open-sans.css' ]),

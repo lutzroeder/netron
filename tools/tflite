@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
@@ -41,6 +42,7 @@ sync() {
 
 install() {
     bold "flatbuffers install"
+    echo 1
     case "$(uname)" in
         "Linux")
             if [ -z "$(which cmake)" ]; then
@@ -55,7 +57,7 @@ install() {
     esac
     echo "Build flatbuffers..."
     pushd "${third_party}/flatbuffers" > /dev/null
-    cmake -G "Unix Makefiles"
+    cmake -G "Unix Makefiles" .
     make
     popd > /dev/null
     if [ ! -d "${virtualenv}" ]; then
@@ -65,8 +67,7 @@ install() {
 
 schema() {
     bold "tflite schema"
-    cp ${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs ${tools}/tflite.schema.fbs
-    sed -i 's/namespace tflite\;/namespace tflite_schema\;/' ${tools}/tflite.schema.fbs
+    sed 's/namespace tflite;/namespace tflite_schema;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
     ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/tflite.schema.fbs
     mv ./tflite.schema_generated.js ${src}/tflite-schema.js
     rm ${tools}/tflite.schema.fbs

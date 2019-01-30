@@ -3,6 +3,7 @@
 // Experimental
 
 var tf = tf || {};
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var marked = marked || require('marked');
 
@@ -38,6 +39,10 @@ tf.ModelFactory = class {
                 tags.hasOwnProperty(1) && tags[1] == 0 && 
                 tags.hasOwnProperty(2) && tags[2] == 0 && 
                 tags.hasOwnProperty(9) && tags[9] == 2) {
+                return false;
+            }
+            if (Object.keys(tags).length > 0 &&
+                Object.keys(tags).some((tag) => tags[tag] == 5)) {
                 return false;
             }
             return true;
@@ -215,7 +220,7 @@ tf.Graph = class {
                 this._version = 'v' + graph.versions.producer.toString();
             }
             else if (graph.version) {
-                debugger;
+                this._version = graph.version;
             }
             else if (metaGraph.meta_info_def && metaGraph.meta_info_def.tensorflow_version) {
                 this._version = metaGraph.meta_info_def.tensorflow_version;
@@ -1057,6 +1062,7 @@ tf.GraphMetadata = class {
     constructor(metadata, meta_info_def) {
         this._metadata = metadata;
         this._map = {};
+        this._attributeCache = {};
         if (meta_info_def && meta_info_def.strippedOpList && meta_info_def.strippedOpList.op) {
             meta_info_def.strippedOpList.op.forEach((opDef) => {
             });
@@ -1071,22 +1077,19 @@ tf.GraphMetadata = class {
         return schema;
     }
 
-    getAttributeSchema(operator, name, value) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    schema.attributes.forEach((attribute) => {
-                        attributeMap[attribute.name] = attribute;
-                    });
-                }
-                schema.attributeMap = attributeMap;
+    getAttributeSchema(operator, name) {
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    map[attribute.name] = attribute;
+                });
             }
-            return attributeMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;        
+        return map[name] || null;
     }
 
     getAttributeVisibleMap(operator) {
@@ -1222,7 +1225,7 @@ tf.GraphMetadata = class {
         if (value == null) {
             return null;
         }
-        if (value && value.__isLong__) {
+        if (value && long.Long.isLong(value)) {
             value = value.toNumber();
         }
         if (Array.isArray(value)) {

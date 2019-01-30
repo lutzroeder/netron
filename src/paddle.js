@@ -459,6 +459,7 @@ paddle.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -476,17 +477,18 @@ paddle.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
+                    map[attribute.name] = attribute;
                 });
             }
-            return schema.attributesMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 };
 

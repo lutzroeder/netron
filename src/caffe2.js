@@ -23,6 +23,10 @@ caffe2.ModelFactory = class {
                 return false;
             }
             if (Object.keys(tags).length > 0 &&
+                Object.keys(tags).some((tag) => tags[tag] == 5)) {
+                return false;
+            }
+            if (Object.keys(tags).length > 0 &&
                 (!tags.hasOwnProperty(1) || tags[1] == 2) &&
                 (!tags.hasOwnProperty(2) || tags[2] == 2) &&
                 (!tags.hasOwnProperty(7) || tags[7] == 2) &&
@@ -39,8 +43,10 @@ caffe2.ModelFactory = class {
                 }
             }
         }
-        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-            identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+        if (extension == 'pbtxt' || extension == 'prototxt') {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+                return true;
+            }
             tags = context.tags('pbtxt');
             if (tags.op) {
                 return true;
@@ -464,12 +470,21 @@ caffe2.Attribute = class {
         if (schema) {
             if (schema.hasOwnProperty('type')) {
                 this._type = schema.type;
+                if (this._type == 'boolean') {
+                    switch (this._value) {
+                        case 1: this._value = true; break;
+                        case 0: this._value = false; break;
+                    }
+                }
             }
+        }
+
+        if (schema) {
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
             else if (schema.hasOwnProperty('default')) {
-                if (this._value == schema.default.toString()) {
+                if (this._value == schema.default || (this._value && this._value.toString() == schema.default.toString())) {
                     this._visible = false;
                 }
             }
@@ -580,7 +595,7 @@ caffe2.Tensor = class {
                 context.data = this._values.ints;
                 break;
             case 'int8':
-                context.data = this._values.s;
+                context.data = new Int8Array(this._values.s);
                 break;
             case 'int32':
                 context.data = this._values.ints;
@@ -716,6 +731,7 @@ caffe2.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         if (data) {
             var items = JSON.parse(data);
             if (items) {
@@ -730,6 +746,21 @@ caffe2.Metadata = class {
 
     getSchema(operator) {
         return this._map[operator] || null;
+    }
+
+    getAttributeSchema(operator, name) {
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
+                schema.attributes.forEach((attribute) => {
+                    map[attribute.name] = attribute;
+                });
+            }
+            this._attributeCache[operator] = map;
+        }
+        return map[name] || null;
     }
 
     getInputs(type, inputs) {
@@ -798,20 +829,6 @@ caffe2.Metadata = class {
 
         }
         return results;
-    }
-
-    getAttributeSchema(operator, name, value) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
-                schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
-                });
-            }
-            return schema.attributesMap[name] || null;
-        }
-        return null;
     }
 };
 

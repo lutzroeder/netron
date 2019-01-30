@@ -247,11 +247,12 @@ class TestContext {
                         while (reader.pos < reader.len) {
                             var tagType = reader.uint32();
                             tags[tagType >>> 3] = tagType & 7;
-                            switch (tagType & 7) {
-                                case 0: reader.int64(); break;
-                                case 1: reader.fixed64(); break;
-                                case 2: reader.bytes(); break;
-                                default: tags = {}; reader.pos = reader.len; break;
+                            try {
+                                reader.skipType(tagType & 7);
+                            }
+                            catch (err) {
+                                tags = {};
+                                break;
                             }
                         }
                         break;

@@ -75,6 +75,12 @@
     }
   },
   {
+    "name": "SpatialSubtractiveNormalization",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
     "name": "InstanceNormalization",
     "schema": {
       "category": "Normalization",
@@ -139,6 +145,12 @@
     }
   },
   {
+    "name": "SpatialFractionalMaxPooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
     "name": "SpatialZeroPadding",
     "schema": {
       "category": "Tensor",
@@ -148,6 +160,14 @@
   },
   {
     "name": "SpatialReflectionPadding",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [ 
+      ]
+    }
+  },
+  {
+    "name": "SpatialReplicationPadding",
     "schema": {
       "category": "Tensor",
       "attributes": [ 

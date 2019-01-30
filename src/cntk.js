@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 var cntk = cntk || {};
+var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 
 var cntk_v1 = {};
@@ -745,7 +746,7 @@ cntk.TensorType = class {
                 this._shape = new cntk.TensorShape(version, shape);
                 break;
             case 2:
-                if (dataType.__isLong__) {
+                if (long.Long.isLong(dataType)) {
                     dataType = dataType.toNumber(); 
                 }
                 switch (dataType) {
@@ -781,7 +782,7 @@ cntk.TensorShape = class {
                     if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
                         return -1;
                     }
-                    if (dimension && dimension.__isLong__) {
+                    if (dimension && long.Long.isLong(dimension)) {
                         return dimension.toNumber();
                     }
                     return dimension;            
@@ -815,6 +816,7 @@ cntk.Metadata = class {
 
     constructor(data) {
         this._map = {};
+        this._attributeCache = {};
         this._operatorMap = {};
         if (data) {
             var items = JSON.parse(data);
@@ -844,17 +846,18 @@ cntk.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this._map[operator];
-        if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema._attributesMap) {
-                schema._attributesMap = {};
+        var map = this._attributeCache[operator];
+        if (!map) {
+            map = {};
+            var schema = this.getSchema(operator);
+            if (schema && schema.attributes && schema.attributes.length > 0) {
                 schema.attributes.forEach((attribute) => {
-                    schema._attributesMap[attribute.name] = attribute;
+                    map[attribute.name] = attribute;
                 });
             }
-            return schema._attributesMap[name] || null;
+            this._attributeCache[operator] = map;
         }
-        return null;
+        return map[name] || null;
     }
 };
 

@@ -958,12 +958,32 @@
   {
     "name": "AdjustContrastv2",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
       "description": "`images` is a tensor of at least 3 dimensions.  The last 3 dimensions are\ninterpreted as `[height, width, channels]`.  The other dimensions only\nrepresent a collection of images, such as `[batch, height, width, channels].`\n\nContrast is adjusted independently for each channel of each image.\n\nFor each channel, the Op first computes the mean of the image pixels in the\nchannel and then adjusts each component of each pixel to\n`(x - mean) * contrast_factor + mean`.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
           "name": "images",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A float multiplier for adjusting contrast.",
@@ -975,7 +995,7 @@
         {
           "description": "The contrast-adjusted image or images.",
           "name": "output",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Adjust the contrast of one or more images."
@@ -984,12 +1004,32 @@
   {
     "name": "AdjustHue",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
       "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpretted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A delta is then applied all the hue values,\nand then remapped back to RGB colorspace.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
           "name": "images",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A float delta to add to the hue.",
@@ -1001,7 +1041,7 @@
         {
           "description": "The hue-adjusted image or images.",
           "name": "output",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Adjust the hue of one or more images."
@@ -1010,12 +1050,32 @@
   {
     "name": "AdjustSaturation",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        }
+      ],
       "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpretted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A scale is then applied all the saturation\nvalues, and then remapped back to RGB colorspace.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
           "name": "images",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A float scale to add to the saturation.",
@@ -1027,7 +1087,7 @@
         {
           "description": "The hue-adjusted image or images.",
           "name": "output",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Adjust the saturation of one or more images."
@@ -8989,6 +9049,11 @@
         {
           "name": "subdiv_offsets",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "wait_for",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -9699,11 +9764,18 @@
         {
           "allowedValues": [
             "SAME",
-            "VALID"
+            "VALID",
+            "EXPLICIT"
           ],
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+          "name": "explicit_paddings",
+          "type": "list(int)"
         },
         {
           "allowedValues": [
@@ -9790,11 +9862,18 @@
         {
           "allowedValues": [
             "SAME",
-            "VALID"
+            "VALID",
+            "EXPLICIT"
           ],
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+          "name": "explicit_paddings",
+          "type": "list(int)"
         },
         {
           "allowedValues": [
@@ -9884,11 +9963,18 @@
         {
           "allowedValues": [
             "SAME",
-            "VALID"
+            "VALID",
+            "EXPLICIT"
           ],
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+          "name": "explicit_paddings",
+          "type": "list(int)"
         },
         {
           "allowedValues": [
@@ -15699,6 +15785,45 @@
     }
   },
   {
+    "name": "ExperimentalChooseFastestDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 2,
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "name": "num_experiments",
+          "type": "int"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_datasets",
+          "numberAttr": "N",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ExperimentalDatasetCardinality",
     "schema": {
       "description": "Returns the cardinality of `input_dataset`.",
@@ -16960,6 +17085,52 @@
         }
       ],
       "summary": "Produces a summary of any statistics recorded by the given statistics manager."
+    }
+  },
+  {
+    "name": "ExperimentalTakeWhileDataset",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A function returning a scalar boolean.",
+          "name": "predicate",
+          "type": "func"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "The `predicate` function must return a scalar boolean and accept the\nfollowing arguments:\n\n* One tensor for each component of an element of `input_dataset`.\n* One tensor for each value in `other_arguments`.",
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A list of tensors, typically values that were captured when\nbuilding a closure for `predicate`.",
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that stops iteration when predicate` is false."
     }
   },
   {
@@ -22172,6 +22343,68 @@
           "type": 20
         }
       ]
+    }
+  },
+  {
+    "name": "KMC2ChainInitialization",
+    "schema": {
+      "description": "Entries in distances are assumed to be squared distances of candidate points to\nthe already sampled centers in the seed set. The op constructs one Markov chain\nof the k-MC^2 algorithm and returns the index of one candidate point to be added\nas an additional cluster center.",
+      "inputs": [
+        {
+          "description": "Vector with squared distances to the closest previously sampled cluster center\nfor each candidate point.",
+          "name": "distances",
+          "type": 1
+        },
+        {
+          "description": "Scalar. Seed for initializing the random number generator.",
+          "name": "seed",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Scalar with the index of the sampled point.",
+          "name": "index",
+          "type": 9
+        }
+      ],
+      "summary": "Returns the index of a data point that should be added to the seed set."
+    }
+  },
+  {
+    "name": "KmeansPlusPlusInitialization",
+    "schema": {
+      "description": "Rows of points are assumed to be input points. One row is selected at random.\nSubsequent rows are sampled with probability proportional to the squared L2\ndistance from the nearest row selected thus far till num_to_sample rows have\nbeen sampled.",
+      "inputs": [
+        {
+          "description": "Matrix of shape (n, d). Rows are assumed to be input points.",
+          "name": "points",
+          "type": 1
+        },
+        {
+          "description": "Scalar. The number of rows to sample. This value must not be larger than n.",
+          "name": "num_to_sample",
+          "type": 9
+        },
+        {
+          "description": "Scalar. Seed for initializing the random number generator.",
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "description": "Scalar. For each row that is sampled, this parameter\nspecifies the number of additional points to draw from the current\ndistribution before selecting the best. If a negative value is specified, a\nheuristic is used to sample O(log(num_to_sample)) additional points.",
+          "name": "num_retries_per_sample",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Matrix of shape (num_to_sample, d). The sampled rows.",
+          "name": "samples",
+          "type": 1
+        }
+      ],
+      "summary": "Selects num_to_sample rows of input using the KMeans++ criterion."
     }
   },
   {
@@ -28048,6 +28281,42 @@
     }
   },
   {
+    "name": "NearestNeighbors",
+    "schema": {
+      "description": "Rows of points are assumed to be input points. Rows of centers are assumed to be\nthe list of candidate centers. For each point, the k centers that have least L2\ndistance to it are computed.",
+      "inputs": [
+        {
+          "description": "Matrix of shape (n, d). Rows are assumed to be input points.",
+          "name": "points",
+          "type": 1
+        },
+        {
+          "description": "Matrix of shape (m, d). Rows are assumed to be centers.",
+          "name": "centers",
+          "type": 1
+        },
+        {
+          "description": "Number of nearest centers to return for each point. If k is larger than m, then\nonly m centers are returned.",
+          "name": "k",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Matrix of shape (n, min(m, k)). Each row contains the indices of the centers\nclosest to the corresponding point, ordered by increasing distance.",
+          "name": "nearest_center_indices",
+          "type": 9
+        },
+        {
+          "description": "Matrix of shape (n, min(m, k)). Each row contains the squared L2 distance to the\ncorresponding center in nearest_center_indices.",
+          "name": "nearest_center_distances",
+          "type": 1
+        }
+      ],
+      "summary": "Selects the k nearest centers for each point."
+    }
+  },
+  {
     "name": "Neg",
     "schema": {
       "attributes": [
@@ -32547,6 +32816,1728 @@
     }
   },
   {
+    "name": "QuantizedConv2DAndRelu",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DAndReluAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 11
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DWithBias",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "bias",
+          "type": 1
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DWithBiasAndRelu",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "bias",
+          "type": 1
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DWithBiasAndReluAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DWithBiasAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 11
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DWithBiasSignedSumAndReluAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tsummand",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "summand",
+          "typeAttr": "Tsummand"
+        },
+        {
+          "name": "min_summand",
+          "type": 1
+        },
+        {
+          "name": "max_summand",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DWithBiasSumAndRelu",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "bias",
+          "type": 1
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "name": "summand",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DWithBiasSumAndReluAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "Tsummand",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "summand",
+          "typeAttr": "Tsummand"
+        },
+        {
+          "name": "min_summand",
+          "type": 1
+        },
+        {
+          "name": "max_summand",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "name": "max_output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
     "name": "QuantizedInstanceNorm",
     "schema": {
       "attributes": [
@@ -36234,7 +38225,7 @@
           "type": 7
         },
         {
-          "description": "The rewrite to be applied to the matched expresion.",
+          "description": "The rewrite to be applied to the matched expression.",
           "name": "rewrite",
           "type": 7
         }
@@ -53081,6 +55072,79 @@
     }
   },
   {
+    "name": "StatefulStandardNormal",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values will have mean 0 and standard deviation 1.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A tensor of the specified shape filled with random normal values.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random values from a normal distribution."
+    }
+  },
+  {
     "name": "StatelessIf",
     "schema": {
       "attributes": [
@@ -53689,7 +55753,7 @@
           "type": "string"
         },
         {
-          "description": "The rewrite to be applied to the matched expresion.",
+          "description": "The rewrite to be applied to the matched expression.",
           "name": "rewrite",
           "type": "string"
         },
@@ -56502,6 +58566,14 @@
         {
           "name": "element_dtype",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "shape",
+            "value": "?"
+          },
+          "name": "element_shape",
+          "type": "shape"
         }
       ],
       "description": "Requires that all tensors have the same shape except the first dimension.\n\ninput_handle: The input list.\ntensor: The concated result.\nlengths: Output tensor containing sizes of the 0th dimension of tensors in the list, used for computing the gradient.\n",
@@ -56647,6 +58719,10 @@
         {
           "name": "indices",
           "type": 3
+        },
+        {
+          "name": "element_shape",
+          "type": 3
         }
       ],
       "outputs": [
@@ -56674,6 +58750,10 @@
         },
         {
           "name": "index",
+          "type": 3
+        },
+        {
+          "name": "element_shape",
           "type": 3
         }
       ],
@@ -56718,6 +58798,10 @@
         {
           "name": "input_handle",
           "type": 21
+        },
+        {
+          "name": "element_shape",
+          "type": 3
         }
       ],
       "outputs": [
@@ -56830,6 +58914,29 @@
         }
       ],
       "summary": "List of the given size with empty elements."
+    }
+  },
+  {
+    "name": "TensorListResize",
+    "schema": {
+      "description": "\ninput_handle: the input list\nsize: size of the output list\n",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "size",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ],
+      "summary": "Resizes the list."
     }
   },
   {
@@ -56978,6 +59085,10 @@
         {
           "name": "input_handle",
           "type": 21
+        },
+        {
+          "name": "element_shape",
+          "type": 3
         }
       ],
       "outputs": [
@@ -58861,7 +60972,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "A tensor whose shape is a prefix of `data.shape`.END\n  }\n  out_arg {\n    name: \"output\"\n    description: <<END\nHas same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
+          "description": "A tensor whose shape is a prefix of `data.shape`.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         },
@@ -58872,6 +60983,7 @@
       ],
       "outputs": [
         {
+          "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
           "name": "output",
           "typeAttr": "T"
         }
@@ -59675,6 +61787,11 @@
           "default": [],
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": 10,
+          "name": "parallel_iterations",
+          "type": "int"
         }
       ],
       "inputs": [
