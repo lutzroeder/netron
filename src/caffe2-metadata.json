@@ -502,7 +502,7 @@
   {
     "name": "SpatialBN",
     "schema": {
-      "attributes ": [
+      "attributes": [
         {
           "default": 0,
           "description": "If set to nonzero, run spatial batch normalization in test mode.",
