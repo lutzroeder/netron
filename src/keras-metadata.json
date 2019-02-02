@@ -5,12 +5,16 @@
       "attributes": [
         {
           "default": "concat",
-          "description": "Mode by which outputs of the\n    forward and backward RNNs will be combined.\n    One of {'sum', 'mul', 'concat', 'ave', None}.\n    If None, the outputs will not be combined,\n    they will be returned as a list.\n",
+          "description": "Mode by which outputs of the\n    forward and backward RNNs will be combined.\n    One of {'sum', 'mul', 'concat', 'ave', None}.\n    If None, the outputs will not be combined,\n    they will be returned as a list.",
           "name": "merge_mode"
         },
         {
           "description": "`Recurrent` instance.",
           "name": "layer"
+        },
+        {
+          "description": "Initial weights to load in the Bidirectional model\n",
+          "name": "weights"
         }
       ],
       "category": "Wrapper",
@@ -1037,6 +1041,12 @@
   {
     "name": "Masking",
     "schema": {
+      "attributes": [
+        {
+          "description": "Either None or mask value to skip\n",
+          "name": "mask_value"
+        }
+      ],
       "description": "Masks a sequence by using a mask value to skip timesteps.\n\nIf all features for a given sample timestep are equal to `mask_value`,\nthen the sample timestep will be masked (skipped) in all downstream layers\n(as long as they support masking).\n\nIf any downstream layer does not support masking yet receives such\nan input mask, an exception will be raised.\n",
       "examples": [
         {
@@ -1206,6 +1216,10 @@
         {
           "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
+        },
+        {
+          "description": "String, one of `channels_first`, `channels_last`.",
+          "name": "data_format"
         }
       ],
       "category": "Layer",
@@ -3660,6 +3674,10 @@
         {
           "description": "Length of input sequences, when it is constant.\n    This argument is required if you are going to connect\n    `Flatten` then `Dense` layers upstream\n    (without it, the shape of the dense outputs cannot be computed).\n",
           "name": "input_length"
+        },
+        {
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
+          "name": "activity_regularizer"
         }
       ],
       "category": "Transform",
@@ -3773,6 +3791,10 @@
         {
           "description": "optional dictionary of keyword arguments to be passed\n    to the function.\n",
           "name": "arguments"
+        },
+        {
+          "description": "Either None (indicating no masking) or a Tensor indicating the\n  input mask for Embedding.",
+          "name": "mask"
         }
       ],
       "description": "Wraps arbitrary expression as a `Layer` object.\n",
