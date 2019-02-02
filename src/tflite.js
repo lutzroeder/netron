@@ -286,10 +286,6 @@ tflite.Node = class {
         return this._chain;
     }
 
-    get dependencies() {
-        return [];
-    }
-
     get attributes() {
         return this._attributes;
     }

@@ -660,10 +660,6 @@ keras.Node = class {
         return this._attributes;
     }
 
-    get dependencies() {
-        return [];
-    }
-
     get inner() {
         return this._inner;
     }

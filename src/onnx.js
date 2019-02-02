@@ -531,10 +531,6 @@ onnx.Node = class {
     get outputs() {
         return this._outputs;
     }
-
-    get dependencies() {
-        return [];
-    }
 };
 
 onnx.Attribute = class {

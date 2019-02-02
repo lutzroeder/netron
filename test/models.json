@@ -3587,6 +3587,13 @@
   },
   {
     "type":   "tf",
+    "target": "netron_issue_224.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/2823959/netron_issue_224.zip[netron_issue_224.pbtxt]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/224"
+  },
+  {
+    "type":   "tf",
     "target": "readable_graph.meta",
     "source": "https://github.com/lutzroeder/netron/files/2592463/readable_graph.meta.zip[readable_graph.meta]",
     "format": "TensorFlow MetaGraph",

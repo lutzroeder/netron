@@ -227,10 +227,6 @@ grapher.NodeElement = class {
         return this._block;
     }
 
-    setControlDependencies() {
-        this._controlDependencies = true;
-    }
-
     format(contextElement) {
         var rootElement = this.createElement('g');
         contextElement.appendChild(rootElement);
@@ -254,11 +250,7 @@ grapher.NodeElement = class {
         });
 
         var borderElement = this.createElement('path');
-        var borderClassList = [ 'node', 'border' ];
-        if (this._controlDependencies) {
-            borderClassList.push('node-control-dependency');
-        }
-        borderElement.setAttribute('class', borderClassList.join(' '));
+        borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
         borderElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, height, true, true, true, true));
         rootElement.appendChild(borderElement);
 

@@ -26668,6 +26668,10 @@
           ],
           "name": "T",
           "type": "type"
+        },
+        {
+          "name": "_gradient_op_type",
+          "visible": false
         }
       ],
       "description": "*NOTE*: `Maximum` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",

@@ -516,14 +516,20 @@ view.View = class {
                                 var connection = initializer.connections[0];
                                 var type = connection.type;
                                 var shape = '';
+                                var separator = '';
                                 if (type && type.shape && type.shape.dimensions && type.shape.dimensions.hasOwnProperty('length')) {
                                     shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
+                                    if (type.shape.dimensions.length == 0 && connection.initializer) {
+                                        shape = connection.initializer.toString();
+                                        separator = ' = ';
+                                    }     
                                 }
-                                block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', '');
+                                block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', separator);
                             });
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '...' + '\u3009', '', null, '');
                             }    
+
                             attributes.forEach((attribute) => {
                                 if (attribute.visible) {
                                     var attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
@@ -554,7 +560,7 @@ view.View = class {
                             });
                             var outputs = node.outputs;
                             if (node.chain && node.chain.length > 0) {
-                                var chainOutputs = node.chain[node.chain.length - 1].outputs
+                                var chainOutputs = node.chain[node.chain.length - 1].outputs;
                                 if (chainOutputs.length > 0) {
                                     outputs = chainOutputs;
                                 }
@@ -588,11 +594,21 @@ view.View = class {
     
                     addNode(element, node, true);
 
-                    var dependencies = node.dependencies;
-                    if (dependencies && dependencies.length > 0) {
-                        element.setControlDependencies();
+                    if (node.controlDependencies && node.controlDependencies.length > 0) {
+                        node.controlDependencies.forEach((controlDependency) => {
+                            var tuple = edgeMap[controlDependency];
+                            if (!tuple) {
+                                tuple = { from: null, to: [] };
+                                edgeMap[controlDependency] = tuple;
+                            }
+                            tuple.to.push({
+                                node: nodeId,
+                                name: controlDependency,
+                                controlDependency: true
+                            });
+                        });
                     }
-                    
+
                     var name = node.name;
                     if (name) {
                         g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + name });
@@ -702,8 +718,8 @@ view.View = class {
                                 text = edge.split('\n').shift(); // custom connection id
                             }
     
-                            if (to.dependency) { 
-                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', class: 'edge-path-control' } );
+                            if (to.controlDependency) {
+                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', class: 'edge-path-control-dependency' } );
                             }
                             else {
                                 g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee' } );
@@ -980,6 +996,9 @@ view.View = class {
             return value.map((item) => item.toString()).join(', ');
         }
         if (type == 'tensor') {
+            if (value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+                return value.toString();
+            }
             return '[...]';
         }
         if (Array.isArray(value)) {
