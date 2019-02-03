@@ -156,7 +156,6 @@ paddle.Graph = class {
             case paddle.proto.VarType.Type.LOD_TENSOR:
                 return new paddle.TensorType(variable.type.lod_tensor.tensor);
             default:
-                debugger;
                 break;
         }
         return null;
@@ -325,14 +324,11 @@ paddle.Attribute = class {
                 break;
             case paddle.proto.AttrType.LONG:
                 this._type = 'int64';
-                debugger;
                 break;
             case paddle.proto.AttrType.LONGS:
                 this._type = 'int64[]';
-                debugger;
                 break;
             default:
-                debugger;
                 break;
         }
         switch (this._name) {
@@ -403,7 +399,6 @@ paddle.TensorType = class {
                 break;
             default:
                 this._dataType = '?';
-                debugger;
                 break;
         }
         this._shape = new paddle.TensorShape(desc.dims);    

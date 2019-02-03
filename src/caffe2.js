@@ -602,7 +602,6 @@ caffe2.Tensor = class {
                 break;
             default:
                 context.state = 'Unknown data type.';
-                debugger;
                 return context;
         }
         context.shape = this._type.shape.dimensions;
@@ -634,7 +633,6 @@ caffe2.Tensor = class {
                         break;
                     default:
                         context.state = 'Unknown data type.';
-                        debugger;
                         break;
                 }
                 context.index++;

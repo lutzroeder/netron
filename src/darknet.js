@@ -499,7 +499,7 @@ darknet.CfgReader = class {
         }
         return array;
     }
-}
+};
 
 darknet.Error = class extends Error {
     constructor(message) {

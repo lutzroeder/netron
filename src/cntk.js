@@ -151,93 +151,87 @@ cntk.Graph = class {
         this._outputs = [];
         this._nodes = [];
         this._functions = [];
+
         var connections = {};
-
-        if (version == 1) {
-
-            var nodes = [];
-
-            Object.keys(obj.nodes).forEach((name) => {
-                var node = obj.nodes[name];
-                switch (node.__type__) {
-                    case 'InputValue':
-                        this._inputs.push(new cntk.Argument(node.name, [ 
-                            new cntk.Connection(version, node)
-                        ]));
-                        break;
-                    case 'LearnableParameter':
-                        connections[node.name] = new cntk.Connection(version, node);
-                        break;
-                }
-            });
-
-            Object.keys(obj.nodes).forEach((name) => {
-                var node = obj.nodes[name];
-                if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
-                    this._nodes.push(new cntk.Node(metadata, version, node, connections));
-                }
-            });
-
-            if (obj.output) {
-                obj.output.forEach((output) => {
-                    this._outputs.push(new cntk.Argument(output, [ 
-                        new cntk.Connection(version, output)
-                    ]));
-                });
-            }
-        }
-        else if (version == 2) {
-            var nodeMap = {};
-            obj.primitive_functions.forEach((node) => {
-                nodeMap[node.uid] = node;
-            });
-
-            var argumentNames = {};
-            obj.inputs.forEach((input) => {
-                var connection = new cntk.Connection(version, input);
-                connections[input.uid] = connection;
-                // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
-                if (input.kind == 0) {
-                    var inputName = input.name || input.uid;
-                    this._inputs.push(new cntk.Argument(inputName, [ connection ]));
-                }
-                if (input.kind == 1) {
-                    debugger;
-                }
-                argumentNames[input.uid] = input;
-            });
-
-            obj.primitive_functions.forEach((block) => {
-                if (block.op == 57 && block.block_function_composite) {
-                    var list = [ block.block_function_composite.root ];
-                    var nodes = [];
-                    while (list.length > 0) {
-                        var name = list.shift();
-                        var node = nodeMap[name];
-                        if (node) {
-                            nodes.push(new cntk.Node(metadata, version, node, connections));
-                            nodeMap[name] = null;
-                            node.inputs.forEach((input) => {
-                                var parts = input.split('_');
-                                if (parts.length >= 3 && parts[parts.length - 2] == 'Output') {
-                                    parts.pop();
-                                    parts.pop();
-                                    list.push(parts.join('_'));
-                                }
-                            });
-                        }
+        switch (version) {
+            case 1:
+                Object.keys(obj.nodes).forEach((name) => {
+                    var node = obj.nodes[name];
+                    switch (node.__type__) {
+                        case 'InputValue':
+                            this._inputs.push(new cntk.Argument(node.name, [ 
+                                new cntk.Connection(version, node)
+                            ]));
+                            break;
+                        case 'LearnableParameter':
+                            connections[node.name] = new cntk.Connection(version, node);
+                            break;
                     }
-                    var inputs = [];
-                    var outputs = [ block.block_function_composite.root ];
-                    this._functions.push(new cntk.Function(block.block_function_op_name, nodes, inputs, outputs));
+                });
+                Object.keys(obj.nodes).forEach((name) => {
+                    var node = obj.nodes[name];
+                    if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
+                        this._nodes.push(new cntk.Node(metadata, version, node, connections));
+                    }
+                });
+                if (obj.output) {
+                    obj.output.forEach((output) => {
+                        this._outputs.push(new cntk.Argument(output, [ 
+                            new cntk.Connection(version, output)
+                        ]));
+                    });
                 }
-            });
-
-            obj.primitive_functions.forEach((node) => {
-                if (nodeMap[node.uid]) {
-                    this._nodes.push(new cntk.Node(metadata, version, node, connections));
-                }
-            });
+                break;
+            case 2:
+                var nodeMap = {};
+                obj.primitive_functions.forEach((node) => {
+                    nodeMap[node.uid] = node;
+                });
+                var argumentNames = {};
+                obj.inputs.forEach((input) => {
+                    var connection = new cntk.Connection(version, input);
+                    connections[input.uid] = connection;
+                    // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
+                    if (input.kind == 0) {
+                        var inputName = input.name || input.uid;
+                        this._inputs.push(new cntk.Argument(inputName, [ connection ]));
+                    }
+                    argumentNames[input.uid] = input;
+                });
+                obj.primitive_functions.forEach((block) => {
+                    if (block.op == 57 && block.block_function_composite) {
+                        var list = [ block.block_function_composite.root ];
+                        var nodes = [];
+                        while (list.length > 0) {
+                            var name = list.shift();
+                            var node = nodeMap[name];
+                            if (node) {
+                                nodes.push(new cntk.Node(metadata, version, node, connections));
+                                nodeMap[name] = null;
+                                for (var i = 0; i < node.inputs.length; i++) {
+                                    var parts = node.inputs[i].split('_');
+                                    if (parts.length >= 3) {
+                                        parts.pop();
+                                        if (parts.pop() == 'Output') {
+                                            list.push(parts.join('_'));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        var inputs = [];
+                        var outputs = [ block.block_function_composite.root ];
+                        this._functions.push(new cntk.Function(block.block_function_op_name, nodes, inputs, outputs));
+                    }
+                });
+                obj.primitive_functions.forEach((node) => {
+                    if (nodeMap[node.uid]) {
+                        this._nodes.push(new cntk.Node(metadata, version, node, connections));
+                    }
+                });
+                break;
+            default:
+                throw new new cntk.Error("Unsupported graph version '" + version + "'.");
         }
     }
 
@@ -332,16 +326,10 @@ cntk.Connection = class {
                 case 2:
                     this._id = obj.uid;
                     if (obj.value) {
-                        if (obj.kind != 2 && obj.kind != 3) {
-                            debugger;
-                        }
                         this._type = null;
                         this._initializer = new cntk.Tensor(version, obj);
                     }
                     else {
-                        if (obj.kind == 2 || obj.kind == 3) {
-                            debugger;
-                        }
                         this._type = new cntk.TensorType(version, obj.data_type, obj.shape);
                         this._initializer = null;
                     }    

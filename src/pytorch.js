@@ -387,7 +387,6 @@ pytorch.ModelFactory = class {
                          name.startsWith('torch.') || name.startsWith('torchvision.') || 
                          name.startsWith('argparse.') || name.startsWith('collections.') ||
                          name.startsWith('numpy.') || name.startsWith('__builtin__.') || name.startsWith('_codecs.')) {
-                    debugger;
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;

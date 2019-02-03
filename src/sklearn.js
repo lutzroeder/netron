@@ -142,7 +142,6 @@ sklearn.ModelFactory = class {
                             size *= dimension;
                         });
                         if (this.dtype.name == 'object') {
-                            debugger;
                             return unpickler.load(function_call, null);
                         }
                         else {
@@ -284,7 +283,6 @@ sklearn.ModelFactory = class {
                         constructor.apply(obj, args);
                     }
                     else {
-                        debugger;
                         host.exception(new sklearn.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                     }
                     return obj;

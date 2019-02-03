@@ -23,7 +23,6 @@ torch.ModelFactory = class {
             var identifier = context.identifier;
             try {
                 var reader = new torch.T7Reader(context.buffer, (name) => {
-                    debugger;
                     host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                     return null;
                 });
@@ -343,18 +342,12 @@ torch.Node = class {
                 }
                 var obj = module[key];
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
-                    if (obj.size.length == 0) {
-                        debugger;
-                        // console.log("  " + type + "::" + key);
-                    }
                     initializers.push(new torch.Argument(key, true, [ 
                         new torch.Connection(key, null, new torch.Tensor(obj))
                     ]));
                     return;
                 }
                 if (key == 'modules' || obj.__type__) {
-                    debugger;                
-                    // console.log("  " + type + "::" + key);
                     return;
                 }
                 this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
@@ -897,9 +890,6 @@ torch.T7Reader = class {
                 list.push(item);
             }
             this._memo[index] = list;
-            if (index == 1016) {
-                debugger;
-            }
             return list;
         }
         return table;
