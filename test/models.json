@@ -2523,27 +2523,6 @@
   },
   {
     "type":   "onnx",
-    "target": "test_operator_rnn.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_operator_rnn_single_layer.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn_single_layer/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_operator_lstm.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_lstm/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
     "target": "test_LSTM_tanh_bidirectional.onnx",
     "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/CNTK/test_LSTM.tanh.bidirectional//model.onnx",
     "format": "ONNX v3",
