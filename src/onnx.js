@@ -250,6 +250,7 @@ onnx.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._operators = {};
+        this._imageFormat = imageFormat;
 
         if (graph) {
             this._name = graph.name || null;
