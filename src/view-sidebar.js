@@ -261,7 +261,7 @@ sidebar.ValueTextView = class {
         this._elements.push(element);
         var line = document.createElement('div');
         line.className = 'sidebar-view-item-value-line';
-        line.innerHTML = value;
+        line.innerText = value;
         element.appendChild(line);
     }
 
@@ -553,7 +553,7 @@ sidebar.ModelSidebar = class {
         this._host = host;
         this._model = model;
         this._elements = [];
-
+    
         if (this._model.format) {
             this.addProperty('format', new sidebar.ValueTextView(this._model.format));
         }
