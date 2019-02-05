@@ -250,6 +250,7 @@ onnx.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._operators = {};
+        this._imageFormat = imageFormat;
 
         if (graph) {
             this._name = graph.name || null;
@@ -321,6 +322,8 @@ onnx.Graph = class {
                 this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
             });
         }
+
+        delete this._imageFormat;
     }
 
     get name() {
