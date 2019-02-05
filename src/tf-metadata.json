@@ -47274,7 +47274,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_max(c, tf.constant([0, 0, 1]))\n# ==> [[4, 3, 3, 4],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -47389,7 +47389,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1.0,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_mean(c, tf.constant([0, 0, 1]))\n# ==> [[2.5, 2.5, 2.5, 2.5],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -47484,7 +47484,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_min(c, tf.constant([0, 0, 1]))\n# ==> [[1, 2, 2, 1],\n#      [5, 6, 7, 8]]\n```",
       "inputs": [
         {
           "name": "data",
@@ -47599,7 +47599,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_prod(c, tf.constant([0, 0, 1]))\n# ==> [[4, 6, 6, 4],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -47714,7 +47714,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n# ==> [[5, 5, 5, 5],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -52846,7 +52846,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nLike `SegmentMean`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.",
+      "description": "See `tf.sparse.segment_sum` for usage examples.\n\nLike `SegmentMean`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.",
       "inputs": [
         {
           "name": "data",
@@ -52997,7 +52997,7 @@
           "type": "type"
         }
       ],
-      "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.",
+      "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
       "inputs": [
         {
           "name": "data",
@@ -53066,7 +53066,7 @@
           "type": "type"
         }
       ],
-      "description": "N is the size of the segment being reduced.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.",
+      "description": "N is the size of the segment being reduced.\n\nSee `tf.sparse.segment_sum` for usage examples.\n",
       "inputs": [
         {
           "name": "data",
@@ -53217,7 +53217,7 @@
           "type": "type"
         }
       ],
-      "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.",
+      "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
       "inputs": [
         {
           "name": "data",
@@ -53326,7 +53326,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nLike `SegmentSum`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\n# Select two rows, one segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 0]))\n# => [[0 0 0 0]]\n\n# Select two rows, two segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 1]))\n# => [[ 1  2  3  4]\n#     [-1 -2 -3 -4]]\n\n# Select all rows, two segments.\ntf.sparse_segment_sum(c, tf.constant([0, 1, 2]), tf.constant([0, 0, 1]))\n# => [[0 0 0 0]\n#     [5 6 7 8]]\n\n# Which is equivalent to:\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n```",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nLike `SegmentSum`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\n# Select two rows, one segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 0]))\n# => [[0 0 0 0]]\n\n# Select two rows, two segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 1]))\n# => [[ 1  2  3  4]\n#     [-1 -2 -3 -4]]\n\n# Select all rows, two segments.\ntf.sparse_segment_sum(c, tf.constant([0, 1, 2]), tf.constant([0, 0, 1]))\n# => [[0 0 0 0]\n#     [5 6 7 8]]\n\n# Which is equivalent to:\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n```",
       "inputs": [
         {
           "name": "data",
@@ -53448,7 +53448,7 @@
           "type": "type"
         }
       ],
-      "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
+      "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/sparse#Segmentation)\nfor an explanation of segments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
       "inputs": [
         {
           "name": "data",
@@ -61239,7 +61239,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_{j...} data[j...]\\\\) where max is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_{j...} data[j...]\\\\) where max is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_max(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  3, 3, 4],\n#       [5,  6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -61356,7 +61356,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_{j...} data_[j...]\\\\) where min is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_{j...} data_[j...]\\\\) where min is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_min(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 1,  2, 2, 1],\n#       [5,  6, 7, 8]]\n```\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
       "inputs": [
         {
           "name": "data",
@@ -61493,7 +61493,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_{j...} data[j...]\\\\) where the product is over tuples\n`j...` such that `segment_ids[j...] == i`.\n\nIf there is no entry for a given segment ID `i`, it outputs 1.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_{j...} data[j...]\\\\) where the product is over tuples\n`j...` such that `segment_ids[j...] == i`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_prod(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  6, 6, 4],\n#       [5,  6, 7, 8]]\n```\n\nIf there is no entry for a given segment ID `i`, it outputs 1.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
       "inputs": [
         {
           "name": "data",
@@ -61630,7 +61630,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = \\sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = \\sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_sum(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 5,  5, 5, 5],\n#       [5,  6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
