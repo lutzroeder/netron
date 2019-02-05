@@ -48286,6 +48286,46 @@
     }
   },
   {
+    "name": "ShardDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "An integer representing the number of shards operating in parallel.",
+          "name": "num_shards",
+          "type": 9
+        },
+        {
+          "description": "An integer representing the current worker index.",
+          "name": "index",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a `Dataset` that includes only 1/`num_shards` of this dataset."
+    }
+  },
+  {
     "name": "ShardedFilename",
     "schema": {
       "description": "   %s-%05d-of-%05d, basename, shard, num_shards.",
