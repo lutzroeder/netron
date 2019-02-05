@@ -499,7 +499,7 @@
           "name": "padding"
         }
       ],
-      "category": "Layer",
+      "category": "Tensor",
       "description": "Zero-padding layer for 1D input (e.g. temporal sequence).\n",
       "inputs": [
         {
@@ -529,7 +529,7 @@
           "name": "data_format"
         }
       ],
-      "category": "Layer",
+      "category": "Tensor",
       "description": "Zero-padding layer for 2D input (e.g. picture).\n\nThis layer can add rows and columns of zeros\nat the top, bottom, left and right side of an image tensor.\n",
       "inputs": [
         {
@@ -559,7 +559,7 @@
           "name": "data_format"
         }
       ],
-      "category": "Layer",
+      "category": "Tensor",
       "description": "Zero-padding layer for 3D data (spatial or spatio-temporal).\n",
       "inputs": [
         {

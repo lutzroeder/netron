@@ -90,6 +90,12 @@ hdf5.Group = class {
         return this._groups;
     }
 
+    attribute(name) {
+        this.
+        decodeDataObject();
+        return this._attributes[name];
+    }
+
     get attributes() {
         this.decodeDataObject();
         return this._attributes;
@@ -425,16 +431,17 @@ hdf5.SymbolTableEntry = class {
 
 hdf5.DataObjectHeader = class {
     constructor(reader) {
-        var version = reader.byte();
         var messageCount = 0;
-        if (version == 1) {
-            reader.seek(1);
-            messageCount = reader.uint16();
-            var objectReferenceCount = reader.uint32();
-            var objectHeaderSize = reader.uint32();
-        }
-        else {
-            throw new hdf5.Error('Unsupported data object header version \'' + version + '\'.');
+        var version = reader.byte();
+        switch (version) {
+            case 1:            
+                reader.seek(1);
+                messageCount = reader.uint16();
+                var objectReferenceCount = reader.uint32();
+                var objectHeaderSize = reader.uint32();
+                break;
+            default:
+                throw new hdf5.Error('Unsupported data object header version \'' + version + '\'.');
         }
         reader.align(8);
         this.attributes = [];
@@ -451,7 +458,7 @@ hdf5.DataObjectHeader = class {
             else {
                 switch(messageType) {
                     case 0x0000: // NIL
-                        break;
+                        return;
                     case 0x0001: // Dataspace
                         this.dataspace = (dataSize != 4 || flags != 1) ? new hdf5.Dataspace(reader.clone()) : null;
                         break;
@@ -721,23 +728,24 @@ hdf5.DataLayout = class {
 hdf5.Attribute = class {
     constructor(reader, flags) {
         var version = reader.byte();
-        if (version == 1) {
-            reader.seek(1);
-            var nameSize = reader.uint16();
-            var datatypeSize = reader.uint16();
-            var dataspaceSize = reader.uint16();
-            this.name = reader.string(nameSize, 'utf-8');
-            reader.align(8);
-            this._datatype = new hdf5.Datatype(reader.clone());
-            reader.seek(datatypeSize);
-            reader.align(8);
-            this._dataspace = new hdf5.Dataspace(reader.clone());
-            reader.seek(dataspaceSize);
-            reader.align(8);
-            this._data = this._dataspace.readData(this._datatype, reader);
-        }
-        else {
-            throw new hdf5.Error('Unsupported attribute message version \'' + version + '\'.'); 
+        switch (version) {
+            case 1:
+                reader.seek(1);
+                var nameSize = reader.uint16();
+                var datatypeSize = reader.uint16();
+                var dataspaceSize = reader.uint16();
+                this.name = reader.string(nameSize, 'utf-8');
+                reader.align(8);
+                this._datatype = new hdf5.Datatype(reader.clone());
+                reader.seek(datatypeSize);
+                reader.align(8);
+                this._dataspace = new hdf5.Dataspace(reader.clone());
+                reader.seek(dataspaceSize);
+                reader.align(8);
+                this._data = this._dataspace.readData(this._datatype, reader);
+                break; 
+            default:
+                throw new hdf5.Error('Unsupported attribute message version \'' + version + '\'.'); 
         }
     }
 

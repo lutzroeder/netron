@@ -1854,6 +1854,13 @@
   },
   {
     "type":   "keras",
+    "target": "nasnet_pneumonia_detection .h5",
+    "source": "https://www.kaggleusercontent.com/kf/5616814/eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..N0UhpVMdEL-3O2FeWSTTyg.hYHf7ypl_R9vjxmFqoPK9zwbwWmDsfYE80P_Mfnky3Gxlo8m4FeDs8GIus_p3xNF3QHd0SEkxSHPQxUvoJNAhIX3l3gNh3gPJqRYeO3soaMa-YWOvWSUsluTkqRrMGXFMwTVq7xUYYwJ9ja71yD42OKfgUoNI_XeLbyVWQu6hKiJT3Be6WALwgjwkt4bhBsd.vm6At0QsRVpt6VS8KIJGag/full_model.h5",
+    "format": "Keras v2.1.5",
+    "link":   "https://www.kaggle.com/ashishpatel26/beginner-tutorial-nasnet-pneumonia-detection/output"
+  },
+  {
+    "type":   "keras",
     "target": "nietzsche.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[nietzsche.h5]",
     "format": "Keras v2.1.3",
