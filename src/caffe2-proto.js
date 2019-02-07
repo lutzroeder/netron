@@ -2213,7 +2213,8 @@
             values[valuesById[6] = "PROTO_HIP"] = 6;
             values[valuesById[7] = "PROTO_FPGA"] = 7;
             values[valuesById[8] = "PROTO_MSNPU"] = 8;
-            values[valuesById[9] = "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES"] = 9;
+            values[valuesById[9] = "PROTO_XLA"] = 9;
+            values[valuesById[10] = "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES"] = 10;
             values[valuesById[20901] = "PROTO_ONLY_FOR_TEST"] = 20901;
             return values;
         })();
