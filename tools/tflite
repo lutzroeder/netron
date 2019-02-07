@@ -42,7 +42,6 @@ sync() {
 
 install() {
     bold "flatbuffers install"
-    echo 1
     case "$(uname)" in
         "Linux")
             if [ -z "$(which cmake)" ]; then
@@ -55,7 +54,6 @@ install() {
             fi
             ;;
     esac
-    echo "Build flatbuffers..."
     pushd "${third_party}/flatbuffers" > /dev/null
     cmake -G "Unix Makefiles" .
     make
