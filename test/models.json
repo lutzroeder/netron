@@ -1889,6 +1889,13 @@
   },
   {
     "type":   "keras",
+    "target": "snapshot_parent_0097.h5",
+    "source": "https://github.com/uber-research/deep-neuroevolution/blob/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5?raw=true",
+    "error":  "HDF5 file does not contain a Keras 'model_config' graph. Use 'save()' instead of 'save_weights()' to save both the graph and weights.",
+    "link":   "https://github.com/uber-research/deep-neuroevolution"
+  },
+  {
+    "type":   "keras",
     "target": "time_distributed.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[time_distributed.h5]",
     "format": "Keras v2.1.2",
