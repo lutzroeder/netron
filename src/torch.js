@@ -700,6 +700,7 @@ torch.T7Reader = class {
         this._registry['nn.NoiseFill'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Parallel'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ParallelTable'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.PReLU'] = function(reader, version) { reader.nn(this); }; 
         this._registry['nn.ReLU'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Replicate'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Reshape'] = function(reader, version) { reader.nn(this); };

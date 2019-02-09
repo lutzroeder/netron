@@ -184,6 +184,12 @@
     }
   },
   {
+    "name": "PReLU",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "ReLU",
     "schema": {
       "category": "Activation",
