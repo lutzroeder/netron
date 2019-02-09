@@ -11,14 +11,6 @@ third_party=${root}/third_party
 identifier=paddle
 virtualenv=${root}/build/virtualenv/${identifier}
 
-if [ $(which python3) ] && [ $(which pip3) ]; then
-    python="python3"
-    pip="pip3"
-else
-    python="python"
-    pip="pip"
-fi
-
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
@@ -29,7 +21,7 @@ git_sync () {
         git -C "${third_party}/${1}" fetch -p --quiet
         git -C "${third_party}/${1}" reset --quiet --hard origin/$(git -C "${third_party}/${1}" rev-parse --abbrev-ref HEAD)
     else
-        git -C "${third_party}" clone --recursive ${2} ${1}
+        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
     fi
 }
 
@@ -41,16 +33,6 @@ clean() {
 sync() {
     bold "paddle sync"
     git_sync paddle https://github.com/PaddlePaddle/Paddle.git
-}
-
-install() {
-    bold "paddle install"
-    if [ ! -d "${virtualenv}" ]; then
-        virtualenv --quiet -p ${python} ${virtualenv}
-    fi
-    source ${virtualenv}/bin/activate
-    ${pip} install --quiet ${third_party}/${identifier}
-    deactivate
 }
 
 schema() {

@@ -11,8 +11,13 @@ third_party=${root}/third_party
 identifier=tflite
 virtualenv=${build}/virtualenv/${identifier}
 
-python="python"
-pip="pip"
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 

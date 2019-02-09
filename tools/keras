@@ -8,8 +8,13 @@ test=${root}/test
 tools=${root}/tools
 third_party=${root}/third_party
 
-python="python"
-pip="pip"
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
 
 identifier=keras
 virtualenv=${build}/virtualenv/${identifier}
@@ -46,7 +51,7 @@ install() {
         virtualenv --quiet -p ${python} ${virtualenv}
     fi
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet tensorflow
+    ${pip} install --quiet tf-nightly
     ${pip} install --quiet ${third_party}/${identifier}
     deactivate
 }
