@@ -741,7 +741,7 @@ cntk.TensorType = class {
                     case 1: this._dataType = 'float32'; break;
                 }
                 this._shape = new cntk.TensorShape(version, shape);
-                break;                
+                break;
         }
     }
 
@@ -773,7 +773,7 @@ cntk.TensorShape = class {
                     if (dimension && long.Long.isLong(dimension)) {
                         return dimension.toNumber();
                     }
-                    return dimension;            
+                    return dimension;
                 });
                 break;
         }

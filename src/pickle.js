@@ -15,7 +15,7 @@ pickle.Unpickler = class {
         var reader = this._reader;
         var stack = [];
         var marker = [];
-        var table = {};    
+        var table = {};
         while (reader.position < reader.length) {
             var opcode = reader.byte();
             // console.log(reader.position.toString() + ': ' + opcode + ' ' + String.fromCharCode(opcode));

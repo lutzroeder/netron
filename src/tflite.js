@@ -35,18 +35,18 @@ tflite.ModelFactory = class {
             catch (error) {
                 host.exception(error, false);
                 var message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;        
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 callback(new tflite.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
-    
+
             tflite.Metadata.open(host, (err, metadata) => {
                 try {
                     callback(null, new tflite.Model(metadata, model));
                 }
                 catch (error) {
                     var message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;        
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     callback(new tflite.Error(message + " in '" + identifier + "'."), null);
                 }
             });
@@ -637,7 +637,7 @@ tflite.Metadata = class {
             host.request(null, 'tflite-metadata.json', 'utf-8', (err, data) => {
                 tflite.Metadata._metadata = new tflite.Metadata(data);
                 callback(null, tflite.Metadata._metadata);
-            });    
+            });
         }
     }
 

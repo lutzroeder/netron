@@ -201,7 +201,7 @@ tf.Model = class {
     }
 
     get graphs() {
-        return this._graphs;    
+        return this._graphs;
     }
 };
 
@@ -237,7 +237,7 @@ tf.Graph = class {
             var nodes = this._metaGraph.graph_def.node;
             nodes.forEach((node) => {
                 var name = node.name;
-                nodeMap[name] = node;   
+                nodeMap[name] = node;
                 if (node.op != 'Const') {
                     var lastIndex = name.lastIndexOf('/');
                     if (lastIndex != -1) {
@@ -245,7 +245,7 @@ tf.Graph = class {
                         this._namespaces[namespace] = true;
                     }
                 }
-                node.output = [];         
+                node.output = [];
             });
             nodes.forEach((node) => {
                 var inputs = node.input;
@@ -691,7 +691,7 @@ tf.Attribute = class {
                         if (s.filter(c => c <= 32 && c >= 128).length == 0) {
                             return tf.Metadata.textDecoder.decode(value.s);
                         }
-                        return s.map(v => v.toString()).join(', ');    
+                        return s.map(v => v.toString()).join(', ');
                     });
                 }
             }

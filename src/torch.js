@@ -248,7 +248,7 @@ torch.Node = class {
                 var array = [];
                 obj.reset();
                 for (var i = 0; i < obj.size; i++) {
-                    array.push(obj.read());    
+                    array.push(obj.read());
                 }
                 module[key] = array;
             }
@@ -769,7 +769,7 @@ torch.T7Reader = class {
         this._registry['w2nn.ScaleTable'] = function(reader, version) { reader.nn(this); };
 
         if (buffer.length == 0) {
-            throw new torch.Error('File is empty.');            
+            throw new torch.Error('File is empty.');
         }
         if (buffer[0] <= 8) {
             this._reader = new torch.BinaryReader(buffer);

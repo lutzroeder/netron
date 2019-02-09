@@ -292,12 +292,12 @@ keras.Graph = class {
                                     inputName += ':' + inputIndex.toString();
                                 }
                                 while (inputIndex >= inputNode._outputs.length) {
-                                    inputNode._outputs.push('');        
+                                    inputNode._outputs.push('');
                                 }     
                                 inputNode._outputs[inputIndex] = inputName;
                             }
                             layer._inputs.push(inputName);
-                        });       
+                        });
                     });
                 }
             });
@@ -395,8 +395,8 @@ keras.Graph = class {
             var nodeOutputs = [ connection ];
             if (index == config.length) {
                 if (outputs && outputs.length > 0) {
-                    nodeOutputs = [ outputs[0] ];                    
-                    connection = null;           
+                    nodeOutputs = [ outputs[0] ];
+                    connection = null;
                 }
             }
 
@@ -659,7 +659,7 @@ keras.Node = class {
                 schema.outputs[index] && schema.outputs[index].name) {
                 outputName = schema.outputs[index].name;
             }
-            return new keras.Argument(outputName, true, [ new keras.Connection(output, null, null) ]);            
+            return new keras.Argument(outputName, true, [ new keras.Connection(output, null, null) ]);
         });
     }
 
@@ -966,7 +966,7 @@ keras.Metadata = class {
             host.request(null, 'keras-metadata.json', 'utf-8', (err, data) => {
                 keras.Metadata._metadata = new keras.Metadata(data);
                 callback(null, keras.Metadata._metadata);
-            });    
+            });
         }
     }
 

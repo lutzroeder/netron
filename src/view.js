@@ -134,8 +134,8 @@ view.View = class {
                 this._sidebar.close();
                 this.select(selection);
             });
-            this._sidebar.open(view.content, 'Find');  
-            view.focus(this._searchText);  
+            this._sidebar.open(view.content, 'Find');
+            view.focus(this._searchText);
         }
     }
 
@@ -297,7 +297,7 @@ view.View = class {
             });
             x = x / selection.length;
             y = y / selection.length;
-            this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));        
+            this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));
         }
     }
 
@@ -341,9 +341,9 @@ view.View = class {
                             callback(err, null);
                             return;
                         }
-                    }, 20);   
+                    }, 20);
                 }
-            });    
+            });
         }, 2);
     }
 
@@ -556,7 +556,7 @@ view.View = class {
                                             name: input.name
                                         });
                                     }
-                                });    
+                                });
                             });
                             var outputs = node.outputs;
                             if (node.chain && node.chain.length > 0) {
@@ -665,7 +665,7 @@ view.View = class {
                         tuple.from = { 
                             node: nodeId,
                             type: connection.type
-                        };    
+                        };
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
                     var name = input.name;
@@ -779,7 +779,7 @@ view.View = class {
                                 this._zoom = 1;
                                 graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
                                 graphElement.setAttribute('width', width / this._zoom);
-                                graphElement.setAttribute('height', height / this._zoom);        
+                                graphElement.setAttribute('height', height / this._zoom);
                                 if (inputElements && inputElements.length > 0) {
                                     // Center view based on input elements
                                     for (var j = 0; j < inputElements.length; j++) {
@@ -840,7 +840,7 @@ view.View = class {
         for (var j = 0; j < nodes.length; j++) {
             var node = nodes[j];
             for (var k = 0; k < rules.length; k++) {
-                var rule = rules[k];                
+                var rule = rules[k];
                 if (node.matches(rule.selectorText)) {
                     for (var l = 0; l < rule.style.length; l++) {
                         var item = rule.style.item(l);
@@ -902,7 +902,7 @@ view.View = class {
                     var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
                     var canvas = this._host.document.createElement('canvas');
                     canvas.width = Math.ceil(width * scale);
-                    canvas.height = Math.ceil(height * scale);    
+                    canvas.height = Math.ceil(height * scale);
                     var context = canvas.getContext('2d');
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);

@@ -154,11 +154,11 @@ hdf5.Group = class {
                             this._groups.push(group);
                             this._groupMap[name] = group;
                         });
-                    });    
+                    });
                 }    
             }
             else {
-                this.decodeDataObject();   
+                this.decodeDataObject();
                 this._dataObjectHeader.links.forEach((link) => {
                     if (link.hasOwnProperty('objectHeaderAddress')) {
                         var name = link.name;
@@ -348,7 +348,7 @@ hdf5.Reader = class {
             if (!hdf5.Reader._utf8Decoder) {
                 hdf5.Reader._utf8Decoder = new TextDecoder('utf-8');
             }
-            text = hdf5.Reader._utf8Decoder.decode(data);    
+            text = hdf5.Reader._utf8Decoder.decode(data);
         }
         else {
             if (!hdf5.Reader._asciiDecoder) {
@@ -380,7 +380,7 @@ hdf5.Reader = class {
     }
 
     move(position) {
-        var reader = new hdf5.Reader(null);        
+        var reader = new hdf5.Reader(null);
         reader._buffer = this._buffer;
         reader._dataView = this._dataView;
         reader._position = position;
@@ -656,7 +656,7 @@ hdf5.Datatype = class {
                 }
                 break;
         }
-        throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');          
+        throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');
     }
 
     read(reader) {
@@ -702,7 +702,7 @@ hdf5.Datatype = class {
                     globalHeapID: new hdf5.GlobalHeapID(reader)
                 };
         }
-        throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');          
+        throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');
     }
 
     decode(data, globalHeap) {
@@ -710,7 +710,7 @@ hdf5.Datatype = class {
             case 0: // fixed-point
                 return data;
             case 1: // floating-point
-                return data;            
+                return data;
             case 3: // string
                 return data;
             case 5: // opaque
@@ -998,7 +998,7 @@ hdf5.Attribute = class {
 
     decodeValue(globalHeap) {
         if (this._data) {
-            return this._dataspace.decode(this._datatype, this._data, globalHeap);            
+            return this._dataspace.decode(this._datatype, this._data, globalHeap);
         }
         return null;
     }

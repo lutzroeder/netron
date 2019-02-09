@@ -111,7 +111,7 @@ sklearn.ModelFactory = class {
                         array.shape = this.shape;
                         var size = array.dtype.itemsize;
                         for (var i = 0; i < array.shape.length; i++) {
-                            size = size * array.shape[i];                                
+                            size = size * array.shape[i];
                         }
                         if (typeof this.rawdata == 'string') {
                             array.data = unpickler.unescape(this.rawdata, size);
@@ -834,7 +834,7 @@ sklearn.Metadata = class {
             host.request(null, 'sklearn-metadata.json', 'utf-8', (err, data) => {
                 sklearn.Metadata._metadata = new sklearn.Metadata(data);
                 callback(null, sklearn.Metadata._metadata);
-            });    
+            });
         }
     }
 
