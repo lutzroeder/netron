@@ -13,12 +13,10 @@ third_party=${root}/third_party
 identifier=pytorch
 virtualenv=${build}/virtualenv/${identifier}
 
-if [ $(which python3) ] && [ $(which pip3) ]; then
+if [ $(which python3) ]; then
     python="python3"
-    pip="pip3"
 else
     python="python"
-    pip="pip"
 fi
 
 bold() {
@@ -66,9 +64,9 @@ EOS
     fi
     source ${virtualenv}/bin/activate
     pushd "${third_party}/pytorch" > /dev/null
-    ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
+    ${python} -m pip install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
     ${python} setup.py install
-    ${pip} install --quiet torchvision
+    ${python} -m pip install --quiet torchvision
     popd > /dev/null
     deactivate
 }

@@ -11,12 +11,10 @@ third_party=${root}/third_party
 identifier=coremltools
 virtualenv=${root}/build/virtualenv/${identifier}
 
-if [ $(which python3) ] && [ $(which pip3) ]; then
+if [ $(which python3) ]; then
     python="python3"
-    pip="pip3"
 else
     python="python"
-    pip="pip"
 fi
 
 bold() {
@@ -49,7 +47,7 @@ install() {
         virtualenv --quiet -p ${python} ${virtualenv}
     fi
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet ${third_party}/${identifier}
+    ${python} -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }
 
@@ -62,8 +60,8 @@ schema() {
 convert() {
     bold "coreml convert"
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet onnx
-    ${pip} install --quiet sklearn
+    ${python} -m pip install --quiet onnx
+    ${python} -m pip install --quiet sklearn
     ${python} ${tools}/coreml-script.py convert ${1}
     deactivate
 }

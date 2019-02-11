@@ -11,12 +11,10 @@ third_party=${root}/third_party
 identifier=tflite
 virtualenv=${build}/virtualenv/${identifier}
 
-if [ $(which python3) ] && [ $(which pip3) ]; then
+if [ $(which python3) ]; then
     python="python3"
-    pip="pip3"
 else
     python="python"
-    pip="pip"
 fi
 
 bold() {
@@ -84,7 +82,7 @@ EOT
 visualize() {
     bold "tflite visualize"
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet tensorflow
+    ${python} -m pip install --quiet tensorflow
     ${python} ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
     deactivate
 }
