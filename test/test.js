@@ -13,9 +13,10 @@ const view = require('../src/view.js');
 const zip = require('../src/zip');
 const gzip = require('../src/gzip');
 const tar = require('../src/tar');
+const xmldom = require('xmldom');
 
 global.protobuf = protobuf;
-
+global.DOMParser = xmldom.DOMParser;
 global.TextDecoder = class {
 
     constructor(encoding) {

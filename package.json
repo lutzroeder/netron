@@ -32,6 +32,7 @@
     },
     "devDependencies": {
         "electron": "latest",
-        "electron-builder": "latest"
+        "electron-builder": "latest",
+        "xmldom": "latest"
     }
 }
