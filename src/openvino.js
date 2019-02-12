@@ -2,8 +2,6 @@
 
 var openvino = openvino || {};
 var marked = marked || require('marked');
-openvino.ir = openvino.ir || {};
-openvino.dot = openvino.dot || {};
 
 openvino.ModelFactory = class {
 
@@ -11,11 +9,6 @@ openvino.ModelFactory = class {
         var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
             if (context.text.includes('<net')) {
-                return true;
-            }
-        }
-        if (extension === 'dot') {
-            if (context.text.includes('layer_')) {
                 return true;
             }
         }
@@ -55,25 +48,7 @@ openvino.ModelFactory = class {
                         }
                     }
                     try {
-                        model = new openvino.ir.Model(metadata, parsed);
-                        callback(null, model);
-                        return;
-                    } catch (error) {
-                        host.exception(error, false);
-                        callback(new openvino.Error(error.message), null);
-                        return;
-                    }
-                }
-
-                if (extension === 'dot') {
-                    try {
-                        parsed = openvino_parser.DotParser.parse(context.text);
-                    } catch (error) {
-                        callback(new openvino.Error('Failed to read OpenVINO Dot file.'), null);
-                        return;
-                    }
-                    try {
-                        model = new openvino.dot.Model(metadata, parsed);
+                        model = new openvino.Model(metadata, parsed);
                         callback(null, model);
                         return;
                     } catch (error) {
@@ -87,10 +62,10 @@ openvino.ModelFactory = class {
     }
 };
 
-openvino.ir.Model = class {
+openvino.Model = class {
 
     constructor(metadata, netDef, init) {
-        var graph = new openvino.ir.Graph(metadata, netDef, init);
+        var graph = new openvino.Graph(metadata, netDef, init);
         this._graphs = [ graph ];
     }
 
@@ -104,7 +79,7 @@ openvino.ir.Model = class {
 };
 
 
-openvino.ir.Graph = class {
+openvino.Graph = class {
 
     constructor(metadata, netDef, init) {
         this._metadata = metadata;
@@ -122,7 +97,7 @@ openvino.ir.Graph = class {
 
     handleParsedLayers(netDef) {
         netDef.layers.forEach((layer) => {
-            const node = new openvino.ir.Node(this._metadata, layer, this._version, netDef.edges, netDef.layers);
+            const node = new openvino.Node(this._metadata, layer, this._version, netDef.edges, netDef.layers);
             this.addNewNode(node);
         });
 
@@ -134,7 +109,7 @@ openvino.ir.Graph = class {
 
         tiNodes.forEach((singleTensorIteratorNode) => {
             singleTensorIteratorNode.nestedIR.layers.forEach((nestedLayer) => {
-                const nestedNode = new openvino.ir.Node(this._metadata, nestedLayer, this._version, singleTensorIteratorNode.nestedIR.edges, singleTensorIteratorNode.nestedIR.layers);
+                const nestedNode = new openvino.Node(this._metadata, nestedLayer, this._version, singleTensorIteratorNode.nestedIR.edges, singleTensorIteratorNode.nestedIR.layers);
                 nestedNode._id = `${singleTensorIteratorNode.id}_${nestedLayer.id}`;
                 nestedNode._inputs = nestedNode._inputs.map((input) => {
                     return `${singleTensorIteratorNode.id}_${input}`;
@@ -225,7 +200,61 @@ openvino.ir.Graph = class {
     }
 };
 
-openvino.AbstractNode = class {
+openvino.Node = class {
+
+    constructor(metadata, layer, version, edges, layers) {
+
+        this._metadata = metadata;
+        this._type = layer.type;
+        this._name = layer.name || '';
+        this._id = layer.id;
+
+        this._inputs = [];
+        this._outputs = [];
+
+        this.setInputs(layer.input, edges, layers);
+        if (layer.hasOwnProperty(0)) {
+             // meaning it has outputs 
+             this.setOutputs(layer[0].output, edges, layers);
+        }
+
+        this._initializers = [];
+        this._attributes = [];
+
+        // this._attributes.push(new openvino.Attribute(metadata, this, '  ', layer.precision));
+
+        if (layer.data) {
+            this._attributes = Object.keys(layer.data).map((key) => {
+                return new openvino.Attribute(metadata, this, key, layer.data[key]);
+            });
+        }
+
+        if (layer.weights) {
+            const value = this._concatBinaryAttributes(layer.weights);
+            this._initializers.push(new openvino.Argument('weights', [
+                new openvino.Connection('weights', null, new openvino.Tensor(layer.precision, null,value))
+            ]));
+
+            // this._initializers.push(new openvinoTensor({data: [],
+            //     shape: layer[0].output[0].dims,
+            //     precision: layer.precision
+            // }));
+        }
+
+        if (layer.biases) {
+            const value = this._concatBinaryAttributes(layer.biases);
+            this._initializers.push(new openvino.Argument('biases', [
+                new openvino.Connection('biases', null, new openvino.Tensor(layer.precision, null, value))
+            ]));
+
+            // TODO: complex to extract the size of the bias
+            // TODO: compute from the overall size?
+            // this._initializers.push(new openvinoTensor({data: [],
+            //     shape: [layer[0].output[0].dims[1]],
+            //     precision: layer.precision
+            // }));
+        }
+    }
 
     get id() {
         return this._id;
@@ -357,64 +386,6 @@ openvino.AbstractNode = class {
                 return new openvino.Connection(connection.id, null, null);
             }));
         });
-    }
-};
-
-openvino.ir.Node = class extends openvino.AbstractNode {
-
-    constructor(metadata, layer, version, edges, layers) {
-        super();
-
-        this._metadata = metadata;
-        this._type = layer.type;
-        this._name = layer.name || '';
-        this._id = layer.id;
-
-        this._inputs = [];
-        this._outputs = [];
-
-        this.setInputs(layer.input, edges, layers);
-        if (layer.hasOwnProperty(0)) {
-             // meaning it has outputs 
-             this.setOutputs(layer[0].output, edges, layers);
-        }
-
-        this._initializers = [];
-        this._attributes = [];
-
-        // this._attributes.push(new openvino.Attribute(metadata, this, '  ', layer.precision));
-
-        if (layer.data) {
-            this._attributes = Object.keys(layer.data).map((key) => {
-                return new openvino.Attribute(metadata, this, key, layer.data[key]);
-            });
-        }
-
-        if (layer.weights) {
-            const value = this._concatBinaryAttributes(layer.weights);
-            this._initializers.push(new openvino.Argument('weights', [
-                new openvino.Connection('weights', null, new openvino.Tensor(layer.precision, null,value))
-            ]));
-
-            // this._initializers.push(new openvinoTensor({data: [],
-            //     shape: layer[0].output[0].dims,
-            //     precision: layer.precision
-            // }));
-        }
-
-        if (layer.biases) {
-            const value = this._concatBinaryAttributes(layer.biases);
-            this._initializers.push(new openvino.Argument('biases', [
-                new openvino.Connection('biases', null, new openvino.Tensor(layer.precision, null, value))
-            ]));
-
-            // TODO: complex to extract the size of the bias
-            // TODO: compute from the overall size?
-            // this._initializers.push(new openvinoTensor({data: [],
-            //     shape: [layer[0].output[0].dims[1]],
-            //     precision: layer.precision
-            // }));
-        }
     }
 };
 
@@ -669,116 +640,6 @@ openvino.Metadata = class {
             index++;
         });
         return results;
-    }
-};
-
-openvino.dot.Model = class {
-
-    constructor(netDef, init) {
-        var graph = new openvino.dot.Graph(netDef, init);
-        this._graphs = [ graph ];
-    }
-
-    get format() {
-        return 'OpenVINO IR Dot';
-    }
-
-    get graphs() {
-        return this._graphs;
-    }
-};
-
-openvino.dot.Graph = class {
-
-    constructor(metadata, netDef, init) {
-        this._metadata = metadata;
-        this._name = netDef.id || '';
-        this._version = Boolean(netDef.strict).toString();
-
-        this._nodes = [];
-        this._operators = {};
-        this._inputs = [];
-        this._outputs = [];
-
-        const layers = netDef.children.filter((child) => child.type === "node_stmt");
-        const edges = netDef.children.filter((child) => child.type === "edge_stmt");
-
-        layers.forEach((layer) => {
-            const node = new openvino.dot.Node(this._metadata, layer, this._version, edges, layers);
-            this._operators[node.operator] = this._operators[node.operator] ? this._operators[node.operator] + 1 : 1;
-            this._nodes.push(node);
-        });
-
-        edges.forEach((edge) => {
-            const from = edge.edge_list[0];
-            const to = edge.edge_list[1];
-            const child = this._nodes.find((node) => node._id === to.id);
-            if (child) {
-                child.updateInputs(from.id);
-            }
-            const parent = this._nodes.find((node) => node._id === from.id);
-            if (parent) {
-                parent.updateOutputs(to.id);
-            }
-        });
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
-    }
-
-    get operators() {
-        return this._operators;
-    }
-};
-
-openvino.dot.Node = class extends openvino.AbstractNode {
-
-    constructor(metadata, layer, version, edges, layers) {
-        super();
-
-        this._metadata = metadata;
-        this._inputs = [];
-        this._outputs = [];
-        this._id = layer.node_id.id;
-
-        this._initializers = [];
-        this._attributes = [];
-
-        const ownAttributes = ['name', 'shape', 'style', 'fillcolor', 'type'];
-
-        layer.attr_list.forEach(({name, value}) => {
-            name = name.toLowerCase().replace(/\s/g, '_');
-            if (ownAttributes.includes(name)) {
-                this[`_${name}`] = value;
-            }
-
-            this._attributes.push(new openvino.Attribute(metadata, this, name, value));
-        });
-
-        if (!this._type){
-            this._type = 'data';
-        }
-    }
-
-    updateInputs(id) {
-        this._inputs.push(id);
-    }
-
-    updateOutputs(id) {
-        this._outputs.push(id);
     }
 };
 
