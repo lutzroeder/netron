@@ -23,7 +23,6 @@ torch.ModelFactory = class {
             var identifier = context.identifier;
             try {
                 var reader = new torch.T7Reader(context.buffer, (name) => {
-                    debugger;
                     host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                     return null;
                 });
@@ -249,7 +248,7 @@ torch.Node = class {
                 var array = [];
                 obj.reset();
                 for (var i = 0; i < obj.size; i++) {
-                    array.push(obj.read());    
+                    array.push(obj.read());
                 }
                 module[key] = array;
             }
@@ -343,18 +342,12 @@ torch.Node = class {
                 }
                 var obj = module[key];
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
-                    if (obj.size.length == 0) {
-                        debugger;
-                        // console.log("  " + type + "::" + key);
-                    }
                     initializers.push(new torch.Argument(key, true, [ 
                         new torch.Connection(key, null, new torch.Tensor(obj))
                     ]));
                     return;
                 }
                 if (key == 'modules' || obj.__type__) {
-                    debugger;                
-                    // console.log("  " + type + "::" + key);
                     return;
                 }
                 this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
@@ -707,6 +700,7 @@ torch.T7Reader = class {
         this._registry['nn.NoiseFill'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Parallel'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.ParallelTable'] = function(reader, version) { reader.nn(this); };
+        this._registry['nn.PReLU'] = function(reader, version) { reader.nn(this); }; 
         this._registry['nn.ReLU'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Replicate'] = function(reader, version) { reader.nn(this); };
         this._registry['nn.Reshape'] = function(reader, version) { reader.nn(this); };
@@ -775,7 +769,7 @@ torch.T7Reader = class {
         this._registry['w2nn.ScaleTable'] = function(reader, version) { reader.nn(this); };
 
         if (buffer.length == 0) {
-            throw new torch.Error('File is empty.');            
+            throw new torch.Error('File is empty.');
         }
         if (buffer[0] <= 8) {
             this._reader = new torch.BinaryReader(buffer);
@@ -897,9 +891,6 @@ torch.T7Reader = class {
                 list.push(item);
             }
             this._memo[index] = list;
-            if (index == 1016) {
-                debugger;
-            }
             return list;
         }
         return table;

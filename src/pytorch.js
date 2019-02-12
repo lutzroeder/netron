@@ -34,7 +34,7 @@ pytorch.ModelFactory = class {
             }
             pytorch.Metadata.open(host, (err, metadata) => {
                 this._openModel(metadata, context, host, pickle, callback);
-            });        
+            });
         });
     }
 
@@ -287,7 +287,7 @@ pytorch.ModelFactory = class {
                     array.shape = this.shape;
                     var size = array.dtype.itemsize;
                     for (var i = 0; i < array.shape.length; i++) {
-                        size = size * array.shape[i];                                
+                        size = size * array.shape[i];
                     }
                     if (typeof this.rawdata == 'string') {
                         array.data = unpickler.unescape(this.rawdata, size);
@@ -387,7 +387,6 @@ pytorch.ModelFactory = class {
                          name.startsWith('torch.') || name.startsWith('torchvision.') || 
                          name.startsWith('argparse.') || name.startsWith('collections.') ||
                          name.startsWith('numpy.') || name.startsWith('__builtin__.') || name.startsWith('_codecs.')) {
-                    debugger;
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;

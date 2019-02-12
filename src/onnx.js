@@ -199,19 +199,19 @@ onnx.Model = class {
     }
 
     get domain() {
-        return this._domain || null;        
+        return this._domain || null;
     }
 
     get description() {
-        return this._description || null;        
+        return this._description || null;
     }
 
     get author() {
-        return this._author || null;   
+        return this._author || null;
     }
 
     get company() {
-        return this._company || null;   
+        return this._company || null;
     }
 
     get source() {
@@ -250,6 +250,7 @@ onnx.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._operators = {};
+        this._imageFormat = imageFormat;
 
         if (graph) {
             this._name = graph.name || null;
@@ -321,6 +322,8 @@ onnx.Graph = class {
                 this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
             });
         }
+
+        delete this._imageFormat;
     }
 
     get name() {
@@ -530,10 +533,6 @@ onnx.Node = class {
 
     get outputs() {
         return this._outputs;
-    }
-
-    get dependencies() {
-        return [];
     }
 };
 
@@ -963,7 +962,7 @@ onnx.Tensor = class {
             map[onnx.proto.TensorProto.DataType.UINT32] = 'uint32';
             map[onnx.proto.TensorProto.DataType.UINT64] = 'uint64';
             map[onnx.proto.TensorProto.DataType.COMPLEX64] = 'complex64';
-            map[onnx.proto.TensorProto.DataType.COMPLEX128] = 'complex128';    
+            map[onnx.proto.TensorProto.DataType.COMPLEX128] = 'complex128';
             map[onnx.proto.TensorProto.DataType.BFLOAT16] = 'bfloat16';
             onnx.Tensor._elementTypeMap = map;
         }
@@ -1292,5 +1291,5 @@ onnx.Error = class extends Error {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = onnx.ModelFactory;   
+    module.exports.ModelFactory = onnx.ModelFactory;
 }

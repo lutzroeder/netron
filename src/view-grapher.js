@@ -227,10 +227,6 @@ grapher.NodeElement = class {
         return this._block;
     }
 
-    setControlDependencies() {
-        this._controlDependencies = true;
-    }
-
     format(contextElement) {
         var rootElement = this.createElement('g');
         contextElement.appendChild(rootElement);
@@ -254,11 +250,7 @@ grapher.NodeElement = class {
         });
 
         var borderElement = this.createElement('path');
-        var borderClassList = [ 'node', 'border' ];
-        if (this._controlDependencies) {
-            borderClassList.push('node-control-dependency');
-        }
-        borderElement.setAttribute('class', borderClassList.join(' '));
+        borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
         borderElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, height, true, true, true, true));
         rootElement.appendChild(borderElement);
 
@@ -267,7 +259,7 @@ grapher.NodeElement = class {
     }
 
     static roundedRect(x, y, width, height, r1, r2, r3, r4) {
-        var radius = 5;    
+        var radius = 5;
         r1 = r1 ? radius : 0;
         r2 = r2 ? radius : 0;
         r3 = r3 ? radius : 0;
@@ -386,7 +378,7 @@ grapher.NodeElement.Header = class {
         });
 
         this._elements.forEach((element, index) => {
-            element.group.setAttribute('transform', 'translate(' + element.x + ',' + element.y + ')');        
+            element.group.setAttribute('transform', 'translate(' + element.x + ',' + element.y + ')');
             var r1 = index == 0 && first;
             var r2 = index == this._elements.length - 1 && first;
             var r3 = index == this._elements.length - 1 && last;
@@ -506,7 +498,7 @@ grapher.NodeElement.List = class {
 
     update(parentElement, top, width , first, last) {
 
-        this._element.setAttribute('transform', 'translate(0,' + top + ')');        
+        this._element.setAttribute('transform', 'translate(0,' + top + ')');
 
         var r1 = first;
         var r2 = first;

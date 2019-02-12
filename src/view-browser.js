@@ -367,7 +367,7 @@ host.BrowserHost = class {
             var message = '';
             switch(e.target.error.code) {
                 case e.target.error.NOT_FOUND_ERR:
-                    message = 'File not found.';          
+                    message = 'File not found.';
                     break;
                 case e.target.error.NOT_READABLE_ERR:
                     message = 'File not readable.';

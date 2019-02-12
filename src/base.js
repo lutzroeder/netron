@@ -18,7 +18,7 @@ if (!DataView.prototype.getFloat16) {
             f = f ? NaN : Infinity;
         }
         else {
-            f = DataView.__float16_pow[e] * (1 + (f / 1024));  
+            f = DataView.__float16_pow[e] * (1 + (f / 1024));
         }
         return value & 0x8000 ? -f : f;
     };

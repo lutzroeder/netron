@@ -138,7 +138,9 @@ tflite_schema.BuiltinOperator = {
   SPLIT_V: 102, 102: 'SPLIT_V',
   UNIQUE: 103, 103: 'UNIQUE',
   CEIL: 104, 104: 'CEIL',
-  REVERSE_V2: 105, 105: 'REVERSE_V2'
+  REVERSE_V2: 105, 105: 'REVERSE_V2',
+  ADD_N: 106, 106: 'ADD_N',
+  GATHER_ND: 107, 107: 'GATHER_ND'
 };
 
 /**
@@ -226,7 +228,9 @@ tflite_schema.BuiltinOptions = {
   AbsOptions: 78, 78: 'AbsOptions',
   SplitVOptions: 79, 79: 'SplitVOptions',
   UniqueOptions: 80, 80: 'UniqueOptions',
-  ReverseV2Options: 81, 81: 'ReverseV2Options'
+  ReverseV2Options: 81, 81: 'ReverseV2Options',
+  AddNOptions: 82, 82: 'AddNOptions',
+  GatherNdOptions: 83, 83: 'GatherNdOptions'
 };
 
 /**
@@ -6745,6 +6749,108 @@ tflite_schema.ReverseV2Options.startReverseV2Options = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.ReverseV2Options.endReverseV2Options = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.AddNOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.AddNOptions}
+ */
+tflite_schema.AddNOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.AddNOptions=} obj
+ * @returns {tflite_schema.AddNOptions}
+ */
+tflite_schema.AddNOptions.getRootAsAddNOptions = function(bb, obj) {
+  return (obj || new tflite_schema.AddNOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.AddNOptions.startAddNOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.AddNOptions.endAddNOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.GatherNdOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.GatherNdOptions}
+ */
+tflite_schema.GatherNdOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.GatherNdOptions=} obj
+ * @returns {tflite_schema.GatherNdOptions}
+ */
+tflite_schema.GatherNdOptions.getRootAsGatherNdOptions = function(bb, obj) {
+  return (obj || new tflite_schema.GatherNdOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.GatherNdOptions.startGatherNdOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.GatherNdOptions.endGatherNdOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };

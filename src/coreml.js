@@ -300,7 +300,7 @@ coreml.Graph = class {
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             this._updateClassifierOutput(group, model.supportVectorClassifier);
-            return 'Support Vector Classifier';            
+            return 'Support Vector Classifier';
         }
         else if (model.supportVectorRegressor) {
             this._createNode(scope, group, 'supportVectorRegressor', null, 

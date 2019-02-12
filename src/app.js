@@ -743,7 +743,7 @@ class ViewCollection {
             this._raise('active-view-changed', { activeView: this._activeView });
         });
         view.on('updated', (sender) => {
-            this._raise('active-view-updated', { activeView: this._activeView });            
+            this._raise('active-view-updated', { activeView: this._activeView });
         });
         view.on('deactivated', (sender) => {
             this._activeView = null;
@@ -794,7 +794,7 @@ class ViewCollection {
         var view = this._views.find(view => view.window == window) || null;
         if (view != this._activeView) {
             this._activeView = view;
-            this._raise('active-view-changed', { activeView: this._activeView });        
+            this._raise('active-view-changed', { activeView: this._activeView });
         }
     }
 }

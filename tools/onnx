@@ -12,12 +12,10 @@ tools=${root}/tools
 identifier=onnx
 virtualenv=${build}/virtualenv/${identifier}
 
-if [ $(which python3) ] && [ $(which pip3) ]; then
+if [ $(which python3) ]; then
     python="python3"
-    pip="pip3"
 else
     python="python"
-    pip="pip"
 fi
 
 bold() {
@@ -72,10 +70,10 @@ install() {
         virtualenv --quiet -p ${python} ${virtualenv}
     fi
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet protobuf
+    ${python} -m pip install --quiet protobuf
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
-    ${pip} install --quiet ${third_party}/onnx
+    ${python} -m pip install --quiet ${third_party}/onnx
     deactivate
 }
 
@@ -100,7 +98,7 @@ metadata() {
 convert() {
     bold "onnx convert"
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet ${third_party}/onnxmltools
+    ${python} -m pip install --quiet ${third_party}/onnxmltools
     ${python} ${tools}/onnx-script.py convert ${1}
     deactivate
 }

@@ -96,7 +96,7 @@ paddle.Graph = class {
                         scope[argument] = next;
                         return next;
                     }
-                    scope[argument] = argument;   
+                    scope[argument] = argument;
                     return argument;
                 });
             });
@@ -156,7 +156,6 @@ paddle.Graph = class {
             case paddle.proto.VarType.Type.LOD_TENSOR:
                 return new paddle.TensorType(variable.type.lod_tensor.tensor);
             default:
-                debugger;
                 break;
         }
         return null;
@@ -230,13 +229,13 @@ paddle.Node = class {
         op.inputs.forEach((input) => {
             if (input.arguments.length > 0) {
                 var connections = input.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, initializers[argument]));
-                this._inputs.push(new paddle.Argument(input.parameter, connections));              
+                this._inputs.push(new paddle.Argument(input.parameter, connections));
             }
         });
         op.outputs.forEach((output) => {
             if (output.arguments.length > 0) {
                 var connections = output.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, null));
-                this._outputs.push(new paddle.Argument(output.parameter, connections));              
+                this._outputs.push(new paddle.Argument(output.parameter, connections));
             }
         });
         this._update(this._inputs, 'X');
@@ -325,14 +324,11 @@ paddle.Attribute = class {
                 break;
             case paddle.proto.AttrType.LONG:
                 this._type = 'int64';
-                debugger;
                 break;
             case paddle.proto.AttrType.LONGS:
                 this._type = 'int64[]';
-                debugger;
                 break;
             default:
-                debugger;
                 break;
         }
         switch (this._name) {
@@ -403,10 +399,9 @@ paddle.TensorType = class {
                 break;
             default:
                 this._dataType = '?';
-                debugger;
                 break;
         }
-        this._shape = new paddle.TensorShape(desc.dims);    
+        this._shape = new paddle.TensorShape(desc.dims);
     }
 
     get dataType() {
@@ -500,5 +495,5 @@ paddle.Error = class extends Error {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = paddle.ModelFactory;   
+    module.exports.ModelFactory = paddle.ModelFactory;
 }

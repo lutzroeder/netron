@@ -8679,6 +8679,10 @@
             },
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 8
             },
             {
@@ -8714,6 +8718,10 @@
       "attributes": [
         {
           "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
             {
               "type": "type",
               "value": 1
@@ -9069,6 +9077,75 @@
         }
       ],
       "summary": "Mutually reduces multiple tensors of identical type and shape."
+    }
+  },
+  {
+    "name": "CombinedNonMaxSuppression",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "description": "If false, the output nmsed boxes, scores and classes\nare padded/clipped to `max_total_size`. If true, the\noutput nmsed boxes, scores and classes are padded to be of length\n`max_size_per_class`*`num_classes`, unless it exceeds `max_total_size` in\nwhich case it is clipped to `max_total_size`. Defaults to false.",
+          "name": "pad_per_class",
+          "type": "bool"
+        }
+      ],
+      "description": "This operation performs non_max_suppression on the inputs per batch, across\nall classes.\nPrunes away boxes that have high intersection-over-union (IOU) overlap\nwith previously selected boxes.  Bounding boxes are supplied as\n[y1, x1, y2, x2], where (y1, x1) and (y2, x2) are the coordinates of any\ndiagonal pair of box corners and the coordinates can be provided as normalized\n(i.e., lying in the interval [0, 1]) or absolute.  Note that this algorithm\nis agnostic to where the origin is in the coordinate system. Also note that\nthis algorithm is invariant to orthogonal transformations and translations\nof the coordinate system; thus translating or reflections of the coordinate\nsystem result in the same boxes being selected by the algorithm.\nThe output of this operation is the final boxes, scores and classes tensor\nreturned after performing non_max_suppression.",
+      "inputs": [
+        {
+          "description": "A 4-D float tensor of shape `[batch_size, num_boxes, q, 4]`. If `q` is 1 then \nsame boxes are used for all classes otherwise, if `q` is equal to number of \nclasses, class-specific boxes are used.",
+          "name": "boxes",
+          "type": 1
+        },
+        {
+          "description": "A 3-D float tensor of shape `[batch_size, num_boxes, num_classes]`\nrepresenting a single score corresponding to each box (each row of boxes).",
+          "name": "scores",
+          "type": 1
+        },
+        {
+          "description": "A scalar integer tensor representing the maximum number of \nboxes to be selected by non max suppression per class",
+          "name": "max_output_size_per_class",
+          "type": 3
+        },
+        {
+          "description": "A scalar representing maximum number of boxes retained over all classes.",
+          "name": "max_total_size",
+          "type": 3
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
+          "name": "iou_threshold",
+          "type": 1
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding when to remove\nboxes based on score.",
+          "name": "score_threshold",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A [batch_size, max_detections, 4] float32 tensor \ncontaining the non-max suppressed boxes.",
+          "name": "nmsed_boxes",
+          "type": 1
+        },
+        {
+          "description": "A [batch_size, max_detections] float32 tensor \ncontaining the scores for the boxes.",
+          "name": "nmsed_scores",
+          "type": 1
+        },
+        {
+          "description": "A [batch_size, max_detections] float32 tensor \ncontaining the classes for the boxes.",
+          "name": "nmsed_classes",
+          "type": 1
+        },
+        {
+          "description": "A [batch_size] int32 tensor indicating the number of\nvalid detections per batch item. Only the top num_detections[i] entries in\nnms_boxes[i], nms_scores[i] and nms_class[i] are valid. The rest of the\nentries are zero paddings.",
+          "name": "valid_detections",
+          "type": 3
+        }
+      ],
+      "summary": "Greedily selects a subset of bounding boxes in descending order of score,"
     }
   },
   {
@@ -13136,7 +13213,7 @@
           "type": "string"
         },
         {
-          "description": "List of strings containing proto field names.",
+          "description": "List of strings containing proto field names. An extension field can be decoded\nby using its full name, e.g. EXT_PACKAGE.EXT_FIELD_NAME.",
           "name": "field_names",
           "type": "list(string)"
         },
@@ -16829,6 +16906,43 @@
     }
   },
   {
+    "name": "ExperimentalRebatchDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "Creates a dataset that changes the batch size of the dataset to current batch\nsize // num_workers.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A scalar representing the number of workers to distribute this batch across. As\na result of this transformation the current batch size would end up being\ndivided  by this parameter.",
+          "name": "num_workers",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that changes the batch size."
+    }
+  },
+  {
     "name": "ExperimentalScanDataset",
     "schema": {
       "attributes": [
@@ -17341,6 +17455,12 @@
           "description": "indicates if the noise should be generated using a\nuniform distribution or a Gaussian distribution.",
           "name": "uniform_noise",
           "type": "bool"
+        },
+        {
+          "default": "uniform",
+          "description": "indicates if the noise should `uniform`, `gaussian`, or\n`zero`. The default is `uniform` which means the the noise type\nwill be decided by `uniform_noise`.",
+          "name": "noise",
+          "type": "string"
         }
       ],
       "description": "Returns a set of windows called glimpses extracted at location\n`offsets` from the input tensor. If the windows only partially\noverlaps the inputs, the non overlapping areas will be filled with\nrandom noise.\n\nThe result is a 4-D tensor of shape `[batch_size, glimpse_height,\nglimpse_width, channels]`. The channels and batch dimensions are the\nsame as that of the input tensor. The height and width of the output\nwindows are specified in the `size` parameter.\n\nThe argument `normalized` and `centered` controls how the windows are built:\n\n* If the coordinates are normalized but not centered, 0.0 and 1.0\n  correspond to the minimum and maximum of each height and width\n  dimension.\n* If the coordinates are both normalized and centered, they range from\n  -1.0 to 1.0. The coordinates (-1.0, -1.0) correspond to the upper\n  left corner, the lower right corner is located at (1.0, 1.0) and the\n  center is at (0, 0).\n* If the coordinates are not normalized they are interpreted as\n  numbers of pixels.",
@@ -23362,6 +23482,10 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -24021,6 +24145,10 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
@@ -24689,6 +24817,10 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -24796,6 +24928,10 @@
             },
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 8
             },
             {
@@ -24840,6 +24976,10 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
@@ -24963,6 +25103,10 @@
             },
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 8
             },
             {
@@ -25010,6 +25154,10 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
@@ -25073,6 +25221,10 @@
             },
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 8
             },
             {
@@ -25127,6 +25279,10 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
@@ -31642,6 +31798,10 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
@@ -47114,7 +47274,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_max(c, tf.constant([0, 0, 1]))\n# ==> [[4, 3, 3, 4],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -47229,7 +47389,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1.0,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_mean(c, tf.constant([0, 0, 1]))\n# ==> [[2.5, 2.5, 2.5, 2.5],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -47324,7 +47484,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_min(c, tf.constant([0, 0, 1]))\n# ==> [[1, 2, 2, 1],\n#      [5, 6, 7, 8]]\n```",
       "inputs": [
         {
           "name": "data",
@@ -47439,7 +47599,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_prod(c, tf.constant([0, 0, 1]))\n# ==> [[4, 6, 6, 4],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -47554,7 +47714,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n# ==> [[5, 5, 5, 5],\n#      [5, 6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -47625,6 +47785,10 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
             }
           ],
           "name": "T",
@@ -47668,6 +47832,10 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
@@ -48115,6 +48283,46 @@
         }
       ],
       "summary": "Returns shape of tensors."
+    }
+  },
+  {
+    "name": "ShardDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "An integer representing the number of shards operating in parallel.",
+          "name": "num_shards",
+          "type": 9
+        },
+        {
+          "description": "An integer representing the current worker index.",
+          "name": "index",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a `Dataset` that includes only 1/`num_shards` of this dataset."
     }
   },
   {
@@ -52678,7 +52886,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nLike `SegmentMean`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.",
+      "description": "See `tf.sparse.segment_sum` for usage examples.\n\nLike `SegmentMean`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.",
       "inputs": [
         {
           "name": "data",
@@ -52829,7 +53037,7 @@
           "type": "type"
         }
       ],
-      "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.",
+      "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
       "inputs": [
         {
           "name": "data",
@@ -52898,7 +53106,7 @@
           "type": "type"
         }
       ],
-      "description": "N is the size of the segment being reduced.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.",
+      "description": "N is the size of the segment being reduced.\n\nSee `tf.sparse.segment_sum` for usage examples.\n",
       "inputs": [
         {
           "name": "data",
@@ -53049,7 +53257,7 @@
           "type": "type"
         }
       ],
-      "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.",
+      "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
       "inputs": [
         {
           "name": "data",
@@ -53158,7 +53366,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nLike `SegmentSum`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\n# Select two rows, one segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 0]))\n# => [[0 0 0 0]]\n\n# Select two rows, two segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 1]))\n# => [[ 1  2  3  4]\n#     [-1 -2 -3 -4]]\n\n# Select all rows, two segments.\ntf.sparse_segment_sum(c, tf.constant([0, 1, 2]), tf.constant([0, 0, 1]))\n# => [[0 0 0 0]\n#     [5 6 7 8]]\n\n# Which is equivalent to:\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n```",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nLike `SegmentSum`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\n# Select two rows, one segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 0]))\n# => [[0 0 0 0]]\n\n# Select two rows, two segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 1]))\n# => [[ 1  2  3  4]\n#     [-1 -2 -3 -4]]\n\n# Select all rows, two segments.\ntf.sparse_segment_sum(c, tf.constant([0, 1, 2]), tf.constant([0, 0, 1]))\n# => [[0 0 0 0]\n#     [5 6 7 8]]\n\n# Which is equivalent to:\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n```",
       "inputs": [
         {
           "name": "data",
@@ -53280,7 +53488,7 @@
           "type": "type"
         }
       ],
-      "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
+      "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/sparse#Segmentation)\nfor an explanation of segments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
       "inputs": [
         {
           "name": "data",
@@ -56724,6 +56932,10 @@
             },
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 8
             },
             {
@@ -58624,6 +58836,57 @@
     }
   },
   {
+    "name": "TensorListConcatV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "shape_type",
+          "type": "type"
+        }
+      ],
+      "description": "Requires that all tensors have the same shape except the first dimension.\n\ninput_handle: The input list.\nelement_shape: The shape of the uninitialized elements in the list. If the first\n  dimension is not -1, it is assumed that all list elements have the same\n  leading dim.\nleading_dims: The list of leading dims of uninitialized list elements. Used if\n  the leading dim of input_handle.element_shape or the element_shape input arg\n  is not already set.\ntensor: The concated result.\nlengths: Output tensor containing sizes of the 0th dimension of tensors in the list, used for computing the gradient.\n",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "element_shape",
+          "typeAttr": "shape_type"
+        },
+        {
+          "name": "leading_dims",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "element_dtype"
+        },
+        {
+          "name": "lengths",
+          "type": 9
+        }
+      ],
+      "summary": "Concats all tensors in the list along the 0th dimension."
+    }
+  },
+  {
     "name": "TensorListElementShape",
     "schema": {
       "attributes": [
@@ -58975,6 +59238,57 @@
         {
           "name": "element_shape",
           "typeAttr": "shape_type"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a TensorList by indexing into a Tensor."
+    }
+  },
+  {
+    "name": "TensorListScatterV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "shape_type",
+          "type": "type"
+        }
+      ],
+      "description": "Each member of the TensorList corresponds to one row of the input tensor,\nspecified by the given index (see `tf.gather`).\n\ntensor: The input tensor.\nindices: The indices used to index into the list.\nelement_shape: The shape of the elements in the list (can be less specified than\n  the shape of the tensor).\nnum_elements: The size of the output list. Must be large enough to accommodate\n  the largest index in indices. If -1, the list is just large enough to include\n  the largest index in indices.\noutput_handle: The TensorList.",
+      "inputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "element_dtype"
+        },
+        {
+          "name": "indices",
+          "type": 3
+        },
+        {
+          "name": "element_shape",
+          "typeAttr": "shape_type"
+        },
+        {
+          "name": "num_elements",
+          "type": 3
         }
       ],
       "outputs": [
@@ -60965,7 +61279,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_{j...} data[j...]\\\\) where max is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_{j...} data[j...]\\\\) where max is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_max(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  3, 3, 4],\n#       [5,  6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",
@@ -61082,7 +61396,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_{j...} data_[j...]\\\\) where min is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_{j...} data_[j...]\\\\) where min is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_min(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 1,  2, 2, 1],\n#       [5,  6, 7, 8]]\n```\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
       "inputs": [
         {
           "name": "data",
@@ -61219,7 +61533,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_{j...} data[j...]\\\\) where the product is over tuples\n`j...` such that `segment_ids[j...] == i`.\n\nIf there is no entry for a given segment ID `i`, it outputs 1.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_{j...} data[j...]\\\\) where the product is over tuples\n`j...` such that `segment_ids[j...] == i`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_prod(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  6, 6, 4],\n#       [5,  6, 7, 8]]\n```\n\nIf there is no entry for a given segment ID `i`, it outputs 1.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
       "inputs": [
         {
           "name": "data",
@@ -61356,7 +61670,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = \\sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = \\sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_sum(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 5,  5, 5, 5],\n#       [5,  6, 7, 8]]\n```\n",
       "inputs": [
         {
           "name": "data",

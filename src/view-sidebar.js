@@ -51,7 +51,7 @@ sidebar.Sidebar = class {
             else {
                 contentElement.appendChild(content);
             }
-            sidebarElement.style.width = width ? width : '500px';    
+            sidebarElement.style.width = width ? width : '500px';
             if (width && width.endsWith('%')) {
                 contentElement.style.width = '100%';
             }
@@ -261,7 +261,7 @@ sidebar.ValueTextView = class {
         this._elements.push(element);
         var line = document.createElement('div');
         line.className = 'sidebar-view-item-value-line';
-        line.innerHTML = value;
+        line.innerText = value;
         element.appendChild(line);
     }
 
@@ -500,7 +500,7 @@ sidebar.ConnectionView = class {
                         var referenceLine = document.createElement('div');
                         referenceLine.className = 'sidebar-view-item-value-line-border';
                         referenceLine.innerHTML = 'reference: ' + '<b>' + reference + '</b>';
-                        this._element.appendChild(referenceLine);   
+                        this._element.appendChild(referenceLine);
                     }
                     var state = initializer.state;
                     if (state === null && this._host.save && 
@@ -553,7 +553,7 @@ sidebar.ModelSidebar = class {
         this._host = host;
         this._model = model;
         this._elements = [];
-
+    
         if (this._model.format) {
             this.addProperty('format', new sidebar.ValueTextView(this._model.format));
         }
@@ -628,13 +628,13 @@ sidebar.ModelSidebar = class {
                 this.addProperty('version', new sidebar.ValueTextView(graph.version));
             }
             if (graph.type) {
-                this.addProperty('type', new sidebar.ValueTextView(graph.type));                
+                this.addProperty('type', new sidebar.ValueTextView(graph.type));
             }
             if (graph.tags) {
                 this.addProperty('tags', new sidebar.ValueTextView(graph.tags));
             }
             if (graph.description) {
-                this.addProperty('description', new sidebar.ValueTextView(graph.description));                
+                this.addProperty('description', new sidebar.ValueTextView(graph.description));
             }
 
             if (graph.operators) {

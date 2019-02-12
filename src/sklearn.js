@@ -111,7 +111,7 @@ sklearn.ModelFactory = class {
                         array.shape = this.shape;
                         var size = array.dtype.itemsize;
                         for (var i = 0; i < array.shape.length; i++) {
-                            size = size * array.shape[i];                                
+                            size = size * array.shape[i];
                         }
                         if (typeof this.rawdata == 'string') {
                             array.data = unpickler.unescape(this.rawdata, size);
@@ -142,7 +142,6 @@ sklearn.ModelFactory = class {
                             size *= dimension;
                         });
                         if (this.dtype.name == 'object') {
-                            debugger;
                             return unpickler.load(function_call, null);
                         }
                         else {
@@ -176,6 +175,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.linear_model.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.LassoLars​'] = function() {};
+                constructorTable['sklearn.linear_model.sgd_fast.Log'] = function() {};
                 constructorTable['sklearn.model_selection._search.GridSearchCV'] = function() {};
                 constructorTable['sklearn.naive_bayes.BernoulliNB'] = function() {};
                 constructorTable['sklearn.naive_bayes.ComplementNB'] = function() {};
@@ -185,6 +185,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.neighbors.KNeighborsRegressor'] = function() {};
                 constructorTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
                 constructorTable['sklearn.neural_network.multilayer_perceptron.MLPRegressor'] = function() {};
+                constructorTable['sklearn.neural_network.stochastic_gradient.SGDClassifier'] = function() {};
                 constructorTable['sklearn.neural_network._stochastic_optimizers.AdamOptimizer'] = function() {};
                 constructorTable['sklearn.neural_network._stochastic_optimizers.SGDOptimizer'] = function() {};
                 constructorTable['sklearn.pipeline.Pipeline'] = function() {};
@@ -192,6 +193,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.label.LabelEncoder'] = function() {};
+                constructorTable['sklearn.preprocessing.label.MultiLabelBinarizer'] = function() {};
                 constructorTable['sklearn.svm.classes.LinearSVC'] = function() {};
                 constructorTable['sklearn.svm.classes.SVC'] = function() {};
                 constructorTable['sklearn.svm.classes.SVR'] = function() {};
@@ -281,7 +283,6 @@ sklearn.ModelFactory = class {
                         constructor.apply(obj, args);
                     }
                     else {
-                        debugger;
                         host.exception(new sklearn.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                     }
                     return obj;
@@ -833,7 +834,7 @@ sklearn.Metadata = class {
             host.request(null, 'sklearn-metadata.json', 'utf-8', (err, data) => {
                 sklearn.Metadata._metadata = new sklearn.Metadata(data);
                 callback(null, sklearn.Metadata._metadata);
-            });    
+            });
         }
     }
 

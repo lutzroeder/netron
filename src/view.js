@@ -134,8 +134,8 @@ view.View = class {
                 this._sidebar.close();
                 this.select(selection);
             });
-            this._sidebar.open(view.content, 'Find');  
-            view.focus(this._searchText);  
+            this._sidebar.open(view.content, 'Find');
+            view.focus(this._searchText);
         }
     }
 
@@ -297,7 +297,7 @@ view.View = class {
             });
             x = x / selection.length;
             y = y / selection.length;
-            this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));        
+            this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));
         }
     }
 
@@ -341,9 +341,9 @@ view.View = class {
                             callback(err, null);
                             return;
                         }
-                    }, 20);   
+                    }, 20);
                 }
-            });    
+            });
         }, 2);
     }
 
@@ -516,14 +516,20 @@ view.View = class {
                                 var connection = initializer.connections[0];
                                 var type = connection.type;
                                 var shape = '';
+                                var separator = '';
                                 if (type && type.shape && type.shape.dimensions && type.shape.dimensions.hasOwnProperty('length')) {
                                     shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
+                                    if (type.shape.dimensions.length == 0 && connection.initializer) {
+                                        shape = connection.initializer.toString();
+                                        separator = ' = ';
+                                    }     
                                 }
-                                block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', '');
+                                block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', separator);
                             });
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '...' + '\u3009', '', null, '');
                             }    
+
                             attributes.forEach((attribute) => {
                                 if (attribute.visible) {
                                     var attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
@@ -550,11 +556,11 @@ view.View = class {
                                             name: input.name
                                         });
                                     }
-                                });    
+                                });
                             });
                             var outputs = node.outputs;
                             if (node.chain && node.chain.length > 0) {
-                                var chainOutputs = node.chain[node.chain.length - 1].outputs
+                                var chainOutputs = node.chain[node.chain.length - 1].outputs;
                                 if (chainOutputs.length > 0) {
                                     outputs = chainOutputs;
                                 }
@@ -588,11 +594,21 @@ view.View = class {
     
                     addNode(element, node, true);
 
-                    var dependencies = node.dependencies;
-                    if (dependencies && dependencies.length > 0) {
-                        element.setControlDependencies();
+                    if (node.controlDependencies && node.controlDependencies.length > 0) {
+                        node.controlDependencies.forEach((controlDependency) => {
+                            var tuple = edgeMap[controlDependency];
+                            if (!tuple) {
+                                tuple = { from: null, to: [] };
+                                edgeMap[controlDependency] = tuple;
+                            }
+                            tuple.to.push({
+                                node: nodeId,
+                                name: controlDependency,
+                                controlDependency: true
+                            });
+                        });
                     }
-                    
+
                     var name = node.name;
                     if (name) {
                         g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + name });
@@ -649,7 +665,7 @@ view.View = class {
                         tuple.from = { 
                             node: nodeId,
                             type: connection.type
-                        };    
+                        };
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
                     var name = input.name;
@@ -702,8 +718,8 @@ view.View = class {
                                 text = edge.split('\n').shift(); // custom connection id
                             }
     
-                            if (to.dependency) { 
-                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', class: 'edge-path-control' } );
+                            if (to.controlDependency) {
+                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', class: 'edge-path-control-dependency' } );
                             }
                             else {
                                 g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee' } );
@@ -763,7 +779,7 @@ view.View = class {
                                 this._zoom = 1;
                                 graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
                                 graphElement.setAttribute('width', width / this._zoom);
-                                graphElement.setAttribute('height', height / this._zoom);        
+                                graphElement.setAttribute('height', height / this._zoom);
                                 if (inputElements && inputElements.length > 0) {
                                     // Center view based on input elements
                                     for (var j = 0; j < inputElements.length; j++) {
@@ -824,7 +840,7 @@ view.View = class {
         for (var j = 0; j < nodes.length; j++) {
             var node = nodes[j];
             for (var k = 0; k < rules.length; k++) {
-                var rule = rules[k];                
+                var rule = rules[k];
                 if (node.matches(rule.selectorText)) {
                     for (var l = 0; l < rule.style.length; l++) {
                         var item = rule.style.item(l);
@@ -886,7 +902,7 @@ view.View = class {
                     var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
                     var canvas = this._host.document.createElement('canvas');
                     canvas.width = Math.ceil(width * scale);
-                    canvas.height = Math.ceil(height * scale);    
+                    canvas.height = Math.ceil(height * scale);
                     var context = canvas.getContext('2d');
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
@@ -980,6 +996,9 @@ view.View = class {
             return value.map((item) => item.toString()).join(', ');
         }
         if (type == 'tensor') {
+            if (value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+                return value.toString();
+            }
             return '[...]';
         }
         if (Array.isArray(value)) {
@@ -1117,7 +1136,7 @@ view.ModelFactoryService = class {
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
         this.register('./sklearn', [ '.pkl', '.joblib' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./openvino', [ '.xml', '.dot' ]);
+        this.register('./openvino', [ '.xml' ]);
         this.register('./darknet', [ '.cfg' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
     }

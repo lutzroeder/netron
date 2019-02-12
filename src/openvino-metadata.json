@@ -8,91 +8,91 @@
                   "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
                   "name": "stride",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *stride-x* is a distance (in pixels) to slide the filter on the feature map over the x axis. For example, *stride-x* equal 1 means sliding the filter 1 pixel at a time over the x axis.",
                   "name": "stride-x",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *stride-y* is a distance (in pixels) to slide the filter on the feature map over the y axis. For example, *stride-y* equal 1 means sliding the filter 1 pixel at a time over the y axis.",
                   "name": "stride-y",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad-x",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad-y",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
-                  "default": 1,
+                  "default": [1, 1],
                   "description": " *kernel* is a width and height of each filter. For example, *kernel* equal 3 (3, 3) means that each filter has width and height equal to 3.",
                   "name": "kernel",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32[]"
               },
               {
                   "default": 1,
                   "description": " *kernel-x* is a width of each filter. For example, *kernel* equal 3 means that each filter has width equal to 3.",
                   "name": "kernel-x",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *kernel-y* is a height of each filter. For example, *kernel-y* equal 3 means that each filter has height equal to 3.",
                   "name": "kernel-y",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *output* is a number of output feature maps per whole output (when *group* > 1, *output* still matches the number of output features regardless of *group* value). For example, *output* equals 1 means that there is 1 output feature map in a layer.",
                   "name": "output",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *group* denotes the number of groups to which *output* and *input* should be split. For example, *group* equal 1 means that all the filters are applied to full input (usual convolution), *group* equals 2 means that both *input* and *output* channels are separated into 2 groups and *i-th output* group is connected to *i-th input* group channels. *group* equals number of output feature maps denotes depth-wise separable convolution ([Reference](https://medium.com/towards-data-science/types-of-convolutions-in-deep-learning-717013397f4d#6f51)).",
                   "name": "group",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *dilation* denotes the distance in width and height between elements (weights) in the filter. For example, *dilation* equal \"1,1\" means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation* equal \"2,2\" means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
                   "name": "dilation",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *dilation-y* denotes the distance in height between elements (weights) in the filter. For example, *dilation-y* equal 1 means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation-y* equal 2 means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
                   "name": "dilation-y",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               }
           ],
           "category": "Layer",
@@ -129,63 +129,63 @@
                   "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
                   "name": "stride",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *stride-x* is a distance (in pixels) to slide the filter on the feature map over the x axis. For example, *stride-x* equal 1 means sliding the filter 1 pixel at a time over the x axis.",
                   "name": "stride-x",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *stride-y* is a distance (in pixels) to slide the filter on the feature map over the y axis. For example, *stride-y* equal 1 means sliding the filter 1 pixel at a time over the y axis.",
                   "name": "stride-y",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad-x",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad-y",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *kernel* is a width and height of each filter. For example, *kernel* equal 3 (3, 3) means that each filter has width and height equal to 3.",
                   "name": "kernel",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *kernel-x* is a width of each filter. For example, *kernel* equal 3 means that each filter has width equal to 3.",
                   "name": "kernel-x",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *kernel-y* is a height of each filter. For example, *kernel-y* equal 3 means that each filter has height equal to 3.",
                   "name": "kernel-y",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
@@ -199,7 +199,7 @@
                   "description": " *exclude-pad* is a type of pooling strategy for values in the padding area. For example, if *exclude-pad* is \"true\", zero-values in the padding are not used.",
                   "name": "exclude-pad",
                   "option": "required",
-                  "type": " \"true\" or \"false\""
+                  "type": "boolean"
               },
               {
                   "default": 1,
@@ -225,14 +225,14 @@
                   "description": " *pooled_h* is a height of the ROI output feature map. For example, *pooled_h* equal 6 means that the height of the output of *ROIpooling* is 6.",
                   "name": "pooled_h",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pooled_w* is a width of the ROI output feature map. For example, *pooled_w* equal 6 means that the width of the output of *ROIpooling* is 6.",
                   "name": "pooled_w",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
@@ -258,7 +258,7 @@
                   "description": " *out-size* is a length of the output vector. For example, *out-size* equal 4096 means that the output vector length is 4096.",
                   "name": "out-size",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               }
           ],
           "category": "Layer",
@@ -277,7 +277,7 @@
                   "description": " *negative_slope* is a multiplier, which is used if the unit is not active (that is negative). For example, *negative_slope* equal 0.1 means that an inactive unit value would be multiplied by 0.1 and this is the [Leaky ReLU](https://keras.io/layers/advanced-activations/#leakyrelu). If *negative_slope* is equal to 0, this is the usual *ReLU*.",
                   "name": "negative_slope",
                   "option": "required",
-                  "type": " double values starting from 0"
+                  "type": "float64"
               }
           ],
           "category": "Activation",
@@ -334,91 +334,91 @@
                   "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
                   "name": "stride",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *stride-x* is a distance (in pixels) to slide the filter on the feature map over the x axis. For example, *stride-x* equal 1 means sliding the filter 1 pixel at a time over the x axis.",
                   "name": "stride-x",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *stride-y* is a distance (in pixels) to slide the filter on the feature map over the y axis. For example, *stride-y* equal 1 means sliding the filter 1 pixel at a time over the y axis.",
                   "name": "stride-y",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad-x",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": " int32"
               },
               {
                   "default": 1,
                   "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
                   "name": "pad-y",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *kernel* is a width and height of each filter. For example, *kernel* equal 3 (3, 3) means that each filter has width and height equal to 3.",
                   "name": "kernel",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *kernel-x* is a width of each filter. For example, *kernel* equal 3 means that each filter has width equal to 3.",
                   "name": "kernel-x",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *kernel-y* is a height of each filter. For example, *kernel-y* equal 3 means that each filter has height equal to 3.",
                   "name": "kernel-y",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *output* is a number of output feature maps per whole output (when *group* > 1, *output* still matches the number of output features regardless of *group* value). For example, *output* equals 1 means that there is 1 output feature map in a layer.",
                   "name": "output",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *group* denotes the number of groups to which *output* and *input* should be split. For example, *group* equal 1 means that all the filters are applied to full input (usual convolution), *group* equals 2 means that both *input* and *output* channels are separated into 2 groups and *i-th output* group is connected to *i-th input* group channels. *group* equals number of output feature maps denotes depth-wise separable convolution ([Reference](https://medium.com/towards-data-science/types-of-convolutions-in-deep-learning-717013397f4d#6f51)).",
                   "name": "group",
                   "option": "required",
-                  "type": " integer values starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *dilation* denotes the distance in width and height between elements (weights) in the filter. For example, *dilation* equal \"1,1\" means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation* equal \"2,2\" means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
                   "name": "dilation",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *dilation-y* denotes the distance in height between elements (weights) in the filter. For example, *dilation-y* equal 1 means that all the elements in the filter are neighbors, so it is the same as for the usual convolution. *dilation-y* equal 2 means that all the elements in the filter are matched not to adjacent elements in the input matrix, but to those that are adjacent with distance 1.",
                   "name": "dilation-y",
                   "option": "required",
-                  "type": " integer value starting from 0"
+                  "type": "int32"
               }
           ],
           "category": "Layer",
@@ -524,7 +524,7 @@
                   "type": ""
               }
           ],
-          "category": "Layer",
+          "category": "Shape",
           "description": "**Short description**: *Reshape* layer changes dimensions of the input blob according to the specified order. Input blob volume is equal to output blob volume, where volume is the product of dimensions.\n**Detailed description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/reshape.html)\n**Parameters**: *Reshape* layer parameters should be specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nIf you want to reshape input blob *BxCxHxW* into *Bx1x(C*H)xW*, the *dim* parameters of your layer should be:\n```html\n layer {\n    name: \"reshape\"\n    type: \"Reshape\"\n    bottom: \"input\"\n    top: \"output\"\n    reshape_param {\n      shape {\n        dim: 0  # copy the dimension from below\n        dim: 1\n        dim: -1 # infer it from the other dimensions\n        dim: 0\n      }\n    }\n  }\n```\n**Example**\n\n```html\n<layer ... type=\"Reshape\" ... >\n    <data axis=\"0\" dim=\"1, 1001\" num_axes=\"-1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -543,7 +543,6 @@
                   "type": ""
               }
           ],
-          "category": "Layer",
           "description": "**Short description**: *Eltwise* layer performs element-wise operation, which is specified in parameters, over given inputs.\n**Parameters**: *Eltwise* layer parameters should be specified in the `elementwise_data` node, which is placed as a child of the layer node.\n**Mathematical Formulation** *Eltwise* accepts 2 inputs of any number of dimensions - from 1 to 4, however, it is required for both of them to have absolutely same dimensions. The produced blob is also of the same dimension as each of its parents\n*Eltwise* does the following with the input blobs:\n\\f[\no_{i} = f(b_{i}^{1}, b_{i}^{2})\n\\f]\nwhere \\f$b_{i}^{1}\\f$ - first blob \\f$i\\f$-th element, \\f$b_{i}^{2}\\f$ - second blob \\f$i\\f$-th element, \\f$o_{i}\\f$ - output blob \\f$i\\f$-th element, \\f$f(a, b)\\f$ - is a function that performs an operation over its two arguments \\f$a, b\\f$.\n*   For *sum* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = a + b\n    \\f]\n*   For *mul* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = a * b\n    \\f]\n*   For *max* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = \\left\\{\\begin{array}{ll}\n\t\ta \\quad \\mbox{if } a \\geq b \\\\\n\t\tb \\quad \\mbox{if } b > a\n\t\\end{array}\\right. \\f]\n**Example**\n\n```html\n<layer ... type=\"Eltwise\" ... >\n    <elementwise_data operation=\"sum\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -743,7 +742,7 @@
                   "type": " set of positive integer numbers separated by comma"
               }
           ],
-          "category": "Layer",
+          "category": "Shape",
           "description": "**Short description**: *Permute* layer performs reordering of input blob dimensions.\n**Detailed description**: [Reference](http://caffe.help/manual/layers/tile.html)\n**Parameters**: *Permute* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Permute* layer performs reordering input blob. Source indexes and destination indexes are bound by formula:\n\\f[\nsrc\\_ind_{offset} = n * ordered[1] * ordered[2] * ordered[3] + (h * ordered[3] + w)\n\\f]\n\\f[\nn \\in ( 0, order[0] )\n\\f]\n\\f[\nh \\in ( 0, order[2] )\n\\f]\n\\f[\nw \\in ( 0, order[3] )\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Permute\" ... >\n    <data order=\"0,2,3,1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -1013,7 +1012,6 @@
                   "type": " positive integer number"
               }
           ],
-          "category": "Layer",
           "description": "**Short description**: *Clamp* layer represents clipping activation operation.\n**Detailed description**: [Reference](https://www.tensorflow.org/versions/r1.2/api_docs/MO_DG/prepare_model/python/tf/clip_by_value)\n**Parameters**: *Clamp* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Clamp* generally does the following with the input blobs:\n\\f[\nout_i=\\left\\{\\begin{array}{ll}\n\tmax\\_value \\quad \\mbox{if } \\quad input_i>max\\_value \\\\\n\tmin\\_value \\quad \\mbox{if } \\quad input_i\n\\end{array}\\right.\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Clamp\" ... >\n    <data min=\"10\" max=\"50\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,
@@ -1161,21 +1159,21 @@
                   "description": " *coords* is num coordinates for each region",
                   "name": "coords",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *classes* is num classes for each region",
                   "name": "classes",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
                   "description": " *num* is number of regions",
                   "name": "num",
                   "option": "required",
-                  "type": " integer value"
+                  "type": "int32"
               },
               {
                   "default": 1,
@@ -1450,7 +1448,6 @@
       "name": "Power",
       "schema": {
           "attributes": [],
-          "category": "Layer",
           "description": "**Short description**: *Power* layer computes the output as (shift + scale * x) ^ power for each input element x.\n**Parameters**: Power layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\np = (shift + scale * x)^{power}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Power\" ... >\n    <data power=\"2\" scale=\"0.1\" shift=\"5\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
           "inputs": null,
           "outputs": null,

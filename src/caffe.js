@@ -223,7 +223,7 @@ caffe.Graph = class {
                     scope[output] = next;
                     return next;
                 }
-                scope[output] = output;   
+                scope[output] = output;
                 return output;
             });
         });

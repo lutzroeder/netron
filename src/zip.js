@@ -241,7 +241,7 @@ zip.Inflater = class {
             zip.Inflater._lengths[zip.Inflater._codeOrder[j]] = reader.bits(3);
         }
         zip.Inflater._codeTree.build(zip.Inflater._lengths, 0, 19);
-        var length;  
+        var length;
         for (var position = 0; position < hlit + hdist;) {
             var symbol = reader.symbol(zip.Inflater._codeTree);
             switch (symbol) {

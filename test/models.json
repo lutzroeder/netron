@@ -1493,6 +1493,13 @@
   },
   {
     "type":   "coreml",
+    "target": "PoseEstimationForMobile.mlmodel",
+    "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.mlmodel?raw=true",
+    "format": "CoreML v1",
+    "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
+  },
+  {
+    "type":   "coreml",
     "target": "ProductTagger.mlmodel",
     "source": "https://raw.githubusercontent.com/aidev1065/CustomEntityRecognition/master/ProductTagger.mlmodel",
     "format": "CoreML v3",
@@ -1847,6 +1854,13 @@
   },
   {
     "type":   "keras",
+    "target": "nasnet_pneumonia_detection .h5",
+    "source": "https://www.kaggleusercontent.com/kf/5616814/eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..N0UhpVMdEL-3O2FeWSTTyg.hYHf7ypl_R9vjxmFqoPK9zwbwWmDsfYE80P_Mfnky3Gxlo8m4FeDs8GIus_p3xNF3QHd0SEkxSHPQxUvoJNAhIX3l3gNh3gPJqRYeO3soaMa-YWOvWSUsluTkqRrMGXFMwTVq7xUYYwJ9ja71yD42OKfgUoNI_XeLbyVWQu6hKiJT3Be6WALwgjwkt4bhBsd.vm6At0QsRVpt6VS8KIJGag/full_model.h5",
+    "format": "Keras v2.1.5",
+    "link":   "https://www.kaggle.com/ashishpatel26/beginner-tutorial-nasnet-pneumonia-detection/output"
+  },
+  {
+    "type":   "keras",
     "target": "nietzsche.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[nietzsche.h5]",
     "format": "Keras v2.1.3",
@@ -1872,6 +1886,13 @@
     "source": "https://github.com/lutzroeder/netron/files/2592353/siamese_net.json.zip[siamese_net.json]",
     "format": "Keras",
     "link":   "https://github.com/lutzroeder/netron/issues/130"
+  },
+  {
+    "type":   "keras",
+    "target": "snapshot_parent_0097.h5",
+    "source": "https://github.com/uber-research/deep-neuroevolution/blob/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5?raw=true",
+    "error":  "HDF5 file does not contain a Keras 'model_config' graph. Use 'save()' instead of 'save_weights()' to save both the graph and weights.",
+    "link":   "https://github.com/uber-research/deep-neuroevolution"
   },
   {
     "type":   "keras",
@@ -2516,27 +2537,6 @@
   },
   {
     "type":   "onnx",
-    "target": "test_operator_rnn.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_operator_rnn_single_layer.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_rnn_single_layer/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "test_operator_lstm.onnx",
-    "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/pytorch-operator/test_operator_lstm/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
     "target": "test_LSTM_tanh_bidirectional.onnx",
     "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/CNTK/test_LSTM.tanh.bidirectional//model.onnx",
     "format": "ONNX v3",
@@ -2731,27 +2731,6 @@
     "target": "2018_R5_human-pose-estimation-0001.xml",
     "source": "https://download.01.org/openvinotoolkit/2018_R5/open_model_zoo/human-pose-estimation-0001/FP32/human-pose-estimation-0001.xml",
     "format": "OpenVINO IR",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "i8_normalized_squeezenet_ssd.dot",
-    "source": "https://github.com/lutzroeder/netron/files/2618902/i8_normalized_squeezenet_ssd.dot.zip[i8_normalized_squeezenet_ssd.dot]",
-    "format": "OpenVINO IR Dot",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "i8_normalized_squeezenet11.dot",
-    "source": "https://github.com/lutzroeder/netron/files/2618904/i8_normalized_squeezenet11.dot.zip[i8_normalized_squeezenet11.dot]",
-    "format": "OpenVINO IR Dot",
-    "link":   "https://download.01.org/openvinotoolkit"
-  },
-  {
-    "type":   "openvino",
-    "target": "i8_normalized_vgg16.dot",
-    "source": "https://github.com/lutzroeder/netron/files/2618905/i8_normalized_vgg16.dot.zip[i8_normalized_vgg16.dot]",
-    "format": "OpenVINO IR Dot",
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
@@ -3587,6 +3566,20 @@
   },
   {
     "type":   "tf",
+    "target": "netron_issue_224.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/2823959/netron_issue_224.zip[netron_issue_224.pbtxt]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/224"
+  },
+  {
+    "type":   "tf",
+    "target": "pose_estimation_for_mobile.pb",
+    "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.pb?raw=true",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
+  },
+  {
+    "type":   "tf",
     "target": "readable_graph.meta",
     "source": "https://github.com/lutzroeder/netron/files/2592463/readable_graph.meta.zip[readable_graph.meta]",
     "format": "TensorFlow MetaGraph",
@@ -3821,6 +3814,13 @@
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_large_2018_04_27.tgz[./nasnet_large.tflite]",
     "format": "TensorFlow Lite v3",
     "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "type":   "tflite",
+    "target": "pose_estimation_for_mobile.tflite",
+    "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.tflite?raw=true",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
   },
   {
     "type":   "tflite",

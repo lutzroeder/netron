@@ -11,8 +11,11 @@ third_party=${root}/third_party
 identifier=tflite
 virtualenv=${build}/virtualenv/${identifier}
 
-python="python"
-pip="pip"
+if [ $(which python3) ]; then
+    python="python3"
+else
+    python="python"
+fi
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -42,7 +45,6 @@ sync() {
 
 install() {
     bold "flatbuffers install"
-    echo 1
     case "$(uname)" in
         "Linux")
             if [ -z "$(which cmake)" ]; then
@@ -55,7 +57,6 @@ install() {
             fi
             ;;
     esac
-    echo "Build flatbuffers..."
     pushd "${third_party}/flatbuffers" > /dev/null
     cmake -G "Unix Makefiles" .
     make
@@ -81,7 +82,7 @@ EOT
 visualize() {
     bold "tflite visualize"
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet tensorflow
+    ${python} -m pip install --quiet tensorflow
     ${python} ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
     deactivate
 }

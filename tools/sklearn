@@ -7,12 +7,10 @@ virtualenv=${root}/build/virtualenv/scikit-learn
 tools=${root}/tools
 third_party=${root}/third_party
 
-if [ $(which python3) ] && [ $(which pip3) ]; then
+if [ $(which python3) ]; then
     python="python3"
-    pip="pip3"
 else
     python="python"
-    pip="pip"
 fi
 
 bold() {
@@ -44,9 +42,9 @@ install() {
         virtualenv --quiet -p ${python} ${virtualenv}
     fi
     source ${virtualenv}/bin/activate
-    ${pip} install --quiet Cython
-    ${pip} install --quiet numpy
-    ${pip} install --quiet ${third_party}/scikit-learn
+    ${python} -m pip install --quiet Cython
+    ${python} -m pip install --quiet numpy
+    ${python} -m pip install --quiet ${third_party}/scikit-learn
     deactivate
 }
 
