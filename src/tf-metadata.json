@@ -8541,6 +8541,57 @@
     }
   },
   {
+    "name": "Case",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of input types.",
+          "minimum": 0,
+          "name": "Tin",
+          "type": "list(type)"
+        },
+        {
+          "description": "A list of output types.",
+          "minimum": 0,
+          "name": "Tout",
+          "type": "list(type)"
+        },
+        {
+          "description": "      A list of functions each of which takes 'inputs' and returns a list of\n      tensors, whose types are the same as what every other branch returns.",
+          "minimum": 1,
+          "name": "branches",
+          "type": "list(func)"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "    An n-way switch statement, implementing the following:\n    ```\n    switch (branch_index) {\n      case 0:\n        output = branches[0](input);\n        break;\n      case 1:\n        output = branches[1](input);\n        break;\n      ...\n      case [[nbranches-1]]:\n      default:\n        output = branches[nbranches-1](input);\n        break;\n    }\n    ```",
+      "inputs": [
+        {
+          "description": "The branch selector, an int32 Tensor.",
+          "name": "branch_index",
+          "type": 3
+        },
+        {
+          "description": "A list of input tensors passed to the branch function.",
+          "name": "input",
+          "typeListAttr": "Tin"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of return values.",
+          "name": "output",
+          "typeListAttr": "Tout"
+        }
+      ],
+      "summary": "An n-way switch statement which calls a single branch function."
+    }
+  },
+  {
     "name": "Cast",
     "schema": {
       "attributes": [
@@ -38898,6 +38949,79 @@
     }
   },
   {
+    "name": "RequantizationRangePerChannel",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "description": "The quantized type of input tensor that needs to be converted. ",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "The maximum value of the output that needs to be clipped.\nExample: set this to 6 for Relu6. ",
+          "name": "clip_value_max",
+          "type": "float"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The minimum value of the input tensor",
+          "name": "input_min",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the input tensor.",
+          "name": "input_max",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The minimum value of the final output tensor",
+          "name": "output_min",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the final output tensor.",
+          "name": "output_max",
+          "type": 1
+        }
+      ],
+      "summary": "Computes requantization range per channel."
+    }
+  },
+  {
     "name": "Requantize",
     "schema": {
       "attributes": [
@@ -39000,6 +39124,120 @@
         }
       ],
       "summary": "Convert the quantized 'input' tensor into a lower-precision 'output', using the"
+    }
+  },
+  {
+    "name": "RequantizePerChannel",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "description": "The quantized type of input tensor that needs to be converted. ",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "description": "The quantized type of output tensor that needs to be converted.",
+          "name": "out_type",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The minimum value of the input tensor",
+          "name": "input_min",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the input tensor.",
+          "name": "input_max",
+          "type": 1
+        },
+        {
+          "description": "The minimum value of the output tensor requested.",
+          "name": "requested_output_min",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the output tensor requested.",
+          "name": "requested_output_max",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "description": "The minimum value of the final output tensor",
+          "name": "output_min",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the final output tensor.",
+          "name": "output_max",
+          "type": 1
+        }
+      ],
+      "summary": "Requantizes input with min and max values known per channel."
     }
   },
   {
@@ -55284,24 +55522,6 @@
     "schema": {
       "attributes": [
         {
-          "allowedValues": [
-            {
-              "type": "type",
-              "value": 19
-            },
-            {
-              "type": "type",
-              "value": 14
-            },
-            {
-              "type": "type",
-              "value": 1
-            },
-            {
-              "type": "type",
-              "value": 2
-            }
-          ],
           "default": {
             "type": "type",
             "value": 1
@@ -55311,16 +55531,6 @@
           "type": "type"
         },
         {
-          "allowedValues": [
-            {
-              "type": "type",
-              "value": 3
-            },
-            {
-              "type": "type",
-              "value": 9
-            }
-          ],
           "default": {
             "type": "type",
             "value": 9
@@ -55335,6 +55545,56 @@
           "description": "The handle of the resource variable that stores the state of the RNG.",
           "name": "resource",
           "type": 20
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A tensor of the specified shape filled with random normal values.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random values from a normal distribution."
+    }
+  },
+  {
+    "name": "StatefulStandardNormalV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values will have mean 0 and standard deviation 1.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
         },
         {
           "description": "The shape of the output tensor.",
@@ -60163,6 +60423,56 @@
         }
       ],
       "summary": "Shuffle dimensions of x according to a permutation."
+    }
+  },
+  {
+    "name": "TridiagonalSolve",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "`diagonals` is a tensor of shape `[..., 3, M]` whose inner-most 2 dimensions\nrepresent matrices with three rows being the superdiagonal, diagonals, and\nsubdiagonals, in order. The last element of the superdiagonal and the first\nelement of the subdiagonal is ignored.\n`rhs` is a tensor of shape `[..., M, K]`, representing K right-hand sides per\neach left-hand side.\nThe output is a tensor of shape `[..., M, K]` containing the solutions.",
+      "inputs": [
+        {
+          "description": "Shape is `[..., 3, M]`.",
+          "name": "diagonals",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Shape is `[..., M, K]`.",
+          "name": "rhs",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Shape is `[..., M, K]`.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Solves tridiagonal systems of equations."
     }
   },
   {
