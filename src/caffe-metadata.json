@@ -68,6 +68,29 @@
       ]
     }
   },
+  {
+    "name": "ConvolutionDepthwise",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "pad", "default": [0] },
+        { "name": "kernel_size", "default": [] },
+        { "name": "stride", "default": [1] },
+        { "name": "bias_term", "visible": false },
+        { "name": "weight_filler", "visible": false },
+        { "name": "bias_filler", "visible": false },
+        { "name": "num_output", "visible": false }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "filter" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
   { 
     "name": "InnerProduct",
     "schema": {

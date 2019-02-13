@@ -68,7 +68,7 @@ caffe2.ModelFactory = class {
                 try {
                     caffe2.proto = protobuf.roots.caffe2.caffe2;
                     var reader = new protobuf.TextReader(context.text);
-                    reader.handle = function(tag, message) {
+                    reader.field = function(tag, message) {
                         if (message instanceof caffe2.proto.DeviceOption) {
                             message[tag] = this.skip();
                             return;

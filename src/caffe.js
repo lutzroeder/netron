@@ -42,7 +42,7 @@ caffe.ModelFactory = class {
                     if (tags.net || tags.train_net || tags.net_param) {
                         try {
                             var reader = new protobuf.TextReader(context.text);
-                            reader.handle = function(tag, message) {
+                            reader.field = function(tag, message) {
                                 if (message instanceof caffe.proto.SolverParameter) {
                                     message[tag] = this.skip();
                                     return;
@@ -95,7 +95,7 @@ caffe.ModelFactory = class {
     _openNetParameterText(metadata, identifier, text, host, callback) {
         try {
             var reader = new protobuf.TextReader(text);
-            reader.handle = function(tag, message) {
+            reader.field = function(tag, message) {
                 var type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
                     message[tag] = caffe.ModelFactory._decodeText(reader, true);
@@ -116,7 +116,6 @@ caffe.ModelFactory = class {
                 throw new Error("Unknown field '" + tag + "'" + this.location());
             };
             reader.enum = function(type) {
-                this.assert(":");
                 var token = this.read();
                 if (!Object.prototype.hasOwnProperty.call(type, token)) {
                     var value = Number.parseInt(token, 10);

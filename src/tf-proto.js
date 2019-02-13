@@ -59,6 +59,7 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "saved_model_schema_version":
+                        reader.value();
                         message.saved_model_schema_version = reader.int64();
                         break;
                     case "meta_graphs":
@@ -67,7 +68,7 @@
                         message.meta_graphs.push($root.tensorflow.MetaGraphDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -240,6 +241,7 @@
                         if (message.collection_def === $util.emptyObject)
                             message.collection_def = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.collection_def[key] = $root.tensorflow.CollectionDef.decodeText(reader, true);
@@ -250,6 +252,7 @@
                         if (message.signature_def === $util.emptyObject)
                             message.signature_def = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.signature_def[key] = $root.tensorflow.SignatureDef.decodeText(reader, true);
@@ -261,7 +264,7 @@
                         message.asset_file_def.push($root.tensorflow.AssetFileDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -483,6 +486,7 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "meta_graph_version":
+                            reader.value();
                             message.meta_graph_version = reader.string();
                             break;
                         case "stripped_op_list":
@@ -494,19 +498,29 @@
                         case "tags":
                             if (!(message.tags && message.tags.length))
                                 message.tags = [];
-                            message.tags.push(reader.string());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.tags.push(reader.string());
+                                    reader.next();
+                                }
+                            else
+                                message.tags.push(reader.string());
                             break;
                         case "tensorflow_version":
+                            reader.value();
                             message.tensorflow_version = reader.string();
                             break;
                         case "tensorflow_git_version":
+                            reader.value();
                             message.tensorflow_git_version = reader.string();
                             break;
                         case "stripped_default_attrs":
+                            reader.value();
                             message.stripped_default_attrs = reader.bool();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -704,7 +718,7 @@
                         message.any_list = $root.tensorflow.CollectionDef.AnyList.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -881,10 +895,17 @@
                         case "value":
                             if (!(message.value && message.value.length))
                                 message.value = [];
-                            message.value.push(reader.string());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.value.push(reader.string());
+                                    reader.next();
+                                }
+                            else
+                                message.value.push(reader.string());
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -986,10 +1007,17 @@
                         case "value":
                             if (!(message.value && message.value.length))
                                 message.value = [];
-                            message.value.push(reader.bytes());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.value.push(reader.bytes());
+                                    reader.next();
+                                }
+                            else
+                                message.value.push(reader.bytes());
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -1099,10 +1127,17 @@
                         case "value":
                             if (!(message.value && message.value.length))
                                 message.value = [];
-                            message.value.push(reader.int64());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.value.push(reader.int64());
+                                    reader.next();
+                                }
+                            else
+                                message.value.push(reader.int64());
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -1219,10 +1254,17 @@
                         case "value":
                             if (!(message.value && message.value.length))
                                 message.value = [];
-                            message.value.push(reader.float());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.value.push(reader.float());
+                                    reader.next();
+                                }
+                            else
+                                message.value.push(reader.float());
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -1327,7 +1369,7 @@
                             message.value.push($root.google.protobuf.Any.decodeText(reader, true));
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -1451,19 +1493,21 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "coo_sparse":
                         message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.decodeText(reader, true);
                         break;
                     case "dtype":
+                        reader.value();
                         message.dtype = reader.enum($root.tensorflow.DataType);
                         break;
                     case "tensor_shape":
                         message.tensor_shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -1838,16 +1882,19 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "values_tensor_name":
+                            reader.value();
                             message.values_tensor_name = reader.string();
                             break;
                         case "indices_tensor_name":
+                            reader.value();
                             message.indices_tensor_name = reader.string();
                             break;
                         case "dense_shape_tensor_name":
+                            reader.value();
                             message.dense_shape_tensor_name = reader.string();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -1976,6 +2023,7 @@
                         if (message.inputs === $util.emptyObject)
                             message.inputs = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.inputs[key] = $root.tensorflow.TensorInfo.decodeText(reader, true);
@@ -1986,16 +2034,18 @@
                         if (message.outputs === $util.emptyObject)
                             message.outputs = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.outputs[key] = $root.tensorflow.TensorInfo.decodeText(reader, true);
                         reader.assert("}");
                         break;
                     case "method_name":
+                        reader.value();
                         message.method_name = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2142,10 +2192,11 @@
                         message.tensor_info = $root.tensorflow.TensorInfo.decodeText(reader, true);
                         break;
                     case "filename":
+                        reader.value();
                         message.filename = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2268,28 +2319,35 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "filename_tensor_name":
+                        reader.value();
                         message.filename_tensor_name = reader.string();
                         break;
                     case "save_tensor_name":
+                        reader.value();
                         message.save_tensor_name = reader.string();
                         break;
                     case "restore_op_name":
+                        reader.value();
                         message.restore_op_name = reader.string();
                         break;
                     case "max_to_keep":
+                        reader.value();
                         message.max_to_keep = reader.int32();
                         break;
                     case "sharded":
+                        reader.value();
                         message.sharded = reader.bool();
                         break;
                     case "keep_checkpoint_every_n_hours":
+                        reader.value();
                         message.keep_checkpoint_every_n_hours = reader.float();
                         break;
                     case "version":
+                        reader.value();
                         message.version = reader.enum($root.tensorflow.SaverDef.CheckpointFormatVersion);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2472,13 +2530,14 @@
                         message.versions = $root.tensorflow.VersionDef.decodeText(reader, true);
                         break;
                     case "version":
+                        reader.value();
                         message.version = reader.int32();
                         break;
                     case "library":
                         message.library = $root.tensorflow.FunctionDefLibrary.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2665,6 +2724,7 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "input_arg":
@@ -2686,25 +2746,31 @@
                         message.deprecation = $root.tensorflow.OpDeprecation.decodeText(reader, true);
                         break;
                     case "summary":
+                        reader.value();
                         message.summary = reader.string();
                         break;
                     case "description":
+                        reader.value();
                         message.description = reader.string();
                         break;
                     case "is_commutative":
+                        reader.value();
                         message.is_commutative = reader.bool();
                         break;
                     case "is_aggregate":
+                        reader.value();
                         message.is_aggregate = reader.bool();
                         break;
                     case "is_stateful":
+                        reader.value();
                         message.is_stateful = reader.bool();
                         break;
                     case "allows_uninitialized_input":
+                        reader.value();
                         message.allows_uninitialized_input = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2949,28 +3015,35 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "name":
+                            reader.value();
                             message.name = reader.string();
                             break;
                         case "description":
+                            reader.value();
                             message.description = reader.string();
                             break;
                         case "type":
+                            reader.value();
                             message.type = reader.enum($root.tensorflow.DataType);
                             break;
                         case "type_attr":
+                            reader.value();
                             message.type_attr = reader.string();
                             break;
                         case "number_attr":
+                            reader.value();
                             message.number_attr = reader.string();
                             break;
                         case "type_list_attr":
+                            reader.value();
                             message.type_list_attr = reader.string();
                             break;
                         case "is_ref":
+                            reader.value();
                             message.is_ref = reader.bool();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -3366,28 +3439,33 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "name":
+                            reader.value();
                             message.name = reader.string();
                             break;
                         case "type":
+                            reader.value();
                             message.type = reader.string();
                             break;
                         case "default_value":
                             message.default_value = $root.tensorflow.AttrValue.decodeText(reader, true);
                             break;
                         case "description":
+                            reader.value();
                             message.description = reader.string();
                             break;
                         case "has_minimum":
+                            reader.value();
                             message.has_minimum = reader.bool();
                             break;
                         case "minimum":
+                            reader.value();
                             message.minimum = reader.int64();
                             break;
                         case "allowed_values":
                             message.allowed_values = $root.tensorflow.AttrValue.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -3552,13 +3630,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "version":
+                        reader.value();
                         message.version = reader.int32();
                         break;
                     case "explanation":
+                        reader.value();
                         message.explanation = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -3660,7 +3740,7 @@
                         message.op.push($root.tensorflow.OpDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -3774,10 +3854,11 @@
                         message.dim.push($root.tensorflow.TensorShapeProto.Dim.decodeText(reader, true));
                         break;
                     case "unknown_rank":
+                        reader.value();
                         message.unknown_rank = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -3889,13 +3970,15 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "size":
+                            reader.value();
                             message.size = reader.int64();
                             break;
                         case "name":
+                            reader.value();
                             message.name = reader.string();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -4087,17 +4170,27 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "op":
+                        reader.value();
                         message.op = reader.string();
                         break;
                     case "input":
                         if (!(message.input && message.input.length))
                             message.input = [];
-                        message.input.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.input.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.input.push(reader.string());
                         break;
                     case "device":
+                        reader.value();
                         message.device = reader.string();
                         break;
                     case "attr":
@@ -4105,6 +4198,7 @@
                         if (message.attr === $util.emptyObject)
                             message.attr = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
@@ -4114,7 +4208,7 @@
                         message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4280,10 +4374,17 @@
                         case "original_node_names":
                             if (!(message.original_node_names && message.original_node_names.length))
                                 message.original_node_names = [];
-                            message.original_node_names.push(reader.string());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.original_node_names.push(reader.string());
+                                    reader.next();
+                                }
+                            else
+                                message.original_node_names.push(reader.string());
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -4399,18 +4500,27 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "producer":
+                        reader.value();
                         message.producer = reader.int32();
                         break;
                     case "min_consumer":
+                        reader.value();
                         message.min_consumer = reader.int32();
                         break;
                     case "bad_consumers":
                         if (!(message.bad_consumers && message.bad_consumers.length))
                             message.bad_consumers = [];
-                        message.bad_consumers.push(reader.int32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.bad_consumers.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.bad_consumers.push(reader.int32());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4545,7 +4655,7 @@
                         message.gradient.push($root.tensorflow.GradientDef.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4707,6 +4817,7 @@
                         if (message.attr === $util.emptyObject)
                             message.attr = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
@@ -4722,13 +4833,14 @@
                         if (message.ret === $util.emptyObject)
                             message.ret = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.ret[key] = reader.string();
                         reader.assert("}");
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4898,13 +5010,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "function_name":
+                        reader.value();
                         message.function_name = reader.string();
                         break;
                     case "gradient_func":
+                        reader.value();
                         message.gradient_func = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5041,18 +5155,23 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "s":
+                        reader.value();
                         message.s = reader.bytes();
                         break;
                     case "i":
+                        reader.value();
                         message.i = reader.int64();
                         break;
                     case "f":
+                        reader.value();
                         message.f = reader.float();
                         break;
                     case "b":
+                        reader.value();
                         message.b = reader.bool();
                         break;
                     case "type":
+                        reader.value();
                         message.type = reader.enum($root.tensorflow.DataType);
                         break;
                     case "shape":
@@ -5068,10 +5187,11 @@
                         message.func = $root.tensorflow.NameAttrList.decodeText(reader, true);
                         break;
                     case "placeholder":
+                        reader.value();
                         message.placeholder = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5632,27 +5752,62 @@
                         case "s":
                             if (!(message.s && message.s.length))
                                 message.s = [];
-                            message.s.push(reader.bytes());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.s.push(reader.bytes());
+                                    reader.next();
+                                }
+                            else
+                                message.s.push(reader.bytes());
                             break;
                         case "i":
                             if (!(message.i && message.i.length))
                                 message.i = [];
-                            message.i.push(reader.int64());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.i.push(reader.int64());
+                                    reader.next();
+                                }
+                            else
+                                message.i.push(reader.int64());
                             break;
                         case "f":
                             if (!(message.f && message.f.length))
                                 message.f = [];
-                            message.f.push(reader.float());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.f.push(reader.float());
+                                    reader.next();
+                                }
+                            else
+                                message.f.push(reader.float());
                             break;
                         case "b":
                             if (!(message.b && message.b.length))
                                 message.b = [];
-                            message.b.push(reader.bool());
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.b.push(reader.bool());
+                                    reader.next();
+                                }
+                            else
+                                message.b.push(reader.bool());
                             break;
                         case "type":
                             if (!(message.type && message.type.length))
                                 message.type = [];
-                            message.type.push(reader.enum($root.tensorflow.DataType));
+                            reader.value();
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.type.push(reader.enum($root.tensorflow.DataType));
+                                    reader.next();
+                                }
+                            else
+                                message.type.push(reader.enum($root.tensorflow.DataType));
                             break;
                         case "shape":
                             if (!(message.shape && message.shape.length))
@@ -5670,7 +5825,7 @@
                             message.func.push($root.tensorflow.NameAttrList.decodeText(reader, true));
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -6189,6 +6344,7 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "attr":
@@ -6196,13 +6352,14 @@
                         if (message.attr === $util.emptyObject)
                             message.attr = {};
                         reader.assert("key");
+                        reader.value();
                         key = reader.string();
                         reader.assert("value");
                         message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
                         reader.assert("}");
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -6468,61 +6625,127 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "dtype":
+                        reader.value();
                         message.dtype = reader.enum($root.tensorflow.DataType);
                         break;
                     case "tensor_shape":
                         message.tensor_shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
                         break;
                     case "version_number":
+                        reader.value();
                         message.version_number = reader.int32();
                         break;
                     case "tensor_content":
+                        reader.value();
                         message.tensor_content = reader.bytes();
                         break;
                     case "half_val":
                         if (!(message.half_val && message.half_val.length))
                             message.half_val = [];
-                        message.half_val.push(reader.int32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.half_val.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.half_val.push(reader.int32());
                         break;
                     case "float_val":
                         if (!(message.float_val && message.float_val.length))
                             message.float_val = [];
-                        message.float_val.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.float_val.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.float_val.push(reader.float());
                         break;
                     case "double_val":
                         if (!(message.double_val && message.double_val.length))
                             message.double_val = [];
-                        message.double_val.push(reader.double());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.double_val.push(reader.double());
+                                reader.next();
+                            }
+                        else
+                            message.double_val.push(reader.double());
                         break;
                     case "int_val":
                         if (!(message.int_val && message.int_val.length))
                             message.int_val = [];
-                        message.int_val.push(reader.int32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.int_val.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.int_val.push(reader.int32());
                         break;
                     case "string_val":
                         if (!(message.string_val && message.string_val.length))
                             message.string_val = [];
-                        message.string_val.push(reader.bytes());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.string_val.push(reader.bytes());
+                                reader.next();
+                            }
+                        else
+                            message.string_val.push(reader.bytes());
                         break;
                     case "scomplex_val":
                         if (!(message.scomplex_val && message.scomplex_val.length))
                             message.scomplex_val = [];
-                        message.scomplex_val.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.scomplex_val.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.scomplex_val.push(reader.float());
                         break;
                     case "int64_val":
                         if (!(message.int64_val && message.int64_val.length))
                             message.int64_val = [];
-                        message.int64_val.push(reader.int64());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.int64_val.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.int64_val.push(reader.int64());
                         break;
                     case "bool_val":
                         if (!(message.bool_val && message.bool_val.length))
                             message.bool_val = [];
-                        message.bool_val.push(reader.bool());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.bool_val.push(reader.bool());
+                                reader.next();
+                            }
+                        else
+                            message.bool_val.push(reader.bool());
                         break;
                     case "dcomplex_val":
                         if (!(message.dcomplex_val && message.dcomplex_val.length))
                             message.dcomplex_val = [];
-                        message.dcomplex_val.push(reader.double());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.dcomplex_val.push(reader.double());
+                                reader.next();
+                            }
+                        else
+                            message.dcomplex_val.push(reader.double());
                         break;
                     case "resource_handle_val":
                         if (!(message.resource_handle_val && message.resource_handle_val.length))
@@ -6537,15 +6760,29 @@
                     case "uint32_val":
                         if (!(message.uint32_val && message.uint32_val.length))
                             message.uint32_val = [];
-                        message.uint32_val.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.uint32_val.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.uint32_val.push(reader.uint32());
                         break;
                     case "uint64_val":
                         if (!(message.uint64_val && message.uint64_val.length))
                             message.uint64_val = [];
-                        message.uint64_val.push(reader.uint64());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.uint64_val.push(reader.uint64());
+                                reader.next();
+                            }
+                        else
+                            message.uint64_val.push(reader.uint64());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7213,9 +7450,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "type_name":
+                        reader.value();
                         message.type_name = reader.string();
                         break;
                     case "metadata":
+                        reader.value();
                         message.metadata = reader.bytes();
                         break;
                     case "tensors":
@@ -7224,7 +7463,7 @@
                         message.tensors.push($root.tensorflow.TensorProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7369,22 +7608,27 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "device":
+                        reader.value();
                         message.device = reader.string();
                         break;
                     case "container":
+                        reader.value();
                         message.container = reader.string();
                         break;
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "hash_code":
+                        reader.value();
                         message.hash_code = reader.uint64();
                         break;
                     case "maybe_type_name":
+                        reader.value();
                         message.maybe_type_name = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7533,13 +7777,15 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "type_url":
+                            reader.value();
                             message.type_url = reader.string();
                             break;
                         case "value":
+                            reader.value();
                             message.value = reader.bytes();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
