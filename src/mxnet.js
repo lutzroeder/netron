@@ -58,12 +58,12 @@ mxnet.ModelFactory = class {
             if (identifier.toLowerCase().endsWith(mxnet_extension)) {
                 var paramsIdentifier = identifier.substring(0, identifier.length - mxnet_extension.length) + '-0000.params';
                 context.request(paramsIdentifier, null, (err, params) => {
-                    this._openModel(format, null, symbol, null, params, host, callback);
+                    this._openModel(identifier, format, null, symbol, null, params, host, callback);
                     return;
                 });
                 return;
             }
-            this._openModel(format, null, symbol, null, null, host, callback);
+            this._openModel(identifier, format, null, symbol, null, null, host, callback);
             return;
         }
         catch (error) {
@@ -158,6 +158,7 @@ mxnet.ModelFactory = class {
         catch (err) {
         }
 
+        var identifier = context.identifier;
         try {
             var format = null;
             if (manifest) {
@@ -166,16 +167,18 @@ mxnet.ModelFactory = class {
                     format += ' v' + manifest['Model-Archive-Version'].toString();
                 }
             }
-            this._openModel(format, manifest, symbol, signature, params, host, callback);
+            this._openModel(identifier, format, manifest, symbol, signature, params, host, callback);
             return;
         } 
         catch (error) {
-            callback(new mxnet.Error(error.message), null);
+            var message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            callback(new mxnet.Error(message + " in '" + identifier + "'."), null);
             return;
         }
     }
 
-    _openModel(format, manifest, symbol, signature, params, host, callback) {
+    _openModel(identifier, format, manifest, symbol, signature, params, host, callback) {
         mxnet.Metadata.open(host, 'mxnet-metadata.json', (err, metadata) => {
             var parameters = {};
             if (params) {
@@ -199,7 +202,9 @@ mxnet.ModelFactory = class {
             }
             catch (error) {
                 host.exception(error, false);
-                callback(new mxnet.Error(error.message), null);
+                var message = error && error.message ? error.message : error.toString();
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                callback(new mxnet.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
         });
