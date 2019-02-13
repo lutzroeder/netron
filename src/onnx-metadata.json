@@ -2900,6 +2900,10 @@
           "summary": "convtranspose_attributes"
         },
         {
+          "code": "x = np.array([[[[3., 8., 1.],  # (1, 1, 3, 3)\n                [9., 5., 7.],\n                [3., 2., 6.]]]]).astype(np.float32)\nW = np.array([[[[7., 2.],  # (1, 1, 2, 2)\n                [1., 9.]]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"], dilations=[2, 2])\n\ny = np.array([[[[21., 56., 13., 16., 2.],  # [1, 1, 5, 5]\n                [63., 35., 67., 10., 14.],\n                [24., 22., 76., 76., 21.],\n                [9., 5., 88., 45., 63.],\n                [3., 2., 33., 18., 54.]]]]).astype(np.float32)\n\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_dilations')",
+          "summary": "convtranspose_dilations"
+        },
+        {
           "code": "x = np.array([[[[0., 1., 2.],  # (1, 1, 3, 3)\n                [3., 4., 5.],\n                [6., 7., 8.]]]]).astype(np.float32)\n\nW = np.array([[[[1., 1., 1.],  # (1, 2, 3, 3)\n                [1., 1., 1.],\n                [1., 1., 1.]],\n               [[1., 1., 1.],\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"],\n                             strides=[3, 2],\n                             pads=[1, 2, 1, 2])\n\ny = np.array([[[[1., 1., 3.],  # (1, 2, 7, 3)\n                [1., 1., 3.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [13., 7., 15.],\n                [13., 7., 15.]],\n\n               [[1., 1., 3.],\n                [1., 1., 3.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [13., 7., 15.],\n                [13., 7., 15.]]]]).astype(np.float32)\n\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_pads')",
           "summary": "convtranspose_pads"
         }
