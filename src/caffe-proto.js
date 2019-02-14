@@ -62,10 +62,17 @@
                     case "dim":
                         if (!(message.dim && message.dim.length))
                             message.dim = [];
-                        message.dim.push(reader.int64());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.dim.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.dim.push(reader.int64());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -254,37 +261,69 @@
                     case "data":
                         if (!(message.data && message.data.length))
                             message.data = [];
-                        message.data.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.data.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.data.push(reader.float());
                         break;
                     case "diff":
                         if (!(message.diff && message.diff.length))
                             message.diff = [];
-                        message.diff.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.diff.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.diff.push(reader.float());
                         break;
                     case "double_data":
                         if (!(message.double_data && message.double_data.length))
                             message.double_data = [];
-                        message.double_data.push(reader.double());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.double_data.push(reader.double());
+                                reader.next();
+                            }
+                        else
+                            message.double_data.push(reader.double());
                         break;
                     case "double_diff":
                         if (!(message.double_diff && message.double_diff.length))
                             message.double_diff = [];
-                        message.double_diff.push(reader.double());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.double_diff.push(reader.double());
+                                reader.next();
+                            }
+                        else
+                            message.double_diff.push(reader.double());
                         break;
                     case "num":
+                        reader.value();
                         message.num = reader.int32();
                         break;
                     case "channels":
+                        reader.value();
                         message.channels = reader.int32();
                         break;
                     case "height":
+                        reader.value();
                         message.height = reader.int32();
                         break;
                     case "width":
+                        reader.value();
                         message.width = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -497,7 +536,7 @@
                         message.blobs.push($root.caffe.BlobProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -631,30 +670,43 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "channels":
+                        reader.value();
                         message.channels = reader.int32();
                         break;
                     case "height":
+                        reader.value();
                         message.height = reader.int32();
                         break;
                     case "width":
+                        reader.value();
                         message.width = reader.int32();
                         break;
                     case "data":
+                        reader.value();
                         message.data = reader.bytes();
                         break;
                     case "label":
+                        reader.value();
                         message.label = reader.int32();
                         break;
                     case "float_data":
                         if (!(message.float_data && message.float_data.length))
                             message.float_data = [];
-                        message.float_data.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.float_data.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.float_data.push(reader.float());
                         break;
                     case "encoded":
+                        reader.value();
                         message.encoded = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -838,31 +890,39 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "type":
+                        reader.value();
                         message.type = reader.string();
                         break;
                     case "value":
+                        reader.value();
                         message.value = reader.float();
                         break;
                     case "min":
+                        reader.value();
                         message.min = reader.float();
                         break;
                     case "max":
+                        reader.value();
                         message.max = reader.float();
                         break;
                     case "mean":
+                        reader.value();
                         message.mean = reader.float();
                         break;
                     case "std":
+                        reader.value();
                         message.std = reader.float();
                         break;
                     case "sparse":
+                        reader.value();
                         message.sparse = reader.int32();
                         break;
                     case "variance_norm":
+                        reader.value();
                         message.variance_norm = reader.enum($root.caffe.FillerParameter.VarianceNorm);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -1082,12 +1142,20 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "input":
                         if (!(message.input && message.input.length))
                             message.input = [];
-                        message.input.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.input.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.input.push(reader.string());
                         break;
                     case "input_shape":
                         if (!(message.input_shape && message.input_shape.length))
@@ -1097,15 +1165,24 @@
                     case "input_dim":
                         if (!(message.input_dim && message.input_dim.length))
                             message.input_dim = [];
-                        message.input_dim.push(reader.int32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.input_dim.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.input_dim.push(reader.int32());
                         break;
                     case "force_backward":
+                        reader.value();
                         message.force_backward = reader.bool();
                         break;
                     case "state":
                         message.state = $root.caffe.NetState.decodeText(reader, true);
                         break;
                     case "debug_info":
+                        reader.value();
                         message.debug_info = reader.bool();
                         break;
                     case "layer":
@@ -1119,7 +1196,7 @@
                         message.layers.push($root.caffe.V1LayerParameter.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -1543,18 +1620,27 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "net":
+                        reader.value();
                         message.net = reader.string();
                         break;
                     case "net_param":
                         message.net_param = $root.caffe.NetParameter.decodeText(reader, true);
                         break;
                     case "train_net":
+                        reader.value();
                         message.train_net = reader.string();
                         break;
                     case "test_net":
                         if (!(message.test_net && message.test_net.length))
                             message.test_net = [];
-                        message.test_net.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.test_net.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.test_net.push(reader.string());
                         break;
                     case "train_net_param":
                         message.train_net_param = $root.caffe.NetParameter.decodeText(reader, true);
@@ -1575,113 +1661,165 @@
                     case "test_iter":
                         if (!(message.test_iter && message.test_iter.length))
                             message.test_iter = [];
-                        message.test_iter.push(reader.int32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.test_iter.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.test_iter.push(reader.int32());
                         break;
                     case "test_interval":
+                        reader.value();
                         message.test_interval = reader.int32();
                         break;
                     case "test_compute_loss":
+                        reader.value();
                         message.test_compute_loss = reader.bool();
                         break;
                     case "test_initialization":
+                        reader.value();
                         message.test_initialization = reader.bool();
                         break;
                     case "base_lr":
+                        reader.value();
                         message.base_lr = reader.float();
                         break;
                     case "display":
+                        reader.value();
                         message.display = reader.int32();
                         break;
                     case "average_loss":
+                        reader.value();
                         message.average_loss = reader.int32();
                         break;
                     case "max_iter":
+                        reader.value();
                         message.max_iter = reader.int32();
                         break;
                     case "iter_size":
+                        reader.value();
                         message.iter_size = reader.int32();
                         break;
                     case "lr_policy":
+                        reader.value();
                         message.lr_policy = reader.string();
                         break;
                     case "gamma":
+                        reader.value();
                         message.gamma = reader.float();
                         break;
                     case "power":
+                        reader.value();
                         message.power = reader.float();
                         break;
                     case "momentum":
+                        reader.value();
                         message.momentum = reader.float();
                         break;
                     case "weight_decay":
+                        reader.value();
                         message.weight_decay = reader.float();
                         break;
                     case "regularization_type":
+                        reader.value();
                         message.regularization_type = reader.string();
                         break;
                     case "stepsize":
+                        reader.value();
                         message.stepsize = reader.int32();
                         break;
                     case "stepvalue":
                         if (!(message.stepvalue && message.stepvalue.length))
                             message.stepvalue = [];
-                        message.stepvalue.push(reader.int32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.stepvalue.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.stepvalue.push(reader.int32());
                         break;
                     case "clip_gradients":
+                        reader.value();
                         message.clip_gradients = reader.float();
                         break;
                     case "snapshot":
+                        reader.value();
                         message.snapshot = reader.int32();
                         break;
                     case "snapshot_prefix":
+                        reader.value();
                         message.snapshot_prefix = reader.string();
                         break;
                     case "snapshot_diff":
+                        reader.value();
                         message.snapshot_diff = reader.bool();
                         break;
                     case "snapshot_format":
+                        reader.value();
                         message.snapshot_format = reader.enum($root.caffe.SolverParameter.SnapshotFormat);
                         break;
                     case "solver_mode":
+                        reader.value();
                         message.solver_mode = reader.enum($root.caffe.SolverParameter.SolverMode);
                         break;
                     case "device_id":
+                        reader.value();
                         message.device_id = reader.int32();
                         break;
                     case "random_seed":
+                        reader.value();
                         message.random_seed = reader.int64();
                         break;
                     case "type":
+                        reader.value();
                         message.type = reader.string();
                         break;
                     case "delta":
+                        reader.value();
                         message.delta = reader.float();
                         break;
                     case "momentum2":
+                        reader.value();
                         message.momentum2 = reader.float();
                         break;
                     case "rms_decay":
+                        reader.value();
                         message.rms_decay = reader.float();
                         break;
                     case "debug_info":
+                        reader.value();
                         message.debug_info = reader.bool();
                         break;
                     case "snapshot_after_train":
+                        reader.value();
                         message.snapshot_after_train = reader.bool();
                         break;
                     case "solver_type":
+                        reader.value();
                         message.solver_type = reader.enum($root.caffe.SolverParameter.SolverType);
                         break;
                     case "layer_wise_reduce":
+                        reader.value();
                         message.layer_wise_reduce = reader.bool();
                         break;
                     case "weights":
                         if (!(message.weights && message.weights.length))
                             message.weights = [];
-                        message.weights.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.weights.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.weights.push(reader.string());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2307,9 +2445,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "iter":
+                        reader.value();
                         message.iter = reader.int32();
                         break;
                     case "learned_net":
+                        reader.value();
                         message.learned_net = reader.string();
                         break;
                     case "history":
@@ -2318,10 +2458,11 @@
                         message.history.push($root.caffe.BlobProto.decodeText(reader, true));
                         break;
                     case "current_step":
+                        reader.value();
                         message.current_step = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2467,18 +2608,27 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "phase":
+                        reader.value();
                         message.phase = reader.enum($root.caffe.Phase);
                         break;
                     case "level":
+                        reader.value();
                         message.level = reader.int32();
                         break;
                     case "stage":
                         if (!(message.stage && message.stage.length))
                             message.stage = [];
-                        message.stage.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.stage.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.stage.push(reader.string());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2628,26 +2778,43 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "phase":
+                        reader.value();
                         message.phase = reader.enum($root.caffe.Phase);
                         break;
                     case "min_level":
+                        reader.value();
                         message.min_level = reader.int32();
                         break;
                     case "max_level":
+                        reader.value();
                         message.max_level = reader.int32();
                         break;
                     case "stage":
                         if (!(message.stage && message.stage.length))
                             message.stage = [];
-                        message.stage.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.stage.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.stage.push(reader.string());
                         break;
                     case "not_stage":
                         if (!(message.not_stage && message.not_stage.length))
                             message.not_stage = [];
-                        message.not_stage.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.not_stage.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.not_stage.push(reader.string());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2816,19 +2983,23 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "share_mode":
+                        reader.value();
                         message.share_mode = reader.enum($root.caffe.ParamSpec.DimCheckMode);
                         break;
                     case "lr_mult":
+                        reader.value();
                         message.lr_mult = reader.float();
                         break;
                     case "decay_mult":
+                        reader.value();
                         message.decay_mult = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -3228,28 +3399,52 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "type":
+                        reader.value();
                         message.type = reader.string();
                         break;
                     case "bottom":
                         if (!(message.bottom && message.bottom.length))
                             message.bottom = [];
-                        message.bottom.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.bottom.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.bottom.push(reader.string());
                         break;
                     case "top":
                         if (!(message.top && message.top.length))
                             message.top = [];
-                        message.top.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.top.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.top.push(reader.string());
                         break;
                     case "phase":
+                        reader.value();
                         message.phase = reader.enum($root.caffe.Phase);
                         break;
                     case "loss_weight":
                         if (!(message.loss_weight && message.loss_weight.length))
                             message.loss_weight = [];
-                        message.loss_weight.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.loss_weight.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.loss_weight.push(reader.float());
                         break;
                     case "param":
                         if (!(message.param && message.param.length))
@@ -3264,7 +3459,14 @@
                     case "propagate_down":
                         if (!(message.propagate_down && message.propagate_down.length))
                             message.propagate_down = [];
-                        message.propagate_down.push(reader.bool());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.propagate_down.push(reader.bool());
+                                reader.next();
+                            }
+                        else
+                            message.propagate_down.push(reader.bool());
                         break;
                     case "include":
                         if (!(message.include && message.include.length))
@@ -3424,7 +3626,7 @@
                         message.window_data_param = $root.caffe.WindowDataParameter.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4390,30 +4592,43 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "mirror":
+                        reader.value();
                         message.mirror = reader.bool();
                         break;
                     case "crop_size":
+                        reader.value();
                         message.crop_size = reader.uint32();
                         break;
                     case "mean_file":
+                        reader.value();
                         message.mean_file = reader.string();
                         break;
                     case "mean_value":
                         if (!(message.mean_value && message.mean_value.length))
                             message.mean_value = [];
-                        message.mean_value.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.mean_value.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.mean_value.push(reader.float());
                         break;
                     case "force_color":
+                        reader.value();
                         message.force_color = reader.bool();
                         break;
                     case "force_gray":
+                        reader.value();
                         message.force_gray = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4568,16 +4783,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "ignore_label":
+                        reader.value();
                         message.ignore_label = reader.int32();
                         break;
                     case "normalization":
+                        reader.value();
                         message.normalization = reader.enum($root.caffe.LossParameter.NormalizationMode);
                         break;
                     case "normalize":
+                        reader.value();
                         message.normalize = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4719,16 +4937,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "top_k":
+                        reader.value();
                         message.top_k = reader.uint32();
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "ignore_label":
+                        reader.value();
                         message.ignore_label = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4838,16 +5059,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "out_max_val":
+                        reader.value();
                         message.out_max_val = reader.bool();
                         break;
                     case "top_k":
+                        reader.value();
                         message.top_k = reader.uint32();
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -4953,13 +5177,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "min":
+                        reader.value();
                         message.min = reader.float();
                         break;
                     case "max":
+                        reader.value();
                         message.max = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5057,13 +5283,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "concat_dim":
+                        reader.value();
                         message.concat_dim = reader.uint32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5165,16 +5393,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "use_global_stats":
+                        reader.value();
                         message.use_global_stats = reader.bool();
                         break;
                     case "moving_average_fraction":
+                        reader.value();
                         message.moving_average_fraction = reader.float();
                         break;
                     case "eps":
+                        reader.value();
                         message.eps = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5284,16 +5515,18 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "num_axes":
+                        reader.value();
                         message.num_axes = reader.int32();
                         break;
                     case "filler":
                         message.filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5404,13 +5637,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "margin":
+                        reader.value();
                         message.margin = reader.float();
                         break;
                     case "legacy_version":
+                        reader.value();
                         message.legacy_version = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5604,50 +5839,87 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "num_output":
+                        reader.value();
                         message.num_output = reader.uint32();
                         break;
                     case "bias_term":
+                        reader.value();
                         message.bias_term = reader.bool();
                         break;
                     case "pad":
                         if (!(message.pad && message.pad.length))
                             message.pad = [];
-                        message.pad.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.pad.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.pad.push(reader.uint32());
                         break;
                     case "kernel_size":
                         if (!(message.kernel_size && message.kernel_size.length))
                             message.kernel_size = [];
-                        message.kernel_size.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.kernel_size.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.kernel_size.push(reader.uint32());
                         break;
                     case "stride":
                         if (!(message.stride && message.stride.length))
                             message.stride = [];
-                        message.stride.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.stride.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.stride.push(reader.uint32());
                         break;
                     case "dilation":
                         if (!(message.dilation && message.dilation.length))
                             message.dilation = [];
-                        message.dilation.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.dilation.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.dilation.push(reader.uint32());
                         break;
                     case "pad_h":
+                        reader.value();
                         message.pad_h = reader.uint32();
                         break;
                     case "pad_w":
+                        reader.value();
                         message.pad_w = reader.uint32();
                         break;
                     case "kernel_h":
+                        reader.value();
                         message.kernel_h = reader.uint32();
                         break;
                     case "kernel_w":
+                        reader.value();
                         message.kernel_w = reader.uint32();
                         break;
                     case "stride_h":
+                        reader.value();
                         message.stride_h = reader.uint32();
                         break;
                     case "stride_w":
+                        reader.value();
                         message.stride_w = reader.uint32();
                         break;
                     case "group":
+                        reader.value();
                         message.group = reader.uint32();
                         break;
                     case "weight_filler":
@@ -5657,16 +5929,19 @@
                         message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.ConvolutionParameter.Engine);
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "force_nd_im2col":
+                        reader.value();
                         message.force_nd_im2col = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -5986,15 +6261,23 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "offset":
                         if (!(message.offset && message.offset.length))
                             message.offset = [];
-                        message.offset.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.offset.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.offset.push(reader.uint32());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -6136,37 +6419,47 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "source":
+                        reader.value();
                         message.source = reader.string();
                         break;
                     case "batch_size":
+                        reader.value();
                         message.batch_size = reader.uint32();
                         break;
                     case "rand_skip":
+                        reader.value();
                         message.rand_skip = reader.uint32();
                         break;
                     case "backend":
+                        reader.value();
                         message.backend = reader.enum($root.caffe.DataParameter.DB);
                         break;
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "mean_file":
+                        reader.value();
                         message.mean_file = reader.string();
                         break;
                     case "crop_size":
+                        reader.value();
                         message.crop_size = reader.uint32();
                         break;
                     case "mirror":
+                        reader.value();
                         message.mirror = reader.bool();
                         break;
                     case "force_encoded_color":
+                        reader.value();
                         message.force_encoded_color = reader.bool();
                         break;
                     case "prefetch":
+                        reader.value();
                         message.prefetch = reader.uint32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -6344,10 +6637,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "dropout_ratio":
+                        reader.value();
                         message.dropout_ratio = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -6502,25 +6796,53 @@
                     case "num":
                         if (!(message.num && message.num.length))
                             message.num = [];
-                        message.num.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.num.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.num.push(reader.uint32());
                         break;
                     case "channels":
                         if (!(message.channels && message.channels.length))
                             message.channels = [];
-                        message.channels.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.channels.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.channels.push(reader.uint32());
                         break;
                     case "height":
                         if (!(message.height && message.height.length))
                             message.height = [];
-                        message.height.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.height.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.height.push(reader.uint32());
                         break;
                     case "width":
                         if (!(message.width && message.width.length))
                             message.width = [];
-                        message.width.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.width.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.width.push(reader.uint32());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -6744,18 +7066,27 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "operation":
+                        reader.value();
                         message.operation = reader.enum($root.caffe.EltwiseParameter.EltwiseOp);
                         break;
                     case "coeff":
                         if (!(message.coeff && message.coeff.length))
                             message.coeff = [];
-                        message.coeff.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.coeff.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.coeff.push(reader.float());
                         break;
                     case "stable_prod_grad":
+                        reader.value();
                         message.stable_prod_grad = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -6896,10 +7227,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "alpha":
+                        reader.value();
                         message.alpha = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7000,12 +7332,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "num_output":
+                        reader.value();
                         message.num_output = reader.uint32();
                         break;
                     case "input_dim":
+                        reader.value();
                         message.input_dim = reader.uint32();
                         break;
                     case "bias_term":
+                        reader.value();
                         message.bias_term = reader.bool();
                         break;
                     case "weight_filler":
@@ -7015,7 +7350,7 @@
                         message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7151,16 +7486,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "base":
+                        reader.value();
                         message.base = reader.float();
                         break;
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "shift":
+                        reader.value();
                         message.shift = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7266,13 +7604,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "end_axis":
+                        reader.value();
                         message.end_axis = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7374,16 +7714,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "source":
+                        reader.value();
                         message.source = reader.string();
                         break;
                     case "batch_size":
+                        reader.value();
                         message.batch_size = reader.uint32();
                         break;
                     case "shuffle":
+                        reader.value();
                         message.shuffle = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7485,10 +7828,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "file_name":
+                        reader.value();
                         message.file_name = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7573,10 +7917,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "norm":
+                        reader.value();
                         message.norm = reader.enum($root.caffe.HingeLossParameter.Norm);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7725,43 +8070,55 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "source":
+                        reader.value();
                         message.source = reader.string();
                         break;
                     case "batch_size":
+                        reader.value();
                         message.batch_size = reader.uint32();
                         break;
                     case "rand_skip":
+                        reader.value();
                         message.rand_skip = reader.uint32();
                         break;
                     case "shuffle":
+                        reader.value();
                         message.shuffle = reader.bool();
                         break;
                     case "new_height":
+                        reader.value();
                         message.new_height = reader.uint32();
                         break;
                     case "new_width":
+                        reader.value();
                         message.new_width = reader.uint32();
                         break;
                     case "is_color":
+                        reader.value();
                         message.is_color = reader.bool();
                         break;
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "mean_file":
+                        reader.value();
                         message.mean_file = reader.string();
                         break;
                     case "crop_size":
+                        reader.value();
                         message.crop_size = reader.uint32();
                         break;
                     case "mirror":
+                        reader.value();
                         message.mirror = reader.bool();
                         break;
                     case "root_folder":
+                        reader.value();
                         message.root_folder = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -7939,13 +8296,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "source":
+                        reader.value();
                         message.source = reader.string();
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -8059,9 +8418,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "num_output":
+                        reader.value();
                         message.num_output = reader.uint32();
                         break;
                     case "bias_term":
+                        reader.value();
                         message.bias_term = reader.bool();
                         break;
                     case "weight_filler":
@@ -8071,13 +8432,15 @@
                         message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "transpose":
+                        reader.value();
                         message.transpose = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -8221,7 +8584,7 @@
                         message.shape.push($root.caffe.BlobShape.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -8331,16 +8694,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "base":
+                        reader.value();
                         message.base = reader.float();
                         break;
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "shift":
+                        reader.value();
                         message.shift = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -8462,25 +8828,31 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "local_size":
+                        reader.value();
                         message.local_size = reader.uint32();
                         break;
                     case "alpha":
+                        reader.value();
                         message.alpha = reader.float();
                         break;
                     case "beta":
+                        reader.value();
                         message.beta = reader.float();
                         break;
                     case "norm_region":
+                        reader.value();
                         message.norm_region = reader.enum($root.caffe.LRNParameter.NormRegion);
                         break;
                     case "k":
+                        reader.value();
                         message.k = reader.float();
                         break;
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.LRNParameter.Engine);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -8664,19 +9036,23 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "batch_size":
+                        reader.value();
                         message.batch_size = reader.uint32();
                         break;
                     case "channels":
+                        reader.value();
                         message.channels = reader.uint32();
                         break;
                     case "height":
+                        reader.value();
                         message.height = reader.uint32();
                         break;
                     case "width":
+                        reader.value();
                         message.width = reader.uint32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -8794,16 +9170,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "normalize_variance":
+                        reader.value();
                         message.normalize_variance = reader.bool();
                         break;
                     case "across_channels":
+                        reader.value();
                         message.across_channels = reader.bool();
                         break;
                     case "eps":
+                        reader.value();
                         message.eps = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -8908,7 +9287,7 @@
                         message.shape = $root.caffe.BlobShape.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -9046,46 +9425,59 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "pool":
+                        reader.value();
                         message.pool = reader.enum($root.caffe.PoolingParameter.PoolMethod);
                         break;
                     case "pad":
+                        reader.value();
                         message.pad = reader.uint32();
                         break;
                     case "pad_h":
+                        reader.value();
                         message.pad_h = reader.uint32();
                         break;
                     case "pad_w":
+                        reader.value();
                         message.pad_w = reader.uint32();
                         break;
                     case "kernel_size":
+                        reader.value();
                         message.kernel_size = reader.uint32();
                         break;
                     case "kernel_h":
+                        reader.value();
                         message.kernel_h = reader.uint32();
                         break;
                     case "kernel_w":
+                        reader.value();
                         message.kernel_w = reader.uint32();
                         break;
                     case "stride":
+                        reader.value();
                         message.stride = reader.uint32();
                         break;
                     case "stride_h":
+                        reader.value();
                         message.stride_h = reader.uint32();
                         break;
                     case "stride_w":
+                        reader.value();
                         message.stride_w = reader.uint32();
                         break;
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.PoolingParameter.Engine);
                         break;
                     case "global_pooling":
+                        reader.value();
                         message.global_pooling = reader.bool();
                         break;
                     case "round_mode":
+                        reader.value();
                         message.round_mode = reader.enum($root.caffe.PoolingParameter.RoundMode);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -9347,16 +9739,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "power":
+                        reader.value();
                         message.power = reader.float();
                         break;
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "shift":
+                        reader.value();
                         message.shift = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -9470,19 +9865,23 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "module":
+                        reader.value();
                         message.module = reader.string();
                         break;
                     case "layer":
+                        reader.value();
                         message.layer = reader.string();
                         break;
                     case "param_str":
+                        reader.value();
                         message.param_str = reader.string();
                         break;
                     case "share_in_parallel":
+                        reader.value();
                         message.share_in_parallel = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -9608,6 +10007,7 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "num_output":
+                        reader.value();
                         message.num_output = reader.uint32();
                         break;
                     case "weight_filler":
@@ -9617,13 +10017,15 @@
                         message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     case "debug_info":
+                        reader.value();
                         message.debug_info = reader.bool();
                         break;
                     case "expose_hidden":
+                        reader.value();
                         message.expose_hidden = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -9759,16 +10161,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "operation":
+                        reader.value();
                         message.operation = reader.enum($root.caffe.ReductionParameter.ReductionOp);
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "coeff":
+                        reader.value();
                         message.coeff = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -9906,13 +10311,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "negative_slope":
+                        reader.value();
                         message.negative_slope = reader.float();
                         break;
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.ReLUParameter.Engine);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10043,13 +10450,15 @@
                         message.shape = $root.caffe.BlobShape.decodeText(reader, true);
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "num_axes":
+                        reader.value();
                         message.num_axes = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10172,22 +10581,25 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "num_axes":
+                        reader.value();
                         message.num_axes = reader.int32();
                         break;
                     case "filler":
                         message.filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     case "bias_term":
+                        reader.value();
                         message.bias_term = reader.bool();
                         break;
                     case "bias_filler":
                         message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10315,10 +10727,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.SigmoidParameter.Engine);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10445,18 +10858,27 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "slice_point":
                         if (!(message.slice_point && message.slice_point.length))
                             message.slice_point = [];
-                        message.slice_point.push(reader.uint32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.slice_point.push(reader.uint32());
+                                reader.next();
+                            }
+                        else
+                            message.slice_point.push(reader.uint32());
                         break;
                     case "slice_dim":
+                        reader.value();
                         message.slice_dim = reader.uint32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10575,13 +10997,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.SoftmaxParameter.Engine);
                         break;
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10701,10 +11125,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "beta":
+                        reader.value();
                         message.beta = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10789,10 +11214,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.TanHParameter.Engine);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -10907,13 +11333,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "axis":
+                        reader.value();
                         message.axis = reader.int32();
                         break;
                     case "tiles":
+                        reader.value();
                         message.tiles = reader.int32();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -11007,10 +11435,11 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "threshold":
+                        reader.value();
                         message.threshold = reader.float();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -11143,46 +11572,59 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "source":
+                        reader.value();
                         message.source = reader.string();
                         break;
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "mean_file":
+                        reader.value();
                         message.mean_file = reader.string();
                         break;
                     case "batch_size":
+                        reader.value();
                         message.batch_size = reader.uint32();
                         break;
                     case "crop_size":
+                        reader.value();
                         message.crop_size = reader.uint32();
                         break;
                     case "mirror":
+                        reader.value();
                         message.mirror = reader.bool();
                         break;
                     case "fg_threshold":
+                        reader.value();
                         message.fg_threshold = reader.float();
                         break;
                     case "bg_threshold":
+                        reader.value();
                         message.bg_threshold = reader.float();
                         break;
                     case "fg_fraction":
+                        reader.value();
                         message.fg_fraction = reader.float();
                         break;
                     case "context_pad":
+                        reader.value();
                         message.context_pad = reader.uint32();
                         break;
                     case "crop_mode":
+                        reader.value();
                         message.crop_mode = reader.string();
                         break;
                     case "cache_images":
+                        reader.value();
                         message.cache_images = reader.bool();
                         break;
                     case "root_folder":
+                        reader.value();
                         message.root_folder = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -11372,16 +11814,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "pyramid_height":
+                        reader.value();
                         message.pyramid_height = reader.uint32();
                         break;
                     case "pool":
+                        reader.value();
                         message.pool = reader.enum($root.caffe.SPPParameter.PoolMethod);
                         break;
                     case "engine":
+                        reader.value();
                         message.engine = reader.enum($root.caffe.SPPParameter.Engine);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -11755,14 +12200,29 @@
                     case "bottom":
                         if (!(message.bottom && message.bottom.length))
                             message.bottom = [];
-                        message.bottom.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.bottom.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.bottom.push(reader.string());
                         break;
                     case "top":
                         if (!(message.top && message.top.length))
                             message.top = [];
-                        message.top.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.top.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.top.push(reader.string());
                         break;
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "include":
@@ -11776,6 +12236,7 @@
                         message.exclude.push($root.caffe.NetStateRule.decodeText(reader, true));
                         break;
                     case "type":
+                        reader.value();
                         message.type = reader.enum($root.caffe.V1LayerParameter.LayerType);
                         break;
                     case "blobs":
@@ -11786,27 +12247,62 @@
                     case "param":
                         if (!(message.param && message.param.length))
                             message.param = [];
-                        message.param.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.param.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.param.push(reader.string());
                         break;
                     case "blob_share_mode":
                         if (!(message.blob_share_mode && message.blob_share_mode.length))
                             message.blob_share_mode = [];
-                        message.blob_share_mode.push(reader.enum($root.caffe.V1LayerParameter.DimCheckMode));
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.blob_share_mode.push(reader.enum($root.caffe.V1LayerParameter.DimCheckMode));
+                                reader.next();
+                            }
+                        else
+                            message.blob_share_mode.push(reader.enum($root.caffe.V1LayerParameter.DimCheckMode));
                         break;
                     case "blobs_lr":
                         if (!(message.blobs_lr && message.blobs_lr.length))
                             message.blobs_lr = [];
-                        message.blobs_lr.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.blobs_lr.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.blobs_lr.push(reader.float());
                         break;
                     case "weight_decay":
                         if (!(message.weight_decay && message.weight_decay.length))
                             message.weight_decay = [];
-                        message.weight_decay.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.weight_decay.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.weight_decay.push(reader.float());
                         break;
                     case "loss_weight":
                         if (!(message.loss_weight && message.loss_weight.length))
                             message.loss_weight = [];
-                        message.loss_weight.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.loss_weight.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.loss_weight.push(reader.float());
                         break;
                     case "accuracy_param":
                         message.accuracy_param = $root.caffe.AccuracyParameter.decodeText(reader, true);
@@ -11902,7 +12398,7 @@
                         message.layer = $root.caffe.V0LayerParameter.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -13053,15 +13549,19 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "type":
+                        reader.value();
                         message.type = reader.string();
                         break;
                     case "num_output":
+                        reader.value();
                         message.num_output = reader.uint32();
                         break;
                     case "biasterm":
+                        reader.value();
                         message.biasterm = reader.bool();
                         break;
                     case "weight_filler":
@@ -13071,51 +13571,67 @@
                         message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     case "pad":
+                        reader.value();
                         message.pad = reader.uint32();
                         break;
                     case "kernelsize":
+                        reader.value();
                         message.kernelsize = reader.uint32();
                         break;
                     case "group":
+                        reader.value();
                         message.group = reader.uint32();
                         break;
                     case "stride":
+                        reader.value();
                         message.stride = reader.uint32();
                         break;
                     case "pool":
+                        reader.value();
                         message.pool = reader.enum($root.caffe.V0LayerParameter.PoolMethod);
                         break;
                     case "dropout_ratio":
+                        reader.value();
                         message.dropout_ratio = reader.float();
                         break;
                     case "local_size":
+                        reader.value();
                         message.local_size = reader.uint32();
                         break;
                     case "alpha":
+                        reader.value();
                         message.alpha = reader.float();
                         break;
                     case "beta":
+                        reader.value();
                         message.beta = reader.float();
                         break;
                     case "k":
+                        reader.value();
                         message.k = reader.float();
                         break;
                     case "source":
+                        reader.value();
                         message.source = reader.string();
                         break;
                     case "scale":
+                        reader.value();
                         message.scale = reader.float();
                         break;
                     case "meanfile":
+                        reader.value();
                         message.meanfile = reader.string();
                         break;
                     case "batchsize":
+                        reader.value();
                         message.batchsize = reader.uint32();
                         break;
                     case "cropsize":
+                        reader.value();
                         message.cropsize = reader.uint32();
                         break;
                     case "mirror":
+                        reader.value();
                         message.mirror = reader.bool();
                         break;
                     case "blobs":
@@ -13126,54 +13642,80 @@
                     case "blobs_lr":
                         if (!(message.blobs_lr && message.blobs_lr.length))
                             message.blobs_lr = [];
-                        message.blobs_lr.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.blobs_lr.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.blobs_lr.push(reader.float());
                         break;
                     case "weight_decay":
                         if (!(message.weight_decay && message.weight_decay.length))
                             message.weight_decay = [];
-                        message.weight_decay.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.weight_decay.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.weight_decay.push(reader.float());
                         break;
                     case "rand_skip":
+                        reader.value();
                         message.rand_skip = reader.uint32();
                         break;
                     case "det_fg_threshold":
+                        reader.value();
                         message.det_fg_threshold = reader.float();
                         break;
                     case "det_bg_threshold":
+                        reader.value();
                         message.det_bg_threshold = reader.float();
                         break;
                     case "det_fg_fraction":
+                        reader.value();
                         message.det_fg_fraction = reader.float();
                         break;
                     case "det_context_pad":
+                        reader.value();
                         message.det_context_pad = reader.uint32();
                         break;
                     case "det_crop_mode":
+                        reader.value();
                         message.det_crop_mode = reader.string();
                         break;
                     case "new_num":
+                        reader.value();
                         message.new_num = reader.int32();
                         break;
                     case "new_channels":
+                        reader.value();
                         message.new_channels = reader.int32();
                         break;
                     case "new_height":
+                        reader.value();
                         message.new_height = reader.int32();
                         break;
                     case "new_width":
+                        reader.value();
                         message.new_width = reader.int32();
                         break;
                     case "shuffle_images":
+                        reader.value();
                         message.shuffle_images = reader.bool();
                         break;
                     case "concat_dim":
+                        reader.value();
                         message.concat_dim = reader.uint32();
                         break;
                     case "hdf5_output_param":
                         message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decodeText(reader, true);
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -13646,10 +14188,11 @@
                         message.filler = $root.caffe.FillerParameter.decodeText(reader, true);
                         break;
                     case "channel_shared":
+                        reader.value();
                         message.channel_shared = reader.bool();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }

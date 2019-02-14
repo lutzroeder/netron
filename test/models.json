@@ -544,6 +544,13 @@
   },
   {
     "type":   "caffe",
+    "target": "shufflenet_1x_g3_train.prototxt",
+    "source": "https://raw.githubusercontent.com/Ewenwan/ShuffleNet-2/master/shufflenet_1x_g3_train.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/Ewenwan/ShuffleNet-2"
+  },
+  {
+    "type":   "caffe",
     "target": "squeezenet_v1.1.caffemodel",
     "source": "https://raw.githubusercontent.com/DeepScale/SqueezeNet/master/SqueezeNet_v1.1/squeezenet_v1.1.caffemodel",
     "format": "Caffe v2",
@@ -662,13 +669,6 @@
   },
   {
     "type":   "caffe2",
-    "target": "lenet/predict_net.pbtxt,lenet/init_net.pbtxt",
-    "source": "https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/predict_net.pbtxt,https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/init_net.pbtxt",
-    "format": "Caffe2",
-    "link":   "https://github.com/jolibrain/deepdetect/tree/master/templates/caffe2"
-  },
-  {
-    "type":   "caffe2",
     "target": "bvlc_alexnet/predict_net.pb,bvlc_alexnet/init_net.pb",
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
     "format": "Caffe2",
@@ -758,6 +758,13 @@
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/inception_v2/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/inception_v2/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "type":   "caffe2",
+    "target": "lenet/predict_net.pbtxt,lenet/init_net.pbtxt",
+    "source": "https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/predict_net.pbtxt,https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/init_net.pbtxt",
+    "format": "Caffe2",
+    "link":   "https://github.com/jolibrain/deepdetect/tree/master/templates/caffe2"
   },
   {
     "type":   "caffe2",

@@ -372,6 +372,9 @@ pytorch.ModelFactory = class {
             functionTable['_codecs.encode'] = function(obj, econding) {
                 return obj;
             };
+            functionTable['collections.defaultdict'] = function(default_factory) {
+                return {};
+            };
 
             var function_call = (name, args) => {
                 var func = functionTable[name];

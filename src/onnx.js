@@ -285,44 +285,78 @@ onnx.Graph = class {
                 }
             });
 
-            var connections = {};
+            this._connections = {};
             graph.value_info.forEach((valueInfo) => {
-                this._connection(connections, valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
             });
             graph.input.forEach((valueInfo) => {
-                var connection = this._connection(connections, valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
                 if (!initializers[valueInfo.name]) {
                     this._inputs.push(new onnx.Argument(valueInfo.name, [ connection ]));
                 }
             });
             graph.output.map((valueInfo) => {
-                var connection = this._connection(connections, valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
                 this._outputs.push(new onnx.Argument(valueInfo.name, [ connection ]));
             });
     
             nodes.forEach((node) => {
                 var inputs = [];
-                if (node.input) {
-                    inputs = metadata.getInputs(node.op_type, node.input);
-                    inputs = inputs.map((input) => {
-                        return new onnx.Argument(input.name, input.connections.map((connection) => {
-                            return this._connection(connections, connection.id, null, null, initializers[connection.id]);
-                        }));
-                    });
+                var schema = metadata.getSchema(node.op_type);
+                if (node.input && node.input.length > 0) {
+                    var inputIndex = 0;
+                    if (schema && schema.inputs) {
+                        schema.inputs.forEach((inputSchema) => {
+                            if (inputIndex < node.input.length || inputSchema.option != 'optional') {
+                                var inputConnections = [];
+                                var count = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
+                                node.input.slice(inputIndex, inputIndex + count).forEach((id) => {
+                                    inputConnections.push(this._connection(id, null, null, initializers[id]));
+                                });
+                                inputIndex += count;
+                                inputs.push(new onnx.Argument(inputSchema.name, inputConnections));
+                            }
+                        });
+                    }
+                    else {
+                        node.input.slice(inputIndex).forEach((id) => {
+                            inputs.push(new onnx.Argument(inputIndex.toString(), [
+                                this._connection(id, null, null)
+                            ]));
+                            inputIndex++;
+                        });
+                    }
                 }
                 var outputs = [];
-                if (node.output) {
-                    outputs = metadata.getOutputs(node.op_type, node.output);
-                    outputs = outputs.map((output) => {
-                        return new onnx.Argument(output.name, output.connections.map((connection) => {
-                            return this._connection(connections, connection.id, null, null, initializers[connection.id]);
-                        }));
-                    });
+                if (node.output && node.output.length > 0) {
+                    var outputIndex = 0;
+                    if (schema && schema.outputs) {
+                        schema.outputs.forEach((outputSchema) => {
+                            if (outputIndex < node.output.length || outputSchema.option != 'optional') {
+                                var outputConnections = [];
+                                var count = (outputSchema.option == 'variadic') ? (node.output.length - outputIndex) : 1;
+                                node.output.slice(outputIndex, outputIndex + count).forEach((id) => {
+                                    outputConnections.push(this._connection(id, null, null, null));
+                                });
+                                outputIndex += count;
+                                outputs.push(new onnx.Argument(outputSchema.name, outputConnections));
+                            }
+                        });
+                    }
+                    else {
+                        node.output.slice(outputIndex).forEach((id) => {
+                            outputs.push(new onnx.Argument(outputIndex.toString(), [
+                                this._connection(id, null, null)
+                            ]));
+                            outputIndex++;
+                        });
+                    }
                 }
                 this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
             });
         }
 
+        delete this._connections;
         delete this._imageFormat;
     }
 
@@ -362,11 +396,11 @@ onnx.Graph = class {
         return 'graph(' + this.name + ')';
     }
 
-    _connection(connections, id, type, doc_string, initializer) {
-        var connection = connections[id];
+    _connection(id, type, doc_string, initializer) {
+        var connection = this._connections[id];
         if (!connection) {
             connection = new onnx.Connection(id, type ? onnx.Tensor._formatType(type, this._imageFormat) : null, doc_string, initializer);
-            connections[id] = connection;
+            this._connections[id] = connection;
         }
         return connection;
     }
@@ -1162,72 +1196,6 @@ onnx.GraphMetadata = class {
             this._attributeCache[operator] = map;
         }
         return map[name] || null;
-    }
-
-    getInputs(operator, inputs) {
-        var results = [];
-        var index = 0;
-        var schema = this.getSchema(operator);
-        if (schema && schema.inputs) {
-            schema.inputs.forEach((inputDef) => {
-                if (index < inputs.length || inputDef.option != 'optional') {
-                    var input = {};
-                    input.name = inputDef.name;
-                    input.type = inputDef.type;
-                    var count = (inputDef.option == 'variadic') ? (inputs.length - index) : 1;
-                    input.connections = [];
-                    inputs.slice(index, index + count).forEach((id) => {
-                        if (id != '' || inputDef.option != 'optional') {
-                            input.connections.push({ id: id});
-                        }
-                    });
-                    index += count;
-                    results.push(input);
-                }
-            });
-        }
-        else {
-            inputs.slice(index).forEach((input) => {
-                results.push({
-                    name: index.toString(),
-                    connections: [ { id: input } ]
-                });
-                index++;
-            });
-
-        }
-        return results;
-    }
-
-    getOutputs(operator, outputs) {
-        var results = [];
-        var index = 0;
-        var schema = this.getSchema(operator);
-        if (schema && schema.outputs) {
-            schema.outputs.forEach((outputDef) => {
-                if (index < outputs.length || outputDef.option != 'optional') {
-                    var output = {};
-                    output.name = outputDef.name;
-                    var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
-                    output.connections = outputs.slice(index, index + count).map((id) => {
-                        return { id: id };
-                    });
-                    index += count;
-                    results.push(output);
-                }
-            });
-        }
-        else {
-            outputs.slice(index).forEach((output) => {
-                results.push({
-                    name: index.toString(),
-                    connections: [ { id: output } ]
-                });
-                index++;
-            });
-
-        }
-        return results;
     }
 };
 

@@ -49,7 +49,7 @@ install() {
         virtualenv --quiet -p ${python} ${virtualenv}
     fi
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet tf-nightly
+    ${python} -m pip install --quiet tensorflow
     ${python} -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }

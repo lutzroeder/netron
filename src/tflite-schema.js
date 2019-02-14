@@ -140,7 +140,8 @@ tflite_schema.BuiltinOperator = {
   CEIL: 104, 104: 'CEIL',
   REVERSE_V2: 105, 105: 'REVERSE_V2',
   ADD_N: 106, 106: 'ADD_N',
-  GATHER_ND: 107, 107: 'GATHER_ND'
+  GATHER_ND: 107, 107: 'GATHER_ND',
+  COS: 108, 108: 'COS'
 };
 
 /**
@@ -230,7 +231,8 @@ tflite_schema.BuiltinOptions = {
   UniqueOptions: 80, 80: 'UniqueOptions',
   ReverseV2Options: 81, 81: 'ReverseV2Options',
   AddNOptions: 82, 82: 'AddNOptions',
-  GatherNdOptions: 83, 83: 'GatherNdOptions'
+  GatherNdOptions: 83, 83: 'GatherNdOptions',
+  CosOptions: 84, 84: 'CosOptions'
 };
 
 /**
@@ -3936,6 +3938,57 @@ tflite_schema.ExpOptions.startExpOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.ExpOptions.endExpOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.CosOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.CosOptions}
+ */
+tflite_schema.CosOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.CosOptions=} obj
+ * @returns {tflite_schema.CosOptions}
+ */
+tflite_schema.CosOptions.getRootAsCosOptions = function(bb, obj) {
+  return (obj || new tflite_schema.CosOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.CosOptions.startCosOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.CosOptions.endCosOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };

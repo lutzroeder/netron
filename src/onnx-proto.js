@@ -139,24 +139,31 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "ref_attr_name":
+                        reader.value();
                         message.ref_attr_name = reader.string();
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "type":
+                        reader.value();
                         message.type = reader.enum($root.onnx.AttributeProto.AttributeType);
                         break;
                     case "f":
+                        reader.value();
                         message.f = reader.float();
                         break;
                     case "i":
+                        reader.value();
                         message.i = reader.int64();
                         break;
                     case "s":
+                        reader.value();
                         message.s = reader.bytes();
                         break;
                     case "t":
@@ -168,17 +175,38 @@
                     case "floats":
                         if (!(message.floats && message.floats.length))
                             message.floats = [];
-                        message.floats.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.floats.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.floats.push(reader.float());
                         break;
                     case "ints":
                         if (!(message.ints && message.ints.length))
                             message.ints = [];
-                        message.ints.push(reader.int64());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.ints.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.ints.push(reader.int64());
                         break;
                     case "strings":
                         if (!(message.strings && message.strings.length))
                             message.strings = [];
-                        message.strings.push(reader.bytes());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.strings.push(reader.bytes());
+                                reader.next();
+                            }
+                        else
+                            message.strings.push(reader.bytes());
                         break;
                     case "tensors":
                         if (!(message.tensors && message.tensors.length))
@@ -191,7 +219,7 @@
                         message.graphs.push($root.onnx.GraphProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -581,16 +609,18 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "type":
                         message.type = $root.onnx.TypeProto.decodeText(reader, true);
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -732,20 +762,37 @@
                     case "input":
                         if (!(message.input && message.input.length))
                             message.input = [];
-                        message.input.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.input.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.input.push(reader.string());
                         break;
                     case "output":
                         if (!(message.output && message.output.length))
                             message.output = [];
-                        message.output.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.output.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.output.push(reader.string());
                         break;
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "op_type":
+                        reader.value();
                         message.op_type = reader.string();
                         break;
                     case "domain":
+                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "attribute":
@@ -754,10 +801,11 @@
                         message.attribute.push($root.onnx.AttributeProto.decodeText(reader, true));
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -972,6 +1020,7 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "ir_version":
+                        reader.value();
                         message.ir_version = reader.int64();
                         break;
                     case "opset_import":
@@ -980,18 +1029,23 @@
                         message.opset_import.push($root.onnx.OperatorSetIdProto.decodeText(reader, true));
                         break;
                     case "producer_name":
+                        reader.value();
                         message.producer_name = reader.string();
                         break;
                     case "producer_version":
+                        reader.value();
                         message.producer_version = reader.string();
                         break;
                     case "domain":
+                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "model_version":
+                        reader.value();
                         message.model_version = reader.int64();
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "graph":
@@ -1003,7 +1057,7 @@
                         message.metadata_props.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -1226,13 +1280,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "key":
+                        reader.value();
                         message.key = reader.string();
                         break;
                     case "value":
+                        reader.value();
                         message.value = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -1370,6 +1426,7 @@
                         message.node.push($root.onnx.NodeProto.decodeText(reader, true));
                         break;
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "initializer":
@@ -1378,6 +1435,7 @@
                         message.initializer.push($root.onnx.TensorProto.decodeText(reader, true));
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "input":
@@ -1396,7 +1454,7 @@
                         message.value_info.push($root.onnx.ValueInfoProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -1751,9 +1809,17 @@
                     case "dims":
                         if (!(message.dims && message.dims.length))
                             message.dims = [];
-                        message.dims.push(reader.int64());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.dims.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.dims.push(reader.int64());
                         break;
                     case "data_type":
+                        reader.value();
                         message.data_type = reader.int32();
                         break;
                     case "segment":
@@ -1762,30 +1828,61 @@
                     case "float_data":
                         if (!(message.float_data && message.float_data.length))
                             message.float_data = [];
-                        message.float_data.push(reader.float());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.float_data.push(reader.float());
+                                reader.next();
+                            }
+                        else
+                            message.float_data.push(reader.float());
                         break;
                     case "int32_data":
                         if (!(message.int32_data && message.int32_data.length))
                             message.int32_data = [];
-                        message.int32_data.push(reader.int32());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.int32_data.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.int32_data.push(reader.int32());
                         break;
                     case "string_data":
                         if (!(message.string_data && message.string_data.length))
                             message.string_data = [];
-                        message.string_data.push(reader.bytes());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.string_data.push(reader.bytes());
+                                reader.next();
+                            }
+                        else
+                            message.string_data.push(reader.bytes());
                         break;
                     case "int64_data":
                         if (!(message.int64_data && message.int64_data.length))
                             message.int64_data = [];
-                        message.int64_data.push(reader.int64());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.int64_data.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.int64_data.push(reader.int64());
                         break;
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "raw_data":
+                        reader.value();
                         message.raw_data = reader.bytes();
                         break;
                     case "external_data":
@@ -1794,20 +1891,35 @@
                         message.external_data.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
                         break;
                     case "data_location":
+                        reader.value();
                         message.data_location = reader.enum($root.onnx.TensorProto.DataLocation);
                         break;
                     case "double_data":
                         if (!(message.double_data && message.double_data.length))
                             message.double_data = [];
-                        message.double_data.push(reader.double());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.double_data.push(reader.double());
+                                reader.next();
+                            }
+                        else
+                            message.double_data.push(reader.double());
                         break;
                     case "uint64_data":
                         if (!(message.uint64_data && message.uint64_data.length))
                             message.uint64_data = [];
-                        message.uint64_data.push(reader.uint64());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.uint64_data.push(reader.uint64());
+                                reader.next();
+                            }
+                        else
+                            message.uint64_data.push(reader.uint64());
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2183,13 +2295,15 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "begin":
+                            reader.value();
                             message.begin = reader.int64();
                             break;
                         case "end":
+                            reader.value();
                             message.end = reader.int64();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -2329,7 +2443,7 @@
                         message.dim.push($root.onnx.TensorShapeProto.Dimension.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2443,16 +2557,19 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "dim_value":
+                            reader.value();
                             message.dim_value = reader.int64();
                             break;
                         case "dim_param":
+                            reader.value();
                             message.dim_param = reader.string();
                             break;
                         case "denotation":
+                            reader.value();
                             message.denotation = reader.string();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -2619,10 +2736,11 @@
                         message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decodeText(reader, true);
                         break;
                     case "denotation":
+                        reader.value();
                         message.denotation = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -2807,13 +2925,14 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "elem_type":
+                            reader.value();
                             message.elem_type = reader.int32();
                             break;
                         case "shape":
                             message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -2915,7 +3034,7 @@
                             message.elem_type = $root.onnx.TypeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -3009,13 +3128,14 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "key_type":
+                            reader.value();
                             message.key_type = reader.int32();
                             break;
                         case "value_type":
                             message.value_type = $root.onnx.TypeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -3118,13 +3238,15 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "domain":
+                            reader.value();
                             message.domain = reader.string();
                             break;
                         case "name":
+                            reader.value();
                             message.name = reader.string();
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -3222,13 +3344,14 @@
                         var tag = reader.tag();
                         switch (tag) {
                         case "elem_type":
+                            reader.value();
                             message.elem_type = reader.int32();
                             break;
                         case "shape":
                             message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
                             break;
                         default:
-                            reader.handle(tag, message);
+                            reader.field(tag, message);
                             break;
                         }
                     }
@@ -3334,13 +3457,15 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "domain":
+                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "version":
+                        reader.value();
                         message.version = reader.int64();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -3495,28 +3620,52 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
+                        reader.value();
                         message.name = reader.string();
                         break;
                     case "since_version":
+                        reader.value();
                         message.since_version = reader.int64();
                         break;
                     case "status":
+                        reader.value();
                         message.status = reader.enum($root.onnx.OperatorStatus);
                         break;
                     case "input":
                         if (!(message.input && message.input.length))
                             message.input = [];
-                        message.input.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.input.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.input.push(reader.string());
                         break;
                     case "output":
                         if (!(message.output && message.output.length))
                             message.output = [];
-                        message.output.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.output.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.output.push(reader.string());
                         break;
                     case "attribute":
                         if (!(message.attribute && message.attribute.length))
                             message.attribute = [];
-                        message.attribute.push(reader.string());
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.attribute.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.attribute.push(reader.string());
                         break;
                     case "node":
                         if (!(message.node && message.node.length))
@@ -3524,10 +3673,11 @@
                         message.node.push($root.onnx.NodeProto.decodeText(reader, true));
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -3763,19 +3913,23 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "op_type":
+                        reader.value();
                         message.op_type = reader.string();
                         break;
                     case "since_version":
+                        reader.value();
                         message.since_version = reader.int64();
                         break;
                     case "status":
+                        reader.value();
                         message.status = reader.enum($root.onnx.OperatorStatus);
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
@@ -3950,24 +4104,31 @@
                     var tag = reader.tag();
                     switch (tag) {
                     case "magic":
+                        reader.value();
                         message.magic = reader.string();
                         break;
                     case "ir_version":
+                        reader.value();
                         message.ir_version = reader.int32();
                         break;
                     case "ir_version_prerelease":
+                        reader.value();
                         message.ir_version_prerelease = reader.string();
                         break;
                     case "ir_build_metadata":
+                        reader.value();
                         message.ir_build_metadata = reader.string();
                         break;
                     case "domain":
+                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "opset_version":
+                        reader.value();
                         message.opset_version = reader.int64();
                         break;
                     case "doc_string":
+                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "operator":
@@ -3981,7 +4142,7 @@
                         message.functions.push($root.onnx.FunctionProto.decodeText(reader, true));
                         break;
                     default:
-                        reader.handle(tag, message);
+                        reader.field(tag, message);
                         break;
                     }
                 }
