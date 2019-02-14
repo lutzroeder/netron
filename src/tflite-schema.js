@@ -141,7 +141,8 @@ tflite_schema.BuiltinOperator = {
   REVERSE_V2: 105, 105: 'REVERSE_V2',
   ADD_N: 106, 106: 'ADD_N',
   GATHER_ND: 107, 107: 'GATHER_ND',
-  COS: 108, 108: 'COS'
+  COS: 108, 108: 'COS',
+  WHERE: 109, 109: 'WHERE'
 };
 
 /**
@@ -232,7 +233,8 @@ tflite_schema.BuiltinOptions = {
   ReverseV2Options: 81, 81: 'ReverseV2Options',
   AddNOptions: 82, 82: 'AddNOptions',
   GatherNdOptions: 83, 83: 'GatherNdOptions',
-  CosOptions: 84, 84: 'CosOptions'
+  CosOptions: 84, 84: 'CosOptions',
+  WhereOptions: 85, 85: 'WhereOptions'
 };
 
 /**
@@ -6904,6 +6906,57 @@ tflite_schema.GatherNdOptions.startGatherNdOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.GatherNdOptions.endGatherNdOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite_schema.WhereOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.WhereOptions}
+ */
+tflite_schema.WhereOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.WhereOptions=} obj
+ * @returns {tflite_schema.WhereOptions}
+ */
+tflite_schema.WhereOptions.getRootAsWhereOptions = function(bb, obj) {
+  return (obj || new tflite_schema.WhereOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.WhereOptions.startWhereOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.WhereOptions.endWhereOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
