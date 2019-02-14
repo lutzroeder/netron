@@ -1208,6 +1208,64 @@
     }
   },
   {
+    "name": "AllToAll",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "description": "The type of elements to be exchanged.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "The dimension number to concatenate.",
+          "name": "concat_dimension",
+          "type": "int"
+        },
+        {
+          "description": "The dimension number to split.",
+          "name": "split_dimension",
+          "type": "int"
+        },
+        {
+          "description": "The number of splits, this number must equal to the sub-group\nsize(group_assignment.get_shape()[1])",
+          "name": "split_count",
+          "type": "int"
+        }
+      ],
+      "description": "On each replica, the input is split into `split_count` blocks along\n`split_dimension` and send to the other replicas given group_assignment. After\nreceiving `split_count` - 1 blocks from other replicas, we concatenate the\nblocks along `concat_dimension` as the output.\n\nFor example, suppose there are 2 TPU replicas:\nreplica 0 receives input: `[[A, B]]`\nreplica 1 receives input: `[[C, D]]`\n\ngroup_assignment=`[[0, 1]]`\nconcat_dimension=0\nsplit_dimension=1\nsplit_count=2\n\nreplica 0's output: `[[A], [C]]`\nreplica 1's output: `[[B], [D]]`",
+      "inputs": [
+        {
+          "description": "The local input to the sum.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "An int32 tensor with shape\n[num_groups, num_replicas_per_group]. `group_assignment[i]` represents the\nreplica ids in the ith subgroup.",
+          "name": "group_assignment",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The exchanged result.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "An Op to exchange data across TPU replicas."
+    }
+  },
+  {
     "name": "Angle",
     "schema": {
       "attributes": [
@@ -9046,6 +9104,171 @@
     }
   },
   {
+    "name": "CollectiveGather",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "name": "group_size",
+          "type": "int"
+        },
+        {
+          "name": "group_key",
+          "type": "int"
+        },
+        {
+          "name": "instance_key",
+          "type": "int"
+        },
+        {
+          "name": "shape",
+          "type": "shape"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "data",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Mutually accumulates multiple tensors of identical type and shape."
+    }
+  },
+  {
+    "name": "CollectivePermute",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "description": "The type of elements to be exchanged.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Each instance supplies its own input.\n\nFor example, suppose there are 4 TPU instances: `[A, B, C, D]`. Passing\nsource_target_pairs=`[[0,1],[1,2],[2,3],[3,0]]` gets the outputs:\n`[D, A, B, C]`.",
+      "inputs": [
+        {
+          "description": "The local input to be permuted. Currently only supports float and\nbfloat16.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A tensor with shape [num_pairs, 2].",
+          "name": "source_target_pairs",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The permuted input.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "An Op to permute tensors across replicated TPU instances."
+    }
+  },
+  {
     "name": "CollectiveReduce",
     "schema": {
       "attributes": [
@@ -9716,6 +9939,39 @@
         }
       ],
       "summary": "A conditional accumulator for aggregating gradients."
+    }
+  },
+  {
+    "name": "ConfigureDistributedTPU",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "description": "Reserved. Do not use.",
+          "name": "embedding_config",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "Serialized tensorflow.tpu.TPUEmbeddingConfiguration that\ndescribes the embedding lookups of the program.",
+          "name": "tpu_embedding_config",
+          "type": "string"
+        },
+        {
+          "default": false,
+          "description": "Reserved. Do not use.",
+          "name": "is_global_init",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A serialized tensorflow.tpu.TopologyProto that describes the TPU\ntopology.",
+          "name": "topology",
+          "type": 7
+        }
+      ],
+      "summary": "Sets up the centralized structures for a distributed TPU system."
     }
   },
   {
@@ -11178,6 +11434,49 @@
         }
       ],
       "summary": "Compute the pairwise cross product."
+    }
+  },
+  {
+    "name": "CrossReplicaSum",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "description": "The type of elements to be summed.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Each instance supplies its own input.\n\nFor example, suppose there are 8 TPU instances: `[A, B, C, D, E, F, G, H]`.\nPassing group_assignment=`[[0,2,4,6],[1,3,5,7]]` sets `A, C, E, G` as group 0,\nand `B, D, F, H` as group 1. Thus we get the outputs:\n`[A+C+E+G, B+D+F+H, A+C+E+G, B+D+F+H, A+C+E+G, B+D+F+H, A+C+E+G, B+D+F+H]`.",
+      "inputs": [
+        {
+          "description": "The local input to the sum.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "An int32 tensor with shape\n[num_groups, num_replicas_per_group]. `group_assignment[i]` represents the\nreplica ids in the ith subgroup.",
+          "name": "group_assignment",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The sum of all the distributed inputs.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "An Op to sum inputs across replicated TPU instances."
     }
   },
   {
@@ -13357,6 +13656,14 @@
             {
               "type": "type",
               "value": 9
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
             }
           ],
           "name": "out_type",
@@ -15379,6 +15686,145 @@
         }
       ],
       "summary": "Encode audio data using the WAV file format."
+    }
+  },
+  {
+    "name": "EnqueueTPUEmbeddingIntegerBatch",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "default": -1,
+          "description": "The TPU device to use. Should be >= 0 and less than the number\nof TPU cores in the task on which the node is placed.",
+          "name": "device_ordinal",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of 1D tensors, one for each embedding table, containing the\nindices into the tables.",
+          "name": "batch",
+          "numberAttr": "N",
+          "type": 3
+        },
+        {
+          "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
+          "name": "mode_override",
+          "type": 7
+        }
+      ],
+      "summary": "An op that enqueues a list of input batch tensors to TPUEmbedding."
+    }
+  },
+  {
+    "name": "EnqueueTPUEmbeddingSparseBatch",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "default": -1,
+          "description": "The TPU device to use. Should be >= 0 and less than the number\nof TPU cores in the task on which the node is placed.",
+          "name": "device_ordinal",
+          "type": "int"
+        },
+        {
+          "default": [],
+          "description": "A list of string scalars, one for each embedding table that specify\nhow to normalize the embedding activations after weighted summation.\nSupported combiners are 'mean', 'sum', or 'sqrtn'. It is invalid to have\nthe sum of the weights be 0 for 'mean' or the sum of the squared weights be\n0 for 'sqrtn'. If combiners isn't passed, the default is to use 'sum' for\nall tables.",
+          "name": "combiners",
+          "type": "list(string)"
+        }
+      ],
+      "description": "This Op eases the porting of code that uses embedding_lookup_sparse(),\nalthough some Python preprocessing of the SparseTensor arguments to\nembedding_lookup_sparse() is required to produce the arguments to this Op,\nsince only a single EnqueueTPUEmbeddingSparseBatch Op is allowed per training\nstep.\n\nThe tensors at corresponding positions in the three input lists\nmust have the same shape, i.e. rank 1 with dim_size() equal to the total\nnumber of lookups into the table described by the corresponding table_id.",
+      "inputs": [
+        {
+          "description": "A list of rank 1 Tensors specifying the training example and\nfeature to which the corresponding embedding_indices and aggregation_weights\nvalues belong. sample_indices[i] must equal b * nf + f, where nf is the\nnumber of features from the corresponding table, f is in [0, nf), and\nb is in [0, batch size).",
+          "name": "sample_indices",
+          "numberAttr": "N",
+          "type": 3
+        },
+        {
+          "description": "A list of rank 1 Tensors, indices into the embedding tables.",
+          "name": "embedding_indices",
+          "numberAttr": "N",
+          "type": 3
+        },
+        {
+          "description": "A list of rank 1 Tensors containing per sample -- i.e. per\n(training example, feature) -- aggregation weights.",
+          "name": "aggregation_weights",
+          "numberAttr": "N",
+          "type": 1
+        },
+        {
+          "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
+          "name": "mode_override",
+          "type": 7
+        }
+      ],
+      "summary": "An op that enqueues TPUEmbedding input indices from a SparseTensor."
+    }
+  },
+  {
+    "name": "EnqueueTPUEmbeddingSparseTensorBatch",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "default": -1,
+          "description": "The TPU device to use. Should be >= 0 and less than the number\nof TPU cores in the task on which the node is placed.",
+          "name": "device_ordinal",
+          "type": "int"
+        },
+        {
+          "default": [],
+          "description": "A list of string scalars, one for each embedding table that specify\nhow to normalize the embedding activations after weighted summation.\nSupported combiners are 'mean', 'sum', or 'sqrtn'. It is invalid to have\nthe sum of the weights be 0 for 'mean' or the sum of the squared weights be\n0 for 'sqrtn'. If combiners isn't passed, the default is to use 'sum' for\nall tables.",
+          "name": "combiners",
+          "type": "list(string)"
+        },
+        {
+          "description": "A list of integers specifying the identifier of the embedding table\n(offset of TableDescriptor in the TPUEmbeddingConfiguration) to lookup the\ncorresponding input. The ith input is looked up using table_ids[i]. The size\nof the table_ids list must be equal to that of sample_indices,\nembedding_indices and aggregation_weights.",
+          "name": "table_ids",
+          "type": "list(int)"
+        }
+      ],
+      "description": "sample_indices[i], embedding_indices[i] and aggregation_weights[i] correspond\nto the ith feature. table_ids[i] indicates which embedding table to look up ith\nfeature.\n\nThe tensors at corresponding positions in the three input lists (sample_indices,\nembedding_indices and aggregation_weights) must have the same shape, i.e. rank 1\nwith dim_size() equal to the total number of lookups into the table described by\nthe corresponding feature.",
+      "inputs": [
+        {
+          "description": "A list of rank 1 Tensors specifying the training example to\nwhich the corresponding embedding_indices and aggregation_weights values\nbelong. It corresponds to sp_ids.indices[:,0] in  embedding_lookup_sparse().",
+          "name": "sample_indices",
+          "numberAttr": "N",
+          "type": 3
+        },
+        {
+          "description": "A list of rank 1 Tensors, indices into the embedding tables.\nIt corresponds to sp_ids.values in embedding_lookup_sparse().",
+          "name": "embedding_indices",
+          "numberAttr": "N",
+          "type": 3
+        },
+        {
+          "description": "A list of rank 1 Tensors containing per training example\naggregation weights. It corresponds to sp_weights.values in\nembedding_lookup_sparse().",
+          "name": "aggregation_weights",
+          "numberAttr": "N",
+          "type": 1
+        },
+        {
+          "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
+          "name": "mode_override",
+          "type": 7
+        }
+      ],
+      "summary": "Eases the porting of code that uses tf.nn.embedding_lookup_sparse()."
     }
   },
   {
@@ -21542,6 +21988,136 @@
     }
   },
   {
+    "name": "InfeedDequeue",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of elements in the tensor.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "description": "The shape of the tensor.",
+          "name": "shape",
+          "type": "shape"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A tensor that will be provided using the infeed mechanism.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "A placeholder op for a value that will be fed into the computation."
+    }
+  },
+  {
+    "name": "InfeedDequeueTuple",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The element types of each element in `outputs`.",
+          "minimum": 1,
+          "name": "dtypes",
+          "type": "list(type)"
+        },
+        {
+          "description": "The shapes of each tensor in `outputs`.",
+          "name": "shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of tensors that will be provided using the infeed mechanism.",
+          "name": "outputs",
+          "typeListAttr": "dtypes"
+        }
+      ],
+      "summary": "Fetches multiple values from infeed as an XLA tuple."
+    }
+  },
+  {
+    "name": "InfeedEnqueue",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of elements in the tensor.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "shape",
+            "value": "?"
+          },
+          "description": "The shape of the tensor.",
+          "name": "shape",
+          "type": "shape"
+        },
+        {
+          "default": [],
+          "description": "A vector holding the requested layout in minor-to-major sequence.\nIf a layout attribute is passed, but its values are all -1, the layout will\nbe computed by the infeed operation.",
+          "name": "layout",
+          "type": "list(int)"
+        },
+        {
+          "default": -1,
+          "description": "The TPU device to use. This should be -1 when the Op\nis running on a TPU device, and >= 0 when the Op is running on the CPU\ndevice.",
+          "name": "device_ordinal",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A tensor that will be provided using the infeed mechanism.",
+          "name": "input",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "An op which feeds a single Tensor value into the computation."
+    }
+  },
+  {
+    "name": "InfeedEnqueueTuple",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The element types of each element in `inputs`.",
+          "minimum": 1,
+          "name": "dtypes",
+          "type": "list(type)"
+        },
+        {
+          "description": "The shapes of each tensor in `inputs`.",
+          "name": "shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": [],
+          "description": "A vector holding the requested layout in minor-to-major sequence for\nall the tuple shapes, in the order the shapes appear in the \"shapes\" input.\nThe layout elements for a sub-shape can be set to -1, in which case the\ncorresponding layout will be computed by the infeed operation.",
+          "name": "layouts",
+          "type": "list(int)"
+        },
+        {
+          "default": -1,
+          "description": "The TPU device to use. This should be -1 when the Op\nis running on a TPU device, and >= 0 when the Op is running on the CPU\ndevice.",
+          "name": "device_ordinal",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of tensors that will be provided using the infeed mechanism.",
+          "name": "inputs",
+          "typeListAttr": "dtypes"
+        }
+      ],
+      "summary": "Feeds multiple Tensor values into the computation as an XLA tuple."
+    }
+  },
+  {
     "name": "InitializeTable",
     "schema": {
       "attributes": [
@@ -23421,6 +23997,776 @@
         }
       ],
       "summary": "Loads a 2-D (matrix) `Tensor` with name `old_tensor_name` from the checkpoint"
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingADAMParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the ADAM optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of momenta used in the ADAM optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        },
+        {
+          "description": "Value of velocities used in the ADAM optimization algorithm.",
+          "name": "velocities",
+          "type": 1
+        }
+      ],
+      "summary": "Load ADAM embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingADAMParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the ADAM optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of momenta used in the ADAM optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        },
+        {
+          "description": "Value of velocities used in the ADAM optimization algorithm.",
+          "name": "velocities",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the ADAM optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load ADAM embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingAdadeltaParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the Adadelta optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the Adadelta optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Value of updates used in the Adadelta optimization algorithm.",
+          "name": "updates",
+          "type": 1
+        }
+      ],
+      "summary": "Load Adadelta embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingAdadeltaParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the Adadelta optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the Adadelta optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Value of updates used in the Adadelta optimization algorithm.",
+          "name": "updates",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the Adadelta optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load Adadelta parameters with debug support."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingAdagradParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load Adagrad embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingAdagradParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the Adagrad optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load Adagrad embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingCenteredRMSPropParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the centered RMSProp optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of ms used in the centered RMSProp optimization algorithm.",
+          "name": "ms",
+          "type": 1
+        },
+        {
+          "description": "Value of mom used in the centered RMSProp optimization algorithm.",
+          "name": "mom",
+          "type": 1
+        },
+        {
+          "description": "Value of mg used in the centered RMSProp optimization algorithm.",
+          "name": "mg",
+          "type": 1
+        }
+      ],
+      "summary": "Load centered RMSProp embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingFTRLParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the FTRL optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the FTRL optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Value of linears used in the FTRL optimization algorithm.",
+          "name": "linears",
+          "type": 1
+        }
+      ],
+      "summary": "Load FTRL embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingFTRLParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the FTRL optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the FTRL optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Value of linears used in the FTRL optimization algorithm.",
+          "name": "linears",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the FTRL optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load FTRL embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingMDLAdagradLightParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the MDL Adagrad Light optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the MDL Adagrad Light optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Value of weights used in the MDL Adagrad Light optimization algorithm.",
+          "name": "weights",
+          "type": 1
+        },
+        {
+          "description": "Value of benefits used in the MDL Adagrad Light optimization algorithm.",
+          "name": "benefits",
+          "type": 1
+        }
+      ],
+      "summary": "Load MDL Adagrad Light embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingMomentumParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the Momentum optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of momenta used in the Momentum optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        }
+      ],
+      "summary": "Load Momentum embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingMomentumParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the Momentum optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of momenta used in the Momentum optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the Momentum optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load Momentum embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingProximalAdagradParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the proximal Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the proximal Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load proximal Adagrad embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingProximalAdagradParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the proximal Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of accumulators used in the proximal Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the proximal Adagrad optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load proximal Adagrad embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingRMSPropParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the RMSProp optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of ms used in the RMSProp optimization algorithm.",
+          "name": "ms",
+          "type": 1
+        },
+        {
+          "description": "Value of mom used in the RMSProp optimization algorithm.",
+          "name": "mom",
+          "type": 1
+        }
+      ],
+      "summary": "Load RMSProp embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingRMSPropParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the RMSProp optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of ms used in the RMSProp optimization algorithm.",
+          "name": "ms",
+          "type": 1
+        },
+        {
+          "description": "Value of mom used in the RMSProp optimization algorithm.",
+          "name": "mom",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the RMSProp optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load RMSProp embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingStochasticGradientDescentParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the stochastic gradient descent optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        }
+      ],
+      "summary": "Load SGD embedding parameters."
     }
   },
   {
@@ -29795,6 +31141,110 @@
         }
       ],
       "summary": "Op removes and returns the (key, value) element with the smallest"
+    }
+  },
+  {
+    "name": "OutfeedDequeue",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of elements in the tensor.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "description": "The shape of the tensor.",
+          "name": "shape",
+          "type": "shape"
+        },
+        {
+          "default": -1,
+          "description": "The TPU device to use. This should be -1 when the Op\nis running on a TPU device, and >= 0 when the Op is running on the CPU\ndevice.",
+          "name": "device_ordinal",
+          "type": "int"
+        }
+      ],
+      "description": "This operation will block indefinitely until data is available.",
+      "outputs": [
+        {
+          "description": "A tensor that will be read from the device outfeed.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Retrieves a single tensor from the computation outfeed."
+    }
+  },
+  {
+    "name": "OutfeedDequeueTuple",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The element types of each element in `outputs`.",
+          "minimum": 1,
+          "name": "dtypes",
+          "type": "list(type)"
+        },
+        {
+          "description": "The shapes of each tensor in `outputs`.",
+          "name": "shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": -1,
+          "description": "The TPU device to use. This should be -1 when the Op\nis running on a TPU device, and >= 0 when the Op is running on the CPU\ndevice.",
+          "name": "device_ordinal",
+          "type": "int"
+        }
+      ],
+      "description": "This operation will block indefinitely until data is available. Output `i`\ncorresponds to XLA tuple element `i`.",
+      "outputs": [
+        {
+          "description": "A list of tensors that will be read from the outfeed.",
+          "name": "outputs",
+          "typeListAttr": "dtypes"
+        }
+      ],
+      "summary": "Retrieve multiple values from the computation outfeed."
+    }
+  },
+  {
+    "name": "OutfeedEnqueue",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dtype",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A tensor that will be inserted into the outfeed queue.",
+          "name": "input",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Enqueue a Tensor on the computation outfeed."
+    }
+  },
+  {
+    "name": "OutfeedEnqueueTuple",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "dtypes",
+          "type": "list(type)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of tensors that will be inserted into the outfeed queue as an\nXLA tuple.",
+          "name": "inputs",
+          "typeListAttr": "dtypes"
+        }
+      ],
+      "summary": "Enqueue multiple Tensor values on the computation outfeed."
     }
   },
   {
@@ -38039,6 +39489,33 @@
     }
   },
   {
+    "name": "RecvTPUEmbeddingActivations",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The number of output activation tensors, equal to the number of\nembedding tables in the model.",
+          "minimum": 1,
+          "name": "num_outputs",
+          "type": "int"
+        },
+        {
+          "description": "Serialized TPUEmbeddingConfiguration proto.",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "description": "The TPU system performs the embedding lookups and aggregations specified by\nthe arguments to TPUEmbeddingEnqueue(Integer/Sparse/SparseTensor)Batch. The\nresults of these aggregations are visible to the Tensorflow Graph as the\noutputs of a RecvTPUEmbeddingActivations op. This op returns a list containing\none Tensor of activations per table specified in the model. There can be at\nmost one RecvTPUEmbeddingActivations op in the TPU graph.",
+      "outputs": [
+        {
+          "description": "A TensorList of embedding activations containing one Tensor per\nembedding table in the model.",
+          "name": "outputs",
+          "type": 1
+        }
+      ],
+      "summary": "An op that receives embedding activations on the TPU."
+    }
+  },
+  {
     "name": "ReduceDataset",
     "schema": {
       "attributes": [
@@ -44686,6 +46163,776 @@
     }
   },
   {
+    "name": "RetrieveTPUEmbeddingADAMParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the ADAM optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter momenta updated by the ADAM optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        },
+        {
+          "description": "Parameter velocities updated by the ADAM optimization algorithm.",
+          "name": "velocities",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve ADAM embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingADAMParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the ADAM optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter momenta updated by the ADAM optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        },
+        {
+          "description": "Parameter velocities updated by the ADAM optimization algorithm.",
+          "name": "velocities",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the ADAM optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve ADAM embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingAdadeltaParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the Adadelta optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the Adadelta optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Parameter updates updated by the Adadelta optimization algorithm.",
+          "name": "updates",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve Adadelta embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingAdadeltaParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the Adadelta optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the Adadelta optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Parameter updates updated by the Adadelta optimization algorithm.",
+          "name": "updates",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the Adadelta optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve Adadelta embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingAdagradParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve Adagrad embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingAdagradParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the Adagrad optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve Adagrad embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingCenteredRMSPropParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the centered RMSProp optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter ms updated by the centered RMSProp optimization algorithm.",
+          "name": "ms",
+          "type": 1
+        },
+        {
+          "description": "Parameter mom updated by the centered RMSProp optimization algorithm.",
+          "name": "mom",
+          "type": 1
+        },
+        {
+          "description": "Parameter mg updated by the centered RMSProp optimization algorithm.",
+          "name": "mg",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve centered RMSProp embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingFTRLParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the FTRL optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the FTRL optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Parameter linears updated by the FTRL optimization algorithm.",
+          "name": "linears",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve FTRL embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingFTRLParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the FTRL optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the FTRL optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Parameter linears updated by the FTRL optimization algorithm.",
+          "name": "linears",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the FTRL optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve FTRL embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingMDLAdagradLightParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the MDL Adagrad Light optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the MDL Adagrad Light optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Parameter weights updated by the MDL Adagrad Light optimization algorithm.",
+          "name": "weights",
+          "type": 1
+        },
+        {
+          "description": "Parameter benefits updated by the MDL Adagrad Light optimization algorithm.",
+          "name": "benefits",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve MDL Adagrad Light embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingMomentumParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the Momentum optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter momenta updated by the Momentum optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve Momentum embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingMomentumParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the Momentum optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter momenta updated by the Momentum optimization algorithm.",
+          "name": "momenta",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the Momentum optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve Momentum embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingProximalAdagradParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the proximal Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the proximal Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve proximal Adagrad embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingProximalAdagradParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the proximal Adagrad optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter accumulators updated by the proximal Adagrad optimization algorithm.",
+          "name": "accumulators",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the proximal Adagrad optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve proximal Adagrad embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingRMSPropParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the RMSProp optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter ms updated by the RMSProp optimization algorithm.",
+          "name": "ms",
+          "type": 1
+        },
+        {
+          "description": "Parameter mom updated by the RMSProp optimization algorithm.",
+          "name": "mom",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve RMSProp embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingRMSPropParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the RMSProp optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter ms updated by the RMSProp optimization algorithm.",
+          "name": "ms",
+          "type": 1
+        },
+        {
+          "description": "Parameter mom updated by the RMSProp optimization algorithm.",
+          "name": "mom",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the RMSProp optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve RMSProp embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingStochasticGradientDescentParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "minimum": -1,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int"
+        },
+        {
+          "name": "shard_id",
+          "type": "int"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the stochastic gradient descent optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve SGD embedding parameters."
+    }
+  },
+  {
     "name": "Reverse",
     "schema": {
       "attributes": [
@@ -48204,6 +50451,44 @@
     }
   },
   {
+    "name": "SendTPUEmbeddingGradients",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "NN",
+          "type": "int"
+        },
+        {
+          "description": "Serialized TPUEmbeddingConfiguration proto.",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A TensorList of gradients with which to update embedding tables.\nThis argument has the same length and shapes as the return value of\nRecvTPUEmbeddingActivations, but contains gradients of the model's loss\nwith respect to the embedding activations. The embedding tables are updated\nfrom these gradients via the optimizer specified in the TPU embedding\nconfiguration given to tpu.initialize_system.",
+          "name": "inputs",
+          "numberAttr": "N",
+          "type": 1
+        },
+        {
+          "description": "A TensorList of float32 scalars, one for each dynamic learning\nrate tag: see the comments in\n//third_party/tensorflow/core/protobuf/tpu/optimization_parameters.proto.\nMultiple tables can share the same dynamic learning rate tag as specified\nin the configuration. If the learning rates for all tables are constant,\nthis list should be empty.",
+          "name": "learning_rates",
+          "numberAttr": "NN",
+          "type": 1
+        }
+      ],
+      "summary": "Performs gradient updates of embedding tables."
+    }
+  },
+  {
     "name": "SerializeIterator",
     "schema": {
       "inputs": [
@@ -48712,6 +50997,13 @@
         }
       ],
       "summary": "Creates a dataset that shuffles elements from `input_dataset` pseudorandomly."
+    }
+  },
+  {
+    "name": "ShutdownDistributedTPU",
+    "schema": {
+      "description": "The op returns an error if no system is running.",
+      "summary": "Shuts down a running distributed TPU system."
     }
   },
   {
@@ -57406,6 +59698,339 @@
     }
   },
   {
+    "name": "TPUCompilationResult",
+    "schema": {
+      "outputs": [
+        {
+          "name": "output",
+          "type": 7
+        }
+      ],
+      "summary": "CompilationResultProto indicating the status of the TPU compilation."
+    }
+  },
+  {
+    "name": "TPUEmbeddingActivations",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The id of the table in the embedding layer configuration from which\nthese activations were computed.",
+          "minimum": 0,
+          "name": "table_id",
+          "type": "int"
+        },
+        {
+          "description": "Identifier of the set of embedding indices which produced these\nactivations.",
+          "minimum": 0,
+          "name": "lookup_id",
+          "type": "int"
+        }
+      ],
+      "description": "This op simply returns its first input, which is assumed to have been sliced\nfrom the Tensors returned by TPUEmbeddingDequeueActivations. The presence of\nthis op, and its first argument being a trainable Variable, enables automatic\ndifferentiation of graphs containing embeddings via the TPU Embedding Python\nlibraries.",
+      "inputs": [
+        {
+          "description": "A trainable variable, enabling optimizers to find this op.",
+          "name": "embedding_variable",
+          "type": 1
+        },
+        {
+          "description": "The embedding activations Tensor to return.",
+          "name": "sliced_activations",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 1
+        }
+      ],
+      "summary": "An op enabling differentiation of TPU Embeddings."
+    }
+  },
+  {
+    "name": "TPUOrdinalSelector",
+    "schema": {
+      "description": "This Op produces a set of TPU cores (for warm-up) or a single TPU core\n(for regular inference) to execute the TPU program on. The output is\nconsumed by TPUPartitionedCall.",
+      "outputs": [
+        {
+          "description": "A vector 1 or more TPU cores.",
+          "name": "device_ordinals",
+          "type": 3
+        }
+      ],
+      "summary": "A TPU core selector Op."
+    }
+  },
+  {
+    "name": "TPUPartitionedCall",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The types of the arguments to the function.",
+          "minimum": 0,
+          "name": "Tin",
+          "type": "list(type)"
+        },
+        {
+          "description": "The types of the outputs of the function.",
+          "minimum": 0,
+          "name": "Tout",
+          "type": "list(type)"
+        },
+        {
+          "description": "The function to call.",
+          "name": "f",
+          "type": "func"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The arguments to the function.",
+          "name": "args",
+          "typeListAttr": "Tin"
+        },
+        {
+          "description": "The TPU device ordinal to run the function on.",
+          "name": "device_ordinal",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output of the function call.",
+          "name": "output",
+          "typeListAttr": "Tout"
+        }
+      ],
+      "summary": "Calls a function placed on a specified TPU device."
+    }
+  },
+  {
+    "name": "TPUReplicate",
+    "schema": {
+      "attributes": [
+        {
+          "description": "a function containing the computation to run.",
+          "name": "computation",
+          "type": "func"
+        },
+        {
+          "description": "the number of replicas of the computation to run.",
+          "minimum": 1,
+          "name": "num_replicas",
+          "type": "int"
+        },
+        {
+          "default": 1,
+          "description": "the number of logical cores in each replica.",
+          "name": "num_cores_per_replica",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "description": "A serialized tensorflow.tpu.TopologyProto that describes the TPU\ntopology.",
+          "name": "topology",
+          "type": "string"
+        },
+        {
+          "default": true,
+          "description": "a bool indicating if this computation will run on TPU or CPU/GPU.\nCurrently, only supports a default placement (computation is placed on GPU\nif one is available, and on CPU if not).",
+          "name": "use_tpu",
+          "type": "bool"
+        },
+        {
+          "default": [],
+          "description": "a flattened array with shape\n[replica, num_cores_per_replica, mesh_dimension] that maps the coordinates\nof logical cores in each replica of a computation to physical coordinates in\nthe TPU topology.",
+          "name": "device_assignment",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "host_compute_core",
+          "type": "list(string)"
+        },
+        {
+          "description": "the types of the arguments to 'computation'.",
+          "minimum": 0,
+          "name": "Tinputs",
+          "type": "list(type)"
+        },
+        {
+          "description": "the types of the additional arguments to broadcast to all\nreplicas.",
+          "minimum": 0,
+          "name": "Tbroadcast_inputs",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 0,
+          "name": "NumVariables",
+          "type": "int"
+        },
+        {
+          "description": "the types of the arguments to 'guaranteed_constants'.",
+          "minimum": 0,
+          "name": "Tguaranteed_constants",
+          "type": "list(type)"
+        },
+        {
+          "description": "the types of the outputs of 'computation'.",
+          "minimum": 0,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "default": [],
+          "name": "padding_map",
+          "type": "list(string)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "the inputs to 'computation', flattened, in replica-major order.",
+          "name": "inputs",
+          "typeListAttr": "Tinputs"
+        },
+        {
+          "description": "additional arguments to broadcast to all replicas. The\nbroadcast inputs are appended to the per-replica inputs when calling\ncomputation.",
+          "name": "broadcast_inputs",
+          "typeListAttr": "Tbroadcast_inputs"
+        },
+        {
+          "name": "variables",
+          "numberAttr": "NumVariables",
+          "type": 20
+        },
+        {
+          "description": "arguments which have been guaranteed to not\nchange their values during the session lifetime. These contain tensors marked as\nconstant using the GuaranteeConstOp.",
+          "name": "guaranteed_constants",
+          "typeListAttr": "Tguaranteed_constants"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "the outputs of 'computation'.",
+          "name": "outputs",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "Runs replicated computations on a distributed TPU system."
+    }
+  },
+  {
+    "name": "TPUReplicateMetadata",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Number of replicas of the computation",
+          "minimum": 0,
+          "name": "num_replicas",
+          "type": "int"
+        },
+        {
+          "default": 1,
+          "description": "Number of cores per replica. Used for model parallelism.",
+          "name": "num_cores_per_replica",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "description": "TopologyProto indicating the topology of the TPU pod slice.",
+          "name": "topology",
+          "type": "string"
+        },
+        {
+          "default": true,
+          "description": "Whether to place the computation on the TPU.",
+          "name": "use_tpu",
+          "type": "bool"
+        },
+        {
+          "default": [],
+          "description": "The assignment of devices for the computation.",
+          "name": "device_assignment",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "description": "DEPRECATED. Use num_cores_per_replica instead.",
+          "name": "computation_shape",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "host_compute_core",
+          "type": "list(string)"
+        },
+        {
+          "default": [],
+          "name": "padding_map",
+          "type": "list(string)"
+        }
+      ],
+      "summary": "Metadata indicaitng how the TPU computation should be replicated."
+    }
+  },
+  {
+    "name": "TPUReplicatedInput",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "inputs",
+          "numberAttr": "N",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Connects N inputs to an N-way replicated TPU computation."
+    }
+  },
+  {
+    "name": "TPUReplicatedOutput",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "num_replicas",
+          "type": "int"
+        },
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "outputs",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Connects outputs of an N-way replicated computation to N outputs."
+    }
+  },
+  {
     "name": "TakeDataset",
     "schema": {
       "attributes": [
@@ -62540,6 +65165,27 @@
         }
       ],
       "summary": "A dataset that creates window datasets from the input dataset."
+    }
+  },
+  {
+    "name": "WorkerHeartbeat",
+    "schema": {
+      "description": "Heartbeats may be sent periodically to indicate the coordinator is still active,\nto retrieve the current worker status and to expedite shutdown when necessary.",
+      "inputs": [
+        {
+          "description": "A string tensor containing a serialized WorkerHeartbeatRequest",
+          "name": "request",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A string tensor containing a serialized WorkerHeartbeatResponse",
+          "name": "response",
+          "type": 7
+        }
+      ],
+      "summary": "Worker heartbeat op."
     }
   },
   {
