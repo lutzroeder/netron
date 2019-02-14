@@ -3,6 +3,21 @@
 var openvino = openvino || {};
 var marked = marked || require('marked');
 
+openvino.Utils = class {
+    static countDirectChildrenByName(element, childName) {
+        return openvino.Utils.findDirectChildrenByName(element, childName).length;
+    }
+
+    static findDirectChildrenByName(element, childName) {
+        return Array.from(element.childNodes.values()).reduce((acc, el) => {
+            if (el.nodeName === childName) {
+                acc.push(el);
+            }
+            return acc;
+        }, []);
+    }
+}
+
 openvino.ModelFactory = class {
 
     match(context) {
@@ -25,12 +40,12 @@ openvino.ModelFactory = class {
                     callback(new openvino.Error('File format is not OpenVINO XML.'), null);
                     return;
                 }
-                var net = xml.documentElement;
-                if (!net || net.nodeName != 'net' || net.getElementsByTagName('layers').length != 1 || net.getElementsByTagName('edges').length != 1) {
+                var net$ = xml.documentElement;
+                if (!this.isIRCompliant(net$)) {
                     callback(new openvino.Error('File format is not OpenVINO IR.'), null);
                     return;
                 }
-                var model = new openvino.Model(metadata, net);
+                var model = new openvino.Model(metadata, net$);
                 callback(null, model);
                 return;
             } catch (error) {
@@ -40,12 +55,23 @@ openvino.ModelFactory = class {
             }
         });
     }
+
+    isIRCompliant(netElement) {
+        if (!netElement || netElement.nodeName != 'net') {
+            return false;
+        }
+
+        const countTopLevelLayers = openvino.Utils.countDirectChildrenByName(netElement, 'layers');
+        const countTopLevelEdges = openvino.Utils.countDirectChildrenByName(netElement, 'edges');
+
+        return countTopLevelLayers === 1 && countTopLevelEdges === 1;
+    }
 };
 
 openvino.Model = class {
 
-    constructor(metadata, net, init) {
-        var graph = new openvino.Graph(metadata, net, init);
+    constructor(metadata, net$, init) {
+        var graph = new openvino.Graph(metadata, net$, init);
         this._graphs = [ graph ];
     }
 
@@ -61,11 +87,11 @@ openvino.Model = class {
 
 openvino.Graph = class {
 
-    constructor(metadata, net, init) {
+    constructor(metadata, net$, init) {
         this._metadata = metadata;
-        this._name = net.getAttribute('name') || '';
-        this._batch = net.getAttribute('batch') || '';
-        this._version = net.getAttribute('version') || '';
+        this._name = net$.getAttribute('name') || '';
+        this._batch = net$.getAttribute('batch') || '';
+        this._version = net$.getAttribute('version') || '';
 
         this._nodes = [];
         this._operators = {};
@@ -74,42 +100,42 @@ openvino.Graph = class {
 
         this._connections = {};
 
-        var layersElement = net.getElementsByTagName('layers')[0];
-        var edgesElement = net.getElementsByTagName('edges')[0];
+        var layersElement$ = openvino.Utils.findDirectChildrenByName(net$, 'layers')[0];
+        var edgesElement$ = openvino.Utils.findDirectChildrenByName(net$, 'edges')[0];
 
-        var layers = Array.prototype.slice.call(layersElement.getElementsByTagName('layer'));
-        var edges = Array.prototype.slice.call(edgesElement.getElementsByTagName('edge'));
+        var layers = openvino.Utils.findDirectChildrenByName(layersElement$, 'layer');
+        var edges = openvino.Utils.findDirectChildrenByName(edgesElement$, 'edge');
 
         var edgeMap = {};
-        edges.forEach((edge) => {
-            var fromLayer = edge.getAttribute('from-layer');
-            var fromPort = edge.getAttribute('from-port');
-            var toLayer = edge.getAttribute('to-layer');
-            var toPort = edge.getAttribute('to-port');
+        edges.forEach((edge$) => {
+            var fromLayer = edge$.getAttribute('from-layer');
+            var fromPort = edge$.getAttribute('from-port');
+            var toLayer = edge$.getAttribute('to-layer');
+            var toPort = edge$.getAttribute('to-port');
             edgeMap[toLayer + ':' + toPort] = fromLayer + ':' + fromPort;
         });
 
-        layers.forEach((layer) => {
-            var operator = layer.getAttribute('type');
+        layers.forEach((layer$) => {
+            var operator = layer$.getAttribute('type');
             this._operators[operator] = (this._operators[operator] || 0) + 1;
 
             switch (operator) {
                 case 'Input':
                     var connections = [];
-                    var precision = layer.getAttribute('precision');
-                    var name = layer.getAttribute('name') || '';
-                    var id = layer.getAttribute('id');
-                    var outputElements = Array.prototype.slice.call(layer.getElementsByTagName('output'));
-                    outputElements.forEach((outputElement) => {
-                        var portElements = Array.prototype.slice.call(outputElement.getElementsByTagName('port'));
-                        portElements.forEach((portElement) => {
-                            connections.push(this._connection(id, precision, portElement, null));
+                    var precision = layer$.getAttribute('precision');
+                    var name = layer$.getAttribute('name') || '';
+                    var id = layer$.getAttribute('id');
+                    var outputElements = openvino.Utils.findDirectChildrenByName(layer$, 'output');
+                    outputElements.forEach((outputElement$) => {
+                        var portElements = openvino.Utils.findDirectChildrenByName(outputElement$, 'port');
+                        portElements.forEach((portElement$) => {
+                            connections.push(this._connection(id, precision, portElement$, null));
                         });
                     });
                     this._inputs.push(new openvino.Argument(name, connections));
                     break;
                 default:
-                    this._nodes.push(new openvino.Node(this, this._metadata, layer, this._version, edgeMap, layers));
+                    this._nodes.push(new openvino.Node(this, this._metadata, layer$, this._version, edgeMap, layers));
                     break;
             }
         });
