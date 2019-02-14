@@ -522,13 +522,13 @@ view.View = class {
                                     if (type.shape.dimensions.length == 0 && connection.initializer) {
                                         shape = connection.initializer.toString();
                                         separator = ' = ';
-                                    }     
+                                    }
                                 }
                                 block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', separator);
                             });
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '...' + '\u3009', '', null, '');
-                            }    
+                            }
 
                             attributes.forEach((attribute) => {
                                 if (attribute.visible) {
@@ -540,12 +540,12 @@ view.View = class {
                                 }
                             });
                         }
-                
+
                         if (edges) {
                             var inputs = node.inputs;
                             inputs.forEach((input) => {
                                 input.connections.forEach((connection) => {
-                                    if (!connection.initializer) {
+                                    if (connection.id != '' && !connection.initializer) {
                                         var tuple = edgeMap[connection.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
@@ -567,16 +567,18 @@ view.View = class {
                             }
                             outputs.forEach((output) => {
                                 output.connections.forEach((connection) => {
-                                    var tuple = edgeMap[connection.id];
-                                    if (!tuple) {
-                                        tuple = { from: null, to: [] };
-                                        edgeMap[connection.id] = tuple;
+                                    if (connection.id != '') {
+                                        var tuple = edgeMap[connection.id];
+                                        if (!tuple) {
+                                            tuple = { from: null, to: [] };
+                                            edgeMap[connection.id] = tuple;
+                                        }
+                                        tuple.from = { 
+                                            node: nodeId,
+                                            name: output.name,
+                                            type: connection.type
+                                        };
                                     }
-                                    tuple.from = { 
-                                        node: nodeId,
-                                        name: output.name,
-                                        type: connection.type
-                                    };
                                 });
                             });
                         }
