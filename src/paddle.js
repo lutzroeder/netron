@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var paddle = paddle || {};
 var protobuf = protobuf || require('protobufjs');
@@ -6,7 +7,7 @@ var base = base || require('./base');
 
 paddle.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
         if (identifier == '__model__' || extension == 'paddle') {
@@ -16,7 +17,7 @@ paddle.ModelFactory = class {
     }
 
     open(context, host, callback) {
-        host.require('./paddle-proto', (err, module) => {
+        host.require('./paddle-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;

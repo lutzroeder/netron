@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var coreml = coreml || {};
 var base = base || require('./base');
@@ -8,13 +9,13 @@ var marked = marked || require('marked');
 
 coreml.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         return extension == 'mlmodel';
     }
 
     open(context, host, callback) { 
-        host.require('./coreml-proto', (err, module) => {
+        host.require('./coreml-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -63,7 +64,7 @@ coreml.Model = class {
                 this._license = properties.license;
             }
             if (metadata.userDefined && Object.keys(properties.userDefined).length > 0) {
-                debugger;
+                /* empty */
             }
         }
     }
@@ -183,7 +184,6 @@ coreml.Graph = class {
             });
             var preprocessorOutput = preprocessingInput;
             var preprocessorIndex = 0;
-            var nodes = [];
             preprocessing.forEach((preprocessing) => {
                 var operator = preprocessing.preprocessor;
                 var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
@@ -247,9 +247,11 @@ coreml.Graph = class {
         }
         else if (model.glmClassifier) {
             this._createNode(scope, group, 'glmClassifier', null, 
-                { classEncoding: model.glmClassifier.classEncoding, 
-                  offset: model.glmClassifier.offset, 
-                  weights: model.glmClassifier.weights }, 
+                {
+                    classEncoding: model.glmClassifier.classEncoding, 
+                    offset: model.glmClassifier.offset, 
+                    weights: model.glmClassifier.weights 
+                }, 
                 [ model.description.input[0].name ],
                 [ model.description.predictedProbabilitiesName ]);
             this._updateClassifierOutput(group, model.glmClassifier);
@@ -270,8 +272,8 @@ coreml.Graph = class {
         }
         else if (model.featureVectorizer) {
             this._createNode(scope, group, 'featureVectorizer', null, model.featureVectorizer, 
-            coreml.Graph._formatFeatureDescriptionList(model.description.input),
-            [ model.description.output[0].name ]);
+                coreml.Graph._formatFeatureDescriptionList(model.description.input),
+                [ model.description.output[0].name ]);
             return 'Feature Vectorizer';
         }
         else if (model.treeEnsembleClassifier) {
@@ -289,14 +291,16 @@ coreml.Graph = class {
         }
         else if (model.supportVectorClassifier) {
             this._createNode(scope, group, 'supportVectorClassifier', null, 
-                { coefficients: model.supportVectorClassifier.coefficients, 
-                  denseSupportVectors: model.supportVectorClassifier.denseSupportVectors,
-                  kernel: model.supportVectorClassifier.kernel,
-                  numberOfSupportVectorsPerClass: model.supportVectorClassifier.numberOfSupportVectorsPerClass,
-                  probA: model.supportVectorClassifier.probA,
-                  probB: model.supportVectorClassifier.probB,
-                  rho: model.supportVectorClassifier.rho,
-                  supportVectors: model.supportVectorClassifier.supportVectors }, 
+                {   
+                    coefficients: model.supportVectorClassifier.coefficients, 
+                    denseSupportVectors: model.supportVectorClassifier.denseSupportVectors,
+                    kernel: model.supportVectorClassifier.kernel,
+                    numberOfSupportVectorsPerClass: model.supportVectorClassifier.numberOfSupportVectorsPerClass,
+                    probA: model.supportVectorClassifier.probA,
+                    probB: model.supportVectorClassifier.probB,
+                    rho: model.supportVectorClassifier.rho,
+                    supportVectors: model.supportVectorClassifier.supportVectors 
+                }, 
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             this._updateClassifierOutput(group, model.supportVectorClassifier);
@@ -304,10 +308,12 @@ coreml.Graph = class {
         }
         else if (model.supportVectorRegressor) {
             this._createNode(scope, group, 'supportVectorRegressor', null, 
-                { coefficients: model.supportVectorRegressor.coefficients, 
-                  kernel: model.supportVectorRegressor.kernel,
-                  rho: model.supportVectorRegressor.rho,
-                  supportVectors: model.supportVectorRegressor.supportVectors }, 
+                {
+                    coefficients: model.supportVectorRegressor.coefficients, 
+                    kernel: model.supportVectorRegressor.kernel,
+                    rho: model.supportVectorRegressor.rho,
+                    supportVectors: model.supportVectorRegressor.supportVectors 
+                }, 
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             return 'Support Vector Regressor';
@@ -353,10 +359,12 @@ coreml.Graph = class {
             this._createNode(scope, group, 'wordTagger', null, 
                 model.wordTagger,
                 [ model.description.input[0].name ],
-                [ model.wordTagger.tokensOutputFeatureName,
-                  model.wordTagger.tokenTagsOutputFeatureName,
-                  model.wordTagger.tokenLocationsOutputFeatureName,
-                  model.wordTagger.tokenLengthsOutputFeatureName ]);
+                [ 
+                    model.wordTagger.tokensOutputFeatureName,
+                    model.wordTagger.tokenTagsOutputFeatureName,
+                    model.wordTagger.tokenLocationsOutputFeatureName,
+                    model.wordTagger.tokenLengthsOutputFeatureName 
+                ]);
             return 'Word Tagger';
         }
         else if (model.textClassifier) {
@@ -702,7 +710,7 @@ coreml.Node = class {
                 data.modelParameterData = Array.from(data.modelParameterData);
                 data.stringClassLabels = this._convertVector(data.stringClassLabels);
                 return {};
-            }
+        }
         return {};
     }
 
@@ -979,7 +987,7 @@ coreml.TensorShape = class {
 
 coreml.MapType = class {
 
-    constructor(keyType, valueType, denotation) {
+    constructor(keyType, valueType) {
         this._keyType = keyType;
         this._valueType = valueType;
     }
@@ -1006,7 +1014,7 @@ coreml.ImageType = class {
                 this._colorSpace = 'Grayscale';
                 break;
             case coreml.proto.ImageFeatureType.ColorSpace.RGB:
-                    this._colorSpace = 'RGB';
+                this._colorSpace = 'RGB';
                 break;
             case coreml.proto.ImageFeatureType.ColorSpace.BGR:
                 this._colorSpace = 'BGR';

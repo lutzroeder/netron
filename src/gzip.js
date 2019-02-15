@@ -31,7 +31,7 @@ gzip.Entry = class {
         }
         var flags = reader.byte();
         reader.uint32(); // MTIME
-        var xflags = reader.byte();
+        reader.byte();
         reader.byte(); // OS
         if ((flags & 4) != 0) {
             var xlen = reader.uint16();
@@ -108,14 +108,14 @@ gzip.Reader = class {
 
     skip(size) {
         if (this._position + size > this._end) {
-            throw new zip.Error('Data not available.');
+            throw new gzip.Error('Data not available.');
         }
         this._position += size;
     }
 
     bytes(size) {
         if (this._position + size > this._end) {
-            throw new zip.Error('Data not available.');
+            throw new gzip.Error('Data not available.');
         }
         size = size === undefined ? this._end : size;
         var data = this._buffer.subarray(this._position, this._position + size);
@@ -125,7 +125,7 @@ gzip.Reader = class {
 
     byte() {
         if (this._position + 1 > this._end) {
-            throw new zip.Error('Data not available.');
+            throw new gzip.Error('Data not available.');
         }
         var value = this._buffer[this._position];
         this._position++;
@@ -134,7 +134,7 @@ gzip.Reader = class {
 
     uint16() {
         if (this._position + 2 > this._end) {
-            throw new zip.Error('Data not available.');
+            throw new gzip.Error('Data not available.');
         }
         var value = this._buffer[this._position] | (this._buffer[this._position + 1] << 8);
         this._position += 2;
@@ -149,7 +149,7 @@ gzip.Reader = class {
         var result = '';
         var end = this._buffer.indexOf(0x00, this._position);
         if (end < 0) {
-            throw new zip.Error('End of string not found.');
+            throw new gzip.Error('End of string not found.');
         }
         while (this._position < end) {
             result += String.fromCharCode(this._buffer[this._position++]);

@@ -11,11 +11,12 @@
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
     "scripts": {
+        "pull": "git pull --prune",
         "start": "[ -d node_modules ] || npm install && npx electron .",
         "server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@",
-        "test": "[ -d node_modules ] || npm install && node ./test/test.js",
+        "clean": "rm -rf ./build ./node_modules ./third_party",
         "update": "[ -d node_modules ] || npm install && ./tools/update",
-        "reset": "git fetch -p && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)"
+        "test": "[ -d node_modules ] || npm install && node ./test/test.js"
     },
     "dependencies": {
         "d3": "latest",
@@ -23,16 +24,32 @@
         "electron-updater": "^4.0.0",
         "flatbuffers": "latest",
         "handlebars": "latest",
+        "long": "latest",
         "marked": "latest",
         "npm-font-open-sans": "latest",
         "pako": "latest",
-        "long": "latest",
         "protobufjs": "lutzroeder/protobuf.js#pbtxt",
         "universal-analytics": "latest"
     },
     "devDependencies": {
         "electron": "latest",
         "electron-builder": "latest",
+        "eslint": "latest",
         "xmldom": "latest"
+    },
+    "eslintConfig": {
+        "env": {
+            "es6": true,
+            "browser": true, "node": true
+        },
+        "extends": "eslint:recommended",
+        "parserOptions": {
+            "ecmaVersion": 2015,
+            "sourceType": "module"
+        },
+        "rules": {
+            "indent": [ "error", 4 ],
+            "linebreak-style": [ "error", "unix" ]
+        }
     }
 }

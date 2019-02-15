@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var zip = zip || {};
 
@@ -390,7 +391,7 @@ zip.BitReader = class {
 
     bytes(size) {
         var value = this.buffer.subarray(this.position, this.position + size);
-        reader.position += size;
+        this.position += size;
         return value;
     }
 

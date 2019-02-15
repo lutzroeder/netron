@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var host = host || {};
 
@@ -80,7 +81,7 @@ host.BrowserHost = class {
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
-            openFileButton.addEventListener('click', (e) => {
+            openFileButton.addEventListener('click', () => {
                 openFileDialog.value = '';
                 openFileDialog.click();
             });
@@ -353,7 +354,6 @@ host.BrowserHost = class {
     }
 
     _openBuffer(file, callback) {
-        var size = file.size;
         var reader = new FileReader();
         reader.onload = (e) => {
             var buffer = new Uint8Array(e.target.result);

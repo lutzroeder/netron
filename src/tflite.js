@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var tflite = tflite || {};
 var base = base || require('./base');
@@ -7,7 +8,7 @@ var long = long || { Long: require('long') };
 
 tflite.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         return extension == 'tflite' || extension == 'lite';
     }
