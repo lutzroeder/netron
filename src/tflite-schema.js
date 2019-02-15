@@ -412,6 +412,17 @@ tflite_schema.CustomQuantization.endCustomQuantization = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} customOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.CustomQuantization.createCustomQuantization = function(builder, customOffset) {
+  tflite_schema.CustomQuantization.startCustomQuantization(builder);
+  tflite_schema.CustomQuantization.addCustom(builder, customOffset);
+  return tflite_schema.CustomQuantization.endCustomQuantization(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.QuantizationParameters = function() {
@@ -720,6 +731,29 @@ tflite_schema.QuantizationParameters.endQuantizationParameters = function(builde
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} minOffset
+ * @param {flatbuffers.Offset} maxOffset
+ * @param {flatbuffers.Offset} scaleOffset
+ * @param {flatbuffers.Offset} zeroPointOffset
+ * @param {tflite_schema.QuantizationDetails} detailsType
+ * @param {flatbuffers.Offset} detailsOffset
+ * @param {number} quantizedDimension
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.QuantizationParameters.createQuantizationParameters = function(builder, minOffset, maxOffset, scaleOffset, zeroPointOffset, detailsType, detailsOffset, quantizedDimension) {
+  tflite_schema.QuantizationParameters.startQuantizationParameters(builder);
+  tflite_schema.QuantizationParameters.addMin(builder, minOffset);
+  tflite_schema.QuantizationParameters.addMax(builder, maxOffset);
+  tflite_schema.QuantizationParameters.addScale(builder, scaleOffset);
+  tflite_schema.QuantizationParameters.addZeroPoint(builder, zeroPointOffset);
+  tflite_schema.QuantizationParameters.addDetailsType(builder, detailsType);
+  tflite_schema.QuantizationParameters.addDetails(builder, detailsOffset);
+  tflite_schema.QuantizationParameters.addQuantizedDimension(builder, quantizedDimension);
+  return tflite_schema.QuantizationParameters.endQuantizationParameters(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.Tensor = function() {
@@ -907,6 +941,27 @@ tflite_schema.Tensor.endTensor = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} shapeOffset
+ * @param {tflite_schema.TensorType} type
+ * @param {number} buffer
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {flatbuffers.Offset} quantizationOffset
+ * @param {boolean} isVariable
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Tensor.createTensor = function(builder, shapeOffset, type, buffer, nameOffset, quantizationOffset, isVariable) {
+  tflite_schema.Tensor.startTensor(builder);
+  tflite_schema.Tensor.addShape(builder, shapeOffset);
+  tflite_schema.Tensor.addType(builder, type);
+  tflite_schema.Tensor.addBuffer(builder, buffer);
+  tflite_schema.Tensor.addName(builder, nameOffset);
+  tflite_schema.Tensor.addQuantization(builder, quantizationOffset);
+  tflite_schema.Tensor.addIsVariable(builder, isVariable);
+  return tflite_schema.Tensor.endTensor(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.Conv2DOptions = function() {
@@ -1054,6 +1109,27 @@ tflite_schema.Conv2DOptions.endConv2DOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.Padding} padding
+ * @param {number} strideW
+ * @param {number} strideH
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @param {number} dilationWFactor
+ * @param {number} dilationHFactor
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Conv2DOptions.createConv2DOptions = function(builder, padding, strideW, strideH, fusedActivationFunction, dilationWFactor, dilationHFactor) {
+  tflite_schema.Conv2DOptions.startConv2DOptions(builder);
+  tflite_schema.Conv2DOptions.addPadding(builder, padding);
+  tflite_schema.Conv2DOptions.addStrideW(builder, strideW);
+  tflite_schema.Conv2DOptions.addStrideH(builder, strideH);
+  tflite_schema.Conv2DOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  tflite_schema.Conv2DOptions.addDilationWFactor(builder, dilationWFactor);
+  tflite_schema.Conv2DOptions.addDilationHFactor(builder, dilationHFactor);
+  return tflite_schema.Conv2DOptions.endConv2DOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.Pool2DOptions = function() {
@@ -1199,6 +1275,27 @@ tflite_schema.Pool2DOptions.endPool2DOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.Padding} padding
+ * @param {number} strideW
+ * @param {number} strideH
+ * @param {number} filterWidth
+ * @param {number} filterHeight
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Pool2DOptions.createPool2DOptions = function(builder, padding, strideW, strideH, filterWidth, filterHeight, fusedActivationFunction) {
+  tflite_schema.Pool2DOptions.startPool2DOptions(builder);
+  tflite_schema.Pool2DOptions.addPadding(builder, padding);
+  tflite_schema.Pool2DOptions.addStrideW(builder, strideW);
+  tflite_schema.Pool2DOptions.addStrideH(builder, strideH);
+  tflite_schema.Pool2DOptions.addFilterWidth(builder, filterWidth);
+  tflite_schema.Pool2DOptions.addFilterHeight(builder, filterHeight);
+  tflite_schema.Pool2DOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.Pool2DOptions.endPool2DOptions(builder);
+}
 
 /**
  * @constructor
@@ -1362,6 +1459,29 @@ tflite_schema.DepthwiseConv2DOptions.endDepthwiseConv2DOptions = function(builde
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.Padding} padding
+ * @param {number} strideW
+ * @param {number} strideH
+ * @param {number} depthMultiplier
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @param {number} dilationWFactor
+ * @param {number} dilationHFactor
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.DepthwiseConv2DOptions.createDepthwiseConv2DOptions = function(builder, padding, strideW, strideH, depthMultiplier, fusedActivationFunction, dilationWFactor, dilationHFactor) {
+  tflite_schema.DepthwiseConv2DOptions.startDepthwiseConv2DOptions(builder);
+  tflite_schema.DepthwiseConv2DOptions.addPadding(builder, padding);
+  tflite_schema.DepthwiseConv2DOptions.addStrideW(builder, strideW);
+  tflite_schema.DepthwiseConv2DOptions.addStrideH(builder, strideH);
+  tflite_schema.DepthwiseConv2DOptions.addDepthMultiplier(builder, depthMultiplier);
+  tflite_schema.DepthwiseConv2DOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  tflite_schema.DepthwiseConv2DOptions.addDilationWFactor(builder, dilationWFactor);
+  tflite_schema.DepthwiseConv2DOptions.addDilationHFactor(builder, dilationHFactor);
+  return tflite_schema.DepthwiseConv2DOptions.endDepthwiseConv2DOptions(builder);
+}
 
 /**
  * @constructor
@@ -1539,6 +1659,21 @@ tflite_schema.ConcatEmbeddingsOptions.endConcatEmbeddingsOptions = function(buil
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numChannels
+ * @param {flatbuffers.Offset} numColumnsPerChannelOffset
+ * @param {flatbuffers.Offset} embeddingDimPerChannelOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ConcatEmbeddingsOptions.createConcatEmbeddingsOptions = function(builder, numChannels, numColumnsPerChannelOffset, embeddingDimPerChannelOffset) {
+  tflite_schema.ConcatEmbeddingsOptions.startConcatEmbeddingsOptions(builder);
+  tflite_schema.ConcatEmbeddingsOptions.addNumChannels(builder, numChannels);
+  tflite_schema.ConcatEmbeddingsOptions.addNumColumnsPerChannel(builder, numColumnsPerChannelOffset);
+  tflite_schema.ConcatEmbeddingsOptions.addEmbeddingDimPerChannel(builder, embeddingDimPerChannelOffset);
+  return tflite_schema.ConcatEmbeddingsOptions.endConcatEmbeddingsOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.LSHProjectionOptions = function() {
@@ -1604,6 +1739,17 @@ tflite_schema.LSHProjectionOptions.endLSHProjectionOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.LSHProjectionType} type
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LSHProjectionOptions.createLSHProjectionOptions = function(builder, type) {
+  tflite_schema.LSHProjectionOptions.startLSHProjectionOptions(builder);
+  tflite_schema.LSHProjectionOptions.addType(builder, type);
+  return tflite_schema.LSHProjectionOptions.endLSHProjectionOptions(builder);
+}
 
 /**
  * @constructor
@@ -1689,6 +1835,19 @@ tflite_schema.SVDFOptions.endSVDFOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} rank
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SVDFOptions.createSVDFOptions = function(builder, rank, fusedActivationFunction) {
+  tflite_schema.SVDFOptions.startSVDFOptions(builder);
+  tflite_schema.SVDFOptions.addRank(builder, rank);
+  tflite_schema.SVDFOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.SVDFOptions.endSVDFOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.RNNOptions = function() {
@@ -1754,6 +1913,17 @@ tflite_schema.RNNOptions.endRNNOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.RNNOptions.createRNNOptions = function(builder, fusedActivationFunction) {
+  tflite_schema.RNNOptions.startRNNOptions(builder);
+  tflite_schema.RNNOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.RNNOptions.endRNNOptions(builder);
+}
 
 /**
  * @constructor
@@ -1837,6 +2007,19 @@ tflite_schema.SequenceRNNOptions.endSequenceRNNOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} timeMajor
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SequenceRNNOptions.createSequenceRNNOptions = function(builder, timeMajor, fusedActivationFunction) {
+  tflite_schema.SequenceRNNOptions.startSequenceRNNOptions(builder);
+  tflite_schema.SequenceRNNOptions.addTimeMajor(builder, timeMajor);
+  tflite_schema.SequenceRNNOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.SequenceRNNOptions.endSequenceRNNOptions(builder);
+}
 
 /**
  * @constructor
@@ -1938,6 +2121,21 @@ tflite_schema.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} timeMajor
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @param {boolean} mergeOutputs
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.BidirectionalSequenceRNNOptions.createBidirectionalSequenceRNNOptions = function(builder, timeMajor, fusedActivationFunction, mergeOutputs) {
+  tflite_schema.BidirectionalSequenceRNNOptions.startBidirectionalSequenceRNNOptions(builder);
+  tflite_schema.BidirectionalSequenceRNNOptions.addTimeMajor(builder, timeMajor);
+  tflite_schema.BidirectionalSequenceRNNOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  tflite_schema.BidirectionalSequenceRNNOptions.addMergeOutputs(builder, mergeOutputs);
+  return tflite_schema.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.FullyConnectedOptions = function() {
@@ -2021,6 +2219,19 @@ tflite_schema.FullyConnectedOptions.endFullyConnectedOptions = function(builder)
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite_schema.FullyConnectedOptionsWeightsFormat} weightsFormat
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.FullyConnectedOptions.createFullyConnectedOptions = function(builder, fusedActivationFunction, weightsFormat) {
+  tflite_schema.FullyConnectedOptions.startFullyConnectedOptions(builder);
+  tflite_schema.FullyConnectedOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  tflite_schema.FullyConnectedOptions.addWeightsFormat(builder, weightsFormat);
+  return tflite_schema.FullyConnectedOptions.endFullyConnectedOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SoftmaxOptions = function() {
@@ -2086,6 +2297,17 @@ tflite_schema.SoftmaxOptions.endSoftmaxOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} beta
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SoftmaxOptions.createSoftmaxOptions = function(builder, beta) {
+  tflite_schema.SoftmaxOptions.startSoftmaxOptions(builder);
+  tflite_schema.SoftmaxOptions.addBeta(builder, beta);
+  return tflite_schema.SoftmaxOptions.endSoftmaxOptions(builder);
+}
 
 /**
  * @constructor
@@ -2171,6 +2393,19 @@ tflite_schema.ConcatenationOptions.endConcatenationOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ConcatenationOptions.createConcatenationOptions = function(builder, axis, fusedActivationFunction) {
+  tflite_schema.ConcatenationOptions.startConcatenationOptions(builder);
+  tflite_schema.ConcatenationOptions.addAxis(builder, axis);
+  tflite_schema.ConcatenationOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.ConcatenationOptions.endConcatenationOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.AddOptions = function() {
@@ -2236,6 +2471,17 @@ tflite_schema.AddOptions.endAddOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.AddOptions.createAddOptions = function(builder, fusedActivationFunction) {
+  tflite_schema.AddOptions.startAddOptions(builder);
+  tflite_schema.AddOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.AddOptions.endAddOptions(builder);
+}
 
 /**
  * @constructor
@@ -2305,6 +2551,17 @@ tflite_schema.MulOptions.endMulOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.MulOptions.createMulOptions = function(builder, fusedActivationFunction) {
+  tflite_schema.MulOptions.startMulOptions(builder);
+  tflite_schema.MulOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.MulOptions.endMulOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.L2NormOptions = function() {
@@ -2370,6 +2627,17 @@ tflite_schema.L2NormOptions.endL2NormOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.L2NormOptions.createL2NormOptions = function(builder, fusedActivationFunction) {
+  tflite_schema.L2NormOptions.startL2NormOptions(builder);
+  tflite_schema.L2NormOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.L2NormOptions.endL2NormOptions(builder);
+}
 
 /**
  * @constructor
@@ -2487,6 +2755,23 @@ tflite_schema.LocalResponseNormalizationOptions.endLocalResponseNormalizationOpt
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} radius
+ * @param {number} bias
+ * @param {number} alpha
+ * @param {number} beta
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LocalResponseNormalizationOptions.createLocalResponseNormalizationOptions = function(builder, radius, bias, alpha, beta) {
+  tflite_schema.LocalResponseNormalizationOptions.startLocalResponseNormalizationOptions(builder);
+  tflite_schema.LocalResponseNormalizationOptions.addRadius(builder, radius);
+  tflite_schema.LocalResponseNormalizationOptions.addBias(builder, bias);
+  tflite_schema.LocalResponseNormalizationOptions.addAlpha(builder, alpha);
+  tflite_schema.LocalResponseNormalizationOptions.addBeta(builder, beta);
+  return tflite_schema.LocalResponseNormalizationOptions.endLocalResponseNormalizationOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.LSTMOptions = function() {
@@ -2602,6 +2887,23 @@ tflite_schema.LSTMOptions.endLSTMOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @param {number} cellClip
+ * @param {number} projClip
+ * @param {tflite_schema.LSTMKernelType} kernelType
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LSTMOptions.createLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, kernelType) {
+  tflite_schema.LSTMOptions.startLSTMOptions(builder);
+  tflite_schema.LSTMOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  tflite_schema.LSTMOptions.addCellClip(builder, cellClip);
+  tflite_schema.LSTMOptions.addProjClip(builder, projClip);
+  tflite_schema.LSTMOptions.addKernelType(builder, kernelType);
+  return tflite_schema.LSTMOptions.endLSTMOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.UnidirectionalSequenceLSTMOptions = function() {
@@ -2715,6 +3017,23 @@ tflite_schema.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOpt
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @param {number} cellClip
+ * @param {number} projClip
+ * @param {boolean} timeMajor
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.UnidirectionalSequenceLSTMOptions.createUnidirectionalSequenceLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, timeMajor) {
+  tflite_schema.UnidirectionalSequenceLSTMOptions.startUnidirectionalSequenceLSTMOptions(builder);
+  tflite_schema.UnidirectionalSequenceLSTMOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  tflite_schema.UnidirectionalSequenceLSTMOptions.addCellClip(builder, cellClip);
+  tflite_schema.UnidirectionalSequenceLSTMOptions.addProjClip(builder, projClip);
+  tflite_schema.UnidirectionalSequenceLSTMOptions.addTimeMajor(builder, timeMajor);
+  return tflite_schema.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOptions(builder);
+}
 
 /**
  * @constructor
@@ -2848,6 +3167,25 @@ tflite_schema.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptio
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @param {number} cellClip
+ * @param {number} projClip
+ * @param {boolean} mergeOutputs
+ * @param {boolean} timeMajor
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.BidirectionalSequenceLSTMOptions.createBidirectionalSequenceLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, mergeOutputs, timeMajor) {
+  tflite_schema.BidirectionalSequenceLSTMOptions.startBidirectionalSequenceLSTMOptions(builder);
+  tflite_schema.BidirectionalSequenceLSTMOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  tflite_schema.BidirectionalSequenceLSTMOptions.addCellClip(builder, cellClip);
+  tflite_schema.BidirectionalSequenceLSTMOptions.addProjClip(builder, projClip);
+  tflite_schema.BidirectionalSequenceLSTMOptions.addMergeOutputs(builder, mergeOutputs);
+  tflite_schema.BidirectionalSequenceLSTMOptions.addTimeMajor(builder, timeMajor);
+  return tflite_schema.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.ResizeBilinearOptions = function() {
@@ -2913,6 +3251,17 @@ tflite_schema.ResizeBilinearOptions.endResizeBilinearOptions = function(builder)
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} alignCorners
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ResizeBilinearOptions.createResizeBilinearOptions = function(builder, alignCorners) {
+  tflite_schema.ResizeBilinearOptions.startResizeBilinearOptions(builder);
+  tflite_schema.ResizeBilinearOptions.addAlignCorners(builder, alignCorners);
+  return tflite_schema.ResizeBilinearOptions.endResizeBilinearOptions(builder);
+}
 
 /**
  * @constructor
@@ -2982,6 +3331,17 @@ tflite_schema.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions = fun
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} alignCorners
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ResizeNearestNeighborOptions.createResizeNearestNeighborOptions = function(builder, alignCorners) {
+  tflite_schema.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions(builder);
+  tflite_schema.ResizeNearestNeighborOptions.addAlignCorners(builder, alignCorners);
+  return tflite_schema.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.CallOptions = function() {
@@ -3049,6 +3409,17 @@ tflite_schema.CallOptions.endCallOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} subgraph
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.CallOptions.createCallOptions = function(builder, subgraph) {
+  tflite_schema.CallOptions.startCallOptions(builder);
+  tflite_schema.CallOptions.addSubgraph(builder, subgraph);
+  return tflite_schema.CallOptions.endCallOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.PadOptions = function() {
@@ -3100,6 +3471,15 @@ tflite_schema.PadOptions.endPadOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.PadOptions.createPadOptions = function(builder) {
+  tflite_schema.PadOptions.startPadOptions(builder);
+  return tflite_schema.PadOptions.endPadOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.PadV2Options = function() {
@@ -3149,6 +3529,15 @@ tflite_schema.PadV2Options.endPadV2Options = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.PadV2Options.createPadV2Options = function(builder) {
+  tflite_schema.PadV2Options.startPadV2Options(builder);
+  return tflite_schema.PadV2Options.endPadV2Options(builder);
+}
 
 /**
  * @constructor
@@ -3256,6 +3645,17 @@ tflite_schema.ReshapeOptions.endReshapeOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} newShapeOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ReshapeOptions.createReshapeOptions = function(builder, newShapeOffset) {
+  tflite_schema.ReshapeOptions.startReshapeOptions(builder);
+  tflite_schema.ReshapeOptions.addNewShape(builder, newShapeOffset);
+  return tflite_schema.ReshapeOptions.endReshapeOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SpaceToBatchNDOptions = function() {
@@ -3307,6 +3707,15 @@ tflite_schema.SpaceToBatchNDOptions.endSpaceToBatchNDOptions = function(builder)
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SpaceToBatchNDOptions.createSpaceToBatchNDOptions = function(builder) {
+  tflite_schema.SpaceToBatchNDOptions.startSpaceToBatchNDOptions(builder);
+  return tflite_schema.SpaceToBatchNDOptions.endSpaceToBatchNDOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.BatchToSpaceNDOptions = function() {
@@ -3356,6 +3765,15 @@ tflite_schema.BatchToSpaceNDOptions.endBatchToSpaceNDOptions = function(builder)
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.BatchToSpaceNDOptions.createBatchToSpaceNDOptions = function(builder) {
+  tflite_schema.BatchToSpaceNDOptions.startBatchToSpaceNDOptions(builder);
+  return tflite_schema.BatchToSpaceNDOptions.endBatchToSpaceNDOptions(builder);
+}
 
 /**
  * @constructor
@@ -3457,6 +3875,21 @@ tflite_schema.SkipGramOptions.endSkipGramOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} ngramSize
+ * @param {number} maxSkipSize
+ * @param {boolean} includeAllNgrams
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SkipGramOptions.createSkipGramOptions = function(builder, ngramSize, maxSkipSize, includeAllNgrams) {
+  tflite_schema.SkipGramOptions.startSkipGramOptions(builder);
+  tflite_schema.SkipGramOptions.addNgramSize(builder, ngramSize);
+  tflite_schema.SkipGramOptions.addMaxSkipSize(builder, maxSkipSize);
+  tflite_schema.SkipGramOptions.addIncludeAllNgrams(builder, includeAllNgrams);
+  return tflite_schema.SkipGramOptions.endSkipGramOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SpaceToDepthOptions = function() {
@@ -3522,6 +3955,17 @@ tflite_schema.SpaceToDepthOptions.endSpaceToDepthOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} blockSize
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SpaceToDepthOptions.createSpaceToDepthOptions = function(builder, blockSize) {
+  tflite_schema.SpaceToDepthOptions.startSpaceToDepthOptions(builder);
+  tflite_schema.SpaceToDepthOptions.addBlockSize(builder, blockSize);
+  return tflite_schema.SpaceToDepthOptions.endSpaceToDepthOptions(builder);
+}
 
 /**
  * @constructor
@@ -3591,6 +4035,17 @@ tflite_schema.SubOptions.endSubOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SubOptions.createSubOptions = function(builder, fusedActivationFunction) {
+  tflite_schema.SubOptions.startSubOptions(builder);
+  tflite_schema.SubOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.SubOptions.endSubOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.DivOptions = function() {
@@ -3658,6 +4113,17 @@ tflite_schema.DivOptions.endDivOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.DivOptions.createDivOptions = function(builder, fusedActivationFunction) {
+  tflite_schema.DivOptions.startDivOptions(builder);
+  tflite_schema.DivOptions.addFusedActivationFunction(builder, fusedActivationFunction);
+  return tflite_schema.DivOptions.endDivOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.TopKV2Options = function() {
@@ -3707,6 +4173,15 @@ tflite_schema.TopKV2Options.endTopKV2Options = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.TopKV2Options.createTopKV2Options = function(builder) {
+  tflite_schema.TopKV2Options.startTopKV2Options(builder);
+  return tflite_schema.TopKV2Options.endTopKV2Options(builder);
+}
 
 /**
  * @constructor
@@ -3776,6 +4251,17 @@ tflite_schema.EmbeddingLookupSparseOptions.endEmbeddingLookupSparseOptions = fun
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.CombinerType} combiner
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.EmbeddingLookupSparseOptions.createEmbeddingLookupSparseOptions = function(builder, combiner) {
+  tflite_schema.EmbeddingLookupSparseOptions.startEmbeddingLookupSparseOptions(builder);
+  tflite_schema.EmbeddingLookupSparseOptions.addCombiner(builder, combiner);
+  return tflite_schema.EmbeddingLookupSparseOptions.endEmbeddingLookupSparseOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.GatherOptions = function() {
@@ -3843,6 +4329,17 @@ tflite_schema.GatherOptions.endGatherOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.GatherOptions.createGatherOptions = function(builder, axis) {
+  tflite_schema.GatherOptions.startGatherOptions(builder);
+  tflite_schema.GatherOptions.addAxis(builder, axis);
+  return tflite_schema.GatherOptions.endGatherOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.TransposeOptions = function() {
@@ -3892,6 +4389,15 @@ tflite_schema.TransposeOptions.endTransposeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.TransposeOptions.createTransposeOptions = function(builder) {
+  tflite_schema.TransposeOptions.startTransposeOptions(builder);
+  return tflite_schema.TransposeOptions.endTransposeOptions(builder);
+}
 
 /**
  * @constructor
@@ -3945,6 +4451,15 @@ tflite_schema.ExpOptions.endExpOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ExpOptions.createExpOptions = function(builder) {
+  tflite_schema.ExpOptions.startExpOptions(builder);
+  return tflite_schema.ExpOptions.endExpOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.CosOptions = function() {
@@ -3994,6 +4509,15 @@ tflite_schema.CosOptions.endCosOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.CosOptions.createCosOptions = function(builder) {
+  tflite_schema.CosOptions.startCosOptions(builder);
+  return tflite_schema.CosOptions.endCosOptions(builder);
+}
 
 /**
  * @constructor
@@ -4061,6 +4585,17 @@ tflite_schema.ReducerOptions.endReducerOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} keepDims
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ReducerOptions.createReducerOptions = function(builder, keepDims) {
+  tflite_schema.ReducerOptions.startReducerOptions(builder);
+  tflite_schema.ReducerOptions.addKeepDims(builder, keepDims);
+  return tflite_schema.ReducerOptions.endReducerOptions(builder);
+}
 
 /**
  * @constructor
@@ -4168,6 +4703,17 @@ tflite_schema.SqueezeOptions.endSqueezeOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} squeezeDimsOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SqueezeOptions.createSqueezeOptions = function(builder, squeezeDimsOffset) {
+  tflite_schema.SqueezeOptions.startSqueezeOptions(builder);
+  tflite_schema.SqueezeOptions.addSqueezeDims(builder, squeezeDimsOffset);
+  return tflite_schema.SqueezeOptions.endSqueezeOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SplitOptions = function() {
@@ -4235,6 +4781,17 @@ tflite_schema.SplitOptions.endSplitOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numSplits
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SplitOptions.createSplitOptions = function(builder, numSplits) {
+  tflite_schema.SplitOptions.startSplitOptions(builder);
+  tflite_schema.SplitOptions.addNumSplits(builder, numSplits);
+  return tflite_schema.SplitOptions.endSplitOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SplitVOptions = function() {
@@ -4300,6 +4857,17 @@ tflite_schema.SplitVOptions.endSplitVOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numSplits
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SplitVOptions.createSplitVOptions = function(builder, numSplits) {
+  tflite_schema.SplitVOptions.startSplitVOptions(builder);
+  tflite_schema.SplitVOptions.addNumSplits(builder, numSplits);
+  return tflite_schema.SplitVOptions.endSplitVOptions(builder);
+}
 
 /**
  * @constructor
@@ -4433,6 +5001,25 @@ tflite_schema.StridedSliceOptions.endStridedSliceOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} beginMask
+ * @param {number} endMask
+ * @param {number} ellipsisMask
+ * @param {number} newAxisMask
+ * @param {number} shrinkAxisMask
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.StridedSliceOptions.createStridedSliceOptions = function(builder, beginMask, endMask, ellipsisMask, newAxisMask, shrinkAxisMask) {
+  tflite_schema.StridedSliceOptions.startStridedSliceOptions(builder);
+  tflite_schema.StridedSliceOptions.addBeginMask(builder, beginMask);
+  tflite_schema.StridedSliceOptions.addEndMask(builder, endMask);
+  tflite_schema.StridedSliceOptions.addEllipsisMask(builder, ellipsisMask);
+  tflite_schema.StridedSliceOptions.addNewAxisMask(builder, newAxisMask);
+  tflite_schema.StridedSliceOptions.addShrinkAxisMask(builder, shrinkAxisMask);
+  return tflite_schema.StridedSliceOptions.endStridedSliceOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.LogSoftmaxOptions = function() {
@@ -4482,6 +5069,15 @@ tflite_schema.LogSoftmaxOptions.endLogSoftmaxOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LogSoftmaxOptions.createLogSoftmaxOptions = function(builder) {
+  tflite_schema.LogSoftmaxOptions.startLogSoftmaxOptions(builder);
+  return tflite_schema.LogSoftmaxOptions.endLogSoftmaxOptions(builder);
+}
 
 /**
  * @constructor
@@ -4567,6 +5163,19 @@ tflite_schema.CastOptions.endCastOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.TensorType} inDataType
+ * @param {tflite_schema.TensorType} outDataType
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.CastOptions.createCastOptions = function(builder, inDataType, outDataType) {
+  tflite_schema.CastOptions.startCastOptions(builder);
+  tflite_schema.CastOptions.addInDataType(builder, inDataType);
+  tflite_schema.CastOptions.addOutDataType(builder, outDataType);
+  return tflite_schema.CastOptions.endCastOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.DequantizeOptions = function() {
@@ -4616,6 +5225,15 @@ tflite_schema.DequantizeOptions.endDequantizeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.DequantizeOptions.createDequantizeOptions = function(builder) {
+  tflite_schema.DequantizeOptions.startDequantizeOptions(builder);
+  return tflite_schema.DequantizeOptions.endDequantizeOptions(builder);
+}
 
 /**
  * @constructor
@@ -4669,6 +5287,15 @@ tflite_schema.MaximumMinimumOptions.endMaximumMinimumOptions = function(builder)
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.MaximumMinimumOptions.createMaximumMinimumOptions = function(builder) {
+  tflite_schema.MaximumMinimumOptions.startMaximumMinimumOptions(builder);
+  return tflite_schema.MaximumMinimumOptions.endMaximumMinimumOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.TileOptions = function() {
@@ -4718,6 +5345,15 @@ tflite_schema.TileOptions.endTileOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.TileOptions.createTileOptions = function(builder) {
+  tflite_schema.TileOptions.startTileOptions(builder);
+  return tflite_schema.TileOptions.endTileOptions(builder);
+}
 
 /**
  * @constructor
@@ -4787,6 +5423,17 @@ tflite_schema.ArgMaxOptions.endArgMaxOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.TensorType} outputType
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ArgMaxOptions.createArgMaxOptions = function(builder, outputType) {
+  tflite_schema.ArgMaxOptions.startArgMaxOptions(builder);
+  tflite_schema.ArgMaxOptions.addOutputType(builder, outputType);
+  return tflite_schema.ArgMaxOptions.endArgMaxOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.ArgMinOptions = function() {
@@ -4854,6 +5501,17 @@ tflite_schema.ArgMinOptions.endArgMinOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.TensorType} outputType
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ArgMinOptions.createArgMinOptions = function(builder, outputType) {
+  tflite_schema.ArgMinOptions.startArgMinOptions(builder);
+  tflite_schema.ArgMinOptions.addOutputType(builder, outputType);
+  return tflite_schema.ArgMinOptions.endArgMinOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.GreaterOptions = function() {
@@ -4903,6 +5561,15 @@ tflite_schema.GreaterOptions.endGreaterOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.GreaterOptions.createGreaterOptions = function(builder) {
+  tflite_schema.GreaterOptions.startGreaterOptions(builder);
+  return tflite_schema.GreaterOptions.endGreaterOptions(builder);
+}
 
 /**
  * @constructor
@@ -4956,6 +5623,15 @@ tflite_schema.GreaterEqualOptions.endGreaterEqualOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.GreaterEqualOptions.createGreaterEqualOptions = function(builder) {
+  tflite_schema.GreaterEqualOptions.startGreaterEqualOptions(builder);
+  return tflite_schema.GreaterEqualOptions.endGreaterEqualOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.LessOptions = function() {
@@ -5005,6 +5681,15 @@ tflite_schema.LessOptions.endLessOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LessOptions.createLessOptions = function(builder) {
+  tflite_schema.LessOptions.startLessOptions(builder);
+  return tflite_schema.LessOptions.endLessOptions(builder);
+}
 
 /**
  * @constructor
@@ -5058,6 +5743,15 @@ tflite_schema.LessEqualOptions.endLessEqualOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LessEqualOptions.createLessEqualOptions = function(builder) {
+  tflite_schema.LessEqualOptions.startLessEqualOptions(builder);
+  return tflite_schema.LessEqualOptions.endLessEqualOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.NegOptions = function() {
@@ -5107,6 +5801,15 @@ tflite_schema.NegOptions.endNegOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.NegOptions.createNegOptions = function(builder) {
+  tflite_schema.NegOptions.startNegOptions(builder);
+  return tflite_schema.NegOptions.endNegOptions(builder);
+}
 
 /**
  * @constructor
@@ -5160,6 +5863,15 @@ tflite_schema.SelectOptions.endSelectOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SelectOptions.createSelectOptions = function(builder) {
+  tflite_schema.SelectOptions.startSelectOptions(builder);
+  return tflite_schema.SelectOptions.endSelectOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SliceOptions = function() {
@@ -5209,6 +5921,15 @@ tflite_schema.SliceOptions.endSliceOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SliceOptions.createSliceOptions = function(builder) {
+  tflite_schema.SliceOptions.startSliceOptions(builder);
+  return tflite_schema.SliceOptions.endSliceOptions(builder);
+}
 
 /**
  * @constructor
@@ -5310,6 +6031,21 @@ tflite_schema.TransposeConvOptions.endTransposeConvOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.Padding} padding
+ * @param {number} strideW
+ * @param {number} strideH
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.TransposeConvOptions.createTransposeConvOptions = function(builder, padding, strideW, strideH) {
+  tflite_schema.TransposeConvOptions.startTransposeConvOptions(builder);
+  tflite_schema.TransposeConvOptions.addPadding(builder, padding);
+  tflite_schema.TransposeConvOptions.addStrideW(builder, strideW);
+  tflite_schema.TransposeConvOptions.addStrideH(builder, strideH);
+  return tflite_schema.TransposeConvOptions.endTransposeConvOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.ExpandDimsOptions = function() {
@@ -5359,6 +6095,15 @@ tflite_schema.ExpandDimsOptions.endExpandDimsOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ExpandDimsOptions.createExpandDimsOptions = function(builder) {
+  tflite_schema.ExpandDimsOptions.startExpandDimsOptions(builder);
+  return tflite_schema.ExpandDimsOptions.endExpandDimsOptions(builder);
+}
 
 /**
  * @constructor
@@ -5428,6 +6173,17 @@ tflite_schema.SparseToDenseOptions.endSparseToDenseOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} validateIndices
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SparseToDenseOptions.createSparseToDenseOptions = function(builder, validateIndices) {
+  tflite_schema.SparseToDenseOptions.startSparseToDenseOptions(builder);
+  tflite_schema.SparseToDenseOptions.addValidateIndices(builder, validateIndices);
+  return tflite_schema.SparseToDenseOptions.endSparseToDenseOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.EqualOptions = function() {
@@ -5479,6 +6235,15 @@ tflite_schema.EqualOptions.endEqualOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.EqualOptions.createEqualOptions = function(builder) {
+  tflite_schema.EqualOptions.startEqualOptions(builder);
+  return tflite_schema.EqualOptions.endEqualOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.NotEqualOptions = function() {
@@ -5528,6 +6293,15 @@ tflite_schema.NotEqualOptions.endNotEqualOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.NotEqualOptions.createNotEqualOptions = function(builder) {
+  tflite_schema.NotEqualOptions.startNotEqualOptions(builder);
+  return tflite_schema.NotEqualOptions.endNotEqualOptions(builder);
+}
 
 /**
  * @constructor
@@ -5597,6 +6371,17 @@ tflite_schema.ShapeOptions.endShapeOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.TensorType} outType
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ShapeOptions.createShapeOptions = function(builder, outType) {
+  tflite_schema.ShapeOptions.startShapeOptions(builder);
+  tflite_schema.ShapeOptions.addOutType(builder, outType);
+  return tflite_schema.ShapeOptions.endShapeOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.PowOptions = function() {
@@ -5646,6 +6431,15 @@ tflite_schema.PowOptions.endPowOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.PowOptions.createPowOptions = function(builder) {
+  tflite_schema.PowOptions.startPowOptions(builder);
+  return tflite_schema.PowOptions.endPowOptions(builder);
+}
 
 /**
  * @constructor
@@ -5763,6 +6557,23 @@ tflite_schema.FakeQuantOptions.endFakeQuantOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} min
+ * @param {number} max
+ * @param {number} numBits
+ * @param {boolean} narrowRange
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.FakeQuantOptions.createFakeQuantOptions = function(builder, min, max, numBits, narrowRange) {
+  tflite_schema.FakeQuantOptions.startFakeQuantOptions(builder);
+  tflite_schema.FakeQuantOptions.addMin(builder, min);
+  tflite_schema.FakeQuantOptions.addMax(builder, max);
+  tflite_schema.FakeQuantOptions.addNumBits(builder, numBits);
+  tflite_schema.FakeQuantOptions.addNarrowRange(builder, narrowRange);
+  return tflite_schema.FakeQuantOptions.endFakeQuantOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.PackOptions = function() {
@@ -5846,6 +6657,19 @@ tflite_schema.PackOptions.endPackOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} valuesCount
+ * @param {number} axis
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.PackOptions.createPackOptions = function(builder, valuesCount, axis) {
+  tflite_schema.PackOptions.startPackOptions(builder);
+  tflite_schema.PackOptions.addValuesCount(builder, valuesCount);
+  tflite_schema.PackOptions.addAxis(builder, axis);
+  return tflite_schema.PackOptions.endPackOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.LogicalOrOptions = function() {
@@ -5895,6 +6719,15 @@ tflite_schema.LogicalOrOptions.endLogicalOrOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LogicalOrOptions.createLogicalOrOptions = function(builder) {
+  tflite_schema.LogicalOrOptions.startLogicalOrOptions(builder);
+  return tflite_schema.LogicalOrOptions.endLogicalOrOptions(builder);
+}
 
 /**
  * @constructor
@@ -5964,6 +6797,17 @@ tflite_schema.OneHotOptions.endOneHotOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.OneHotOptions.createOneHotOptions = function(builder, axis) {
+  tflite_schema.OneHotOptions.startOneHotOptions(builder);
+  tflite_schema.OneHotOptions.addAxis(builder, axis);
+  return tflite_schema.OneHotOptions.endOneHotOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.AbsOptions = function() {
@@ -6013,6 +6857,15 @@ tflite_schema.AbsOptions.endAbsOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.AbsOptions.createAbsOptions = function(builder) {
+  tflite_schema.AbsOptions.startAbsOptions(builder);
+  return tflite_schema.AbsOptions.endAbsOptions(builder);
+}
 
 /**
  * @constructor
@@ -6066,6 +6919,15 @@ tflite_schema.LogicalAndOptions.endLogicalAndOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LogicalAndOptions.createLogicalAndOptions = function(builder) {
+  tflite_schema.LogicalAndOptions.startLogicalAndOptions(builder);
+  return tflite_schema.LogicalAndOptions.endLogicalAndOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.LogicalNotOptions = function() {
@@ -6115,6 +6977,15 @@ tflite_schema.LogicalNotOptions.endLogicalNotOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LogicalNotOptions.createLogicalNotOptions = function(builder) {
+  tflite_schema.LogicalNotOptions.startLogicalNotOptions(builder);
+  return tflite_schema.LogicalNotOptions.endLogicalNotOptions(builder);
+}
 
 /**
  * @constructor
@@ -6200,6 +7071,19 @@ tflite_schema.UnpackOptions.endUnpackOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} num
+ * @param {number} axis
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.UnpackOptions.createUnpackOptions = function(builder, num, axis) {
+  tflite_schema.UnpackOptions.startUnpackOptions(builder);
+  tflite_schema.UnpackOptions.addNum(builder, num);
+  tflite_schema.UnpackOptions.addAxis(builder, axis);
+  return tflite_schema.UnpackOptions.endUnpackOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.FloorDivOptions = function() {
@@ -6249,6 +7133,15 @@ tflite_schema.FloorDivOptions.endFloorDivOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.FloorDivOptions.createFloorDivOptions = function(builder) {
+  tflite_schema.FloorDivOptions.startFloorDivOptions(builder);
+  return tflite_schema.FloorDivOptions.endFloorDivOptions(builder);
+}
 
 /**
  * @constructor
@@ -6302,6 +7195,15 @@ tflite_schema.SquareOptions.endSquareOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SquareOptions.createSquareOptions = function(builder) {
+  tflite_schema.SquareOptions.startSquareOptions(builder);
+  return tflite_schema.SquareOptions.endSquareOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.ZerosLikeOptions = function() {
@@ -6351,6 +7253,15 @@ tflite_schema.ZerosLikeOptions.endZerosLikeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ZerosLikeOptions.createZerosLikeOptions = function(builder) {
+  tflite_schema.ZerosLikeOptions.startZerosLikeOptions(builder);
+  return tflite_schema.ZerosLikeOptions.endZerosLikeOptions(builder);
+}
 
 /**
  * @constructor
@@ -6404,6 +7315,15 @@ tflite_schema.FillOptions.endFillOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.FillOptions.createFillOptions = function(builder) {
+  tflite_schema.FillOptions.startFillOptions(builder);
+  return tflite_schema.FillOptions.endFillOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.FloorModOptions = function() {
@@ -6455,6 +7375,15 @@ tflite_schema.FloorModOptions.endFloorModOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.FloorModOptions.createFloorModOptions = function(builder) {
+  tflite_schema.FloorModOptions.startFloorModOptions(builder);
+  return tflite_schema.FloorModOptions.endFloorModOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.RangeOptions = function() {
@@ -6504,6 +7433,15 @@ tflite_schema.RangeOptions.endRangeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.RangeOptions.createRangeOptions = function(builder) {
+  tflite_schema.RangeOptions.startRangeOptions(builder);
+  return tflite_schema.RangeOptions.endRangeOptions(builder);
+}
 
 /**
  * @constructor
@@ -6573,6 +7511,17 @@ tflite_schema.LeakyReluOptions.endLeakyReluOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} alpha
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.LeakyReluOptions.createLeakyReluOptions = function(builder, alpha) {
+  tflite_schema.LeakyReluOptions.startLeakyReluOptions(builder);
+  tflite_schema.LeakyReluOptions.addAlpha(builder, alpha);
+  return tflite_schema.LeakyReluOptions.endLeakyReluOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SquaredDifferenceOptions = function() {
@@ -6622,6 +7571,15 @@ tflite_schema.SquaredDifferenceOptions.endSquaredDifferenceOptions = function(bu
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SquaredDifferenceOptions.createSquaredDifferenceOptions = function(builder) {
+  tflite_schema.SquaredDifferenceOptions.startSquaredDifferenceOptions(builder);
+  return tflite_schema.SquaredDifferenceOptions.endSquaredDifferenceOptions(builder);
+}
 
 /**
  * @constructor
@@ -6691,6 +7649,17 @@ tflite_schema.MirrorPadOptions.endMirrorPadOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.MirrorPadMode} mode
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.MirrorPadOptions.createMirrorPadOptions = function(builder, mode) {
+  tflite_schema.MirrorPadOptions.startMirrorPadOptions(builder);
+  tflite_schema.MirrorPadOptions.addMode(builder, mode);
+  return tflite_schema.MirrorPadOptions.endMirrorPadOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.UniqueOptions = function() {
@@ -6758,6 +7727,17 @@ tflite_schema.UniqueOptions.endUniqueOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.TensorType} idxOutType
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.UniqueOptions.createUniqueOptions = function(builder, idxOutType) {
+  tflite_schema.UniqueOptions.startUniqueOptions(builder);
+  tflite_schema.UniqueOptions.addIdxOutType(builder, idxOutType);
+  return tflite_schema.UniqueOptions.endUniqueOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.ReverseV2Options = function() {
@@ -6807,6 +7787,15 @@ tflite_schema.ReverseV2Options.endReverseV2Options = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ReverseV2Options.createReverseV2Options = function(builder) {
+  tflite_schema.ReverseV2Options.startReverseV2Options(builder);
+  return tflite_schema.ReverseV2Options.endReverseV2Options(builder);
+}
 
 /**
  * @constructor
@@ -6860,6 +7849,15 @@ tflite_schema.AddNOptions.endAddNOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.AddNOptions.createAddNOptions = function(builder) {
+  tflite_schema.AddNOptions.startAddNOptions(builder);
+  return tflite_schema.AddNOptions.endAddNOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.GatherNdOptions = function() {
@@ -6911,6 +7909,15 @@ tflite_schema.GatherNdOptions.endGatherNdOptions = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.GatherNdOptions.createGatherNdOptions = function(builder) {
+  tflite_schema.GatherNdOptions.startGatherNdOptions(builder);
+  return tflite_schema.GatherNdOptions.endGatherNdOptions(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.WhereOptions = function() {
@@ -6960,6 +7967,15 @@ tflite_schema.WhereOptions.endWhereOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.WhereOptions.createWhereOptions = function(builder) {
+  tflite_schema.WhereOptions.startWhereOptions(builder);
+  return tflite_schema.WhereOptions.endWhereOptions(builder);
+}
 
 /**
  * @constructor
@@ -7060,6 +8076,21 @@ tflite_schema.OperatorCode.endOperatorCode = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite_schema.BuiltinOperator} builtinCode
+ * @param {flatbuffers.Offset} customCodeOffset
+ * @param {number} version
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.OperatorCode.createOperatorCode = function(builder, builtinCode, customCodeOffset, version) {
+  tflite_schema.OperatorCode.startOperatorCode(builder);
+  tflite_schema.OperatorCode.addBuiltinCode(builder, builtinCode);
+  tflite_schema.OperatorCode.addCustomCode(builder, customCodeOffset);
+  tflite_schema.OperatorCode.addVersion(builder, version);
+  return tflite_schema.OperatorCode.endOperatorCode(builder);
+}
 
 /**
  * @constructor
@@ -7394,6 +8425,31 @@ tflite_schema.Operator.endOperator = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} opcodeIndex
+ * @param {flatbuffers.Offset} inputsOffset
+ * @param {flatbuffers.Offset} outputsOffset
+ * @param {tflite_schema.BuiltinOptions} builtinOptionsType
+ * @param {flatbuffers.Offset} builtinOptionsOffset
+ * @param {flatbuffers.Offset} customOptionsOffset
+ * @param {tflite_schema.CustomOptionsFormat} customOptionsFormat
+ * @param {flatbuffers.Offset} mutatingVariableInputsOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Operator.createOperator = function(builder, opcodeIndex, inputsOffset, outputsOffset, builtinOptionsType, builtinOptionsOffset, customOptionsOffset, customOptionsFormat, mutatingVariableInputsOffset) {
+  tflite_schema.Operator.startOperator(builder);
+  tflite_schema.Operator.addOpcodeIndex(builder, opcodeIndex);
+  tflite_schema.Operator.addInputs(builder, inputsOffset);
+  tflite_schema.Operator.addOutputs(builder, outputsOffset);
+  tflite_schema.Operator.addBuiltinOptionsType(builder, builtinOptionsType);
+  tflite_schema.Operator.addBuiltinOptions(builder, builtinOptionsOffset);
+  tflite_schema.Operator.addCustomOptions(builder, customOptionsOffset);
+  tflite_schema.Operator.addCustomOptionsFormat(builder, customOptionsFormat);
+  tflite_schema.Operator.addMutatingVariableInputs(builder, mutatingVariableInputsOffset);
+  return tflite_schema.Operator.endOperator(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.SubGraph = function() {
@@ -7664,6 +8720,25 @@ tflite_schema.SubGraph.endSubGraph = function(builder) {
 };
 
 /**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} tensorsOffset
+ * @param {flatbuffers.Offset} inputsOffset
+ * @param {flatbuffers.Offset} outputsOffset
+ * @param {flatbuffers.Offset} operatorsOffset
+ * @param {flatbuffers.Offset} nameOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.SubGraph.createSubGraph = function(builder, tensorsOffset, inputsOffset, outputsOffset, operatorsOffset, nameOffset) {
+  tflite_schema.SubGraph.startSubGraph(builder);
+  tflite_schema.SubGraph.addTensors(builder, tensorsOffset);
+  tflite_schema.SubGraph.addInputs(builder, inputsOffset);
+  tflite_schema.SubGraph.addOutputs(builder, outputsOffset);
+  tflite_schema.SubGraph.addOperators(builder, operatorsOffset);
+  tflite_schema.SubGraph.addName(builder, nameOffset);
+  return tflite_schema.SubGraph.endSubGraph(builder);
+}
+
+/**
  * @constructor
  */
 tflite_schema.Buffer = function() {
@@ -7767,6 +8842,17 @@ tflite_schema.Buffer.endBuffer = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} dataOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Buffer.createBuffer = function(builder, dataOffset) {
+  tflite_schema.Buffer.startBuffer(builder);
+  tflite_schema.Buffer.addData(builder, dataOffset);
+  return tflite_schema.Buffer.endBuffer(builder);
+}
 
 /**
  * @constructor
@@ -8062,6 +9148,27 @@ tflite_schema.Model.endModel = function(builder) {
 tflite_schema.Model.finishModelBuffer = function(builder, offset) {
   builder.finish(offset, 'TFL3');
 };
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} version
+ * @param {flatbuffers.Offset} operatorCodesOffset
+ * @param {flatbuffers.Offset} subgraphsOffset
+ * @param {flatbuffers.Offset} descriptionOffset
+ * @param {flatbuffers.Offset} buffersOffset
+ * @param {flatbuffers.Offset} metadataBufferOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Model.createModel = function(builder, version, operatorCodesOffset, subgraphsOffset, descriptionOffset, buffersOffset, metadataBufferOffset) {
+  tflite_schema.Model.startModel(builder);
+  tflite_schema.Model.addVersion(builder, version);
+  tflite_schema.Model.addOperatorCodes(builder, operatorCodesOffset);
+  tflite_schema.Model.addSubgraphs(builder, subgraphsOffset);
+  tflite_schema.Model.addDescription(builder, descriptionOffset);
+  tflite_schema.Model.addBuffers(builder, buffersOffset);
+  tflite_schema.Model.addMetadataBuffer(builder, metadataBufferOffset);
+  return tflite_schema.Model.endModel(builder);
+}
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports = tflite_schema;
