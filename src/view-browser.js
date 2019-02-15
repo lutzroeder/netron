@@ -1,4 +1,7 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
+/* eslint "no-global-assign": ["error", {"exceptions": [ "TextDecoder", "TextEncoder" ] } ] */
+/* global view */
 
 var host = host || {};
 
@@ -80,7 +83,7 @@ host.BrowserHost = class {
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
-            openFileButton.addEventListener('click', (e) => {
+            openFileButton.addEventListener('click', () => {
                 openFileDialog.value = '';
                 openFileDialog.click();
             });
@@ -195,7 +198,7 @@ host.BrowserHost = class {
             var description = [];
             description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
             if (err.stack) {
-                var match = err.stack.match(/\n    at (.*)\((.*)\)/);
+                var match = err.stack.match(/\n {4}at (.*)\((.*)\)/);
                 if (match) {
                     description.push(match[1] + '(' + match[2].split('/').pop() + ')');
                 }
@@ -252,7 +255,7 @@ host.BrowserHost = class {
 
     _getQueryParameter(name) {
         var url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
+        name = name.replace(/[[\]]/g, "\\$&");
         var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
         var results = regex.exec(url);
         if (!results) {
@@ -353,7 +356,6 @@ host.BrowserHost = class {
     }
 
     _openBuffer(file, callback) {
-        var size = file.size;
         var reader = new FileReader();
         reader.onload = (e) => {
             var buffer = new Uint8Array(e.target.result);

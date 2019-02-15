@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental
 
@@ -9,7 +10,7 @@ var marked = marked || require('marked');
 
 tf.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
         var tags = null;
@@ -61,7 +62,7 @@ tf.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('./tf-proto', (err, module) => {
+        host.require('./tf-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -227,7 +228,7 @@ tf.Graph = class {
             if (metaGraph.meta_info_def && metaGraph.meta_info_def.tags) {
                 this._tags = metaGraph.meta_info_def.tags.join(', ');
             }
-                graph.node.forEach((node) => {
+            graph.node.forEach((node) => {
                 this._operators[node.op] = (this._operators[node.op] || 0) + 1;
             });
         }
@@ -603,7 +604,7 @@ tf.Node = class {
                         description = description ? (allowedValues + ' ' + description) : allowedValues;
                     }
                     if (attribute.defaultValue) {
-                        var defaultValue = ƒ._formatAttributeValue(attribute.defaultValue);
+                        var defaultValue = tf.GraphMetadata._formatAttributeValue(attribute.defaultValue);
                         defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
                         defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
                         defaultValue = 'Defaults to ' + defaultValue + '.';
@@ -657,7 +658,7 @@ tf.Attribute = class {
         if (value.hasOwnProperty('type')) {
             this._type = 'type';
             this._value = () => tf.Tensor.formatDataType(value.type);
-         }
+        }
         else if (value.hasOwnProperty('i')) {
             this._value = value.i;
         }
@@ -881,7 +882,7 @@ tf.Tensor = class {
                 break;
             case tf.proto.DataType.DT_STRING:
                 if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
-                    result.state = 'Tensor data type is not implemented.';
+                    context.state = 'Tensor data type is not implemented.';
                 }
                 else if (this._tensor.string_val && this._tensor.string_val.length == context.size) {
                     context.data = this._tensor.string_val;
@@ -1058,14 +1059,10 @@ tf.TensorShape = class {
 
 tf.GraphMetadata = class {
 
-    constructor(metadata, meta_info_def) {
+    constructor(metadata) {
         this._metadata = metadata;
         this._map = {};
         this._attributeCache = {};
-        if (meta_info_def && meta_info_def.strippedOpList && meta_info_def.strippedOpList.op) {
-            meta_info_def.strippedOpList.op.forEach((opDef) => {
-            });
-        }
     }
 
     getSchema(operator) {

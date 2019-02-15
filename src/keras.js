@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var keras = keras || {};
 var base = base || require('./base');
@@ -6,7 +7,7 @@ var marked = marked || require('marked');
 
 keras.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
@@ -20,11 +21,11 @@ keras.ModelFactory = class {
         }
         if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
             var json = context.text;
-            if (json.indexOf('\"mxnet_version\":', 0) == -1) {
+            if (json.indexOf('"mxnet_version":', 0) == -1) {
                 try {
                     var root = JSON.parse(json);
                     if (root && root.nodes && root.arg_nodes && root.heads) {
-                       return false;
+                        return false;
                     }
                     if (root && root.modelTopology && root.modelTopology.model_config) {
                         root = root.modelTopology.model_config;
@@ -34,6 +35,7 @@ keras.ModelFactory = class {
                     }
                 }
                 catch (err) {
+                    // continue regardless of error
                 }
             }
         }
@@ -1018,7 +1020,7 @@ keras.Group = class {
             if (this._group.attribute(name + '0')) {
                 var index = 0;
                 value = [];
-                while (true) {
+                for (;;) {
                     var chunk = this._group.attribute(name + index.toString());
                     if (!chunk) {
                         break;

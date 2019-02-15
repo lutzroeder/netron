@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental
 
@@ -6,10 +7,11 @@ var pytorch = pytorch || {};
 var base = base || require('./base');
 var long = long || { Long: require('long') };
 var tar = tar || require('./tar');
+var marked = marked || require('marked');
 
 pytorch.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var identifier = context.identifier; 
         var extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || 
@@ -369,10 +371,10 @@ pytorch.ModelFactory = class {
                 }
                 throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
             };
-            functionTable['_codecs.encode'] = function(obj, econding) {
+            functionTable['_codecs.encode'] = function(obj /*, econding */) {
                 return obj;
             };
-            functionTable['collections.defaultdict'] = function(default_factory) {
+            functionTable['collections.defaultdict'] = function(/* default_factory */) {
                 return {};
             };
 
@@ -410,7 +412,7 @@ pytorch.ModelFactory = class {
                     case 'storage':
                         var data_type = data.shift();
                         var root_key = data.shift();
-                        var location = data.shift();
+                        data.shift(); // location
                         var size = data.shift();
                         var view_metadata = data.shift();
                         var storage = deserialized_objects[root_key];
@@ -420,8 +422,8 @@ pytorch.ModelFactory = class {
                         }
                         if (view_metadata) {
                             var view_key = view_metadata.shift();
-                            var view_offset = view_metadata.shift();
-                            var view_size = view_metadata.shift();
+                            view_metadata.shift(); // view_offset
+                            view_metadata.shift(); // view_size
                             var view = deserialized_objects[view_key];
                             if (!view) {
                                 view = null; // storage.slice(view_offset, view_offset + view_size);
@@ -494,6 +496,7 @@ pytorch.ModelFactory = class {
             }
         }
         catch (err) {
+            // continue regardless of error
         }
         return false;
     }

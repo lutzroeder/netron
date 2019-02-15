@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var cntk = cntk || {};
 var long = long || { Long: require('long') };
@@ -9,7 +10,7 @@ var cntk_v2 = null;
 
 cntk.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         var buffer = null;
         if (extension == 'model' || extension == 'cmf' || extension == 'dnn' || extension == 'cntk') {
@@ -30,7 +31,7 @@ cntk.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('./cntk-proto', (err, module) => {
+        host.require('./cntk-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -567,7 +568,7 @@ cntk.Attribute = class {
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
                         while (defaultValue.length < value.length) {
-                           defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                            defaultValue.push(defaultValue[defaultValue.length - 1]); 
                         }
                     }
                     if (value.every((item, index) => { return item == defaultValue[index]; })) {
@@ -861,18 +862,18 @@ cntk_v1.ComputationNetwork = class {
         var numNodes = reader.uint64();
         reader.assert('BNodeList');
         var op = {};
-        op.Minus = function(reader) {};
-        op.Plus = function(reader) {};
-        op.GreaterEqual = function(reader) {};
-        op.Equal = function(reader) {};
-        op.NotEqual = function(reader) {};
-        op.GreaterEqual = function(reader) {};
-        op.Exp = function(reader) {};
-        op.Log = function(reader) {};
-        op.Reciprocal = function(reader) {};
-        op.ElementTimes = function(reader) {};
-        op.ClassificationError = function(reader) {};
-        op.RectifiedLinear = function(reader) {};
+        op.Minus = function() {};
+        op.Plus = function() {};
+        op.GreaterEqual = function() {};
+        op.Equal = function() {};
+        op.NotEqual = function() {};
+        op.GreaterEqual = function() {};
+        op.Exp = function() {};
+        op.Log = function() {};
+        op.Reciprocal = function() {};
+        op.ElementTimes = function() {};
+        op.ClassificationError = function() {};
+        op.RectifiedLinear = function() {};
         op.InputValue = function(reader) {
             this.rows = reader.uint64();
             this.cols = reader.uint64();
@@ -955,8 +956,8 @@ cntk_v1.ComputationNetwork = class {
                 this.poolKind = 'None';
                 this.convolution2D = true;
                 this.sharing = [ true ];
-                m_lowerPad = new cntk_v1.TensorShape([ 0 ]);
-                m_upperPad = new cntk_v1.TensorShape([ 0 ]);
+                this.lowerPad = new cntk_v1.TensorShape([ 0 ]);
+                this.upperPad = new cntk_v1.TensorShape([ 0 ]);
             }
             else {
                 this.convolution2D = reader.bool();
@@ -1060,11 +1061,11 @@ cntk_v1.ComputationNetwork = class {
                 this.convertRunningVariancePending = true;
             }
         };
-        op.Tanh = function(reader) {};
-        op.Sigmoid = function(reader) {};
-        op.Logistic = function(reader) {};
-        op.SquareError = function(reader) {};
-        op.ErrorPrediction = function(reader) {};
+        op.Tanh = function() {};
+        op.Sigmoid = function() {};
+        op.Logistic = function() {};
+        op.SquareError = function() {};
+        op.ErrorPrediction = function() {};
         op.RowStack = function(reader) {
             this.spliceDim = (reader.version >= 3) ? reader.int32() : 1;
         };
@@ -1332,12 +1333,10 @@ cntk_v1.Reader = class {
 
     string() {
         var text = '';
-        while (true) {
-            var c = this.uint16();
-            if (c == 0) {
-                break;
-            }
+        var c = this.uint16();
+        while (c != 0) {
             text += String.fromCharCode(c);
+            c = this.uint16();
         }
         return text;
     }

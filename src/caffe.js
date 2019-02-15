@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var caffe = caffe || {};
 var long = long || { Long: require('long') };
@@ -7,7 +8,7 @@ var marked = marked || require('marked');
 
 caffe.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
         var tags = null;
@@ -29,7 +30,7 @@ caffe.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('./caffe-proto', (err, module) => {
+        host.require('./caffe-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -70,6 +71,7 @@ caffe.ModelFactory = class {
                             }
                         }
                         catch (error) {
+                            // continue regardless of error
                         }
                     }
                     this._openNetParameterText(metadata, context.identifier, context.text, host, callback);

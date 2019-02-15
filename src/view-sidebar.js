@@ -1,14 +1,15 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
+/* global view */
 
 var sidebar = sidebar || {};
-
 var Handlebars = Handlebars || require('handlebars');
 
 sidebar.Sidebar = class {
-    
+
     constructor(host) {
         this._host = host;
-        this._closeSidebarHandler = (e) => {
+        this._closeSidebarHandler = () => {
             this.close();
         };
         this._closeSidebarKeyDownHandler = (e) => {
@@ -17,7 +18,7 @@ sidebar.Sidebar = class {
                 this.close();
             }
         };
-        this._resizeSidebarHandler = (e) => {
+        this._resizeSidebarHandler = () => {
             var contentElement = this._host.document.getElementById('sidebar-content');
             if (contentElement) {
                 contentElement.style.height = window.innerHeight - 60;
@@ -95,7 +96,7 @@ sidebar.NodeSidebar = class {
             var documentationButton = document.createElement('a');
             documentationButton.className = 'sidebar-view-title-button';
             documentationButton.innerText = '?';
-            documentationButton.addEventListener('click', (e) => {
+            documentationButton.addEventListener('click', () => {
                 this._raise('show-documentation', null);
             });
             operatorElement.appendChild(documentationButton);
@@ -284,7 +285,7 @@ class NodeAttributeView {
             this._expander = document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
-            this._expander.addEventListener('click', (e) => {
+            this._expander.addEventListener('click', () => {
                 this.toggle();
             });
             this._element.appendChild(this._expander);
@@ -411,7 +412,7 @@ sidebar.ConnectionView = class {
             this._expander = document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
-            this._expander.addEventListener('click', (e) => {
+            this._expander.addEventListener('click', () => {
                 this.toggle();
             });
             this._element.appendChild(this._expander);
@@ -458,9 +459,6 @@ sidebar.ConnectionView = class {
                 var type = '?';
                 var denotation = null;
                 if (this._connection.type) {
-                    if (typeof this._connection.type == 'string') {
-                        debugger;
-                    }
                     type = this._connection.type.toString();
                     denotation = this._connection.type.denotation || null;
                 }
@@ -509,7 +507,7 @@ sidebar.ConnectionView = class {
                         this._saveButton = document.createElement('div');
                         this._saveButton.className = 'sidebar-view-item-value-expander';
                         this._saveButton.innerHTML = '&#x1F4BE;';
-                        this._saveButton.addEventListener('click', (e) => {
+                        this._saveButton.addEventListener('click', () => {
                             this._raise('export-tensor', initializer);
                         });
                         this._element.appendChild(this._saveButton);
@@ -715,7 +713,7 @@ sidebar.GraphOperatorListView = class {
         this._expander = document.createElement('div');
         this._expander.className = 'sidebar-view-item-value-expander';
         this._expander.innerText = '+';
-        this._expander.addEventListener('click', (e) => {
+        this._expander.addEventListener('click', () => {
             this.toggle();
         });
 

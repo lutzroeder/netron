@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var caffe2 = caffe2 || {};
 var protobuf = protobuf || require('protobufjs');
@@ -6,7 +7,7 @@ var marked = marked || require('marked');
 
 caffe2.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var identifier = context.identifier.toLowerCase();
         var extension = identifier.split('.').pop().toLowerCase();
         var tags = null;
@@ -56,7 +57,7 @@ caffe2.ModelFactory = class {
     }    
 
     open(context, host, callback) {
-        host.require('./caffe2-proto', (err, module) => {
+        host.require('./caffe2-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -100,6 +101,7 @@ caffe2.ModelFactory = class {
                             init = caffe2.proto.NetDef.decode(data);
                         }
                         catch (error) {
+                            // continue regardless of error
                         }
                     }
 
@@ -184,7 +186,6 @@ caffe2.Graph = class {
                             dataType = 'int8';
                             break;
                         default:
-                            debugger;
                             break;
                     }
                     if (dataType) {

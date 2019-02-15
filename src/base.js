@@ -1,4 +1,4 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
 
 var base = base || {};
 
@@ -27,7 +27,7 @@ if (!DataView.prototype.getFloat16) {
         9: 1/64, 10: 1/32, 11: 1/16, 12: 1/8, 13: 1/4, 14: 1/2, 15: 1, 16: 2, 
         17: 4, 18: 8, 19: 16, 20: 32, 21: 64, 22: 128, 23: 256, 24: 512,
         25: 1024, 26: 2048, 27: 4096, 28: 8192, 29: 16384, 30: 32768, 31: 65536 
-        };
+    };
 }
 
 if (!DataView.prototype.setFloat16) {
@@ -66,7 +66,7 @@ if (!DataView.prototype.setFloat16) {
 }
 
 if (!DataView.prototype.getBits) {
-    DataView.prototype.getBits = function(offset, bits, signed) {
+    DataView.prototype.getBits = function(offset, bits /*, signed */) {
         offset = offset * bits;
         var available = (this.byteLength << 3) - offset;
         if (bits > available) {
@@ -77,8 +77,8 @@ if (!DataView.prototype.getBits) {
         while (index < bits) {
             var remainder = offset & 7;
             var size = Math.min(bits - index, 8 - remainder);
-			value <<= size;
-			value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
+            value <<= size;
+            value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
             offset += size;
             index += size;
         }

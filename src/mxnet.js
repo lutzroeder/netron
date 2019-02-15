@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var mxnet = mxnet || {};
 var marked = marked || require('marked');
@@ -7,7 +8,7 @@ var zip = zip || require('./zip');
 
 mxnet.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'model') {
             var buffer = context.buffer;
@@ -17,7 +18,7 @@ mxnet.ModelFactory = class {
         }
         if (extension == 'json') {
             var json = context.text;
-            if (json.indexOf('\"nodes\":', 0) != -1) {
+            if (json.indexOf('"nodes":', 0) != -1) {
                 try {
                     var symbol = JSON.parse(json);
                     if (symbol && symbol.nodes && symbol.arg_nodes && symbol.heads) {
@@ -25,6 +26,7 @@ mxnet.ModelFactory = class {
                     }
                 }
                 catch (err) {
+                    // continue regardless of error
                 }
             }
         }
@@ -144,6 +146,7 @@ mxnet.ModelFactory = class {
             }
         }
         catch (err) {
+            // continue regardless of error
         }
 
         var params = null;
@@ -156,6 +159,7 @@ mxnet.ModelFactory = class {
             }
         }
         catch (err) {
+            // continue regardless of error
         }
 
         var identifier = context.identifier;
@@ -193,6 +197,7 @@ mxnet.ModelFactory = class {
                     });
                 }
                 catch (error) {
+                    // continue regardless of error
                 }
             }
             try {
@@ -520,9 +525,10 @@ mxnet.Node = class {
                         if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
                             try {
                                 dataType = parseInt(argument.attrs.__dtype__);
-                                shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '\"?\"' )).join(',') + ']');
+                                shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"' )).join(',') + ']');
                             }
                             catch (err) {
+                                // continue regardless of error
                             }
                         }
                         this._initializers[id] = new mxnet.Tensor('Initializer', argument.name, dataType, shape, null);
@@ -624,7 +630,6 @@ mxnet.Node = class {
         if (schema && schema.outputs) {
             schema.outputs.forEach((outputDef) => {
                 if (index < outputs.length || outputDef.option != 'optional') {
-                    var output = {};
                     var connections = [];
                     var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
                     outputs.slice(index, index + count).forEach((input) => {
@@ -636,7 +641,7 @@ mxnet.Node = class {
             });
         }
         if (index < outputs.length) {
-                outputs.slice(index).forEach((output) => {
+            outputs.slice(index).forEach((output) => {
                 var name = index.toString();
                 var connection = new mxnet.Connection('[' + output.join(',') + ']', null, null);
                 args.push(new mxnet.Argument(name, [ connection ]));
@@ -682,18 +687,18 @@ mxnet.Attribute = class {
                 case 'int32[]':
                     if (this._value.length > 2 && this._value.startsWith('(') && this._value.endsWith(')')) {
                         var array = [];
-                        var items = this._value.substring(1, this._value.length - 1).split(',');
-                        items = items.map((item) => item.trim());
-                        items = items.map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
-                        items = items.map((item) => {
-                            var intValue = Number.parseInt(item, 10);
-                            if (Number.isNaN(item - intValue)) {
-                                array = null;
-                            }
-                            else if (array != null) {
-                                array.push(intValue);
-                            }        
-                        });
+                        this._value.substring(1, this._value.length - 1).split(',')
+                            .map((item) => item.trim())
+                            .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item)
+                            .forEach((item) => {
+                                var intValue = Number.parseInt(item, 10);
+                                if (Number.isNaN(item - intValue)) {
+                                    array = null;
+                                }
+                                else if (array != null) {
+                                    array.push(intValue);
+                                }
+                            });
                         if (array != null) {
                             this._value = array;
                         }
@@ -716,7 +721,7 @@ mxnet.Attribute = class {
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
                         while (defaultValue.length < this._value.length) {
-                           defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                            defaultValue.push(defaultValue[defaultValue.length - 1]); 
                         }
                     }
                     if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
@@ -1022,14 +1027,14 @@ ndarray.Stream = class {
         }
 
         var data = [];
-        for (var dataSize = reader.readUint64(); dataSize > 0; dataSize--) {
+        for (var dataSize = reader.uint64(); dataSize > 0; dataSize--) {
             data.push(new ndarray.Array(reader));
         }
 
         var decoder = new TextDecoder('ascii');
         var names = [];
-        for (var namesSize = reader.readUint64(); namesSize > 0; namesSize--) {
-            var length = reader.readUint64();
+        for (var namesSize = reader.uint64(); namesSize > 0; namesSize--) {
+            var length = reader.uint64();
             var name = decoder.decode(reader.read(length));
             names.push(name);
         }
@@ -1067,23 +1072,23 @@ ndarray.Array = class {
     }
 
     _loadV2(reader) {
-        var stype = reader.readUint32();
+        var stype = reader.uint32();
         var num_aux_data = 0;
         switch (stype) {
             case 0: num_aux_data = 0; break; // kDefaultStorage
             case 1: num_aux_data = 1; break; // kRowSparseStorage
             case 2: num_aux_data = 2; break; // kCSRStorage
         }
-        var sshape = null;
+        this.sshape = null;
         if (num_aux_data > 0) {
-            sshape = new ndarray.Shape(reader, true);
+            this.sshape = new ndarray.Shape(reader, true);
         }
         this._shape = new ndarray.Shape(reader, true);
         if (this._shape.dimensions.length == 0) {
             return;
         }
-        var context = new ndarray.Context(reader);
-        this._dataType = reader.readUint32();
+        this._context = new ndarray.Context(reader);
+        this._dataType = reader.uint32();
         if (num_aux_data > 0) {
             throw new ndarray.Error('Not implemented.');
         }
@@ -1097,8 +1102,8 @@ ndarray.Array = class {
         if (this._shape.dimensions.length == 0) {
             return;
         }
-        var context = new ndarray.Context(reader);
-        this._dataType = reader.readUint32();
+        this._context = new ndarray.Context(reader);
+        this._dataType = reader.uint32();
         var dataTypeSize = (this._dataType < ndarray.Array._dataTypeSizeTable.length) ? ndarray.Array._dataTypeSizeTable[this._dataType] : 0;
         var size = dataTypeSize * this._shape.size();
         this._data = reader.read(size);
@@ -1106,8 +1111,8 @@ ndarray.Array = class {
 
     _loadV0(reader) {
         this._shape = new ndarray.Shape(reader, false);
-        var context = new ndarray.Context(reader);
-        this._dataType = reader.readUint32();
+        this._context = new ndarray.Context(reader);
+        this._dataType = reader.uint32();
         var dataTypeSize = (this._dataType < ndarray.Array._dataTypeSizeTable.length) ? ndarray.Array._dataTypeSizeTable[this._dataType] : 0;
         var size = dataTypeSize * this._shape.size();
         this._data = reader.read(size);
@@ -1129,10 +1134,10 @@ ndarray.Array = class {
 ndarray.Shape = class {
 
     constructor(reader, uint64) {
-        var ndim = reader.readUint32();
+        var ndim = reader.uint32();
         this._dimensions = [];
         for (var i = 0; i < ndim; i++) {
-            this._dimensions.push(uint64 ? reader.readUint64() : reader.readUint32());
+            this._dimensions.push(uint64 ? reader.uint64() : reader.uint32());
         }
     }
 
@@ -1152,8 +1157,8 @@ ndarray.Shape = class {
 ndarray.Context = class {
 
     constructor(reader) {
-        this._deviceType = reader.readUint32();
-        this._deviceId = reader.readUint32();
+        this._deviceType = reader.uint32();
+        this._deviceId = reader.uint32();
     }
 };
 
@@ -1186,7 +1191,7 @@ ndarray.Reader = class {
         return data;
     }
 
-    readUint16() {
+    uint16() {
         if (this._position + 2 > this._end) {
             throw new ndarray.Error('Data not available.');
         }
@@ -1195,13 +1200,13 @@ ndarray.Reader = class {
         return value;
     }
 
-    readUint32() {
-        return this.readUint16() | (this.readUint16() << 16);
+    uint32() {
+        return this.uint16() | (this.uint16() << 16);
     }
 
-    readUint64() {
-        var value = this.readUint32();
-        if (this.readUint32() != 0) {
+    uint64() {
+        var value = this.uint32();
+        if (this.uint32() != 0) {
             throw new ndarray.Error('Large int64 value.');
         }
         return value;

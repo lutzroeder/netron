@@ -1,12 +1,12 @@
-
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var darknet = darknet || {};
 var base = base || require('./base');
 
 darknet.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'cfg') {
             return true;
@@ -488,7 +488,7 @@ darknet.CfgReader = class {
                         item[key] = value;
                     }
                     else {
-                        throw new darknet.Error("Invalid cfg \'" + line + "\' at line " + (this._line + 1).toString() + ".");
+                        throw new darknet.Error("Invalid cfg '" + line + "' at line " + (this._line + 1).toString() + ".");
                     }
                 }
             }

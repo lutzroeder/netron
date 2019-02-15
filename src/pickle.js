@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var pickle = pickle || {};
 
@@ -354,7 +355,7 @@ pickle.Unpickler = class {
                         }
                         break;
                 }
-           }
+            }
         }
         return a.slice(0, o);
     }

@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var grapher = grapher || {};
 
@@ -189,11 +190,11 @@ grapher.Renderer = class {
         var sx;
         var sy;
         if (Math.abs(dy) * w > Math.abs(dx) * h) {
-        if (dy < 0) {
-            h = -h;
-        }
-        sx = dy === 0 ? 0 : h * dx / dy;
-        sy = h;
+            if (dy < 0) {
+                h = -h;
+            }
+            sx = dy === 0 ? 0 : h * dx / dy;
+            sy = h;
         }
         else {
             if (dx < 0) {
@@ -203,7 +204,7 @@ grapher.Renderer = class {
             sy = dx === 0 ? 0 : w * dy / dx;
         }      
         return {x: x + sx, y: y + sy};
-      }    
+    }    
 };
 
 grapher.NodeElement = class {
@@ -304,7 +305,7 @@ grapher.NodeElement.Header = class {
         this._elements = [];
         var x = 0;
         var y = 0;
-        this._items.forEach((item, index) => {
+        this._items.forEach((item) => {
             var yPadding = 4;
             var xPadding = 7;
             var element = this.createElement('g');
