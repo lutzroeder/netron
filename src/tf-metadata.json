@@ -1215,11 +1215,75 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
               "value": 14
             },
             {
               "type": "type",
-              "value": 1
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            },
+            {
+              "type": "type",
+              "value": 10
             }
           ],
           "description": "The type of elements to be exchanged.",
@@ -11449,6 +11513,14 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 22
             }
           ],
           "description": "The type of elements to be summed.",
