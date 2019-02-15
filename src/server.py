@@ -109,7 +109,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
 
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 
 class HTTPServerThread(threading.Thread):
     def __init__(self, data, file, verbose, browse, port, host):
