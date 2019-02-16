@@ -358,25 +358,29 @@ openvino.Node = class {
 
         var inputIndex = 0;
         const input$ = openvino.Utils.findDirectChildrenByName(layer$, 'input')[0];
-        const inputPorts = openvino.Utils.findDirectChildrenByName(input$, 'port');
-        inputPorts.forEach((portElement$) => {
-            var inputName = (inputIndex == 0) ? 'input' : inputIndex.toString(); 
-            this._inputs.push(new openvino.Argument(inputName, [
-                graph._connection(this._id, precision, portElement$, edgeMap)
-            ]));
-            inputIndex++;
-        });
+        if (input$) {
+            const inputPorts = openvino.Utils.findDirectChildrenByName(input$, 'port');
+            inputPorts.forEach((portElement$) => {
+                var inputName = (inputIndex == 0) ? 'input' : inputIndex.toString(); 
+                this._inputs.push(new openvino.Argument(inputName, [
+                    graph._connection(this._id, precision, portElement$, edgeMap)
+                ]));
+                inputIndex++;
+            });
+        }
 
         var outputIndex = 0;
         const output$ = openvino.Utils.findDirectChildrenByName(layer$, 'output')[0];
-        const outputPorts = openvino.Utils.findDirectChildrenByName(output$, 'port');
-        outputPorts.forEach((portElement$) => {
-            var outputName = (outputIndex == 0) ? 'output' : outputIndex.toString(); 
-            this._outputs.push(new openvino.Argument(outputName, [
-                graph._connection(this._id, precision, portElement$, null)
-            ]));
-            outputIndex++;
-        });
+        if (output$) {
+            const outputPorts = openvino.Utils.findDirectChildrenByName(output$, 'port');
+            outputPorts.forEach((portElement$) => {
+                var outputName = (outputIndex == 0) ? 'output' : outputIndex.toString(); 
+                this._outputs.push(new openvino.Argument(outputName, [
+                    graph._connection(this._id, precision, portElement$, null)
+                ]));
+                outputIndex++;
+            });
+        }
 
         const data$ = openvino.Utils.findDirectChildrenByName(layer$, 'data')[0];
         if (data$ && data$.attributes) {
