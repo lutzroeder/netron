@@ -5951,7 +5951,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrains input to float tensors.",
+          "description": "Constrains input types to all numeric tensors.",
           "type_param_str": "T"
         },
         {
@@ -7475,7 +7475,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrains input to float tensors.",
+          "description": "Constrains input types to all numeric tensors.",
           "type_param_str": "T"
         },
         {

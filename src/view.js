@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var view = view || {};
 
@@ -6,6 +7,7 @@ var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
+var protobuf = protobuf || require('protobufjs');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -26,16 +28,15 @@ view.View = class {
         this._showNames = false;
         this._searchText = '';
         this._modelFactoryService = new view.ModelFactoryService(this._host);
-        var document = this._host.document;
         this._host.document.documentElement.style.overflow = 'hidden';
         this._host.document.body.scroll = 'no';
-        this._host.document.getElementById('model-properties-button').addEventListener('click', (e) => {
+        this._host.document.getElementById('model-properties-button').addEventListener('click', () => {
             this.showModelProperties();
         });
-        this._host.document.getElementById('zoom-in-button').addEventListener('click', (e) => {
+        this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
             this.zoomIn();
         });
-        this._host.document.getElementById('zoom-out-button').addEventListener('click', (e) => {
+        this._host.document.getElementById('zoom-out-button').addEventListener('click', () => {
             this.zoomOut();
         });
         this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
@@ -44,7 +45,7 @@ view.View = class {
         this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
             this.preventZoom(e);
         });
-        this._host.document.addEventListener('keydown', (e) => {
+        this._host.document.addEventListener('keydown', () => {
             this.clearSelection();
         });
         if (this._host.environment('zoom') == 'scroll') {
@@ -252,8 +253,8 @@ view.View = class {
     _mouseWheelHandler(e) {
         if (e.shiftKey || e.ctrlKey) {
             if (this._zoom) {
-                var oldWidth = this._width * this._zoom;
-                var oldHeight = this._height * this._zoom;
+                // var oldWidth = this._width * this._zoom;
+                // var oldHeight = this._height * this._zoom;
                 this._zoom = this._zoom + (e.wheelDelta * 1.0 / 6000.0);
                 if (this._zoom < 0.1) { this._zoom = 0.1; }
                 if (this._zoom > 2) { this._zoom = 2; }
@@ -355,7 +356,7 @@ view.View = class {
             if (graph) {
                 this.show('Spinner');
                 setTimeout(() => {
-                    this.updateGraph(model, graph, (err, model) => {
+                    this.updateGraph(model, graph, (err /*, model */) => {
                         if (err) {
                             this.error('Graph update failed.', err);
                         }
@@ -487,7 +488,7 @@ view.View = class {
 
                         if (node.function) {
                             header.add(null, [ 'node-item-function' ], '+', null, () => {
-                                debugger;
+                                // debugger;
                             });
                         }
 
@@ -752,7 +753,7 @@ view.View = class {
                     this._zoom = d3.zoom();
                     this._zoom(svg);
                     this._zoom.scaleExtent([0.1, 2]);
-                    this._zoom.on('zoom', (e) => {
+                    this._zoom.on('zoom', () => {
                         originElement.setAttribute('transform', d3.event.transform.toString());
                     });
                     this._zoom.transform(svg, d3.zoomIdentity);
@@ -932,7 +933,7 @@ view.View = class {
     showNodeProperties(node, input) {
         if (node) {
             var view = new sidebar.NodeSidebar(node, this._host);
-            view.on('show-documentation', (sender, e) => {
+            view.on('show-documentation', (/* sender, e */) => {
                 this.showOperatorDocumentation(node);
             });
             view.on('export-tensor', (sender, tensor) => {
@@ -1044,7 +1045,7 @@ class ArchiveContext {
             return;
         }
         var data = entry.data;
-        if (type != null) {
+        if (data != null) {
             data = new TextDecoder(encoding).decode(data);
         }
         callback(null, data);
@@ -1176,7 +1177,7 @@ view.ModelFactoryService = class {
                             return;
                         }
                         var modelFactory = new module.ModelFactory(); 
-                        if (!modelFactory.match(context, this._host)) {
+                        if (!modelFactory.match(context)) {
                             nextModule();
                             return;
                         }
@@ -1309,7 +1310,7 @@ view.ModelFactoryService = class {
                                             callback(new ArchiveError("Failed to load module '" + id + "'.", null), null);
                                         }
                                         var factory = new module.ModelFactory();
-                                        if (factory.match(context, this._host)) {
+                                        if (factory.match(context)) {
                                             matches.push(entry);
                                             modules = [];
                                         }
@@ -1346,7 +1347,7 @@ view.ModelFactoryService = class {
             return;
         }
         catch (error) {
-            callback(new ArchiveError(err.message), null);
+            callback(new ArchiveError(error.message), null);
             return;
         }
     }

@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 const electron = require('electron');
 const updater = require('electron-updater');
@@ -37,7 +38,7 @@ class Application {
             }
         });
 
-        electron.ipcMain.on('open-file-dialog', (e, data) => {
+        electron.ipcMain.on('open-file-dialog', () => {
             this._openFileDialog();
         });
 
@@ -100,10 +101,10 @@ class Application {
             this._views.openView();
         }
         this._resetMenu();
-        this._views.on('active-view-changed', (e) => {
+        this._views.on('active-view-changed', () => {
             this._updateMenu();
         });
-        this._views.on('active-view-updated', (e) => {
+        this._views.on('active-view-updated', () => {
             this._updateMenu();
         });
     }
@@ -229,7 +230,7 @@ class Application {
         }
         var autoUpdater = updater.autoUpdater;
         autoUpdater.autoDownload = false;
-        autoUpdater.on('update-available', (info) => {
+        autoUpdater.on('update-available', () => {
             var owner = electron.BrowserWindow.getFocusedWindow();
             var messageBoxOptions = {
                 icon: path.join(__dirname, 'icon.png'),
@@ -608,10 +609,10 @@ class View {
             electron.ipcMain.removeListener('update', this._updateCallback);
             this._owner.closeView(this);
         });
-        this._window.on('focus', (e) => {
+        this._window.on('focus', () => {
             this._raise('activated');
         });
-        this._window.on('blur', (e) => {
+        this._window.on('blur', () => {
             this._raise('deactivated');
         });
         this._window.webContents.on('dom-ready', () => {
@@ -742,10 +743,10 @@ class ViewCollection {
             this._activeView = sender;
             this._raise('active-view-changed', { activeView: this._activeView });
         });
-        view.on('updated', (sender) => {
+        view.on('updated', () => {
             this._raise('active-view-updated', { activeView: this._activeView });
         });
-        view.on('deactivated', (sender) => {
+        view.on('deactivated', () => {
             this._activeView = null;
             this._raise('active-view-changed', { activeView: this._activeView });
         });
@@ -894,11 +895,12 @@ class MenuService {
                 if (command.enabled) {
                     menuItem.enabled = command.enabled(context);
                 }
+                /*
                 if (command.label) {
                     if (menuItem.label != command.label(context)) {
-
                     }
-                }
+                } 
+                */
             }
         });
     }
@@ -909,4 +911,4 @@ class MenuService {
     }
 }
 
-var application = new Application();
+global.application = new Application();

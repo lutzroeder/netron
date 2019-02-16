@@ -1,12 +1,12 @@
-
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var torch = torch || {};
 var base = base || require('./base');
 
 torch.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 't7') {
             var buffer = context.buffer;
@@ -322,9 +322,6 @@ torch.Node = class {
             case 'nn.SpatialReflectionPadding':
             case 'nn.SpatialReplicationPadding':
                 this._updateBox(module, 'pad');
-                break;
-            case 'nn.SpatialFullConvolution':
-                delete module.ones;
                 break;
             case 'nn.Dropout':
                 delete module.noise;
@@ -663,110 +660,110 @@ torch.T7Reader = class {
         this._memo = {};
 
         this._registry = {};
-        this._registry['bnn.Binary'] = function(reader, version) { reader.nn(this); };
-        this._registry['bnn.SpatialConvolution'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.BatchNormalization'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.SpatialConvolution'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.ReLU'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.Sigmoid'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.SoftMax'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.SpatialAveragePooling'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.SpatialBatchNormalization'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.SpatialFullConvolution'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
-        this._registry['cudnn.Tanh'] = function(reader, version) { reader.nn(this); };
-        this._registry['inn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.BinActiveZ'] = function(reader, version) { reader.nn(this); }; // allenai/XNOR-Net
-        this._registry['nn.CAddTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.CDivTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.CSubTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Concat'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Copy'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.ConcatTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.DepthConcat'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Dropout'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.GenNoise'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Identity'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Inception'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.InstanceNormalization'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.JoinTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.LeakyReLU'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Linear'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.LogSoftMax'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Mean'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.MulConstant'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.MM'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Normalize'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.NoiseFill'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Parallel'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.ParallelTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.PReLU'] = function(reader, version) { reader.nn(this); }; 
-        this._registry['nn.ReLU'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Replicate'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Reshape'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.ShaveImage'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SelectTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Sequential'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Sigmoid'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SoftMax'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialAveragePooling'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialBatchNormalization'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialConvolution'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialConvolutionMM'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialCrossMapLRN'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialDilatedConvolution'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialDropout'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialFractionalMaxPooling'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialFullConvolution'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialLPPooling'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialMaxPooling'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialReflectionPadding'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialReplicationPadding'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialSubtractiveNormalization'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialUpSamplingBilinear'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialUpSamplingNearest'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.SpatialZeroPadding'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Square'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Sqrt'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.Tanh'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.TotalVariation'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.View'] = function(reader, version) { reader.nn(this); };
-        this._registry['nn.gModule'] = function(reader, version) { reader.nn(this); };
-        this._registry['nngraph.Node'] = function(reader, version) { reader.nn(this); };
-        this._registry['graph.Edge'] = function(reader, version) { reader.nn(this); };
-        this._registry['graph.Graph'] = function(reader, version) { reader.nn(this); };
-        this._registry['torch.ByteTensor'] = function(reader, version) { reader.tensor(this); };
-        this._registry['torch.CharTensor'] = function(reader, version) { reader.tensor(this); };
-        this._registry['torch.ShortTensor'] = function(reader, version) { reader.tensor(this); };
-        this._registry['torch.IntTensor'] = function(reader, version) { reader.tensor(this); };
-        this._registry['torch.LongTensor'] = function(reader, version) { reader.tensor(this); };
-        this._registry['torch.FloatTensor'] = function(reader, version) { reader.tensor(this); };
-        this._registry['torch.DoubleTensor'] = function(reader, version) { reader.tensor(this); };
-        this._registry['torch.CudaByteTensor'] = function(reader, version) {reader.tensor(this); };
-        this._registry['torch.CudaCharTensor'] = function(reader, version) {reader.tensor(this); };
-        this._registry['torch.CudaShortTensor'] = function(reader, version) {reader.tensor(this); };
-        this._registry['torch.CudaIntTensor'] = function(reader, version) {reader.tensor(this); };
-        this._registry['torch.CudaLongTensor'] = function(reader, version) {reader.tensor(this); };
-        this._registry['torch.CudaTensor'] = function(reader, version) {reader.tensor(this); };
-        this._registry['torch.CudaDoubleTensor'] = function(reader, version) {reader.tensor(this); };
-        this._registry['torch.ByteStorage'] = function(reader, version) { reader.storage(this, 'uint8', 1); };
-        this._registry['torch.CharStorage'] = function(reader, version) { reader.storage(this, 'int8', 1); };
-        this._registry['torch.ShortStorage'] = function(reader, version) { reader.storage(this, 'int16', 2); };
-        this._registry['torch.IntStorage'] = function(reader, version) { reader.storage(this, 'int32', 4); };
-        this._registry['torch.LongStorage'] = function(reader, version) { reader.storage(this, 'int64', 8); };
-        this._registry['torch.FloatStorage'] = function(reader, version) { reader.storage(this, 'float32', 4); };
-        this._registry['torch.DoubleStorage'] = function(reader, version) { reader.storage(this, 'float64', 8); };
-        this._registry['torch.CudaByteStorage'] = function(reader, version) { reader.storage(this, 'uint8', 1); };
-        this._registry['torch.CudaCharStorage'] = function(reader, version) { reader.storage(this, 'int8', 1); };
-        this._registry['torch.CudaShortStorage'] = function(reader, version) { reader.storage(this, 'int16', 2); };
-        this._registry['torch.CudaIntStorage'] = function(reader, version) { reader.storage(this, 'int32', 4); };
-        this._registry['torch.CudaLongStorage'] = function(reader, version) { reader.storage(this, 'int64', 8); };
-        this._registry['torch.CudaIntStorage'] = function(reader, version) { reader.storage(this, 'int32', 4); };
-        this._registry['torch.CudaStorage'] = function(reader, version) { reader.storage(this, 'float32', 4); };
-        this._registry['torch.CudaFloatStorage'] = function(reader, version) { reader.storage(this, 'float64', 8); };
-        this._registry['w2nn.AuxiliaryLossTable'] = function(reader, version) { reader.nn(this); };
-        this._registry['w2nn.InplaceClip01'] = function(reader, version) { reader.nn(this); };
-        this._registry['w2nn.ScaleTable'] = function(reader, version) { reader.nn(this); };
+        this._registry['bnn.Binary'] = function(reader) { reader.nn(this); };
+        this._registry['bnn.SpatialConvolution'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.BatchNormalization'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.SpatialConvolution'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.ReLU'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.Sigmoid'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.SoftMax'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.SpatialAveragePooling'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.SpatialBatchNormalization'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.SpatialFullConvolution'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.Tanh'] = function(reader) { reader.nn(this); };
+        this._registry['inn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.BinActiveZ'] = function(reader) { reader.nn(this); }; // allenai/XNOR-Net
+        this._registry['nn.CAddTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.CDivTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.CSubTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Concat'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Copy'] = function(reader) { reader.nn(this); };
+        this._registry['nn.ConcatTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.DepthConcat'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Dropout'] = function(reader) { reader.nn(this); };
+        this._registry['nn.GenNoise'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Identity'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Inception'] = function(reader) { reader.nn(this); };
+        this._registry['nn.InstanceNormalization'] = function(reader) { reader.nn(this); };
+        this._registry['nn.JoinTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.LeakyReLU'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Linear'] = function(reader) { reader.nn(this); };
+        this._registry['nn.LogSoftMax'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Mean'] = function(reader) { reader.nn(this); };
+        this._registry['nn.MulConstant'] = function(reader) { reader.nn(this); };
+        this._registry['nn.MM'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Normalize'] = function(reader) { reader.nn(this); };
+        this._registry['nn.NoiseFill'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Parallel'] = function(reader) { reader.nn(this); };
+        this._registry['nn.ParallelTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.PReLU'] = function(reader) { reader.nn(this); }; 
+        this._registry['nn.ReLU'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Replicate'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Reshape'] = function(reader) { reader.nn(this); };
+        this._registry['nn.ShaveImage'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SelectTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Sequential'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Sigmoid'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SoftMax'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialAveragePooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialBatchNormalization'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialConvolution'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialConvolutionMM'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialCrossMapLRN'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialDilatedConvolution'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialDropout'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialFractionalMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialFullConvolution'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialLPPooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialReflectionPadding'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialReplicationPadding'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialSubtractiveNormalization'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialUpSamplingBilinear'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialUpSamplingNearest'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialZeroPadding'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Square'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Sqrt'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Tanh'] = function(reader) { reader.nn(this); };
+        this._registry['nn.TotalVariation'] = function(reader) { reader.nn(this); };
+        this._registry['nn.View'] = function(reader) { reader.nn(this); };
+        this._registry['nn.gModule'] = function(reader) { reader.nn(this); };
+        this._registry['nngraph.Node'] = function(reader) { reader.nn(this); };
+        this._registry['graph.Edge'] = function(reader) { reader.nn(this); };
+        this._registry['graph.Graph'] = function(reader) { reader.nn(this); };
+        this._registry['torch.ByteTensor'] = function(reader) { reader.tensor(this); };
+        this._registry['torch.CharTensor'] = function(reader) { reader.tensor(this); };
+        this._registry['torch.ShortTensor'] = function(reader) { reader.tensor(this); };
+        this._registry['torch.IntTensor'] = function(reader) { reader.tensor(this); };
+        this._registry['torch.LongTensor'] = function(reader) { reader.tensor(this); };
+        this._registry['torch.FloatTensor'] = function(reader) { reader.tensor(this); };
+        this._registry['torch.DoubleTensor'] = function(reader) { reader.tensor(this); };
+        this._registry['torch.CudaByteTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.CudaCharTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.CudaShortTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.CudaIntTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.CudaLongTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.CudaTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.CudaDoubleTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.ByteStorage'] = function(reader) { reader.storage(this, 'uint8', 1); };
+        this._registry['torch.CharStorage'] = function(reader) { reader.storage(this, 'int8', 1); };
+        this._registry['torch.ShortStorage'] = function(reader) { reader.storage(this, 'int16', 2); };
+        this._registry['torch.IntStorage'] = function(reader) { reader.storage(this, 'int32', 4); };
+        this._registry['torch.LongStorage'] = function(reader) { reader.storage(this, 'int64', 8); };
+        this._registry['torch.FloatStorage'] = function(reader) { reader.storage(this, 'float32', 4); };
+        this._registry['torch.DoubleStorage'] = function(reader) { reader.storage(this, 'float64', 8); };
+        this._registry['torch.CudaByteStorage'] = function(reader) { reader.storage(this, 'uint8', 1); };
+        this._registry['torch.CudaCharStorage'] = function(reader) { reader.storage(this, 'int8', 1); };
+        this._registry['torch.CudaShortStorage'] = function(reader) { reader.storage(this, 'int16', 2); };
+        this._registry['torch.CudaIntStorage'] = function(reader) { reader.storage(this, 'int32', 4); };
+        this._registry['torch.CudaLongStorage'] = function(reader) { reader.storage(this, 'int64', 8); };
+        this._registry['torch.CudaIntStorage'] = function(reader) { reader.storage(this, 'int32', 4); };
+        this._registry['torch.CudaStorage'] = function(reader) { reader.storage(this, 'float32', 4); };
+        this._registry['torch.CudaFloatStorage'] = function(reader) { reader.storage(this, 'float64', 8); };
+        this._registry['w2nn.AuxiliaryLossTable'] = function(reader) { reader.nn(this); };
+        this._registry['w2nn.InplaceClip01'] = function(reader) { reader.nn(this); };
+        this._registry['w2nn.ScaleTable'] = function(reader) { reader.nn(this); };
 
         if (buffer.length == 0) {
             throw new torch.Error('File is empty.');
@@ -1070,7 +1067,7 @@ torch.TextReader = class {
         return this.int32() == 1;
     }
 
-    bytes(size) {
+    bytes(/* size */) {
         throw new torch.Error('Byte array not supported in ASCII mode.');
     }
 
@@ -1144,7 +1141,7 @@ torch.TextReader = class {
         return text;
     }
 
-    storage(size, itemSize) {
+    storage(size /*, itemSize */) {
         var data = size > 0 ? this.line(Number.MAX_SAFE_INTEGER) : new Uint8Array(0);
         return new torch.TextReader(data, 0x20);
     }

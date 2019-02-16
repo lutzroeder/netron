@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var onnx = onnx || {};
 var base = base || require('./base');
@@ -8,7 +9,7 @@ var marked = marked || require('marked');
 
 onnx.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'onnx') {
@@ -65,7 +66,7 @@ onnx.ModelFactory = class {
     }
 
     open(context, host, callback) { 
-        host.require('./onnx-proto', (err, module) => {
+        host.require('./onnx-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -613,7 +614,7 @@ onnx.Attribute = class {
             }
         }
         else if (attribute.graphs && attribute.graphs.length > 0) {
-            this._value = arg.graphs.map((graph) => new onnx.Graph(metadata, imageFormat, graph));
+            this._value = attribute.graphs.map((graph) => new onnx.Graph(metadata, imageFormat, graph));
             this._type = 'graph[]';
         }
         else if (attribute.s && attribute.s.length > 0) {
@@ -1137,7 +1138,7 @@ onnx.MapType = class {
 
 onnx.OpaqueType = class {
 
-    constructor(domain, name, parameters) {
+    constructor(domain, name) {
         this._domain = domain;
         this._name = name;
     }

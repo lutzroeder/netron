@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental
 
@@ -8,7 +9,7 @@ var marked = marked || require('marked');
 
 sklearn.ModelFactory = class {
 
-    match(context, host) {
+    match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'pkl' || extension == 'joblib') {
             var buffer = context.buffer;
@@ -128,7 +129,7 @@ sklearn.ModelFactory = class {
                         return array;
                     };
                 };
-                constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(subtype, shape, dtype) {
+                constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(/* subtype, shape, dtype */) {
                     this.__setstate__ = function(state) {
                         this.subclass = state.subclass;
                         this.dtype = state.dtype;
@@ -251,7 +252,7 @@ sklearn.ModelFactory = class {
                     }
                     throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
                 };
-                functionTable['numpy.ma.core._mareconstruct'] = function(subtype, baseclass, baseshape, basetype) {
+                functionTable['numpy.ma.core._mareconstruct'] = function(subtype /* , baseclass, baseshape, basetype */) {
                     // _data = ndarray.__new__(baseclass, baseshape, basetype)
                     // _mask = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
                     // return subtype.__new__(subtype, _data, mask=_mask, dtype=basetype,)
@@ -259,10 +260,10 @@ sklearn.ModelFactory = class {
                     obj.__type__ = subtype;
                     return obj;
                 };
-                functionTable['_codecs.encode'] = function(obj, econding) {
+                functionTable['_codecs.encode'] = function(obj /*, econding */) {
                     return obj;
                 };
-                functionTable['collections.defaultdict'] = function(default_factory) {
+                functionTable['collections.defaultdict'] = function(/* default_factory */) {
                     return {};
                 };
                 functionTable['__builtin__.bytearray'] = function(data, encoding) {

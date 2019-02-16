@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var host = host || {};
 
@@ -67,56 +68,56 @@ host.ElectronHost = class {
         this._view = view;
         this._view.show('Welcome');
 
-        electron.ipcRenderer.on('open', (event, data) => {
+        electron.ipcRenderer.on('open', (_, data) => {
             this._openFile(data.file);
         });
-        electron.ipcRenderer.on('export', (event, data) => {
+        electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
         });
-        electron.ipcRenderer.on('cut', (event, data) => {
+        electron.ipcRenderer.on('cut', () => {
             this._view.cut();
         });
-        electron.ipcRenderer.on('copy', (event, data) => {
+        electron.ipcRenderer.on('copy', () => {
             this._view.copy();
         });
-        electron.ipcRenderer.on('paste', (event, data) => {
+        electron.ipcRenderer.on('paste', () => {
             this._view.paste();
         });
-        electron.ipcRenderer.on('selectall', (event, data) => {
+        electron.ipcRenderer.on('selectall', () => {
             this._view.selectAll();
         });
-        electron.ipcRenderer.on('toggle-attributes', (event, data) => {
+        electron.ipcRenderer.on('toggle-attributes', () => {
             this._view.toggleAttributes();
             this._update('show-attributes', this._view.showAttributes);
         });
-        electron.ipcRenderer.on('toggle-initializers', (event, data) => {
+        electron.ipcRenderer.on('toggle-initializers', () => {
             this._view.toggleInitializers();
             this._update('show-initializers', this._view.showInitializers);
         });
-        electron.ipcRenderer.on('toggle-names', (event, data) => {
+        electron.ipcRenderer.on('toggle-names', () => {
             this._view.toggleNames();
             this._update('show-names', this._view.showNames);
         });
-        electron.ipcRenderer.on('zoom-in', (event, data) => {
+        electron.ipcRenderer.on('zoom-in', () => {
             document.getElementById('zoom-in-button').click();
         });
-        electron.ipcRenderer.on('zoom-out', (event, data) => {
+        electron.ipcRenderer.on('zoom-out', () => {
             document.getElementById('zoom-out-button').click();
         });
-        electron.ipcRenderer.on('reset-zoom', (event, data) => {
+        electron.ipcRenderer.on('reset-zoom', () => {
             this._view.resetZoom();
         });
-        electron.ipcRenderer.on('show-properties', (event, data) => {
+        electron.ipcRenderer.on('show-properties', () => {
             document.getElementById('model-properties-button').click();
         });
-        electron.ipcRenderer.on('find', (event, data) => {
+        electron.ipcRenderer.on('find', () => {
             this._view.find();
         });
 
         var openFileButton = document.getElementById('open-file-button');
         if (openFileButton) {
             openFileButton.style.opacity = 1;
-            openFileButton.addEventListener('click', (e) => {
+            openFileButton.addEventListener('click', () => {
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
         }
@@ -237,7 +238,7 @@ host.ElectronHost = class {
                 var description = [];
                 description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
                 if (err.stack) {
-                    var match = err.stack.match(/\n    at (.*)\((.*)\)/);
+                    var match = err.stack.match(/\n {4}at (.*)\((.*)\)/);
                     if (match) {
                         description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
                     }
@@ -248,9 +249,10 @@ host.ElectronHost = class {
                     applicationVersion: this.version,
                     userAgentOverride: navigator.userAgent
                 };
-                this._telemetry.exception(description.join(' @ '), fatal, params, (err) => { });
+                this._telemetry.exception(description.join(' @ '), fatal, params, () => { });
             }
             catch (e) {
+                // continue regardless of error
             }
         }
     }
@@ -261,9 +263,10 @@ host.ElectronHost = class {
                 var params = {
                     userAgentOverride: navigator.userAgent
                 };
-                this._telemetry.screenview(name, this.type, this.version, null, null, params, (err) => { });
+                this._telemetry.screenview(name, this.type, this.version, null, null, params, () => { });
             }
             catch (e) {
+                // continue regardless of error
             }
         }
     }
@@ -276,9 +279,10 @@ host.ElectronHost = class {
                     applicationVersion: this.version,
                     userAgentOverride: navigator.userAgent
                 };
-                this._telemetry.event(category, action, label, value, params, (err) => { });
+                this._telemetry.event(category, action, label, value, params, () => { });
             }
             catch (e) {
+                // continue regardless of error
             }
         }
     }

@@ -74,9 +74,10 @@ schema() {
     rm ${tools}/tflite.schema.fbs
 cat <<EOT >> ${src}/tflite-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports = tflite_schema;
+  module.exports = tflite_schema;
 }
 EOT
+    echo "/* eslint 'indent': [ 'error', 2 ] */" | cat - ${src}/tflite-schema.js > ${src}/tflite-schema_2.js && mv ${src}/tflite-schema_2.js ${src}/tflite-schema.js
 }
 
 visualize() {

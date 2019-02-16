@@ -1,4 +1,6 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
+/* global pako */
 
 var zip = zip || {};
 
@@ -274,7 +276,7 @@ zip.Inflater = class {
         var buffer = output.buffer;
         var position = output.position;
         var start = position;
-        while (true) {
+        for (;;) {
             if (position > 62464) {
                 output.position = position;
                 output.push(new Uint8Array(buffer.subarray(start, position)));
@@ -390,7 +392,7 @@ zip.BitReader = class {
 
     bytes(size) {
         var value = this.buffer.subarray(this.position, this.position + size);
-        reader.position += size;
+        this.position += size;
         return value;
     }
 

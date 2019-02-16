@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var openvino = openvino || {};
 var marked = marked || require('marked');
@@ -34,7 +35,7 @@ openvino.ModelFactory = class {
         openvino.Metadata.open(host, (err, metadata) => {
             try {
                 var errors = false;
-                var parser = new DOMParser({ errorHandler: (level, message) => { errors = true; } });
+                var parser = new DOMParser({ errorHandler: () => { errors = true; } });
                 var xml = parser.parseFromString(context.text, 'text/xml');
                 if (errors || xml.documentElement == null || xml.getElementsByTagName('parsererror').length > 0) {
                     callback(new openvino.Error('File format is not OpenVINO XML.'), null);
@@ -70,8 +71,8 @@ openvino.ModelFactory = class {
 
 openvino.Model = class {
 
-    constructor(metadata, net$, init) {
-        var graph = new openvino.Graph(metadata, net$, init);
+    constructor(metadata, net$) {
+        var graph = new openvino.Graph(metadata, net$);
         this._graphs = [ graph ];
     }
 
@@ -87,7 +88,7 @@ openvino.Model = class {
 
 openvino.Graph = class {
 
-    constructor(metadata, net$, init) {
+    constructor(metadata, net$) {
         this._metadata = metadata;
         this._name = net$.getAttribute('name') || '';
         this._batch = net$.getAttribute('batch') || '';
@@ -128,7 +129,7 @@ openvino.Graph = class {
                     this._inputs.push(new openvino.Argument(name, connections));
                     break;
                 default:
-                    this.addNewNode(new openvino.Node(this, this._metadata, layer$, this._version, edgeMap, layers));
+                    this._nodes.push(new openvino.Node(this, this._metadata, layer$, edgeMap));
                     break;
             }
         });
@@ -344,7 +345,7 @@ openvino.Graph = class {
 
 openvino.Node = class {
 
-    constructor(graph, metadata, layer$, version, edgeMap, layers) {
+    constructor(graph, metadata, layer$, edgeMap) {
         this._metadata = metadata;
         this._type = layer$.getAttribute('type');
         this._name = layer$.getAttribute('name') || '';
@@ -561,9 +562,8 @@ openvino.Attribute = class {
                     case 'int32[]':
                         if (this._value.length > 2) {
                             var array = [];
-                            var items = this._value.split(',');
-                            items = items.map((item) => item.trim());
-                            items = items.map((item) => {
+                            this._value.split(',').map((item) => {
+                                item = item.trim();
                                 var intValue = Number.parseInt(item, 10);
                                 if (Number.isNaN(item - intValue)) {
                                     array = null;

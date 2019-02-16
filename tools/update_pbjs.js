@@ -1,4 +1,6 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
+/* eslint "no-console": off */
 
 const fs = require('fs');
 const process = require('process');
@@ -37,12 +39,12 @@ var replace = '';
 
 switch (pattern) {
     case 'array':
-search = `if ((tag & 7) === 2) {
+        search = `if ((tag & 7) === 2) {
     var end2 = reader.uint32() + reader.pos;
     while (reader.pos < end2)
         message.$(variable).push(reader.$(type)());
 } else`;
-replace = `if ((tag & 7) === 2) {
+        replace = `if ((tag & 7) === 2) {
     var end2 = reader.uint32() + reader.pos;
     if (message.$(variable).length == 0 && (end2 - reader.pos) > 1048576) {
         var $(variable)Length = end2 - reader.pos;
@@ -63,7 +65,7 @@ replace = `if ((tag & 7) === 2) {
         break;
 
     case 'enumeration':
-search = `if (!(message.$(variable) && message.$(variable).length))
+        search = `if (!(message.$(variable) && message.$(variable).length))
     message.$(variable) = [];
 if ((tag & 7) === 2) {
     var end2 = reader.uint32() + reader.pos;
@@ -73,7 +75,7 @@ if ((tag & 7) === 2) {
     message.$(variable).push(reader.$(type)());
 break;`;
 
-replace = `if (!(message.$(variable) && message.$(variable).length)) {
+        replace = `if (!(message.$(variable) && message.$(variable).length)) {
     if (message.$(variable) != -1) {
         message.$(variable) = [];
         message.$(variable)Count = 0;

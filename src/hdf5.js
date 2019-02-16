@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental H5/HDF5 JavaScript reader
 
@@ -219,7 +220,7 @@ hdf5.Reader = class {
         }
     }
 
-    initialize(offsetSize, lengthSize) {
+    initialize() {
         this._offsetSize = this.byte();
         this._lengthSize = this.byte();
     }
@@ -362,7 +363,7 @@ hdf5.Reader = class {
     offset() { 
         switch (this._offsetSize) {
             case 8:
-               return this.uint64();
+                return this.uint64();
             case 4:
                 return this.uint32(); 
         }
@@ -372,7 +373,7 @@ hdf5.Reader = class {
     length() {
         switch (this._lengthSize) {
             case 8:
-               return this.uint64();
+                return this.uint64();
             case 4:
                 return this.uint32(); 
         }
@@ -525,8 +526,8 @@ hdf5.DataObjectHeader = class {
             reader.uint32();
         }
         if ((flags & 0x10) != 0) {
-            var maxCompactAttributes = reader.uint16();
-            var minDenseAttributes = reader.uint16();
+            reader.uint16();
+            reader.uint16();
         }
         var size = reader.uint(flags & 0x03);
         var next = true;
@@ -537,7 +538,7 @@ hdf5.DataObjectHeader = class {
             var messageFlags = reader.byte();
             if (reader.position < end) {
                 if ((flags & 0x04) != 0) {
-                    var messageCreationOrder = reader.uint16();
+                    reader.uint16();
                 }
                 next = this.readMessage(reader, messageType, messageSize, messageFlags);
             } 
@@ -1051,12 +1052,12 @@ hdf5.Tree = class {
         var type = reader.byte();
         var level = reader.byte();
         var entriesUsed = reader.uint16();
-        var leftSiblingAddress = reader.offset();
-        var rightSiblingAddress = reader.offset();
+        reader.offset();
+        reader.offset();
         this.nodes = [];
         if (type == 0) {
             for (var i = 0; i < entriesUsed; i++) {
-                var objectNameOffset = reader.length();
+                reader.length();
                 var childPointer = reader.offset();
                 if (level == 0) {
                     this.nodes.push(new hdf5.SymbolTableNode(reader.move(childPointer)));
@@ -1165,7 +1166,7 @@ hdf5.GlobalHeapCollection = class {
 hdf5.GlobalHeapObject = class {
 
     constructor(reader) {
-        var referenceCount = reader.uint16();
+        reader.uint16();
         reader.seek(4);
         var size = reader.length();
         this.data = reader.bytes(size);

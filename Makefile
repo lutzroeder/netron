@@ -20,6 +20,10 @@ build_electron:
 	npx electron-builder install-app-deps
 	npx electron-builder --mac --linux --win
 
+lint:
+	@[ -d node_modules ] || npm install
+	npx eslint src/*.js test/*.js
+
 start:
 	@[ -d node_modules ] || npm install
 	npx electron .

@@ -1,10 +1,11 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
+/* eslint "no-console": off */
 
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
 const child_process = require('child_process');
-const vm = require('vm');
 const http = require('http');
 const https = require('https');
 const url = require('url');
@@ -62,7 +63,7 @@ class TestHost {
         this.document = new HTMLDocument();
     }
 
-    initialize(view) {
+    initialize(/* view */) {
     }
 
     environment(name) {
@@ -72,7 +73,7 @@ class TestHost {
         return null;
     }
 
-    screen(name) {
+    screen(/* name */) {
     }
 
     require(id, callback) {
@@ -105,10 +106,10 @@ class TestHost {
         });
     }
 
-    event(category, action, label, value) {
+    event(/* category, action, label, value */) {
     }
 
-    exception(err, fatal) {
+    exception(err /*, fatal */) {
         this._exceptions.push(err);
     }
 
@@ -125,11 +126,11 @@ class HTMLDocument {
         this.body = new HTMLBodyElement();
     }
 
-    createElementNS(namespace, name) {
+    createElementNS(/* namespace, name */) {
         return new HTMLHtmlElement();
     }
 
-    createTextNode(text) {
+    createTextNode(/* text */) {
         return new HTMLHtmlElement();
     }
 
@@ -142,37 +143,39 @@ class HTMLDocument {
         return element;
     }
 
-    addEventListener(event, callback) {
+    addEventListener(/* event, callback */) {
     }
 
-    removeEventListener(event, callback) {
+    removeEventListener(/* event, callback */) {
     }
 }
 
 class HTMLHtmlElement {
 
     constructor() {
+        this._attributes = {};
         this.style = new CSSStyleDeclaration();
     }
 
-    appendChild(node) {
+    appendChild(/* node */) {
     }
 
     setAttribute(name, value) {
+        this._attributes[name] = value;
     }
 
     getBBox() {
         return { x: 0, y: 0, width: 10, height: 10 };
     }
     
-    getElementsByClassName(name) {
+    getElementsByClassName(/* name */) {
         return null;
     }
 
-    addEventListener(event, callback) {
+    addEventListener(/* event, callback */) {
     }
 
-    removeEventListener(event, callback) {
+    removeEventListener(/* event, callback */) {
     }
 }
 
@@ -182,17 +185,19 @@ class HTMLBodyElement {
         this.style = new CSSStyleDeclaration();
     }
 
-    addEventListener(event, callback) {
+    addEventListener(/* event, callback */) {
     }
 }
 
 class CSSStyleDeclaration {
 
-    setProperty(name, value) {
+    constructor() {
+        this._properties = {};
     }
-}
 
-class SVGElement {
+    setProperty(name, value) {
+        this._properties[name] = value;
+    }
 }
 
 class TestContext {
@@ -277,11 +282,11 @@ function makeDir(dir) {
 
 function decompress(buffer, identifier) {
     var archive = null;
-    extension = identifier.split('.').pop().toLowerCase();
+    var extension = identifier.split('.').pop().toLowerCase();
     if (extension == 'gz' || extension == 'tgz') {
         archive = new gzip.Archive(buffer);
         if (archive.entries.length == 1) {
-            entry = archive.entries[0];
+            var entry = archive.entries[0];
             if (entry.name) {
                 identifier = entry.name;
             }
@@ -416,7 +421,7 @@ function download(folder, targets, sources, completed, callback) {
             process.stdout.write('  decompress...\r');
             var archive = decompress(data, source.split('/').pop());
             // console.log(archive);
-            sourceFiles.forEach((file, index) => {
+            sourceFiles.forEach((file) => {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
                 }
@@ -498,8 +503,8 @@ function loadModel(target, item, callback) {
                     });
                 });
                 graph.nodes.forEach((node) => {
-                    var documentation = node.documentation;
-                    var category = node.category;
+                    node.documentation;
+                    node.category;
                     node.attributes.forEach((attribute) => {
                         var value = view.View.formatAttributeValue(attribute.value, attribute.type)
                         if (value && value.length > 1000) {
@@ -513,7 +518,7 @@ function loadModel(target, item, callback) {
                                 connection.type.toString();
                             }
                             if (connection.initializer) {
-                                var value = connection.initializer.toString();
+                                connection.initializer.toString();
                             }
                         });
                     });
