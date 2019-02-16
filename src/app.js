@@ -225,7 +225,7 @@ class Application {
     }
 
     _checkForUpdates() {
-        if (this._isDev()) {
+        if (!electron.app.isPackaged) {
             return;
         }
         var autoUpdater = updater.autoUpdater;
@@ -278,12 +278,6 @@ class Application {
             detail: details.join('\n')
         };
         electron.dialog.showMessageBox(owner, aboutDialogOptions);
-    }
-
-    _isDev() {
-        return ('ELECTRON_IS_DEV' in process.env) ?
-            (parseInt(process.env.ELECTRON_IS_DEV, 10) === 1) :
-            (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
     }
 
     _updateMenu() {
@@ -457,7 +451,7 @@ class Application {
                 }        
             ]
         };
-        if (this._isDev()) {
+        if (!electron.app.isPackaged) {
             viewTemplate.submenu.push({ type: 'separator' });
             viewTemplate.submenu.push({ role: 'toggledevtools' });
         }

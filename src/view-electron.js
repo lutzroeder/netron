@@ -13,11 +13,7 @@ const view = require('./view');
 host.ElectronHost = class {
 
     constructor() {
-        this._isDev = ('ELECTRON_IS_DEV' in process.env) ?
-            (parseInt(process.env.ELECTRON_IS_DEV, 10) === 1) :
-            (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
-
-        if (!this._isDev) {
+        if (electron.remote.app.isPackaged) {
             this._telemetry = require('universal-analytics')('UA-54146-13');
         }
 
