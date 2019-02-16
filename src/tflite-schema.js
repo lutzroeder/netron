@@ -143,7 +143,8 @@ tflite_schema.BuiltinOperator = {
   ADD_N: 106, 106: 'ADD_N',
   GATHER_ND: 107, 107: 'GATHER_ND',
   COS: 108, 108: 'COS',
-  WHERE: 109, 109: 'WHERE'
+  WHERE: 109, 109: 'WHERE',
+  RANK: 110, 110: 'RANK'
 };
 
 /**
@@ -235,7 +236,8 @@ tflite_schema.BuiltinOptions = {
   AddNOptions: 82, 82: 'AddNOptions',
   GatherNdOptions: 83, 83: 'GatherNdOptions',
   CosOptions: 84, 84: 'CosOptions',
-  WhereOptions: 85, 85: 'WhereOptions'
+  WhereOptions: 85, 85: 'WhereOptions',
+  RankOptions: 86, 86: 'RankOptions'
 };
 
 /**
@@ -6380,6 +6382,66 @@ tflite_schema.ShapeOptions.createShapeOptions = function(builder, outType) {
   tflite_schema.ShapeOptions.startShapeOptions(builder);
   tflite_schema.ShapeOptions.addOutType(builder, outType);
   return tflite_schema.ShapeOptions.endShapeOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.RankOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.RankOptions}
+ */
+tflite_schema.RankOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.RankOptions=} obj
+ * @returns {tflite_schema.RankOptions}
+ */
+tflite_schema.RankOptions.getRootAsRankOptions = function(bb, obj) {
+  return (obj || new tflite_schema.RankOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.RankOptions.startRankOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.RankOptions.endRankOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.RankOptions.createRankOptions = function(builder) {
+  tflite_schema.RankOptions.startRankOptions(builder);
+  return tflite_schema.RankOptions.endRankOptions(builder);
 }
 
 /**
