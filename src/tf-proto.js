@@ -2638,6 +2638,7 @@
             function OpDef(properties) {
                 this.input_arg = [];
                 this.output_arg = [];
+                this.control_output = [];
                 this.attr = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -2648,6 +2649,7 @@
             OpDef.prototype.name = "";
             OpDef.prototype.input_arg = $util.emptyArray;
             OpDef.prototype.output_arg = $util.emptyArray;
+            OpDef.prototype.control_output = $util.emptyArray;
             OpDef.prototype.attr = $util.emptyArray;
             OpDef.prototype.deprecation = null;
             OpDef.prototype.summary = "";
@@ -2680,6 +2682,11 @@
                         if (!(message.output_arg && message.output_arg.length))
                             message.output_arg = [];
                         message.output_arg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
+                        break;
+                    case 20:
+                        if (!(message.control_output && message.control_output.length))
+                            message.control_output = [];
+                        message.control_output.push(reader.string());
                         break;
                     case 4:
                         if (!(message.attr && message.attr.length))
@@ -2736,6 +2743,18 @@
                         if (!(message.output_arg && message.output_arg.length))
                             message.output_arg = [];
                         message.output_arg.push($root.tensorflow.OpDef.ArgDef.decodeText(reader, true));
+                        break;
+                    case "control_output":
+                        if (!(message.control_output && message.control_output.length))
+                            message.control_output = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.control_output.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.control_output.push(reader.string());
                         break;
                     case "attr":
                         if (!(message.attr && message.attr.length))
@@ -2801,6 +2820,13 @@
                             return "output_arg." + error;
                     }
                 }
+                if (message.control_output != null && message.hasOwnProperty("control_output")) {
+                    if (!Array.isArray(message.control_output))
+                        return "control_output: array expected";
+                    for (var i = 0; i < message.control_output.length; ++i)
+                        if (!$util.isString(message.control_output[i]))
+                            return "control_output: string[] expected";
+                }
                 if (message.attr != null && message.hasOwnProperty("attr")) {
                     if (!Array.isArray(message.attr))
                         return "attr: array expected";
@@ -2862,6 +2888,13 @@
                         message.output_arg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.output_arg[i]);
                     }
                 }
+                if (object.control_output) {
+                    if (!Array.isArray(object.control_output))
+                        throw TypeError(".tensorflow.OpDef.control_output: array expected");
+                    message.control_output = [];
+                    for (var i = 0; i < object.control_output.length; ++i)
+                        message.control_output[i] = String(object.control_output[i]);
+                }
                 if (object.attr) {
                     if (!Array.isArray(object.attr))
                         throw TypeError(".tensorflow.OpDef.attr: array expected");
@@ -2900,6 +2933,7 @@
                     object.input_arg = [];
                     object.output_arg = [];
                     object.attr = [];
+                    object.control_output = [];
                 }
                 if (options.defaults) {
                     object.name = "";
@@ -2942,6 +2976,11 @@
                     object.is_commutative = message.is_commutative;
                 if (message.allows_uninitialized_input != null && message.hasOwnProperty("allows_uninitialized_input"))
                     object.allows_uninitialized_input = message.allows_uninitialized_input;
+                if (message.control_output && message.control_output.length) {
+                    object.control_output = [];
+                    for (var j = 0; j < message.control_output.length; ++j)
+                        object.control_output[j] = message.control_output[j];
+                }
                 return object;
             };
     
@@ -4747,6 +4786,7 @@
                 this.attr = {};
                 this.node_def = [];
                 this.ret = {};
+                this.control_ret = {};
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -4757,6 +4797,7 @@
             FunctionDef.prototype.attr = $util.emptyObject;
             FunctionDef.prototype.node_def = $util.emptyArray;
             FunctionDef.prototype.ret = $util.emptyObject;
+            FunctionDef.prototype.control_ret = $util.emptyObject;
     
             FunctionDef.create = function create(properties) {
                 return new FunctionDef(properties);
@@ -4792,6 +4833,14 @@
                         key = reader.string();
                         reader.pos++;
                         message.ret[key] = reader.string();
+                        break;
+                    case 6:
+                        reader.skip().pos++;
+                        if (message.control_ret === $util.emptyObject)
+                            message.control_ret = {};
+                        key = reader.string();
+                        reader.pos++;
+                        message.control_ret[key] = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4839,6 +4888,17 @@
                         message.ret[key] = reader.string();
                         reader.assert("}");
                         break;
+                    case "control_ret":
+                        reader.assert("{");
+                        if (message.control_ret === $util.emptyObject)
+                            message.control_ret = {};
+                        reader.assert("key");
+                        reader.value();
+                        key = reader.string();
+                        reader.assert("value");
+                        message.control_ret[key] = reader.string();
+                        reader.assert("}");
+                        break;
                     default:
                         reader.field(tag, message);
                         break;
@@ -4882,6 +4942,14 @@
                         if (!$util.isString(message.ret[key[i]]))
                             return "ret: string{k:string} expected";
                 }
+                if (message.control_ret != null && message.hasOwnProperty("control_ret")) {
+                    if (!$util.isObject(message.control_ret))
+                        return "control_ret: object expected";
+                    var key = Object.keys(message.control_ret);
+                    for (var i = 0; i < key.length; ++i)
+                        if (!$util.isString(message.control_ret[key[i]]))
+                            return "control_ret: string{k:string} expected";
+                }
                 return null;
             };
     
@@ -4921,6 +4989,13 @@
                     for (var keys = Object.keys(object.ret), i = 0; i < keys.length; ++i)
                         message.ret[keys[i]] = String(object.ret[keys[i]]);
                 }
+                if (object.control_ret) {
+                    if (typeof object.control_ret !== "object")
+                        throw TypeError(".tensorflow.FunctionDef.control_ret: object expected");
+                    message.control_ret = {};
+                    for (var keys = Object.keys(object.control_ret), i = 0; i < keys.length; ++i)
+                        message.control_ret[keys[i]] = String(object.control_ret[keys[i]]);
+                }
                 return message;
             };
     
@@ -4933,6 +5008,7 @@
                 if (options.objects || options.defaults) {
                     object.ret = {};
                     object.attr = {};
+                    object.control_ret = {};
                 }
                 if (options.defaults)
                     object.signature = null;
@@ -4953,6 +5029,11 @@
                     object.attr = {};
                     for (var j = 0; j < keys2.length; ++j)
                         object.attr[keys2[j]] = $root.tensorflow.AttrValue.toObject(message.attr[keys2[j]], options);
+                }
+                if (message.control_ret && (keys2 = Object.keys(message.control_ret)).length) {
+                    object.control_ret = {};
+                    for (var j = 0; j < keys2.length; ++j)
+                        object.control_ret[keys2[j]] = message.control_ret[keys2[j]];
                 }
                 return object;
             };
