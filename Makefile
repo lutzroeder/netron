@@ -1,7 +1,9 @@
 
-build: build_python build_electron
+.PHONY: test
 
-publish: clean publish_github_electron publish_pip publish_github_pages publish_cask
+build: clean lint build_python build_electron
+
+publish: clean lint publish_github_electron publish_pip publish_github_pages publish_cask
 
 install:
 	rm -rf ./node_modules
@@ -9,6 +11,11 @@ install:
 
 clean:
 	rm -rf ./build
+
+reset:
+	rm -rf ./build
+	rm -rf ./node_modules
+	rm -rf ./third_party
 
 build_python:
 	@[ -d node_modules ] || npm install
@@ -23,6 +30,10 @@ build_electron:
 lint:
 	@[ -d node_modules ] || npm install
 	npx eslint src/*.js test/*.js
+
+test:
+	@[ -d node_modules ] || npm install
+	node ./test/test.js
 
 start:
 	@[ -d node_modules ] || npm install

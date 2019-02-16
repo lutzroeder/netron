@@ -70,14 +70,18 @@ schema() {
     bold "tflite schema"
     sed 's/namespace tflite;/namespace tflite_schema;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
     ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/tflite.schema.fbs
-    mv ./tflite.schema_generated.js ${src}/tflite-schema.js
     rm ${tools}/tflite.schema.fbs
-cat <<EOT >> ${src}/tflite-schema.js
+    rm ${src}/tflite-schema.js
+    cat <<EOT >> ${src}/tflite-schema.js
+/* eslint 'indent': [ 'error', 2 ] */
+EOT
+    cat ./tflite.schema_generated.js >> ${src}/tflite-schema.js
+    cat <<EOT >> ${src}/tflite-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
   module.exports = tflite_schema;
 }
 EOT
-    echo "/* eslint 'indent': [ 'error', 2 ] */" | cat - ${src}/tflite-schema.js > ${src}/tflite-schema_2.js && mv ${src}/tflite-schema_2.js ${src}/tflite-schema.js
+    rm ./tflite.schema_generated.js
 }
 
 visualize() {

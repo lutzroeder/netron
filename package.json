@@ -14,28 +14,27 @@
         "pull": "git pull --prune",
         "start": "[ -d node_modules ] || npm install && npx electron .",
         "server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@",
-        "clean": "rm -rf ./build ./node_modules ./third_party",
+        "reset": "rm -rf ./build ./node_modules ./third_party",
         "update": "[ -d node_modules ] || npm install && ./tools/update",
         "test": "[ -d node_modules ] || npm install && node ./test/test.js"
     },
     "dependencies": {
-        "d3": "latest",
-        "dagre": "latest",
-        "electron-updater": "^4.0.0",
-        "flatbuffers": "latest",
-        "handlebars": "latest",
-        "long": "latest",
-        "marked": "latest",
-        "npm-font-open-sans": "latest",
-        "pako": "latest",
-        "protobufjs": "lutzroeder/protobuf.js#pbtxt",
-        "universal-analytics": "latest"
+        "d3": "^5.9.1",
+        "dagre": "^0.8.4",
+        "electron-updater": "^4.0.6",
+        "flatbuffers": "^1.10.2",
+        "handlebars": "^4.1.0",
+        "long": "^4.0.0",
+        "marked": "^0.6.0",
+        "npm-font-open-sans": "^1.1.0",
+        "pako": "^1.0.8",
+        "protobufjs": "github:lutzroeder/protobuf.js#pbtxt",
+        "universal-analytics": "^0.4.20"
     },
     "devDependencies": {
-        "electron": "latest",
-        "electron-builder": "latest",
-        "eslint": "latest",
-        "jshint": "latest",
-        "xmldom": "latest"
+        "electron": "^4.0.5",
+        "electron-builder": "^20.38.5",
+        "eslint": "^5.14.0",
+        "xmldom": "^0.1.27"
     }
 }
