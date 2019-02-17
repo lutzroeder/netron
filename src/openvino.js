@@ -10,7 +10,14 @@ openvino.Utils = class {
     }
 
     static findDirectChildrenByName(element, childName) {
-        return Array.from(element.childNodes.values()).reduce((acc, el) => {
+        let whereToSearch;
+        try {
+            whereToSearch = Array.from(element.childNodes.values());
+        } catch (e) {
+            // tests use NodeJS implementation of DOM parser - it does not have the values() function
+            whereToSearch = Object.values(element.childNodes);
+        }
+        return whereToSearch.reduce((acc, el) => {
             if (el.nodeName === childName) {
                 acc.push(el);
             }
@@ -47,6 +54,7 @@ openvino.ModelFactory = class {
                     return;
                 }
                 var model = new openvino.Model(metadata, net$);
+                model.validate();
                 callback(null, model);
                 return;
             } catch (error) {
@@ -82,6 +90,15 @@ openvino.Model = class {
 
     get graphs() {
         return this._graphs;
+    }
+
+    validate() {
+        this._graphs.forEach((graph) => {
+            const pseudoInputsCount = graph.getPseudoInputs().length;
+            if (pseudoInputsCount !== 0){
+                throw Error('Graph contains more than one connected component. Unable to show.');
+            }
+        });
     }
 };
 
@@ -184,6 +201,31 @@ openvino.Graph = class {
         this._nodes.push(node);
     }
 
+    getPseudoInputs() {
+        // all graph elements are split between inputs and nodes
+        // by definition IR is a graph can have inputs of two types: "Input" and "Const"
+        // "Input" layers are already moved to inputs when we parse a graph
+        // if there are any layers that do not have input connections and they are no Const ones
+        // this means that this graph was not properly processed by the graph building logic
+        const allNodesOutputs = this._nodes.reduce((acc, node) => {
+           const nodesRes = this.collectConnectionsIds(node._outputs);
+           acc = acc.concat(nodesRes);
+           return acc;
+        }, []);
+        const allInputsOutputs = this.collectConnectionsIds(this._inputs);
+
+        const outputSet = new Set([...allNodesOutputs, ...allInputsOutputs]);
+        const nodesWithNonExistentInputs = this._nodes.reduce((acc, node) => {
+            const nodesInputs = this.collectConnectionsIds(node._inputs);
+            const diff = nodesInputs.filter((value) => !outputSet.has(value));
+            if (diff.length > 0) {
+                acc.push(node);
+            }
+            return acc;
+        }, []);
+        return nodesWithNonExistentInputs;
+    }
+
     replaceTensorIteratorWithSubgraph(layers, edges) {
         const tiNodes = layers.filter((node$) => node$.getAttribute('type') === 'TensorIterator');
 
@@ -194,14 +236,17 @@ openvino.Graph = class {
             const edgesContainer$ = openvino.Utils.findDirectChildrenByName(body$, 'edges')[0];
             const iteratorLayers = openvino.Utils.findDirectChildrenByName(layersContainer$, 'layer');
             const iteratorEdges = openvino.Utils.findDirectChildrenByName(edgesContainer$, 'edge');
+            const iteratorEdgeMap = this.collectEdges(iteratorEdges);
+            const iteratorBackEdgesContainer$ = openvino.Utils.findDirectChildrenByName(singleTensorIteratorNode$, 'back_edges')[0];
+            const iteratorBackEdges = openvino.Utils.findDirectChildrenByName(iteratorBackEdgesContainer$, 'edge')
+            const iteratorBackEdgesMap = this.collectEdges(iteratorBackEdges);
+            const iteratorAllEdges = Object.assign({}, iteratorEdgeMap, iteratorBackEdgesMap);
 
             const mappingForNestedIR = this.parseMappingBlock(singleTensorIteratorNode$);
 
             iteratorLayers.forEach((nestedLayer$) => {
-                const iteratorEdgeMap = this.collectEdges(iteratorEdges);
-                const nestedNode = new openvino.Node(this, this._metadata, nestedLayer$, this._version, iteratorEdgeMap, iteratorLayers);
-                
-                nestedNode._id = `${singleTensorIteratorNodeId}_${nestedLayer$.id}`;
+                const nestedNode = new openvino.Node(this, this._metadata, nestedLayer$, iteratorAllEdges);
+                nestedNode._id = `${singleTensorIteratorNodeId}_${nestedLayer$.getAttribute('id')}`;
                 nestedNode._inputs.forEach((input) => {
                     input.connections.forEach((connection) => {
                         // we had a connection with id: 0:1  - meaning from layer "0" and its port "1"
@@ -222,7 +267,6 @@ openvino.Graph = class {
                         if (!connection._id){
                             return;
                         }
-                        const port = connection._id.split(':')[1];
                         connection._id = `${singleTensorIteratorNodeId}_${connection._id}`;
                     });
                 });
@@ -236,7 +280,6 @@ openvino.Graph = class {
             // aware of the external context
             mappingForNestedIR.input.forEach((nestedInput) => {
                 const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNodeId}_${nestedInput.internal_layer_id}`);
-
                 const candidate_edges = edges.filter((edge$) => {
                     return edge$.getAttribute('to-layer') === singleTensorIteratorNodeId && 
                             edge$.getAttribute('to-port') === nestedInput.external_port_id;
@@ -247,33 +290,25 @@ openvino.Graph = class {
                 candidate_edges.forEach((candidate_edge$) => {
                     const parentLayerID = candidate_edge$.getAttribute('from-layer');
                     const parentPortID = candidate_edge$.getAttribute('from-port');
-                    let parent = this._nodes.find((layer) => layer._id === parentLayerID);
-                    if (!parent) {
-                        // it can be the input connection
-                        parent = this._inputs.find((layer) => {
-                            const res = layer._connections
-                                .map((el) => el._id.split(':')[0] === parentLayerID)
-                                .filter((el) => Boolean(el));
-                            return res.length > 0;
-                        });
-                    }
-                    if (!nestedNode._inputs){
-                        alert('Here in the unlimited inputs');
-                        nestedNode._inputs = [];
-                        nestedNode._inputs.push(parent.id);
-                    } else {
-                        // TODO: why nestedNode._inputs[0]??
-                        nestedNode._inputs[nestedInput.internal_port_id]._connections[0]._id = `${parentLayerID}:${parentPortID}`;
-                    }
                     
-                    // // TODO: why parent._outputs[0]??
-                    // if (parent && parent._outputs && parent._outputs[0]._connections) {
-                    //     parent._outputs[0]._connections.forEach((connection) => {
-                    //         if (connection._id && connection._id.split(':')[0] === singleTensorIteratorNodeId){
-                    //             connection._id = `${nestedNode.id}:${connection._id.split(':')[1]}`;
-                    //         }
-                    //     });
-                    // }
+                    if (!nestedNode._inputs){
+                        throw Error(`Tensor Iterator node with name ${nestedNode._name} does not have inputs. Unable to process it.`);
+                    }
+                    const newId = `${parentLayerID}:${parentPortID}`;
+                    const inputWithoutId = nestedNode._inputs.find((input) => {
+                        return Boolean(input._connections.find((connection)=> !Boolean(connection._id)));
+                    });
+                    if (inputWithoutId) {
+                        const connectionWithoutId = inputWithoutId._connections.find((connection)=> !Boolean(connection._id));
+                        if (connectionWithoutId){
+                            connectionWithoutId._id = newId;;
+                        } 
+                    } else {
+                        // TODO: no tensor information in the new connection - passed as null for now
+                        nestedNode._inputs.push(new openvino.Argument((nestedNode._inputs.length+1).toString(), [
+                            new openvino.Connection(newId, null, null)
+                        ]));
+                    }
                 });
             });
 
@@ -340,6 +375,17 @@ openvino.Graph = class {
             input: this.collectPortsInformation(inputs),
             output: this.collectPortsInformation(outputs)
         };
+    }
+
+    collectConnectionsIds(where) {
+        return where.reduce((accOutput, output) => {
+            const res = output._connections.reduce((accConn, connection) => {
+                accConn.push(connection._id);
+                return accConn;
+            }, []);
+            accOutput = accOutput.concat(res);
+            return accOutput;
+        }, []);
     }
 };
 

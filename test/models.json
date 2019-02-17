@@ -3042,6 +3042,34 @@
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
+    "type":   "openvino",
+    "target": "2019_with_pad_simple.xml",
+    "source": "https://github.com/lutzroeder/netron/files/2871673/with_pad_simple.xml.zip[with_pad_simple.xml]",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "2019_with_nd_conv_simple.xml",
+    "source": "https://github.com/lutzroeder/netron/files/2871696/with_nd_conv_simple.xml.zip[with_nd_conv_simple.xml]",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "2019_with_gather.xml",
+    "source": "https://github.com/lutzroeder/netron/files/2871676/with_gather.xml.zip[with_gather.xml]",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
+    "type":   "openvino",
+    "target": "2019_ti_with_large_body.xml",
+    "source": "https://github.com/lutzroeder/netron/files/2871678/ti_with_large_body.xml.zip[ti_with_large_body.xml]",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
     "type":   "paddle",
     "target": "resnet50_int8_model.tar.gz",
     "source": "http://paddle-inference-dist.bj.bcebos.com/int8/resnet50_int8_model.tar.gz",
