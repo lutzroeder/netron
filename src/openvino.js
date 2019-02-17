@@ -95,9 +95,9 @@ openvino.Model = class {
     validate() {
         this._graphs.forEach((graph) => {
             const pseudoInputsCount = graph.getPseudoInputs().length;
-            // if (pseudoInputsCount !== 0){
-            //     throw Error('Graph contains more than one connected component. Unable to show.');
-            // }
+            if (pseudoInputsCount !== 0){
+                throw Error('Graph contains more than one connected component. Unable to show.');
+            }
         });
     }
 };
