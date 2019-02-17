@@ -95,9 +95,9 @@ openvino.Model = class {
     validate() {
         this._graphs.forEach((graph) => {
             const pseudoInputsCount = graph.getPseudoInputs().length;
-            if (pseudoInputsCount !== 0){
-                throw Error('Graph contains more than one connected component. Unable to show.');
-            }
+            // if (pseudoInputsCount !== 0){
+            //     throw Error('Graph contains more than one connected component. Unable to show.');
+            // }
         });
     }
 };
@@ -326,16 +326,19 @@ openvino.Graph = class {
                     const childLayerID = candidate_edge$.getAttribute('to-layer');
                     const child = this._nodes.find((layer) => layer._id === childLayerID);
                     
-                    // TODO: why child._inputs[0]??
-                    if (child._inputs && child._inputs[0]._connections) {
-                        child._inputs[0]._connections.forEach((connection) => {
-                            if (connection._id && connection._id.split(':')[0] === singleTensorIteratorNodeId){
-                                // TODO: why nestedNode._outputs[0]??
-                                const myPort = nestedNode._outputs[0]._connections[0]._id.split(':')[1];
-                                connection._id = `${nestedNode.id}:${myPort}`;
-                            }
-                        });
+                    if (!child._inputs || (child._inputs && child._inputs.length === 0)){
+                        return;
                     }
+
+                    child._inputs.forEach((input) => {
+                        input._connections.forEach((connection) => {
+                            if (!connection._id || (connection._id && connection._id.split(':')[0] !== singleTensorIteratorNodeId)) {
+                                return;
+                            }
+                            const myPort = nestedNode._outputs[0]._connections[0]._id.split(':')[1];
+                            connection._id = `${nestedNode.id}:${myPort}`;
+                        });
+                    });
                 });
             });
             this._nodes = this._nodes.filter((node) => node._type !== 'TensorIterator');
