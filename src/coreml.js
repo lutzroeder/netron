@@ -20,13 +20,14 @@ coreml.ModelFactory = class {
                 callback(err, null);
                 return;
             }
+            var identifier = context.identifier;
             var decodedBuffer = null;
             try {
                 coreml.proto = protobuf.roots.coreml.CoreML.Specification;
                 decodedBuffer = coreml.proto.Model.decode(context.buffer);
             }
             catch (error) {
-                callback(new coreml.Error('File format is not coreml.Model (' + error.message + ').'), null);
+                callback(new coreml.Error("File format is not coreml.Model (" + error.message + ") in '" + identifier + "'."), null);
                 return;
             }
             coreml.Metadata.open(host, (err, metadata) => {
@@ -36,7 +37,9 @@ coreml.ModelFactory = class {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new coreml.Error(error.message), null);
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    callback(new coreml.Error(message + " in '" + identifier + "'."), null);
                     return;
                 }
             });
