@@ -119,6 +119,7 @@ torch.Graph = class {
                 groups.pop();
                 break;
             case 'nn.Parallel':
+            case 'nn.JointTrain':
                 groups.push(key);
                 var newInputs = [];
                 var newOutputs = [];
@@ -687,6 +688,7 @@ torch.T7Reader = class {
         this._registry['nn.Inception'] = function(reader) { reader.nn(this); };
         this._registry['nn.InstanceNormalization'] = function(reader) { reader.nn(this); };
         this._registry['nn.JoinTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.JointTrain'] = function(reader) { reader.nn(this); };
         this._registry['nn.LeakyReLU'] = function(reader) { reader.nn(this); };
         this._registry['nn.Linear'] = function(reader) { reader.nn(this); };
         this._registry['nn.LogSoftMax'] = function(reader) { reader.nn(this); };
