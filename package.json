@@ -34,7 +34,7 @@
     "devDependencies": {
         "electron": "^4.0.5",
         "electron-builder": "^20.38.5",
-        "eslint": "^5.14.0",
+        "eslint": "^5.14.1",
         "xmldom": "^0.1.27"
     }
 }
