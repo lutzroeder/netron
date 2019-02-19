@@ -59,6 +59,9 @@ EOS
             fi
             ;;
     esac
+    if [ -z "$(which virtualenv)" ]; then
+        sudo ${python} -m pip install --force-reinstall --quiet virtualenv
+    fi
     if [ ! -d "${virtualenv}" ]; then
         virtualenv --quiet -p ${python} ${virtualenv}
     fi

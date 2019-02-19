@@ -51,10 +51,10 @@ install() {
     case "$(uname)" in
         "Linux")
             if [ -z "$(which cmake)" ]; then
-                sudo apt install cmake
+                sudo apt install -y cmake
             fi
             if [ -z "$(which protoc)" ]; then
-                sudo apt install protobuf-compiler libprotoc-dev
+                sudo apt install -y protobuf-compiler libprotoc-dev
             fi
             ;;
         "Darwin")
@@ -66,6 +66,9 @@ install() {
             fi
             ;;
     esac
+    if [ -z "$(which virtualenv)" ]; then
+        sudo ${python} -m pip install --force-reinstall --quiet virtualenv
+    fi
     if [ ! -d "${virtualenv}" ]; then
         virtualenv --quiet -p ${python} ${virtualenv}
     fi
