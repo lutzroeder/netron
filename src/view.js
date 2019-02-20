@@ -316,6 +316,10 @@ view.View = class {
         this.show('Welcome');
     }
 
+    accept(file) {
+        return this._modelFactoryService.accept(file);
+    }
+
     openContext(context, callback) {
         this._host.event('Model', 'Open', 'Size', context.buffer.length);
         this._sidebar.close();
@@ -1149,7 +1153,7 @@ view.ModelFactoryService = class {
             this._extensions.push({ extension: extension, id: id });
         });
     }
-
+ 
     open(context, callback) {
         this._openArchive(context, (err, context) => {
             if (err) {
@@ -1350,6 +1354,26 @@ view.ModelFactoryService = class {
             callback(new ArchiveError(error.message), null);
             return;
         }
+    }
+
+    accept(identifier) {
+        var extension = identifier.toLowerCase().split('.').pop();
+        var excludes = [
+            'blockmap', 'checkpoint', 'ckpt', 'dat', 'index', 'test',
+            'html', 'pdf', 'rtf', 'txt', 'md',
+            'jpeg', 'jpg', 'png', 'gif',
+            'js', 'py', 'pyc',
+            'params', 'weights',
+            'mp4',
+            'npz',
+        ];
+        if (excludes.some((exclude) => exclude == extension)) {
+            return false;
+        }
+        if (extension.startsWith('data-')) {
+            return false;
+        }
+        return true;
     }
 
     _filter(context) {

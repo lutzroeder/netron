@@ -448,7 +448,7 @@ class Application {
                     label: '&Properties...',
                     accelerator: 'CmdOrCtrl+Enter',
                     click: () => this.execute('show-properties', null),
-                }        
+                }
             ]
         };
         if (!electron.app.isPackaged) {
@@ -467,7 +467,7 @@ class Application {
                     { role: 'front'}
                 ]
             });
-        }    
+        }
 
         var helpSubmenu = [
             {
