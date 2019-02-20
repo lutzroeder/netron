@@ -1129,7 +1129,7 @@ view.ModelFactoryService = class {
         this._extensions = [];
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./mxnet', [ '.model', '.json' ]);
-        this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json' ]);
+        this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json', '.model' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
