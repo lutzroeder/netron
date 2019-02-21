@@ -83,7 +83,10 @@ schema() {
         ${third_party}/${identifier}/tensorflow/core/framework/function.proto \
         ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto \
         ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto
+        ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
+        ${third_party}/${identifier}/tensorflow/core/protobuf/saved_object_graph.proto \
+        ${third_party}/${identifier}/tensorflow/core/protobuf/trackable_object_graph.proto \
+        ${third_party}/${identifier}/tensorflow/core/protobuf/struct.proto
 }
 
 metadata() {

@@ -169,6 +169,7 @@
             MetaGraphDef.prototype.collection_def = $util.emptyObject;
             MetaGraphDef.prototype.signature_def = $util.emptyObject;
             MetaGraphDef.prototype.asset_file_def = $util.emptyArray;
+            MetaGraphDef.prototype.object_graph_def = null;
     
             MetaGraphDef.create = function create(properties) {
                 return new MetaGraphDef(properties);
@@ -210,6 +211,9 @@
                         if (!(message.asset_file_def && message.asset_file_def.length))
                             message.asset_file_def = [];
                         message.asset_file_def.push($root.tensorflow.AssetFileDef.decode(reader, reader.uint32()));
+                        break;
+                    case 7:
+                        message.object_graph_def = $root.tensorflow.SavedObjectGraph.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -262,6 +266,9 @@
                         if (!(message.asset_file_def && message.asset_file_def.length))
                             message.asset_file_def = [];
                         message.asset_file_def.push($root.tensorflow.AssetFileDef.decodeText(reader, true));
+                        break;
+                    case "object_graph_def":
+                        message.object_graph_def = $root.tensorflow.SavedObjectGraph.decodeText(reader, true);
                         break;
                     default:
                         reader.field(tag, message);
@@ -318,6 +325,11 @@
                             return "asset_file_def." + error;
                     }
                 }
+                if (message.object_graph_def != null && message.hasOwnProperty("object_graph_def")) {
+                    var error = $root.tensorflow.SavedObjectGraph.verify(message.object_graph_def);
+                    if (error)
+                        return "object_graph_def." + error;
+                }
                 return null;
             };
     
@@ -370,6 +382,11 @@
                         message.asset_file_def[i] = $root.tensorflow.AssetFileDef.fromObject(object.asset_file_def[i]);
                     }
                 }
+                if (object.object_graph_def != null) {
+                    if (typeof object.object_graph_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.object_graph_def: object expected");
+                    message.object_graph_def = $root.tensorflow.SavedObjectGraph.fromObject(object.object_graph_def);
+                }
                 return message;
             };
     
@@ -387,6 +404,7 @@
                     object.meta_info_def = null;
                     object.graph_def = null;
                     object.saver_def = null;
+                    object.object_graph_def = null;
                 }
                 if (message.meta_info_def != null && message.hasOwnProperty("meta_info_def"))
                     object.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.toObject(message.meta_info_def, options);
@@ -410,6 +428,8 @@
                     for (var j = 0; j < message.asset_file_def.length; ++j)
                         object.asset_file_def[j] = $root.tensorflow.AssetFileDef.toObject(message.asset_file_def[j], options);
                 }
+                if (message.object_graph_def != null && message.hasOwnProperty("object_graph_def"))
+                    object.object_graph_def = $root.tensorflow.SavedObjectGraph.toObject(message.object_graph_def, options);
                 return object;
             };
     
@@ -7797,6 +7817,4144 @@
             };
     
             return ResourceHandleProto;
+        })();
+    
+        tensorflow.SavedObjectGraph = (function() {
+    
+            function SavedObjectGraph(properties) {
+                this.nodes = [];
+                this.concrete_functions = {};
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedObjectGraph.prototype.nodes = $util.emptyArray;
+            SavedObjectGraph.prototype.concrete_functions = $util.emptyObject;
+    
+            SavedObjectGraph.create = function create(properties) {
+                return new SavedObjectGraph(properties);
+            };
+    
+            SavedObjectGraph.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedObjectGraph(), key;
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.nodes && message.nodes.length))
+                            message.nodes = [];
+                        message.nodes.push($root.tensorflow.SavedObject.decode(reader, reader.uint32()));
+                        break;
+                    case 2:
+                        reader.skip().pos++;
+                        if (message.concrete_functions === $util.emptyObject)
+                            message.concrete_functions = {};
+                        key = reader.string();
+                        reader.pos++;
+                        message.concrete_functions[key] = $root.tensorflow.SavedConcreteFunction.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedObjectGraph.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedObjectGraph(), key;
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "nodes":
+                        if (!(message.nodes && message.nodes.length))
+                            message.nodes = [];
+                        message.nodes.push($root.tensorflow.SavedObject.decodeText(reader, true));
+                        break;
+                    case "concrete_functions":
+                        reader.assert("{");
+                        if (message.concrete_functions === $util.emptyObject)
+                            message.concrete_functions = {};
+                        reader.assert("key");
+                        reader.value();
+                        key = reader.string();
+                        reader.assert("value");
+                        message.concrete_functions[key] = $root.tensorflow.SavedConcreteFunction.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedObjectGraph.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.nodes != null && message.hasOwnProperty("nodes")) {
+                    if (!Array.isArray(message.nodes))
+                        return "nodes: array expected";
+                    for (var i = 0; i < message.nodes.length; ++i) {
+                        var error = $root.tensorflow.SavedObject.verify(message.nodes[i]);
+                        if (error)
+                            return "nodes." + error;
+                    }
+                }
+                if (message.concrete_functions != null && message.hasOwnProperty("concrete_functions")) {
+                    if (!$util.isObject(message.concrete_functions))
+                        return "concrete_functions: object expected";
+                    var key = Object.keys(message.concrete_functions);
+                    for (var i = 0; i < key.length; ++i) {
+                        var error = $root.tensorflow.SavedConcreteFunction.verify(message.concrete_functions[key[i]]);
+                        if (error)
+                            return "concrete_functions." + error;
+                    }
+                }
+                return null;
+            };
+    
+            SavedObjectGraph.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedObjectGraph)
+                    return object;
+                var message = new $root.tensorflow.SavedObjectGraph();
+                if (object.nodes) {
+                    if (!Array.isArray(object.nodes))
+                        throw TypeError(".tensorflow.SavedObjectGraph.nodes: array expected");
+                    message.nodes = [];
+                    for (var i = 0; i < object.nodes.length; ++i) {
+                        if (typeof object.nodes[i] !== "object")
+                            throw TypeError(".tensorflow.SavedObjectGraph.nodes: object expected");
+                        message.nodes[i] = $root.tensorflow.SavedObject.fromObject(object.nodes[i]);
+                    }
+                }
+                if (object.concrete_functions) {
+                    if (typeof object.concrete_functions !== "object")
+                        throw TypeError(".tensorflow.SavedObjectGraph.concrete_functions: object expected");
+                    message.concrete_functions = {};
+                    for (var keys = Object.keys(object.concrete_functions), i = 0; i < keys.length; ++i) {
+                        if (typeof object.concrete_functions[keys[i]] !== "object")
+                            throw TypeError(".tensorflow.SavedObjectGraph.concrete_functions: object expected");
+                        message.concrete_functions[keys[i]] = $root.tensorflow.SavedConcreteFunction.fromObject(object.concrete_functions[keys[i]]);
+                    }
+                }
+                return message;
+            };
+    
+            SavedObjectGraph.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.nodes = [];
+                if (options.objects || options.defaults)
+                    object.concrete_functions = {};
+                if (message.nodes && message.nodes.length) {
+                    object.nodes = [];
+                    for (var j = 0; j < message.nodes.length; ++j)
+                        object.nodes[j] = $root.tensorflow.SavedObject.toObject(message.nodes[j], options);
+                }
+                var keys2;
+                if (message.concrete_functions && (keys2 = Object.keys(message.concrete_functions)).length) {
+                    object.concrete_functions = {};
+                    for (var j = 0; j < keys2.length; ++j)
+                        object.concrete_functions[keys2[j]] = $root.tensorflow.SavedConcreteFunction.toObject(message.concrete_functions[keys2[j]], options);
+                }
+                return object;
+            };
+    
+            SavedObjectGraph.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedObjectGraph;
+        })();
+    
+        tensorflow.SavedObject = (function() {
+    
+            function SavedObject(properties) {
+                this.children = [];
+                this.slot_variables = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedObject.prototype.children = $util.emptyArray;
+            SavedObject.prototype.slot_variables = $util.emptyArray;
+            SavedObject.prototype.user_object = null;
+            SavedObject.prototype.asset = null;
+            SavedObject.prototype["function"] = null;
+            SavedObject.prototype.variable = null;
+            SavedObject.prototype.bare_concrete_function = null;
+            SavedObject.prototype.constant = null;
+            SavedObject.prototype.resource = null;
+    
+            var $oneOfFields;
+    
+            Object.defineProperty(SavedObject.prototype, "kind", {
+                get: $util.oneOfGetter($oneOfFields = ["user_object", "asset", "function", "variable", "bare_concrete_function", "constant", "resource"]),
+                set: $util.oneOfSetter($oneOfFields)
+            });
+    
+            SavedObject.create = function create(properties) {
+                return new SavedObject(properties);
+            };
+    
+            SavedObject.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedObject();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.children && message.children.length))
+                            message.children = [];
+                        message.children.push($root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.decode(reader, reader.uint32()));
+                        break;
+                    case 3:
+                        if (!(message.slot_variables && message.slot_variables.length))
+                            message.slot_variables = [];
+                        message.slot_variables.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decode(reader, reader.uint32()));
+                        break;
+                    case 4:
+                        message.user_object = $root.tensorflow.SavedUserObject.decode(reader, reader.uint32());
+                        break;
+                    case 5:
+                        message.asset = $root.tensorflow.SavedAsset.decode(reader, reader.uint32());
+                        break;
+                    case 6:
+                        message["function"] = $root.tensorflow.SavedFunction.decode(reader, reader.uint32());
+                        break;
+                    case 7:
+                        message.variable = $root.tensorflow.SavedVariable.decode(reader, reader.uint32());
+                        break;
+                    case 8:
+                        message.bare_concrete_function = $root.tensorflow.SavedBareConcreteFunction.decode(reader, reader.uint32());
+                        break;
+                    case 9:
+                        message.constant = $root.tensorflow.SavedConstant.decode(reader, reader.uint32());
+                        break;
+                    case 10:
+                        message.resource = $root.tensorflow.SavedResource.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedObject.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedObject();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "children":
+                        if (!(message.children && message.children.length))
+                            message.children = [];
+                        message.children.push($root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.decodeText(reader, true));
+                        break;
+                    case "slot_variables":
+                        if (!(message.slot_variables && message.slot_variables.length))
+                            message.slot_variables = [];
+                        message.slot_variables.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decodeText(reader, true));
+                        break;
+                    case "user_object":
+                        message.user_object = $root.tensorflow.SavedUserObject.decodeText(reader, true);
+                        break;
+                    case "asset":
+                        message.asset = $root.tensorflow.SavedAsset.decodeText(reader, true);
+                        break;
+                    case "function":
+                        message["function"] = $root.tensorflow.SavedFunction.decodeText(reader, true);
+                        break;
+                    case "variable":
+                        message.variable = $root.tensorflow.SavedVariable.decodeText(reader, true);
+                        break;
+                    case "bare_concrete_function":
+                        message.bare_concrete_function = $root.tensorflow.SavedBareConcreteFunction.decodeText(reader, true);
+                        break;
+                    case "constant":
+                        message.constant = $root.tensorflow.SavedConstant.decodeText(reader, true);
+                        break;
+                    case "resource":
+                        message.resource = $root.tensorflow.SavedResource.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedObject.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                var properties = {};
+                if (message.children != null && message.hasOwnProperty("children")) {
+                    if (!Array.isArray(message.children))
+                        return "children: array expected";
+                    for (var i = 0; i < message.children.length; ++i) {
+                        var error = $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.verify(message.children[i]);
+                        if (error)
+                            return "children." + error;
+                    }
+                }
+                if (message.slot_variables != null && message.hasOwnProperty("slot_variables")) {
+                    if (!Array.isArray(message.slot_variables))
+                        return "slot_variables: array expected";
+                    for (var i = 0; i < message.slot_variables.length; ++i) {
+                        var error = $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.verify(message.slot_variables[i]);
+                        if (error)
+                            return "slot_variables." + error;
+                    }
+                }
+                if (message.user_object != null && message.hasOwnProperty("user_object")) {
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.SavedUserObject.verify(message.user_object);
+                        if (error)
+                            return "user_object." + error;
+                    }
+                }
+                if (message.asset != null && message.hasOwnProperty("asset")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.SavedAsset.verify(message.asset);
+                        if (error)
+                            return "asset." + error;
+                    }
+                }
+                if (message["function"] != null && message.hasOwnProperty("function")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.SavedFunction.verify(message["function"]);
+                        if (error)
+                            return "function." + error;
+                    }
+                }
+                if (message.variable != null && message.hasOwnProperty("variable")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.SavedVariable.verify(message.variable);
+                        if (error)
+                            return "variable." + error;
+                    }
+                }
+                if (message.bare_concrete_function != null && message.hasOwnProperty("bare_concrete_function")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.SavedBareConcreteFunction.verify(message.bare_concrete_function);
+                        if (error)
+                            return "bare_concrete_function." + error;
+                    }
+                }
+                if (message.constant != null && message.hasOwnProperty("constant")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.SavedConstant.verify(message.constant);
+                        if (error)
+                            return "constant." + error;
+                    }
+                }
+                if (message.resource != null && message.hasOwnProperty("resource")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.SavedResource.verify(message.resource);
+                        if (error)
+                            return "resource." + error;
+                    }
+                }
+                return null;
+            };
+    
+            SavedObject.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedObject)
+                    return object;
+                var message = new $root.tensorflow.SavedObject();
+                if (object.children) {
+                    if (!Array.isArray(object.children))
+                        throw TypeError(".tensorflow.SavedObject.children: array expected");
+                    message.children = [];
+                    for (var i = 0; i < object.children.length; ++i) {
+                        if (typeof object.children[i] !== "object")
+                            throw TypeError(".tensorflow.SavedObject.children: object expected");
+                        message.children[i] = $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.fromObject(object.children[i]);
+                    }
+                }
+                if (object.slot_variables) {
+                    if (!Array.isArray(object.slot_variables))
+                        throw TypeError(".tensorflow.SavedObject.slot_variables: array expected");
+                    message.slot_variables = [];
+                    for (var i = 0; i < object.slot_variables.length; ++i) {
+                        if (typeof object.slot_variables[i] !== "object")
+                            throw TypeError(".tensorflow.SavedObject.slot_variables: object expected");
+                        message.slot_variables[i] = $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.fromObject(object.slot_variables[i]);
+                    }
+                }
+                if (object.user_object != null) {
+                    if (typeof object.user_object !== "object")
+                        throw TypeError(".tensorflow.SavedObject.user_object: object expected");
+                    message.user_object = $root.tensorflow.SavedUserObject.fromObject(object.user_object);
+                }
+                if (object.asset != null) {
+                    if (typeof object.asset !== "object")
+                        throw TypeError(".tensorflow.SavedObject.asset: object expected");
+                    message.asset = $root.tensorflow.SavedAsset.fromObject(object.asset);
+                }
+                if (object["function"] != null) {
+                    if (typeof object["function"] !== "object")
+                        throw TypeError(".tensorflow.SavedObject.function: object expected");
+                    message["function"] = $root.tensorflow.SavedFunction.fromObject(object["function"]);
+                }
+                if (object.variable != null) {
+                    if (typeof object.variable !== "object")
+                        throw TypeError(".tensorflow.SavedObject.variable: object expected");
+                    message.variable = $root.tensorflow.SavedVariable.fromObject(object.variable);
+                }
+                if (object.bare_concrete_function != null) {
+                    if (typeof object.bare_concrete_function !== "object")
+                        throw TypeError(".tensorflow.SavedObject.bare_concrete_function: object expected");
+                    message.bare_concrete_function = $root.tensorflow.SavedBareConcreteFunction.fromObject(object.bare_concrete_function);
+                }
+                if (object.constant != null) {
+                    if (typeof object.constant !== "object")
+                        throw TypeError(".tensorflow.SavedObject.constant: object expected");
+                    message.constant = $root.tensorflow.SavedConstant.fromObject(object.constant);
+                }
+                if (object.resource != null) {
+                    if (typeof object.resource !== "object")
+                        throw TypeError(".tensorflow.SavedObject.resource: object expected");
+                    message.resource = $root.tensorflow.SavedResource.fromObject(object.resource);
+                }
+                return message;
+            };
+    
+            SavedObject.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.children = [];
+                    object.slot_variables = [];
+                }
+                if (message.children && message.children.length) {
+                    object.children = [];
+                    for (var j = 0; j < message.children.length; ++j)
+                        object.children[j] = $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.toObject(message.children[j], options);
+                }
+                if (message.slot_variables && message.slot_variables.length) {
+                    object.slot_variables = [];
+                    for (var j = 0; j < message.slot_variables.length; ++j)
+                        object.slot_variables[j] = $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.toObject(message.slot_variables[j], options);
+                }
+                if (message.user_object != null && message.hasOwnProperty("user_object")) {
+                    object.user_object = $root.tensorflow.SavedUserObject.toObject(message.user_object, options);
+                    if (options.oneofs)
+                        object.kind = "user_object";
+                }
+                if (message.asset != null && message.hasOwnProperty("asset")) {
+                    object.asset = $root.tensorflow.SavedAsset.toObject(message.asset, options);
+                    if (options.oneofs)
+                        object.kind = "asset";
+                }
+                if (message["function"] != null && message.hasOwnProperty("function")) {
+                    object["function"] = $root.tensorflow.SavedFunction.toObject(message["function"], options);
+                    if (options.oneofs)
+                        object.kind = "function";
+                }
+                if (message.variable != null && message.hasOwnProperty("variable")) {
+                    object.variable = $root.tensorflow.SavedVariable.toObject(message.variable, options);
+                    if (options.oneofs)
+                        object.kind = "variable";
+                }
+                if (message.bare_concrete_function != null && message.hasOwnProperty("bare_concrete_function")) {
+                    object.bare_concrete_function = $root.tensorflow.SavedBareConcreteFunction.toObject(message.bare_concrete_function, options);
+                    if (options.oneofs)
+                        object.kind = "bare_concrete_function";
+                }
+                if (message.constant != null && message.hasOwnProperty("constant")) {
+                    object.constant = $root.tensorflow.SavedConstant.toObject(message.constant, options);
+                    if (options.oneofs)
+                        object.kind = "constant";
+                }
+                if (message.resource != null && message.hasOwnProperty("resource")) {
+                    object.resource = $root.tensorflow.SavedResource.toObject(message.resource, options);
+                    if (options.oneofs)
+                        object.kind = "resource";
+                }
+                return object;
+            };
+    
+            SavedObject.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedObject;
+        })();
+    
+        tensorflow.SavedUserObject = (function() {
+    
+            function SavedUserObject(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedUserObject.prototype.identifier = "";
+            SavedUserObject.prototype.version = null;
+    
+            SavedUserObject.create = function create(properties) {
+                return new SavedUserObject(properties);
+            };
+    
+            SavedUserObject.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedUserObject();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.identifier = reader.string();
+                        break;
+                    case 2:
+                        message.version = $root.tensorflow.VersionDef.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedUserObject.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedUserObject();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "identifier":
+                        reader.value();
+                        message.identifier = reader.string();
+                        break;
+                    case "version":
+                        message.version = $root.tensorflow.VersionDef.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedUserObject.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.identifier != null && message.hasOwnProperty("identifier"))
+                    if (!$util.isString(message.identifier))
+                        return "identifier: string expected";
+                if (message.version != null && message.hasOwnProperty("version")) {
+                    var error = $root.tensorflow.VersionDef.verify(message.version);
+                    if (error)
+                        return "version." + error;
+                }
+                return null;
+            };
+    
+            SavedUserObject.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedUserObject)
+                    return object;
+                var message = new $root.tensorflow.SavedUserObject();
+                if (object.identifier != null)
+                    message.identifier = String(object.identifier);
+                if (object.version != null) {
+                    if (typeof object.version !== "object")
+                        throw TypeError(".tensorflow.SavedUserObject.version: object expected");
+                    message.version = $root.tensorflow.VersionDef.fromObject(object.version);
+                }
+                return message;
+            };
+    
+            SavedUserObject.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.identifier = "";
+                    object.version = null;
+                }
+                if (message.identifier != null && message.hasOwnProperty("identifier"))
+                    object.identifier = message.identifier;
+                if (message.version != null && message.hasOwnProperty("version"))
+                    object.version = $root.tensorflow.VersionDef.toObject(message.version, options);
+                return object;
+            };
+    
+            SavedUserObject.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedUserObject;
+        })();
+    
+        tensorflow.SavedAsset = (function() {
+    
+            function SavedAsset(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedAsset.prototype.asset_file_def_index = 0;
+    
+            SavedAsset.create = function create(properties) {
+                return new SavedAsset(properties);
+            };
+    
+            SavedAsset.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedAsset();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.asset_file_def_index = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedAsset.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedAsset();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "asset_file_def_index":
+                        reader.value();
+                        message.asset_file_def_index = reader.int32();
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedAsset.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.asset_file_def_index != null && message.hasOwnProperty("asset_file_def_index"))
+                    if (!$util.isInteger(message.asset_file_def_index))
+                        return "asset_file_def_index: integer expected";
+                return null;
+            };
+    
+            SavedAsset.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedAsset)
+                    return object;
+                var message = new $root.tensorflow.SavedAsset();
+                if (object.asset_file_def_index != null)
+                    message.asset_file_def_index = object.asset_file_def_index | 0;
+                return message;
+            };
+    
+            SavedAsset.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.asset_file_def_index = 0;
+                if (message.asset_file_def_index != null && message.hasOwnProperty("asset_file_def_index"))
+                    object.asset_file_def_index = message.asset_file_def_index;
+                return object;
+            };
+    
+            SavedAsset.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedAsset;
+        })();
+    
+        tensorflow.SavedFunction = (function() {
+    
+            function SavedFunction(properties) {
+                this.concrete_functions = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedFunction.prototype.concrete_functions = $util.emptyArray;
+            SavedFunction.prototype.function_spec = null;
+    
+            SavedFunction.create = function create(properties) {
+                return new SavedFunction(properties);
+            };
+    
+            SavedFunction.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedFunction();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.concrete_functions && message.concrete_functions.length))
+                            message.concrete_functions = [];
+                        message.concrete_functions.push(reader.string());
+                        break;
+                    case 2:
+                        message.function_spec = $root.tensorflow.FunctionSpec.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedFunction.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedFunction();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "concrete_functions":
+                        if (!(message.concrete_functions && message.concrete_functions.length))
+                            message.concrete_functions = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.concrete_functions.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.concrete_functions.push(reader.string());
+                        break;
+                    case "function_spec":
+                        message.function_spec = $root.tensorflow.FunctionSpec.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedFunction.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.concrete_functions != null && message.hasOwnProperty("concrete_functions")) {
+                    if (!Array.isArray(message.concrete_functions))
+                        return "concrete_functions: array expected";
+                    for (var i = 0; i < message.concrete_functions.length; ++i)
+                        if (!$util.isString(message.concrete_functions[i]))
+                            return "concrete_functions: string[] expected";
+                }
+                if (message.function_spec != null && message.hasOwnProperty("function_spec")) {
+                    var error = $root.tensorflow.FunctionSpec.verify(message.function_spec);
+                    if (error)
+                        return "function_spec." + error;
+                }
+                return null;
+            };
+    
+            SavedFunction.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedFunction)
+                    return object;
+                var message = new $root.tensorflow.SavedFunction();
+                if (object.concrete_functions) {
+                    if (!Array.isArray(object.concrete_functions))
+                        throw TypeError(".tensorflow.SavedFunction.concrete_functions: array expected");
+                    message.concrete_functions = [];
+                    for (var i = 0; i < object.concrete_functions.length; ++i)
+                        message.concrete_functions[i] = String(object.concrete_functions[i]);
+                }
+                if (object.function_spec != null) {
+                    if (typeof object.function_spec !== "object")
+                        throw TypeError(".tensorflow.SavedFunction.function_spec: object expected");
+                    message.function_spec = $root.tensorflow.FunctionSpec.fromObject(object.function_spec);
+                }
+                return message;
+            };
+    
+            SavedFunction.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.concrete_functions = [];
+                if (options.defaults)
+                    object.function_spec = null;
+                if (message.concrete_functions && message.concrete_functions.length) {
+                    object.concrete_functions = [];
+                    for (var j = 0; j < message.concrete_functions.length; ++j)
+                        object.concrete_functions[j] = message.concrete_functions[j];
+                }
+                if (message.function_spec != null && message.hasOwnProperty("function_spec"))
+                    object.function_spec = $root.tensorflow.FunctionSpec.toObject(message.function_spec, options);
+                return object;
+            };
+    
+            SavedFunction.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedFunction;
+        })();
+    
+        tensorflow.SavedConcreteFunction = (function() {
+    
+            function SavedConcreteFunction(properties) {
+                this.bound_inputs = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedConcreteFunction.prototype.bound_inputs = $util.emptyArray;
+            SavedConcreteFunction.prototype.canonicalized_input_signature = null;
+            SavedConcreteFunction.prototype.output_signature = null;
+    
+            SavedConcreteFunction.create = function create(properties) {
+                return new SavedConcreteFunction(properties);
+            };
+    
+            SavedConcreteFunction.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedConcreteFunction();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 2:
+                        if (!(message.bound_inputs && message.bound_inputs.length))
+                            message.bound_inputs = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.bound_inputs.push(reader.int32());
+                        } else
+                            message.bound_inputs.push(reader.int32());
+                        break;
+                    case 3:
+                        message.canonicalized_input_signature = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    case 4:
+                        message.output_signature = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedConcreteFunction.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedConcreteFunction();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "bound_inputs":
+                        if (!(message.bound_inputs && message.bound_inputs.length))
+                            message.bound_inputs = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.bound_inputs.push(reader.int32());
+                                reader.next();
+                            }
+                        else
+                            message.bound_inputs.push(reader.int32());
+                        break;
+                    case "canonicalized_input_signature":
+                        message.canonicalized_input_signature = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    case "output_signature":
+                        message.output_signature = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedConcreteFunction.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.bound_inputs != null && message.hasOwnProperty("bound_inputs")) {
+                    if (!Array.isArray(message.bound_inputs))
+                        return "bound_inputs: array expected";
+                    for (var i = 0; i < message.bound_inputs.length; ++i)
+                        if (!$util.isInteger(message.bound_inputs[i]))
+                            return "bound_inputs: integer[] expected";
+                }
+                if (message.canonicalized_input_signature != null && message.hasOwnProperty("canonicalized_input_signature")) {
+                    var error = $root.tensorflow.StructuredValue.verify(message.canonicalized_input_signature);
+                    if (error)
+                        return "canonicalized_input_signature." + error;
+                }
+                if (message.output_signature != null && message.hasOwnProperty("output_signature")) {
+                    var error = $root.tensorflow.StructuredValue.verify(message.output_signature);
+                    if (error)
+                        return "output_signature." + error;
+                }
+                return null;
+            };
+    
+            SavedConcreteFunction.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedConcreteFunction)
+                    return object;
+                var message = new $root.tensorflow.SavedConcreteFunction();
+                if (object.bound_inputs) {
+                    if (!Array.isArray(object.bound_inputs))
+                        throw TypeError(".tensorflow.SavedConcreteFunction.bound_inputs: array expected");
+                    message.bound_inputs = [];
+                    for (var i = 0; i < object.bound_inputs.length; ++i)
+                        message.bound_inputs[i] = object.bound_inputs[i] | 0;
+                }
+                if (object.canonicalized_input_signature != null) {
+                    if (typeof object.canonicalized_input_signature !== "object")
+                        throw TypeError(".tensorflow.SavedConcreteFunction.canonicalized_input_signature: object expected");
+                    message.canonicalized_input_signature = $root.tensorflow.StructuredValue.fromObject(object.canonicalized_input_signature);
+                }
+                if (object.output_signature != null) {
+                    if (typeof object.output_signature !== "object")
+                        throw TypeError(".tensorflow.SavedConcreteFunction.output_signature: object expected");
+                    message.output_signature = $root.tensorflow.StructuredValue.fromObject(object.output_signature);
+                }
+                return message;
+            };
+    
+            SavedConcreteFunction.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.bound_inputs = [];
+                if (options.defaults) {
+                    object.canonicalized_input_signature = null;
+                    object.output_signature = null;
+                }
+                if (message.bound_inputs && message.bound_inputs.length) {
+                    object.bound_inputs = [];
+                    for (var j = 0; j < message.bound_inputs.length; ++j)
+                        object.bound_inputs[j] = message.bound_inputs[j];
+                }
+                if (message.canonicalized_input_signature != null && message.hasOwnProperty("canonicalized_input_signature"))
+                    object.canonicalized_input_signature = $root.tensorflow.StructuredValue.toObject(message.canonicalized_input_signature, options);
+                if (message.output_signature != null && message.hasOwnProperty("output_signature"))
+                    object.output_signature = $root.tensorflow.StructuredValue.toObject(message.output_signature, options);
+                return object;
+            };
+    
+            SavedConcreteFunction.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedConcreteFunction;
+        })();
+    
+        tensorflow.SavedBareConcreteFunction = (function() {
+    
+            function SavedBareConcreteFunction(properties) {
+                this.argument_keywords = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedBareConcreteFunction.prototype.concrete_function_name = "";
+            SavedBareConcreteFunction.prototype.argument_keywords = $util.emptyArray;
+            SavedBareConcreteFunction.prototype.allowed_positional_arguments = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+            SavedBareConcreteFunction.create = function create(properties) {
+                return new SavedBareConcreteFunction(properties);
+            };
+    
+            SavedBareConcreteFunction.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedBareConcreteFunction();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.concrete_function_name = reader.string();
+                        break;
+                    case 2:
+                        if (!(message.argument_keywords && message.argument_keywords.length))
+                            message.argument_keywords = [];
+                        message.argument_keywords.push(reader.string());
+                        break;
+                    case 3:
+                        message.allowed_positional_arguments = reader.int64();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedBareConcreteFunction.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedBareConcreteFunction();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "concrete_function_name":
+                        reader.value();
+                        message.concrete_function_name = reader.string();
+                        break;
+                    case "argument_keywords":
+                        if (!(message.argument_keywords && message.argument_keywords.length))
+                            message.argument_keywords = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.argument_keywords.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.argument_keywords.push(reader.string());
+                        break;
+                    case "allowed_positional_arguments":
+                        reader.value();
+                        message.allowed_positional_arguments = reader.int64();
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedBareConcreteFunction.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.concrete_function_name != null && message.hasOwnProperty("concrete_function_name"))
+                    if (!$util.isString(message.concrete_function_name))
+                        return "concrete_function_name: string expected";
+                if (message.argument_keywords != null && message.hasOwnProperty("argument_keywords")) {
+                    if (!Array.isArray(message.argument_keywords))
+                        return "argument_keywords: array expected";
+                    for (var i = 0; i < message.argument_keywords.length; ++i)
+                        if (!$util.isString(message.argument_keywords[i]))
+                            return "argument_keywords: string[] expected";
+                }
+                if (message.allowed_positional_arguments != null && message.hasOwnProperty("allowed_positional_arguments"))
+                    if (!$util.isInteger(message.allowed_positional_arguments) && !(message.allowed_positional_arguments && $util.isInteger(message.allowed_positional_arguments.low) && $util.isInteger(message.allowed_positional_arguments.high)))
+                        return "allowed_positional_arguments: integer|Long expected";
+                return null;
+            };
+    
+            SavedBareConcreteFunction.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedBareConcreteFunction)
+                    return object;
+                var message = new $root.tensorflow.SavedBareConcreteFunction();
+                if (object.concrete_function_name != null)
+                    message.concrete_function_name = String(object.concrete_function_name);
+                if (object.argument_keywords) {
+                    if (!Array.isArray(object.argument_keywords))
+                        throw TypeError(".tensorflow.SavedBareConcreteFunction.argument_keywords: array expected");
+                    message.argument_keywords = [];
+                    for (var i = 0; i < object.argument_keywords.length; ++i)
+                        message.argument_keywords[i] = String(object.argument_keywords[i]);
+                }
+                if (object.allowed_positional_arguments != null)
+                    if ($util.Long)
+                        (message.allowed_positional_arguments = $util.Long.fromValue(object.allowed_positional_arguments)).unsigned = false;
+                    else if (typeof object.allowed_positional_arguments === "string")
+                        message.allowed_positional_arguments = parseInt(object.allowed_positional_arguments, 10);
+                    else if (typeof object.allowed_positional_arguments === "number")
+                        message.allowed_positional_arguments = object.allowed_positional_arguments;
+                    else if (typeof object.allowed_positional_arguments === "object")
+                        message.allowed_positional_arguments = new $util.LongBits(object.allowed_positional_arguments.low >>> 0, object.allowed_positional_arguments.high >>> 0).toNumber();
+                return message;
+            };
+    
+            SavedBareConcreteFunction.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.argument_keywords = [];
+                if (options.defaults) {
+                    object.concrete_function_name = "";
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, false);
+                        object.allowed_positional_arguments = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.allowed_positional_arguments = options.longs === String ? "0" : 0;
+                }
+                if (message.concrete_function_name != null && message.hasOwnProperty("concrete_function_name"))
+                    object.concrete_function_name = message.concrete_function_name;
+                if (message.argument_keywords && message.argument_keywords.length) {
+                    object.argument_keywords = [];
+                    for (var j = 0; j < message.argument_keywords.length; ++j)
+                        object.argument_keywords[j] = message.argument_keywords[j];
+                }
+                if (message.allowed_positional_arguments != null && message.hasOwnProperty("allowed_positional_arguments"))
+                    if (typeof message.allowed_positional_arguments === "number")
+                        object.allowed_positional_arguments = options.longs === String ? String(message.allowed_positional_arguments) : message.allowed_positional_arguments;
+                    else
+                        object.allowed_positional_arguments = options.longs === String ? $util.Long.prototype.toString.call(message.allowed_positional_arguments) : options.longs === Number ? new $util.LongBits(message.allowed_positional_arguments.low >>> 0, message.allowed_positional_arguments.high >>> 0).toNumber() : message.allowed_positional_arguments;
+                return object;
+            };
+    
+            SavedBareConcreteFunction.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedBareConcreteFunction;
+        })();
+    
+        tensorflow.SavedConstant = (function() {
+    
+            function SavedConstant(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedConstant.prototype.operation = "";
+    
+            SavedConstant.create = function create(properties) {
+                return new SavedConstant(properties);
+            };
+    
+            SavedConstant.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedConstant();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.operation = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedConstant.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedConstant();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "operation":
+                        reader.value();
+                        message.operation = reader.string();
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedConstant.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.operation != null && message.hasOwnProperty("operation"))
+                    if (!$util.isString(message.operation))
+                        return "operation: string expected";
+                return null;
+            };
+    
+            SavedConstant.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedConstant)
+                    return object;
+                var message = new $root.tensorflow.SavedConstant();
+                if (object.operation != null)
+                    message.operation = String(object.operation);
+                return message;
+            };
+    
+            SavedConstant.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.operation = "";
+                if (message.operation != null && message.hasOwnProperty("operation"))
+                    object.operation = message.operation;
+                return object;
+            };
+    
+            SavedConstant.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedConstant;
+        })();
+    
+        tensorflow.SavedVariable = (function() {
+    
+            function SavedVariable(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedVariable.prototype.dtype = 0;
+            SavedVariable.prototype.shape = null;
+            SavedVariable.prototype.trainable = false;
+    
+            SavedVariable.create = function create(properties) {
+                return new SavedVariable(properties);
+            };
+    
+            SavedVariable.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedVariable();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.dtype = reader.int32();
+                        break;
+                    case 2:
+                        message.shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.trainable = reader.bool();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedVariable.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedVariable();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dtype":
+                        reader.value();
+                        message.dtype = reader.enum($root.tensorflow.DataType);
+                        break;
+                    case "shape":
+                        message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    case "trainable":
+                        reader.value();
+                        message.trainable = reader.bool();
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedVariable.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.dtype != null && message.hasOwnProperty("dtype"))
+                    switch (message.dtype) {
+                    default:
+                        return "dtype: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 101:
+                    case 102:
+                    case 103:
+                    case 104:
+                    case 105:
+                    case 106:
+                    case 107:
+                    case 108:
+                    case 109:
+                    case 110:
+                    case 111:
+                    case 112:
+                    case 113:
+                    case 114:
+                    case 115:
+                    case 116:
+                    case 117:
+                    case 118:
+                    case 119:
+                    case 120:
+                    case 121:
+                    case 122:
+                    case 123:
+                        break;
+                    }
+                if (message.shape != null && message.hasOwnProperty("shape")) {
+                    var error = $root.tensorflow.TensorShapeProto.verify(message.shape);
+                    if (error)
+                        return "shape." + error;
+                }
+                if (message.trainable != null && message.hasOwnProperty("trainable"))
+                    if (typeof message.trainable !== "boolean")
+                        return "trainable: boolean expected";
+                return null;
+            };
+    
+            SavedVariable.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedVariable)
+                    return object;
+                var message = new $root.tensorflow.SavedVariable();
+                switch (object.dtype) {
+                case "DT_INVALID":
+                case 0:
+                    message.dtype = 0;
+                    break;
+                case "DT_FLOAT":
+                case 1:
+                    message.dtype = 1;
+                    break;
+                case "DT_DOUBLE":
+                case 2:
+                    message.dtype = 2;
+                    break;
+                case "DT_INT32":
+                case 3:
+                    message.dtype = 3;
+                    break;
+                case "DT_UINT8":
+                case 4:
+                    message.dtype = 4;
+                    break;
+                case "DT_INT16":
+                case 5:
+                    message.dtype = 5;
+                    break;
+                case "DT_INT8":
+                case 6:
+                    message.dtype = 6;
+                    break;
+                case "DT_STRING":
+                case 7:
+                    message.dtype = 7;
+                    break;
+                case "DT_COMPLEX64":
+                case 8:
+                    message.dtype = 8;
+                    break;
+                case "DT_INT64":
+                case 9:
+                    message.dtype = 9;
+                    break;
+                case "DT_BOOL":
+                case 10:
+                    message.dtype = 10;
+                    break;
+                case "DT_QINT8":
+                case 11:
+                    message.dtype = 11;
+                    break;
+                case "DT_QUINT8":
+                case 12:
+                    message.dtype = 12;
+                    break;
+                case "DT_QINT32":
+                case 13:
+                    message.dtype = 13;
+                    break;
+                case "DT_BFLOAT16":
+                case 14:
+                    message.dtype = 14;
+                    break;
+                case "DT_QINT16":
+                case 15:
+                    message.dtype = 15;
+                    break;
+                case "DT_QUINT16":
+                case 16:
+                    message.dtype = 16;
+                    break;
+                case "DT_UINT16":
+                case 17:
+                    message.dtype = 17;
+                    break;
+                case "DT_COMPLEX128":
+                case 18:
+                    message.dtype = 18;
+                    break;
+                case "DT_HALF":
+                case 19:
+                    message.dtype = 19;
+                    break;
+                case "DT_RESOURCE":
+                case 20:
+                    message.dtype = 20;
+                    break;
+                case "DT_VARIANT":
+                case 21:
+                    message.dtype = 21;
+                    break;
+                case "DT_UINT32":
+                case 22:
+                    message.dtype = 22;
+                    break;
+                case "DT_UINT64":
+                case 23:
+                    message.dtype = 23;
+                    break;
+                case "DT_FLOAT_REF":
+                case 101:
+                    message.dtype = 101;
+                    break;
+                case "DT_DOUBLE_REF":
+                case 102:
+                    message.dtype = 102;
+                    break;
+                case "DT_INT32_REF":
+                case 103:
+                    message.dtype = 103;
+                    break;
+                case "DT_UINT8_REF":
+                case 104:
+                    message.dtype = 104;
+                    break;
+                case "DT_INT16_REF":
+                case 105:
+                    message.dtype = 105;
+                    break;
+                case "DT_INT8_REF":
+                case 106:
+                    message.dtype = 106;
+                    break;
+                case "DT_STRING_REF":
+                case 107:
+                    message.dtype = 107;
+                    break;
+                case "DT_COMPLEX64_REF":
+                case 108:
+                    message.dtype = 108;
+                    break;
+                case "DT_INT64_REF":
+                case 109:
+                    message.dtype = 109;
+                    break;
+                case "DT_BOOL_REF":
+                case 110:
+                    message.dtype = 110;
+                    break;
+                case "DT_QINT8_REF":
+                case 111:
+                    message.dtype = 111;
+                    break;
+                case "DT_QUINT8_REF":
+                case 112:
+                    message.dtype = 112;
+                    break;
+                case "DT_QINT32_REF":
+                case 113:
+                    message.dtype = 113;
+                    break;
+                case "DT_BFLOAT16_REF":
+                case 114:
+                    message.dtype = 114;
+                    break;
+                case "DT_QINT16_REF":
+                case 115:
+                    message.dtype = 115;
+                    break;
+                case "DT_QUINT16_REF":
+                case 116:
+                    message.dtype = 116;
+                    break;
+                case "DT_UINT16_REF":
+                case 117:
+                    message.dtype = 117;
+                    break;
+                case "DT_COMPLEX128_REF":
+                case 118:
+                    message.dtype = 118;
+                    break;
+                case "DT_HALF_REF":
+                case 119:
+                    message.dtype = 119;
+                    break;
+                case "DT_RESOURCE_REF":
+                case 120:
+                    message.dtype = 120;
+                    break;
+                case "DT_VARIANT_REF":
+                case 121:
+                    message.dtype = 121;
+                    break;
+                case "DT_UINT32_REF":
+                case 122:
+                    message.dtype = 122;
+                    break;
+                case "DT_UINT64_REF":
+                case 123:
+                    message.dtype = 123;
+                    break;
+                }
+                if (object.shape != null) {
+                    if (typeof object.shape !== "object")
+                        throw TypeError(".tensorflow.SavedVariable.shape: object expected");
+                    message.shape = $root.tensorflow.TensorShapeProto.fromObject(object.shape);
+                }
+                if (object.trainable != null)
+                    message.trainable = Boolean(object.trainable);
+                return message;
+            };
+    
+            SavedVariable.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.dtype = options.enums === String ? "DT_INVALID" : 0;
+                    object.shape = null;
+                    object.trainable = false;
+                }
+                if (message.dtype != null && message.hasOwnProperty("dtype"))
+                    object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
+                if (message.shape != null && message.hasOwnProperty("shape"))
+                    object.shape = $root.tensorflow.TensorShapeProto.toObject(message.shape, options);
+                if (message.trainable != null && message.hasOwnProperty("trainable"))
+                    object.trainable = message.trainable;
+                return object;
+            };
+    
+            SavedVariable.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedVariable;
+        })();
+    
+        tensorflow.FunctionSpec = (function() {
+    
+            function FunctionSpec(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            FunctionSpec.prototype.fullargspec = null;
+            FunctionSpec.prototype.is_method = false;
+            FunctionSpec.prototype.args_to_prepend = null;
+            FunctionSpec.prototype.kwargs_to_include = null;
+            FunctionSpec.prototype.input_signature = null;
+    
+            FunctionSpec.create = function create(properties) {
+                return new FunctionSpec(properties);
+            };
+    
+            FunctionSpec.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.FunctionSpec();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.fullargspec = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        message.is_method = reader.bool();
+                        break;
+                    case 3:
+                        message.args_to_prepend = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    case 4:
+                        message.kwargs_to_include = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    case 5:
+                        message.input_signature = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            FunctionSpec.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.FunctionSpec();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "fullargspec":
+                        message.fullargspec = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    case "is_method":
+                        reader.value();
+                        message.is_method = reader.bool();
+                        break;
+                    case "args_to_prepend":
+                        message.args_to_prepend = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    case "kwargs_to_include":
+                        message.kwargs_to_include = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    case "input_signature":
+                        message.input_signature = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            FunctionSpec.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.fullargspec != null && message.hasOwnProperty("fullargspec")) {
+                    var error = $root.tensorflow.StructuredValue.verify(message.fullargspec);
+                    if (error)
+                        return "fullargspec." + error;
+                }
+                if (message.is_method != null && message.hasOwnProperty("is_method"))
+                    if (typeof message.is_method !== "boolean")
+                        return "is_method: boolean expected";
+                if (message.args_to_prepend != null && message.hasOwnProperty("args_to_prepend")) {
+                    var error = $root.tensorflow.StructuredValue.verify(message.args_to_prepend);
+                    if (error)
+                        return "args_to_prepend." + error;
+                }
+                if (message.kwargs_to_include != null && message.hasOwnProperty("kwargs_to_include")) {
+                    var error = $root.tensorflow.StructuredValue.verify(message.kwargs_to_include);
+                    if (error)
+                        return "kwargs_to_include." + error;
+                }
+                if (message.input_signature != null && message.hasOwnProperty("input_signature")) {
+                    var error = $root.tensorflow.StructuredValue.verify(message.input_signature);
+                    if (error)
+                        return "input_signature." + error;
+                }
+                return null;
+            };
+    
+            FunctionSpec.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.FunctionSpec)
+                    return object;
+                var message = new $root.tensorflow.FunctionSpec();
+                if (object.fullargspec != null) {
+                    if (typeof object.fullargspec !== "object")
+                        throw TypeError(".tensorflow.FunctionSpec.fullargspec: object expected");
+                    message.fullargspec = $root.tensorflow.StructuredValue.fromObject(object.fullargspec);
+                }
+                if (object.is_method != null)
+                    message.is_method = Boolean(object.is_method);
+                if (object.args_to_prepend != null) {
+                    if (typeof object.args_to_prepend !== "object")
+                        throw TypeError(".tensorflow.FunctionSpec.args_to_prepend: object expected");
+                    message.args_to_prepend = $root.tensorflow.StructuredValue.fromObject(object.args_to_prepend);
+                }
+                if (object.kwargs_to_include != null) {
+                    if (typeof object.kwargs_to_include !== "object")
+                        throw TypeError(".tensorflow.FunctionSpec.kwargs_to_include: object expected");
+                    message.kwargs_to_include = $root.tensorflow.StructuredValue.fromObject(object.kwargs_to_include);
+                }
+                if (object.input_signature != null) {
+                    if (typeof object.input_signature !== "object")
+                        throw TypeError(".tensorflow.FunctionSpec.input_signature: object expected");
+                    message.input_signature = $root.tensorflow.StructuredValue.fromObject(object.input_signature);
+                }
+                return message;
+            };
+    
+            FunctionSpec.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.fullargspec = null;
+                    object.is_method = false;
+                    object.args_to_prepend = null;
+                    object.kwargs_to_include = null;
+                    object.input_signature = null;
+                }
+                if (message.fullargspec != null && message.hasOwnProperty("fullargspec"))
+                    object.fullargspec = $root.tensorflow.StructuredValue.toObject(message.fullargspec, options);
+                if (message.is_method != null && message.hasOwnProperty("is_method"))
+                    object.is_method = message.is_method;
+                if (message.args_to_prepend != null && message.hasOwnProperty("args_to_prepend"))
+                    object.args_to_prepend = $root.tensorflow.StructuredValue.toObject(message.args_to_prepend, options);
+                if (message.kwargs_to_include != null && message.hasOwnProperty("kwargs_to_include"))
+                    object.kwargs_to_include = $root.tensorflow.StructuredValue.toObject(message.kwargs_to_include, options);
+                if (message.input_signature != null && message.hasOwnProperty("input_signature"))
+                    object.input_signature = $root.tensorflow.StructuredValue.toObject(message.input_signature, options);
+                return object;
+            };
+    
+            FunctionSpec.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return FunctionSpec;
+        })();
+    
+        tensorflow.SavedResource = (function() {
+    
+            function SavedResource(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedResource.create = function create(properties) {
+                return new SavedResource(properties);
+            };
+    
+            SavedResource.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedResource();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedResource.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SavedResource();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedResource.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                return null;
+            };
+    
+            SavedResource.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedResource)
+                    return object;
+                return new $root.tensorflow.SavedResource();
+            };
+    
+            SavedResource.toObject = function toObject() {
+                return {};
+            };
+    
+            SavedResource.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SavedResource;
+        })();
+    
+        tensorflow.TrackableObjectGraph = (function() {
+    
+            function TrackableObjectGraph(properties) {
+                this.nodes = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TrackableObjectGraph.prototype.nodes = $util.emptyArray;
+    
+            TrackableObjectGraph.create = function create(properties) {
+                return new TrackableObjectGraph(properties);
+            };
+    
+            TrackableObjectGraph.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TrackableObjectGraph();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.nodes && message.nodes.length))
+                            message.nodes = [];
+                        message.nodes.push($root.tensorflow.TrackableObjectGraph.TrackableObject.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TrackableObjectGraph.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.TrackableObjectGraph();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "nodes":
+                        if (!(message.nodes && message.nodes.length))
+                            message.nodes = [];
+                        message.nodes.push($root.tensorflow.TrackableObjectGraph.TrackableObject.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TrackableObjectGraph.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.nodes != null && message.hasOwnProperty("nodes")) {
+                    if (!Array.isArray(message.nodes))
+                        return "nodes: array expected";
+                    for (var i = 0; i < message.nodes.length; ++i) {
+                        var error = $root.tensorflow.TrackableObjectGraph.TrackableObject.verify(message.nodes[i]);
+                        if (error)
+                            return "nodes." + error;
+                    }
+                }
+                return null;
+            };
+    
+            TrackableObjectGraph.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.TrackableObjectGraph)
+                    return object;
+                var message = new $root.tensorflow.TrackableObjectGraph();
+                if (object.nodes) {
+                    if (!Array.isArray(object.nodes))
+                        throw TypeError(".tensorflow.TrackableObjectGraph.nodes: array expected");
+                    message.nodes = [];
+                    for (var i = 0; i < object.nodes.length; ++i) {
+                        if (typeof object.nodes[i] !== "object")
+                            throw TypeError(".tensorflow.TrackableObjectGraph.nodes: object expected");
+                        message.nodes[i] = $root.tensorflow.TrackableObjectGraph.TrackableObject.fromObject(object.nodes[i]);
+                    }
+                }
+                return message;
+            };
+    
+            TrackableObjectGraph.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.nodes = [];
+                if (message.nodes && message.nodes.length) {
+                    object.nodes = [];
+                    for (var j = 0; j < message.nodes.length; ++j)
+                        object.nodes[j] = $root.tensorflow.TrackableObjectGraph.TrackableObject.toObject(message.nodes[j], options);
+                }
+                return object;
+            };
+    
+            TrackableObjectGraph.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            TrackableObjectGraph.TrackableObject = (function() {
+    
+                function TrackableObject(properties) {
+                    this.children = [];
+                    this.attributes = [];
+                    this.slot_variables = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                TrackableObject.prototype.children = $util.emptyArray;
+                TrackableObject.prototype.attributes = $util.emptyArray;
+                TrackableObject.prototype.slot_variables = $util.emptyArray;
+    
+                TrackableObject.create = function create(properties) {
+                    return new TrackableObject(properties);
+                };
+    
+                TrackableObject.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TrackableObjectGraph.TrackableObject();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.children && message.children.length))
+                                message.children = [];
+                            message.children.push($root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.decode(reader, reader.uint32()));
+                            break;
+                        case 2:
+                            if (!(message.attributes && message.attributes.length))
+                                message.attributes = [];
+                            message.attributes.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.decode(reader, reader.uint32()));
+                            break;
+                        case 3:
+                            if (!(message.slot_variables && message.slot_variables.length))
+                                message.slot_variables = [];
+                            message.slot_variables.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decode(reader, reader.uint32()));
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                TrackableObject.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "children":
+                            if (!(message.children && message.children.length))
+                                message.children = [];
+                            message.children.push($root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.decodeText(reader, true));
+                            break;
+                        case "attributes":
+                            if (!(message.attributes && message.attributes.length))
+                                message.attributes = [];
+                            message.attributes.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.decodeText(reader, true));
+                            break;
+                        case "slot_variables":
+                            if (!(message.slot_variables && message.slot_variables.length))
+                                message.slot_variables = [];
+                            message.slot_variables.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decodeText(reader, true));
+                            break;
+                        default:
+                            reader.field(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                TrackableObject.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.children != null && message.hasOwnProperty("children")) {
+                        if (!Array.isArray(message.children))
+                            return "children: array expected";
+                        for (var i = 0; i < message.children.length; ++i) {
+                            var error = $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.verify(message.children[i]);
+                            if (error)
+                                return "children." + error;
+                        }
+                    }
+                    if (message.attributes != null && message.hasOwnProperty("attributes")) {
+                        if (!Array.isArray(message.attributes))
+                            return "attributes: array expected";
+                        for (var i = 0; i < message.attributes.length; ++i) {
+                            var error = $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.verify(message.attributes[i]);
+                            if (error)
+                                return "attributes." + error;
+                        }
+                    }
+                    if (message.slot_variables != null && message.hasOwnProperty("slot_variables")) {
+                        if (!Array.isArray(message.slot_variables))
+                            return "slot_variables: array expected";
+                        for (var i = 0; i < message.slot_variables.length; ++i) {
+                            var error = $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.verify(message.slot_variables[i]);
+                            if (error)
+                                return "slot_variables." + error;
+                        }
+                    }
+                    return null;
+                };
+    
+                TrackableObject.fromObject = function fromObject(object) {
+                    if (object instanceof $root.tensorflow.TrackableObjectGraph.TrackableObject)
+                        return object;
+                    var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject();
+                    if (object.children) {
+                        if (!Array.isArray(object.children))
+                            throw TypeError(".tensorflow.TrackableObjectGraph.TrackableObject.children: array expected");
+                        message.children = [];
+                        for (var i = 0; i < object.children.length; ++i) {
+                            if (typeof object.children[i] !== "object")
+                                throw TypeError(".tensorflow.TrackableObjectGraph.TrackableObject.children: object expected");
+                            message.children[i] = $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.fromObject(object.children[i]);
+                        }
+                    }
+                    if (object.attributes) {
+                        if (!Array.isArray(object.attributes))
+                            throw TypeError(".tensorflow.TrackableObjectGraph.TrackableObject.attributes: array expected");
+                        message.attributes = [];
+                        for (var i = 0; i < object.attributes.length; ++i) {
+                            if (typeof object.attributes[i] !== "object")
+                                throw TypeError(".tensorflow.TrackableObjectGraph.TrackableObject.attributes: object expected");
+                            message.attributes[i] = $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.fromObject(object.attributes[i]);
+                        }
+                    }
+                    if (object.slot_variables) {
+                        if (!Array.isArray(object.slot_variables))
+                            throw TypeError(".tensorflow.TrackableObjectGraph.TrackableObject.slot_variables: array expected");
+                        message.slot_variables = [];
+                        for (var i = 0; i < object.slot_variables.length; ++i) {
+                            if (typeof object.slot_variables[i] !== "object")
+                                throw TypeError(".tensorflow.TrackableObjectGraph.TrackableObject.slot_variables: object expected");
+                            message.slot_variables[i] = $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.fromObject(object.slot_variables[i]);
+                        }
+                    }
+                    return message;
+                };
+    
+                TrackableObject.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults) {
+                        object.children = [];
+                        object.attributes = [];
+                        object.slot_variables = [];
+                    }
+                    if (message.children && message.children.length) {
+                        object.children = [];
+                        for (var j = 0; j < message.children.length; ++j)
+                            object.children[j] = $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.toObject(message.children[j], options);
+                    }
+                    if (message.attributes && message.attributes.length) {
+                        object.attributes = [];
+                        for (var j = 0; j < message.attributes.length; ++j)
+                            object.attributes[j] = $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.toObject(message.attributes[j], options);
+                    }
+                    if (message.slot_variables && message.slot_variables.length) {
+                        object.slot_variables = [];
+                        for (var j = 0; j < message.slot_variables.length; ++j)
+                            object.slot_variables[j] = $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.toObject(message.slot_variables[j], options);
+                    }
+                    return object;
+                };
+    
+                TrackableObject.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                TrackableObject.ObjectReference = (function() {
+    
+                    function ObjectReference(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    ObjectReference.prototype.node_id = 0;
+                    ObjectReference.prototype.local_name = "";
+    
+                    ObjectReference.create = function create(properties) {
+                        return new ObjectReference(properties);
+                    };
+    
+                    ObjectReference.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.node_id = reader.int32();
+                                break;
+                            case 2:
+                                message.local_name = reader.string();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    ObjectReference.decodeText = function decodeText(reader, block) {
+                        if (!(reader instanceof $TextReader))
+                            reader = $TextReader.create(reader);
+                        var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference();
+                        reader.start(block);
+                        while (!reader.end(block)) {
+                            var tag = reader.tag();
+                            switch (tag) {
+                            case "node_id":
+                                reader.value();
+                                message.node_id = reader.int32();
+                                break;
+                            case "local_name":
+                                reader.value();
+                                message.local_name = reader.string();
+                                break;
+                            default:
+                                reader.field(tag, message);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    ObjectReference.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.node_id != null && message.hasOwnProperty("node_id"))
+                            if (!$util.isInteger(message.node_id))
+                                return "node_id: integer expected";
+                        if (message.local_name != null && message.hasOwnProperty("local_name"))
+                            if (!$util.isString(message.local_name))
+                                return "local_name: string expected";
+                        return null;
+                    };
+    
+                    ObjectReference.fromObject = function fromObject(object) {
+                        if (object instanceof $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference)
+                            return object;
+                        var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference();
+                        if (object.node_id != null)
+                            message.node_id = object.node_id | 0;
+                        if (object.local_name != null)
+                            message.local_name = String(object.local_name);
+                        return message;
+                    };
+    
+                    ObjectReference.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.node_id = 0;
+                            object.local_name = "";
+                        }
+                        if (message.node_id != null && message.hasOwnProperty("node_id"))
+                            object.node_id = message.node_id;
+                        if (message.local_name != null && message.hasOwnProperty("local_name"))
+                            object.local_name = message.local_name;
+                        return object;
+                    };
+    
+                    ObjectReference.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return ObjectReference;
+                })();
+    
+                TrackableObject.SerializedTensor = (function() {
+    
+                    function SerializedTensor(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    SerializedTensor.prototype.name = "";
+                    SerializedTensor.prototype.full_name = "";
+                    SerializedTensor.prototype.checkpoint_key = "";
+                    SerializedTensor.prototype.optional_restore = false;
+    
+                    SerializedTensor.create = function create(properties) {
+                        return new SerializedTensor(properties);
+                    };
+    
+                    SerializedTensor.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.name = reader.string();
+                                break;
+                            case 2:
+                                message.full_name = reader.string();
+                                break;
+                            case 3:
+                                message.checkpoint_key = reader.string();
+                                break;
+                            case 4:
+                                message.optional_restore = reader.bool();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    SerializedTensor.decodeText = function decodeText(reader, block) {
+                        if (!(reader instanceof $TextReader))
+                            reader = $TextReader.create(reader);
+                        var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor();
+                        reader.start(block);
+                        while (!reader.end(block)) {
+                            var tag = reader.tag();
+                            switch (tag) {
+                            case "name":
+                                reader.value();
+                                message.name = reader.string();
+                                break;
+                            case "full_name":
+                                reader.value();
+                                message.full_name = reader.string();
+                                break;
+                            case "checkpoint_key":
+                                reader.value();
+                                message.checkpoint_key = reader.string();
+                                break;
+                            case "optional_restore":
+                                reader.value();
+                                message.optional_restore = reader.bool();
+                                break;
+                            default:
+                                reader.field(tag, message);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    SerializedTensor.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.name != null && message.hasOwnProperty("name"))
+                            if (!$util.isString(message.name))
+                                return "name: string expected";
+                        if (message.full_name != null && message.hasOwnProperty("full_name"))
+                            if (!$util.isString(message.full_name))
+                                return "full_name: string expected";
+                        if (message.checkpoint_key != null && message.hasOwnProperty("checkpoint_key"))
+                            if (!$util.isString(message.checkpoint_key))
+                                return "checkpoint_key: string expected";
+                        if (message.optional_restore != null && message.hasOwnProperty("optional_restore"))
+                            if (typeof message.optional_restore !== "boolean")
+                                return "optional_restore: boolean expected";
+                        return null;
+                    };
+    
+                    SerializedTensor.fromObject = function fromObject(object) {
+                        if (object instanceof $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor)
+                            return object;
+                        var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor();
+                        if (object.name != null)
+                            message.name = String(object.name);
+                        if (object.full_name != null)
+                            message.full_name = String(object.full_name);
+                        if (object.checkpoint_key != null)
+                            message.checkpoint_key = String(object.checkpoint_key);
+                        if (object.optional_restore != null)
+                            message.optional_restore = Boolean(object.optional_restore);
+                        return message;
+                    };
+    
+                    SerializedTensor.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.name = "";
+                            object.full_name = "";
+                            object.checkpoint_key = "";
+                            object.optional_restore = false;
+                        }
+                        if (message.name != null && message.hasOwnProperty("name"))
+                            object.name = message.name;
+                        if (message.full_name != null && message.hasOwnProperty("full_name"))
+                            object.full_name = message.full_name;
+                        if (message.checkpoint_key != null && message.hasOwnProperty("checkpoint_key"))
+                            object.checkpoint_key = message.checkpoint_key;
+                        if (message.optional_restore != null && message.hasOwnProperty("optional_restore"))
+                            object.optional_restore = message.optional_restore;
+                        return object;
+                    };
+    
+                    SerializedTensor.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return SerializedTensor;
+                })();
+    
+                TrackableObject.SlotVariableReference = (function() {
+    
+                    function SlotVariableReference(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    SlotVariableReference.prototype.original_variable_node_id = 0;
+                    SlotVariableReference.prototype.slot_name = "";
+                    SlotVariableReference.prototype.slot_variable_node_id = 0;
+    
+                    SlotVariableReference.create = function create(properties) {
+                        return new SlotVariableReference(properties);
+                    };
+    
+                    SlotVariableReference.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.original_variable_node_id = reader.int32();
+                                break;
+                            case 2:
+                                message.slot_name = reader.string();
+                                break;
+                            case 3:
+                                message.slot_variable_node_id = reader.int32();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    SlotVariableReference.decodeText = function decodeText(reader, block) {
+                        if (!(reader instanceof $TextReader))
+                            reader = $TextReader.create(reader);
+                        var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference();
+                        reader.start(block);
+                        while (!reader.end(block)) {
+                            var tag = reader.tag();
+                            switch (tag) {
+                            case "original_variable_node_id":
+                                reader.value();
+                                message.original_variable_node_id = reader.int32();
+                                break;
+                            case "slot_name":
+                                reader.value();
+                                message.slot_name = reader.string();
+                                break;
+                            case "slot_variable_node_id":
+                                reader.value();
+                                message.slot_variable_node_id = reader.int32();
+                                break;
+                            default:
+                                reader.field(tag, message);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    SlotVariableReference.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.original_variable_node_id != null && message.hasOwnProperty("original_variable_node_id"))
+                            if (!$util.isInteger(message.original_variable_node_id))
+                                return "original_variable_node_id: integer expected";
+                        if (message.slot_name != null && message.hasOwnProperty("slot_name"))
+                            if (!$util.isString(message.slot_name))
+                                return "slot_name: string expected";
+                        if (message.slot_variable_node_id != null && message.hasOwnProperty("slot_variable_node_id"))
+                            if (!$util.isInteger(message.slot_variable_node_id))
+                                return "slot_variable_node_id: integer expected";
+                        return null;
+                    };
+    
+                    SlotVariableReference.fromObject = function fromObject(object) {
+                        if (object instanceof $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference)
+                            return object;
+                        var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference();
+                        if (object.original_variable_node_id != null)
+                            message.original_variable_node_id = object.original_variable_node_id | 0;
+                        if (object.slot_name != null)
+                            message.slot_name = String(object.slot_name);
+                        if (object.slot_variable_node_id != null)
+                            message.slot_variable_node_id = object.slot_variable_node_id | 0;
+                        return message;
+                    };
+    
+                    SlotVariableReference.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.original_variable_node_id = 0;
+                            object.slot_name = "";
+                            object.slot_variable_node_id = 0;
+                        }
+                        if (message.original_variable_node_id != null && message.hasOwnProperty("original_variable_node_id"))
+                            object.original_variable_node_id = message.original_variable_node_id;
+                        if (message.slot_name != null && message.hasOwnProperty("slot_name"))
+                            object.slot_name = message.slot_name;
+                        if (message.slot_variable_node_id != null && message.hasOwnProperty("slot_variable_node_id"))
+                            object.slot_variable_node_id = message.slot_variable_node_id;
+                        return object;
+                    };
+    
+                    SlotVariableReference.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return SlotVariableReference;
+                })();
+    
+                return TrackableObject;
+            })();
+    
+            return TrackableObjectGraph;
+        })();
+    
+        tensorflow.StructuredValue = (function() {
+    
+            function StructuredValue(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            StructuredValue.prototype.none_value = null;
+            StructuredValue.prototype.float64_value = 0;
+            StructuredValue.prototype.int64_value = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            StructuredValue.prototype.string_value = "";
+            StructuredValue.prototype.bool_value = false;
+            StructuredValue.prototype.tensor_shape_value = null;
+            StructuredValue.prototype.tensor_dtype_value = 0;
+            StructuredValue.prototype.tensor_spec_value = null;
+            StructuredValue.prototype.list_value = null;
+            StructuredValue.prototype.tuple_value = null;
+            StructuredValue.prototype.dict_value = null;
+            StructuredValue.prototype.named_tuple_value = null;
+    
+            var $oneOfFields;
+    
+            Object.defineProperty(StructuredValue.prototype, "kind", {
+                get: $util.oneOfGetter($oneOfFields = ["none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value"]),
+                set: $util.oneOfSetter($oneOfFields)
+            });
+    
+            StructuredValue.create = function create(properties) {
+                return new StructuredValue(properties);
+            };
+    
+            StructuredValue.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.StructuredValue();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.none_value = $root.tensorflow.NoneValue.decode(reader, reader.uint32());
+                        break;
+                    case 11:
+                        message.float64_value = reader.double();
+                        break;
+                    case 12:
+                        message.int64_value = reader.sint64();
+                        break;
+                    case 13:
+                        message.string_value = reader.string();
+                        break;
+                    case 14:
+                        message.bool_value = reader.bool();
+                        break;
+                    case 31:
+                        message.tensor_shape_value = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        break;
+                    case 32:
+                        message.tensor_dtype_value = reader.int32();
+                        break;
+                    case 33:
+                        message.tensor_spec_value = $root.tensorflow.TensorSpecProto.decode(reader, reader.uint32());
+                        break;
+                    case 51:
+                        message.list_value = $root.tensorflow.ListValue.decode(reader, reader.uint32());
+                        break;
+                    case 52:
+                        message.tuple_value = $root.tensorflow.TupleValue.decode(reader, reader.uint32());
+                        break;
+                    case 53:
+                        message.dict_value = $root.tensorflow.DictValue.decode(reader, reader.uint32());
+                        break;
+                    case 54:
+                        message.named_tuple_value = $root.tensorflow.NamedTupleValue.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            StructuredValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.StructuredValue();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "none_value":
+                        message.none_value = $root.tensorflow.NoneValue.decodeText(reader, true);
+                        break;
+                    case "float64_value":
+                        reader.value();
+                        message.float64_value = reader.double();
+                        break;
+                    case "int64_value":
+                        reader.value();
+                        message.int64_value = reader.sint64();
+                        break;
+                    case "string_value":
+                        reader.value();
+                        message.string_value = reader.string();
+                        break;
+                    case "bool_value":
+                        reader.value();
+                        message.bool_value = reader.bool();
+                        break;
+                    case "tensor_shape_value":
+                        message.tensor_shape_value = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    case "tensor_dtype_value":
+                        reader.value();
+                        message.tensor_dtype_value = reader.enum($root.tensorflow.DataType);
+                        break;
+                    case "tensor_spec_value":
+                        message.tensor_spec_value = $root.tensorflow.TensorSpecProto.decodeText(reader, true);
+                        break;
+                    case "list_value":
+                        message.list_value = $root.tensorflow.ListValue.decodeText(reader, true);
+                        break;
+                    case "tuple_value":
+                        message.tuple_value = $root.tensorflow.TupleValue.decodeText(reader, true);
+                        break;
+                    case "dict_value":
+                        message.dict_value = $root.tensorflow.DictValue.decodeText(reader, true);
+                        break;
+                    case "named_tuple_value":
+                        message.named_tuple_value = $root.tensorflow.NamedTupleValue.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            StructuredValue.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                var properties = {};
+                if (message.none_value != null && message.hasOwnProperty("none_value")) {
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.NoneValue.verify(message.none_value);
+                        if (error)
+                            return "none_value." + error;
+                    }
+                }
+                if (message.float64_value != null && message.hasOwnProperty("float64_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    if (typeof message.float64_value !== "number")
+                        return "float64_value: number expected";
+                }
+                if (message.int64_value != null && message.hasOwnProperty("int64_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    if (!$util.isInteger(message.int64_value) && !(message.int64_value && $util.isInteger(message.int64_value.low) && $util.isInteger(message.int64_value.high)))
+                        return "int64_value: integer|Long expected";
+                }
+                if (message.string_value != null && message.hasOwnProperty("string_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    if (!$util.isString(message.string_value))
+                        return "string_value: string expected";
+                }
+                if (message.bool_value != null && message.hasOwnProperty("bool_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    if (typeof message.bool_value !== "boolean")
+                        return "bool_value: boolean expected";
+                }
+                if (message.tensor_shape_value != null && message.hasOwnProperty("tensor_shape_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.TensorShapeProto.verify(message.tensor_shape_value);
+                        if (error)
+                            return "tensor_shape_value." + error;
+                    }
+                }
+                if (message.tensor_dtype_value != null && message.hasOwnProperty("tensor_dtype_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    switch (message.tensor_dtype_value) {
+                    default:
+                        return "tensor_dtype_value: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 101:
+                    case 102:
+                    case 103:
+                    case 104:
+                    case 105:
+                    case 106:
+                    case 107:
+                    case 108:
+                    case 109:
+                    case 110:
+                    case 111:
+                    case 112:
+                    case 113:
+                    case 114:
+                    case 115:
+                    case 116:
+                    case 117:
+                    case 118:
+                    case 119:
+                    case 120:
+                    case 121:
+                    case 122:
+                    case 123:
+                        break;
+                    }
+                }
+                if (message.tensor_spec_value != null && message.hasOwnProperty("tensor_spec_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.TensorSpecProto.verify(message.tensor_spec_value);
+                        if (error)
+                            return "tensor_spec_value." + error;
+                    }
+                }
+                if (message.list_value != null && message.hasOwnProperty("list_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.ListValue.verify(message.list_value);
+                        if (error)
+                            return "list_value." + error;
+                    }
+                }
+                if (message.tuple_value != null && message.hasOwnProperty("tuple_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.TupleValue.verify(message.tuple_value);
+                        if (error)
+                            return "tuple_value." + error;
+                    }
+                }
+                if (message.dict_value != null && message.hasOwnProperty("dict_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.DictValue.verify(message.dict_value);
+                        if (error)
+                            return "dict_value." + error;
+                    }
+                }
+                if (message.named_tuple_value != null && message.hasOwnProperty("named_tuple_value")) {
+                    if (properties.kind === 1)
+                        return "kind: multiple values";
+                    properties.kind = 1;
+                    {
+                        var error = $root.tensorflow.NamedTupleValue.verify(message.named_tuple_value);
+                        if (error)
+                            return "named_tuple_value." + error;
+                    }
+                }
+                return null;
+            };
+    
+            StructuredValue.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.StructuredValue)
+                    return object;
+                var message = new $root.tensorflow.StructuredValue();
+                if (object.none_value != null) {
+                    if (typeof object.none_value !== "object")
+                        throw TypeError(".tensorflow.StructuredValue.none_value: object expected");
+                    message.none_value = $root.tensorflow.NoneValue.fromObject(object.none_value);
+                }
+                if (object.float64_value != null)
+                    message.float64_value = Number(object.float64_value);
+                if (object.int64_value != null)
+                    if ($util.Long)
+                        (message.int64_value = $util.Long.fromValue(object.int64_value)).unsigned = false;
+                    else if (typeof object.int64_value === "string")
+                        message.int64_value = parseInt(object.int64_value, 10);
+                    else if (typeof object.int64_value === "number")
+                        message.int64_value = object.int64_value;
+                    else if (typeof object.int64_value === "object")
+                        message.int64_value = new $util.LongBits(object.int64_value.low >>> 0, object.int64_value.high >>> 0).toNumber();
+                if (object.string_value != null)
+                    message.string_value = String(object.string_value);
+                if (object.bool_value != null)
+                    message.bool_value = Boolean(object.bool_value);
+                if (object.tensor_shape_value != null) {
+                    if (typeof object.tensor_shape_value !== "object")
+                        throw TypeError(".tensorflow.StructuredValue.tensor_shape_value: object expected");
+                    message.tensor_shape_value = $root.tensorflow.TensorShapeProto.fromObject(object.tensor_shape_value);
+                }
+                switch (object.tensor_dtype_value) {
+                case "DT_INVALID":
+                case 0:
+                    message.tensor_dtype_value = 0;
+                    break;
+                case "DT_FLOAT":
+                case 1:
+                    message.tensor_dtype_value = 1;
+                    break;
+                case "DT_DOUBLE":
+                case 2:
+                    message.tensor_dtype_value = 2;
+                    break;
+                case "DT_INT32":
+                case 3:
+                    message.tensor_dtype_value = 3;
+                    break;
+                case "DT_UINT8":
+                case 4:
+                    message.tensor_dtype_value = 4;
+                    break;
+                case "DT_INT16":
+                case 5:
+                    message.tensor_dtype_value = 5;
+                    break;
+                case "DT_INT8":
+                case 6:
+                    message.tensor_dtype_value = 6;
+                    break;
+                case "DT_STRING":
+                case 7:
+                    message.tensor_dtype_value = 7;
+                    break;
+                case "DT_COMPLEX64":
+                case 8:
+                    message.tensor_dtype_value = 8;
+                    break;
+                case "DT_INT64":
+                case 9:
+                    message.tensor_dtype_value = 9;
+                    break;
+                case "DT_BOOL":
+                case 10:
+                    message.tensor_dtype_value = 10;
+                    break;
+                case "DT_QINT8":
+                case 11:
+                    message.tensor_dtype_value = 11;
+                    break;
+                case "DT_QUINT8":
+                case 12:
+                    message.tensor_dtype_value = 12;
+                    break;
+                case "DT_QINT32":
+                case 13:
+                    message.tensor_dtype_value = 13;
+                    break;
+                case "DT_BFLOAT16":
+                case 14:
+                    message.tensor_dtype_value = 14;
+                    break;
+                case "DT_QINT16":
+                case 15:
+                    message.tensor_dtype_value = 15;
+                    break;
+                case "DT_QUINT16":
+                case 16:
+                    message.tensor_dtype_value = 16;
+                    break;
+                case "DT_UINT16":
+                case 17:
+                    message.tensor_dtype_value = 17;
+                    break;
+                case "DT_COMPLEX128":
+                case 18:
+                    message.tensor_dtype_value = 18;
+                    break;
+                case "DT_HALF":
+                case 19:
+                    message.tensor_dtype_value = 19;
+                    break;
+                case "DT_RESOURCE":
+                case 20:
+                    message.tensor_dtype_value = 20;
+                    break;
+                case "DT_VARIANT":
+                case 21:
+                    message.tensor_dtype_value = 21;
+                    break;
+                case "DT_UINT32":
+                case 22:
+                    message.tensor_dtype_value = 22;
+                    break;
+                case "DT_UINT64":
+                case 23:
+                    message.tensor_dtype_value = 23;
+                    break;
+                case "DT_FLOAT_REF":
+                case 101:
+                    message.tensor_dtype_value = 101;
+                    break;
+                case "DT_DOUBLE_REF":
+                case 102:
+                    message.tensor_dtype_value = 102;
+                    break;
+                case "DT_INT32_REF":
+                case 103:
+                    message.tensor_dtype_value = 103;
+                    break;
+                case "DT_UINT8_REF":
+                case 104:
+                    message.tensor_dtype_value = 104;
+                    break;
+                case "DT_INT16_REF":
+                case 105:
+                    message.tensor_dtype_value = 105;
+                    break;
+                case "DT_INT8_REF":
+                case 106:
+                    message.tensor_dtype_value = 106;
+                    break;
+                case "DT_STRING_REF":
+                case 107:
+                    message.tensor_dtype_value = 107;
+                    break;
+                case "DT_COMPLEX64_REF":
+                case 108:
+                    message.tensor_dtype_value = 108;
+                    break;
+                case "DT_INT64_REF":
+                case 109:
+                    message.tensor_dtype_value = 109;
+                    break;
+                case "DT_BOOL_REF":
+                case 110:
+                    message.tensor_dtype_value = 110;
+                    break;
+                case "DT_QINT8_REF":
+                case 111:
+                    message.tensor_dtype_value = 111;
+                    break;
+                case "DT_QUINT8_REF":
+                case 112:
+                    message.tensor_dtype_value = 112;
+                    break;
+                case "DT_QINT32_REF":
+                case 113:
+                    message.tensor_dtype_value = 113;
+                    break;
+                case "DT_BFLOAT16_REF":
+                case 114:
+                    message.tensor_dtype_value = 114;
+                    break;
+                case "DT_QINT16_REF":
+                case 115:
+                    message.tensor_dtype_value = 115;
+                    break;
+                case "DT_QUINT16_REF":
+                case 116:
+                    message.tensor_dtype_value = 116;
+                    break;
+                case "DT_UINT16_REF":
+                case 117:
+                    message.tensor_dtype_value = 117;
+                    break;
+                case "DT_COMPLEX128_REF":
+                case 118:
+                    message.tensor_dtype_value = 118;
+                    break;
+                case "DT_HALF_REF":
+                case 119:
+                    message.tensor_dtype_value = 119;
+                    break;
+                case "DT_RESOURCE_REF":
+                case 120:
+                    message.tensor_dtype_value = 120;
+                    break;
+                case "DT_VARIANT_REF":
+                case 121:
+                    message.tensor_dtype_value = 121;
+                    break;
+                case "DT_UINT32_REF":
+                case 122:
+                    message.tensor_dtype_value = 122;
+                    break;
+                case "DT_UINT64_REF":
+                case 123:
+                    message.tensor_dtype_value = 123;
+                    break;
+                }
+                if (object.tensor_spec_value != null) {
+                    if (typeof object.tensor_spec_value !== "object")
+                        throw TypeError(".tensorflow.StructuredValue.tensor_spec_value: object expected");
+                    message.tensor_spec_value = $root.tensorflow.TensorSpecProto.fromObject(object.tensor_spec_value);
+                }
+                if (object.list_value != null) {
+                    if (typeof object.list_value !== "object")
+                        throw TypeError(".tensorflow.StructuredValue.list_value: object expected");
+                    message.list_value = $root.tensorflow.ListValue.fromObject(object.list_value);
+                }
+                if (object.tuple_value != null) {
+                    if (typeof object.tuple_value !== "object")
+                        throw TypeError(".tensorflow.StructuredValue.tuple_value: object expected");
+                    message.tuple_value = $root.tensorflow.TupleValue.fromObject(object.tuple_value);
+                }
+                if (object.dict_value != null) {
+                    if (typeof object.dict_value !== "object")
+                        throw TypeError(".tensorflow.StructuredValue.dict_value: object expected");
+                    message.dict_value = $root.tensorflow.DictValue.fromObject(object.dict_value);
+                }
+                if (object.named_tuple_value != null) {
+                    if (typeof object.named_tuple_value !== "object")
+                        throw TypeError(".tensorflow.StructuredValue.named_tuple_value: object expected");
+                    message.named_tuple_value = $root.tensorflow.NamedTupleValue.fromObject(object.named_tuple_value);
+                }
+                return message;
+            };
+    
+            StructuredValue.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (message.none_value != null && message.hasOwnProperty("none_value")) {
+                    object.none_value = $root.tensorflow.NoneValue.toObject(message.none_value, options);
+                    if (options.oneofs)
+                        object.kind = "none_value";
+                }
+                if (message.float64_value != null && message.hasOwnProperty("float64_value")) {
+                    object.float64_value = options.json && !isFinite(message.float64_value) ? String(message.float64_value) : message.float64_value;
+                    if (options.oneofs)
+                        object.kind = "float64_value";
+                }
+                if (message.int64_value != null && message.hasOwnProperty("int64_value")) {
+                    if (typeof message.int64_value === "number")
+                        object.int64_value = options.longs === String ? String(message.int64_value) : message.int64_value;
+                    else
+                        object.int64_value = options.longs === String ? $util.Long.prototype.toString.call(message.int64_value) : options.longs === Number ? new $util.LongBits(message.int64_value.low >>> 0, message.int64_value.high >>> 0).toNumber() : message.int64_value;
+                    if (options.oneofs)
+                        object.kind = "int64_value";
+                }
+                if (message.string_value != null && message.hasOwnProperty("string_value")) {
+                    object.string_value = message.string_value;
+                    if (options.oneofs)
+                        object.kind = "string_value";
+                }
+                if (message.bool_value != null && message.hasOwnProperty("bool_value")) {
+                    object.bool_value = message.bool_value;
+                    if (options.oneofs)
+                        object.kind = "bool_value";
+                }
+                if (message.tensor_shape_value != null && message.hasOwnProperty("tensor_shape_value")) {
+                    object.tensor_shape_value = $root.tensorflow.TensorShapeProto.toObject(message.tensor_shape_value, options);
+                    if (options.oneofs)
+                        object.kind = "tensor_shape_value";
+                }
+                if (message.tensor_dtype_value != null && message.hasOwnProperty("tensor_dtype_value")) {
+                    object.tensor_dtype_value = options.enums === String ? $root.tensorflow.DataType[message.tensor_dtype_value] : message.tensor_dtype_value;
+                    if (options.oneofs)
+                        object.kind = "tensor_dtype_value";
+                }
+                if (message.tensor_spec_value != null && message.hasOwnProperty("tensor_spec_value")) {
+                    object.tensor_spec_value = $root.tensorflow.TensorSpecProto.toObject(message.tensor_spec_value, options);
+                    if (options.oneofs)
+                        object.kind = "tensor_spec_value";
+                }
+                if (message.list_value != null && message.hasOwnProperty("list_value")) {
+                    object.list_value = $root.tensorflow.ListValue.toObject(message.list_value, options);
+                    if (options.oneofs)
+                        object.kind = "list_value";
+                }
+                if (message.tuple_value != null && message.hasOwnProperty("tuple_value")) {
+                    object.tuple_value = $root.tensorflow.TupleValue.toObject(message.tuple_value, options);
+                    if (options.oneofs)
+                        object.kind = "tuple_value";
+                }
+                if (message.dict_value != null && message.hasOwnProperty("dict_value")) {
+                    object.dict_value = $root.tensorflow.DictValue.toObject(message.dict_value, options);
+                    if (options.oneofs)
+                        object.kind = "dict_value";
+                }
+                if (message.named_tuple_value != null && message.hasOwnProperty("named_tuple_value")) {
+                    object.named_tuple_value = $root.tensorflow.NamedTupleValue.toObject(message.named_tuple_value, options);
+                    if (options.oneofs)
+                        object.kind = "named_tuple_value";
+                }
+                return object;
+            };
+    
+            StructuredValue.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return StructuredValue;
+        })();
+    
+        tensorflow.NoneValue = (function() {
+    
+            function NoneValue(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            NoneValue.create = function create(properties) {
+                return new NoneValue(properties);
+            };
+    
+            NoneValue.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.NoneValue();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NoneValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.NoneValue();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NoneValue.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                return null;
+            };
+    
+            NoneValue.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.NoneValue)
+                    return object;
+                return new $root.tensorflow.NoneValue();
+            };
+    
+            NoneValue.toObject = function toObject() {
+                return {};
+            };
+    
+            NoneValue.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return NoneValue;
+        })();
+    
+        tensorflow.ListValue = (function() {
+    
+            function ListValue(properties) {
+                this.values = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            ListValue.prototype.values = $util.emptyArray;
+    
+            ListValue.create = function create(properties) {
+                return new ListValue(properties);
+            };
+    
+            ListValue.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.ListValue();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.values && message.values.length))
+                            message.values = [];
+                        message.values.push($root.tensorflow.StructuredValue.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ListValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.ListValue();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "values":
+                        if (!(message.values && message.values.length))
+                            message.values = [];
+                        message.values.push($root.tensorflow.StructuredValue.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ListValue.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.values != null && message.hasOwnProperty("values")) {
+                    if (!Array.isArray(message.values))
+                        return "values: array expected";
+                    for (var i = 0; i < message.values.length; ++i) {
+                        var error = $root.tensorflow.StructuredValue.verify(message.values[i]);
+                        if (error)
+                            return "values." + error;
+                    }
+                }
+                return null;
+            };
+    
+            ListValue.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.ListValue)
+                    return object;
+                var message = new $root.tensorflow.ListValue();
+                if (object.values) {
+                    if (!Array.isArray(object.values))
+                        throw TypeError(".tensorflow.ListValue.values: array expected");
+                    message.values = [];
+                    for (var i = 0; i < object.values.length; ++i) {
+                        if (typeof object.values[i] !== "object")
+                            throw TypeError(".tensorflow.ListValue.values: object expected");
+                        message.values[i] = $root.tensorflow.StructuredValue.fromObject(object.values[i]);
+                    }
+                }
+                return message;
+            };
+    
+            ListValue.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.values = [];
+                if (message.values && message.values.length) {
+                    object.values = [];
+                    for (var j = 0; j < message.values.length; ++j)
+                        object.values[j] = $root.tensorflow.StructuredValue.toObject(message.values[j], options);
+                }
+                return object;
+            };
+    
+            ListValue.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return ListValue;
+        })();
+    
+        tensorflow.TupleValue = (function() {
+    
+            function TupleValue(properties) {
+                this.values = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TupleValue.prototype.values = $util.emptyArray;
+    
+            TupleValue.create = function create(properties) {
+                return new TupleValue(properties);
+            };
+    
+            TupleValue.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TupleValue();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.values && message.values.length))
+                            message.values = [];
+                        message.values.push($root.tensorflow.StructuredValue.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TupleValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.TupleValue();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "values":
+                        if (!(message.values && message.values.length))
+                            message.values = [];
+                        message.values.push($root.tensorflow.StructuredValue.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TupleValue.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.values != null && message.hasOwnProperty("values")) {
+                    if (!Array.isArray(message.values))
+                        return "values: array expected";
+                    for (var i = 0; i < message.values.length; ++i) {
+                        var error = $root.tensorflow.StructuredValue.verify(message.values[i]);
+                        if (error)
+                            return "values." + error;
+                    }
+                }
+                return null;
+            };
+    
+            TupleValue.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.TupleValue)
+                    return object;
+                var message = new $root.tensorflow.TupleValue();
+                if (object.values) {
+                    if (!Array.isArray(object.values))
+                        throw TypeError(".tensorflow.TupleValue.values: array expected");
+                    message.values = [];
+                    for (var i = 0; i < object.values.length; ++i) {
+                        if (typeof object.values[i] !== "object")
+                            throw TypeError(".tensorflow.TupleValue.values: object expected");
+                        message.values[i] = $root.tensorflow.StructuredValue.fromObject(object.values[i]);
+                    }
+                }
+                return message;
+            };
+    
+            TupleValue.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.values = [];
+                if (message.values && message.values.length) {
+                    object.values = [];
+                    for (var j = 0; j < message.values.length; ++j)
+                        object.values[j] = $root.tensorflow.StructuredValue.toObject(message.values[j], options);
+                }
+                return object;
+            };
+    
+            TupleValue.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return TupleValue;
+        })();
+    
+        tensorflow.DictValue = (function() {
+    
+            function DictValue(properties) {
+                this.fields = {};
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            DictValue.prototype.fields = $util.emptyObject;
+    
+            DictValue.create = function create(properties) {
+                return new DictValue(properties);
+            };
+    
+            DictValue.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.DictValue(), key;
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        reader.skip().pos++;
+                        if (message.fields === $util.emptyObject)
+                            message.fields = {};
+                        key = reader.string();
+                        reader.pos++;
+                        message.fields[key] = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            DictValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.DictValue(), key;
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "fields":
+                        reader.assert("{");
+                        if (message.fields === $util.emptyObject)
+                            message.fields = {};
+                        reader.assert("key");
+                        reader.value();
+                        key = reader.string();
+                        reader.assert("value");
+                        message.fields[key] = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            DictValue.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.fields != null && message.hasOwnProperty("fields")) {
+                    if (!$util.isObject(message.fields))
+                        return "fields: object expected";
+                    var key = Object.keys(message.fields);
+                    for (var i = 0; i < key.length; ++i) {
+                        var error = $root.tensorflow.StructuredValue.verify(message.fields[key[i]]);
+                        if (error)
+                            return "fields." + error;
+                    }
+                }
+                return null;
+            };
+    
+            DictValue.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.DictValue)
+                    return object;
+                var message = new $root.tensorflow.DictValue();
+                if (object.fields) {
+                    if (typeof object.fields !== "object")
+                        throw TypeError(".tensorflow.DictValue.fields: object expected");
+                    message.fields = {};
+                    for (var keys = Object.keys(object.fields), i = 0; i < keys.length; ++i) {
+                        if (typeof object.fields[keys[i]] !== "object")
+                            throw TypeError(".tensorflow.DictValue.fields: object expected");
+                        message.fields[keys[i]] = $root.tensorflow.StructuredValue.fromObject(object.fields[keys[i]]);
+                    }
+                }
+                return message;
+            };
+    
+            DictValue.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.objects || options.defaults)
+                    object.fields = {};
+                var keys2;
+                if (message.fields && (keys2 = Object.keys(message.fields)).length) {
+                    object.fields = {};
+                    for (var j = 0; j < keys2.length; ++j)
+                        object.fields[keys2[j]] = $root.tensorflow.StructuredValue.toObject(message.fields[keys2[j]], options);
+                }
+                return object;
+            };
+    
+            DictValue.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return DictValue;
+        })();
+    
+        tensorflow.PairValue = (function() {
+    
+            function PairValue(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            PairValue.prototype.key = "";
+            PairValue.prototype.value = null;
+    
+            PairValue.create = function create(properties) {
+                return new PairValue(properties);
+            };
+    
+            PairValue.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.PairValue();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.key = reader.string();
+                        break;
+                    case 2:
+                        message.value = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            PairValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.PairValue();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "key":
+                        reader.value();
+                        message.key = reader.string();
+                        break;
+                    case "value":
+                        message.value = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            PairValue.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.key != null && message.hasOwnProperty("key"))
+                    if (!$util.isString(message.key))
+                        return "key: string expected";
+                if (message.value != null && message.hasOwnProperty("value")) {
+                    var error = $root.tensorflow.StructuredValue.verify(message.value);
+                    if (error)
+                        return "value." + error;
+                }
+                return null;
+            };
+    
+            PairValue.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.PairValue)
+                    return object;
+                var message = new $root.tensorflow.PairValue();
+                if (object.key != null)
+                    message.key = String(object.key);
+                if (object.value != null) {
+                    if (typeof object.value !== "object")
+                        throw TypeError(".tensorflow.PairValue.value: object expected");
+                    message.value = $root.tensorflow.StructuredValue.fromObject(object.value);
+                }
+                return message;
+            };
+    
+            PairValue.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.key = "";
+                    object.value = null;
+                }
+                if (message.key != null && message.hasOwnProperty("key"))
+                    object.key = message.key;
+                if (message.value != null && message.hasOwnProperty("value"))
+                    object.value = $root.tensorflow.StructuredValue.toObject(message.value, options);
+                return object;
+            };
+    
+            PairValue.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return PairValue;
+        })();
+    
+        tensorflow.NamedTupleValue = (function() {
+    
+            function NamedTupleValue(properties) {
+                this.values = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            NamedTupleValue.prototype.name = "";
+            NamedTupleValue.prototype.values = $util.emptyArray;
+    
+            NamedTupleValue.create = function create(properties) {
+                return new NamedTupleValue(properties);
+            };
+    
+            NamedTupleValue.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.NamedTupleValue();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.name = reader.string();
+                        break;
+                    case 2:
+                        if (!(message.values && message.values.length))
+                            message.values = [];
+                        message.values.push($root.tensorflow.PairValue.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NamedTupleValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.NamedTupleValue();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        reader.value();
+                        message.name = reader.string();
+                        break;
+                    case "values":
+                        if (!(message.values && message.values.length))
+                            message.values = [];
+                        message.values.push($root.tensorflow.PairValue.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NamedTupleValue.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.name != null && message.hasOwnProperty("name"))
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
+                if (message.values != null && message.hasOwnProperty("values")) {
+                    if (!Array.isArray(message.values))
+                        return "values: array expected";
+                    for (var i = 0; i < message.values.length; ++i) {
+                        var error = $root.tensorflow.PairValue.verify(message.values[i]);
+                        if (error)
+                            return "values." + error;
+                    }
+                }
+                return null;
+            };
+    
+            NamedTupleValue.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.NamedTupleValue)
+                    return object;
+                var message = new $root.tensorflow.NamedTupleValue();
+                if (object.name != null)
+                    message.name = String(object.name);
+                if (object.values) {
+                    if (!Array.isArray(object.values))
+                        throw TypeError(".tensorflow.NamedTupleValue.values: array expected");
+                    message.values = [];
+                    for (var i = 0; i < object.values.length; ++i) {
+                        if (typeof object.values[i] !== "object")
+                            throw TypeError(".tensorflow.NamedTupleValue.values: object expected");
+                        message.values[i] = $root.tensorflow.PairValue.fromObject(object.values[i]);
+                    }
+                }
+                return message;
+            };
+    
+            NamedTupleValue.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.values = [];
+                if (options.defaults)
+                    object.name = "";
+                if (message.name != null && message.hasOwnProperty("name"))
+                    object.name = message.name;
+                if (message.values && message.values.length) {
+                    object.values = [];
+                    for (var j = 0; j < message.values.length; ++j)
+                        object.values[j] = $root.tensorflow.PairValue.toObject(message.values[j], options);
+                }
+                return object;
+            };
+    
+            NamedTupleValue.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return NamedTupleValue;
+        })();
+    
+        tensorflow.TensorSpecProto = (function() {
+    
+            function TensorSpecProto(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TensorSpecProto.prototype.name = "";
+            TensorSpecProto.prototype.shape = null;
+            TensorSpecProto.prototype.dtype = 0;
+    
+            TensorSpecProto.create = function create(properties) {
+                return new TensorSpecProto(properties);
+            };
+    
+            TensorSpecProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TensorSpecProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.name = reader.string();
+                        break;
+                    case 2:
+                        message.shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.dtype = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorSpecProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.TensorSpecProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        reader.value();
+                        message.name = reader.string();
+                        break;
+                    case "shape":
+                        message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    case "dtype":
+                        reader.value();
+                        message.dtype = reader.enum($root.tensorflow.DataType);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorSpecProto.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.name != null && message.hasOwnProperty("name"))
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
+                if (message.shape != null && message.hasOwnProperty("shape")) {
+                    var error = $root.tensorflow.TensorShapeProto.verify(message.shape);
+                    if (error)
+                        return "shape." + error;
+                }
+                if (message.dtype != null && message.hasOwnProperty("dtype"))
+                    switch (message.dtype) {
+                    default:
+                        return "dtype: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 101:
+                    case 102:
+                    case 103:
+                    case 104:
+                    case 105:
+                    case 106:
+                    case 107:
+                    case 108:
+                    case 109:
+                    case 110:
+                    case 111:
+                    case 112:
+                    case 113:
+                    case 114:
+                    case 115:
+                    case 116:
+                    case 117:
+                    case 118:
+                    case 119:
+                    case 120:
+                    case 121:
+                    case 122:
+                    case 123:
+                        break;
+                    }
+                return null;
+            };
+    
+            TensorSpecProto.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.TensorSpecProto)
+                    return object;
+                var message = new $root.tensorflow.TensorSpecProto();
+                if (object.name != null)
+                    message.name = String(object.name);
+                if (object.shape != null) {
+                    if (typeof object.shape !== "object")
+                        throw TypeError(".tensorflow.TensorSpecProto.shape: object expected");
+                    message.shape = $root.tensorflow.TensorShapeProto.fromObject(object.shape);
+                }
+                switch (object.dtype) {
+                case "DT_INVALID":
+                case 0:
+                    message.dtype = 0;
+                    break;
+                case "DT_FLOAT":
+                case 1:
+                    message.dtype = 1;
+                    break;
+                case "DT_DOUBLE":
+                case 2:
+                    message.dtype = 2;
+                    break;
+                case "DT_INT32":
+                case 3:
+                    message.dtype = 3;
+                    break;
+                case "DT_UINT8":
+                case 4:
+                    message.dtype = 4;
+                    break;
+                case "DT_INT16":
+                case 5:
+                    message.dtype = 5;
+                    break;
+                case "DT_INT8":
+                case 6:
+                    message.dtype = 6;
+                    break;
+                case "DT_STRING":
+                case 7:
+                    message.dtype = 7;
+                    break;
+                case "DT_COMPLEX64":
+                case 8:
+                    message.dtype = 8;
+                    break;
+                case "DT_INT64":
+                case 9:
+                    message.dtype = 9;
+                    break;
+                case "DT_BOOL":
+                case 10:
+                    message.dtype = 10;
+                    break;
+                case "DT_QINT8":
+                case 11:
+                    message.dtype = 11;
+                    break;
+                case "DT_QUINT8":
+                case 12:
+                    message.dtype = 12;
+                    break;
+                case "DT_QINT32":
+                case 13:
+                    message.dtype = 13;
+                    break;
+                case "DT_BFLOAT16":
+                case 14:
+                    message.dtype = 14;
+                    break;
+                case "DT_QINT16":
+                case 15:
+                    message.dtype = 15;
+                    break;
+                case "DT_QUINT16":
+                case 16:
+                    message.dtype = 16;
+                    break;
+                case "DT_UINT16":
+                case 17:
+                    message.dtype = 17;
+                    break;
+                case "DT_COMPLEX128":
+                case 18:
+                    message.dtype = 18;
+                    break;
+                case "DT_HALF":
+                case 19:
+                    message.dtype = 19;
+                    break;
+                case "DT_RESOURCE":
+                case 20:
+                    message.dtype = 20;
+                    break;
+                case "DT_VARIANT":
+                case 21:
+                    message.dtype = 21;
+                    break;
+                case "DT_UINT32":
+                case 22:
+                    message.dtype = 22;
+                    break;
+                case "DT_UINT64":
+                case 23:
+                    message.dtype = 23;
+                    break;
+                case "DT_FLOAT_REF":
+                case 101:
+                    message.dtype = 101;
+                    break;
+                case "DT_DOUBLE_REF":
+                case 102:
+                    message.dtype = 102;
+                    break;
+                case "DT_INT32_REF":
+                case 103:
+                    message.dtype = 103;
+                    break;
+                case "DT_UINT8_REF":
+                case 104:
+                    message.dtype = 104;
+                    break;
+                case "DT_INT16_REF":
+                case 105:
+                    message.dtype = 105;
+                    break;
+                case "DT_INT8_REF":
+                case 106:
+                    message.dtype = 106;
+                    break;
+                case "DT_STRING_REF":
+                case 107:
+                    message.dtype = 107;
+                    break;
+                case "DT_COMPLEX64_REF":
+                case 108:
+                    message.dtype = 108;
+                    break;
+                case "DT_INT64_REF":
+                case 109:
+                    message.dtype = 109;
+                    break;
+                case "DT_BOOL_REF":
+                case 110:
+                    message.dtype = 110;
+                    break;
+                case "DT_QINT8_REF":
+                case 111:
+                    message.dtype = 111;
+                    break;
+                case "DT_QUINT8_REF":
+                case 112:
+                    message.dtype = 112;
+                    break;
+                case "DT_QINT32_REF":
+                case 113:
+                    message.dtype = 113;
+                    break;
+                case "DT_BFLOAT16_REF":
+                case 114:
+                    message.dtype = 114;
+                    break;
+                case "DT_QINT16_REF":
+                case 115:
+                    message.dtype = 115;
+                    break;
+                case "DT_QUINT16_REF":
+                case 116:
+                    message.dtype = 116;
+                    break;
+                case "DT_UINT16_REF":
+                case 117:
+                    message.dtype = 117;
+                    break;
+                case "DT_COMPLEX128_REF":
+                case 118:
+                    message.dtype = 118;
+                    break;
+                case "DT_HALF_REF":
+                case 119:
+                    message.dtype = 119;
+                    break;
+                case "DT_RESOURCE_REF":
+                case 120:
+                    message.dtype = 120;
+                    break;
+                case "DT_VARIANT_REF":
+                case 121:
+                    message.dtype = 121;
+                    break;
+                case "DT_UINT32_REF":
+                case 122:
+                    message.dtype = 122;
+                    break;
+                case "DT_UINT64_REF":
+                case 123:
+                    message.dtype = 123;
+                    break;
+                }
+                return message;
+            };
+    
+            TensorSpecProto.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.name = "";
+                    object.shape = null;
+                    object.dtype = options.enums === String ? "DT_INVALID" : 0;
+                }
+                if (message.name != null && message.hasOwnProperty("name"))
+                    object.name = message.name;
+                if (message.shape != null && message.hasOwnProperty("shape"))
+                    object.shape = $root.tensorflow.TensorShapeProto.toObject(message.shape, options);
+                if (message.dtype != null && message.hasOwnProperty("dtype"))
+                    object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
+                return object;
+            };
+    
+            TensorSpecProto.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return TensorSpecProto;
         })();
     
         return tensorflow;
