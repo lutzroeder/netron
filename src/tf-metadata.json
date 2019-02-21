@@ -40591,7 +40591,7 @@
           "type": "type"
         }
       ],
-      "description": "range that covers the actual values present in that tensor.  This op is\ntypically used to produce the requested_output_min and requested_output_max for\nRequantize.",
+      "description": "Given a quantized tensor described by `(input, input_min, input_max)`, outputs a\nrange that covers the actual values present in that tensor. This op is typically\nused to produce the `requested_output_min` and `requested_output_max` for\n`Requantize`.",
       "inputs": [
         {
           "name": "input",
@@ -40620,7 +40620,7 @@
           "type": 1
         }
       ],
-      "summary": "Given a quantized tensor described by (input, input_min, input_max), outputs a"
+      "summary": "Computes a range that covers the actual values present in a quantized tensor."
     }
   },
   {
@@ -40755,7 +40755,7 @@
           "type": "type"
         }
       ],
-      "description": "output range specified with 'requested_output_min' and 'requested_output_max'.\n\n[input_min, input_max] are scalar floats that specify the range for the float\ninterpretation of the 'input' data. For example, if input_min is -1.0f and\ninput_max is 1.0f, and we are dealing with quint16 quantized data, then a 0\nvalue in the 16-bit data should be interpreted as -1.0f, and a 65535 means 1.0f.",
+      "description": "Converts the quantized `input` tensor into a lower-precision `output`, using the\noutput range specified with `requested_output_min` and `requested_output_max`.\n\n`[input_min, input_max]` are scalar floats that specify the range for the float\ninterpretation of the `input` data. For example, if `input_min` is -1.0f and\n`input_max` is 1.0f, and we are dealing with `quint16` quantized data, then a 0\nvalue in the 16-bit data should be interpreted as -1.0f, and a 65535 means 1.0f.",
       "inputs": [
         {
           "name": "input",
@@ -40798,7 +40798,7 @@
           "type": 1
         }
       ],
-      "summary": "Convert the quantized 'input' tensor into a lower-precision 'output', using the"
+      "summary": "Converts the quantized `input` tensor into a lower-precision `output`."
     }
   },
   {
@@ -62340,6 +62340,39 @@
         }
       ],
       "summary": "Creates a TensorList by indexing into a Tensor."
+    }
+  },
+  {
+    "name": "TensorListScatterIntoExistingList",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "Each member of the TensorList corresponds to one row of the input tensor,\nspecified by the given index (see `tf.gather`).\n\ninput_handle: The list to scatter into.\ntensor: The input tensor.\nindices: The indices used to index into the list.\noutput_handle: The TensorList.",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "tensor",
+          "typeAttr": "element_dtype"
+        },
+        {
+          "name": "indices",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ],
+      "summary": "Scatters tensor at indices in an input list."
     }
   },
   {
