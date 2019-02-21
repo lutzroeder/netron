@@ -1359,13 +1359,14 @@ view.ModelFactoryService = class {
     accept(identifier) {
         var extension = identifier.toLowerCase().split('.').pop();
         var excludes = [
-            'blockmap', 'checkpoint', 'ckpt', 'dat', 'index', 'test',
-            'html', 'pdf', 'rtf', 'txt', 'md',
-            'jpeg', 'jpg', 'png', 'gif',
-            'js', 'py', 'pyc',
+            'blockmap', 'checkpoint', 'ckpt', 'dat', 'index', 'test', 'bytes', 'desktop',
+            'exe', 'dll', 'bin',
+            'html', 'pdf', 'rtf', 'txt', 'md', 'svg',
+            'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
+            'js', 'py', 'pyc', 'ipynb',
             'params', 'weights',
-            'mp4',
-            'npz',
+            'mp3', 'mp4', 'mov',
+            'npy', 'npz',
         ];
         if (excludes.some((exclude) => exclude == extension)) {
             return false;
