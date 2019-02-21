@@ -1763,13 +1763,6 @@
   },
   {
     "type":   "keras",
-    "target": "deeplabv3.model",
-    "source": "https://www.kaggleusercontent.com/kf/5456460/eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..s8rotFrnCPRyBj6cdK88Bg.QEkTMbO0LJPfuzJ97XNE8o4wqCE42B5B7pjG2SwCGgHfEpchob0wOYQ-LdxPQINu7u-_FUJOCrI1bbbuvdcI11s6a3dplTxr1XiCGXxFHtr4Jh9pX34kFJBXKkk63AbG7Spv88mjeZh3BRTGLHXX0Q.RvUHWdOF26m-w89OUzGrOA/deeplabv3.model",
-    "format": "Keras v2.1.5",
-    "link":   "https://www.kaggle.com/alexanderliao/deeplabv3"
-  },
-  {
-    "type":   "keras",
     "target": "generating_images_with_vaes.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592326/generating_images_with_vaes.h5.zip[generating_images_with_vaes.h5]  ",
     "format": "Keras v2.1.3",
@@ -1865,13 +1858,6 @@
     "link":   "https://keras.io/applications",
     "script": [ "${root}/tools/keras", "sync install zoo" ],
     "status": "script"
-  },
-  {
-    "type":   "keras",
-    "target": "nasnet_pneumonia_detection.h5",
-    "source": "https://www.kaggleusercontent.com/kf/5616814/eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..8KCEiIThnvkVRw_AfJCXrg.1UVCu-m8XZjyd9P7ydqRidRs6HmFfPTwp1r9w381xl9BCfkcke5J-jqanVxGRU4u6JDrOHTUpxEjzyjW6hIANZCthplbQGS-iLlARc7GjWqSa0gkzq3H0uVVgXa5j2p9T2k97NcESP9duZXsGc-sel_QTEy2JY0JKiy8XtlzTSI4OauA4mywJE8CENSueXKz.vR_QqVZNVt17Hfppxd9u0w/full_model.h5",
-    "format": "Keras v2.1.5",
-    "link":   "https://www.kaggle.com/ashishpatel26/beginner-tutorial-nasnet-pneumonia-detection/output"
   },
   {
     "type":   "keras",
