@@ -144,7 +144,8 @@ tflite_schema.BuiltinOperator = {
   GATHER_ND: 107, 107: 'GATHER_ND',
   COS: 108, 108: 'COS',
   WHERE: 109, 109: 'WHERE',
-  RANK: 110, 110: 'RANK'
+  RANK: 110, 110: 'RANK',
+  ELU: 111, 111: 'ELU'
 };
 
 /**

@@ -29182,6 +29182,45 @@
     }
   },
   {
+    "name": "MulNoNan",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "*NOTE*: `Mul` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns x * y element-wise. Returns zero if y is zero, even if x if infinite or NaN."
+    }
+  },
+  {
     "name": "MultiDeviceIterator",
     "schema": {
       "attributes": [
