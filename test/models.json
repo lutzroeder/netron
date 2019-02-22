@@ -3643,6 +3643,12 @@
   },
   {
     "type":   "tf",
+    "target": "speech_commands_v0.pb",
+    "source": "http://storage.googleapis.com/download.tensorflow.org/models/speech_commands_v0.01.zip[conv_actions_frozen.pb]",
+    "format": "TensorFlow Graph"
+  },
+  {
+    "type":   "tf",
     "target": "squeezenet.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.pb]"
   },
