@@ -3586,7 +3586,7 @@
         }
       ],
       "category": "Dropout",
-      "description": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Dropout takes one input floating tensor and produces two tensor outputs,\noutput (floating tensor) and mask (`Tensor<bool>`). Depending on whether it is\nin test mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -3619,7 +3619,7 @@
           "description": "The output mask.",
           "name": "mask",
           "option": "optional",
-          "type": "T"
+          "type": "T1"
         }
       ],
       "since_version": 7,
@@ -3633,6 +3633,13 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Constrain output mask types to boolean tensors.",
+          "type_param_str": "T1"
         }
       ]
     }
