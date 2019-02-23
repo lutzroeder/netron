@@ -103,6 +103,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm3d'] = function () {};
             constructorTable['torch.nn.modules.container.ModuleList'] = function () {};
+            constructorTable['torch.nn.modules.container.ParameterList'] = function () {};
             constructorTable['torch.nn.modules.container.Sequential'] = function () {};
             constructorTable['torch.nn.modules.conv.Conv1d'] = function () {};
             constructorTable['torch.nn.modules.conv.Conv2d'] = function () {};
