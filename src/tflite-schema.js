@@ -145,7 +145,8 @@ tflite_schema.BuiltinOperator = {
   COS: 108, 108: 'COS',
   WHERE: 109, 109: 'WHERE',
   RANK: 110, 110: 'RANK',
-  ELU: 111, 111: 'ELU'
+  ELU: 111, 111: 'ELU',
+  REVERSE_SEQUENCE: 112, 112: 'REVERSE_SEQUENCE'
 };
 
 /**
@@ -238,7 +239,8 @@ tflite_schema.BuiltinOptions = {
   GatherNdOptions: 83, 83: 'GatherNdOptions',
   CosOptions: 84, 84: 'CosOptions',
   WhereOptions: 85, 85: 'WhereOptions',
-  RankOptions: 86, 86: 'RankOptions'
+  RankOptions: 86, 86: 'RankOptions',
+  ReverseSequenceOptions: 87, 87: 'ReverseSequenceOptions'
 };
 
 /**
@@ -8039,6 +8041,102 @@ tflite_schema.WhereOptions.endWhereOptions = function(builder) {
 tflite_schema.WhereOptions.createWhereOptions = function(builder) {
   tflite_schema.WhereOptions.startWhereOptions(builder);
   return tflite_schema.WhereOptions.endWhereOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.ReverseSequenceOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.ReverseSequenceOptions}
+ */
+tflite_schema.ReverseSequenceOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.ReverseSequenceOptions=} obj
+ * @returns {tflite_schema.ReverseSequenceOptions}
+ */
+tflite_schema.ReverseSequenceOptions.getRootAsReverseSequenceOptions = function(bb, obj) {
+  return (obj || new tflite_schema.ReverseSequenceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.ReverseSequenceOptions.prototype.seqDim = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.ReverseSequenceOptions.prototype.batchDim = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.ReverseSequenceOptions.startReverseSequenceOptions = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} seqDim
+ */
+tflite_schema.ReverseSequenceOptions.addSeqDim = function(builder, seqDim) {
+  builder.addFieldInt32(0, seqDim, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} batchDim
+ */
+tflite_schema.ReverseSequenceOptions.addBatchDim = function(builder, batchDim) {
+  builder.addFieldInt32(1, batchDim, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ReverseSequenceOptions.endReverseSequenceOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} seqDim
+ * @param {number} batchDim
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.ReverseSequenceOptions.createReverseSequenceOptions = function(builder, seqDim, batchDim) {
+  tflite_schema.ReverseSequenceOptions.startReverseSequenceOptions(builder);
+  tflite_schema.ReverseSequenceOptions.addSeqDim(builder, seqDim);
+  tflite_schema.ReverseSequenceOptions.addBatchDim(builder, batchDim);
+  return tflite_schema.ReverseSequenceOptions.endReverseSequenceOptions(builder);
 }
 
 /**
