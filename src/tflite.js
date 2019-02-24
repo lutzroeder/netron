@@ -170,19 +170,43 @@ tflite.Node = class {
         this._outputs = [];
         if (node) {
             var schema = this._metadata.getSchema(this.operator);
-            var inputs = this._metadata.getInputs(node, this.operator);
-            this._inputs = inputs.map((input) => {
-                return new tflite.Argument(input.name, input.visible != false, input.connections.map((connection) => {
-                    return connections[connection.id];
-                }));
-            });
+            var inputs = [];
+            for (var i = 0; i < node.inputsLength(); i++) {
+                inputs.push(node.inputs(i));
+            }
+            var inputIndex = 0;
+            while (inputIndex < inputs.length) {
+                var count = 1;
+                var inputName = null;
+                var inputVisible = true;
+                var inputConnections = [];
+                if (schema && schema.inputs && inputIndex < schema.inputs.length) {
+                    var input = schema.inputs[inputIndex];
+                    inputName = input.name;
+                    if (input.option == 'variadic') {
+                        count = inputs.length - inputIndex;
+                    }
+                    if (input.hasOwnProperty('visible') && !input.visible) {
+                        inputVisible = false;
+                    }
+                }
+                var array = inputs.slice(inputIndex, inputIndex + count);
+                for (var j = 0; j < array.length; j++) {
+                    if (array[j] != -1) {
+                        inputConnections.push(connections[array[j]]);
+                    }
+                }
+                inputIndex += count;
+                inputName = inputName ? inputName : inputIndex.toString();
+                this._inputs.push(new tflite.Argument(inputName, inputVisible, inputConnections));
+            }
             this._outputs = [];
-            for (var i = 0; i < node.outputsLength(); i++) {
-                var index = node.outputs(i);
-                var connection = connections[index];
+            for (var k = 0; k < node.outputsLength(); k++) {
+                var outputIndex = node.outputs(k);
+                var connection = connections[outputIndex];
                 var outputName = i.toString();
-                if (schema && schema.outputs && i < schema.outputs.length) {
-                    var output = schema.outputs[i];
+                if (schema && schema.outputs && k < schema.outputs.length) {
+                    var output = schema.outputs[k];
                     if (output && (!output.option || output.opcodeIndex != 'variadic') && output.name) {
                         outputName = output.name;
                     }
@@ -679,41 +703,6 @@ tflite.Metadata = class {
             }
         }
         return null;
-    }
-
-    getInputs(node, operator) {
-        var results = [];
-        var connections = [];
-        for (var i = 0; i < node.inputsLength(); i++) {
-            connections.push(node.inputs(i));
-        }
-        var schema = this.getSchema(operator);
-        var index = 0;
-        while (index < connections.length) {
-            var result = { connections: [] };
-            var count = 1;
-            var name = null;
-            if (schema && schema.inputs && index < schema.inputs.length) {
-                var input = schema.inputs[index];
-                name = input.name;
-                if (input.option == 'variadic') {
-                    count = connections.length - index;
-                }
-                if (input.hasOwnProperty('visible') && !input.visible) {
-                    result.visible = false;
-                }
-            }
-            result.name = name ? name : '(' + index.toString() + ')';
-            var array = connections.slice(index, index + count);
-            for (var j = 0; j < array.length; j++) {
-                if (array[j] != -1) {
-                    result.connections.push({ id: array[j] });
-                }
-            }
-            index += count;
-            results.push(result);
-        }
-        return results;
     }
 };
 
