@@ -74,7 +74,7 @@
         },
         {
           "default": "auto",
-          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.std())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
+          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.var())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
           "name": "gamma",
           "option": "optional",
           "type": "float32"
@@ -175,7 +175,7 @@
         },
         {
           "default": "auto",
-          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.std())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
+          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.var())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
           "name": "gamma",
           "option": "optional",
           "type": "float32"
