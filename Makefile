@@ -42,7 +42,10 @@ start:
 publish_pip:
 	@[ -d node_modules ] || npm install
 	rm -rf ./build/python
-	python ./setup.py build --version bdist_wheel upload
+	python ./setup.py build --version bdist_wheel
+	python install --user keyring
+	python install --user twine
+	twine upload build/python/dist/*
 
 publish_github_electron:
 	@[ -d node_modules ] || npm install
