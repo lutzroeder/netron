@@ -1861,13 +1861,6 @@
   },
   {
     "type":   "keras",
-    "target": "nasnet_pneumonia_detection .h5",
-    "source": "https://www.kaggleusercontent.com/kf/5616814/eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..N0UhpVMdEL-3O2FeWSTTyg.hYHf7ypl_R9vjxmFqoPK9zwbwWmDsfYE80P_Mfnky3Gxlo8m4FeDs8GIus_p3xNF3QHd0SEkxSHPQxUvoJNAhIX3l3gNh3gPJqRYeO3soaMa-YWOvWSUsluTkqRrMGXFMwTVq7xUYYwJ9ja71yD42OKfgUoNI_XeLbyVWQu6hKiJT3Be6WALwgjwkt4bhBsd.vm6At0QsRVpt6VS8KIJGag/full_model.h5",
-    "format": "Keras v2.1.5",
-    "link":   "https://www.kaggle.com/ashishpatel26/beginner-tutorial-nasnet-pneumonia-detection/output"
-  },
-  {
-    "type":   "keras",
     "target": "nietzsche.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[nietzsche.h5]",
     "format": "Keras v2.1.3",
@@ -3647,6 +3640,12 @@
     "source": "http://download.tensorflow.org/models/official/20181001_resnet/savedmodels/resnet_v2_fp16_savedmodel_NHWC.tar.gz[./resnet_v2_fp16_savedmodel_NHWC/1538686978/saved_model.pb]",
     "format": "TensorFlow Saved Model v1",
     "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
+  },
+  {
+    "type":   "tf",
+    "target": "speech_commands_v0.pb",
+    "source": "http://storage.googleapis.com/download.tensorflow.org/models/speech_commands_v0.01.zip[conv_actions_frozen.pb]",
+    "format": "TensorFlow Graph"
   },
   {
     "type":   "tf",

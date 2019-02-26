@@ -1750,7 +1750,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            output = input.astype(np.dtype('str'))\n            output = output.astype(np.dtype(np.object))\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([['0.47892547', '0.48033667', '0.49968487', '0.81910545'],\n           ['0.47031248', '0.816468', '0.21087195', '0.7229038'],\n           ['NaN', 'INF', '+INF', '-INF']], dtype=np.dtype(np.object))\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
           "summary": "cast"
         }
       ],
@@ -1829,7 +1829,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            output = input.astype(np.dtype('str'))\n            output = output.astype(np.dtype(np.object))\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([['0.47892547', '0.48033667', '0.49968487', '0.81910545'],\n           ['0.47031248', '0.816468', '0.21087195', '0.7229038'],\n           ['NaN', 'INF', '+INF', '-INF']], dtype=np.dtype(np.object))\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
           "summary": "cast"
         }
       ],
@@ -1908,7 +1908,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            output = input.astype(np.dtype('str'))\n            output = output.astype(np.dtype(np.object))\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([['0.47892547', '0.48033667', '0.49968487', '0.81910545'],\n           ['0.47031248', '0.816468', '0.21087195', '0.7229038'],\n           ['NaN', 'INF', '+INF', '-INF']], dtype=np.dtype(np.object))\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    if 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    expect(node, inputs=[input], outputs=[output],\n               name='test_cast_' + from_type + '_to_' + to_type)",
           "summary": "cast"
         }
       ],
@@ -3586,7 +3586,7 @@
         }
       ],
       "category": "Dropout",
-      "description": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Dropout takes one input floating tensor and produces two tensor outputs,\noutput (floating tensor) and mask (`Tensor<bool>`). Depending on whether it is\nin test mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -3619,7 +3619,7 @@
           "description": "The output mask.",
           "name": "mask",
           "option": "optional",
-          "type": "T"
+          "type": "T1"
         }
       ],
       "since_version": 7,
@@ -3633,6 +3633,13 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Constrain output mask types to boolean tensors.",
+          "type_param_str": "T1"
         }
       ]
     }
@@ -13809,6 +13816,86 @@
           "type_param_str": "T"
         }
       ]
+    }
+  },
+  {
+    "name": "StringNormalizer",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NONE",
+          "description": "string enum that cases output to be lowercased/uppercases/unchanged. Valid values are \"LOWER\", \"UPPER\", \"NONE\". Default is \"NONE\"",
+          "name": "case_change_action",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Boolean. Whether the identification of stop words in X is case-sensitive. Default is false",
+          "name": "is_case_sensitive",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Environment dependent string that denotes the locale according to which output strings needs to be upper/lowercased.Default en_US or platform specific equivalent as decided by the implementation.",
+          "name": "locale",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "List of stop words. If not set, no word would be removed from X.",
+          "name": "stopwords",
+          "required": false,
+          "type": "string[]"
+        }
+      ],
+      "description": "StringNormalization performs string operations for basic cleaning. \nThis operator has only one input (denoted by X) and only one output \n(denoted by Y). This operator first examines the elements in the X, \nand removes elements specified in \"stopwords\" attribute. \nAfter removing stop words, the intermediate result can be further lowercased, \nuppercased, or just returned depending the \"case_change_action\" attribute.\nThis operator only accepts [C]- and [1, C]-tensor.\nIf all elements in X are dropped, the output will be the empty value of string tensor with shape [1]\nif input shape is [C] and shape [1, 1] if input shape is [1, C]. \n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "input = np.array([u'monday', u'tuesday', u'wednesday', u'thursday']).astype(np.object)\noutput = np.array([u'tuesday', u'wednesday', u'thursday']).astype(np.object)\nstopwords = [u'monday']\n\nnode = onnx.helper.make_node(\n    'StringNormalizer',\n    inputs=['x'],\n    outputs=['y'],\n    case_change_action='LOWER',\n    is_case_sensitive=1,\n    stopwords=stopwords\n)\nexpect(node, inputs=[input], outputs=[output], name='test_strnormalizer_export_monday_casesensintive_lower')",
+          "summary": "monday_casesensintive_lower"
+        },
+        {
+          "code": "input = np.array([u'monday', u'tuesday', u'wednesday', u'thursday']).astype(np.object)\noutput = np.array([u'tuesday', u'wednesday', u'thursday']).astype(np.object)\nstopwords = [u'monday']\n\nnode = onnx.helper.make_node(\n    'StringNormalizer',\n    inputs=['x'],\n    outputs=['y'],\n    is_case_sensitive=1,\n    stopwords=stopwords\n)\nexpect(node, inputs=[input], outputs=[output], name='test_strnormalizer_export_monday_casesensintive_nochangecase')",
+          "summary": "monday_casesensintive_nochangecase"
+        },
+        {
+          "code": "input = np.array([u'monday', u'tuesday', u'wednesday', u'thursday']).astype(np.object)\noutput = np.array([u'TUESDAY', u'WEDNESDAY', u'THURSDAY']).astype(np.object)\nstopwords = [u'monday']\n\nnode = onnx.helper.make_node(\n    'StringNormalizer',\n    inputs=['x'],\n    outputs=['y'],\n    case_change_action='UPPER',\n    is_case_sensitive=1,\n    stopwords=stopwords\n)\nexpect(node, inputs=[input], outputs=[output], name='test_strnormalizer_export_monday_casesensintive_upper')",
+          "summary": "monday_casesensintive_upper"
+        },
+        {
+          "code": "input = np.array([u'monday', u'monday']).astype(np.object)\noutput = np.array([u'']).astype(np.object)\nstopwords = [u'monday']\n\nnode = onnx.helper.make_node(\n    'StringNormalizer',\n    inputs=['x'],\n    outputs=['y'],\n    case_change_action='UPPER',\n    is_case_sensitive=1,\n    stopwords=stopwords\n)\nexpect(node, inputs=[input], outputs=[output], name='test_strnormalizer_export_monday_empty_output')",
+          "summary": "monday_empty_output"
+        },
+        {
+          "code": "input = np.array([u'Monday', u'tuesday', u'wednesday', u'Monday', u'tuesday', u'wednesday']).astype(np.object).reshape([1, 6])\n\n# It does upper case cecedille, accented E\n# and german umlaut but fails\n# with german eszett\noutput = np.array([u'TUESDAY', u'WEDNESDAY', u'TUESDAY', u'WEDNESDAY']).astype(np.object).reshape([1, 4])\nstopwords = [u'monday']\n\nnode = onnx.helper.make_node(\n    'StringNormalizer',\n    inputs=['x'],\n    outputs=['y'],\n    case_change_action='UPPER',\n    stopwords=stopwords\n)\nexpect(node, inputs=[input], outputs=[output], name='test_strnormalizer_export_monday_insensintive_upper_twodim')",
+          "summary": "monday_insensintive_upper_twodim"
+        },
+        {
+          "code": "input = np.array([u'monday', u'tuesday']).astype(np.object)\noutput = input\n\n# No stopwords. This is a NOOP\nnode = onnx.helper.make_node(\n    'StringNormalizer',\n    inputs=['x'],\n    outputs=['y'],\n    is_case_sensitive=1,\n)\nexpect(node, inputs=[input], outputs=[output], name='test_strnormalizer_nostopwords_nochangecase')",
+          "summary": "nostopwords_nochangecase"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "UTF-8 strings to normalize",
+          "name": "X",
+          "type": "tensor(string)"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "UTF-8 Normalized strings",
+          "name": "Y",
+          "type": "tensor(string)"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common"
     }
   },
   {

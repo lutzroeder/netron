@@ -10,14 +10,20 @@ keras.ModelFactory = class {
     match(context) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
+        var buffer = null;
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
             // Filter PyTorch models published with incorrect .h5 file extension.
-            var buffer = context.buffer;
+            buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
             return true;
+        }
+        if (extension == 'model') {
+            buffer = context.buffer;
+            var hdf5 = [ 0x89, 0x48, 0x44, 0x46 ];
+            return (buffer && buffer.length > hdf5.length && hdf5.every((v, i) => v == buffer[i]));
         }
         if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
             var json = context.text;
@@ -58,6 +64,7 @@ keras.ModelFactory = class {
                     case 'keras':
                     case 'h5':
                     case 'hdf5':
+                    case 'model':
                         var file = new hdf5.File(context.buffer);
                         rootGroup = file.rootGroup;
                         if (!rootGroup.attribute('model_config')) {

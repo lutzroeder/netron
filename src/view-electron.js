@@ -128,9 +128,14 @@ host.ElectronHost = class {
             e.preventDefault();
             var files = [];
             for (var i = 0; i < e.dataTransfer.files.length; i++) {
-                files.push(e.dataTransfer.files[i].path);
+                var file = e.dataTransfer.files[i].path;
+                if (this._view.accept(file)) {
+                    files.push(e.dataTransfer.files[i].path);
+                }
             }
-            electron.ipcRenderer.send('drop-files', { files: files });
+            if (files.length > 0) {
+                electron.ipcRenderer.send('drop-files', { files: files });
+            }
             return false;
         });
     }

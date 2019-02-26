@@ -84,7 +84,7 @@ tf.ModelFactory = class {
                         }
                     }
                     catch (error) {
-                        callback(new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').'), null);
+                        callback(new tf.Error("File text format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'."), null);
                         return;
                     }
                 }
@@ -98,7 +98,7 @@ tf.ModelFactory = class {
                         }
                     }
                     catch (error) {
-                        callback(new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').'), null);
+                        callback(new tf.Error("File text format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'."), null);
                         return;
                     }
                 }
@@ -112,7 +112,7 @@ tf.ModelFactory = class {
                         format = 'TensorFlow Graph';
                     }
                     catch (error) {
-                        callback(new tf.Error('File text format is not tensorflow.GraphDef (' + error.message + ').'), null);
+                        callback(new tf.Error("File text format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'."), null);
                         return;
                     }
                 }

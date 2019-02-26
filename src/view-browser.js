@@ -103,7 +103,7 @@ host.BrowserHost = class {
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
                 var file = e.dataTransfer.files[0];
-                if (file.name.split('.').length > 1) {
+                if (file.name.split('.').length > 1 && this._view.accept(file.name)) {
                     this._openFile(file);
                 }
             }

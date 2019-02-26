@@ -316,6 +316,10 @@ view.View = class {
         this.show('Welcome');
     }
 
+    accept(file) {
+        return this._modelFactoryService.accept(file);
+    }
+
     openContext(context, callback) {
         this._host.event('Model', 'Open', 'Size', context.buffer.length);
         this._sidebar.close();
@@ -1129,11 +1133,11 @@ view.ModelFactoryService = class {
         this._extensions = [];
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./mxnet', [ '.model', '.json' ]);
-        this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json' ]);
+        this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json', '.model' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.model', '.dms', '.pth.tar' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.t7', '.model', '.dms', '.pth.tar' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
@@ -1149,7 +1153,7 @@ view.ModelFactoryService = class {
             this._extensions.push({ extension: extension, id: id });
         });
     }
-
+ 
     open(context, callback) {
         this._openArchive(context, (err, context) => {
             if (err) {
@@ -1350,6 +1354,27 @@ view.ModelFactoryService = class {
             callback(new ArchiveError(error.message), null);
             return;
         }
+    }
+
+    accept(identifier) {
+        var extension = identifier.toLowerCase().split('.').pop();
+        var excludes = [
+            'blockmap', 'checkpoint', 'ckpt', 'dat', 'index', 'test', 'bytes', 'desktop',
+            'exe', 'dll', 'bin',
+            'html', 'pdf', 'rtf', 'txt', 'md', 'svg',
+            'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
+            'js', 'py', 'pyc', 'ipynb',
+            'params', 'weights',
+            'mp3', 'mp4', 'mov',
+            'npy', 'npz',
+        ];
+        if (excludes.some((exclude) => exclude == extension)) {
+            return false;
+        }
+        if (extension.startsWith('data-')) {
+            return false;
+        }
+        return true;
     }
 
     _filter(context) {

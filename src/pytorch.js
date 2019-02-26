@@ -14,7 +14,7 @@ pytorch.ModelFactory = class {
     match(context) {
         var identifier = context.identifier; 
         var extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || 
+        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 't7' ||
             extension == 'dms' || extension == 'model' || identifier.endsWith('.pth.tar')) {
             var buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
@@ -103,6 +103,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm3d'] = function () {};
             constructorTable['torch.nn.modules.container.ModuleList'] = function () {};
+            constructorTable['torch.nn.modules.container.ParameterList'] = function () {};
             constructorTable['torch.nn.modules.container.Sequential'] = function () {};
             constructorTable['torch.nn.modules.conv.Conv1d'] = function () {};
             constructorTable['torch.nn.modules.conv.Conv2d'] = function () {};
