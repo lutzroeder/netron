@@ -878,7 +878,7 @@ view.View = class {
             originElement.setAttribute('transform', 'translate(0,0) scale(1)');
             backgroundElement.removeAttribute('width');
             backgroundElement.removeAttribute('height');
-    
+
             var parentElement = graphElement.parentElement;
             parentElement.insertBefore(exportElement, graphElement);
             var size = exportElement.getBBox();
@@ -1023,50 +1023,35 @@ view.View = class {
     }
 };
 
-class ArchiveContext {
+class ModelError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading model.'; 
+    }
+}
 
-    constructor(entries, rootFolder, identifier, buffer) {
+class ModelContext {
+
+    constructor(context) {
+        this._context = context;
         this._tags = {};
-        this._entries = {};
-        if (entries) {
-            entries.forEach((entry) => {
-                if (entry.name.startsWith(rootFolder)) {
-                    var name = entry.name.substring(rootFolder.length);
-                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                        this._entries[name] = entry.substring(rootFolder.length);
-                    }
-                }
-            });
-        }
-        this._identifier = identifier.substring(rootFolder.length);
-        this._buffer = buffer;
     }
 
     request(file, encoding, callback) {
-        var entry = this._entries[file];
-        if (!entry) {
-            callback(new Error('File not found.'), null);
-            return;
-        }
-        var data = entry.data;
-        if (data != null) {
-            data = new TextDecoder(encoding).decode(data);
-        }
-        callback(null, data);
+        this._context.request(file, encoding, callback);
     }
 
     get identifier() {
-        return this._identifier;
+        return this._context.identifier;
     }
 
     get buffer() {
-        return this._buffer;
+        return this._context.buffer;
     }
 
     get text() {
         if (!this._text) {
-            var decoder = new TextDecoder('utf-8');
-            this._text = decoder.decode(this._buffer);
+            this._text = new TextDecoder('utf-8').decode(this.buffer);
         }
         return this._text;
     }
@@ -1112,17 +1097,50 @@ class ArchiveContext {
     }
 }
 
+class ArchiveContext {
+
+    constructor(entries, rootFolder, identifier, buffer) {
+        this._entries = {};
+        if (entries) {
+            entries.forEach((entry) => {
+                if (entry.name.startsWith(rootFolder)) {
+                    var name = entry.name.substring(rootFolder.length);
+                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                        this._entries[name] = entry.substring(rootFolder.length);
+                    }
+                }
+            });
+        }
+        this._identifier = identifier.substring(rootFolder.length);
+        this._buffer = buffer;
+    }
+
+    request(file, encoding, callback) {
+        var entry = this._entries[file];
+        if (!entry) {
+            callback(new Error('File not found.'), null);
+            return;
+        }
+        var data = entry.data;
+        if (data != null) {
+            data = new TextDecoder(encoding).decode(data);
+        }
+        callback(null, data);
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get buffer() {
+        return this._buffer;
+    }
+}
+
 class ArchiveError extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading archive.';
-    }
-}
-
-class ModelError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'Error loading model.'; 
     }
 }
 
@@ -1160,6 +1178,7 @@ view.ModelFactoryService = class {
                 callback(err, null);
                 return;
             }
+            context = new ModelContext(context);
             var extension = context.identifier.split('.').pop().toLowerCase();
             var modules = this._filter(context);
             if (modules.length == 0) {
@@ -1300,7 +1319,7 @@ view.ModelFactoryService = class {
                     if (entry.name.startsWith(rootFolder)) {
                         var identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            var context = new ArchiveContext(null, rootFolder, entry.name, entry.data);
+                            var context = new ModelContext(new ArchiveContext(null, rootFolder, entry.name, entry.data));
                             var modules = this._filter(context);
                             var nextModule = () => {
                                 if (modules.length > 0) {
@@ -1343,7 +1362,7 @@ view.ModelFactoryService = class {
                         return;
                     }
                     var match = matches[0];
-                    callback(null, new ArchiveContext(entries, rootFolder, match.name, match.data));
+                    callback(null, new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
                     return;
                 }
             };

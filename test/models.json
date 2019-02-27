@@ -3341,8 +3341,8 @@
   },
   {
     "type":   "tf",
-    "target": "conv-layers.pb",
-    "source": "https://github.com/lutzroeder/netron/files/2592468/conv-layers.pb.zip[conv-layers.pb]",
+    "target": "conv-layers.pb.zip",
+    "source": "https://github.com/lutzroeder/netron/files/2592468/conv-layers.pb.zip",
     "format": "TensorFlow Graph",
     "link":   "https://github.com/lutzroeder/netron/issues/187"
   },

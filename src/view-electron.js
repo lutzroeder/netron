@@ -7,7 +7,7 @@ const electron = require('electron');
 const fs = require('fs');
 const process = require('process');
 const path = require('path');
-const protobuf = require('protobufjs');
+const protobuf = require('protobufjs'); // eslint-disable-line no-unused-vars
 const view = require('./view');
 
 host.ElectronHost = class {
@@ -362,7 +362,6 @@ host.ElectronHost = class {
 class ElectonContext {
 
     constructor(host, folder, identifier, buffer) {
-        this._tags = {};
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
@@ -381,54 +380,6 @@ class ElectonContext {
 
     get buffer() {
         return this._buffer;
-    }
-
-    get text() {
-        if (!this._text) {
-            var decoder = new TextDecoder('utf-8');
-            this._text = decoder.decode(this._buffer);
-        }
-        return this._text;
-    }
-
-    tags(extension) {
-        var tags = this._tags[extension];
-        if (!tags) {
-            tags = {};
-            try {
-                var reader = null;
-                switch (extension) {
-                    case 'pbtxt':
-                        reader = protobuf.TextReader.create(this.text);
-                        reader.start(false);
-                        while (!reader.end(false)) {
-                            var tag = reader.tag();
-                            tags[tag] = true;
-                            reader.skip();
-                        }
-                        break;
-                    case 'pb':
-                        reader = new protobuf.Reader.create(this.buffer);
-                        while (reader.pos < reader.len) {
-                            var tagType = reader.uint32();
-                            tags[tagType >>> 3] = tagType & 7;
-                            try {
-                                reader.skipType(tagType & 7);
-                            }
-                            catch (err) {
-                                tags = {};
-                                break;
-                            }
-                        }
-                        break;
-                }
-            }
-            catch (error) {
-                tags = {};
-            }
-            this._tags[extension] = tags;
-        }
-        return tags;
     }
 }
 
