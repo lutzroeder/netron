@@ -37327,6 +37327,11 @@
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
+          "type": "bool"
         }
       ],
       "description": "Input images and output images must be quantized types.",
@@ -41130,6 +41135,11 @@
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
+          "type": "bool"
         }
       ],
       "description": "Input images can be of different types but output images are always float.",
@@ -41177,6 +41187,11 @@
           "default": false,
           "description": "If true, the centers of the 4 corner pixels of the input and grad tensors are\naligned. Defaults to false.",
           "name": "align_corners",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
           "type": "bool"
         }
       ],
@@ -41257,6 +41272,11 @@
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
+          "type": "bool"
         }
       ],
       "description": "Input images can be of different types but output images are always float.",
@@ -41312,6 +41332,11 @@
           "default": false,
           "description": "If true, the centers of the 4 corner pixels of the input and grad tensors are\naligned. Defaults to false.",
           "name": "align_corners",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
           "type": "bool"
         }
       ],
@@ -41388,6 +41413,11 @@
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
+          "type": "bool"
         }
       ],
       "inputs": [
@@ -41450,6 +41480,11 @@
           "default": false,
           "description": "If true, the centers of the 4 corner pixels of the input and grad tensors are\naligned. Defaults to false.",
           "name": "align_corners",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
           "type": "bool"
         }
       ],
