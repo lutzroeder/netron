@@ -729,6 +729,7 @@ torch.T7Reader = class {
         this._registry['nn.Sqrt'] = function(reader) { reader.nn(this); };
         this._registry['nn.Tanh'] = function(reader) { reader.nn(this); };
         this._registry['nn.TotalVariation'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Unpool'] = function(reader) { reader.nn(this); };
         this._registry['nn.View'] = function(reader) { reader.nn(this); };
         this._registry['nn.gModule'] = function(reader) { reader.nn(this); };
         this._registry['nngraph.Node'] = function(reader) { reader.nn(this); };
