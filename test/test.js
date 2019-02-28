@@ -59,8 +59,11 @@ var dataFolder = __dirname + '/data';
 class TestHost {
 
     constructor() {
-        this._exceptions = [];
-        this.document = new HTMLDocument();
+        this._document = new HTMLDocument();
+    }
+
+    get document() {
+        return this._document;
     }
 
     initialize(/* view */) {
@@ -110,11 +113,45 @@ class TestHost {
     }
 
     exception(err /*, fatal */) {
-        this._exceptions.push(err);
+        this._raise('exception', { exception: err });
     }
 
-    get exceptions() {
-        return this._exceptions;
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    _raise(event, data) {
+        if (this._events && this._events[event]) {
+            for (var callback in this._events[event]) {
+                callback(this, data);
+            }
+        }
+    }
+}
+
+class TestContext {
+
+    constructor(host, folder, identifier, buffer) {
+        this._host = host;
+        this._folder = folder;
+        this._identifier = identifier;
+        this._buffer = buffer;
+    }
+
+    request(file, encoding, callback) {
+        this._host.request(this._folder, file, encoding, (err, buffer) => {
+            callback(err, buffer);
+        });
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get buffer() {
+        return this._buffer;
     }
 }
 
@@ -200,30 +237,6 @@ class CSSStyleDeclaration {
     }
 }
 
-class TestContext {
-
-    constructor(host, folder, identifier, buffer) {
-        this._host = host;
-        this._folder = folder;
-        this._identifier = identifier;
-        this._buffer = buffer;
-    }
-
-    request(file, encoding, callback) {
-        this._host.request(this._folder, file, encoding, (err, buffer) => {
-            callback(err, buffer);
-        });
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get buffer() {
-        return this._buffer;
-    }
-}
-
 function makeDir(dir) {
     if (!fs.existsSync(dir)){
         makeDir(path.dirname(dir));
@@ -280,18 +293,15 @@ function request(location, cookie, callback) {
             response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
             cookie = response.headers['set-cookie'];
             var download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
-            var confirmToken = download.split(';').shift().split('=').pop();
-            location = location + '&confirm=' + confirmToken;
+            var confirm = download.split(';').shift().split('=').pop();
+            location = location + '&confirm=' + confirm;
             request(location, cookie, callback);
             return;
         }
         if (response.statusCode == 301 || response.statusCode == 302) {
-            if (url.parse(response.headers.location).hostname) {
-                location = response.headers.location;
-            }
-            else {
-                location = url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
-            }
+            location = url.parse(response.headers.location).hostname ?
+                response.headers.location : 
+                url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
             request(location, cookie, callback);
             return;
         }
@@ -408,6 +418,10 @@ function download(folder, targets, sources, completed, callback) {
 
 function loadModel(target, item, callback) {
     var host = new TestHost();
+    var exceptions = [];
+    host.on('exception', (_, data) => {
+        exceptions.push(data.exception);
+    });
     var folder = path.dirname(target);
     var identifier = path.basename(target);
     var size = fs.statSync(target).size;
@@ -487,8 +501,8 @@ function loadModel(target, item, callback) {
             callback(error, null);
             return;
         }
-        if (host.exceptions.length > 0) {
-            callback(host.exceptions[0], null);
+        if (exceptions.length > 0) {
+            callback(exceptions[0], null);
             return;
         }
         callback(null, model);
@@ -497,17 +511,22 @@ function loadModel(target, item, callback) {
 }
 
 function render(model, callback) {
-    var host = new TestHost();
-    var currentView = new view.View(host);
-    if (!currentView.showAttributes) {
-        currentView.toggleAttributes();
+    try {
+        var host = new TestHost();
+        var currentView = new view.View(host);
+        if (!currentView.showAttributes) {
+            currentView.toggleAttributes();
+        }
+        if (!currentView.showInitializers) {
+            currentView.toggleInitializers();
+        }
+        currentView.renderGraph(model.graphs[0], (err) => {
+            callback(err);
+        });
     }
-    if (!currentView.showInitializers) {
-        currentView.toggleInitializers();
-    }
-    currentView.renderGraph(model.graphs[0], (err) => {
+    catch (err) {
         callback(err);
-    });
+    }
 }
 
 function next() {
@@ -538,19 +557,19 @@ function next() {
                     completed = targets;
                 }
                 catch (err) {
-                    console.log(err);
+                    console.error(err);
                     return;
                 }
             }
             else {
-                console.log(err);
+                console.error(err);
                 return;
             }
         }
         loadModel(folder + '/' + completed[0], item, (err, model) => {
             if (err) {
                 if (!item.error && item.error != err.message) {
-                    console.log(err);
+                    console.error(err);
                     return;
                 }
                 next();
@@ -560,7 +579,7 @@ function next() {
                     render(model, (err) => {
                         if (err) {
                             if (!item.error && item.error != err.message) {
-                                console.log(err);
+                                console.error(err);
                                 return;
                             }
                         }
