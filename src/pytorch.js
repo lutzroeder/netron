@@ -111,6 +111,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.conv.ConvTranspose1d'] = function () {};
             constructorTable['torch.nn.modules.conv.ConvTranspose2d'] = function () {};
             constructorTable['torch.nn.modules.conv.ConvTranspose3d'] = function () {};
+            constructorTable['torch.nn.modules.distance.CosineSimilarity'] = function() {};
             constructorTable['torch.nn.modules.dropout.Dropout'] = function () {};
             constructorTable['torch.nn.modules.dropout.Dropout2d'] = function () {};
             constructorTable['torch.nn.modules.dropout.Dropout3d'] = function () {};
