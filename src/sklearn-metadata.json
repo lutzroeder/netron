@@ -1136,7 +1136,7 @@
         },
         {
           "default": 100,
-          "description": "Useful only for the newton-cg, sag and lbfgs solvers.\nMaximum number of iterations taken for the solvers to converge.\n",
+          "description": "Maximum number of iterations taken for the solvers to converge.\n",
           "name": "max_iter",
           "option": "optional",
           "type": "int32"
