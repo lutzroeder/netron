@@ -233,7 +233,7 @@ torch.Node = class {
     constructor(metadata, module, groups, name, inputs, outputs) {
         this._metadata = metadata;
         this._group = groups.join('/');
-        if (module.name) {
+        if (module.name && typeof module.name === 'string') {
             this._name = module.name;
             delete module.name;
         }
