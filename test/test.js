@@ -534,6 +534,10 @@ function next() {
         return;
     }
     var item = models.shift();
+    if (!item.type) {
+        console.error("Property 'type' is required for item '" + JSON.stringify(item) + "'.");
+        return;
+    }
     if (type && item.type != type) {
         next();
         return;

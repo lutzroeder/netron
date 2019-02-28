@@ -4905,6 +4905,7 @@
                         reader.value();
                         key = reader.string();
                         reader.assert("value");
+                        reader.value();
                         message.ret[key] = reader.string();
                         reader.assert("}");
                         break;
@@ -4916,6 +4917,7 @@
                         reader.value();
                         key = reader.string();
                         reader.assert("value");
+                        reader.value();
                         message.control_ret[key] = reader.string();
                         reader.assert("}");
                         break;

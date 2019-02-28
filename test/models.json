@@ -3643,6 +3643,14 @@
   },
   {
     "type":   "tf",
+    "target": "resnet18_model_baseline.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/2913372/resnet18_model_baseline.pbtxt.zip[resnet18_model_baseline.pbtxt]",
+    "render": "skip",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/235"
+  },
+  {
+    "type":   "tf",
     "target": "speech_commands_v0.pb",
     "source": "http://storage.googleapis.com/download.tensorflow.org/models/speech_commands_v0.01.zip[conv_actions_frozen.pb]",
     "format": "TensorFlow Graph"
