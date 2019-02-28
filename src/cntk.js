@@ -1140,6 +1140,9 @@ cntk_v1.ComputationNetwork = class {
                 this.axis2 = 2;
             }
         };
+        op.AveragePooling = function(reader) {
+            op.PoolingBase.apply(this, [ reader ]);
+        };
 
         var nodes = [];
         this.nodes = {};
