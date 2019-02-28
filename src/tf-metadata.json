@@ -34820,6 +34820,11 @@
           ],
           "name": "dilations",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -34970,6 +34975,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35130,6 +35140,11 @@
           ],
           "name": "dilations",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -35289,6 +35304,11 @@
           ],
           "name": "dilations",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -35443,6 +35463,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35612,6 +35637,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35789,6 +35819,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35993,6 +36028,11 @@
           ],
           "name": "dilations",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -36167,6 +36207,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -36366,6 +36411,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
