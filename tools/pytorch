@@ -48,6 +48,11 @@ sync() {
 install() {
     bold "pytorch install"
     case "$(uname)" in
+        "Linux")
+            if [ $(dpkg-query -W -f='${Status}' libomp-dev 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+                sudo apt install -y libomp-dev
+            fi
+            ;;
         "Darwin")
             if [ -z "$(which cmake)" ]; then
                 brew bundle --file=- <<-EOS

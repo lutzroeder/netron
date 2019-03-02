@@ -29,7 +29,7 @@ git_sync() {
 }
 
 sync() {
-    bold "sklearn clean"
+    bold "sklearn sync"
     git_sync numpy https://github.com/numpy/numpy.git
     git_sync scikit-learn https://github.com/scikit-learn/scikit-learn.git
     git_sync lightgbm https://github.com/Microsoft/LightGBM.git
