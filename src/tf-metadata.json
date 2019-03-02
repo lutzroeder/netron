@@ -15797,6 +15797,60 @@
     "schema": {
       "attributes": [
         {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T3",
+          "type": "type"
+        },
+        {
           "minimum": 1,
           "name": "N",
           "type": "int"
@@ -15820,19 +15874,19 @@
           "description": "A list of rank 1 Tensors specifying the training example and\nfeature to which the corresponding embedding_indices and aggregation_weights\nvalues belong. sample_indices[i] must equal b * nf + f, where nf is the\nnumber of features from the corresponding table, f is in [0, nf), and\nb is in [0, batch size).",
           "name": "sample_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T1"
         },
         {
           "description": "A list of rank 1 Tensors, indices into the embedding tables.",
           "name": "embedding_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T2"
         },
         {
           "description": "A list of rank 1 Tensors containing per sample -- i.e. per\n(training example, feature) -- aggregation weights.",
           "name": "aggregation_weights",
           "numberAttr": "N",
-          "type": 1
+          "typeAttr": "T3"
         },
         {
           "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
@@ -15847,6 +15901,60 @@
     "name": "EnqueueTPUEmbeddingSparseTensorBatch",
     "schema": {
       "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T3",
+          "type": "type"
+        },
         {
           "minimum": 1,
           "name": "N",
@@ -15876,19 +15984,19 @@
           "description": "A list of rank 1 Tensors specifying the training example to\nwhich the corresponding embedding_indices and aggregation_weights values\nbelong. It corresponds to sp_ids.indices[:,0] in  embedding_lookup_sparse().",
           "name": "sample_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T1"
         },
         {
           "description": "A list of rank 1 Tensors, indices into the embedding tables.\nIt corresponds to sp_ids.values in embedding_lookup_sparse().",
           "name": "embedding_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T2"
         },
         {
           "description": "A list of rank 1 Tensors containing per training example\naggregation weights. It corresponds to sp_weights.values in\nembedding_lookup_sparse().",
           "name": "aggregation_weights",
           "numberAttr": "N",
-          "type": 1
+          "typeAttr": "T3"
         },
         {
           "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
@@ -48357,6 +48465,11 @@
           "default": "lanczos3",
           "name": "kernel_type",
           "type": "string"
+        },
+        {
+          "default": true,
+          "name": "antialias",
+          "type": "bool"
         }
       ],
       "inputs": [
@@ -48403,6 +48516,11 @@
           "default": "lanczos3",
           "name": "kernel_type",
           "type": "string"
+        },
+        {
+          "default": true,
+          "name": "antialias",
+          "type": "bool"
         }
       ],
       "inputs": [
