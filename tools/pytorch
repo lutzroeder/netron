@@ -54,22 +54,14 @@ install() {
             fi
             ;;
         "Darwin")
-            if [ -z "$(which cmake)" ]; then
-                brew bundle --file=- <<-EOS
-brew "automake"
-brew "cmake"
-brew "gflags"
-brew "glog"
-EOS
-            fi
+            brew list automake > /dev/null 2>&1 || brew install automake > /dev/null
+            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
+            brew list gflags > /dev/null 2>&1 || brew install gflags > /dev/null
+            brew list glog > /dev/null 2>&1 || brew install glog > /dev/null
             ;;
     esac
-    if [ -z "$(which virtualenv)" ]; then
-        sudo ${python} -m pip install --force-reinstall --quiet virtualenv
-    fi
-    if [ ! -d "${virtualenv}" ]; then
-        virtualenv --quiet -p ${python} ${virtualenv}
-    fi
+    [ -n "$(which virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     pushd "${third_party}/pytorch" > /dev/null
     ${python} -m pip install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm

@@ -43,12 +43,8 @@ sync() {
 
 install() {
     bold "coreml install"
-    if [ -z "$(which virtualenv)" ]; then
-        sudo ${python} -m pip install --force-reinstall --quiet virtualenv
-    fi
-    if [ ! -d "${virtualenv}" ]; then
-        virtualenv --quiet -p ${python} ${virtualenv}
-    fi
+    [ -n "$(which virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     ${python} -m pip install --quiet ${third_party}/${identifier}
     deactivate

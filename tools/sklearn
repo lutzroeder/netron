@@ -38,16 +38,24 @@ sync() {
 
 install() {
     bold "sklearn install"
-    if [ -z "$(which virtualenv)" ]; then
-        sudo ${python} -m pip install --force-reinstall --quiet virtualenv
-    fi
-    if [ ! -d "${virtualenv}" ]; then
-        virtualenv --quiet -p ${python} ${virtualenv}
-    fi
+    case "$(uname)" in
+        "Darwin")
+            brew list libomp > /dev/null 2>&1 || brew install libomp > /dev/null
+            export CC=/usr/bin/clang
+            export CXX=/usr/bin/clang++
+            export CPPFLAGS="$CPPFLAGS -Xpreprocessor -fopenmp"
+            export CFLAGS="$CFLAGS -I/usr/local/opt/libomp/include"
+            export CXXFLAGS="$CXXFLAGS -I/usr/local/opt/libomp/include"
+            export LDFLAGS="$LDFLAGS -L/usr/local/opt/libomp/lib -lomp"
+            export DYLD_LIBRARY_PATH=/usr/local/opt/libomp/lib
+            ;;
+    esac
+    [ -n "$(which virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     ${python} -m pip install --quiet Cython
     ${python} -m pip install --quiet numpy
-    ${python} -m pip install --quiet ${third_party}/scikit-learn
+    ${python} -m pip install ${third_party}/scikit-learn
     deactivate
 }
 

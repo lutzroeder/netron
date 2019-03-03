@@ -50,28 +50,16 @@ install() {
     bold "onnx install"
     case "$(uname)" in
         "Linux")
-            if [ -z "$(which cmake)" ]; then
-                sudo apt install -y cmake
-            fi
-            if [ -z "$(which protoc)" ]; then
-                sudo apt install -y protobuf-compiler libprotoc-dev
-            fi
+            [ -n "$(which cmake)" ] || sudo apt install -y cmake
+            [ -n "$(which protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
             ;;
         "Darwin")
-            if [ -z "$(which cmake)" ]; then
-                brew install cmake
-            fi
-            if [ -z "$(which protoc)" ]; then
-                brew install protobuf
-            fi
+            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
+            brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
             ;;
     esac
-    if [ -z "$(which virtualenv)" ]; then
-        sudo ${python} -m pip install --force-reinstall --quiet virtualenv
-    fi
-    if [ ! -d "${virtualenv}" ]; then
-        virtualenv --quiet -p ${python} ${virtualenv}
-    fi
+    [ -n "$(which virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     ${python} -m pip install --quiet protobuf
     export ONNX_ML=1
