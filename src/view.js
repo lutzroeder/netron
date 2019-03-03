@@ -899,7 +899,8 @@ view.View = class {
             var data = new XMLSerializer().serializeToString(exportElement);
     
             if (extension == 'svg') {
-                this._host.export(file, new Blob([ data ], { type: 'image/svg' }));
+                var blob = new Blob([ data ], { type: 'image/svg' });
+                this._host.export(file, blob);
             }
     
             if (extension == 'png') {
@@ -947,7 +948,8 @@ view.View = class {
                         this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                             try {
                                 var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
-                                this._host.export(file, new Blob([ array.toBuffer() ], { type: 'application/octet-stream' }));
+                                var blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
+                                this._host.export(file, blob);
                             }
                             catch (error) {
                                 this.error('Error saving NumPy tensor.', error);
