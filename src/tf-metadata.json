@@ -16548,6 +16548,48 @@
     }
   },
   {
+    "name": "ExperimentalAutoShardDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "Creates a dataset that shards the input dataset by num_workers, returning a\nsharded dataset for the index-th worker. This attempts to automatically shard\na dataset by examining the Dataset graph and inserting a shard op before the\ninputs to a reader Dataset (e.g. CSVDataset, TFRecordDataset).\n\nThis dataset will throw a NotFound error if we cannot shard the dataset\nautomatically.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A scalar representing the number of workers to distribute this dataset across.",
+          "name": "num_workers",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing the index of the current worker out of num_workers.",
+          "name": "index",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that shards the input dataset."
+    }
+  },
+  {
     "name": "ExperimentalBytesProducedStatsDataset",
     "schema": {
       "attributes": [
