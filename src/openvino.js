@@ -544,18 +544,17 @@ openvino.Attribute = class {
         this._name = name;
         this._value = value;
 
-        // TODO remove once schema.default fitltering is implemented
-        // this._visible = false;
-        
         var schema = metadata.getAttributeSchema(node.operator, name);
         if (schema) {
             if (schema.hasOwnProperty('type')) {
                 switch (schema.type) {
                     case 'boolean':
                         switch (value) {
+                            case '1':
                             case 'true':
                                 this._value = true;
                                 break;
+                            case '0':
                             case 'false':
                                 this._value = false;
                                 break;
@@ -572,19 +571,37 @@ openvino.Attribute = class {
                         break;
                     case 'int32[]':
                         if (this._value.length > 2) {
-                            var array = [];
+                            var ints = [];
                             this._value.split(',').map((item) => {
                                 item = item.trim();
                                 var intValue = Number.parseInt(item, 10);
                                 if (Number.isNaN(item - intValue)) {
-                                    array = null;
+                                    ints = null;
                                 }
-                                else if (array != null) {
-                                    array.push(intValue);
+                                else if (ints != null) {
+                                    ints.push(intValue);
                                 }
                             });
-                            if (array != null) {
-                                this._value = array;
+                            if (ints != null) {
+                                this._value = ints;
+                            }
+                        }
+                        break;
+                    case 'float32[]':
+                        if (this._value.length > 2) {
+                            var floats = [];
+                            this._value.split(',').map((item) => {
+                                item = item.trim();
+                                var floatValue = Number.parseFloat(item);
+                                if (Number.isNaN(item - floatValue)) {
+                                    floats = null;
+                                }
+                                else if (floats != null) {
+                                    floats.push(floatValue);
+                                }
+                            });
+                            if (floats != null) {
+                                this._value = floats;
                             }
                         }
                         break;
