@@ -149,7 +149,6 @@ caffe2.Graph = class {
         this._name = netDef.name || '';
         this._type = netDef.type || '';
         this._nodes = [];
-        this._operators = {};
 
         var initializers = {};
         netDef.external_input.forEach((input) => {
@@ -213,7 +212,6 @@ caffe2.Graph = class {
         var lastNode = null;
         var lastOutput = null;
         netDef.op.forEach((op) => {
-            this._operators[op.type] = (this._operators[op.type] || 0) + 1;
             var node = new caffe2.Node(metadata, op, initializers);
             if (op.input.length == 1 &&
                 op.output.length >= 1 && 
@@ -265,10 +263,6 @@ caffe2.Graph = class {
 
     get nodes() {
         return this._nodes;
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     toString() {

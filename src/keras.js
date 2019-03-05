@@ -236,7 +236,6 @@ keras.Graph = class {
         this._outputs = [];
         this._nodes = [];
         this._groups = false;
-        this._operators = {};
 
         switch (model.class_name) {
             case 'Sequential':
@@ -248,10 +247,6 @@ keras.Graph = class {
             default:
                 throw new keras.Error('\'' + model.class_name + '\' is not supported.');
         }
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     get name() {
@@ -366,7 +361,6 @@ keras.Graph = class {
 
         if (config.layers) {
             config.layers.forEach((layer) => {
-                this._operators[layer.class_name] = (this._operators[layer.class_name] || 0) + 1; 
                 if (nodeMap[layer.name]) {
                     this._loadNode(layer, layer._inputs, layer._outputs, weights, group);
                 }
@@ -385,7 +379,6 @@ keras.Graph = class {
         var layers = config.layers ? config.layers : config;
 
         layers.forEach((layer) => {
-            this._operators[layer.class_name] = (this._operators[layer.class_name] || 0) + 1; 
             var name = index.toString();
             var nodeInputs = [ connection ];
             if (index == 0) {

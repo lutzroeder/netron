@@ -107,7 +107,6 @@ coreml.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        this._operators = {};
 
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
@@ -122,10 +121,6 @@ coreml.Graph = class {
         }
 
         this._type = this._loadModel(model, {}, '');
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     get name() {
@@ -171,7 +166,6 @@ coreml.Graph = class {
             predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
             var labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
             var operator = classifier.ClassLabels;
-            this._operators[operator] = (this._operators[operator] || 0) + 1;
             this._nodes.push(new coreml.Node(this._metadata, this._group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
     }
@@ -381,7 +375,6 @@ coreml.Graph = class {
     }
 
     _createNode(scope, group, operator, name, data, inputs, outputs) {
-        this._operators[operator] = (this._operators[operator] || 0) + 1;
         inputs = inputs.map((input) => scope[input] ? scope[input].connection : input);
         outputs = outputs.map((output) => {
             if (scope[output]) {

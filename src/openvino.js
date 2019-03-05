@@ -93,8 +93,6 @@ openvino.Graph = class {
 
         layers.forEach((layer) => {
             var operator = layer.getAttribute('type');
-            this._registerOperator(operator);
-
             switch (operator) {
                 case 'Input':
                     var connections = [];
@@ -160,10 +158,6 @@ openvino.Graph = class {
         return this._nodes;
     }
 
-    get operators() {
-        return this._operators;
-    }
-
     _connection(layer, precision, port, map) {
         var id = layer + ':' + port.getAttribute('id');
         if (map) {
@@ -179,10 +173,6 @@ openvino.Graph = class {
             connection = new openvino.Connection(id, new openvino.TensorType(precision, shape), null);
         }
         return connection;
-    }
-
-    _registerOperator(operator) {
-        this._operators[operator] = (this._operators[operator] || 0) + 1;
     }
 
     _replaceTensorIteratorWithSubgraph(layers, edges) {
@@ -230,8 +220,6 @@ openvino.Graph = class {
                     });
                 });
                 
-                const operator = nestedLayer.getAttribute('type');
-                this._registerOperator(operator);
                 this._nodes.push(nestedNode);
             });
 

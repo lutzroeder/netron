@@ -213,7 +213,6 @@ tf.Graph = class {
         this._version = null;
         this._metadata = new tf.GraphMetadata(metadata, metaGraph.meta_info_def);
         this._name = name;
-        this._operators = {};
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -233,9 +232,6 @@ tf.Graph = class {
             }
             var nodes = graph.node
             if (nodes) {
-                nodes.forEach((node) => {
-                    this._operators[node.op] = (this._operators[node.op] || 0) + 1;
-                });
                 var nodeMap = {};
                 this._namespaces = {};
                 nodes.forEach((node) => {
@@ -334,10 +330,6 @@ tf.Graph = class {
                 });
             }
         }
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     get name() {

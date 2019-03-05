@@ -250,7 +250,6 @@ onnx.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        this._operators = {};
         this._imageFormat = imageFormat;
 
         if (graph) {
@@ -264,7 +263,6 @@ onnx.Graph = class {
             var nodes = [];
             var outputCountMap = {};
             graph.node.forEach((node) => {
-                this._operators[node.op_type] = (this._operators[node.op_type] || 0) + 1; 
                 node.output.forEach((output) => {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 });
@@ -367,10 +365,6 @@ onnx.Graph = class {
 
     get description() {
         return this._description;
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     get groups() {

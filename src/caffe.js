@@ -202,7 +202,6 @@ caffe.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        this._operators = {};
 
         var layers = [];
         switch (version) {
@@ -233,7 +232,6 @@ caffe.Graph = class {
         var lastTop = null;
         layers.forEach((layer) => {
             var node = new caffe.Node(metadata, layer, version);
-            this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             if (layer.top.length == 1 && 
                 layer.bottom.length >= 1 && 
                 layer.top[0].split('\n').shift() == layer.bottom[0].split('\n').shift() &&
@@ -304,10 +302,6 @@ caffe.Graph = class {
                 this._outputs.push(new caffe.Argument('output', [ new caffe.Connection('output', null) ]));
             }
         }
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     get name() {

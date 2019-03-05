@@ -303,7 +303,6 @@ mxnet.Graph = class {
     {
         this._metadata = metadata;
         this._nodes = [];
-        this._operators = [];
 
         var nodes = symbol.nodes;
         nodes.forEach((node) => {
@@ -313,7 +312,6 @@ mxnet.Graph = class {
                 if (operator == 'tvm_op' && attrs && attrs.func_name) {
                     operator = attrs.func_name;
                 }
-                this._operators[operator] = (this._operators[operator] || 0) + 1;
             }
         });
 
@@ -385,10 +383,6 @@ mxnet.Graph = class {
                 this._inputs.push(new mxnet.Argument(inputName, [ new mxnet.Connection('[' + inputId.join(',') + ']', inputType) ]));
             }
         });
-    }
-
-    get operators() { 
-        return this._operators;
     }
 
     get name() {

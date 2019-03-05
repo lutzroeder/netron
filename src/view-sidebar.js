@@ -635,11 +635,6 @@ sidebar.ModelSidebar = class {
                 this.addProperty('description', new sidebar.ValueTextView(graph.description));
             }
 
-            if (graph.operators) {
-                var item = new sidebar.NameValueView('operators', new sidebar.GraphOperatorListView(graph.operators));
-                this._elements.push(item.element);
-            }
-
             if (graph.inputs.length > 0) {
                 this.addHeader('Inputs');
                 graph.inputs.forEach((input) => {
@@ -690,61 +685,6 @@ sidebar.ModelSidebar = class {
             this._events[event].forEach((callback) => {
                 callback(this, data);
             });
-        }
-    }
-};
-
-sidebar.GraphOperatorListView = class {
-
-    constructor(operators) {
-
-        this._element = document.createElement('div');
-        this._element.className = 'sidebar-view-item-value';
-
-        var count = 0;
-        this._list = [];
-        Object.keys(operators).forEach((operator) => {
-            this._list.push({ name: operator, count: operators[operator] });
-            count += operators[operator];
-        });
-        this._list = this._list.sort((a, b) => { return (a.name > b.name) - (a.name < b.name); });
-        this._list = this._list.map((item) => { return item.name + ': <b>' + item.count.toString() + '</b>'; });
-
-        this._expander = document.createElement('div');
-        this._expander.className = 'sidebar-view-item-value-expander';
-        this._expander.innerText = '+';
-        this._expander.addEventListener('click', () => {
-            this.toggle();
-        });
-
-        this._element.appendChild(this._expander);
-
-        var countLine = document.createElement('div');
-        countLine.className = 'sidebar-view-item-value-line';
-        countLine.innerHTML = 'Total: <b>' + count.toString() + '</b>';
-        this._element.appendChild(countLine);
-    }
-
-    get elements() {
-        return [ this._element ];
-    }
-
-    toggle() {
-        if (this._expander) {
-            if (this._expander.innerText == '+') {
-                this._expander.innerText = '-';
-    
-                var valueLine = document.createElement('div');
-                valueLine.className = 'sidebar-view-item-value-line-border';
-                valueLine.innerHTML = this._list.join('<br/>');
-                this._element.appendChild(valueLine);
-            }
-            else {
-                this._expander.innerText = '+';
-                while (this._element.childElementCount > 2) {
-                    this._element.removeChild(this._element.lastChild);
-                }
-            }
         }
     }
 };
