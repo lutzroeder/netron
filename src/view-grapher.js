@@ -59,27 +59,29 @@ grapher.Renderer = class {
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            var tspan = this.createElement('tspan');
-            tspan.setAttribute('xml:space', 'preserve');
-            tspan.setAttribute('dy', '1em');
-            tspan.setAttribute('x', '1');
-            tspan.appendChild(this._document.createTextNode(edge.label));
-            var text = this.createElement('text');
-            text.appendChild(tspan);
-            var container = this.createElement('g');
-            container.appendChild(text);
-            var element = this.createElement('g');
-            element.style.opacity = 0;
-            element.setAttribute('class', 'edge-label');
-            element.appendChild(container);
-            svgEdgeLabelGroup.appendChild(element);
-            var bbox = container.getBBox();
-            var x = - bbox.width / 2;
-            var y = - bbox.height / 2;
-            container.setAttribute('transform', 'translate(' + x + ',' + y + ')');
-            edge.width = bbox.width;
-            edge.height = bbox.height;
-            edge.element = element;
+            if (edge.label) {
+                var tspan = this.createElement('tspan');
+                tspan.setAttribute('xml:space', 'preserve');
+                tspan.setAttribute('dy', '1em');
+                tspan.setAttribute('x', '1');
+                tspan.appendChild(this._document.createTextNode(edge.label));
+                var text = this.createElement('text');
+                text.appendChild(tspan);
+                var textContainer = this.createElement('g');
+                textContainer.appendChild(text);
+                var labelElement = this.createElement('g');
+                labelElement.style.opacity = 0;
+                labelElement.setAttribute('class', 'edge-label');
+                labelElement.appendChild(textContainer);
+                svgEdgeLabelGroup.appendChild(labelElement);
+                var bbox = textContainer.getBBox();
+                var x = - bbox.width / 2;
+                var y = - bbox.height / 2;
+                textContainer.setAttribute('transform', 'translate(' + x + ',' + y + ')');
+                edge.width = bbox.width;
+                edge.height = bbox.height;
+                edge.labelElement = labelElement;
+            }
         });
 
         dagre.layout(graph);
@@ -96,10 +98,12 @@ grapher.Renderer = class {
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            var element = edge.element;
-            element.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
-            element.style.opacity = 1;
-            delete edge.element;
+            var labelElement = edge.labelElement;
+            if (labelElement) {
+                labelElement.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
+                labelElement.style.opacity = 1;
+                delete edge.labelElement;
+            }
         });
 
         var edgePathGroupDefs = this.createElement('defs');
