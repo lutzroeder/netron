@@ -451,6 +451,9 @@
   {
     "name": "ResizeBilinear",
     "schema": {
+      "attributes": [
+        { "name": "align_corners", "default": false }
+      ],
       "inputs": [
         { "name": "input" },
         { "name": "size" }
