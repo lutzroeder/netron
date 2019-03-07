@@ -26085,6 +26085,11 @@
         {
           "name": "f",
           "type": "func"
+        },
+        {
+          "default": 1,
+          "name": "max_intra_op_parallelism",
+          "type": "int"
         }
       ],
       "inputs": [
@@ -26106,7 +26111,7 @@
           "typeListAttr": "output_types"
         }
       ],
-      "summary": "  Maps a function on the list of tensors unpacked from arguments on dimension 0."
+      "summary": "  Maps a function on the list of tensors unpacked from arguments on dimension 0.\n  The function given by `f` is assumed to be stateless, and is executed\n  concurrently on all the slices; up to batch_size (i.e. the size of the 0th\n  dimension of each argument) functions will be scheduled at once.\n\n  The `max_intra_op_parallelism` attr, which defaults to 1, can be used to\n  limit the intra op parallelism. To limit inter-op parallelism, a user can\n  set a private threadpool on the dataset using `tf.data.Options`'s\n  `ThreadingOptions`.\n\n  Note that this op is not exposed to users directly, but is invoked in tf.data\n  rewrites."
     }
   },
   {
@@ -27973,6 +27978,12 @@
           "type": "string"
         },
         {
+          "default": false,
+          "description": "Whether to include batch dimension in flattened index of `argmax`.",
+          "name": "include_batch_in_index",
+          "type": "bool"
+        },
+        {
           "allowedValues": [
             {
               "type": "type",
@@ -28211,6 +28222,12 @@
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": false,
+          "description": "Whether to include batch dimension in flattened index of `argmax`.",
+          "name": "include_batch_in_index",
+          "type": "bool"
         },
         {
           "allowedValues": [
@@ -28459,6 +28476,12 @@
           "type": "string"
         },
         {
+          "default": false,
+          "description": "Whether to include batch dimension in flattened index of `argmax`.",
+          "name": "include_batch_in_index",
+          "type": "bool"
+        },
+        {
           "allowedValues": [
             {
               "type": "type",
@@ -28513,7 +28536,7 @@
           "type": "type"
         }
       ],
-      "description": "The indices in `argmax` are flattened, so that a maximum value at position\n`[b, y, x, c]` becomes flattened index\n`((b * height + y) * width + x) * channels + c`.\n\nThe indices returned are always in `[0, height) x [0, width)` before flattening,\neven if padding is involved and the mathematically correct answer is outside\n(either negative or too large).  This is a bug, but fixing it is difficult to do\nin a safe backwards compatible way, especially due to flattening.",
+      "description": "The indices in `argmax` are flattened, so that a maximum value at position\n`[b, y, x, c]` becomes flattened index:\n`(y * width + x) * channels + c` if `include_batch_in_index` is False;\n`((b * height + y) * width + x) * channels + c` if `include_batch_in_index` is True.\n\nThe indices returned are always in `[0, height) x [0, width)` before flattening,\neven if padding is involved and the mathematically correct answer is outside\n(either negative or too large).  This is a bug, but fixing it is difficult to do\nin a safe backwards compatible way, especially due to flattening.",
       "inputs": [
         {
           "description": "4-D with shape `[batch, height, width, channels]`.  Input to pool over.",
@@ -58384,6 +58407,116 @@
         }
       ],
       "summary": "Outputs random values from a normal distribution."
+    }
+  },
+  {
+    "name": "StatefulUniformFullInt",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 23
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values are uniform integers covering the whole range of `dtype`. ",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random integers from a uniform distribution."
+    }
+  },
+  {
+    "name": "StatefulUniformInt",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values are uniform integers in the range `[minval, maxval)`.\nThe lower bound `minval` is included in the range, while the upper bound\n`maxval` is excluded.\n\nThe random integers are slightly biased unless `maxval - minval` is an exact\npower of two.  The bias is small for values of `maxval - minval` significantly\nsmaller than the range of the output (either `2^32` or `2^64`).",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        },
+        {
+          "description": "Minimum value (inclusive, scalar).",
+          "name": "minval",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "Maximum value (exclusive, scalar).",
+          "name": "maxval",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random integers from a uniform distribution."
     }
   },
   {
