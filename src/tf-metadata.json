@@ -33108,7 +33108,7 @@
           "type": "type"
         }
       ],
-      "description": "The polygamma function is defined as:\n\n\n\\\\(\\psi^{(n)}(x) = \\frac{d^n}{dx^n} \\psi(x)\\\\)\n\nwhere \\\\(\\psi(x)\\\\) is the digamma function.",
+      "description": "The polygamma function is defined as:\n\n\n\\\\(\\psi^{(a)}(x) = \\frac{d^a}{dx^a} \\psi(x)\\\\)\n\nwhere \\\\(\\psi(x)\\\\) is the digamma function.\nThe polygamma function is defined only for non-negative integer orders \\\\a\\\\.",
       "inputs": [
         {
           "name": "a",
