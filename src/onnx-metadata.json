@@ -436,59 +436,6 @@
     }
   },
   {
-    "name": "Affine",
-    "schema": {
-      "attributes": [
-        {
-          "default": 1.0,
-          "description": "Value of alpha",
-          "name": "alpha",
-          "required": false,
-          "type": "float"
-        },
-        {
-          "description": "Value of beta",
-          "name": "beta",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "description": "Affine takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the affine function, y = alpha * x + beta,\nis applied to the tensor elementwise.\n",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "1D input tensor",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "1D output tensor",
-          "name": "Y",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "And",
     "schema": {
       "attributes": [
@@ -3041,59 +2988,6 @@
     }
   },
   {
-    "name": "Crop",
-    "schema": {
-      "attributes": [
-        {
-          "description": "A 1-D values of (leftBorder, topBorder, rightBorder, bottomBorder).",
-          "name": "border",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "A 1-D values of (height, width).",
-          "name": "scale",
-          "required": false,
-          "type": "int[]"
-        }
-      ],
-      "category": "Data",
-      "description": "Crop and image to the specified spatial dimensions. If scale is given,\nthen optionally start the crop offset by the left/top border amounts.\nIf scale is not provided, crop the borders as provided.",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "Input tensor of shape [N,C,H,W]",
-          "name": "input",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Result, has same type as input, with H and W dimensions reduced.",
-          "name": "output",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "DepthToSpace",
     "schema": {
       "attributes": [
@@ -3586,7 +3480,7 @@
         }
       ],
       "category": "Dropout",
-      "description": "Dropout takes one input floating tensor and produces two tensor outputs,\noutput (floating tensor) and mask (`Tensor<bool>`). Depending on whether it is\nin test mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -3619,7 +3513,7 @@
           "description": "The output mask.",
           "name": "mask",
           "option": "optional",
-          "type": "T1"
+          "type": "T"
         }
       ],
       "since_version": 7,
@@ -3633,13 +3527,6 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(bool)"
-          ],
-          "description": "Constrain output mask types to boolean tensors.",
-          "type_param_str": "T1"
         }
       ]
     }
@@ -6288,60 +6175,6 @@
           ],
           "description": "Only bool",
           "type_param_str": "B"
-        }
-      ]
-    }
-  },
-  {
-    "name": "ImageScaler",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Bias applied to each channel, same size as C.",
-          "name": "bias",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "default": 1.0,
-          "description": "The scale to apply.",
-          "name": "scale",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "category": "Data",
-      "description": "Scale and bias the input image. Bias values are stored in\nthe same ordering as the image pixel format.",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "Input tensor of shape [N,C,H,W]",
-          "name": "input",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Result, has same shape and type as input",
-          "name": "output",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
         }
       ]
     }
@@ -10198,58 +10031,6 @@
       ],
       "since_version": 2,
       "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
-    "name": "ParametricSoftplus",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Value of alpha",
-          "name": "alpha",
-          "required": false,
-          "type": "float"
-        },
-        {
-          "description": "Value of beta",
-          "name": "beta",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "description": "ParametricSoftplus takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the softplus function, y = alpha * ln(exp(beta * x) + 1), is applied to\nthe tensor elementwise.\n",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "1D input tensor",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "1D input tensor",
-          "name": "Y",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
       "type_constraints": [
         {
           "allowed_type_strs": [
@@ -14730,11 +14511,11 @@
           "type": "int"
         }
       ],
-      "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\n\nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
+      "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x'],\n    outputs=['values', 'indices'],\n    k=3\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n], dtype=np.float32)\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int64)\n\nexpect(node, inputs=[X], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
+          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nK = np.array([3], dtype=np.int64)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n], dtype=np.float32)\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int64)\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
           "summary": "top_k"
         }
       ],
@@ -14762,6 +14543,76 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain index tensor to int64",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
+    "name": "TopK",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "description": "Dimension on which to do the sort.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\n   \nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nK = np.array([3], dtype=np.int64)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n], dtype=np.float32)\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int64)\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
+          "summary": "top_k"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of shape [a_1, a_2, ..., a_n, r]",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "A 1-D tensor containing a single positive value corresponding to the number of top elements to retrieve",
+          "name": "K",
+          "type": "tensor(int64)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 2,
+      "min_input": 2,
+      "min_output": 2,
+      "outputs": [
+        {
+          "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing top K values from the input tensor",
+          "name": "Values",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing the corresponding input tensor indices for the top K values.",
+          "name": "Indices",
+          "type": "I"
+        }
+      ],
+      "since_version": 10,
       "support_level": "common",
       "type_constraints": [
         {
