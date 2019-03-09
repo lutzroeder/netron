@@ -12006,9 +12006,14 @@
           "default": 0,
           "name": "seed2",
           "type": "int"
+        },
+        {
+          "default": true,
+          "name": "time_major",
+          "type": "bool"
         }
       ],
-      "description": "Compute the backprop of both data and weights in a RNN. Takes an extra\n    \"sequence_lengths\" input than CudnnRNNBackprop.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n    the actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\noutput_backprop: A 3-D tensor with the same shape as output in the forward pass.\noutput_h_backprop: A 3-D tensor with the same shape as output_h in the forward\n    pass.\noutput_c_backprop: A 3-D tensor with the same shape as output_c in the forward\n    pass.\nreserve_space: The same reserve_space produced in the forward operation.\ninput_backprop: The backprop to input in the forward pass. Has the same shape\n    as input.\ninput_h_backprop: The backprop to input_h in the forward pass. Has the same\n    shape as input_h.\ninput_c_backprop: The backprop to input_c in the forward pass. Has the same\n    shape as input_c.\nparams_backprop: The backprop to the params buffer in the forward pass. Has the\n    same shape as params.",
+      "description": "Compute the backprop of both data and weights in a RNN. Takes an extra\n    \"sequence_lengths\" input than CudnnRNNBackprop.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n    the actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, input_size]. If time_major is false, the shape is\n    [batch_size, seq_length, input_size].\ninput_h: If time_major is true, this is a 3-D tensor with the shape of\n    [num_layer * dir, batch_size, num_units]. If time_major is false, the shape\n    is [batch_size, num_layer * dir, num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, dir * num_units]. If time_major is false, the\n    shape is [batch_size, seq_length, dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\noutput_backprop: A 3-D tensor with the same shape as output in the forward pass.\noutput_h_backprop: A 3-D tensor with the same shape as output_h in the forward\n    pass.\noutput_c_backprop: A 3-D tensor with the same shape as output_c in the forward\n    pass.\ntime_major: Indicates whether the input/output format is time major or batch\n    major.\nreserve_space: The same reserve_space produced in the forward operation.\ninput_backprop: The backprop to input in the forward pass. Has the same shape\n    as input.\ninput_h_backprop: The backprop to input_h in the forward pass. Has the same\n    shape as input_h.\ninput_c_backprop: The backprop to input_c in the forward pass. Has the same\n    shape as input_c.\nparams_backprop: The backprop to the params buffer in the forward pass. Has the\n    same shape as params.",
       "inputs": [
         {
           "name": "input",
@@ -12590,9 +12595,14 @@
           "default": true,
           "name": "is_training",
           "type": "bool"
+        },
+        {
+          "default": true,
+          "name": "time_major",
+          "type": "bool"
         }
       ],
-      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Accepts one extra input \"sequence_lengths\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.",
+      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Accepts one extra input \"sequence_lengths\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, input_size]. If time_major is false, the shape is\n    [batch_size, seq_length, input_size].\ninput_h: If time_major is true, this is a 3-D tensor with the shape of\n    [num_layer * dir, batch_size, num_units]. If time_major is false, the shape\n    is [batch_size, num_layer * dir, num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, dir * num_units]. If time_major is false, the\n    shape is [batch_size, seq_length, dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\ntime_major: Indicates whether the input/output format is time major or batch\n    major.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.",
       "inputs": [
         {
           "name": "input",
@@ -22425,6 +22435,27 @@
         }
       ],
       "summary": "An op which feeds a single Tensor value into the computation."
+    }
+  },
+  {
+    "name": "InfeedEnqueuePrelinearizedBuffer",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "description": "The TPU device to use. This should be -1 when the Op is running on a TPU device\nand = 0 when the Op is running on the CPU device.",
+          "name": "device_ordinal",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A variant tensor representing linearized output.",
+          "name": "input",
+          "type": 21
+        }
+      ],
+      "summary": "An op which enqueues prelinearized buffer into TPU infeed."
     }
   },
   {
@@ -33286,6 +33317,85 @@
     }
   },
   {
+    "name": "Prelinearize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of elements in the tensor.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "shape",
+            "value": "?"
+          },
+          "description": "The shape of the tensor.",
+          "name": "shape",
+          "type": "shape"
+        },
+        {
+          "default": [],
+          "description": "A vector holding the requested layout in minor-to-major sequence. If a layout\nattribute is passed but its values are all -1 the layout will be computed by\nthe infeed operation.",
+          "name": "layout",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A tensor that will be linearized.",
+          "name": "input",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "An op which linearizes one Tensor value to an opaque variant tensor."
+    }
+  },
+  {
+    "name": "PrelinearizeTuple",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The element types of each element in `inputs`.",
+          "minimum": 1,
+          "name": "dtypes",
+          "type": "list(type)"
+        },
+        {
+          "description": "The shapes of each tensor in `inputs`.",
+          "name": "shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": [],
+          "description": "A vector holding the requested layout in minor-to-major sequence for all the\ntuple shapes in the order the shapes appear in the \"shapes\" input. The layout\nelements for a sub-shape can be set to -1 in which case the corresponding layout\nwill be computed by the infeed operation.",
+          "name": "layouts",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of tensors that will be provided using the infeed mechanism.",
+          "name": "inputs",
+          "typeListAttr": "dtypes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "An op which linearizes multiple Tensor values to an opaque variant tensor."
+    }
+  },
+  {
     "name": "PreventGradient",
     "schema": {
       "attributes": [
@@ -40360,7 +40470,7 @@
       "attributes": [
         {
           "default": true,
-          "description": "If True, the replacement is global, otherwise the replacement\nis done only on the first match.",
+          "description": "If True, the replacement is global (that is, all matches of the `pattern` regular\nexpression in each input string are rewritten), otherwise the `rewrite`\nsubstitution is only made for the first `pattern` match.",
           "name": "replace_global",
           "type": "bool"
         }
@@ -40373,24 +40483,24 @@
           "type": 7
         },
         {
-          "description": "The regular expression to match the input.",
+          "description": "The regular expression to be matched in the `input` strings.",
           "name": "pattern",
           "type": 7
         },
         {
-          "description": "The rewrite to be applied to the matched expression.",
+          "description": "The rewrite string to be substituted for the `pattern` expression where it is\nmatched in the `input` strings.",
           "name": "rewrite",
           "type": 7
         }
       ],
       "outputs": [
         {
-          "description": "The text after applying pattern and rewrite.",
+          "description": "The text after applying pattern match and rewrite substitution.",
           "name": "output",
           "type": 7
         }
       ],
-      "summary": "Replaces the match of pattern in input with rewrite."
+      "summary": "Replaces matches of the `pattern` regular expression in `input` with the\nreplacement string provided in `rewrite`."
     }
   },
   {
