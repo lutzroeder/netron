@@ -32,7 +32,7 @@
         "universal-analytics": "0.4.20"
     },
     "devDependencies": {
-        "electron": "4.0.7",
+        "electron": "4.0.8",
         "electron-builder": "20.38.5",
         "eslint": "5.15.1",
         "xmldom": "0.1.27"
