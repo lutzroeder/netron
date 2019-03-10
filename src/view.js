@@ -1381,7 +1381,7 @@ view.ModelFactoryService = class {
         var extension = identifier.toLowerCase().split('.').pop();
         var excludes = [
             'blockmap', 'checkpoint', 'ckpt', 'dat', 'index', 'test', 'bytes', 'desktop', 'graph',
-            'exe', 'dll', 'bin', 'dat', 'msg',
+            'exe', 'dll', 'bin', 'raw', 'dat', 'msg',
             'html', 'pdf', 'rtf', 'txt', 'md', 'svg',
             'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
             'js', 'py', 'pyc', 'ipynb',
