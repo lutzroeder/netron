@@ -226,6 +226,9 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
                 constructorTable['xgboost.core.Booster'] = function() {};
                 constructorTable['xgboost.sklearn.XGBClassifier'] = function() {};
+                constructorTable['gensim.models.word2vec.Vocab'] = function() {};
+                constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
+                constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
 
                 functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
                     if (base == '__builtin__.object') {
