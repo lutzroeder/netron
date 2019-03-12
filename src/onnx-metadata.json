@@ -8712,6 +8712,58 @@
     }
   },
   {
+    "name": "MeanVarianceNormalization",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Use [0,2,3] (without C axis for N-D cases) for calculating means and variances along channels. Two variables with the same C-coordinate are associated with the same mean and variance.",
+          "name": "axes",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "A MeanVarianceNormalization Function: Perform mean variance normalization\n      on the input tensor X using formula: <br/> ``` (X-EX)/sqrt(E(X-EX)^2) ```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'MeanVarianceNormalization',\n    inputs=['X'],\n    outputs=['Y']\n)\n\ninput_data = np.array([[[[0.8439683], [0.5665144], [0.05836735]],\n    [[0.02916367], [0.12964272], [0.5060197]],\n    [[0.79538304], [0.9411346], [0.9546573]]],\n    [[[0.17730942], [0.46192095], [0.26480448]],\n    [[0.6746842], [0.01665257], [0.62473077]],\n    [[0.9240844], [0.9722341], [0.11965699]]],\n    [[[0.41356155], [0.9129373], [0.59330076]],\n    [[0.81929934], [0.7862604], [0.11799799]],\n    [[0.69248444], [0.54119414], [0.07513223]]]], dtype=np.float32)\n\n# Calculate expected output data\ndata_mean = np.mean(input_data, axis=(0, 2, 3), keepdims=1)\ndata_mean_squared = np.power(data_mean, 2)\ndata_squared = np.power(input_data, 2)\ndata_squared_mean = np.mean(data_squared, axis=(0, 2, 3), keepdims=1)\nstd = np.sqrt(data_squared_mean - data_mean_squared)\nexpected_output = (input_data - data_mean) / (std + 1e-9)\n\nexpect(node, inputs=[input_data], outputs=[expected_output],\n       name='test_mvn')",
+          "summary": "meanvariancenormalization"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to all numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Min",
     "schema": {
       "attributes": [
