@@ -30491,6 +30491,46 @@
     }
   },
   {
+    "name": "NonDeterministicInts",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "This op may use some OS-provided source of non-determinism (e.g. an RNG), so each execution will give different results.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Non-deterministic integer values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Non-deterministically generates some integers."
+    }
+  },
+  {
     "name": "NonMaxSuppression",
     "schema": {
       "attributes": [
@@ -44058,6 +44098,11 @@
     "name": "ResourceGather",
     "schema": {
       "attributes": [
+        {
+          "default": 0,
+          "name": "batch_dims",
+          "type": "int"
+        },
         {
           "default": true,
           "name": "validate_indices",
