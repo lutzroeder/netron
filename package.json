@@ -19,7 +19,7 @@
         "test": "[ -d node_modules ] || npm install && node ./test/test.js"
     },
     "dependencies": {
-        "d3": "5.9.1",
+        "d3": "5.9.2",
         "dagre": "0.8.4",
         "electron-updater": "4.0.6",
         "flatbuffers": "1.10.2",
@@ -32,8 +32,8 @@
         "universal-analytics": "0.4.20"
     },
     "devDependencies": {
-        "electron": "4.0.8",
-        "electron-builder": "20.38.5",
+        "electron": "4.1.0",
+        "electron-builder": "20.39.0",
         "eslint": "5.15.1",
         "xmldom": "0.1.27"
     }
