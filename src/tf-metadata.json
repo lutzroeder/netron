@@ -8932,6 +8932,67 @@
     }
   },
   {
+    "name": "ChooseFastestBranchDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "num_elements_per_branch",
+          "type": "int"
+        },
+        {
+          "minimum": 1,
+          "name": "branches",
+          "type": "list(func)"
+        },
+        {
+          "minimum": 1,
+          "name": "other_arguments_lengths",
+          "type": "list(int)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "ratio_numerator",
+          "type": 9
+        },
+        {
+          "name": "ratio_denominator",
+          "type": 9
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ClipByValue",
     "schema": {
       "attributes": [
