@@ -3532,102 +3532,6 @@
     }
   },
   {
-    "name": "DynamicSlice",
-    "schema": {
-      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\nSlices uses `axes`, `starts` and `ends` inputs to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension. If the value passed to start or end is larger than the `n` (the\nnumber of elements in this dimension), it represents `n`. For slicing to the\nend of a dimension with unknown size, it is recommended to pass in `INT_MAX`.\nIf `axes` are omitted, they are set to `[0, ..., ndim-1]`.\nExample 1:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n  result = [\n      [5, 6, 7],\n  ]\nExample 2:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0, 1]\n  ends = [-1, 1000]\n  result = [\n      [2, 3, 4],\n  ]\n",
-      "domain": "ai.onnx",
-      "examples": [
-        {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[0:3, 0:10]\nstarts = np.array([0, 0], dtype=np.int64)\nends = np.array([3, 10], dtype=np.int64)\naxes = np.array([0, 1], dtype=np.int64)\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice')",
-          "summary": "dynamic_slice"
-        },
-        {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0, 0, 3], dtype=np.int64)\nends = np.array([20, 10, 4], dtype=np.int64)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x, starts, ends], outputs=[y],\n       name='test_dynamic_slice_default_axes')",
-          "summary": "dynamic_slice_default_axes"
-        },
-        {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\ny = x[:, 1:1000]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_end_out_of_bounds')",
-          "summary": "dynamic_slice_end_out_of_bounds"
-        },
-        {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0], dtype=np.int64)\nends = np.array([-1], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\ny = x[:, 0:-1]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_neg')",
-          "summary": "dynamic_slice_neg"
-        },
-        {
-          "code": "node = onnx.helper.make_node(\n    'DynamicSlice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1000], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\ny = x[:, 1000:1000]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_dynamic_slice_start_out_of_bounds')",
-          "summary": "dynamic_slice_start_out_of_bounds"
-        }
-      ],
-      "inputs": [
-        {
-          "description": "Tensor of data to extract slices from.",
-          "name": "data",
-          "type": "T"
-        },
-        {
-          "description": "1-D tensor of starting indices of corresponding axis in `axes`",
-          "name": "starts",
-          "type": "Tind"
-        },
-        {
-          "description": "1-D tensor of ending indices (exclusive) of corresponding axis in axes",
-          "name": "ends",
-          "type": "Tind"
-        },
-        {
-          "description": "1-D tensor of axes that `starts` and `ends` apply to.",
-          "name": "axes",
-          "option": "optional",
-          "type": "Tind"
-        }
-      ],
-      "max_input": 4,
-      "max_output": 1,
-      "min_input": 3,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Sliced data tensor.",
-          "name": "output",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)",
-            "tensor(int8)",
-            "tensor(int16)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(string)",
-            "tensor(bool)",
-            "tensor(complex64)",
-            "tensor(complex128)"
-          ],
-          "description": "Constrain input and output types to all tensor types.",
-          "type_param_str": "T"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(int32)",
-            "tensor(int64)"
-          ],
-          "description": "Constrain indices to integer types",
-          "type_param_str": "Tind"
-        }
-      ]
-    }
-  },
-  {
     "name": "Elu",
     "schema": {
       "attributes": [
@@ -13065,23 +12969,31 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0, 1],\n    starts=[0, 0],\n    ends=[3, 10],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[0:3, 0:10]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice')",
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[0:3, 0:10]\nstarts = np.array([0, 0], dtype=np.int64)\nends = np.array([3, 10], dtype=np.int64)\naxes = np.array([0, 1], dtype=np.int64)\nsteps = np.array([1, 1], dtype=np.int64)\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice')",
           "summary": "slice"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    starts=[0, 0, 3],\n    ends=[20, 10, 4],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_default_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0, 0, 3], dtype=np.int64)\nends = np.array([20, 10, 4], dtype=np.int64)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x, starts, ends], outputs=[y],\n       name='test_slice_default_axes')",
           "summary": "slice_default_axes"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1],\n    starts=[1],\n    ends=[1000],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, 1:1000]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_end_out_of_bounds')",
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0, 0, 3], dtype=np.int64)\nends = np.array([20, 10, 4], dtype=np.int64)\naxes = np.array([0, 1, 2], dtype=np.int64)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_slice_default_steps')",
+          "summary": "slice_default_steps"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\nsteps = np.array([1], dtype=np.int64)\ny = x[:, 1:1000]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_end_out_of_bounds')",
           "summary": "slice_end_out_of_bounds"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1],\n    starts=[0],\n    ends=[-1],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, 0:-1]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_neg')",
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0], dtype=np.int64)\nends = np.array([-1], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\nsteps = np.array([1], dtype=np.int64)\ny = x[:, 0:-1]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_neg')",
           "summary": "slice_neg"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1],\n    starts=[1000],\n    ends=[1000],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, 1000:1000]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_start_out_of_bounds')",
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([20, 10, 4], dtype=np.int64)\nends = np.array([0, 0, 1], dtype=np.int64)\naxes = np.array([0, 1, 2], dtype=np.int64)\nsteps = np.array([-1, -3, -2])\ny = x[20:0:-1, 10:0:-3, 4:1:-2]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_neg_steps')",
+          "summary": "slice_neg_steps"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1000], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\nsteps = np.array([1], dtype=np.int64)\ny = x[:, 1000:1000]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_start_out_of_bounds')",
           "summary": "slice_start_out_of_bounds"
         }
       ],
@@ -13126,6 +13038,117 @@
           ],
           "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Slice",
+    "schema": {
+      "category": "Tensor",
+      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\nSlices uses `starts`, `ends`, `axes` and `steps` inputs to specify the start and end\ndimension and step for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension. If the value passed to start or end is larger than the `n` (the\nnumber of elements in this dimension), it represents `n`. For slicing to the\nend of a dimension with unknown size, it is recommended to pass in `INT_MAX`.\nIf a negative value is passed for step, it represents slicing backward.\nIf `axes` are omitted, they are set to `[0, ..., ndim-1]`.\nIf `steps` are omitted, they are set to `[1, ..., 1]` of length `len(starts)`\nExample 1:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n  steps = [1, 2]\n  result = [\n      [5, 7],\n  ]\nExample 2:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0, 1]\n  ends = [-1, 1000]\n  result = [\n      [2, 3, 4],\n  ]\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[0:3, 0:10]\nstarts = np.array([0, 0], dtype=np.int64)\nends = np.array([3, 10], dtype=np.int64)\naxes = np.array([0, 1], dtype=np.int64)\nsteps = np.array([1, 1], dtype=np.int64)\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice')",
+          "summary": "slice"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0, 0, 3], dtype=np.int64)\nends = np.array([20, 10, 4], dtype=np.int64)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x, starts, ends], outputs=[y],\n       name='test_slice_default_axes')",
+          "summary": "slice_default_axes"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0, 0, 3], dtype=np.int64)\nends = np.array([20, 10, 4], dtype=np.int64)\naxes = np.array([0, 1, 2], dtype=np.int64)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x, starts, ends, axes], outputs=[y],\n       name='test_slice_default_steps')",
+          "summary": "slice_default_steps"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\nsteps = np.array([1], dtype=np.int64)\ny = x[:, 1:1000]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_end_out_of_bounds')",
+          "summary": "slice_end_out_of_bounds"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([0], dtype=np.int64)\nends = np.array([-1], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\nsteps = np.array([1], dtype=np.int64)\ny = x[:, 0:-1]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_neg')",
+          "summary": "slice_neg"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([20, 10, 4], dtype=np.int64)\nends = np.array([0, 0, 1], dtype=np.int64)\naxes = np.array([0, 1, 2], dtype=np.int64)\nsteps = np.array([-1, -3, -2])\ny = x[20:0:-1, 10:0:-3, 4:1:-2]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_neg_steps')",
+          "summary": "slice_neg_steps"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'starts', 'ends', 'axes', 'steps'],\n    outputs=['y'],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\nstarts = np.array([1000], dtype=np.int64)\nends = np.array([1000], dtype=np.int64)\naxes = np.array([1], dtype=np.int64)\nsteps = np.array([1], dtype=np.int64)\ny = x[:, 1000:1000]\n\nexpect(node, inputs=[x, starts, ends, axes, steps], outputs=[y],\n       name='test_slice_start_out_of_bounds')",
+          "summary": "slice_start_out_of_bounds"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of data to extract slices from.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "1-D tensor of starting indices of corresponding axis in `axes`",
+          "name": "starts",
+          "type": "Tind"
+        },
+        {
+          "description": "1-D tensor of ending indices (exclusive) of corresponding axis in `axes`",
+          "name": "ends",
+          "type": "Tind"
+        },
+        {
+          "description": "1-D tensor of axes that `starts` and `ends` apply to.",
+          "name": "axes",
+          "option": "optional",
+          "type": "Tind"
+        },
+        {
+          "description": "1-D tensor of slice step of corresponding axis in `axes`. Default to 1. ",
+          "name": "steps",
+          "option": "optional",
+          "type": "Tind"
+        }
+      ],
+      "max_input": 5,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Sliced data tensor.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain indices to integer types",
+          "type_param_str": "Tind"
         }
       ]
     }
@@ -14391,8 +14414,8 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
-      "support_level": "experimental",
+      "since_version": 10,
+      "support_level": "common",
       "type_constraints": [
         {
           "allowed_type_strs": [
