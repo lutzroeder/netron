@@ -23,7 +23,9 @@ torch.ModelFactory = class {
             var identifier = context.identifier;
             try {
                 var reader = new torch.T7Reader(context.buffer, (name) => {
-                    host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
+                    if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_')) {
+                        host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
+                    }
                     return null;
                 });
                 var root = reader.read();
