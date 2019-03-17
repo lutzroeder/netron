@@ -23,7 +23,7 @@
         "dagre": "0.8.4",
         "electron-updater": "4.0.6",
         "flatbuffers": "1.10.2",
-        "handlebars": "4.1.0",
+        "handlebars": "4.1.1",
         "long": "4.0.0",
         "marked": "0.6.1",
         "npm-font-open-sans": "1.1.0",
