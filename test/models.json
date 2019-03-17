@@ -3199,7 +3199,7 @@
   },
   {
     "type":   "pytorch",
-    "target": "tutorial_variational_autoencoder.pth",
+    "target": "tutorial_variational_autoencoder.pth.tar",
     "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_variational_autoencoder.pth]",
     "format": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/133"
