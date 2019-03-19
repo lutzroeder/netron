@@ -12271,58 +12271,6 @@
     }
   },
   {
-    "name": "ScaledTanh",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Scaling value",
-          "name": "alpha",
-          "required": false,
-          "type": "float"
-        },
-        {
-          "description": "Scaling value",
-          "name": "beta",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "description": "Calculates the scaled hyperbolic tangent of the given input tensor element-wise,\nalpha * tanh(beta * x).\n    ",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "Input tensor",
-          "name": "input",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "The scaled hyperbolic tangent values of the input tensor computed element-wise",
-          "name": "output",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Scaler",
     "schema": {
       "attributes": [
