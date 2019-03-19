@@ -1193,6 +1193,7 @@
       ],
       "outputs": [
         {
+          "description": "Output data blob that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
           "name": "Y"
         }
       ],
@@ -1276,6 +1277,7 @@
       ],
       "outputs": [
         {
+          "description": "Output data tensor from average pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
           "name": "Y"
         }
       ],
