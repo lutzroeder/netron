@@ -1227,7 +1227,7 @@
         }
       ],
       "category": "Pool",
-      "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ``` \n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n \n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n\n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -8518,7 +8518,7 @@
         }
       ],
       "category": "Pool",
-      "description": "MaxPool consumes an input tensor X and applies max pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ``` \n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n \n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n\n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -12011,6 +12011,88 @@
     }
   },
   {
+    "name": "Resize",
+    "schema": {
+      "attributes": [
+        {
+          "default": "nearest",
+          "description": "Two interpolation modes: nearest (default), and linear (including bilinear, trilinear, etc)",
+          "name": "mode",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "description": "Resize the input tensor.\nEach dimension value of the output tensor is:\n  output_dimension = floor(input_dimension * scale).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Resize',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='linear',\n)\n\ndata = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 0.6, 0.6], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 2.66666651]\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_resize_downsample_linear')",
+          "summary": "downsample_linear"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Resize',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 0.6, 0.6], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 3]\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_resize_downsample_nearest')",
+          "summary": "downsample_nearest"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Resize',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='linear',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 2.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1.5, 2, 2],\n    [2, 2.5, 3, 3],\n    [3, 3.5, 4, 4],\n    [3, 3.5, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_resize_upsample_linear')",
+          "summary": "upsample_linear"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Resize',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_resize_upsample_nearest')",
+          "summary": "upsample_nearest"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "N-D tensor",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The scale array along each dimension. It takes value greater than 0. If it's less than 1, it's sampling down, otherwise, it's upsampling. The number of elements of 'scales' should be the same as the rank of input 'X'.",
+          "name": "scales",
+          "type": "tensor(float)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "N-D tensor after resizing",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input 'X' and output 'Y' to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "SVMClassifier",
     "schema": {
       "attributes": [
@@ -13945,7 +14027,7 @@
           "type": "string[]"
         }
       ],
-      "description": "StringNormalization performs string operations for basic cleaning. \nThis operator has only one input (denoted by X) and only one output \n(denoted by Y). This operator first examines the elements in the X, \nand removes elements specified in \"stopwords\" attribute. \nAfter removing stop words, the intermediate result can be further lowercased, \nuppercased, or just returned depending the \"case_change_action\" attribute.\nThis operator only accepts [C]- and [1, C]-tensor.\nIf all elements in X are dropped, the output will be the empty value of string tensor with shape [1]\nif input shape is [C] and shape [1, 1] if input shape is [1, C]. \n",
+      "description": "StringNormalization performs string operations for basic cleaning.\nThis operator has only one input (denoted by X) and only one output\n(denoted by Y). This operator first examines the elements in the X,\nand removes elements specified in \"stopwords\" attribute.\nAfter removing stop words, the intermediate result can be further lowercased,\nuppercased, or just returned depending the \"case_change_action\" attribute.\nThis operator only accepts [C]- and [1, C]-tensor.\nIf all elements in X are dropped, the output will be the empty value of string tensor with shape [1]\nif input shape is [C] and shape [1, 1] if input shape is [1, C].\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -14540,7 +14622,7 @@
           "type": "float[]"
         }
       ],
-      "description": "This transform extracts n-grams from the input sequence and save them as a vector. Input can \nbe either a 1-D or 2-D tensor. For 1-D input, output is the n-gram representation of that input.  \nFor 2-D input, the output is also a  2-D tensor whose i-th row is the n-gram representation of the i-th input row. \nMore specifically, if input shape is [C], the corresponding output shape would be [max(ngram_indexes) + 1]. \nIf input shape is [N, C], this operator produces a [N, max(ngram_indexes) + 1]-tensor. \n \nIn contrast to standard n-gram extraction, here, the indexes of extracting an n-gram from the original \nsequence are not necessarily consecutive numbers. The discontinuity between indexes are controlled by the number of skips.  \nIf the number of skips is 2, we should skip two tokens when scanning through the original sequence. \nLet's consider an example. Assume that input sequence is [94, 17, 36, 12, 28] and the number of skips is 2. \nThe associated 2-grams are [94, 12] and [17, 28] respectively indexed by [0, 3] and [1, 4]. \nIf the number of skips becomes 0, the 2-grams generated are [94, 17], [17, 36], [36, 12], [12, 28] \nindexed by [0, 1], [1, 2], [2, 3], [3, 4], respectively.\n\nThe output vector (denoted by Y) stores the count of each n-gram; \nY[ngram_indexes[i]] indicates the times that the i-th n-gram is found. The attribute ngram_indexes is used to determine the mapping \nbetween index i and the corresponding n-gram's output coordinate. If pool_int64s is [94, 17, 17, 36], ngram_indexes is [1, 0],\nngram_counts=[0, 0], then the Y[0] (first element in Y) and Y[1] (second element in Y) are the counts of [17, 36] and [94, 17],\nrespectively. An n-gram which cannot be found in pool_strings/pool_int64s should be ignored and has no effect on the output. \nNote that we may consider all skips up to S when generating the n-grams. \n \nThe examples used above are true if mode is \"TF\". If mode is \"IDF\", all the counts larger than 1 would be truncated to 1 and \nthe i-th element in weights would be used to scale (by multiplication) the count of the i-th n-gram in pool. If mode is \"TFIDF\", \nthis operator first computes the counts of all n-grams and then scale them by the associated values in the weights attribute. \n \nOnly one of pool_strings and pool_int64s can be set. If pool_int64s is set, the input should be an integer tensor. \nIf pool_strings is set, the input must be a string tensor. \n",
+      "description": "This transform extracts n-grams from the input sequence and save them as a vector. Input can\nbe either a 1-D or 2-D tensor. For 1-D input, output is the n-gram representation of that input.\nFor 2-D input, the output is also a  2-D tensor whose i-th row is the n-gram representation of the i-th input row.\nMore specifically, if input shape is [C], the corresponding output shape would be [max(ngram_indexes) + 1].\nIf input shape is [N, C], this operator produces a [N, max(ngram_indexes) + 1]-tensor.\n\nIn contrast to standard n-gram extraction, here, the indexes of extracting an n-gram from the original\nsequence are not necessarily consecutive numbers. The discontinuity between indexes are controlled by the number of skips.\nIf the number of skips is 2, we should skip two tokens when scanning through the original sequence.\nLet's consider an example. Assume that input sequence is [94, 17, 36, 12, 28] and the number of skips is 2.\nThe associated 2-grams are [94, 12] and [17, 28] respectively indexed by [0, 3] and [1, 4].\nIf the number of skips becomes 0, the 2-grams generated are [94, 17], [17, 36], [36, 12], [12, 28]\nindexed by [0, 1], [1, 2], [2, 3], [3, 4], respectively.\n\nThe output vector (denoted by Y) stores the count of each n-gram;\nY[ngram_indexes[i]] indicates the times that the i-th n-gram is found. The attribute ngram_indexes is used to determine the mapping\nbetween index i and the corresponding n-gram's output coordinate. If pool_int64s is [94, 17, 17, 36], ngram_indexes is [1, 0],\nngram_counts=[0, 0], then the Y[0] (first element in Y) and Y[1] (second element in Y) are the counts of [17, 36] and [94, 17],\nrespectively. An n-gram which cannot be found in pool_strings/pool_int64s should be ignored and has no effect on the output.\nNote that we may consider all skips up to S when generating the n-grams.\n\nThe examples used above are true if mode is \"TF\". If mode is \"IDF\", all the counts larger than 1 would be truncated to 1 and\nthe i-th element in weights would be used to scale (by multiplication) the count of the i-th n-gram in pool. If mode is \"TFIDF\",\nthis operator first computes the counts of all n-grams and then scale them by the associated values in the weights attribute.\n\nOnly one of pool_strings and pool_int64s can be set. If pool_int64s is set, the input should be an integer tensor.\nIf pool_strings is set, the input must be a string tensor.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -15414,7 +15496,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest')",
+          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest', opset_imports=[helper.make_opsetid(\"\", 9)])",
           "summary": "nearest"
         }
       ],
@@ -15476,7 +15558,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest')",
+          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest', opset_imports=[helper.make_opsetid(\"\", 9)])",
           "summary": "nearest"
         }
       ],
@@ -15541,7 +15623,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest')",
+          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest', opset_imports=[helper.make_opsetid(\"\", 9)])",
           "summary": "nearest"
         }
       ],
@@ -15569,6 +15651,76 @@
         }
       ],
       "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input 'X' and output 'Y' to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Upsample",
+    "schema": {
+      "attributes": [
+        {
+          "default": "nearest",
+          "description": "Two interpolation modes: nearest (default), and linear (including bilinear, trilinear, etc)",
+          "name": "mode",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "description": "Upsample the input tensor.\nEach dimension value of the output tensor is:\n  output_dimension = floor(input_dimension * scale).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest', opset_imports=[helper.make_opsetid(\"\", 9)])",
+          "summary": "nearest"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "N-D tensor",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The scale array along each dimension. It takes value greater than or equal to 1. The number of elements of 'scales' should be the same as the rank of input 'X'.",
+          "name": "scales",
+          "type": "tensor(float)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "N-D tensor after resizing",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 10,
       "support_level": "common",
       "type_constraints": [
         {
