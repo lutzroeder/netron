@@ -5,6 +5,9 @@ build: clean lint build_python build_electron
 
 publish: clean lint publish_github_electron publish_pip publish_github_pages publish_cask
 
+pull:
+	git pull --rebase --prune
+
 install:
 	rm -rf ./node_modules
 	npm install
@@ -16,6 +19,10 @@ reset:
 	rm -rf ./build
 	rm -rf ./node_modules
 	rm -rf ./third_party
+
+update:
+	@[ -d node_modules ] || npm install
+	./tools/update
 
 build_python:
 	@[ -d node_modules ] || npm install

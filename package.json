@@ -11,12 +11,8 @@
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
     "scripts": {
-        "reset": "git fetch -p && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)",
-        "clean": "rm -rf ./build ./node_modules ./third_party",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@",
-        "update": "[ -d node_modules ] || npm install && ./tools/update",
-        "test": "[ -d node_modules ] || npm install && node ./test/test.js"
+        "start_server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@"
     },
     "dependencies": {
         "d3": "5.9.2",
@@ -34,7 +30,7 @@
     "devDependencies": {
         "electron": "4.1.0",
         "electron-builder": "20.39.0",
-        "eslint": "5.15.2",
+        "eslint": "5.15.3",
         "xmldom": "0.1.27"
     }
 }
