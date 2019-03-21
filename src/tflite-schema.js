@@ -171,7 +171,8 @@ tflite_schema.BuiltinOperator = {
   RANK: 110,
   ELU: 111,
   REVERSE_SEQUENCE: 112,
-  MATRIX_DIAG: 113
+  MATRIX_DIAG: 113,
+  QUANTIZE: 114
 };
 
 /**
@@ -290,7 +291,8 @@ tflite_schema.BuiltinOperatorName = {
   110: 'RANK',
   111: 'ELU',
   112: 'REVERSE_SEQUENCE',
-  113: 'MATRIX_DIAG'
+  113: 'MATRIX_DIAG',
+  114: 'QUANTIZE'
 };
 
 /**
@@ -385,7 +387,8 @@ tflite_schema.BuiltinOptions = {
   WhereOptions: 85,
   RankOptions: 86,
   ReverseSequenceOptions: 87,
-  MatrixDiagOptions: 88
+  MatrixDiagOptions: 88,
+  QuantizeOptions: 89
 };
 
 /**
@@ -480,7 +483,8 @@ tflite_schema.BuiltinOptionsName = {
   85: 'WhereOptions',
   86: 'RankOptions',
   87: 'ReverseSequenceOptions',
-  88: 'MatrixDiagOptions'
+  88: 'MatrixDiagOptions',
+  89: 'QuantizeOptions'
 };
 
 /**
@@ -8506,6 +8510,66 @@ tflite_schema.MatrixDiagOptions.endMatrixDiagOptions = function(builder) {
 tflite_schema.MatrixDiagOptions.createMatrixDiagOptions = function(builder) {
   tflite_schema.MatrixDiagOptions.startMatrixDiagOptions(builder);
   return tflite_schema.MatrixDiagOptions.endMatrixDiagOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.QuantizeOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.QuantizeOptions}
+ */
+tflite_schema.QuantizeOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.QuantizeOptions=} obj
+ * @returns {tflite_schema.QuantizeOptions}
+ */
+tflite_schema.QuantizeOptions.getRootAsQuantizeOptions = function(bb, obj) {
+  return (obj || new tflite_schema.QuantizeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.QuantizeOptions.startQuantizeOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.QuantizeOptions.endQuantizeOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.QuantizeOptions.createQuantizeOptions = function(builder) {
+  tflite_schema.QuantizeOptions.startQuantizeOptions(builder);
+  return tflite_schema.QuantizeOptions.endQuantizeOptions(builder);
 }
 
 /**
