@@ -13807,6 +13807,10 @@
             {
               "type": "type",
               "value": 18
+            },
+            {
+              "type": "type",
+              "value": 10
             }
           ],
           "name": "out_type",
@@ -31276,6 +31280,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": [],
+          "name": "optimization_configs",
+          "type": "list(string)"
         }
       ],
       "description": "Creates a dataset by applying optimizations to `input_dataset`.",
@@ -35608,6 +35617,172 @@
           "type": 1
         }
       ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DPerChannel",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The quantized type of input tensor that needs to be converted. ",
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The quantized type of filter tensor that needs to be converted. ",
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "description": "The quantized type of output tensor that needs to be converted.",
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "description": "list of stride values.",
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "description": "list of dilation values.",
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "description": "The original filter tensor.",
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "description": "The minimum value of the input tensor",
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the input tensor.",
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "description": "The minimum value of the filter tensor.",
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the filter tensor.",
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output tensor.",
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "description": "The minimum value of the final output tensor.",
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the final output tensor.",
+          "name": "max_output",
+          "type": 1
+        }
+      ],
+      "summary": "Computes QuantizedConv2D per channel."
     }
   },
   {
