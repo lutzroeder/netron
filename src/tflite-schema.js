@@ -172,7 +172,8 @@ tflite_schema.BuiltinOperator = {
   ELU: 111,
   REVERSE_SEQUENCE: 112,
   MATRIX_DIAG: 113,
-  QUANTIZE: 114
+  QUANTIZE: 114,
+  MATRIX_SET_DIAG: 115
 };
 
 /**
@@ -292,7 +293,8 @@ tflite_schema.BuiltinOperatorName = {
   111: 'ELU',
   112: 'REVERSE_SEQUENCE',
   113: 'MATRIX_DIAG',
-  114: 'QUANTIZE'
+  114: 'QUANTIZE',
+  115: 'MATRIX_SET_DIAG'
 };
 
 /**
@@ -388,7 +390,8 @@ tflite_schema.BuiltinOptions = {
   RankOptions: 86,
   ReverseSequenceOptions: 87,
   MatrixDiagOptions: 88,
-  QuantizeOptions: 89
+  QuantizeOptions: 89,
+  MatrixSetDiagOptions: 90
 };
 
 /**
@@ -484,7 +487,8 @@ tflite_schema.BuiltinOptionsName = {
   86: 'RankOptions',
   87: 'ReverseSequenceOptions',
   88: 'MatrixDiagOptions',
-  89: 'QuantizeOptions'
+  89: 'QuantizeOptions',
+  90: 'MatrixSetDiagOptions'
 };
 
 /**
@@ -8570,6 +8574,66 @@ tflite_schema.QuantizeOptions.endQuantizeOptions = function(builder) {
 tflite_schema.QuantizeOptions.createQuantizeOptions = function(builder) {
   tflite_schema.QuantizeOptions.startQuantizeOptions(builder);
   return tflite_schema.QuantizeOptions.endQuantizeOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.MatrixSetDiagOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.MatrixSetDiagOptions}
+ */
+tflite_schema.MatrixSetDiagOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.MatrixSetDiagOptions=} obj
+ * @returns {tflite_schema.MatrixSetDiagOptions}
+ */
+tflite_schema.MatrixSetDiagOptions.getRootAsMatrixSetDiagOptions = function(bb, obj) {
+  return (obj || new tflite_schema.MatrixSetDiagOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.MatrixSetDiagOptions.startMatrixSetDiagOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.MatrixSetDiagOptions.endMatrixSetDiagOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.MatrixSetDiagOptions.createMatrixSetDiagOptions = function(builder) {
+  tflite_schema.MatrixSetDiagOptions.startMatrixSetDiagOptions(builder);
+  return tflite_schema.MatrixSetDiagOptions.endMatrixSetDiagOptions(builder);
 }
 
 /**
