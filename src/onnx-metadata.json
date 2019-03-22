@@ -3672,6 +3672,77 @@
     }
   },
   {
+    "name": "Dropout",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.5,
+          "description": "The ratio of random dropout",
+          "name": "ratio",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "category": "Dropout",
+      "description": "Dropout takes one input floating tensor and produces two tensor outputs,\noutput (floating tensor) and mask (`Tensor<bool>`). Depending on whether it is\nin test mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Dropout',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = x\nexpect(node, inputs=[x], outputs=[y],\n       name='test_dropout_default')",
+          "summary": "default"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Dropout',\n    inputs=['x'],\n    outputs=['y'],\n    ratio=.2,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = x\nexpect(node, inputs=[x], outputs=[y],\n       name='test_dropout_random')",
+          "summary": "random"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The input data as Tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The output.",
+          "name": "output",
+          "type": "T"
+        },
+        {
+          "description": "The output mask.",
+          "name": "mask",
+          "option": "optional",
+          "type": "T1"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Constrain output mask types to boolean tensors.",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
     "name": "Elu",
     "schema": {
       "attributes": [
