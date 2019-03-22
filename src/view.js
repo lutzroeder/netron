@@ -675,7 +675,7 @@ view.View = class {
                         };
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
-                    var name = input.name;
+                    var name = input.name || '';
                     if (name.length > 16) {
                         name = name.split('/').pop();
                     }

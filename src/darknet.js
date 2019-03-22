@@ -247,9 +247,13 @@ darknet.Node = class {
         return this._operator;
     }
 
+    get documentation() {
+        return '';
+    }
+
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get attributes() {

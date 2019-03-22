@@ -412,7 +412,7 @@ openvino.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._type);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
@@ -453,7 +453,7 @@ openvino.Node = class {
             }
             return schema;
         }
-        return null;
+        return '';
     }
 
     get attributes() {

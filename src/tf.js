@@ -533,7 +533,7 @@ tf.Node = class {
     }
 
     get description() {
-        return null;
+        return '';
     }
 
     get domain() {
@@ -607,12 +607,12 @@ tf.Node = class {
             }
             return schema;
         }
-        return null;
+        return '';
     }
 
     get category() {
         var schema = this._graph.metadata.getSchema(this.operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get inputs() {

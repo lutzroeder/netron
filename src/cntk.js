@@ -267,7 +267,7 @@ cntk.Function = class {
     }
 
     get description() {
-        return null;
+        return '';
     }
 
     get inputs() {
@@ -354,7 +354,7 @@ cntk.Connection = class {
     }
 
     get description() {
-        return null;
+        return '';
     }
 
     get initializer() {
@@ -501,11 +501,11 @@ cntk.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() { 
-        return null;
+        return '';
     }
 
     get attributes() { 

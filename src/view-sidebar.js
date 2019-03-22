@@ -429,7 +429,7 @@ sidebar.ConnectionView = class {
         else {
             var idLine = document.createElement('div');
             idLine.className = 'sidebar-view-item-value-line';
-            id = this._connection.id.split('\n').shift(); // custom connection id
+            id = id.split('\n').shift(); // custom connection id
             id = id || ' ';
             idLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>id: <b>' + id + '</b></span>';
             this._element.appendChild(idLine);

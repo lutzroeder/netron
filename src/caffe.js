@@ -484,7 +484,11 @@ caffe.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._type);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
+    }
+
+    get documentation() {
+        return '';
     }
 
     get name() { 

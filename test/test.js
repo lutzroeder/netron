@@ -454,23 +454,29 @@ function loadModel(target, item, callback) {
         try {
             model.graphs.forEach((graph) => {
                 graph.inputs.forEach((input) => {
+                    input.name.toString();
                     input.connections.forEach((connection) => {
+                        connection.id.toString();
                         if (connection.type) {
                             connection.type.toString();
                         }
                     });
                 });
                 graph.outputs.forEach((output) => {
+                    output.name.toString();
                     output.connections.forEach((connection) => {
+                        connection.id.toString();
                         if (connection.type) {
                             connection.type.toString();
                         }
                     });
                 });
                 graph.nodes.forEach((node) => {
-                    node.documentation;
-                    node.category;
+                    node.name.toString();
+                    node.documentation.toString();
+                    node.category.toString();
                     node.attributes.forEach((attribute) => {
+                        attribute.name.toString();
                         var value = view.View.formatAttributeValue(attribute.value, attribute.type)
                         if (value && value.length > 1000) {
                             value = value.substring(0, 1000) + '...';
@@ -478,7 +484,9 @@ function loadModel(target, item, callback) {
                         value = value.split('<');
                     });
                     node.inputs.forEach((input) => {
+                        input.name.toString();
                         input.connections.forEach((connection) => {
+                            connection.id.toString();
                             if (connection.type) {
                                 connection.type.toString();
                             }
@@ -488,7 +496,9 @@ function loadModel(target, item, callback) {
                         });
                     });
                     node.outputs.forEach((output) => {
+                        output.name.toString();
                         output.connections.forEach((connection) => {
+                            connection.id.toString();
                             if (connection.type) {
                                 connection.type.toString();
                             }

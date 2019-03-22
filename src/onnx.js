@@ -425,7 +425,7 @@ onnx.Connection = class {
     constructor(id, type, description, initializer) {
         this._id = id;
         this._type = type || null;
-        this._description = description || null;
+        this._description = description || '';
         this._initializer = initializer || null;
     }
 
@@ -460,12 +460,8 @@ onnx.Node = class {
         if (domain) {
             this._domain = domain;
         }
-        if (name) {
-            this._name = name;
-        }
-        if (description) {
-            this._description = description;
-        }
+        this._name = name || '';
+        this._description = description || '';
         this._attributes = [];
         if (attributes && attributes.length > 0) {
             attributes.forEach((attribute) => { 
@@ -481,11 +477,11 @@ onnx.Node = class {
     }
 
     get name() {
-        return this._name || null;
+        return this._name;
     }
 
     get description() {
-        return this._description || null;
+        return this._description;
     }
 
     get documentation() {
@@ -536,7 +532,7 @@ onnx.Node = class {
             }
             return schema;
         }
-        return null;
+        return '';
     }
 
     get domain() {
@@ -545,7 +541,7 @@ onnx.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get group() {
@@ -569,12 +565,9 @@ onnx.Attribute = class {
 
     constructor(metadata, imageFormat, operator, attribute) {
         this._name = attribute.name;
+        this._description = attribute.doc_string || '';
         this._type = null;
         this._value = null;
-
-        if (attribute.doc_string) {
-            this._description = this._attribute.doc_string;
-        }
 
         if (attribute.ints && attribute.ints.length > 0) {
             if (attribute.ints.length > 65536) {
@@ -681,7 +674,7 @@ onnx.Attribute = class {
     }
 
     get description() {
-        return this._description || null;
+        return this._description;
     }
 
     get visible() {

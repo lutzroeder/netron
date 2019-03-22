@@ -448,7 +448,7 @@ sklearn.Node = class {
         var operator = obj.__type__.split('.');
         this._type = operator.pop();
         this._package = operator.join('.');
-        this._name = name;
+        this._name = name || '';
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
@@ -529,7 +529,7 @@ sklearn.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this.operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get inputs() {
@@ -537,7 +537,7 @@ sklearn.Node = class {
             return new sklearn.Argument(input, [ new sklearn.Connection(input, null, null) ]);
         });
         this._initializers.forEach((initializer) => {
-            inputs.push(new sklearn.Argument(initializer.name, [ new sklearn.Connection(null, null, initializer) ]));
+            inputs.push(new sklearn.Argument(initializer.name, [ new sklearn.Connection('', null, initializer) ]));
         });
         return inputs;
     }

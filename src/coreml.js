@@ -509,7 +509,7 @@ coreml.Node = class {
             this._group = group;
         }
         this._operator = operator;
-        this._name = name;
+        this._name = name || '';
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
@@ -534,7 +534,7 @@ coreml.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this.operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
@@ -568,7 +568,7 @@ coreml.Node = class {
             }
             return schema;
         }
-        return null;
+        return '';
     }
 
     get group() {
@@ -719,7 +719,7 @@ coreml.Node = class {
 
     _initializer(kind, name, shape, data) {
         var initializer = new coreml.Tensor(kind, name, shape, data);
-        var connection = new coreml.Connection(null, null, null, initializer);
+        var connection = new coreml.Connection('', null, null, initializer);
         var visible = true;
         var schema = this._metadata.getInputSchema(this._operator, name);
         if (schema && schema.hasOwnProperty('visible') && !schema.visible) {

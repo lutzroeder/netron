@@ -249,9 +249,17 @@ paddle.Node = class {
         return this._operator;
     }
 
+    get name() {
+        return '';
+    }
+
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
+    }
+
+    get documentation() {
+        return '';
     }
 
     get attributes() {

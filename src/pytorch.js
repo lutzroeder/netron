@@ -713,7 +713,7 @@ pytorch.Node = class {
                 else if (parameter.value.storage) {
                     initializer = new pytorch.Tensor(parameter.value, littleEndian);
                 }
-                this._inputs.push(new pytorch.Argument(inputName || parameter.key, visible, [ new pytorch.Connection(null, null, initializer) ]));
+                this._inputs.push(new pytorch.Argument(inputName || parameter.key, visible, [ new pytorch.Connection('', null, initializer) ]));
             }
         });
 
@@ -742,7 +742,7 @@ pytorch.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
@@ -776,7 +776,7 @@ pytorch.Node = class {
             }
             return schema;
         }
-        return null;
+        return '';
     }
 
     get function() {

@@ -539,10 +539,7 @@ mxnet.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._operator); 
-        if (schema && schema.category) {
-            return schema.category;
-        }
-        return null;
+        return schema && schema.category ? schema.category : '';
     }
 
     get documentation() {

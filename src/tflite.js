@@ -281,7 +281,7 @@ tflite.Node = class {
     }
 
     get documentation() {
-        return null;
+        return '';
     }
 
     get group() {
@@ -290,7 +290,7 @@ tflite.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this.operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get inputs() {
