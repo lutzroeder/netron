@@ -3740,7 +3740,7 @@
           "type": "type"
         }
       ],
-      "description": "Note that in case of ties the identity of the return value is not guaranteed.",
+      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmax(input = a)\n  c = tf.keras.backend.eval(b)  \n  # c = 4\n  # here a[4] = 166.32 which is the largest element of a across axis 0\n  ```",
       "inputs": [
         {
           "name": "input",
@@ -3876,7 +3876,7 @@
           "type": "type"
         }
       ],
-      "description": "Note that in case of ties the identity of the return value is not guaranteed.",
+      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmin(input = a)\n  c = tf.keras.backend.eval(b)  \n  # c = 0\n  # here a[0] = 1 which is the smallest element of a across axis 0\n  ```",
       "inputs": [
         {
           "name": "input",
@@ -4033,6 +4033,7 @@
           "type": "type"
         }
       ],
+      "description": "The `tf.math.asin` operation returns the inverse of `tf.math.sin`, such that\nif `y = tf.math.sin(x)` then, `x = tf.math.asin(y)`.\n\n**Note**: The output of `tf.math.asin` will lie within the invertible range \nof sine, i.e [-pi/2, pi/2].\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.sin(x) # [0.8659266, 0.7068252]\n\ntf.math.asin(y) # [1.047, 0.785] = x\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -4045,7 +4046,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes asin of x element-wise."
+      "summary": "Computes the trignometric inverse sine of x element-wise."
     }
   },
   {
@@ -4518,6 +4519,7 @@
           "type": "type"
         }
       ],
+      "description": "The `tf.math.atan` operation returns the inverse of `tf.math.tan`, such that\nif `y = tf.math.tan(x)` then, `x = tf.math.atan(y)`.\n\n**Note**: The output of `tf.math.atan` will lie within the invertible range \nof tan, i.e (-pi/2, pi/2).\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.tan(x) # [1.731261, 0.99920404]\n\ntf.math.atan(y) # [1.047, 0.785] = x\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -4530,7 +4532,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes atan of x element-wise."
+      "summary": "Computes the trignometric inverse tangent of x element-wise."
     }
   },
   {
@@ -13551,7 +13553,7 @@
   {
     "name": "DecodeGif",
     "schema": {
-      "description": "GIF with frame or transparency compression are not supported\nconvert animated GIF from compressed to uncompressed by:\n\n    convert $src.gif -coalesce $dst.gif\n\nThis op also supports decoding JPEGs and PNGs, though it is cleaner to use\n`tf.image.decode_image`.",
+      "description": "GIF images with frame or transparency compression are not supported.\nOn Linux and MacOS systems, convert animated GIFs from compressed to\nuncompressed by running:\n\n    convert $src.gif -coalesce $dst.gif\n\nThis op also supports decoding JPEGs and PNGs, though it is cleaner to use\n`tf.image.decode_image`.",
       "inputs": [
         {
           "description": "0-D.  The GIF-encoded image.",
@@ -13561,12 +13563,12 @@
       ],
       "outputs": [
         {
-          "description": "4-D with shape `[num_frames, height, width, 3]`. RGB order",
+          "description": "4-D with shape `[num_frames, height, width, 3]`. RGB channel order.",
           "name": "image",
           "type": 4
         }
       ],
-      "summary": "Decode the first frame of a GIF-encoded image to a uint8 tensor."
+      "summary": "Decode the frame(s) of a GIF-encoded image to a uint8 tensor."
     }
   },
   {
@@ -15723,6 +15725,32 @@
         }
       ],
       "summary": "JPEG-encode an image."
+    }
+  },
+  {
+    "name": "EncodeJpegVariableQuality",
+    "schema": {
+      "description": "`image` is a 3-D uint8 Tensor of shape `[height, width, channels]`.\n`quality` is an int32 jpeg compression quality value between 0 and 100.\n",
+      "inputs": [
+        {
+          "description": "Images to adjust.  At least 3-D.",
+          "name": "images",
+          "type": 4
+        },
+        {
+          "description": "An int quality to encode to.",
+          "name": "quality",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "0-D. JPEG-encoded image.",
+          "name": "contents",
+          "type": 7
+        }
+      ],
+      "summary": "JPEG encode input image with provided compression quality."
     }
   },
   {
