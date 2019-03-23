@@ -10,6 +10,7 @@ pull:
 
 install:
 	rm -rf ./node_modules
+	rm -rf ./package-lock.json
 	npm install
 
 clean:
@@ -19,6 +20,7 @@ reset:
 	rm -rf ./build
 	rm -rf ./node_modules
 	rm -rf ./third_party
+	rm -rf ./package-lock.json
 
 update:
 	@[ -d node_modules ] || npm install
