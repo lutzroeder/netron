@@ -59606,6 +59606,45 @@
     }
   },
   {
+    "name": "StatsAggregatorHandleV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
+    "name": "StatsAggregatorSetSummaryWriter",
+    "schema": {
+      "inputs": [
+        {
+          "name": "stats_aggregator",
+          "type": 20
+        },
+        {
+          "name": "summary",
+          "type": 20
+        }
+      ],
+      "summary": "Set a summary_writer_interface to record statistics using given stats_aggregator."
+    }
+  },
+  {
     "name": "StopGradient",
     "schema": {
       "attributes": [
