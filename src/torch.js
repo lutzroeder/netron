@@ -121,6 +121,7 @@ torch.Graph = class {
                 groups.pop();
                 break;
             case 'nn.Parallel':
+            case 'nn.ParallelTable':
             case 'nn.JointTrain':
                 groups.push(key);
                 var newInputs = [];
@@ -684,6 +685,7 @@ torch.T7Reader = class {
         this._registry['cudnn.VolumetricBatchNormalization'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.VolumetricConvolution'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.VolumetricMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['inn.ConstAffine'] = function(reader) { reader.nn(this); };
         this._registry['inn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.AddConstant'] = function(reader) { reader.nn(this); };
         this._registry['nn.BilinearSamplerBHWD'] = function(reader) { reader.nn(this); };
