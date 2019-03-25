@@ -345,10 +345,21 @@ tflite.Attribute = class {
             if (this._type == 'shape') {
                 this._value = new tflite.TensorShape(value);
             }
-            else if (this._type && tflite) {
+            else if (this._type && tflite.schema) {
                 var type = tflite.schema[this._type];
-                if (type && type[this.value]) {
-                    this._value = type[this.value];
+                if (type) {
+                    tflite.Attribute._reverseMap = tflite.Attribute._reverseMap || {};
+                    var reverse = tflite.Attribute._reverseMap[this._type];
+                    if (!reverse) {
+                        reverse = {};
+                        Object.keys(type).forEach((key) => {
+                            reverse[type[key.toString()]] = key;
+                        });
+                        tflite.Attribute._reverseMap[this._type] = reverse;
+                    }
+                    if (reverse.hasOwnProperty(this._value)) {
+                        this._value = reverse[this._value];
+                    }
                 }
             }
         }
