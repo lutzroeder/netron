@@ -616,9 +616,13 @@ tflite.Tensor = class {
 tflite.TensorType = class {
 
     constructor(tensor) {
-        var dataType = tflite.schema.TensorType[tensor.type()]; 
-        this._dataType = (dataType) ? dataType.toLowerCase() : '?';
-
+        if (!tflite.TensorType._tensorTypeMap) {
+            tflite.TensorType._tensorTypeMap = tflite.TensorType._tensorTypeMap || {};
+            Object.keys(tflite.schema.TensorType).forEach((key) => {
+                tflite.TensorType._tensorTypeMap[tflite.schema.TensorType[key].toString()] = key.toLowerCase();
+            });
+        }
+        this._dataType = tflite.TensorType._tensorTypeMap[tensor.type().toString()] || '?';
         var dimensions = [];
         var shapeLength = tensor.shapeLength();
         if (shapeLength > 0) {
