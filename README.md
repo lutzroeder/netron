@@ -21,7 +21,7 @@ Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`)
 
 ## Download Models
 
-Sample model files to doanload and open:
+Sample model files to download and open:
 
  * **ONNX**: [resnet-18](https://s3.amazonaws.com/onnx-model-zoo/resnet/resnet18v1/resnet18v1.onnx)
  * **Keras**: [tiny-yolo-voc](https://github.com/hollance/YOLO-CoreML-MPSNNGraph/raw/master/Convert/yad2k/model_data/tiny-yolo-voc.h5)
