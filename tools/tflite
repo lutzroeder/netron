@@ -57,7 +57,7 @@ install() {
     cmake -G "Unix Makefiles" .
     make
     popd > /dev/null
-    [ -n "$(which virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
+    [ -n "$(python3 -m pip list --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
     [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
 }
 
