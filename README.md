@@ -18,3 +18,15 @@ Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`)
 **Browser**: [**Start**](https://www.lutzroeder.com/ai/netron) the browser version.
 
 **Python Server**: Run `pip install netron` and `netron [FILE]` or `import netron; netron.start('[FILE]')`.
+
+## Download Models
+
+Sample model files to doanload and open:
+
+ * **ONNX**: [resnet-18](https://s3.amazonaws.com/onnx-model-zoo/resnet/resnet18v1/resnet18v1.onnx)
+ * **Keras**: [tiny-yolo-voc](https://github.com/hollance/YOLO-CoreML-MPSNNGraph/raw/master/Convert/yad2k/model_data/tiny-yolo-voc.h5)
+ * **CoreML**: [faces_model](https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/files/1526806/faces_model.mlmodel.zip) 
+ * **TensorFlow Lite**: [smartreply](https://storage.googleapis.com/download.tensorflow.org/models/tflite/smartreply_1.0_2017_11_01.zip)
+ * **MXNet**: [inception_v1](https://s3.amazonaws.com/model-server/models/onnx-inception_v1/inception_v1.model)
+ * **Caffe**: [mobilenet_v2](https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2.caffemodel)
+ * **TensorFlow**: [inception_v3](https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz)
