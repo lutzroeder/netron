@@ -53,7 +53,7 @@ install() {
             brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
             ;;
     esac
-    [ -n "$(python3 -m pip list --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
     [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     ${python} -m pip install --quiet protobuf
