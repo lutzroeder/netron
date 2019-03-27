@@ -521,7 +521,7 @@ tflite.Tensor = class {
         }
  
         context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
+        context.shape = this._type.shape.dimensions;
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
 
         if (this._type.dataType == 'string') {
@@ -551,9 +551,13 @@ tflite.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var size = context.dimensions[dimension];
+        var shape = context.shape;
+        if (shape.length == 0) {
+            shape = [ 1 ];
+        }
+        var size = shape[dimension];
         var results = [];
-        if (dimension == context.dimensions.length - 1) {
+        if (dimension == shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -609,6 +613,9 @@ tflite.Tensor = class {
                 results.push(this._decode(context, dimension + 1));
             }
         }
+        if (context.shape.length == 0) {
+            return results[0];
+        }
         return results;
     }
 };
@@ -657,7 +664,10 @@ tflite.TensorShape = class {
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        if (!this._dimensions || this._dimensions.length == 0) {
+            return '';
+        }
+        return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
     }
 };
 
