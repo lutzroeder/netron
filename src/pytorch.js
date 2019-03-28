@@ -159,6 +159,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.rnn.RNN'] = function() {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function() {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
+            constructorTable['torch.nn.modules.upsampling.UpsamplingNearest2d'] = function() {};
             constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
             constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) {
                 this.data = data; this.requires_grad = requires_grad;
