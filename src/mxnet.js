@@ -361,9 +361,10 @@ mxnet.Graph = class {
             this._outputs.push(new mxnet.Argument(outputName, [ new mxnet.Connection('[' + outputId.join(',') + ']', outputType, null) ]));
         });
 
+        var initializerMap = {};
         nodes.forEach((node, index) => {
             if (!argumentMap[index]) {
-                this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, parameters));
+                this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, parameters));
             }
         });
 
@@ -461,7 +462,7 @@ mxnet.Connection = class {
 
 mxnet.Node = class {
 
-    constructor(metadata, node, argumentMap, parameters) {
+    constructor(metadata, node, argumentMap, initializerMap, parameters) {
         this._metadata = metadata;
         this._operator = node.op;
         this._name = node.name;
@@ -497,38 +498,45 @@ mxnet.Node = class {
 
         this._initializers = {};
         this._inputs.forEach((input) => {
-            var argumentNodeIndex = input[0];
-            var argument = argumentMap[argumentNodeIndex];
-            if (argument && argument.name &&
-                (!argument.inputs || argument.inputs.length == 0) &&
-                (argument.outputs && argument.outputs.length == 1)) {
-                var id = '[' + input.join(',') + ']';
-                var parameter = parameters[argument.name];
-                if (parameter) {
-                    this._initializers[id] = new mxnet.Tensor('Initializer', argument.name, parameter.dataType, parameter.shape.dimensions, parameter.data);
-                    delete argumentMap[argumentNodeIndex];
-                }
-                else {
-                    var prefix = this._name;
-                    if (prefix.endsWith('_fwd')) {
-                        prefix = prefix.slice(0, -3);
-                    }
-                    if (argument.name && (argument.name.startsWith(prefix + '_') || argument.name.startsWith(prefix + '.'))) {
-                        var dataType = '?';
-                        var shape = [];
-                        if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
-                            try {
-                                dataType = parseInt(argument.attrs.__dtype__);
-                                shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"' )).join(',') + ']');
-                            }
-                            catch (err) {
-                                // continue regardless of error
-                            }
-                        }
-                        this._initializers[id] = new mxnet.Tensor('Initializer', argument.name, dataType, shape, null);
+            var id = '[' + input.join(',') + ']';
+            var initializer = initializerMap[id];
+            if (!initializer) {
+                var argumentNodeIndex = input[0];
+                var argument = argumentMap[argumentNodeIndex];
+                if (argument && argument.name &&
+                    (!argument.inputs || argument.inputs.length == 0) &&
+                    (argument.outputs && argument.outputs.length == 1)) {
+                    var parameter = parameters[argument.name];
+                    if (parameter) {
+                        initializer  = new mxnet.Tensor('Initializer', argument.name, parameter.dataType, parameter.shape.dimensions, parameter.data);
                         delete argumentMap[argumentNodeIndex];
                     }
+                    else {
+                        var prefix = this._name;
+                        if (prefix.endsWith('_fwd')) {
+                            prefix = prefix.slice(0, -3);
+                        }
+                        if (argument.name && (argument.name.startsWith(prefix + '_') || argument.name.startsWith(prefix + '.'))) {
+                            var dataType = '?';
+                            var shape = [];
+                            if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
+                                try {
+                                    dataType = parseInt(argument.attrs.__dtype__);
+                                    shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"' )).join(',') + ']');
+                                }
+                                catch (err) {
+                                    // continue regardless of error
+                                }
+                            }
+                            initializer = new mxnet.Tensor('Initializer', argument.name, dataType, shape, null);
+                            delete argumentMap[argumentNodeIndex];
+                        }
+                    }
                 }
+            }
+            if (initializer) {
+                this._initializers[id] = initializer;
+                initializerMap[id] = initializer;
             }
         });
     }

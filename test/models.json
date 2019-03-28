@@ -1958,6 +1958,13 @@
   },
   {
     "type":   "mxnet",
+    "target": "conv_weights_sharing.json",
+    "source": "https://github.com/lutzroeder/netron/files/3016064/conv_weights_sharing.json.zip[conv_weights_sharing.json]",
+    "format": "MXNet v1.3.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/245"
+  },
+  {
+    "type":   "mxnet",
     "target": "deep3d-symbol.json",
     "source": "https://raw.githubusercontent.com/dmlc/mxnet-gtc-tutorial/master/deep3d/deep3d-symbol.json",
     "format": "MXNet",
