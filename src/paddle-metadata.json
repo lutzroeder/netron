@@ -9,7 +9,10 @@
         { "name": "fuse_eltwise", "default": false },
         { "name": "fuse_relu", "default": false },
         { "name": "data_format", "default": "AnyLayout" },
-        { "name": "groups", "default": 1 }
+        { "name": "groups", "default": 1 },
+        { "name": "paddings", "default": [0, 0] },
+        { "name": "dilations", "default": [1, 1] },
+        { "name": "strides", "default": [1, 1] }
       ]
     }
   },
@@ -48,7 +51,7 @@
       "attributes": [
         { "name": "momentum", "default": 0.8999999761581421 },
         { "name": "epsilon", "default": 9.999999747378752e-06 },
-        { "name": "fuse_with_relu", "default": false },     
+        { "name": "fuse_with_relu", "default": false },
         { "name": "data_layout", "default": "NCHW" }
       ] 
     }
@@ -62,7 +65,8 @@
         { "name": "ceil_mode", "default": false },
         { "name": "global_pooling", "default": false },
         { "name": "exclusive", "default": true },
-        { "name": "pooling_type", "default": "max" }
+        { "name": "pooling_type", "default": "max" },
+        { "name": "paddings", "default": [0, 0] }
       ]
     }
   },
@@ -90,6 +94,23 @@
     "name": "reshape2",
     "schema": {
       "category": "Shape"
+    }
+  },
+  {
+    "name": "lrn",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "alpha", "default": 9.999999747378752e-05 },
+        { "name": "beta", "default": 0.75 },
+        { "name": "k", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "pad2d",
+    "schema": {
+      "category": "Tensor"
     }
   }
 ]

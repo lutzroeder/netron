@@ -3077,6 +3077,20 @@
     "link":   "https://github.com/lutzroeder/netron/issues/198"
   },
   {
+    "type":   "paddle",
+    "target": "with_dummy_tensor_type.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3021210/with_dummy_tensor_type.zip",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/246"
+  },
+  {
+    "type":   "paddle",
+    "target": "without_tensor_type.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3021211/without_tensor_type.zip",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/246"
+  },
+  {
     "type":   "pytorch",
     "target": "alexnet.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",

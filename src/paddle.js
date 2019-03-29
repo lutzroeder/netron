@@ -155,7 +155,10 @@ paddle.Graph = class {
     static _type(variable) {
         switch (variable.type.type) {
             case paddle.proto.VarType.Type.LOD_TENSOR:
-                return new paddle.TensorType(variable.type.lod_tensor.tensor);
+                if (variable.type.lod_tensor) {
+                    return new paddle.TensorType(variable.type.lod_tensor.tensor);
+                }
+                break;
             default:
                 break;
         }
@@ -355,9 +358,17 @@ paddle.Attribute = class {
         var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.hasOwnProperty('default')) {
-                if (schema.default == this._value) {
+                var defaultValue = schema.default;
+                var value = this._value;
+                if (defaultValue == value) {
                     this._visible = false;
                 }
+                else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length == defaultValue.length) {
+                    if (value.every((item, index) => { return item == defaultValue[index]; })) {
+                        this._visible = false;
+                    }
+                }
+                
             }
         }
     }
@@ -387,6 +398,18 @@ paddle.Tensor = class {
 
     get type() {
         return this._type;
+    }
+
+    get state() {
+        return 'Tensor data not implemented.';
+    }
+
+    get value() {
+        return null;
+    }
+
+    toString() {
+        return '';
     }
 };
 
