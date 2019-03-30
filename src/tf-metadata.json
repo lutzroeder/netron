@@ -5769,6 +5769,84 @@
     }
   },
   {
+    "name": "BatchMatMulV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, adjoint the slices of `x`. Defaults to `False`.",
+          "name": "adj_x",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "If `True`, adjoint the slices of `y`. Defaults to `False`.",
+          "name": "adj_y",
+          "type": "bool"
+        }
+      ],
+      "description": "Multiplies all slices of `Tensor` `x` and `y` (each slice can be\nviewed as an element of a batch), and arranges the individual results\nin a single output tensor of the same batch size. Each of the\nindividual slices can optionally be adjointed (to adjoint a matrix\nmeans to transpose and conjugate it) before multiplication by setting\nthe `adj_x` or `adj_y` flag to `True`, which are by default `False`.\n\nThe input tensors `x` and `y` are 2-D or higher with shape `[..., r_x, c_x]`\nand `[..., r_y, c_y]`.\n\nThe output tensor is 2-D or higher with shape `[..., r_o, c_o]`, where:\n\n    r_o = c_x if adj_x else r_x\n    c_o = r_y if adj_y else c_y\n\nIt is computed as:\n\n    output[..., :, :] = matrix(x[..., :, :]) * matrix(y[..., :, :])\n\n*NOTE*: `BatchMatMulV2` supports broadcasting in the batch dimensions. More\nabout broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html).\n",
+      "inputs": [
+        {
+          "description": "2-D or higher with shape `[..., r_x, c_x]`.",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2-D or higher with shape `[..., r_y, c_y]`.",
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "3-D or higher with shape `[..., r_o, c_o]`",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Multiplies slices of two tensors in batches."
+    }
+  },
+  {
     "name": "BatchMatrixBandPart",
     "schema": {
       "attributes": [
@@ -58804,7 +58882,7 @@
           "typeAttr": "dtype"
         }
       ],
-      "summary": "Outputs random values from a normal distribution."
+      "summary": "Outputs random values from a normal distribution. This op is deprecated in favor of op 'StatefulStandardNormalV2'"
     }
   },
   {
@@ -58855,6 +58933,106 @@
         }
       ],
       "summary": "Outputs random values from a normal distribution."
+    }
+  },
+  {
+    "name": "StatefulTruncatedNormal",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a normal distribution with mean 0 and standard\ndeviation 1, except that values whose magnitude is more than 2 standard\ndeviations from the mean are dropped and re-picked.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random values from a truncated normal distribution."
+    }
+  },
+  {
+    "name": "StatefulUniform",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a uniform distribution in the range `[0, 1)`. The\nlower bound 0 is included in the range, while the upper bound 1 is excluded.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random values from a uniform distribution."
     }
   },
   {
