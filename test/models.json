@@ -1951,13 +1951,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "caffenet.json,caffenet-0000.params",
-    "source": "http://data.dmlc.ml/mxnet/models/imagenet/caffenet/caffenet-symbol.json,http://data.dmlc.ml/mxnet/models/imagenet/caffenet/caffenet-0000.params",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "conv_weights_sharing.json",
     "source": "https://github.com/lutzroeder/netron/files/3016064/conv_weights_sharing.json.zip[conv_weights_sharing.json]",
     "format": "MXNet v1.3.0",
@@ -2017,13 +2010,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "Inception-BN-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/inception-bn/Inception-BN-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "lstm_ptb.model",
     "source": "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb.model"
   },
@@ -2045,13 +2031,6 @@
     "type":   "mxnet",
     "target": "nin.model",
     "source": "https://s3.amazonaws.com/model-server/models/nin/nin.model"
-  },
-  {
-    "type":   "mxnet",
-    "target": "nin-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/nin/nin-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
   },
   {
     "type":   "mxnet",
@@ -2175,20 +2154,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "resnext-101-64x4d-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/resnext/101-layers/resnext-101-64x4d-symbol.json",
-    "format": "MXNet v0.9.4",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet-152-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/resnet/152-layers/resnet-152-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "squeezenet.model",
     "source": "https://s3.amazonaws.com/model-server/models/onnx-squeezenet/squeezenet.model"
   },
@@ -2199,22 +2164,8 @@
   },
   {
     "type":   "mxnet",
-    "target": "squeezenet_v1.1-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/squeezenet/squeezenet_v1.1-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "vgg16.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16/vgg16.model"
-  },
-  {
-    "type":   "mxnet",
-    "target": "vgg16-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/vgg/vgg16-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
   },
   {
     "type":   "mxnet",
@@ -2227,13 +2178,6 @@
     "source": "https://s3.amazonaws.com/model-server/models/onnx-vgg19/vgg19.model"
   },
   {
-    "type":   "mxnet",
-    "target": "vgg19-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/vgg/vgg19-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {   
     "type":   "mxnet",
     "target": "vgg19_bn.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
@@ -3298,13 +3242,6 @@
   },
   {
     "type":   "sklearn",
-    "target": "resnet50.pkl",
-    "source": "https://s3.amazonaws.com/lasagne/recipes/pretrained/imagenet/resnet50.pkl",
-    "error":  "Root object has no type.",
-    "link":   "https://github.com/kundan2510/resnet50-feature-extractor"
-  },
-  {
-    "type":   "sklearn",
     "target": "svc.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.joblib.pkl]",
     "format": "scikit-learn 0.19.1",
@@ -4098,7 +4035,7 @@
   {
     "type":   "torch",
     "target": "resnext_101_64x4d.t7",
-    "source": "https://s3.amazonaws.com/resnext/imagenet_models/resnext_101_64x4d.t7",
+    "source": "https://dl.fbaipublicfiles.com/resnext/imagenet_models/resnext_101_64x4d.t7",
     "format": "Torch v7",
     "link":   "https://github.com/facebookresearch/ResNeXt"
   },
