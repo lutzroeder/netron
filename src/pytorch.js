@@ -182,12 +182,16 @@ pytorch.ModelFactory = class {
             constructorTable['torchvision.models.inception.InceptionC'] = function() {};
             constructorTable['torchvision.models.inception.InceptionD'] = function() {};
             constructorTable['torchvision.models.inception.InceptionE'] = function() {};
-            constructorTable['torchvision.models.squeezenet.Fire'] = function() {};
-            constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function() {};
             constructorTable['torchvision.models.resnet.Bottleneck'] = function() {};
             constructorTable['torchvision.models.resnet.BasicBlock'] = function() {};
+            constructorTable['torchvision.models.squeezenet.Fire'] = function() {};
+            constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function() {};
             constructorTable['torchvision.models.resnet.ResNet'] = function() {};
             constructorTable['torchvision.models.vgg.VGG'] = function() {};
+            constructorTable['torchvision.transforms.transforms.Compose'] = function() {};
+            constructorTable['torchvision.transforms.transforms.Normalize'] = function() {};
+            constructorTable['torchvision.transforms.transforms.Resize'] = function() {};
+            constructorTable['torchvision.transforms.transforms.ToTensor'] = function() {};
             constructorTable['torch.ByteStorage'] = function (size) { 
                 this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
             };
