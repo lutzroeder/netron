@@ -28,7 +28,7 @@ gzip.Entry = class {
         }
         var compressionMethod = reader.byte();
         if (compressionMethod != 8) {
-            throw new gzip.Error('Invalid compression method ' + compressionMethod.toString() + "'.");
+            throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
         }
         var flags = reader.byte();
         reader.uint32(); // MTIME
@@ -101,10 +101,6 @@ gzip.Reader = class {
 
     set position(value) {
         this._position = value >= 0 ? value : this._end + value;
-    }
-
-    peek() {
-        return this._position < this._end;
     }
 
     skip(size) {

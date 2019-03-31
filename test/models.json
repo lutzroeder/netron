@@ -2332,6 +2332,20 @@
   },
   {
     "type":   "onnx",
+    "target": "gzip_invalid_archive.tar.gz",
+    "source": "https://github.com/lutzroeder/netron/files/3027192/gzip_invalid_archive.tar.gz",
+    "error":  "Invalid GZIP archive in 'gzip_invalid_archive.tar.gz'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/249"
+  },
+  {
+    "type":   "onnx",
+    "target": "gzip_invalid_compression.tar.gz",
+    "source": "https://github.com/lutzroeder/netron/files/3027193/gzip_invalid_compression.tar.gz",
+    "error":  "Invalid compression method '1' in 'gzip_invalid_compression.tar.gz'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/249"
+  },
+  {
+    "type":   "onnx",
     "target": "input_0.pb",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/test_data_set_0/input_0.pb]",
     "error":  "Unsupported file content for extension '.pb' in 'input_0.pb'.",
@@ -2549,7 +2563,15 @@
   {
     "type":   "onnx",
     "target": "zfnet512_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]",
+    "link":   "https://github.com/onnx/models/blob/master/zfnet512/README.md"
+  },
+  {
+    "type":   "onnx",
+    "target": "zip_invalid_archive.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3027198/zip_invalid_archive.zip",
+    "error":  "Invalid ZIP archive in 'zip_invalid_archive.zip'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/250"
   },
   {
     "type":   "onnx",

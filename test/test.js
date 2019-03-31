@@ -586,7 +586,7 @@ function next() {
         }
         loadModel(folder + '/' + completed[0], item, (err, model) => {
             if (err) {
-                if (!item.error && item.error != err.message) {
+                if (!item.error || item.error != err.message) {
                     console.error(err);
                     return;
                 }
