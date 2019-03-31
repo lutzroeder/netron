@@ -76,12 +76,12 @@ torch.Graph = class {
 
         this._loadModule(metadata, root, [], '', inputs, outputs);
 
-        inputs.forEach((input, index) => {
-            this._inputs.push(new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]));
-        });
-        outputs.forEach((output, index) => {
-            this._outputs.push(new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]));
-        });
+        this._inputs = this._inputs.concat(inputs.map((input, index) => {
+            return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
+        }));
+        this._outputs = this._outputs.concat(outputs.map((output, index) => {
+            return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
+        }));
     }
 
     get inputs() {
@@ -104,20 +104,26 @@ torch.Graph = class {
         if (groups.length > 0) {
             this._groups = true;
         }
+        var index;
+        var subModule;
+        var subInputs;
+        var subOutputs;
         switch (module.__type__) {
             case 'nn.Sequential':
                 groups.push(key);
-                var subInputs = inputs;
-                var subOutputs = [];
+                subInputs = inputs;
+                subOutputs = [];
                 var length = module.modules.length;
-                module.modules.forEach((module, index) => {
+                index = 0;
+                for (subModule of module.modules) {
                     if (index == length - 1) {
                         subOutputs = outputs;
                     }                    
-                    this._loadModule(metadata, module, groups, index.toString(), subInputs, subOutputs);
+                    this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     subInputs = subOutputs;
                     subOutputs = [];
-                });
+                    index++;
+                }
                 groups.pop();
                 break;
             case 'nn.Parallel':
@@ -126,27 +132,21 @@ torch.Graph = class {
                 groups.push(key);
                 var newInputs = [];
                 var newOutputs = [];
-                module.modules.forEach((module, index) => {
-                    var subInputs = inputs.map((input) => input);
-                    var subOutputs = outputs.map((output) => output);
-                    this._loadModule(metadata, module, groups, index.toString(), subInputs, subOutputs);
+                index = 0;
+                for (subModule of module.modules) {
+                    subInputs = [].concat(inputs);
+                    subOutputs = [].concat(outputs);
+                    this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     if (inputs.length == 0) {
-                        subInputs.forEach((input) => {
-                            newInputs.push(input);
-                        });
+                        newInputs = newInputs.concat(subInputs);
                     }
                     if (outputs.length == 0) {
-                        subOutputs.forEach((output) => {
-                            newOutputs.push(output);
-                        });
+                        newOutputs = newOutputs.concat(subOutputs);
                     }
-                });
-                newInputs.forEach((input) => {
-                    inputs.push(input);
-                });
-                newOutputs.forEach((output) => {
-                    outputs.push(output);
-                });
+                    index++;
+                }
+                inputs = inputs.concat(newInputs);
+                outputs = outputs.concat(newOutputs);
                 groups.pop();
                 break;
             case 'nn.Concat':
@@ -156,14 +156,14 @@ torch.Graph = class {
                     inputs.push(new torch.Connection(groups.join('/') + ':' + key + ':in', null, null));
                 }
                 var concatInputs = [];
-                module.modules.forEach((module, index) => {
+                index = 0;
+                for (subModule of module.modules) {
                     var streamInputs = inputs.map((input) => input);
                     var streamOutputs = [];
-                    this._loadModule(metadata, module, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
-                    streamOutputs.forEach((output) => {
-                        concatInputs.push(output);
-                    });
-                });
+                    this._loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
+                    concatInputs = concatInputs.concat(streamOutputs);
+                    index++;
+                }
                 delete module.modules;
                 delete module.dimension;
                 this._createNode(metadata, module, groups, key, concatInputs, outputs);
@@ -246,8 +246,10 @@ torch.Node = class {
         var type = module.__type__;
         this._operator = type ? type.split('.').pop() : 'Unknown';
         var initializers = [];
-        Object.keys(module).forEach((key) => {
-            var obj = module[key];
+        var key;
+        var obj;
+        for (key of Object.keys(module)) {
+            obj = module[key];
             if (obj.__type__ && obj.__type__ == 'torch.LongStorage') {
                 var array = [];
                 obj.reset();
@@ -256,7 +258,7 @@ torch.Node = class {
                 }
                 module[key] = array;
             }
-        });
+        }
         delete module.iSize;
         delete module.finput;
         delete module.fgradInput;
@@ -337,22 +339,22 @@ torch.Node = class {
         }
         this._attributes = [];
         if (module.__type__) {
-            Object.keys(module).forEach((key) => {
+            for (key of Object.keys(module)) {
                 if (key == '__type__' || key == '_type') {
-                    return;
+                    continue;
                 }
-                var obj = module[key];
+                obj = module[key];
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
                     initializers.push(new torch.Argument(key, true, [ 
                         new torch.Connection(key, null, new torch.Tensor(obj))
                     ]));
-                    return;
+                    continue;
                 }
                 if (key == 'modules' || obj.__type__) {
-                    return;
+                    continue;
                 }
                 this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
-            });
+            }
         }
         this._inputs = [];
         if (inputs.length == 0) {
@@ -378,9 +380,7 @@ torch.Node = class {
             }
             return true;
         });
-        initializers.forEach((initialier) => {
-            this._inputs.push(initialier);
-        });
+        this._inputs = this._inputs.concat(initializers);
     }
 
     get name() {
@@ -625,11 +625,11 @@ torch.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -644,9 +644,9 @@ torch.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }
@@ -929,9 +929,9 @@ torch.T7Reader = class {
     nn(obj) {
         var attributes = this.read();
         if (attributes != null) {
-            Object.keys(attributes).forEach((key) => {
+            for (var key of Object.keys(attributes)) {
                 obj[key] = attributes[key];
-            });
+            }
         }
     }
 
@@ -1122,13 +1122,13 @@ torch.TextReader = class {
         var array = [];
         if (size > 0) {
             var text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
-            text.split(' ').forEach((token) => {
+            for (var token of text.split(' ')) {
                 var number = Number.parseInt(token, 10);
                 if (Number.isNaN(token - number)) {
                     throw new torch.Error("Couldn't parse int64 '" + token + "'.");
                 }
                 array.push(number);
-            });
+            }
         }
         return array;
     }

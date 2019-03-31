@@ -125,11 +125,11 @@ hdf5.Group = class {
         }
         if (!this._attributes) {
             this._attributes = {};
-            this._dataObjectHeader.attributes.forEach((attribute) => {
+            for (var attribute of this._dataObjectHeader.attributes) {
                 var name = attribute.name;
                 var value = attribute.decodeValue(this._globalHeap);
                 this._attributes[name] = value;
-            });
+            }
             this._value = null;
             var datatype = this._dataObjectHeader.datatype;
             var dataspace = this._dataObjectHeader.dataspace;
@@ -148,27 +148,26 @@ hdf5.Group = class {
                 if (this._entry.treeAddress || this._entry.heapAddress) {
                     var heap = new hdf5.Heap(this._reader.move(this._entry.heapAddress));
                     var tree = new hdf5.Tree(this._reader.move(this._entry.treeAddress));
-                    tree.nodes.forEach((node) => {
-                        node.entries.forEach((entry) => {
+                    for (var node of tree.nodes) {
+                        for (var entry of node.entries) {
                             var name = heap.getString(entry.linkNameOffset);
                             var group = new hdf5.Group(this._reader, entry, null, this._globalHeap, this._path, name);
                             this._groups.push(group);
                             this._groupMap[name] = group;
-                        });
-                    });
+                        }
+                    }
                 }    
             }
             else {
                 this.decodeDataObject();
-                this._dataObjectHeader.links.forEach((link) => {
+                for (var link of this._dataObjectHeader.links) {
                     if (link.hasOwnProperty('objectHeaderAddress')) {
-                        var name = link.name;
                         var objectHeader = new hdf5.DataObjectHeader(this._reader.move(link.objectHeaderAddress));
-                        var group = new hdf5.Group(this._reader, null, objectHeader, this._globalHeap, this._path, name);
-                        this._groups.push(group);
-                        this._groupMap[name] = group;
+                        var linkGroup = new hdf5.Group(this._reader, null, objectHeader, this._globalHeap, this._path, link.name);
+                        this._groups.push(linkGroup);
+                        this._groupMap[name] = linkGroup;
                     }
-                });
+                }
             }
         }
     }
@@ -1064,9 +1063,7 @@ hdf5.Tree = class {
                 }
                 else {
                     var tree = new hdf5.Tree(reader.move(childPointer));
-                    tree.nodes.forEach((node) => {
-                        this.nodes.push(node);
-                    });
+                    this.nodes = this.nodes.concat(tree.nodes);
                 }
             }
         }

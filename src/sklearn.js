@@ -139,9 +139,9 @@ sklearn.ModelFactory = class {
                     };
                     this.__read__ = function(unpickler) {
                         var size = 1;
-                        this.shape.forEach((dimension) => {
+                        for (var dimension of this.shape) {
                             size *= dimension;
-                        });
+                        }
                         if (this.dtype.name == 'object') {
                             return unpickler.load(function_call, null);
                         }
@@ -454,7 +454,7 @@ sklearn.Node = class {
         this._attributes = [];
         this._initializers = [];
 
-        Object.keys(obj).forEach((key) => {
+        for (var key of Object.keys(obj)) {
             if (!key.startsWith('_')) {
                 var value = obj[key];
 
@@ -471,7 +471,7 @@ sklearn.Node = class {
                     }
                 }
             }
-        });
+        }
     }
 
     get operator() {
@@ -495,32 +495,32 @@ sklearn.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             if (schema.references) {
-                schema.references.forEach((reference) => {
+                for (var reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
-                });
+                }
             }
             return schema;
         }
@@ -533,19 +533,22 @@ sklearn.Node = class {
     }
 
     get inputs() {
-        var inputs = this._inputs.map((input) => {
-            return new sklearn.Argument(input, [ new sklearn.Connection(input, null, null) ]);
-        });
-        this._initializers.forEach((initializer) => {
+        var inputs = [];
+        for (var input of this._inputs) {
+            inputs.push(new sklearn.Argument(input, [ new sklearn.Connection(input, null, null) ]));
+        }
+        for (var initializer of this._initializers) {
             inputs.push(new sklearn.Argument(initializer.name, [ new sklearn.Connection('', null, initializer) ]));
-        });
+        }
         return inputs;
     }
 
     get outputs() {
-        return this._outputs.map((output) => {
-            return new sklearn.Argument(output, [ new sklearn.Connection(output, null, null) ]);
-        });
+        var outputs = [];
+        for (var output of this._outputs) {
+            outputs.push(new sklearn.Argument(output, [ new sklearn.Connection(output, null, null) ]));
+        }
+        return outputs;
     }
 
     get attributes() {
@@ -861,11 +864,11 @@ sklearn.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -880,9 +883,9 @@ sklearn.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }

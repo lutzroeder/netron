@@ -50,12 +50,12 @@ host.BrowserHost = class {
         });
 
         var meta = {};
-        Array.from(document.getElementsByTagName('meta')).forEach((element) => {
+        for (var element of Array.from(document.getElementsByTagName('meta'))) {
             if (element.content) {
                 meta[element.name] = meta[element.name] || [];
                 meta[element.name].push(element.content);
             }
-        });
+        }
 
         this._version = meta.version ? meta.version[0] : null;
         this._type = meta.type ? meta.type[0] : 'Browser';
@@ -323,7 +323,7 @@ host.BrowserHost = class {
                 return;
             }
             if (json.files) {
-                Object.keys(json.files).forEach((key) => {
+                for (var key of Object.keys(json.files)) {
                     var file = json.files[key];
                     identifier = file.filename;
                     var extension = identifier.split('.').pop().toLowerCase();
@@ -331,7 +331,7 @@ host.BrowserHost = class {
                         var encoder = new TextEncoder();
                         buffer = encoder.encode(file.content);
                     }
-                });
+                }
             }
             if (buffer == null || identifier == null) {
                 this.error('Error while loading Gist.', 'Gist does not contain model file.');

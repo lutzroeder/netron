@@ -79,9 +79,9 @@ mxnet.ModelFactory = class {
         var entries = {};
         try {
             var archive = new zip.Archive(context.buffer, host.inflateRaw);
-            archive.entries.forEach((entry) => {
+            for (var entry of archive.entries) {
                 entries[entry.name] = entry;
-            });
+            }
         }
         catch (err) {
             callback(new mxnet.Error('Failed to decompress ZIP archive. ' + err.message), null);
@@ -188,13 +188,13 @@ mxnet.ModelFactory = class {
             if (params) {
                 try {
                     var stream = new ndarray.Stream(params);
-                    Object.keys(stream.arrays).forEach((key) => {
+                    for (var key of Object.keys(stream.arrays)) {
                         var name = key;
                         if (name.startsWith('arg:') || name.startsWith('aux:')) {
                             name = key.substring(4);
                         }
                         parameters[name] = stream.arrays[key];
-                    });
+                    }
                 }
                 catch (error) {
                     // continue regardless of error
@@ -304,8 +304,9 @@ mxnet.Graph = class {
         this._metadata = metadata;
         this._nodes = [];
 
+        var node;
         var nodes = symbol.nodes;
-        nodes.forEach((node) => {
+        for (node of nodes) {
             if (node.op && node.op != 'null') { 
                 var operator = node.op;
                 var attrs = node.attrs || node.attr || node.param;
@@ -313,67 +314,66 @@ mxnet.Graph = class {
                     operator = attrs.func_name;
                 }
             }
-        });
+        }
 
         var inputs = {};
+        var input;
         if (signature && signature.inputs) {
-            signature.inputs.forEach((input) => {
+            for (input of signature.inputs) {
                 inputs[input.data_name] = input;
-            });
+            }
         }
         var outputs = {};
+        var output;
         if (signature && signature.outputs) {
-            signature.outputs.forEach((output) => {
+            for (output of signature.outputs) {
                 outputs[output.data_name] = output;
-            });
+            }
         }
 
-        nodes.forEach((node) => {
+        for (node of nodes) {
             node.outputs = [];
-        });
-        nodes.forEach((node) => {
+        }
+        for (node of nodes) {
             node.inputs = node.inputs.map((input) => {
                 return mxnet.Graph._updateOutput(nodes, input);
             });
-        });
+        }
 
         var outputCountMap = {};
-        nodes.forEach((node) => {
-            node.outputs.forEach((output) => {
+        for (node of nodes) {
+            for (output of node.outputs) {
                 outputCountMap[output] = (outputCountMap[output] || 0) + 1;
-            });
-        });
+            }
+        }
 
         var argumentMap = {};
-        symbol.arg_nodes.forEach((index) => {
+        for (var index of symbol.arg_nodes) {
             argumentMap[index] = (index < nodes.length) ? nodes[index] : null;
-        });
+        }
 
         this._outputs = [];
-        symbol.heads.forEach((head, index) => {
+        for (var i = 0; i < symbol.heads.length; i++) {
+            var head = symbol.heads[i];
             var outputId = mxnet.Graph._updateOutput(nodes, head);
-            var outputName = nodes[outputId[0]] ? nodes[outputId[0]].name : ('output' + ((index == 0) ? '' : (index + 1).toString()));
+            var outputName = nodes[outputId[0]] ? nodes[outputId[0]].name : ('output' + ((i == 0) ? '' : (i + 1).toString()));
             var outputType = null;
             var outputSignature = outputs[outputName];
             if (outputSignature && outputSignature.data_shape) {
                 outputType = new mxnet.TensorType(null, new mxnet.TensorShape(outputSignature.data_shape));
             }
             this._outputs.push(new mxnet.Argument(outputName, [ new mxnet.Connection('[' + outputId.join(',') + ']', outputType, null) ]));
-        });
+        }
 
         var initializerMap = {};
-        nodes.forEach((node, index) => {
-            if (!argumentMap[index]) {
-                this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, parameters));
-            }
-        });
+        for (node of nodes.filter((node, index) => !argumentMap[index])) {
+            this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, parameters));
+        }
 
         this._inputs = [];
-        Object.keys(argumentMap).forEach((key) => {
-            var argument = argumentMap[key];
-            if (argument &&
-                (!argument.inputs || argument.inputs.length == 0) &&
-                (argument.outputs && argument.outputs.length == 1)) {
+        for (var argumentKey of Object.keys(argumentMap)) {
+            var argument = argumentMap[argumentKey];
+            if (argument && (!argument.inputs || argument.inputs.length == 0) && (argument.outputs && argument.outputs.length == 1)) {
                 var inputId = argument.outputs[0];
                 var inputName = argument.name;
                 var inputType = null;
@@ -383,7 +383,7 @@ mxnet.Graph = class {
                 }
                 this._inputs.push(new mxnet.Argument(inputName, [ new mxnet.Connection('[' + inputId.join(',') + ']', inputType) ]));
             }
-        });
+        }
     }
 
     get name() {
@@ -474,12 +474,11 @@ mxnet.Node = class {
             if (this._operator == 'tvm_op' && attrs.func_name) {
                 this._operator = attrs.func_name;
             }
-            Object.keys(attrs).forEach((key) => {
-                if (this._operator != 'tvm_op' && key != 'func_name') {
-                    var value = attrs[key];
-                    this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, key, value));
+            for (var attributeName of Object.keys(attrs)) {
+                if (this._operator != 'tvm_op' && attributeName != 'func_name') {
+                    this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, attributeName, attrs[attributeName]));
                 }
-            });
+            }
         }
         if (this._operator == 'RNN') {
             this._inputs = this._inputs.map((input) => {
@@ -497,7 +496,7 @@ mxnet.Node = class {
         }
 
         this._initializers = {};
-        this._inputs.forEach((input) => {
+        for (var input of this._inputs) {
             var id = '[' + input.join(',') + ']';
             var initializer = initializerMap[id];
             if (!initializer) {
@@ -538,7 +537,7 @@ mxnet.Node = class {
                 this._initializers[id] = initializer;
                 initializerMap[id] = initializer;
             }
-        });
+        }
     }
 
     get operator() {
@@ -559,25 +558,25 @@ mxnet.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             return schema;
         }
@@ -590,62 +589,60 @@ mxnet.Node = class {
 
     get inputs() {
         var args = [];
-        var index = 0;
+        var inputIndex = 0;
         var inputs = this._inputs;
         var schema = this._metadata.getSchema(this.operator);
         if (schema && schema.inputs) {
-            schema.inputs.forEach((inputDef) => {
-                if (index < inputs.length || inputDef.option != 'optional') {
-                    var count = (inputDef.option == 'variadic') ? (inputs.length - index) : 1;
-                    var connections = [];
-                    inputs.slice(index, index + count).forEach((input) => {
+            for (var inputDef of schema.inputs) {
+                if (inputIndex < inputs.length || inputDef.option != 'optional') {
+                    var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    var inputConnections = [];
+                    for (var input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         var id = '[' + input.join(',') + ']';
                         if (id != '' || inputDef.option != 'optional') {
-                            connections.push(new mxnet.Connection(id, inputDef.type, this._initializers[id]));
+                            inputConnections.push(new mxnet.Connection(id, inputDef.type, this._initializers[id]));
                         }
-                    });
-                    index += count;
-                    args.push(new mxnet.Argument(inputDef.name, connections));
+                    }
+                    args.push(new mxnet.Argument(inputDef.name, inputConnections));
+                    inputIndex += inputCount;
                 }
-            });
+            }
         }
-        if (index < inputs.length) {
-            inputs.slice(index).forEach((input) => {
-                var name = index.toString();
+        if (inputIndex < inputs.length) {
+            args = args.concat(inputs.slice(inputIndex).map((input, index) => {
                 var id = '[' + input.join(',') + ']';
-                var connection = new mxnet.Connection(id, null, this._initializers[id]);
-                args.push(new mxnet.Argument(name, [ connection ]));
-                index++;
-            });
+                return new mxnet.Argument((inputIndex + index).toString(), [ 
+                    new mxnet.Connection(id, null, this._initializers[id])
+                ]);
+            }));
         }
         return args;
     }
 
     get outputs() {
         var args = [];
-        var index = 0;
+        var outputIndex = 0;
         var outputs = this._outputs;
         var schema = this._metadata.getSchema(this.operator);
         if (schema && schema.outputs) {
-            schema.outputs.forEach((outputDef) => {
-                if (index < outputs.length || outputDef.option != 'optional') {
-                    var connections = [];
-                    var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
-                    outputs.slice(index, index + count).forEach((input) => {
-                        connections.push(new mxnet.Connection('[' + input.join(',') + ']', null, null));
-                    });
-                    index += count;
-                    args.push(new mxnet.Argument(outputDef.name, connections));
+            for (var outputDef of schema.outputs) {
+                if (outputIndex < outputs.length || outputDef.option != 'optional') {
+                    var outputConnections = [];
+                    var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    for (var output of outputs.slice(outputIndex, outputIndex + outputCount)) {
+                        outputConnections.push(new mxnet.Connection('[' + output.join(',') + ']', null, null));
+                    }
+                    args.push(new mxnet.Argument(outputDef.name, outputConnections));
+                    outputIndex += outputCount;
                 }
-            });
+            }
         }
-        if (index < outputs.length) {
-            outputs.slice(index).forEach((output) => {
-                var name = index.toString();
-                var connection = new mxnet.Connection('[' + output.join(',') + ']', null, null);
-                args.push(new mxnet.Argument(name, [ connection ]));
-                index++;
-            });
+        if (outputIndex < outputs.length) {
+            args = args.concat(outputs.slice(outputIndex).map((output, index) => {
+                return new mxnet.Argument((outputIndex + index).toString(), [ 
+                    new mxnet.Connection('[' + output.join(',') + ']', null, null)
+                ]);
+            }));
         }
         return args;
     }
@@ -661,6 +658,7 @@ mxnet.Attribute = class {
         this._name = name;
         this._value = value;
 
+        var number;
         var schema = metadata.getAttributeSchema(operator, name);
         if (schema && schema.type) {
             switch (schema.type) {
@@ -675,35 +673,35 @@ mxnet.Attribute = class {
                     }
                     break;
                 case 'int32':
-                    var intValue = Number.parseInt(this._value, 10);
-                    this._value = Number.isNaN(this._value - intValue) ? value : intValue;
+                    number = Number.parseInt(this._value, 10);
+                    this._value = Number.isNaN(this._value - number) ? value : number;
                     break;
                 case 'float32':
                 case 'float64':
-                    var floatValue = Number.parseFloat(this._value);
-                    this._value = Number.isNaN(this._value - floatValue) ? value : floatValue;
+                    number = Number.parseFloat(this._value);
+                    this._value = Number.isNaN(this._value - number) ? value : number;
                     break;
                 case 'int32[]':
                     if (this._value.length > 2 && this._value.startsWith('(') && this._value.endsWith(')')) {
                         var array = [];
-                        this._value.substring(1, this._value.length - 1).split(',')
+                        var items = this._value.substring(1, this._value.length - 1).split(',')
                             .map((item) => item.trim())
-                            .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item)
-                            .forEach((item) => {
-                                var intValue = Number.parseInt(item, 10);
-                                if (Number.isNaN(item - intValue)) {
-                                    array = null;
-                                }
-                                else if (array != null) {
-                                    array.push(intValue);
-                                }
-                            });
+                            .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
+                        for (var item of items) {
+                            number = Number.parseInt(item, 10);
+                            if (Number.isNaN(item - number)) {
+                                array = null;
+                            }
+                            else if (array != null) {
+                                array.push(number);
+                            }
+                        }
                         if (array != null) {
                             this._value = array;
                         }
                     }
                     break;
-            }    
+            }
         }
 
         if (schema) {
@@ -972,11 +970,11 @@ mxnet.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -990,10 +988,10 @@ mxnet.Metadata = class {
         if (!map) {
             map = {};
             var schema = this.getSchema(operator);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+            if (schema && schema.attributes) {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }
@@ -1146,9 +1144,9 @@ ndarray.Shape = class {
 
     size() {
         var result = 1;
-        this._dimensions.forEach((dimension) => {
+        for (var dimension of this._dimensions) {
             result *= dimension;
-        });
+        }
         return result;
     }
 };

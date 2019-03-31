@@ -34,9 +34,11 @@ grapher.Renderer = class {
         svgNodeGroup.setAttribute('class', 'nodes');
         this._svgElement.appendChild(svgNodeGroup);
 
-        graph.nodes().forEach((nodeId) => {
+        var nodeId;
+        var node;
+        for (nodeId of graph.nodes()) {
             if (graph.children(nodeId).length == 0) {
-                var node = graph.node(nodeId);
+                node = graph.node(nodeId);
                 var element = this.createElement('g');
                 if (node.id) {
                     element.setAttribute('id', node.id);
@@ -47,18 +49,20 @@ grapher.Renderer = class {
                 container.appendChild(node.label);
                 element.appendChild(container);
                 svgNodeGroup.appendChild(element);
-                var bbox = node.label.getBBox();
-                var x = - bbox.width / 2;
-                var y = - bbox.height / 2;
-                container.setAttribute('transform', 'translate(' + x + ',' + y + ')');
-                node.width = bbox.width;
-                node.height = bbox.height;
+                var nodeBox = node.label.getBBox();
+                var nodeX = - nodeBox.width / 2;
+                var nodeY = - nodeBox.height / 2;
+                container.setAttribute('transform', 'translate(' + nodeX + ',' + nodeY + ')');
+                node.width = nodeBox.width;
+                node.height = nodeBox.height;
                 node.element = element;
             }
-        });
+        }
 
-        graph.edges().forEach((edgeId) => {
-            var edge = graph.edge(edgeId);
+        var edgeId;
+        var edge;
+        for (edgeId of graph.edges()) {
+            edge = graph.edge(edgeId);
             if (edge.label) {
                 var tspan = this.createElement('tspan');
                 tspan.setAttribute('xml:space', 'preserve');
@@ -74,37 +78,35 @@ grapher.Renderer = class {
                 labelElement.setAttribute('class', 'edge-label');
                 labelElement.appendChild(textContainer);
                 svgEdgeLabelGroup.appendChild(labelElement);
-                var bbox = textContainer.getBBox();
-                var x = - bbox.width / 2;
-                var y = - bbox.height / 2;
-                textContainer.setAttribute('transform', 'translate(' + x + ',' + y + ')');
-                edge.width = bbox.width;
-                edge.height = bbox.height;
+                var edgeBox = textContainer.getBBox();
+                var edgeX = - edgeBox.width / 2;
+                var edgeY = - edgeBox.height / 2;
+                textContainer.setAttribute('transform', 'translate(' + edgeX + ',' + edgeY + ')');
+                edge.width = edgeBox.width;
+                edge.height = edgeBox.height;
                 edge.labelElement = labelElement;
             }
-        });
+        }
 
         dagre.layout(graph);
 
-        graph.nodes().forEach((nodeId) => {
+        for (nodeId of graph.nodes()) {
             if (graph.children(nodeId).length == 0) {
-                var node = graph.node(nodeId);
-                var element = node.element;
-                element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-                element.style.opacity = 1;
+                node = graph.node(nodeId);
+                node.element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+                node.element.style.opacity = 1;
                 delete node.element;
             }
-        });
+        }
 
-        graph.edges().forEach((edgeId) => {
-            var edge = graph.edge(edgeId);
-            var labelElement = edge.labelElement;
-            if (labelElement) {
-                labelElement.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
-                labelElement.style.opacity = 1;
+        for (edgeId of graph.edges()) {
+            edge = graph.edge(edgeId);
+            if (edge.labelElement) {
+                edge.labelElement.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
+                edge.labelElement.style.opacity = 1;
                 delete edge.labelElement;
             }
-        });
+        }
 
         var edgePathGroupDefs = this.createElement('defs');
         svgEdgePathGroup.appendChild(edgePathGroupDefs);
@@ -124,8 +126,8 @@ grapher.Renderer = class {
         markerPath.style.setProperty('stroke-dasharray', '1,0');
         marker.appendChild(markerPath);
 
-        graph.edges().forEach((edgeId) => {
-            var edge = graph.edge(edgeId);
+        for (edgeId of graph.edges()) {
+            edge = graph.edge(edgeId);
             var edgePath = grapher.Renderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
             var edgeElement = this.createElement('path');
             edgeElement.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
@@ -135,14 +137,14 @@ grapher.Renderer = class {
                 edgeElement.setAttribute('id', edge.id);
             }
             svgEdgePathGroup.appendChild(edgeElement);
-        });
+        }
 
-        graph.nodes().forEach((nodeId) => {
+        for (nodeId of graph.nodes()) {
             if (graph.children(nodeId).length > 0) {
-                var node = graph.node(nodeId);
-                var element = this.createElement('g');
-                element.setAttribute('class', 'cluster');
-                element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+                node = graph.node(nodeId);
+                var nodeElement = this.createElement('g');
+                nodeElement.setAttribute('class', 'cluster');
+                nodeElement.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
                 var rect = this.createElement('rect');
                 rect.setAttribute('x', - node.width / 2);
                 rect.setAttribute('y', - node.height / 2 );
@@ -154,10 +156,10 @@ grapher.Renderer = class {
                 if (node.ry) { 
                     rect.setAttribute('ry', node.ry);
                 }
-                element.appendChild(rect);
-                svgClusterGroup.appendChild(element);
+                nodeElement.appendChild(rect);
+                svgClusterGroup.appendChild(nodeElement);
             }
-        });
+        }
     }
 
     createElement(name) {
@@ -171,15 +173,16 @@ grapher.Renderer = class {
 
         var path = new Path();
         var curve = new Curve(path);
-        points.forEach((point, index) => {
-            if (index == 0) {
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            if (i == 0) {
                 curve.lineStart();
             }
             curve.point(point.x, point.y);
-            if (index == points.length - 1) {
+            if (i == points.length - 1) {
                 curve.lineEnd();
             }
-        });
+        }
 
         return path.data;
     }
@@ -240,19 +243,19 @@ grapher.NodeElement = class {
         var height = 0;
         var tops = [];
 
-        this._blocks.forEach((block) => {
+        for (var block of this._blocks) {
             tops.push(height);
             block.layout(rootElement);
             if (width < block.width) {
                 width = block.width;
             }
             height = height + block.height;
-        });
+        }
 
-        this._blocks.forEach((block, index) => {
+        for (var i = 0; i < this._blocks.length; i++) {
             var top = tops.shift();
-            block.update(rootElement, top, width, index == 0, index == this._blocks.length - 1);
-        });
+            this._blocks[i].update(rootElement, top, width, i == 0, i == this._blocks.length - 1);
+        }
 
         var borderElement = this.createElement('path');
         borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
@@ -309,7 +312,7 @@ grapher.NodeElement.Header = class {
         this._elements = [];
         var x = 0;
         var y = 0;
-        this._items.forEach((item) => {
+        for (var item of this._items) {
             var yPadding = 4;
             var xPadding = 7;
             var element = this.createElement('g');
@@ -320,9 +323,7 @@ grapher.NodeElement.Header = class {
             element.appendChild(pathElement);
             element.appendChild(textElement);
             if (item.classList) {
-                item.classList.forEach((className) => {
-                    classList.push(className);
-                });
+                classList = classList.concat(item.classList);
             }
             element.setAttribute('class', classList.join(' '));
             if (item.id) {
@@ -357,7 +358,7 @@ grapher.NodeElement.Header = class {
             if (x > this._width) { 
                 this._width = x;
             }
-        });
+        }
     }
 
     get width() {
@@ -371,8 +372,12 @@ grapher.NodeElement.Header = class {
     update(parentElement, top, width, first, last) {
 
         var dx = width - this._width;
-        this._elements.forEach((element, index) => {
-            if (index == 0) {
+        var i;
+        var element;
+
+        for (i = 0; i < this._elements.length; i++) {
+            element = this._elements[i];
+            if (i == 0) {
                 element.width = element.width + dx;
             }
             else {
@@ -380,22 +385,25 @@ grapher.NodeElement.Header = class {
                 element.tx = element.tx + dx;
             }
             element.y = element.y + top;
-        });
+        }
 
-        this._elements.forEach((element, index) => {
+        for (i = 0; i < this._elements.length; i++) {
+            element = this._elements[i];
             element.group.setAttribute('transform', 'translate(' + element.x + ',' + element.y + ')');
-            var r1 = index == 0 && first;
-            var r2 = index == this._elements.length - 1 && first;
-            var r3 = index == this._elements.length - 1 && last;
-            var r4 = index == 0 && last;
+            var r1 = i == 0 && first;
+            var r2 = i == this._elements.length - 1 && first;
+            var r3 = i == this._elements.length - 1 && last;
+            var r4 = i == 0 && last;
             element.path.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, element.width, element.height, r1, r2, r3, r4));
             element.text.setAttribute('x', 6);
             element.text.setAttribute('y', element.ty);
-        });
+        }
 
-        this._elements.forEach((element, index) => {
-            if (index != 0) {
-                var lineElement = this.createElement('line');
+        var lineElement;
+        for (i = 0; i < this._elements.length; i++) {
+            element = this._elements[i];
+            if (i != 0) {
+                lineElement = this.createElement('line');
                 lineElement.setAttribute('class', 'node');
                 lineElement.setAttribute('x1', element.x);
                 lineElement.setAttribute('x2', element.x);
@@ -403,11 +411,11 @@ grapher.NodeElement.Header = class {
                 lineElement.setAttribute('y2', top + this._height);
                 parentElement.appendChild(lineElement);
             }
-        });
+        }
 
         if (!first) 
         {
-            var lineElement = this.createElement('line');
+            lineElement = this.createElement('line');
             lineElement.setAttribute('class', 'node');
             lineElement.setAttribute('x1', 0);
             lineElement.setAttribute('x2', width);
@@ -456,7 +464,7 @@ grapher.NodeElement.List = class {
         this._element.appendChild(this._backgroundElement);
         this._element.setAttribute('transform', 'translate(' + x + ',' + y + ')');
         this._height += 3;
-        this._items.forEach((item) => {
+        for (var item of this._items) {
             var yPadding = 1;
             var xPadding = 6;
             var textElement = this.createElement('text');
@@ -485,7 +493,7 @@ grapher.NodeElement.List = class {
             textElement.setAttribute('x', x + xPadding);
             textElement.setAttribute('y', this._height + yPadding - size.y);
             this._height += yPadding + size.height + yPadding;
-        });
+        }
         this._height += 3;
 
         if (this._width < 100) {

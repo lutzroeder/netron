@@ -91,7 +91,7 @@ openvino.Graph = class {
 
         var edgeMap = this._collectEdges(edges);
 
-        layers.forEach((layer) => {
+        for (var layer of layers) {
             var operator = layer.getAttribute('type');
             switch (operator) {
                 case 'Input':
@@ -99,20 +99,18 @@ openvino.Graph = class {
                     var precision = layer.getAttribute('precision');
                     var name = layer.getAttribute('name') || '';
                     var id = layer.getAttribute('id');
-                    var outputElements = openvino.Node.children(layer, 'output');
-                    outputElements.forEach((outputElement) => {
-                        var portElements = openvino.Node.children(outputElement, 'port');
-                        portElements.forEach((portElement) => {
+                    for (var outputElement of openvino.Node.children(layer, 'output')) {
+                        for (var portElement of openvino.Node.children(outputElement, 'port')) {
                             connections.push(this._connection(id, precision, portElement, null));
-                        });
-                    });
+                        }
+                    }
                     this._inputs.push(new openvino.Argument(name, connections));
                     break;
                 default:
                     this._nodes.push(new openvino.Node(this, this._metadata, layer, edgeMap));
                     break;
             }
-        });
+        }
 
         this._replaceTensorIteratorWithSubgraph(layers, edges);
         delete this._connections;
@@ -166,9 +164,9 @@ openvino.Graph = class {
         var connection = this._connections[id];
         if (!connection) {
             var dimensions = [];
-            Array.prototype.slice.call(port.getElementsByTagName('dim')).forEach((dimElement) => {
+            for (var dimElement of Array.prototype.slice.call(port.getElementsByTagName('dim'))) {
                 dimensions.push(parseInt(dimElement.textContent.trim()));
-            });
+            }
             var shape = (dimensions.length == 0) ? null : new openvino.TensorShape(dimensions);
             connection = new openvino.Connection(id, new openvino.TensorType(precision, shape), null);
         }
@@ -178,7 +176,7 @@ openvino.Graph = class {
     _replaceTensorIteratorWithSubgraph(layers, edges) {
         const tiNodes = layers.filter((node) => node.getAttribute('type') === 'TensorIterator');
 
-        tiNodes.forEach((singleTensorIteratorNode) => {
+        for (var singleTensorIteratorNode of tiNodes) {
             const singleTensorIteratorNodeId = singleTensorIteratorNode.getAttribute("id");
             const body = openvino.Node.children(singleTensorIteratorNode, 'body')[0];
             const layersContainer = openvino.Node.children(body, 'layers')[0];
@@ -193,47 +191,48 @@ openvino.Graph = class {
 
             const mappingForNestedIR = this._parseMappingBlock(singleTensorIteratorNode);
 
-            iteratorLayers.forEach((nestedLayer) => {
+            for (var nestedLayer of iteratorLayers) {
                 const nestedNode = new openvino.Node(this, this._metadata, nestedLayer, iteratorAllEdges);
                 nestedNode._id = `${singleTensorIteratorNodeId}_${nestedLayer.getAttribute('id')}`;
-                nestedNode._inputs.forEach((input) => {
-                    input.connections.forEach((connection) => {
+                for (var input of nestedNode._inputs) {
+                    for (var input_connection of input.connections) {
                         // we had a connection with id: 0:1  - meaning from layer "0" and its port "1"
                         // now as we rename all internal nodes to have an id of the TI included
                         // e.g. internal layer with id "0" and TI with id "14" results in internal layer to get id "14_0"
-                        if (!connection._id){
+                        if (!input_connection._id){
                             return;
                         }
-                        connection._id = `${singleTensorIteratorNodeId}_${connection._id}`;
-                    });
-                });
+                        input_connection._id = `${singleTensorIteratorNodeId}_${input_connection._id}`;
+                    }
+                }
 
-                nestedNode._outputs.forEach((output) => {
-                    output.connections.forEach((connection) => {
+                for (var output of nestedNode._outputs) {
+                    for (var output_connection of output.connections) {
                         // we had a connection with id: 1:1  - meaning from me with id "1" and my port "1"
                         // now as we rename all internal nodes to have an id of the TI included
                         // e.g. my layer with id "1" and TI with id "14" results in internal layer to get id "14_1"
-                        if (!connection._id){
+                        if (!output_connection._id){
                             return;
                         }
-                        connection._id = `${singleTensorIteratorNodeId}_${connection._id}`;
-                    });
-                });
+                        output_connection._id = `${singleTensorIteratorNodeId}_${output_connection._id}`;
+                    }
+                }
                 
                 this._nodes.push(nestedNode);
-            });
+            }
 
             // We know for sure that edges that appeared in the nested IR are not
             // aware of the external context
-            mappingForNestedIR.input.forEach((nestedInput) => {
+            for (var nestedInput of mappingForNestedIR) {
                 const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNodeId}_${nestedInput.internal_layer_id}`);
                 const candidate_edges = edges.filter((edge) => {
                     return edge.getAttribute('to-layer') === singleTensorIteratorNodeId && edge.getAttribute('to-port') === nestedInput.external_port_id;
                 });
+                var candidate_edge;
                 if (!candidate_edges.length){
                     return;
                 }
-                candidate_edges.forEach((candidate_edge) => {
+                for (candidate_edge of candidate_edges) {
                     const parentLayerID = candidate_edge.getAttribute('from-layer');
                     const parentPortID = candidate_edge.getAttribute('from-port');
                     if (!nestedNode._inputs){
@@ -254,10 +253,10 @@ openvino.Graph = class {
                             new openvino.Connection(newId, null, null)
                         ]));
                     }
-                });
-            });
+                }
+            }
 
-            mappingForNestedIR.output.forEach((nestedOutput) => {
+            for (var nestedOutput of mappingForNestedIR.output) {
                 const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNodeId}_${nestedOutput.internal_layer_id}`);
                 const candidate_edges = edges.filter((edge) => {
                     return edge.getAttribute('from-layer') === singleTensorIteratorNodeId && edge.getAttribute('from-port') === nestedOutput.external_port_id;
@@ -265,36 +264,36 @@ openvino.Graph = class {
                 if (candidate_edges.length === 0){
                     return;
                 }
-                candidate_edges.forEach((candidate_edge) => {
+                for (candidate_edge of candidate_edges) {
                     const childLayerID = candidate_edge.getAttribute('to-layer');
                     const child = this._nodes.find((layer) => layer._id === childLayerID);
                     if (!child._inputs || (child._inputs && child._inputs.length === 0)){
                         return;
                     }
-                    child._inputs.forEach((input) => {
-                        input._connections.forEach((connection) => {
+                    for (var child_input of child._inputs) {
+                        for (var connection of child_input._connections) {
                             if (!connection._id || (connection._id && connection._id.split(':')[0] !== singleTensorIteratorNodeId)) {
                                 return;
                             }
                             const myPort = nestedNode._outputs[0]._connections[0]._id.split(':')[1];
                             connection._id = `${nestedNode.id}:${myPort}`;
-                        });
-                    });
-                });
-            });
+                        }
+                    }
+                }
+            }
             this._nodes = this._nodes.filter((node) => node._type !== 'TensorIterator');
-        });
+        }
     }
 
     _collectEdges(edges){
         let edgeMap = {};
-        edges.forEach((edge) => {
+        for (var edge of edges) {
             var fromLayer = edge.getAttribute('from-layer');
             var fromPort = edge.getAttribute('from-port');
             var toLayer = edge.getAttribute('to-layer');
             var toPort = edge.getAttribute('to-port');
             edgeMap[toLayer + ':' + toPort] = fromLayer + ':' + fromPort;
-        });
+        }
         return edgeMap;
     }
 
@@ -349,48 +348,44 @@ openvino.Node = class {
         var inputIndex = 0;
         const input = openvino.Node.children(layer, 'input')[0];
         if (input) {
-            const inputPorts = openvino.Node.children(input, 'port');
-            inputPorts.forEach((port) => {
+            for (var port of openvino.Node.children(input, 'port')) {
                 var inputName = (inputIndex == 0) ? 'input' : inputIndex.toString(); 
                 this._inputs.push(new openvino.Argument(inputName, [
                     graph._connection(this._id, precision, port, edgeMap)
                 ]));
                 inputIndex++;
-            });
+            }
         }
 
         var outputIndex = 0;
         const output = openvino.Node.children(layer, 'output')[0];
         if (output) {
-            const outputPorts = openvino.Node.children(output, 'port');
-            outputPorts.forEach((portElement) => {
+            for (var portElement of openvino.Node.children(output, 'port')) {
                 var outputName = (outputIndex == 0) ? 'output' : outputIndex.toString(); 
                 this._outputs.push(new openvino.Argument(outputName, [
                     graph._connection(this._id, precision, portElement, null)
                 ]));
                 outputIndex++;
-            });
+            }
         }
 
         const data = openvino.Node.children(layer, 'data')[0];
         if (data && data.attributes) {
-            for (var i = 0; i < data.attributes.length; i++) {
-                var key = data.attributes[i].name;
-                var value = data.attributes[i].value;
-                this._attributes.push(new openvino.Attribute(metadata, this, key, value));
+            for (var attribute of Array.from(data.attributes)) {
+                this._attributes.push(new openvino.Attribute(metadata, this, attribute.name, attribute.value));
             }
         }
 
         const blobs = openvino.Node.children(layer, 'blobs')[0];
         if (blobs){
-            Array.from(blobs.childNodes).filter((node) => node.nodeName != '#text').forEach((blob) => {
+            for (var blob of Array.from(blobs.childNodes).filter((node) => node.nodeName != '#text')) {
                 var name = blob.nodeName;
                 var offset = parseInt(blob.getAttribute('offset'));
                 var size = parseInt(blob.getAttribute('size'));
                 this._initializers.push(new openvino.Argument(name, [
                     new openvino.Connection('', null, new openvino.Tensor(precision, null, offset, size))
                 ]));
-            });
+            }
         }
     }
 
@@ -424,32 +419,32 @@ openvino.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             if (schema.references) {
-                schema.references.forEach((reference) => {
+                for (var reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
-                });
+                }
             }
             return schema;
         }
@@ -785,13 +780,13 @@ openvino.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         var name = item.name;
                         var schema = item.schema;
                         this._map[name] = schema;
                     }
-                });
+                }
             }
         }
     }
@@ -806,9 +801,9 @@ openvino.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }

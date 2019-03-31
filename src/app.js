@@ -74,7 +74,7 @@ class Application {
     _parseCommandLine(argv) {
         var open = false;
         if (argv.length > 1) {
-            argv.slice(1).forEach((arg) => {
+            for (var arg of argv.slice(1)) {
                 if (!arg.startsWith('-')) {
                     var extension = arg.split('.').pop().toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
@@ -82,7 +82,7 @@ class Application {
                         open = true;
                     }
                 }
-            });
+            }
         }
         return open;
     }
@@ -130,9 +130,9 @@ class Application {
         };
         electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {
             if (selectedFiles) {
-                selectedFiles.forEach((selectedFile) => {
+                for (var selectedFile of selectedFiles) {
                     this._openFile(selectedFile);
-                });
+                }
             }
         });
     }
@@ -171,7 +171,7 @@ class Application {
 
     _dropFiles(sender, files) {
         var view = this._views.from(sender);
-        files.forEach((file) => {
+        for (var file of files) {
             if (view) {
                 this._loadFile(file, view);
                 view = null;
@@ -179,7 +179,7 @@ class Application {
             else {
                 this._openFile(file);
             }
-        });
+        }
     }
 
     _export() {
@@ -298,14 +298,15 @@ class Application {
                 recents.splice(9);
             }
             this._configuration.set('recents', recents);
-            recents.forEach((recent, index) => {
-                var file = recent.path;
+            for (var i = 0; i < recents.length; i++) {
+                var recent = recents[i];
                 menuRecentsTemplate.push({
+                    file: recent.path,
                     label: Application.minimizePath(recent.path),
-                    accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + (index + 1).toString(),
-                    click: () => { this._openFile(file); }
+                    accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + (i + 1).toString(),
+                    click: (item) => { this._openFile(item.file); }
                 });
-            });
+            }
         }
 
         var menuTemplate = [];
@@ -711,9 +712,9 @@ class View {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
+            }
         }
     }
 }
@@ -778,9 +779,9 @@ class ViewCollection {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
+            }
         }
     }
 
@@ -847,16 +848,16 @@ class MenuService {
         this._menuTemplate = menuTemplate;
         this._commandTable = commandTable;
         this._itemTable = {};
-        menuTemplate.forEach((menuTemplateMenu) => {
-            menuTemplateMenu.submenu.forEach((menuTemplateItem) => {
-                if (menuTemplateItem.id) {
-                    if (!menuTemplateItem.label) {
-                        menuTemplateItem.label = '';
+        for (var menu of menuTemplate) {
+            for (var item of menu.submenu) {
+                if (item.id) {
+                    if (!item.label) {
+                        item.label = '';
                     }
-                    this._itemTable[menuTemplateItem.id] = menuTemplateItem;
+                    this._itemTable[item.id] = item;
                 }
-            });
-        });
+            }
+        }
         this._rebuild();
     }
 
@@ -864,8 +865,20 @@ class MenuService {
         if (!this._menu && !this._commandTable) {
             return;
         }
+        if (this._updateLabel(context)) {
+            this._rebuild();
+        }
+        this._updateEnabled(context);
+    }
+
+    _rebuild() {
+        this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
+        electron.Menu.setApplicationMenu(this._menu);
+    }
+
+    _updateLabel(context) {
         var rebuild = false;
-        Object.keys(this._commandTable).forEach((id) => {
+        for (var id of Object.keys(this._commandTable)) {
             var menuItem = this._menu.getMenuItemById(id);
             var command = this._commandTable[id];
             if (command && command.label) {
@@ -878,30 +891,20 @@ class MenuService {
                     }
                 }
             }
-        });
-        if (rebuild) {
-            this._rebuild();
         }
-        Object.keys(this._commandTable).forEach((id) => {
+        return rebuild;
+    }
+
+    _updateEnabled(context) {
+        for (var id of Object.keys(this._commandTable)) {
             var menuItem = this._menu.getMenuItemById(id);
             var command = this._commandTable[id];
             if (command) {
                 if (command.enabled) {
                     menuItem.enabled = command.enabled(context);
                 }
-                /*
-                if (command.label) {
-                    if (menuItem.label != command.label(context)) {
-                    }
-                } 
-                */
             }
-        });
-    }
-
-    _rebuild() {
-        this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
-        electron.Menu.setApplicationMenu(this._menu);
+        }
     }
 }
 

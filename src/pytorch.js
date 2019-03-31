@@ -323,9 +323,9 @@ pytorch.ModelFactory = class {
                     obj.push({ key: key, value: value });
                 };
                 if (args) {
-                    args.forEach((arg) => {
+                    for (var arg of args) {
                         obj.__setitem__(arg[0], arg[1]);
-                    });
+                    }
                 }
                 return obj;
             };
@@ -448,12 +448,12 @@ pytorch.ModelFactory = class {
 
             var root = unpickler.load(function_call, persistent_load);
             var deserialized_storage_keys = unpickler.load();
-            deserialized_storage_keys.forEach((key) => {
+            for (var key of deserialized_storage_keys) {
                 if (deserialized_objects[key]) {
                     var storage = deserialized_objects[key];
                     storage.data = unpickler.read(storage.dataTypeSize * storage.size);
                 }
-            });
+            }
 
             if ((Array.isArray(root) && root.__setitem__ && root.every((item) => item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) ||
                 (root != null && root.state_dict && Array.isArray(root.state_dict))) {
@@ -543,9 +543,9 @@ pytorch.Graph = class {
         this._inputs.push(new pytorch.Argument(input, true, [ new pytorch.Connection(input, null, null) ]));
 
         var outputs = this._loadModule(root, module_source_map, [], [ input ]);
-        outputs.forEach((output) => {
+        for (var output of outputs) {
             this._outputs.push(new pytorch.Argument(output, true, [ new pytorch.Connection(output, null, null) ]));
-        });
+        }
     }
 
     _loadModule(parent, module_source_map, groups, inputs) {
@@ -553,8 +553,7 @@ pytorch.Graph = class {
         if (parent.__type__ &&
             !parent.__type__.startsWith('torch.nn.modules.container.') &&
             (!parent._modules || parent._modules.length == 0)) {
-            var node = new pytorch.Node(this._metadata, '', parent, groups, inputs, this._littleEndian);
-            this._nodes.push(node);
+            this._nodes.push(new pytorch.Node(this._metadata, '', parent, groups, inputs, this._littleEndian));
             return [];
         }
 
@@ -562,7 +561,7 @@ pytorch.Graph = class {
             throw new pytorch.Error('Module does not contain modules.');
         }
 
-        parent._modules.forEach((module) => {
+        for (var module of parent._modules) {
             switch (module.value.__type__) {
                 case 'torch.nn.modules.container.Sequential':
                     groups.push(module.key);
@@ -590,7 +589,7 @@ pytorch.Graph = class {
                     inputs = [ node.name ];
                     break;
             }
-        });
+        }
 
         return inputs;
     }
@@ -693,17 +692,13 @@ pytorch.Node = class {
 
         var parameters = [];
         if (obj._parameters) {
-            obj._parameters.forEach((parameter) => {
-                parameters.push(parameter);
-            });
+            parameters = parameters.concat(obj._parameters);
         }
         if (obj._buffers) {
-            obj._buffers.forEach((buffer) => {
-                parameters.push(buffer);
-            });
+            parameters = parameters.concat(obj._buffers);
         }
 
-        parameters.forEach((parameter) => {
+        for (var parameter of parameters) {
             var visible = true;
             var inputName = ''; 
             if (inputs.length > 0) {
@@ -721,17 +716,17 @@ pytorch.Node = class {
                 }
                 this._inputs.push(new pytorch.Argument(inputName || parameter.key, visible, [ new pytorch.Connection('', null, initializer) ]));
             }
-        });
+        }
 
         this._outputs = [];
         this._outputs.push(new pytorch.Argument('output', true, [ new pytorch.Connection(this._name, null, null) ]));
 
         this._attributes = [];
-        Object.keys(obj).forEach((key) => {
-            if (!key.startsWith('_')) {
-                this._attributes.push(new pytorch.Attribute(this._metadata, this, key, obj[key]));
+        for (var attributeName of Object.keys(obj)) {
+            if (!attributeName.startsWith('_')) {
+                this._attributes.push(new pytorch.Attribute(this._metadata, this, attributeName, obj[attributeName]));
             }
-        });
+        }
     }
 
     get name() {
@@ -760,25 +755,25 @@ pytorch.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             return schema;
         }
@@ -1065,11 +1060,11 @@ pytorch.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -1084,9 +1079,9 @@ pytorch.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }

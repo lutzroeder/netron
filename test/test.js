@@ -124,7 +124,7 @@ class TestHost {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (var callback in this._events[event]) {
+            for (var callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -336,7 +336,7 @@ function request(location, cookie, callback) {
 
 function download(folder, targets, sources, completed, callback) {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
-        targets.forEach((target) => completed.push(target));
+        completed = completed.concat(targets);
         callback(null, completed);
         return;
     }
@@ -367,9 +367,10 @@ function download(folder, targets, sources, completed, callback) {
             sources = '';
         }
     }
-    targets.forEach((target) => {
+    var target;
+    for (target of targets) {
         makeDir(path.dirname(folder + '/' + target));
-    });
+    }
     request(source, [], (err, data) => {
         if (err) {
             callback(err, null);
@@ -382,7 +383,7 @@ function download(folder, targets, sources, completed, callback) {
             process.stdout.write('  decompress...\r');
             var archive = decompress(data, source.split('/').pop());
             // console.log(archive);
-            sourceFiles.forEach((file) => {
+            for (var file of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
                 }
@@ -394,10 +395,10 @@ function download(folder, targets, sources, completed, callback) {
                 var target = targets.shift();
                 fs.writeFileSync(folder + '/' + target, entry.data, null);
                 completed.push(target);
-            });
+            }
         }
         else {
-            var target = targets.shift();
+            target = targets.shift();
             if (process.stdout.clearLine) {
                 process.stdout.clearLine();
             }
@@ -452,40 +453,43 @@ function loadModel(target, item, callback) {
             return;
         }
         try {
-            model.graphs.forEach((graph) => {
-                graph.inputs.forEach((input) => {
+            for (var graph of model.graphs) {
+                var input;
+                var connection;
+                for (input of graph.inputs) {
                     input.name.toString();
-                    input.connections.forEach((connection) => {
+                    for (connection of input.connections) {
                         connection.id.toString();
                         if (connection.type) {
                             connection.type.toString();
                         }
-                    });
-                });
-                graph.outputs.forEach((output) => {
+                    }
+                }
+                var output;
+                for (output of graph.outputs) {
                     output.name.toString();
-                    output.connections.forEach((connection) => {
+                    for (connection of output.connections) {
                         connection.id.toString();
                         if (connection.type) {
                             connection.type.toString();
                         }
-                    });
-                });
-                graph.nodes.forEach((node) => {
+                    }
+                }
+                for (var node of graph.nodes) {
                     node.name.toString();
                     node.documentation.toString();
                     node.category.toString();
-                    node.attributes.forEach((attribute) => {
+                    for (var attribute of node.attributes) {
                         attribute.name.toString();
                         var value = view.View.formatAttributeValue(attribute.value, attribute.type)
                         if (value && value.length > 1000) {
                             value = value.substring(0, 1000) + '...';
                         }
                         value = value.split('<');
-                    });
-                    node.inputs.forEach((input) => {
+                    }
+                    for (input of node.inputs) {
                         input.name.toString();
-                        input.connections.forEach((connection) => {
+                        for (connection of input.connections) {
                             connection.id.toString();
                             if (connection.type) {
                                 connection.type.toString();
@@ -493,19 +497,19 @@ function loadModel(target, item, callback) {
                             if (connection.initializer) {
                                 connection.initializer.toString();
                             }
-                        });
-                    });
-                    node.outputs.forEach((output) => {
+                        }
+                    }
+                    for (output of node.outputs) {
                         output.name.toString();
-                        output.connections.forEach((connection) => {
+                        for (connection of output.connections) {
                             connection.id.toString();
                             if (connection.type) {
                                 connection.type.toString();
                             }
-                        });
-                    });
-                });
-            });
+                        }
+                    }
+                }
+            }
         }
         catch (error) {
             callback(error, null);

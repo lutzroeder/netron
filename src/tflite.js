@@ -64,13 +64,13 @@ tflite.Model = class {
         this._description = (description && description.length > 0) ? description : null;
         var operatorCodeList = [];
         var builtinOperatorMap = {};
-        Object.keys(tflite.schema.BuiltinOperator).forEach(function (key) {
+        for (var key of Object.keys(tflite.schema.BuiltinOperator)) {
             var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
             var builtinOperatorIndex = tflite.schema.BuiltinOperator[key]; 
             builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
                 return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
             }).join('');
-        });
+        }
         for (var operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {
             var operatorCode = model.operatorCodes(operatorIndex);
             var builtinCode = operatorCode.builtinCode();
@@ -184,10 +184,10 @@ tflite.Node = class {
                         inputVisible = false;
                     }
                 }
-                var array = inputs.slice(inputIndex, inputIndex + count);
-                for (var j = 0; j < array.length; j++) {
-                    if (array[j] != -1) {
-                        inputConnections.push(connections[array[j]]);
+                var inputArray = inputs.slice(inputIndex, inputIndex + count);
+                for (var j = 0; j < inputArray.length; j++) {
+                    if (inputArray[j] != -1) {
+                        inputConnections.push(connections[inputArray[j]]);
                     }
                 }
                 inputIndex += count;
@@ -219,37 +219,38 @@ tflite.Node = class {
             if (typeof optionsType === 'function') {
                 var options = Reflect.construct(optionsType, []);
                 node.builtinOptions(options);
+                var attributeName;
                 var attributeNames = [];
                 var attributeNamesMap = {};
-                Object.keys(Object.getPrototypeOf(options)).forEach((attributeName) => {
+                for (attributeName of Object.keys(Object.getPrototypeOf(options))) {
                     if (attributeName != '__init') {
                         attributeNames.push(attributeName);
                     }
                     attributeNamesMap[attributeName] = true;
-                });
+                }
                 var attributeArrayNamesMap = {}; 
-                Object.keys(attributeNamesMap).forEach((attributeName) => {
+                for (attributeName of Object.keys(attributeNamesMap)) {
                     if (attributeNamesMap[attributeName + 'Array'] && attributeNamesMap[attributeName + 'Length']) {
                         attributeArrayNamesMap[attributeName] = true;
                         attributeNames = attributeNames.filter((item) => item != (attributeName + 'Array') && item != (attributeName + 'Length'));
                     }
-                });
-                attributeNames.forEach((name) => {
-                    if (options[name] && typeof options[name] == 'function') {
+                }
+                for (attributeName of attributeNames) {
+                    if (options[attributeName] && typeof options[attributeName] == 'function') {
                         var value = null;
-                        if (attributeArrayNamesMap[name]) {
+                        if (attributeArrayNamesMap[attributeName]) {
                             var array = [];
-                            var length = options[name + 'Length']();
-                            var a = options[name + 'Array']();
-                            for (var i = 0; i < length; i++) {
-                                array.push(a[i]);
+                            var length = options[attributeName + 'Length']();
+                            var a = options[attributeName + 'Array']();
+                            for (var l = 0; l < length; l++) {
+                                array.push(a[l]);
                             }
                             value = array;
                         }
                         else {
-                            value = options[name]();
+                            value = options[attributeName]();
                         }
-                        var attribute = new tflite.Attribute(this._metadata, operator, name, value);
+                        var attribute = new tflite.Attribute(this._metadata, operator, attributeName, value);
                         if (attribute.name == 'fused_activation_function') {
                             value = attribute.value;
                             if (attribute.value != 'NONE') {
@@ -263,7 +264,7 @@ tflite.Node = class {
                         }
                         this._attributes.push(attribute);
                     }
-                });
+                }
             }
         }
     }
@@ -352,9 +353,9 @@ tflite.Attribute = class {
                     var reverse = tflite.Attribute._reverseMap[this._type];
                     if (!reverse) {
                         reverse = {};
-                        Object.keys(type).forEach((key) => {
+                        for (var key of Object.keys(type)) {
                             reverse[type[key.toString()]] = key;
-                        });
+                        }
                         tflite.Attribute._reverseMap[this._type] = reverse;
                     }
                     if (reverse.hasOwnProperty(this._value)) {
@@ -625,9 +626,9 @@ tflite.TensorType = class {
     constructor(tensor) {
         if (!tflite.TensorType._tensorTypeMap) {
             tflite.TensorType._tensorTypeMap = tflite.TensorType._tensorTypeMap || {};
-            Object.keys(tflite.schema.TensorType).forEach((key) => {
+            for (var key of Object.keys(tflite.schema.TensorType)) {
                 tflite.TensorType._tensorTypeMap[tflite.schema.TensorType[key].toString()] = key.toLowerCase();
-            });
+            }
         }
         this._dataType = tflite.TensorType._tensorTypeMap[tensor.type().toString()] || '?';
         var dimensions = [];
@@ -690,11 +691,11 @@ tflite.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -710,9 +711,9 @@ tflite.Metadata = class {
             if (!attributeMap) {
                 attributeMap = {};
                 if (schema.attributes) {
-                    schema.attributes.forEach((attribute) => {
+                    for (var attribute of schema.attributes) {
                         attributeMap[attribute.name] = attribute;
-                    });
+                    }
                 }
                 schema.attributeMap = attributeMap;
             }

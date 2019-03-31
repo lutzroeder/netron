@@ -148,9 +148,9 @@ coreml.Graph = class {
     }
 
     _updateOutput(name, newName) {
-        this._nodes.forEach((node) => {
+        for (var node of this._nodes) {
             node._outputs = node._outputs.map((output) => (output != name) ? output : newName);
-        });
+        }
         return newName;
     }
 
@@ -174,72 +174,69 @@ coreml.Graph = class {
         if (preprocessing && preprocessing.length > 0) {               
             var preprocessingInput = this._description.input[0].name;
             var inputNodes = [];
-            this._nodes.forEach((node) => {
+            for (var node of this._nodes) {
                 if (node._inputs.some((input => input == preprocessingInput))) {
                     inputNodes.push(node);
                 }
-            });
+            }
             var preprocessorOutput = preprocessingInput;
             var preprocessorIndex = 0;
-            preprocessing.forEach((preprocessing) => {
-                var operator = preprocessing.preprocessor;
-                var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
+            for (var p of preprocessing) {
+                var input = p.featureName ? p.featureName : preprocessorOutput;
                 preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
-                this._createNode(scope, group, operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]);
+                this._createNode(scope, group, p.preprocessor, null, p[p.preprocessor], [ input ], [ preprocessorOutput ]);
                 preprocessorIndex++;
-            });
-            inputNodes.forEach((node) => {
-                node._inputs = node._inputs.map((input) => (input != preprocessingInput) ? input : preprocessorOutput);
-            });
+            }
+            for (var inputNode of inputNodes) {
+                inputNode._inputs = inputNode._inputs.map((input) => (input != preprocessingInput) ? input : preprocessorOutput);
+            }
         }
     }
 
     _loadModel(model, scope, group) {
         this._groups = this._groups | (group.length > 0 ? true : false);
+        var layer;
         if (model.neuralNetworkClassifier) {
             var neuralNetworkClassifier = model.neuralNetworkClassifier;
-            neuralNetworkClassifier.layers.forEach((layer) => {
-                var operator = layer.layer;
-                this._createNode(scope, group, operator, layer.name, layer[operator], layer.input, layer.output);
-            });
+            for (layer of neuralNetworkClassifier.layers) {
+                this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
+            }
             this._updateClassifierOutput(group, neuralNetworkClassifier);
             this._updatePreprocessing(scope, group, neuralNetworkClassifier.preprocessing);
             return 'Neural Network Classifier';
         }
         else if (model.neuralNetwork) {
             var neuralNetwork = model.neuralNetwork;
-            neuralNetwork.layers.forEach((layer) => {
-                var operator = layer.layer;
-                this._createNode(scope, group, operator, layer.name, layer[operator], layer.input, layer.output);
-            });
+            for (layer of neuralNetwork.layers) {
+                this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
+            }
             this._updatePreprocessing(scope, group, neuralNetwork.preprocessing);
             return 'Neural Network';
         }
         else if (model.neuralNetworkRegressor) {
             var neuralNetworkRegressor = model.neuralNetworkRegressor;
-            neuralNetworkRegressor.layers.forEach((layer) => {
-                var operator = layer.layer;
-                this._createNode(scope, group, operator, layer.name, layer[operator], layer.input, layer.output);
-            });
+            for (layer of neuralNetworkRegressor.layers) {
+                this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
+            }
             this._updatePreprocessing(scope, group, neuralNetworkRegressor);
             return 'Neural Network Regressor';
         }
         else if (model.pipeline) {
-            model.pipeline.models.forEach((subModel) => {
-                this._loadModel(subModel, scope, (group ? (group + '/') : '') + 'pipeline');
-            });
+            for (layer of model.pipeline.models) {
+                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipeline');
+            }
             return 'Pipeline';
         }
         else if (model.pipelineClassifier) {
-            model.pipelineClassifier.pipeline.models.forEach((subModel) => {
-                this._loadModel(subModel, scope, (group ? (group + '/') : '') + 'pipelineClassifier');
-            });
+            for (layer of model.pipelineClassifier.pipeline.models) {
+                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipelineClassifier');
+            }
             return 'Pipeline Classifier';
         }
         else if (model.pipelineRegressor) {
-            model.pipelineRegressor.pipeline.models.forEach((subModel) => {
-                this._loadModel(subModel, scope, (group ? (group + '/') : '') + 'pipelineRegressor');
-            });
+            for (layer of model.pipelineRegressor.pipeline.models) {
+                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipelineRegressor');
+            }
             return 'Pipeline Regressor';
         }
         else if (model.glmClassifier) {
@@ -516,11 +513,11 @@ coreml.Node = class {
         this._initializers = [];
         if (data) {
             var initializerMap = this._initialize(data);
-            Object.keys(data).forEach((key) => {
+            for (var key of Object.keys(data)) {
                 if (!initializerMap[key]) {
                     this._attributes.push(new coreml.Attribute(this._metadata, this.operator, key, data[key]));
                 }
-            });
+            }
         }
     }
 
@@ -546,25 +543,25 @@ coreml.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             return schema;
         }
@@ -835,9 +832,9 @@ coreml.Tensor = class {
                 this._quantization.lookupTableQuantization.floatValue &&
                 this._quantization.lookupTableQuantization.floatValue.length > 0) {
                 var map = [];
-                Object.keys(this._quantization.lookupTableQuantization.floatValue).forEach((key) => {
+                for (var key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
                     map.push(key.toString() + ' = ' + this._quantization.lookupTableQuantization.floatValue[key].toString());
-                });
+                }
                 return map.join('; ');
             }
             return '?'; 
@@ -1057,11 +1054,11 @@ coreml.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -1076,9 +1073,9 @@ coreml.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }
@@ -1091,9 +1088,9 @@ coreml.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.inputs && schema.inputs.length > 0) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     map[input.name] = input;
-                });
+                }
             }
             this._inputCache[operator] = map;
         }

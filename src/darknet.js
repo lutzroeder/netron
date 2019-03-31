@@ -72,39 +72,41 @@ darknet.Graph = class {
             new darknet.Connection(input, inputType, null)
         ]));
 
-        cfg.forEach((layer, index) => {
-            layer._outputs = [ index.toString() ];
-        });
+        var i;
+        for (i = 0; i < cfg.length; i++) {
+            cfg[i]._outputs = [ i.toString() ];
+        }
 
         var inputs = [ 'input' ];
-        cfg.forEach((layer, index) => {
+        for (i = 0; i < cfg.length; i++) {
+            var layer = cfg[i];
             layer._inputs = inputs;
-            inputs = [ index.toString() ];
+            inputs = [ i.toString() ];
             switch (layer.__type__) {
                 case 'shortcut':
-                    var shortcut = cfg[index + Number.parseInt(layer.from, 10)]._outputs[0];
+                    var shortcut = cfg[i + Number.parseInt(layer.from, 10)]._outputs[0];
                     layer._inputs.push(shortcut);
                     break;
                 case 'route':
                     var routes = layer.layers.split(',').map((route) => Number.parseInt(route.trim(), 10));
                     layer._inputs = routes.map((route) => {
-                        var layer = (route < 0) ? index + route : route;
+                        var layer = (route < 0) ? i + route : route;
                         return cfg[layer]._outputs[0];
                     });
                     break;
             }
-        });
-        cfg.forEach((layer, index) => {
-            this._nodes.push(new darknet.Node(metadata, layer, index.toString()));
-        });
+        }
+        for (i = 0; i < cfg.length; i++) {
+            this._nodes.push(new darknet.Node(metadata, cfg[i], i.toString()));
+        }
 
         if (cfg.length > 0) {
             var lastLayer = cfg[cfg.length - 1];
-            lastLayer._outputs.forEach((output, index) => {
-                this._outputs.push(new darknet.Argument('output' + (index > 1 ? index.toString() : ''), true, [
-                    new darknet.Connection(output, null, null)
+            for (i = 0; i < lastLayer._outputs.length; i++) {
+                this._outputs.push(new darknet.Argument('output' + (i > 1 ? i.toString() : ''), true, [
+                    new darknet.Connection(lastLayer._outputs[i], null, null)
                 ]));
-            });
+            }
         }
     }
 
@@ -232,11 +234,11 @@ darknet.Node = class {
                 delete layer.layers;
                 break;
         }
-        Object.keys(layer).forEach((key) => {
+        for (var key of Object.keys(layer)) {
             if (key != '__type__' && key != '_inputs' && key != '_outputs') {
                 this._attributes.push(new darknet.Attribute(metadata, this._operator, key, layer[key]));
             }
-        });
+        }
     }
 
     get name() {
@@ -434,11 +436,11 @@ darknet.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -453,9 +455,9 @@ darknet.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }

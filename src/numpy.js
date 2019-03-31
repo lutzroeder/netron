@@ -97,9 +97,9 @@ numpy.Array = class {
         writer.writeString(header);
 
         var size = context.itemSize;
-        this._shape.forEach((dimension) => {
+        for (var dimension of this._shape) {
             size *= dimension;
-        });
+        }
 
         context.data = new Uint8Array(size);
         context.dataView = new DataView(context.data.buffer, context.data.byteOffset, size);
