@@ -149,14 +149,14 @@ caffe2.Graph = class {
         this._name = netDef.name || '';
         this._type = netDef.type || '';
         this._nodes = [];
-        this._operators = {};
 
         var initializers = {};
-        netDef.external_input.forEach((input) => {
-            initializers[input] = {};
-        });
+        for (var external_input of netDef.external_input) {
+            initializers[external_input] = {};
+        }
+        var op;
         if (init) {
-            init.op.forEach((op) => {
+            for (op of init.op) {
                 if (op.output && op.output.length == 1) {
                     var name = op.output[0];
                     var dataType = null;
@@ -193,11 +193,12 @@ caffe2.Graph = class {
                         initializers[name] = op;
                     }    
                 }
-            });
+            }
         }
 
         var scope = {};
-        netDef.op.forEach((op, index) => {
+        var index = 0;
+        for (op of netDef.op) {
             op.input = op.input.map((input) => scope[input] ? scope[input] : input);
             op.output = op.output.map((output) => {
                 if (scope[output]) {
@@ -208,12 +209,12 @@ caffe2.Graph = class {
                 scope[output] = output;
                 return output;
             });
-        });
+            index++;
+        }
 
         var lastNode = null;
         var lastOutput = null;
-        netDef.op.forEach((op) => {
-            this._operators[op.type] = (this._operators[op.type] || 0) + 1;
+        for (op of netDef.op) {
             var node = new caffe2.Node(metadata, op, initializers);
             if (op.input.length == 1 &&
                 op.output.length >= 1 && 
@@ -231,20 +232,20 @@ caffe2.Graph = class {
                     lastOutput = op.output[0].split('\n').shift();
                 }
             }
-        });
+        }
 
         this._inputs = [];
         var inputs = Object.keys(initializers);
-        inputs.forEach((input) => {
+        for (var input of inputs) {
             if (inputs.length == 1 || !input.startsWith('caffe.')) {
                 this._inputs.push(new caffe2.Argument(input, [ new caffe2.Connection(input, null, null) ]));
             }
-        });
+        }
 
         this._outputs = [];
-        netDef.external_output.forEach((output) => {
+        for (var output of netDef.external_output) {
             this._outputs.push(new caffe2.Argument(output, [ new caffe2.Connection(output, null, null) ]));
-        });
+        }
     }
 
     get name() {
@@ -265,10 +266,6 @@ caffe2.Graph = class {
 
     get nodes() {
         return this._nodes;
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     toString() {
@@ -335,70 +332,67 @@ caffe2.Node = class {
         this._chain = [];
 
         this._attributes = [];
-        op.arg.forEach((arg) => {
+        for (var arg of op.arg) {
             this._attributes.push(new caffe2.Attribute(metadata, this, arg));
-        });
+        }
 
         var schema = metadata.getSchema(this._operator);
 
         var inputs = op.input;
         var tensors = {};
-        inputs.forEach((input, index) => {
+        var index = 0;
+        for (var input of inputs) {
             if (index > 0 && initializers[input]) {
                 tensors[input] = new caffe2.Tensor(input, initializers[input], 'Initializer');
                 delete initializers[input];
             }
-        });
+            index++;
+        }
         this._inputs = [];
         var inputIndex = 0;
         if (schema && schema.inputs) {
-            schema.inputs.forEach((inputDef) => {
+            for (var inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputConnections = [];
-                    inputs.slice(inputIndex, inputIndex + inputCount).forEach((id) => {
-                        if (id != '' || inputDef.option != 'optional') {
-                            inputConnections.push(new caffe2.Connection(id, null, tensors[id]));
-                        }
+                    var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => {
+                        return new caffe2.Connection(id, null, tensors[id]);
                     });
-                    inputIndex += inputCount;
                     this._inputs.push(new caffe2.Argument(inputDef.name, inputConnections));
+                    inputIndex += inputCount;
                 }
-            });
+            }
         }
         else {
-            inputs.slice(inputIndex).forEach((input) => {
-                var inputName = (inputIndex == 0) ? 'input' : inputIndex.toString();
-                this._inputs.push(new caffe2.Argument(inputName, [
+            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+                var inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
+                return new caffe2.Argument(inputName, [
                     new caffe2.Connection(input, null, tensors[input])
-                ]));
-                inputIndex++;
-            });
+                ]);
+            }));
         }
 
         var outputs = op.output;
         this._outputs = [];
         var outputIndex = 0;
         if (schema && schema.outputs) {
-            schema.outputs.forEach((outputDef) => {
+            for (var outputDef of schema.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     var outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
                         return { id: id };
                     });
-                    outputIndex += outputCount;
                     this._outputs.push(new caffe2.Argument(outputDef.name, outputConnections));
+                    outputIndex += outputCount;
                 }
-            });
+            }
         }
         else {
-            outputs.slice(outputIndex).forEach((output) => {
-                var outputName = (outputIndex == 0) ? 'output' : outputIndex.toString();
-                this._outputs.push(new caffe2.Argument(outputName, [
+            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+                var outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
+                return new caffe2.Argument(outputName, [
                     new caffe2.Connection(output, null, null)
-                ]));
-                outputIndex++;
-            });
+                ]);
+            }));
         }
     }
 
@@ -416,7 +410,7 @@ caffe2.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
@@ -428,32 +422,32 @@ caffe2.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             if (schema.references) {
-                schema.references.forEach((reference) => {
+                for (var reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
-                });
+                }
             }
             return schema;
         }
@@ -553,9 +547,9 @@ caffe2.Tensor = class {
 
         var args = {};
         if (tensor && tensor.arg) {
-            tensor.arg.forEach((arg) => {
+            for (var arg of tensor.arg) {
                 args[arg.name] = arg;
-            });
+            }
         }
         var shape = null;
         if (args.shape && args.shape.ints) {
@@ -770,11 +764,11 @@ caffe2.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -789,9 +783,9 @@ caffe2.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }

@@ -551,7 +551,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n    - If int: the same symmetric padding\n        is applied to height and width.\n    - If tuple of 3 ints:\n        interpreted as two different\n        symmetric padding values for height and width:\n        `(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n    - If tuple of 3 tuples of 2 ints:\n        interpreted as\n        `((left_dim1_pad, right_dim1_pad),\n          (left_dim2_pad, right_dim2_pad),\n          (left_dim3_pad, right_dim3_pad))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n    - If int: the same symmetric padding\n        is applied to height and width.\n    - If tuple of 3 ints:\n        interpreted as three different\n        symmetric padding values for depth, height, and width:\n        `(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n    - If tuple of 3 tuples of 2 ints:\n        interpreted as\n        `((left_dim1_pad, right_dim1_pad),\n          (left_dim2_pad, right_dim2_pad),\n          (left_dim3_pad, right_dim3_pad))`",
           "name": "padding"
         },
         {
@@ -2983,7 +2983,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n    - If int: the same symmetric cropping\n        is applied to depth, height, and width.\n    - If tuple of 3 ints:\n        interpreted as two different\n        symmetric cropping values for depth, height, and width:\n        `(symmetric_dim1_crop, symmetric_dim2_crop, symmetric_dim3_crop)`.\n    - If tuple of 3 tuples of 2 ints:\n        interpreted as\n        `((left_dim1_crop, right_dim1_crop),\n          (left_dim2_crop, right_dim2_crop),\n          (left_dim3_crop, right_dim3_crop))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n    - If int: the same symmetric cropping\n        is applied to depth, height, and width.\n    - If tuple of 3 ints:\n        interpreted as three different\n        symmetric cropping values for depth, height, and width:\n        `(symmetric_dim1_crop, symmetric_dim2_crop, symmetric_dim3_crop)`.\n    - If tuple of 3 tuples of 2 ints:\n        interpreted as\n        `((left_dim1_crop, right_dim1_crop),\n          (left_dim2_crop, right_dim2_crop),\n          (left_dim3_crop, right_dim3_crop))`",
           "name": "cropping"
         },
         {

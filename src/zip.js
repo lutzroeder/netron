@@ -67,9 +67,9 @@ zip.Entry = class {
         extraDataLength = reader.uint16();
         var nameBuffer = reader.bytes(nameLength);
         this._name = '';
-        nameBuffer.forEach((c) => {
+        for (var c of nameBuffer) {
             this._name += String.fromCharCode(c);
-        });
+        }
         reader.skip(extraDataLength);
         this._compressedData = reader.bytes(this._compressedSize);
         reader.position = position;
@@ -342,15 +342,15 @@ zip.Ouptut = class {
 
     merge() {
         var size = 0;
-        this._blocks.forEach((block) => {
-            size += block.length;
-        });
+        for (var block1 of this._blocks) {
+            size += block1.length;
+        }
         var output = new Uint8Array(size);
         var offset = 0;
-        this._blocks.forEach((block) => {
-            output.set(block, offset);
-            offset += block.length;
-        });
+        for (var block2 of this._blocks) {
+            output.set(block2, offset);
+            offset += block2.length;
+        }
         return output;
     }
 

@@ -139,9 +139,9 @@ sklearn.ModelFactory = class {
                     };
                     this.__read__ = function(unpickler) {
                         var size = 1;
-                        this.shape.forEach((dimension) => {
+                        for (var dimension of this.shape) {
                             size *= dimension;
-                        });
+                        }
                         if (this.dtype.name == 'object') {
                             return unpickler.load(function_call, null);
                         }
@@ -161,6 +161,8 @@ sklearn.ModelFactory = class {
                 constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
                 constructorTable['lightgbm.sklearn.LGBMClassifier'] = function() {};
                 constructorTable['lightgbm.basic.Booster'] = function() {};
+                constructorTable['sklearn.calibration._CalibratedClassifier'] = function() {};
+                constructorTable['sklearn.calibration._SigmoidCalibration'] = function() {};
                 constructorTable['sklearn.calibration.CalibratedClassifierCV​'] = function() {};
                 constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
                 constructorTable['sklearn.decomposition.PCA'] = function() {};
@@ -171,6 +173,8 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
                 constructorTable['sklearn.feature_extraction.text.CountVectorizer​'] = function() {};
                 constructorTable['sklearn.feature_extraction.text.TfidfVectorizer​'] = function() {};
+                constructorTable['sklearn.feature_extraction.text.TfidfTransformer​'] = function() {};
+                constructorTable['sklearn.feature_selection.variance_threshold.VarianceThreshold'] = function() {};
                 constructorTable['sklearn.impute.SimpleImputer'] = function() {};
                 constructorTable['sklearn.linear_model.base.LinearRegression'] = function() {};
                 constructorTable['sklearn.linear_model.LogisticRegression'] = function() {};
@@ -194,6 +198,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.neural_network._stochastic_optimizers.AdamOptimizer'] = function() {};
                 constructorTable['sklearn.neural_network._stochastic_optimizers.SGDOptimizer'] = function() {};
                 constructorTable['sklearn.pipeline.Pipeline'] = function() {};
+                constructorTable['sklearn.pipeline.FeatureUnion'] = function() {};
                 constructorTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.MaxAbsScaler'] = function() {};
@@ -223,6 +228,9 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
                 constructorTable['xgboost.core.Booster'] = function() {};
                 constructorTable['xgboost.sklearn.XGBClassifier'] = function() {};
+                constructorTable['gensim.models.word2vec.Vocab'] = function() {};
+                constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
+                constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
 
                 functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
                     if (base == '__builtin__.object') {
@@ -440,13 +448,13 @@ sklearn.Node = class {
         var operator = obj.__type__.split('.');
         this._type = operator.pop();
         this._package = operator.join('.');
-        this._name = name;
+        this._name = name || '';
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
         this._initializers = [];
 
-        Object.keys(obj).forEach((key) => {
+        for (var key of Object.keys(obj)) {
             if (!key.startsWith('_')) {
                 var value = obj[key];
 
@@ -463,7 +471,7 @@ sklearn.Node = class {
                     }
                 }
             }
-        });
+        }
     }
 
     get operator() {
@@ -487,32 +495,32 @@ sklearn.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             if (schema.references) {
-                schema.references.forEach((reference) => {
+                for (var reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
-                });
+                }
             }
             return schema;
         }
@@ -521,23 +529,26 @@ sklearn.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this.operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get inputs() {
-        var inputs = this._inputs.map((input) => {
-            return new sklearn.Argument(input, [ new sklearn.Connection(input, null, null) ]);
-        });
-        this._initializers.forEach((initializer) => {
-            inputs.push(new sklearn.Argument(initializer.name, [ new sklearn.Connection(null, null, initializer) ]));
-        });
+        var inputs = [];
+        for (var input of this._inputs) {
+            inputs.push(new sklearn.Argument(input, [ new sklearn.Connection(input, null, null) ]));
+        }
+        for (var initializer of this._initializers) {
+            inputs.push(new sklearn.Argument(initializer.name, [ new sklearn.Connection('', null, initializer) ]));
+        }
         return inputs;
     }
 
     get outputs() {
-        return this._outputs.map((output) => {
-            return new sklearn.Argument(output, [ new sklearn.Connection(output, null, null) ]);
-        });
+        var outputs = [];
+        for (var output of this._outputs) {
+            outputs.push(new sklearn.Argument(output, [ new sklearn.Connection(output, null, null) ]));
+        }
+        return outputs;
     }
 
     get attributes() {
@@ -853,11 +864,11 @@ sklearn.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -872,9 +883,9 @@ sklearn.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }

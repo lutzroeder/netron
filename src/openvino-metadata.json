@@ -4,11 +4,11 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
+          "default": [ 1, null ],
           "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
           "name": "stride",
           "option": "required",
-          "type": "int32"
+          "type": "int32[]"
         },
         {
           "default": 1,
@@ -25,24 +25,39 @@
           "type": "int32"
         },
         {
-          "default": 1,
+          "default": [ 1, null ],
+          "name": "strides",
+          "type": "int32[]"
+        },
+        {
+          "default": 0,
           "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
           "name": "pad",
           "option": "required",
           "type": "int32"
         },
         {
-          "default": 1,
+          "default": 0,
           "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
           "name": "pad-x",
           "option": "required",
           "type": "int32"
         },
         {
-          "default": 1,
+          "default": 0,
           "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
           "name": "pad-y",
           "option": "required",
+          "type": "int32"
+        },
+        {
+          "default": 0,
+          "name": "pad-r",
+          "type": "int32"
+        },
+        {
+          "default": 0,
+          "name": "pad-b",
           "type": "int32"
         },
         {
@@ -89,9 +104,9 @@
           "type": "int32"
         },
         {
-          "default": [ 1, null ],
-          "name": "strides",
-          "type": "int32[]"
+          "default": 1,
+          "name": "dilation-x",
+          "type": "int32"
         },
         {
           "default": [ 1, null ],
@@ -99,15 +114,16 @@
           "type": "int32[]"
         },
         {
+          "default": "same_upper",
           "name": "auto_pad"
         },
         {
-          "default": [ 1, null ],
+          "default": [ 0, null ],
           "name": "pads_begin",
           "type": "int32[]"
         },
         {
-          "default": [ 1, null ],
+          "default": [ 0, null ],
           "name": "pads_end",
           "type": "int32[]"
         },
@@ -149,11 +165,11 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
+          "default": [ 1, null ],
           "description": " *stride* is a distance (in pixels) to slide the filter on the feature map over the (x, y) axis. For example, *stride* equal \"1,1\" means sliding the filter 1 pixel at a time over the (x, y) axis.",
           "name": "stride",
           "option": "required",
-          "type": "int32"
+          "type": "int32[]"
         },
         {
           "default": 1,
@@ -170,6 +186,11 @@
           "type": "int32"
         },
         {
+          "default": [ 1, null ],
+          "name": "strides",
+          "type": "int32[]"
+        },
+        {
           "default": 1,
           "description": " *pad* is a number of pixels to add to the left and top of the input. For example, *pad* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
           "name": "pad",
@@ -177,25 +198,44 @@
           "type": "int32"
         },
         {
-          "default": 1,
+          "default": 0,
           "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
           "name": "pad-x",
           "option": "required",
           "type": "int32"
         },
         {
-          "default": 1,
+          "default": 0,
           "description": " *pad-y* is a number of pixels to add to the top of the input. For example, *pad-y* equal 1 means adding 1 pixel to the top of the input. Right and bottom padding should be calculated from the expected output width (height).",
           "name": "pad-y",
           "option": "required",
           "type": "int32"
         },
         {
-          "default": 1,
+          "default": 0,
+          "name": "pad-r",
+          "type": "int32"
+        },
+        {
+          "default": 0,
+          "name": "pad-b",
+          "type": "int32"
+        },
+        {
+          "default": [ 0, null ],
+          "name": "pads_begin",
+          "type": "int32[]"
+        },
+        {
+          "default": [ 0, null ],
+          "name": "pads_end",
+          "type": "int32[]"
+        },
+        {
           "description": " *kernel* is a width and height of each filter. For example, *kernel* equal 3 (3, 3) means that each filter has width and height equal to 3.",
           "name": "kernel",
           "option": "required",
-          "type": "int32"
+          "type": "int32[]"
         },
         {
           "default": 1,
@@ -212,23 +252,23 @@
           "type": "int32"
         },
         {
-          "default": 1,
+          "default": "max",
           "description": " *pool-method* is a type of pooling strategy for values.",
           "name": "pool-method",
           "option": "required",
           "type": ""
         },
         {
-          "default": 1,
+          "default": false,
           "description": " *exclude-pad* is a type of pooling strategy for values in the padding area. For example, if *exclude-pad* is \"true\", zero-values in the padding are not used.",
           "name": "exclude-pad",
           "option": "required",
           "type": "boolean"
         },
         {
-          "default": 1,
+          "default": "ceil",
           "description": " *rounding_type* is a type of rounding to be applied.",
-          "name": "rounding_type",
+          "name": "rounding-type",
           "option": "required",
           "type": "\n    * *ceil*\n    * *floor*"
         }
@@ -297,7 +337,7 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
+          "default": 0,
           "description": " *negative_slope* is a multiplier, which is used if the unit is not active (that is negative). For example, *negative_slope* equal 0.1 means that an inactive unit value would be multiplied by 0.1 and this is the [Leaky ReLU](https://keras.io/layers/advanced-activations/#leakyrelu). If *negative_slope* is equal to 0, this is the usual *ReLU*.",
           "name": "negative_slope",
           "option": "required",
@@ -316,11 +356,15 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
+          "default": "sigmoid",
           "description": " *type* represents particular activation function. For example, *type* equal *sigmoid* means that neurons of this layer have a sigmoid activation function.",
           "name": "type",
-          "option": "required",
-          "type": "\n    * *sigmoid* - sigmoid activation function. Learn more from the **Detailed description** section.\n    * *tanh* - tanh activation function. Learn more from the **Detailed description** section.\n    * *elu* - elu activation function. Learn more from the **Detailed description** section.\n    * *relu6* - relu6 activation function."
+          "option": "required"
+        },
+        {
+          "default": 1.0,
+          "name": "alpha",
+          "type": "float32"
         }
       ],
       "category": "Activation",
@@ -335,11 +379,10 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
           "description": " *axis* represents the axis of which the *SoftMax* is calculated. *axis* equal 1 is a default value.",
           "name": "axis",
           "option": "required",
-          "type": " positive integer values"
+          "type": "int32"
         }
       ],
       "category": "Activation",
@@ -497,11 +540,10 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
           "description": " *axis* is the number of axis over which input blobs are concatenated. For example, *axis* equal 1 means that input blobs are concatenated over the first axis.",
           "name": "axis",
           "option": "required",
-          "type": " positive number greater or equal to 0"
+          "type": "int32"
         }
       ],
       "category": "Tensor",
@@ -531,21 +573,20 @@
           "description": " *axis* is the number of the starting axis for reshape. For example, *axis* equal 1 means that *Reshape* replaces dimensions starting from the next after the first dimension.",
           "name": "axis",
           "option": "required",
-          "type": " positive number greater or equal to 0"
+          "type": "int32"
         },
         {
-          "default": 1,
           "description": " *dim* is a set of numbers separated with comma, which denote the dimensions of output blob. For example, *dim* equal 88,1,71 means that output blob gets following dimensions: first dimension equals 88, second dimension equals 1, third dimension equals 71. For more information, refer to the **Description** block. If *dim* is equal to two numbers, it performs [flattening](http://caffe.berkeleyvision.org/tutorial/layers/flatten.html).",
           "name": "dim",
           "option": "required",
-          "type": " set of positive integer numbers separated with comma"
+          "type": "int32[]"
         },
         {
           "default": 1,
           "description": " *num_axes* is the number of dimensions to be replaced with a reshaped blob starting from the dimension number specified in *axis* property. For example, *num_axes* equal 2 means that 2 dimensions are replaced with reshaped blob.",
           "name": "num_axes",
           "option": "required",
-          "type": ""
+          "type": "int32"
         }
       ],
       "category": "Shape",
@@ -560,7 +601,7 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
+          "default": "sum",
           "description": " *operation* is the simple mathematical operation to be performed over inputs. For example, *operation* equal *mul* means that input blobs are multiplied.",
           "name": "operation",
           "option": "required",
@@ -577,7 +618,6 @@
     "name": "ScaleShift",
     "schema": {
       "attributes": [],
-      "category": "Layer",
       "description": "**Short description**: *ScaleShift* layer performs linear transformation of the input blobs. Weights denote scaling parameter, biases - a shift.\n**Parameters**: *ScaleShift* layer does not have additional parameters.\n**Mathematical Formulation**\n\\f[\no_{i} =\\gamma b_{i} + \\beta\n\\f]\n**Example**\n\n```\n<layer ... type=\"ScaleShift\" ... >\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
       "inputs": null,
       "outputs": null,
@@ -737,17 +777,15 @@
           "description": " *axis* is the index of the axis to tile. For example, *axis* equals 3 means that fourth axis is used for tiling.",
           "name": "axis",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
-          "default": 1,
           "description": " *tiles* is a size of the specified axis in the output blob. For example, *tiles* equal 88 means that output blob gets 88 copies of data from specified axis.",
           "name": "tiles",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         }
       ],
-      "category": "Layer",
       "description": "**Short description**: *Tile* layer extends input blob with copies of data along specific axis.\n**Detailed description**: [Reference](http://caffe.help/manual/layers/tile.html)\n**Parameters**: *Tile* layer parameters should be specified as the `tile_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Tile* extends input blobs and filling in output blobs following rules:\n\\f[\nout_i=input_i[inner\\_dim*t]\n\\f]\n\\f[\nt \\in \\left ( 0, \\quad tiles \\right )\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Tile\" ... >\n    <tile_data axis=\"3\" tiles=\"88\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
       "inputs": null,
       "outputs": null,
@@ -759,11 +797,10 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
           "description": " *order* is the set of dimensions indexes for output blob. For example, *order* equal 0,2,3,1 means that the output blob has following dimensions: first dimension from the input blob, third dimension from the input blob, fourth dimension from the input blob, second dimension from the input blob.",
           "name": "order",
           "option": "required",
-          "type": " set of positive integer numbers separated by comma"
+          "type": "int32[]"
         }
       ],
       "category": "Shape",
@@ -778,53 +815,54 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
-          "description": " *min_size (max_size)* is the minimum (maximum) box size (in pixels). For example, *min_size (max_size)* equal 15 means that the minimum (maximum) box size is 15.",
-          "name": "min_size (max_size)",
+          "name": "min_size",
           "option": "required",
-          "type": " positive integer number"
+          "type": "float32"
+        },
+        {
+          "name": "max_size",
+          "option": "required",
+          "type": "float32"
         },
         {
           "default": 1,
           "description": " *aspect_ratio* is a variance of aspect ratios. Duplicate values are ignored. For example, *aspect_ratio* equal 2.000000,3.000000 means that for the first box aspect_ratio is equal to 2 and for the second box - 3.",
           "name": "aspect_ratio",
           "option": "required",
-          "type": " set of positive integer numbers"
+          "type": "float32"
         },
         {
-          "default": 1,
+          "default": false,
           "description": " *flip* is a flag that denotes that each *aspect_ratio* is duplicated and flipped. For example, *flip* equals 1 and *aspect_ratio* equals 3 mean that aspect_ratio is equal to 1/3.",
           "name": "flip",
           "option": "required",
-          "type": "\n    * 0 - each *aspect_ratio* is flipped\n    * 1 - each *aspect_ratio* is not flipped"
+          "type": "boolean"
         },
         {
-          "default": 1,
+          "default": false,
           "description": " *clip* is a flag that denotes if each value in the output blob is within [0,1]. For example, *clip* equal 1 means that each value in the output blob is within [0,1].",
           "name": "clip",
           "option": "required",
-          "type": "\n    * 0 - clipping is not performed\n    * 1 - each value in the output blob is within [0,1]"
+          "type": "boolean"
         },
         {
-          "default": 1,
           "description": " *step* is a distance between box centers. For example, *step* equal 85 means that the distance between neighborhood prior boxes centers is 85.",
           "name": "step",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32"
         },
         {
-          "default": 1,
+          "default": 0.5,
           "description": " *offset* is a shift of box respectively to top left corner. For example, *offset* equal 85 means that the shift of neighborhood prior boxes centers is 85.",
           "name": "offset",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32"
         },
         {
-          "default": 1,
           "description": " *variance* denotes a variance of adjusting bounding boxes. For example, *variance* equals 85 means that the shift of neighborhood prior boxes centers is 85.",
           "name": "variance",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32[]"
         },
         {
           "default": 1,
@@ -903,21 +941,21 @@
           "description": " number of classes to be predicted",
           "name": "num_classes",
           "option": "required",
-          "type": " positive integer values"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " background label id. If there is no background class, set it to -1.",
           "name": "background_label_id",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " maximum number of results to be kept on NMS stage",
           "name": "top_k",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         },
         {
           "default": 1,
@@ -931,14 +969,14 @@
           "description": " number of total bboxes to be kept per image after NMS step. -1 means keeping all bboxes after NMS step.",
           "name": "keep_top_k",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": null,
           "name": "num_orient_classes",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         },
         {
           "default": 1,
@@ -959,7 +997,7 @@
           "description": null,
           "name": "interpolate_orientation",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         },
         {
           "default": 1,
@@ -1019,18 +1057,18 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
+          "default": 0,
           "description": " *min* is the lower bound of values in the output shape. Any value in the input shape that is smaller than the bound, is replaced by the *min* value. For example, *min* equal 10 means that any value in the input shape that is smaller than the bound, is replaced by 10.",
           "name": "min",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *max* is the upper bound of values in the output shape. Any value in the input shape that is greater than the bound, is replaced by the *max* value. For example, *max* equals 50 means that any value in the input shape that is greater than the bound, is replaced by 50.",
           "name": "max",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         }
       ],
       "description": "**Short description**: *Clamp* layer represents clipping activation operation.\n**Detailed description**: [Reference](https://www.tensorflow.org/versions/r1.2/api_docs/MO_DG/prepare_model/python/tf/clip_by_value)\n**Parameters**: *Clamp* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Clamp* generally does the following with the input blobs:\n\\f[\nout_i=\\left\\{\\begin{array}{ll}\n\tmax\\_value \\quad \\mbox{if } \\quad input_i>max\\_value \\\\\n\tmin\\_value \\quad \\mbox{if } \\quad input_i\n\\end{array}\\right.\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Clamp\" ... >\n    <data min=\"10\" max=\"50\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -1062,7 +1100,7 @@
           "description": " if set, maximizes along the specified axis, else maximizes the flattened trailing dimensions for each index of the first / num dimension.",
           "name": "axis",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         }
       ],
       "description": "**Short description**: *ArgMax* layer compute the index of the *K* maximum values for each datum across all dimensions *CxHxW*.\n**Detailed description**: Intended for use after a classification layer to produce a prediction. If parameter *out_max_val* is set to \"true\", output is a vector of pairs *(max_ind, max_val)* for each image. The *axis* parameter specifies an axis along which to maximize.\n**Parameters**: *ArgMax* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*ArgMax* generally does the following with the input blobs:\n\\f[\no_{i} = \\left\\{\nx| x \\in S  \\wedge \\forall y \\in S : f(y) \\leq f(x)\n\\right\\}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"ArgMax\" ... >\n    <data top_k=\"10\" out_max_val=\"1\" axis=\"-1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -1135,32 +1173,31 @@
           "type": " 0 or 1"
         },
         {
-          "default": 1,
           "description": " *filler_type* defines initialization type for negative slope.",
           "name": "filler_type",
           "option": "required",
-          "type": " string"
+          "type": "string"
         },
         {
           "default": 1,
           "description": " *filler_value* defines the value in constant filler.",
           "name": "filler_value",
           "option": "required",
-          "type": " integer"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *min(max)* defines the minimal(maximal) value in uniform filler.",
           "name": "min(max)",
           "option": "required",
-          "type": " integer"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *mean* defines the mean value in Gaussian filler.",
           "name": "mean",
           "option": "required",
-          "type": " integer"
+          "type": "int32"
         }
       ],
       "category": "Activation",
@@ -1214,14 +1251,14 @@
           "description": " *mask* specifies which anchors to use",
           "name": "mask",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *mask* specifies which anchors to use",
           "name": "mask",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         },
         {
           "default": 1,
@@ -1254,7 +1291,7 @@
           "description": " *stride* is distance of cut throws in output blobs.",
           "name": "stride",
           "option": "required",
-          "type": " integer values"
+          "type": "int32"
         }
       ],
       "category": "Layer",
@@ -1269,56 +1306,71 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
-          "description": " *width (height)* is a parameter that specifies desired boxes widths (heights) in pixels.",
-          "name": "width (height)",
+          "description": " *width* is a parameter that specifies desired boxes widths in pixels.",
+          "name": "width",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32[]"
         },
         {
-          "default": 1,
+          "name": "height",
+          "option": "required",
+          "type": "float32[]"
+        },
+        {
+          "default": false,
           "description": " *clip* is a flag that denotes if each value in the output blob is within [0,1]. For example, *clip* equal 1 means that each value in the output blob is within [0,1].",
           "name": "clip",
           "option": "required",
-          "type": "\n    * 0 - clipping is not performed\n    * 1 - each value in the output blob is within [0,1]"
+          "type": "boolean"
         },
         {
-          "default": 1,
+          "default": false,
           "description": " *flip* is a flag that denotes whether the list of boxes is augmented with the flipped ones.",
           "name": "flip",
           "option": "required",
-          "type": "\n    * 0 - list of boxes is not augmented with the flipped ones\n    * 1 - list of boxes is augmented with the flipped ones"
+          "type": "boolean"
         },
         {
-          "default": 1,
-          "description": " *step (step_w, step_h)* is a distance between box centers. For example, *step* equal 85 means that the distance between neighborhood prior boxes centers is 85.",
-          "name": "step (step_w, step_h)",
+          "description": " *step* is a distance between box centers. For example, *step* equal 85 means that the distance between neighborhood prior boxes centers is 85.",
+          "name": "step",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32"
+        },
+        {
+          "name": "step_w",
+          "option": "required",
+          "type": "float32"
+        },
+        {
+          "name": "step_h",
+          "option": "required",
+          "type": "float32"
         },
         {
           "default": 1,
           "description": " *offset* is a shift of box respectively to top left corner. For example, *offset* equal 85 means that the shift of neighborhood prior boxes centers is 85.",
           "name": "offset",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32"
         },
         {
-          "default": 1,
           "description": " *variance* denotes a variance of adjusting bounding boxes. For example, *variance* equal 85 means that the shift of neighborhood prior boxes centers is 85.",
           "name": "variance",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32[]"
         },
         {
-          "default": 1,
-          "description": " *img_h (img_w)* specifies height (width) of input image. These parameters are calculated unless provided explicitly.",
-          "name": "img_h (img_w)",
+          "description": " *img_h* specifies height of input image. These parameters are calculated unless provided explicitly.",
+          "name": "img_h",
           "option": "required",
-          "type": " floating point positive number"
+          "type": "float32"
+        },
+        {
+          "name": "img_w",
+          "option": "required",
+          "type": "float32"
         }
       ],
-      "category": "Layer",
       "description": "**Short description**: *PriorBoxClustered* layer generates prior boxes of specified sizes.\n**Parameters**: *PriorBoxClustered* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*PriorBoxClustered* computes coordinates of prior boxes by following:\n1.  Calculates the *center_x* and *center_y* of prior box:\n    \\f[\n    W \\equiv Width \\quad Of \\quad Image\n    \\f]\n    \\f[\n    H \\equiv Height \\quad Of \\quad Image\n    \\f]\n    \\f[\n    center_x=(w+offset)*step\n    \\f]\n    \\f[\n    center_y=(h+offset)*step\n    \\f]\n    \\f[\n    w \\subset \\left( 0, W \\right )\n    \\f]\n    \\f[\n    h \\subset \\left( 0, H \\right )\n    \\f]\n2.  For each \\f$s \\subset \\left( 0, W \\right )\\f$ calculates the prior boxes coordinates:\n    \\f[\n    xmin = \\frac{center_x - \\frac{width_s}{2}}{W}\n    \\f]\n\t\\f[\n\tymin = \\frac{center_y - \\frac{height_s}{2}}{H}\n\t\\f]\n\t\\f[\n\txmax = \\frac{center_x - \\frac{width_s}{2}}{W}\n\t\\f]\n\t\\f[\n\tymax = \\frac{center_y - \\frac{height_s}{2}}{H}\n\t\\f]\nIf *clip* is defined, the coordinates of prior boxes are recalculated with the formula:\n\\f$coordinate = \\min(\\max(coordinate,0), 1)\\f$\n**Example**\n\n```html\n<layer ... type=\"PriorBoxClustered\">\n    <data clip=\"0\" flip=\"0\" height=\"44.0,10.0,30.0,19.0,94.0,32.0,61.0,53.0,17.0\" offset=\"0.5\" step=\"16.0\" variance=\"0.1,0.1,0.2,0.2\"\n     width=\"86.0,13.0,57.0,39.0,68.0,34.0,142.0,50.0,23.0\"/>\n    <input>\n        ...\n    </input>\n    <output>\n        ...\n    </output>\n</layer>\n```",
       "inputs": null,
       "outputs": null,
@@ -1477,7 +1529,23 @@
   {
     "name": "Flatten",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "attributes": [
+        { "name": "axis", "type": "int32" },
+        { "name": "end_axis", "type": "int32", "default": -1 }
+      ]
+    }
+  },
+  {
+    "name": "Pad",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        { "name": "pad_value", "type": "float32" },
+        { "name": "pads_begin", "type": "int32[]" },
+        { "name": "pads_end", "type": "int32[]" },
+        { "name": "pad_mode" }
+      ]
     }
   }
 ]

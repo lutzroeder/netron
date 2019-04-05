@@ -144,7 +144,7 @@
           "type": "int32"
         }
       ],
-      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to dataset with more than a couple of 10000 samples.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to datasets with more than a couple of 10000 samples. For large\ndatasets consider using :class:`sklearn.linear_model.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
       "package": "sklearn.svm"
     }
   },
@@ -244,7 +244,7 @@
           "option": "optional"
         }
       ],
-      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to dataset with more than a couple of 10000 samples.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to datasets with more than a couple of 10000 samples. For large\ndatasets consider using :class:`sklearn.linear_model.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
       "package": "sklearn.svm"
     }
   },
@@ -1136,7 +1136,7 @@
         },
         {
           "default": 100,
-          "description": "Useful only for the newton-cg, sag and lbfgs solvers.\nMaximum number of iterations taken for the solvers to converge.\n",
+          "description": "Maximum number of iterations taken for the solvers to converge.\n",
           "name": "max_iter",
           "option": "optional",
           "type": "int32"

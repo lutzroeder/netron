@@ -213,7 +213,6 @@ tf.Graph = class {
         this._version = null;
         this._metadata = new tf.GraphMetadata(metadata, metaGraph.meta_info_def);
         this._name = name;
-        this._operators = {};
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -233,28 +232,27 @@ tf.Graph = class {
             }
             var nodes = graph.node
             if (nodes) {
-                nodes.forEach((node) => {
-                    this._operators[node.op] = (this._operators[node.op] || 0) + 1;
-                });
+                var node;
+                var input;
                 var nodeMap = {};
                 this._namespaces = {};
-                nodes.forEach((node) => {
-                    var name = node.name;
-                    nodeMap[name] = node;
+                for (node of nodes) {
+                    var nodeName = node.name;
+                    nodeMap[nodeName] = node;
                     if (node.op != 'Const') {
-                        var lastIndex = name.lastIndexOf('/');
+                        var lastIndex = nodeName.lastIndexOf('/');
                         if (lastIndex != -1) {
-                            var namespace = name.substring(0, lastIndex);
+                            var namespace = nodeName.substring(0, lastIndex);
                             this._namespaces[namespace] = true;
                         }
                     }
                     node.output = [];
-                });
-                nodes.forEach((node) => {
+                }
+                for (node of nodes) {
                     var inputs = node.input;
                     node.input = [];
                     node.controlDependencies = [];
-                    inputs.forEach((input) => {
+                    for (input of inputs) {
                         var split = input.split(':', 2);
                         var inputName = split[0];
                         var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
@@ -273,19 +271,19 @@ tf.Graph = class {
                             }
                             outputNode.output[outputIndex] = outputName;
                         }
-                    });
-                });
+                    }
+                }
                 this._nodeOutputCountMap = {};
-                nodes.forEach((node) => {
-                    node.input.forEach((input) => {
+                for (node of nodes) {
+                    for (input of node.input) {
                         this._nodeOutputCountMap[input] = (this._nodeOutputCountMap[input] || 0) + 1;
-                    });
-                    node.controlDependencies.forEach((controlDependency) => {
+                    }
+                    for (var controlDependency of node.controlDependencies) {
                         this._nodeOutputCountMap[controlDependency] = (this._nodeOutputCountMap[controlDependency] || 0) + 1;
-                    });
-                });
+                    }
+                }
                 var initializers = {};
-                this._metaGraph.graph_def.node.forEach((node) => {
+                for (node of this._metaGraph.graph_def.node) {
                     if (node.op == 'Const' && node.input.length == 0 && node.controlDependencies.length == 0 && this._checkSingleOutput(node)) {
                         var value = node.attr.value;
                         if (value && value.hasOwnProperty('tensor')) {
@@ -295,21 +293,20 @@ tf.Graph = class {
                             }
                         }
                     }
-                });
-                this._metaGraph.graph_def.node.forEach((node) => {
+                }
+                for (node of this._metaGraph.graph_def.node) {
                     if (node.op == 'Identity' && node.input.length == 1 && node.controlDependencies.length == 0 && this._checkSingleOutput(node)) {
-                        var input = node.input[0];
-                        var tensor = initializers[input];
-                        if (tensor) {
-                            var output = node.output[0];
-                            initializers[input] = "-";
-                            tensor.kind = 'Identity Constant';
-                            initializers[output] = tensor;
+                        var initializer_name = node.input[0];
+                        var initializer = initializers[initializer_name];
+                        if (initializer) {
+                            initializers[initializer_name] = "-";
+                            initializer.kind = 'Identity Constant';
+                            initializers[node.output[0]] = initializer;
                         }
                     }
-                });
+                }
                 var inputMap = {};
-                this._metaGraph.graph_def.node.forEach((node) => {
+                for (node of this._metaGraph.graph_def.node) {
                     if (node.op == 'Placeholder' && node.input.length == 0 && node.controlDependencies.length == 0 && node.output.length == 1) {
                         var dtype = node.attr.dtype;
                         var shape = node.attr.shape;
@@ -319,11 +316,11 @@ tf.Graph = class {
                             inputMap[node.output[0]] = new tf.Argument(node.name, [ connection ]);
                         }
                     }
-                });
+                }
                 this._inputs = Object.keys(inputMap).map((key) => {
                     return inputMap[key];
                 });
-                this._metaGraph.graph_def.node.forEach((node) => {
+                for (node of this._metaGraph.graph_def.node) {
                     if (node.output.filter(output => !output.startsWith('^')) != 0 ||
                         node.input.filter(input => !input.startsWith('^')).length > 0) {
                         var id = node.name;
@@ -331,13 +328,9 @@ tf.Graph = class {
                             this._nodes.push(new tf.Node(this, node, initializers));
                         }
                     }
-                });
+                }
             }
         }
-    }
-
-    get operators() {
-        return this._operators;
     }
 
     get name() {
@@ -444,10 +437,9 @@ tf.Node = class {
         var metadata = graph.metadata;
         this._attributes = [];
         if (node.attr) {
-            Object.keys(node.attr).forEach((name) => {
-                var value = node.attr[name];
-                this._attributes.push(new tf.Attribute(name, value, this._operator, metadata));
-            });
+            for (var attributeName of Object.keys(node.attr)) {
+                this._attributes.push(new tf.Attribute(attributeName, node.attr[attributeName], this._operator, metadata));
+            }
         }
 
         var schema = metadata.getSchema(node.op);
@@ -456,58 +448,56 @@ tf.Node = class {
         var inputIndex = 0;
         var inputs = node.input.filter(input => !input.startsWith('^'));
         if (schema && schema.inputs) {
-            schema.inputs.forEach((input) => {
+            for (var input of schema.inputs) {
                 var inputCount = 1;
                 if (input.numberAttr) {
-                    var number = node.attr[input.numberAttr];
-                    if (number && number.i) {
-                        inputCount = number.i;
+                    var inputNumber = node.attr[input.numberAttr];
+                    if (inputNumber && inputNumber.i) {
+                        inputCount = inputNumber.i;
                     }
                 }
                 var result = {};
                 result.name = input.name;
-                var connections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+                var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
                     return new tf.Connection(id, null, initializers[id]);
                 });
-                this._inputs.push(new tf.Argument(input.name, connections));
+                this._inputs.push(new tf.Argument(input.name, inputConnections));
                 inputIndex += inputCount;
-            });
+            }
         }
         else {
-            inputs.slice(inputIndex).forEach((input) => {
-                this._inputs.push(new tf.Argument(inputIndex.toString(), [ 
+            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+                return new tf.Argument((inputIndex + index).toString(), [ 
                     new tf.Connection(input, null, initializers[input])
-                ]));
-                inputIndex++;
-            });
+                ]);
+            }));
         }
 
         this._outputs = [];
         var outputIndex = 0;
         var outputs = node.output;
         if (schema && schema.outputs) {
-            schema.outputs.forEach((output) => {
+            for (var output of schema.outputs) {
                 var outputCount = 1;
                 if (output.numberAttr) {
-                    var number = node.attr[output.numberAttr];
-                    if (number && number.i) {
-                        outputCount = number.i;
+                    var outputNumber = node.attr[output.numberAttr];
+                    if (outputNumber && outputNumber.i) {
+                        outputCount = outputNumber.i;
                     }
                 }
-                var connections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
+                var outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
                     return new tf.Connection(id, null, null);
                 });
-                this._outputs.push(new tf.Argument(output.name, connections));
+                this._outputs.push(new tf.Argument(output.name, outputConnections));
                 outputIndex += outputCount;
-            });
+            }
         }
         else {
-            outputs.slice(outputIndex).forEach((output) => {
-                this._outputs.push(new tf.Argument(outputIndex.toString(), [
+            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+                return new tf.Argument((outputIndex + index).toString(), [
                     new tf.Connection(output, null, null)
-                ]));
-                outputIndex++;
-            });
+                ]);
+            }));
         }
 
         this._controlDependencies = node.controlDependencies;
@@ -541,7 +531,7 @@ tf.Node = class {
     }
 
     get description() {
-        return null;
+        return '';
     }
 
     get domain() {
@@ -560,7 +550,7 @@ tf.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.type) {
                         input.type = tf.Tensor.formatDataType(input.type);
                     }
@@ -573,10 +563,10 @@ tf.Node = class {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.type) {
                         output.type = tf.Tensor.formatDataType(output.type);
                     }
@@ -589,10 +579,10 @@ tf.Node = class {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     var description = attribute.description;
                     if (attribute.allowedValues) {
                         var allowedValues = tf.GraphMetadata._formatAttributeValue(attribute.allowedValues);
@@ -611,16 +601,16 @@ tf.Node = class {
                     if (description) {
                         attribute.description = marked(description);
                     }
-                });
+                }
             }
             return schema;
         }
-        return null;
+        return '';
     }
 
     get category() {
         var schema = this._graph.metadata.getSchema(this.operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get inputs() {
@@ -841,9 +831,9 @@ tf.Tensor = class {
             return context;
         }
 
-        this._tensor.tensor_shape.dim.forEach((dim) => {
+        for (var dim of this._tensor.tensor_shape.dim) {
             context.size = context.size * (dim.size ? dim.size : 0);
-        });
+        }
 
         switch (this._tensor.dtype) {
             case tf.proto.DataType.DT_FLOAT:
@@ -979,11 +969,11 @@ tf.Tensor = class {
         if (!tf.Tensor.dataType)
         {
             tf.Tensor.dataType = {};
-            Object.keys(tf.proto.DataType).forEach((key) => {
+            for (var key of Object.keys(tf.proto.DataType)) {
                 var value = tf.proto.DataType[key];
                 key = key.startsWith('DT_') ? key.substring(3) : key;
                 tf.Tensor.dataType[value] = key.toLowerCase();
-            });
+            }
             tf.Tensor.dataType[tf.proto.DataType.DT_HALF] = 'float16';
             tf.Tensor.dataType[tf.proto.DataType.DT_FLOAT] = 'float32';
             tf.Tensor.dataType[tf.proto.DataType.DT_DOUBLE] = 'float64';
@@ -1077,9 +1067,9 @@ tf.GraphMetadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }
@@ -1093,7 +1083,7 @@ tf.GraphMetadata = class {
             if (!map) {
                 map = {};
                 if (schema.inputs) {
-                    schema.inputs.forEach((input) => {
+                    for (var input of schema.inputs) {
                         if (input.typeAttr) {
                             map[input.typeAttr] = true;
                         }
@@ -1103,10 +1093,10 @@ tf.GraphMetadata = class {
                         if (input.numberAttr) {
                             map[input.numberAttr] = true;
                         }
-                    });
+                    }
                 }
                 if (schema.outputs) {
-                    schema.outputs.forEach((output) => {
+                    for (var output of schema.outputs) {
                         if (output.typeAttr) {
                             map[output.typeAttr] = true;
                         }
@@ -1116,7 +1106,7 @@ tf.GraphMetadata = class {
                         if (output.numberAttr) {
                             map[output.numberAttr] = true;
                         }
-                    });
+                    }
                 }
                 schema.__visisbleAttributeMap__ = map;
             }
@@ -1175,11 +1165,11 @@ tf.Metadata = class {
             if (data) {
                 var items = JSON.parse(data);
                 if (items) {
-                    items.forEach((item) => {
+                    for (var item of items) {
                         if (item.name && item.schema) {
                             this._map[item.name] = item.schema;
                         }
-                    });
+                    }
                 }
             }
         }

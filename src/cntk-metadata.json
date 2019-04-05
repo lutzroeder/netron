@@ -236,6 +236,18 @@
     }
   },
   {
+    "name": "AveragePooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Pooling",
     "schema": {
       "category": "Pool",

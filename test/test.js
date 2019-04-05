@@ -59,8 +59,11 @@ var dataFolder = __dirname + '/data';
 class TestHost {
 
     constructor() {
-        this._exceptions = [];
-        this.document = new HTMLDocument();
+        this._document = new HTMLDocument();
+    }
+
+    get document() {
+        return this._document;
     }
 
     initialize(/* view */) {
@@ -110,11 +113,45 @@ class TestHost {
     }
 
     exception(err /*, fatal */) {
-        this._exceptions.push(err);
+        this._raise('exception', { exception: err });
     }
 
-    get exceptions() {
-        return this._exceptions;
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    _raise(event, data) {
+        if (this._events && this._events[event]) {
+            for (var callback of this._events[event]) {
+                callback(this, data);
+            }
+        }
+    }
+}
+
+class TestContext {
+
+    constructor(host, folder, identifier, buffer) {
+        this._host = host;
+        this._folder = folder;
+        this._identifier = identifier;
+        this._buffer = buffer;
+    }
+
+    request(file, encoding, callback) {
+        this._host.request(this._folder, file, encoding, (err, buffer) => {
+            callback(err, buffer);
+        });
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get buffer() {
+        return this._buffer;
     }
 }
 
@@ -200,79 +237,6 @@ class CSSStyleDeclaration {
     }
 }
 
-class TestContext {
-
-    constructor(host, folder, identifier, buffer) {
-        this._tags = {};
-        this._host = host;
-        this._folder = folder;
-        this._identifier = identifier;
-        this._buffer = buffer;
-    }
-
-    request(file, encoding, callback) {
-        this._host.request(this._folder, file, encoding, (err, buffer) => {
-            callback(err, buffer);
-        });
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get buffer() {
-        return this._buffer;
-    }
-
-    get text() {
-        if (!this._text) {
-            var decoder = new TextDecoder('utf-8');
-            this._text = decoder.decode(this._buffer);
-        }
-        return this._text;
-    }
-
-    tags(extension) {
-        var tags = this._tags[extension];
-        if (!tags) {
-            tags = {};
-            try {
-                var reader = null;
-                switch (extension) {
-                    case 'pbtxt':
-                        reader = protobuf.TextReader.create(this.text);
-                        reader.start(false);
-                        while (!reader.end(false)) {
-                            var tag = reader.tag();
-                            tags[tag] = true;
-                            reader.skip();
-                        }
-                        break;
-                    case 'pb':
-                        reader = new protobuf.Reader.create(this.buffer);
-                        while (reader.pos < reader.len) {
-                            var tagType = reader.uint32();
-                            tags[tagType >>> 3] = tagType & 7;
-                            try {
-                                reader.skipType(tagType & 7);
-                            }
-                            catch (err) {
-                                tags = {};
-                                break;
-                            }
-                        }
-                        break;
-                }
-            }
-            catch (error) {
-                tags = {};
-            }
-            this._tags[extension] = tags;
-        }
-        return tags;
-    }
-}
-
 function makeDir(dir) {
     if (!fs.existsSync(dir)){
         makeDir(path.dirname(dir));
@@ -329,18 +293,15 @@ function request(location, cookie, callback) {
             response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
             cookie = response.headers['set-cookie'];
             var download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
-            var confirmToken = download.split(';').shift().split('=').pop();
-            location = location + '&confirm=' + confirmToken;
+            var confirm = download.split(';').shift().split('=').pop();
+            location = location + '&confirm=' + confirm;
             request(location, cookie, callback);
             return;
         }
         if (response.statusCode == 301 || response.statusCode == 302) {
-            if (url.parse(response.headers.location).hostname) {
-                location = response.headers.location;
-            }
-            else {
-                location = url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
-            }
+            location = url.parse(response.headers.location).hostname ?
+                response.headers.location : 
+                url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
             request(location, cookie, callback);
             return;
         }
@@ -375,7 +336,7 @@ function request(location, cookie, callback) {
 
 function download(folder, targets, sources, completed, callback) {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
-        targets.forEach((target) => completed.push(target));
+        completed = completed.concat(targets);
         callback(null, completed);
         return;
     }
@@ -406,9 +367,10 @@ function download(folder, targets, sources, completed, callback) {
             sources = '';
         }
     }
-    targets.forEach((target) => {
+    var target;
+    for (target of targets) {
         makeDir(path.dirname(folder + '/' + target));
-    });
+    }
     request(source, [], (err, data) => {
         if (err) {
             callback(err, null);
@@ -421,7 +383,7 @@ function download(folder, targets, sources, completed, callback) {
             process.stdout.write('  decompress...\r');
             var archive = decompress(data, source.split('/').pop());
             // console.log(archive);
-            sourceFiles.forEach((file) => {
+            for (var file of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
                 }
@@ -433,10 +395,10 @@ function download(folder, targets, sources, completed, callback) {
                 var target = targets.shift();
                 fs.writeFileSync(folder + '/' + target, entry.data, null);
                 completed.push(target);
-            });
+            }
         }
         else {
-            var target = targets.shift();
+            target = targets.shift();
             if (process.stdout.clearLine) {
                 process.stdout.clearLine();
             }
@@ -457,6 +419,10 @@ function download(folder, targets, sources, completed, callback) {
 
 function loadModel(target, item, callback) {
     var host = new TestHost();
+    var exceptions = [];
+    host.on('exception', (_, data) => {
+        exceptions.push(data.exception);
+    });
     var folder = path.dirname(target);
     var identifier = path.basename(target);
     var size = fs.statSync(target).size;
@@ -487,57 +453,70 @@ function loadModel(target, item, callback) {
             return;
         }
         try {
-            model.graphs.forEach((graph) => {
-                graph.inputs.forEach((input) => {
-                    input.connections.forEach((connection) => {
+            for (var graph of model.graphs) {
+                var input;
+                var connection;
+                for (input of graph.inputs) {
+                    input.name.toString();
+                    for (connection of input.connections) {
+                        connection.id.toString();
                         if (connection.type) {
                             connection.type.toString();
                         }
-                    });
-                });
-                graph.outputs.forEach((output) => {
-                    output.connections.forEach((connection) => {
+                    }
+                }
+                var output;
+                for (output of graph.outputs) {
+                    output.name.toString();
+                    for (connection of output.connections) {
+                        connection.id.toString();
                         if (connection.type) {
                             connection.type.toString();
                         }
-                    });
-                });
-                graph.nodes.forEach((node) => {
-                    node.documentation;
-                    node.category;
-                    node.attributes.forEach((attribute) => {
+                    }
+                }
+                for (var node of graph.nodes) {
+                    node.name.toString();
+                    node.documentation.toString();
+                    node.category.toString();
+                    for (var attribute of node.attributes) {
+                        attribute.name.toString();
                         var value = view.View.formatAttributeValue(attribute.value, attribute.type)
                         if (value && value.length > 1000) {
                             value = value.substring(0, 1000) + '...';
                         }
                         value = value.split('<');
-                    });
-                    node.inputs.forEach((input) => {
-                        input.connections.forEach((connection) => {
+                    }
+                    for (input of node.inputs) {
+                        input.name.toString();
+                        for (connection of input.connections) {
+                            connection.id.toString();
                             if (connection.type) {
                                 connection.type.toString();
                             }
                             if (connection.initializer) {
                                 connection.initializer.toString();
                             }
-                        });
-                    });
-                    node.outputs.forEach((output) => {
-                        output.connections.forEach((connection) => {
+                        }
+                    }
+                    for (output of node.outputs) {
+                        output.name.toString();
+                        for (connection of output.connections) {
+                            connection.id.toString();
                             if (connection.type) {
                                 connection.type.toString();
                             }
-                        });
-                    });
-                });
-            });
+                        }
+                    }
+                }
+            }
         }
         catch (error) {
             callback(error, null);
             return;
         }
-        if (host.exceptions.length > 0) {
-            callback(host.exceptions[0], null);
+        if (exceptions.length > 0) {
+            callback(exceptions[0], null);
             return;
         }
         callback(null, model);
@@ -546,17 +525,22 @@ function loadModel(target, item, callback) {
 }
 
 function render(model, callback) {
-    var host = new TestHost();
-    var currentView = new view.View(host);
-    if (!currentView.showAttributes) {
-        currentView.toggleAttributes();
+    try {
+        var host = new TestHost();
+        var currentView = new view.View(host);
+        if (!currentView.showAttributes) {
+            currentView.toggleAttributes();
+        }
+        if (!currentView.showInitializers) {
+            currentView.toggleInitializers();
+        }
+        currentView.renderGraph(model.graphs[0], (err) => {
+            callback(err);
+        });
     }
-    if (!currentView.showInitializers) {
-        currentView.toggleInitializers();
-    }
-    currentView.renderGraph(model.graphs[0], (err) => {
+    catch (err) {
         callback(err);
-    });
+    }
 }
 
 function next() {
@@ -564,6 +548,10 @@ function next() {
         return;
     }
     var item = models.shift();
+    if (!item.type) {
+        console.error("Property 'type' is required for item '" + JSON.stringify(item) + "'.");
+        return;
+    }
     if (type && item.type != type) {
         next();
         return;
@@ -587,19 +575,19 @@ function next() {
                     completed = targets;
                 }
                 catch (err) {
-                    console.log(err);
+                    console.error(err);
                     return;
                 }
             }
             else {
-                console.log(err);
+                console.error(err);
                 return;
             }
         }
         loadModel(folder + '/' + completed[0], item, (err, model) => {
             if (err) {
-                if (!item.error && item.error != err.message) {
-                    console.log(err);
+                if (!item.error || item.error != err.message) {
+                    console.error(err);
                     return;
                 }
                 next();
@@ -609,7 +597,7 @@ function next() {
                     render(model, (err) => {
                         if (err) {
                             if (!item.error && item.error != err.message) {
-                                console.log(err);
+                                console.error(err);
                                 return;
                             }
                         }

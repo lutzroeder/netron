@@ -1893,6 +1893,7 @@
                 this.strings = [];
                 this.tensors = [];
                 this.nets = [];
+                this.qtensors = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -1910,6 +1911,7 @@
             Argument.prototype.strings = $util.emptyArray;
             Argument.prototype.tensors = $util.emptyArray;
             Argument.prototype.nets = $util.emptyArray;
+            Argument.prototype.qtensors = $util.emptyArray;
     
             Argument.create = function create(properties) {
                 return new Argument(properties);
@@ -1997,6 +1999,11 @@
                             message.nets = [];
                         message.nets.push($root.caffe2.NetDef.decode(reader, reader.uint32()));
                         break;
+                    case 12:
+                        if (!(message.qtensors && message.qtensors.length))
+                            message.qtensors = [];
+                        message.qtensors.push($root.caffe2.QTensorProto.decode(reader, reader.uint32()));
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -2081,6 +2088,11 @@
                             message.nets = [];
                         message.nets.push($root.caffe2.NetDef.decodeText(reader, true));
                         break;
+                    case "qtensors":
+                        if (!(message.qtensors && message.qtensors.length))
+                            message.qtensors = [];
+                        message.qtensors.push($root.caffe2.QTensorProto.decodeText(reader, true));
+                        break;
                     default:
                         reader.field(tag, message);
                         break;
@@ -2151,6 +2163,15 @@
                         var error = $root.caffe2.NetDef.verify(message.nets[i]);
                         if (error)
                             return "nets." + error;
+                    }
+                }
+                if (message.qtensors != null && message.hasOwnProperty("qtensors")) {
+                    if (!Array.isArray(message.qtensors))
+                        return "qtensors: array expected";
+                    for (var i = 0; i < message.qtensors.length; ++i) {
+                        var error = $root.caffe2.QTensorProto.verify(message.qtensors[i]);
+                        if (error)
+                            return "qtensors." + error;
                     }
                 }
                 return null;
@@ -2239,6 +2260,16 @@
                         message.nets[i] = $root.caffe2.NetDef.fromObject(object.nets[i]);
                     }
                 }
+                if (object.qtensors) {
+                    if (!Array.isArray(object.qtensors))
+                        throw TypeError(".caffe2.Argument.qtensors: array expected");
+                    message.qtensors = [];
+                    for (var i = 0; i < object.qtensors.length; ++i) {
+                        if (typeof object.qtensors[i] !== "object")
+                            throw TypeError(".caffe2.Argument.qtensors: object expected");
+                        message.qtensors[i] = $root.caffe2.QTensorProto.fromObject(object.qtensors[i]);
+                    }
+                }
                 return message;
             };
     
@@ -2252,6 +2283,7 @@
                     object.strings = [];
                     object.nets = [];
                     object.tensors = [];
+                    object.qtensors = [];
                 }
                 if (options.defaults) {
                     object.name = "";
@@ -2313,6 +2345,11 @@
                     object.tensors = [];
                     for (var j = 0; j < message.tensors.length; ++j)
                         object.tensors[j] = $root.caffe2.TensorProto.toObject(message.tensors[j], options);
+                }
+                if (message.qtensors && message.qtensors.length) {
+                    object.qtensors = [];
+                    for (var j = 0; j < message.qtensors.length; ++j)
+                        object.qtensors[j] = $root.caffe2.QTensorProto.toObject(message.qtensors[j], options);
                 }
                 return object;
             };

@@ -1951,10 +1951,10 @@
   },
   {
     "type":   "mxnet",
-    "target": "caffenet.json,caffenet-0000.params",
-    "source": "http://data.dmlc.ml/mxnet/models/imagenet/caffenet/caffenet-symbol.json,http://data.dmlc.ml/mxnet/models/imagenet/caffenet/caffenet-0000.params",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+    "target": "conv_weights_sharing.json",
+    "source": "https://github.com/lutzroeder/netron/files/3016064/conv_weights_sharing.json.zip[conv_weights_sharing.json]",
+    "format": "MXNet v1.3.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/245"
   },
   {
     "type":   "mxnet",
@@ -2010,13 +2010,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "Inception-BN-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/inception-bn/Inception-BN-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "lstm_ptb.model",
     "source": "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb.model"
   },
@@ -2038,13 +2031,6 @@
     "type":   "mxnet",
     "target": "nin.model",
     "source": "https://s3.amazonaws.com/model-server/models/nin/nin.model"
-  },
-  {
-    "type":   "mxnet",
-    "target": "nin-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/nin/nin-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
   },
   {
     "type":   "mxnet",
@@ -2168,20 +2154,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "resnext-101-64x4d-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/resnext/101-layers/resnext-101-64x4d-symbol.json",
-    "format": "MXNet v0.9.4",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet-152-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/resnet/152-layers/resnet-152-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "squeezenet.model",
     "source": "https://s3.amazonaws.com/model-server/models/onnx-squeezenet/squeezenet.model"
   },
@@ -2192,22 +2164,8 @@
   },
   {
     "type":   "mxnet",
-    "target": "squeezenet_v1.1-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/squeezenet/squeezenet_v1.1-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "vgg16.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16/vgg16.model"
-  },
-  {
-    "type":   "mxnet",
-    "target": "vgg16-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/vgg/vgg16-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
   },
   {
     "type":   "mxnet",
@@ -2220,13 +2178,6 @@
     "source": "https://s3.amazonaws.com/model-server/models/onnx-vgg19/vgg19.model"
   },
   {
-    "type":   "mxnet",
-    "target": "vgg19-symbol.json",
-    "source": "http://data.dmlc.ml/models/imagenet/vgg/vgg19-symbol.json",
-    "format": "MXNet",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {   
     "type":   "mxnet",
     "target": "vgg19_bn.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
@@ -2378,6 +2329,20 @@
     "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/gru_1.pb",
     "format": "ONNX v0",
     "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":   "onnx",
+    "target": "gzip_invalid_archive.tar.gz",
+    "source": "https://github.com/lutzroeder/netron/files/3027192/gzip_invalid_archive.tar.gz",
+    "error":  "Invalid GZIP archive in 'gzip_invalid_archive.tar.gz'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/249"
+  },
+  {
+    "type":   "onnx",
+    "target": "gzip_invalid_compression.tar.gz",
+    "source": "https://github.com/lutzroeder/netron/files/3027193/gzip_invalid_compression.tar.gz",
+    "error":  "Invalid compression method '1' in 'gzip_invalid_compression.tar.gz'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/249"
   },
   {
     "type":   "onnx",
@@ -2598,7 +2563,15 @@
   {
     "type":   "onnx",
     "target": "zfnet512_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]",
+    "link":   "https://github.com/onnx/models/blob/master/zfnet512/README.md"
+  },
+  {
+    "type":   "onnx",
+    "target": "zip_invalid_archive.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3027198/zip_invalid_archive.zip",
+    "error":  "Invalid ZIP archive in 'zip_invalid_archive.zip'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/250"
   },
   {
     "type":   "onnx",
@@ -3070,6 +3043,20 @@
     "link":   "https://github.com/lutzroeder/netron/issues/198"
   },
   {
+    "type":   "paddle",
+    "target": "with_dummy_tensor_type.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3021210/with_dummy_tensor_type.zip",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/246"
+  },
+  {
+    "type":   "paddle",
+    "target": "without_tensor_type.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3021211/without_tensor_type.zip",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/246"
+  },
+  {
     "type":   "pytorch",
     "target": "alexnet.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
@@ -3199,7 +3186,7 @@
   },
   {
     "type":   "pytorch",
-    "target": "tutorial_variational_autoencoder.pth",
+    "target": "tutorial_variational_autoencoder.pth.tar",
     "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_variational_autoencoder.pth]",
     "format": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/133"
@@ -3277,13 +3264,6 @@
   },
   {
     "type":   "sklearn",
-    "target": "resnet50.pkl",
-    "source": "https://s3.amazonaws.com/lasagne/recipes/pretrained/imagenet/resnet50.pkl",
-    "error":  "Root object has no type.",
-    "link":   "https://github.com/kundan2510/resnet50-feature-extractor"
-  },
-  {
-    "type":   "sklearn",
     "target": "svc.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.joblib.pkl]",
     "format": "scikit-learn 0.19.1",
@@ -3341,8 +3321,8 @@
   },
   {
     "type":   "tf",
-    "target": "conv-layers.pb",
-    "source": "https://github.com/lutzroeder/netron/files/2592468/conv-layers.pb.zip[conv-layers.pb]",
+    "target": "conv-layers.pb.zip",
+    "source": "https://github.com/lutzroeder/netron/files/2592468/conv-layers.pb.zip",
     "format": "TensorFlow Graph",
     "link":   "https://github.com/lutzroeder/netron/issues/187"
   },
@@ -3640,6 +3620,14 @@
     "source": "http://download.tensorflow.org/models/official/20181001_resnet/savedmodels/resnet_v2_fp16_savedmodel_NHWC.tar.gz[./resnet_v2_fp16_savedmodel_NHWC/1538686978/saved_model.pb]",
     "format": "TensorFlow Saved Model v1",
     "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
+  },
+  {
+    "type":   "tf",
+    "target": "resnet18_model_baseline.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/2913372/resnet18_model_baseline.pbtxt.zip[resnet18_model_baseline.pbtxt]",
+    "render": "skip",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/235"
   },
   {
     "type":   "tf",
@@ -4069,7 +4057,7 @@
   {
     "type":   "torch",
     "target": "resnext_101_64x4d.t7",
-    "source": "https://s3.amazonaws.com/resnext/imagenet_models/resnext_101_64x4d.t7",
+    "source": "https://dl.fbaipublicfiles.com/resnext/imagenet_models/resnext_101_64x4d.t7",
     "format": "Torch v7",
     "link":   "https://github.com/facebookresearch/ResNeXt"
   },

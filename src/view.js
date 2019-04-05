@@ -282,7 +282,7 @@ view.View = class {
             var graphRect = graphElement.getBoundingClientRect();
             var x = 0;
             var y = 0;
-            selection.forEach((element) => {
+            for (var element of selection) {
                 element.classList.add('select');
                 this._selection.push(element);
                 var box = element.getBBox();
@@ -295,7 +295,7 @@ view.View = class {
                 }
                 x += ex;
                 y += ey;
-            });
+            }
             x = x / selection.length;
             y = y / selection.length;
             this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));
@@ -457,8 +457,9 @@ view.View = class {
 
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
+                var node;
                 if (groups) {
-                    nodes.forEach((node) => {
+                    for (node of nodes) {
                         if (node.group) {
                             var path = node.group.split('/');
                             while (path.length > 0) {
@@ -467,16 +468,20 @@ view.View = class {
                                 clusterParentMap[name] = path.join('/');
                             }
                         }
-                    });
+                    }
                 }
-    
-                var self = this;
 
-                nodes.forEach((node) => {
+                var input;
+                var output;
+                var connection;
+                var tuple;
+
+                var self = this;
+                for (node of nodes) {
     
                     var element = new grapher.NodeElement(this._host.document);
 
-                    function addNode(element, node, edges) {
+                    var addNode = function(element, node, edges) {
 
                         var header =  element.block('header');
                         var styles = [ 'node-item-operator' ];
@@ -499,14 +504,14 @@ view.View = class {
                         var initializers = [];
                         var hiddenInitializers = false;
                         if (self._showInitializers) {
-                            node.inputs.forEach((input) => {
+                            for (var input of node.inputs) {
                                 if (input.visible && input.connections.length == 1 && input.connections[0].initializer != null) {
                                     initializers.push(input);
                                 }
                                 if (!input.visible && input.connections.some((connection) => connection.initializer != null)) {
                                     hiddenInitializers = true;
                                 }
-                            });
+                            }
                         }
                         var attributes = [];
                         if (self.showAttributes && node.attributes) {
@@ -517,7 +522,7 @@ view.View = class {
                             block.handler = () => {
                                 self.showNodeProperties(node);
                             };
-                            initializers.forEach((initializer) => {
+                            for (var initializer of initializers) {
                                 var connection = initializer.connections[0];
                                 var type = connection.type;
                                 var shape = '';
@@ -530,12 +535,12 @@ view.View = class {
                                     }
                                 }
                                 block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', separator);
-                            });
+                            }
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '...' + '\u3009', '', null, '');
                             }
 
-                            attributes.forEach((attribute) => {
+                            for (var attribute of attributes) {
                                 if (attribute.visible) {
                                     var attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
@@ -543,13 +548,13 @@ view.View = class {
                                     }
                                     block.add(null, attribute.name, attributeValue, attribute.type, ' = ');
                                 }
-                            });
+                            }
                         }
 
                         if (edges) {
                             var inputs = node.inputs;
-                            inputs.forEach((input) => {
-                                input.connections.forEach((connection) => {
+                            for (input of inputs) {
+                                for (connection of input.connections) {
                                     if (connection.id != '' && !connection.initializer) {
                                         var tuple = edgeMap[connection.id];
                                         if (!tuple) {
@@ -561,8 +566,8 @@ view.View = class {
                                             name: input.name
                                         });
                                     }
-                                });
-                            });
+                                }
+                            }
                             var outputs = node.outputs;
                             if (node.chain && node.chain.length > 0) {
                                 var chainOutputs = node.chain[node.chain.length - 1].outputs;
@@ -570,10 +575,10 @@ view.View = class {
                                     outputs = chainOutputs;
                                 }
                             }
-                            outputs.forEach((output) => {
-                                output.connections.forEach((connection) => {
+                            for (output of outputs) {
+                                for (connection of output.connections) {
                                     if (connection.id != '') {
-                                        var tuple = edgeMap[connection.id];
+                                        tuple = edgeMap[connection.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
                                             edgeMap[connection.id] = tuple;
@@ -584,14 +589,14 @@ view.View = class {
                                             type: connection.type
                                         };
                                     }
-                                });
-                            });
+                                }
+                            }
                         }
     
                         if (node.chain && node.chain.length > 0) {
-                            node.chain.forEach((node) => {
-                                addNode(element, node, false);
-                            });
+                            for (var innerNode of node.chain) {
+                                addNode(element, innerNode, false);
+                            }
                         }
 
                         if (node.inner) {
@@ -602,8 +607,8 @@ view.View = class {
                     addNode(element, node, true);
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        node.controlDependencies.forEach((controlDependency) => {
-                            var tuple = edgeMap[controlDependency];
+                        for (var controlDependency of node.controlDependencies) {
+                            tuple = edgeMap[controlDependency];
                             if (!tuple) {
                                 tuple = { from: null, to: [] };
                                 edgeMap[controlDependency] = tuple;
@@ -613,19 +618,19 @@ view.View = class {
                                 name: controlDependency,
                                 controlDependency: true
                             });
-                        });
+                        }
                     }
 
-                    var name = node.name;
-                    if (name) {
-                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + name });
+                    var nodeName = node.name;
+                    if (nodeName) {
+                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + nodeName });
                     }
                     else {
                         g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + id.toString() });
                         id++;
                     }
             
-                    function createCluster(name) {
+                    var createCluster = function(name) {
                         if (!clusterMap[name]) {
                             g.setNode(name, { rx: 5, ry: 5});
                             clusterMap[name] = true;
@@ -660,11 +665,11 @@ view.View = class {
                     }
                 
                     nodeId++;
-                });
-            
-                graph.inputs.forEach((input) => {
-                    input.connections.forEach((connection) => {
-                        var tuple = edgeMap[connection.id];
+                }
+
+                for (input of graph.inputs) {
+                    for (connection of input.connections) {
+                        tuple = edgeMap[connection.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
                             edgeMap[connection.id] = tuple;
@@ -673,48 +678,48 @@ view.View = class {
                             node: nodeId,
                             type: connection.type
                         };
-                    });
+                    }
                     var types = input.connections.map(connection => connection.type || '').join('\n');
-                    var name = input.name;
-                    if (name.length > 16) {
-                        name = name.split('/').pop();
+                    var inputName = input.name || '';
+                    if (inputName.length > 16) {
+                        inputName = inputName.split('/').pop();
                     }
     
-                    var element = new grapher.NodeElement(this._host.document);
-                    var header = element.block('header');
-                    header.add(null, [ 'graph-item-input' ], name, types, () => {
+                    var inputElement = new grapher.NodeElement(this._host.document);
+                    var inputHeader = inputElement.block('header');
+                    inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: element.format(graphElement), class: 'graph-input' } ); 
-                });
+                    g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } ); 
+                }
             
-                graph.outputs.forEach((output) => {
-                    output.connections.forEach((connection) => {
-                        var tuple = edgeMap[connection.id];
+                for (output of graph.outputs) {
+                    for (connection of output.connections) {
+                        tuple = edgeMap[connection.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
                             edgeMap[connection.id] = tuple;
                         }
                         tuple.to.push({ node: nodeId });
-                    });
-                    var types = output.connections.map(connection => connection.type || '').join('\n');
-                    var name = output.name;
-                    if (name.length > 16) {
-                        name = name.split('/').pop();
+                    }
+                    var outputTypes = output.connections.map(connection => connection.type || '').join('\n');
+                    var outputName = output.name;
+                    if (outputName.length > 16) {
+                        outputName = outputName.split('/').pop();
                     }
             
-                    var element = new grapher.NodeElement(this._host.document);
-                    var header = element.block('header');
-                    header.add(null, [ 'graph-item-output' ], name, types, () => {
+                    var outputElement = new grapher.NodeElement(this._host.document);
+                    var outputHeader = outputElement.block('header');
+                    outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: element.format(graphElement) } ); 
-                });
+                    g.setNode(nodeId++, { label: outputElement.format(graphElement) } ); 
+                }
 
-                Object.keys(edgeMap).forEach((edge) => {
-                    var tuple = edgeMap[edge];
+                for (var edge of Object.keys(edgeMap)) {
+                    tuple = edgeMap[edge];
                     if (tuple.from != null) {
-                        tuple.to.forEach((to) => {
+                        for (var to of tuple.to) {
                             var text = '';
                             var type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
@@ -731,9 +736,9 @@ view.View = class {
                             else {
                                 g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee' } );
                             }
-                        });
+                        }
                     }
-                });
+                }
             
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
@@ -878,7 +883,7 @@ view.View = class {
             originElement.setAttribute('transform', 'translate(0,0) scale(1)');
             backgroundElement.removeAttribute('width');
             backgroundElement.removeAttribute('height');
-    
+
             var parentElement = graphElement.parentElement;
             parentElement.insertBefore(exportElement, graphElement);
             var size = exportElement.getBBox();
@@ -899,7 +904,8 @@ view.View = class {
             var data = new XMLSerializer().serializeToString(exportElement);
     
             if (extension == 'svg') {
-                this._host.export(file, new Blob([ data ], { type: 'image/svg' }));
+                var blob = new Blob([ data ], { type: 'image/svg' });
+                this._host.export(file, blob);
             }
     
             if (extension == 'png') {
@@ -930,7 +936,7 @@ view.View = class {
             view.on('update-active-graph', (sender, name) => {
                 this.updateActiveGraph(name);
             });
-            this._sidebar.open(view.elements, 'Model Properties');
+            this._sidebar.open(view.render(), 'Model Properties');
         }
     }
     
@@ -947,7 +953,8 @@ view.View = class {
                         this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                             try {
                                 var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
-                                this._host.export(file, new Blob([ array.toBuffer() ], { type: 'application/octet-stream' }));
+                                var blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
+                                this._host.export(file, blob);
                             }
                             catch (error) {
                                 this.error('Error saving NumPy tensor.', error);
@@ -959,7 +966,7 @@ view.View = class {
             if (input) {
                 view.toggleInput(input.name);
             }
-            this._sidebar.open(view.elements, 'Node Properties');
+            this._sidebar.open(view.render(), 'Node Properties');
         }
     }
 
@@ -970,7 +977,7 @@ view.View = class {
             view.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
-            this._sidebar.open(view.elements, 'Documentation');
+            this._sidebar.open(view.render(), 'Documentation');
         }
     }
 
@@ -1023,50 +1030,35 @@ view.View = class {
     }
 };
 
-class ArchiveContext {
+class ModelError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading model.'; 
+    }
+}
 
-    constructor(entries, rootFolder, identifier, buffer) {
+class ModelContext {
+
+    constructor(context) {
+        this._context = context;
         this._tags = {};
-        this._entries = {};
-        if (entries) {
-            entries.forEach((entry) => {
-                if (entry.name.startsWith(rootFolder)) {
-                    var name = entry.name.substring(rootFolder.length);
-                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                        this._entries[name] = entry.substring(rootFolder.length);
-                    }
-                }
-            });
-        }
-        this._identifier = identifier.substring(rootFolder.length);
-        this._buffer = buffer;
     }
 
     request(file, encoding, callback) {
-        var entry = this._entries[file];
-        if (!entry) {
-            callback(new Error('File not found.'), null);
-            return;
-        }
-        var data = entry.data;
-        if (data != null) {
-            data = new TextDecoder(encoding).decode(data);
-        }
-        callback(null, data);
+        this._context.request(file, encoding, callback);
     }
 
     get identifier() {
-        return this._identifier;
+        return this._context.identifier;
     }
 
     get buffer() {
-        return this._buffer;
+        return this._context.buffer;
     }
 
     get text() {
         if (!this._text) {
-            var decoder = new TextDecoder('utf-8');
-            this._text = decoder.decode(this._buffer);
+            this._text = new TextDecoder('utf-8').decode(this.buffer);
         }
         return this._text;
     }
@@ -1112,17 +1104,50 @@ class ArchiveContext {
     }
 }
 
+class ArchiveContext {
+
+    constructor(entries, rootFolder, identifier, buffer) {
+        this._entries = {};
+        if (entries) {
+            for (var entry of entries) {
+                if (entry.name.startsWith(rootFolder)) {
+                    var name = entry.name.substring(rootFolder.length);
+                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                        this._entries[name] = entry.substring(rootFolder.length);
+                    }
+                }
+            }
+        }
+        this._identifier = identifier.substring(rootFolder.length);
+        this._buffer = buffer;
+    }
+
+    request(file, encoding, callback) {
+        var entry = this._entries[file];
+        if (!entry) {
+            callback(new Error('File not found.'), null);
+            return;
+        }
+        var data = entry.data;
+        if (data != null) {
+            data = new TextDecoder(encoding).decode(data);
+        }
+        callback(null, data);
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get buffer() {
+        return this._buffer;
+    }
+}
+
 class ArchiveError extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading archive.';
-    }
-}
-
-class ModelError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'Error loading model.'; 
     }
 }
 
@@ -1149,9 +1174,9 @@ view.ModelFactoryService = class {
     }
 
     register(id, extensions) {
-        extensions.forEach((extension) => {
+        for (var extension of extensions) {
             this._extensions.push({ extension: extension, id: id });
-        });
+        }
     }
  
     open(context, callback) {
@@ -1160,6 +1185,7 @@ view.ModelFactoryService = class {
                 callback(err, null);
                 return;
             }
+            context = new ModelContext(context);
             var extension = context.identifier.split('.').pop().toLowerCase();
             var modules = this._filter(context);
             if (modules.length == 0) {
@@ -1279,14 +1305,14 @@ view.ModelFactoryService = class {
                 return;
             }
             var folders = {};
-            archive.entries.forEach((entry) => {
+            for (entry of archive.entries) {
                 if (entry.name.indexOf('/') != -1) {
                     folders[entry.name.split('/').shift() + '/'] = true;
                 }
                 else {
                     folders['/'] = true;
                 }
-            });
+            }
             if (extension == 'tar') {
                 delete folders['PaxHeader/'];
             }
@@ -1300,7 +1326,7 @@ view.ModelFactoryService = class {
                     if (entry.name.startsWith(rootFolder)) {
                         var identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            var context = new ArchiveContext(null, rootFolder, entry.name, entry.data);
+                            var context = new ModelContext(new ArchiveContext(null, rootFolder, entry.name, entry.data));
                             var modules = this._filter(context);
                             var nextModule = () => {
                                 if (modules.length > 0) {
@@ -1343,7 +1369,7 @@ view.ModelFactoryService = class {
                         return;
                     }
                     var match = matches[0];
-                    callback(null, new ArchiveContext(entries, rootFolder, match.name, match.data));
+                    callback(null, new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
                     return;
                 }
             };
@@ -1359,14 +1385,17 @@ view.ModelFactoryService = class {
     accept(identifier) {
         var extension = identifier.toLowerCase().split('.').pop();
         var excludes = [
-            'blockmap', 'checkpoint', 'ckpt', 'dat', 'index', 'test', 'bytes', 'desktop',
-            'exe', 'dll', 'bin',
-            'html', 'pdf', 'rtf', 'txt', 'md', 'svg',
+            'blockmap', 'checkpoint', 'ckpt', 'dat', 'test', 'bytes', 'desktop', 'graph',
+            'index', 'data-00000-of-00001',
+            'exe', 'dll', 'bin', 'raw', 'msg',
+            'html', 'pdf', 'rtf', 'txt', 'md', 'svg', 'csv',
+            'xls', 'doc', 'ppt', 'xlsx', 'docx', 'pptx',
             'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
             'js', 'py', 'pyc', 'ipynb',
             'params', 'weights',
             'mp3', 'mp4', 'mov',
             'npy', 'npz',
+            'tmp'
         ];
         if (excludes.some((exclude) => exclude == extension)) {
             return false;
@@ -1381,14 +1410,14 @@ view.ModelFactoryService = class {
         var moduleList = [];
         var moduleMap = {};
         var identifier = context.identifier.toLowerCase();
-        this._extensions.forEach((extension) => {
+        for (var extension of this._extensions) {
             if (identifier.endsWith(extension.extension)) {
                 if (!moduleMap[extension.id]) {
                     moduleList.push(extension.id);
                     moduleMap[extension.id] = true;
                 }
             }
-        });
+        }
         return moduleList;
     }
 };

@@ -137,11 +137,7 @@ def update_output(operator_name, schema, output_desc):
         output_arg = {}
         output_arg['name'] = output_name
         schema['outputs'].append(output_arg)
-    if (operator_name == 'Int8Conv' or operator_name == 'Int8AveragePool') and output_name == 'Y':
-        if 'description' in output_arg:
-            del output_arg['description']
-    else:
-        output_arg['description'] = description
+    output_arg['description'] = description
     if len(output_desc) > 2:
         return
 
@@ -179,10 +175,8 @@ def metadata():
                 update_argument(schema, arg)
             for input_desc in op_schema.input_desc:
                 update_input(schema, input_desc)
-            skip_operator_output_map = { 'Int8ConvRelu': True, 'Int8Conv': True, 'Int8AveragePoolRelu': True, 'Int8AveragePool': True, 'Int8MaxPool': True }
-            if not operator_name in skip_operator_output_map:
-                for output_desc in op_schema.output_desc:
-                    update_output(operator_name, schema, output_desc)
+            for output_desc in op_schema.output_desc:
+                update_output(operator_name, schema, output_desc)
             schema['support_level'] = get_support_level(os.path.dirname(op_schema.file))
 
     with io.open(json_file, 'w', newline='') as fout:

@@ -23,7 +23,9 @@ torch.ModelFactory = class {
             var identifier = context.identifier;
             try {
                 var reader = new torch.T7Reader(context.buffer, (name) => {
-                    host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
+                    if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_')) {
+                        host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
+                    }
                     return null;
                 });
                 var root = reader.read();
@@ -74,12 +76,12 @@ torch.Graph = class {
 
         this._loadModule(metadata, root, [], '', inputs, outputs);
 
-        inputs.forEach((input, index) => {
-            this._inputs.push(new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]));
-        });
-        outputs.forEach((output, index) => {
-            this._outputs.push(new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]));
-        });
+        this._inputs = this._inputs.concat(inputs.map((input, index) => {
+            return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
+        }));
+        this._outputs = this._outputs.concat(outputs.map((output, index) => {
+            return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
+        }));
     }
 
     get inputs() {
@@ -102,48 +104,49 @@ torch.Graph = class {
         if (groups.length > 0) {
             this._groups = true;
         }
+        var index;
+        var subModule;
+        var subInputs;
+        var subOutputs;
         switch (module.__type__) {
             case 'nn.Sequential':
                 groups.push(key);
-                var subInputs = inputs;
-                var subOutputs = [];
+                subInputs = inputs;
+                subOutputs = [];
                 var length = module.modules.length;
-                module.modules.forEach((module, index) => {
+                index = 0;
+                for (subModule of module.modules) {
                     if (index == length - 1) {
                         subOutputs = outputs;
                     }                    
-                    this._loadModule(metadata, module, groups, index.toString(), subInputs, subOutputs);
+                    this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     subInputs = subOutputs;
                     subOutputs = [];
-                });
+                    index++;
+                }
                 groups.pop();
                 break;
             case 'nn.Parallel':
+            case 'nn.ParallelTable':
             case 'nn.JointTrain':
                 groups.push(key);
                 var newInputs = [];
                 var newOutputs = [];
-                module.modules.forEach((module, index) => {
-                    var subInputs = inputs.map((input) => input);
-                    var subOutputs = outputs.map((output) => output);
-                    this._loadModule(metadata, module, groups, index.toString(), subInputs, subOutputs);
+                index = 0;
+                for (subModule of module.modules) {
+                    subInputs = [].concat(inputs);
+                    subOutputs = [].concat(outputs);
+                    this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     if (inputs.length == 0) {
-                        subInputs.forEach((input) => {
-                            newInputs.push(input);
-                        });
+                        newInputs = newInputs.concat(subInputs);
                     }
                     if (outputs.length == 0) {
-                        subOutputs.forEach((output) => {
-                            newOutputs.push(output);
-                        });
+                        newOutputs = newOutputs.concat(subOutputs);
                     }
-                });
-                newInputs.forEach((input) => {
-                    inputs.push(input);
-                });
-                newOutputs.forEach((output) => {
-                    outputs.push(output);
-                });
+                    index++;
+                }
+                inputs = inputs.concat(newInputs);
+                outputs = outputs.concat(newOutputs);
                 groups.pop();
                 break;
             case 'nn.Concat':
@@ -153,14 +156,14 @@ torch.Graph = class {
                     inputs.push(new torch.Connection(groups.join('/') + ':' + key + ':in', null, null));
                 }
                 var concatInputs = [];
-                module.modules.forEach((module, index) => {
+                index = 0;
+                for (subModule of module.modules) {
                     var streamInputs = inputs.map((input) => input);
                     var streamOutputs = [];
-                    this._loadModule(metadata, module, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
-                    streamOutputs.forEach((output) => {
-                        concatInputs.push(output);
-                    });
-                });
+                    this._loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
+                    concatInputs = concatInputs.concat(streamOutputs);
+                    index++;
+                }
                 delete module.modules;
                 delete module.dimension;
                 this._createNode(metadata, module, groups, key, concatInputs, outputs);
@@ -233,7 +236,7 @@ torch.Node = class {
     constructor(metadata, module, groups, name, inputs, outputs) {
         this._metadata = metadata;
         this._group = groups.join('/');
-        if (module.name) {
+        if (module.name && typeof module.name === 'string') {
             this._name = module.name;
             delete module.name;
         }
@@ -243,8 +246,10 @@ torch.Node = class {
         var type = module.__type__;
         this._operator = type ? type.split('.').pop() : 'Unknown';
         var initializers = [];
-        Object.keys(module).forEach((key) => {
-            var obj = module[key];
+        var key;
+        var obj;
+        for (key of Object.keys(module)) {
+            obj = module[key];
             if (obj.__type__ && obj.__type__ == 'torch.LongStorage') {
                 var array = [];
                 obj.reset();
@@ -253,7 +258,7 @@ torch.Node = class {
                 }
                 module[key] = array;
             }
-        });
+        }
         delete module.iSize;
         delete module.finput;
         delete module.fgradInput;
@@ -334,22 +339,22 @@ torch.Node = class {
         }
         this._attributes = [];
         if (module.__type__) {
-            Object.keys(module).forEach((key) => {
+            for (key of Object.keys(module)) {
                 if (key == '__type__' || key == '_type') {
-                    return;
+                    continue;
                 }
-                var obj = module[key];
+                obj = module[key];
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
                     initializers.push(new torch.Argument(key, true, [ 
                         new torch.Connection(key, null, new torch.Tensor(obj))
                     ]));
-                    return;
+                    continue;
                 }
                 if (key == 'modules' || obj.__type__) {
-                    return;
+                    continue;
                 }
                 this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
-            });
+            }
         }
         this._inputs = [];
         if (inputs.length == 0) {
@@ -375,9 +380,7 @@ torch.Node = class {
             }
             return true;
         });
-        initializers.forEach((initialier) => {
-            this._inputs.push(initialier);
-        });
+        this._inputs = this._inputs.concat(initializers);
     }
 
     get name() {
@@ -394,7 +397,11 @@ torch.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
+    }
+
+    get documentation() {
+        return '';
     }
 
     get attributes() {
@@ -618,11 +625,11 @@ torch.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -637,9 +644,9 @@ torch.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }
@@ -668,45 +675,62 @@ torch.T7Reader = class {
         this._registry['cudnn.ReLU'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.Sigmoid'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.SoftMax'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.LogSoftMax'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.SpatialAveragePooling'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.SpatialBatchNormalization'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.SpatialFullConvolution'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.Tanh'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.VolumetricAveragePooling'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.VolumetricBatchNormalization'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.VolumetricConvolution'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.VolumetricMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['inn.ConstAffine'] = function(reader) { reader.nn(this); };
         this._registry['inn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.AddConstant'] = function(reader) { reader.nn(this); };
+        this._registry['nn.BilinearSamplerBHWD'] = function(reader) { reader.nn(this); };
         this._registry['nn.BinActiveZ'] = function(reader) { reader.nn(this); }; // allenai/XNOR-Net
         this._registry['nn.CAddTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.CDivTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.CMulTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.CSubTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.Concat'] = function(reader) { reader.nn(this); };
         this._registry['nn.Copy'] = function(reader) { reader.nn(this); };
         this._registry['nn.ConcatTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.CostVolMulti'] = function(reader) { reader.nn(this); };
         this._registry['nn.DepthConcat'] = function(reader) { reader.nn(this); };
         this._registry['nn.Dropout'] = function(reader) { reader.nn(this); };
+        this._registry['nn.FlattenTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.GenNoise'] = function(reader) { reader.nn(this); };
         this._registry['nn.Identity'] = function(reader) { reader.nn(this); };
         this._registry['nn.Inception'] = function(reader) { reader.nn(this); };
         this._registry['nn.InstanceNormalization'] = function(reader) { reader.nn(this); };
         this._registry['nn.JoinTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.JointTrain'] = function(reader) { reader.nn(this); };
+        this._registry['nn.KeypointCoordinate'] = function(reader) { reader.nn(this); };
         this._registry['nn.LeakyReLU'] = function(reader) { reader.nn(this); };
         this._registry['nn.Linear'] = function(reader) { reader.nn(this); };
         this._registry['nn.LogSoftMax'] = function(reader) { reader.nn(this); };
         this._registry['nn.Mean'] = function(reader) { reader.nn(this); };
         this._registry['nn.MulConstant'] = function(reader) { reader.nn(this); };
         this._registry['nn.MM'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Narrow'] = function(reader) { reader.nn(this); };
+        this._registry['nn.NarrowTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.Normalize'] = function(reader) { reader.nn(this); };
         this._registry['nn.NoiseFill'] = function(reader) { reader.nn(this); };
         this._registry['nn.Parallel'] = function(reader) { reader.nn(this); };
         this._registry['nn.ParallelTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.PixelShuffle'] = function(reader) { reader.nn(this); };
         this._registry['nn.PReLU'] = function(reader) { reader.nn(this); }; 
         this._registry['nn.ReLU'] = function(reader) { reader.nn(this); };
         this._registry['nn.Replicate'] = function(reader) { reader.nn(this); };
         this._registry['nn.Reshape'] = function(reader) { reader.nn(this); };
         this._registry['nn.ShaveImage'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Select'] = function(reader) { reader.nn(this); };
         this._registry['nn.SelectTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.Sequential'] = function(reader) { reader.nn(this); };
         this._registry['nn.Sigmoid'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Sum'] = function(reader) { reader.nn(this); };
         this._registry['nn.SoftMax'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialAveragePooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialBatchNormalization'] = function(reader) { reader.nn(this); };
@@ -721,6 +745,7 @@ torch.T7Reader = class {
         this._registry['nn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialReflectionPadding'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialReplicationPadding'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialSoftMax'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialSubtractiveNormalization'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialUpSamplingBilinear'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialUpSamplingNearest'] = function(reader) { reader.nn(this); };
@@ -728,7 +753,9 @@ torch.T7Reader = class {
         this._registry['nn.Square'] = function(reader) { reader.nn(this); };
         this._registry['nn.Sqrt'] = function(reader) { reader.nn(this); };
         this._registry['nn.Tanh'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Transpose'] = function(reader) { reader.nn(this); };
         this._registry['nn.TotalVariation'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Unpool'] = function(reader) { reader.nn(this); };
         this._registry['nn.View'] = function(reader) { reader.nn(this); };
         this._registry['nn.gModule'] = function(reader) { reader.nn(this); };
         this._registry['nngraph.Node'] = function(reader) { reader.nn(this); };
@@ -905,9 +932,9 @@ torch.T7Reader = class {
     nn(obj) {
         var attributes = this.read();
         if (attributes != null) {
-            Object.keys(attributes).forEach((key) => {
+            for (var key of Object.keys(attributes)) {
                 obj[key] = attributes[key];
-            });
+            }
         }
     }
 
@@ -1098,13 +1125,13 @@ torch.TextReader = class {
         var array = [];
         if (size > 0) {
             var text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
-            text.split(' ').forEach((token) => {
+            for (var token of text.split(' ')) {
                 var number = Number.parseInt(token, 10);
                 if (Number.isNaN(token - number)) {
                     throw new torch.Error("Couldn't parse int64 '" + token + "'.");
                 }
                 array.push(number);
-            });
+            }
         }
         return array;
     }

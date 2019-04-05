@@ -51,9 +51,9 @@ paddle.Model = class {
 
     constructor(metadata, desc) {
         this._graphs = [];
-        desc.blocks.forEach((block) => {
+        for (var block of desc.blocks) {
             this._graphs.push(new paddle.Graph(metadata, block));
-        });
+        }
     }
 
     get graphs() {
@@ -74,7 +74,7 @@ paddle.Graph = class {
 
         var initializers = {};
         var types = {};
-        block.vars.forEach((variable) => {
+        for (var variable of block.vars) {
             if (variable.persistable && variable.type && 
                 variable.type.type != paddle.proto.VarType.Type.FETCH_LIST && 
                 variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
@@ -83,29 +83,30 @@ paddle.Graph = class {
             else {
                 types[variable.name] = paddle.Graph._type(variable);
             }
-        });
+
+        }
 
         var scope = {};
-        block.ops.forEach((op, index) => {
-            op.inputs.forEach((input) => {
+        for (var i = 0; i < block.ops.length; i++) {
+            for (var input of block.ops[i].inputs) {
                 input.arguments = input.arguments.map((argument) => scope[argument] ? scope[argument] : argument);
-            });
-            op.outputs.forEach((output) => {
+            }
+            for (var output of block.ops[i].outputs) {
                 output.arguments = output.arguments.map((argument) => {
                     if (scope[argument]) {
-                        var next = argument + '\n' + index.toString(); // custom connection id
+                        var next = argument + '\n' + i.toString(); // custom connection id
                         scope[argument] = next;
                         return next;
                     }
                     scope[argument] = argument;
                     return argument;
                 });
-            });
-        });
+            }
+        }
 
         var lastNode = null;
         var lastOutput = null;
-        block.ops.forEach((op) => {
+        for (var op of block.ops) {
             if (op.type == 'feed') {
                 var inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._inputs.push(new paddle.Argument(inputName, op.outputs[0].arguments.map((id) => {
@@ -137,7 +138,7 @@ paddle.Graph = class {
                     }
                 }
             }
-        });
+        }
     }
 
     get inputs() {
@@ -155,7 +156,10 @@ paddle.Graph = class {
     static _type(variable) {
         switch (variable.type.type) {
             case paddle.proto.VarType.Type.LOD_TENSOR:
-                return new paddle.TensorType(variable.type.lod_tensor.tensor);
+                if (variable.type.lod_tensor) {
+                    return new paddle.TensorType(variable.type.lod_tensor.tensor);
+                }
+                break;
             default:
                 break;
         }
@@ -224,21 +228,21 @@ paddle.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._chain = [];
-        op.attrs.forEach((attr) => {
+        for (var attr of op.attrs) {
             this._attributes.push(new paddle.Attribute(metadata, this._operator, attr));
-        });
-        op.inputs.forEach((input) => {
+        }
+        for (var input of op.inputs) {
             if (input.arguments.length > 0) {
-                var connections = input.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, initializers[argument]));
-                this._inputs.push(new paddle.Argument(input.parameter, connections));
+                var inputConnections = input.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, initializers[argument]));
+                this._inputs.push(new paddle.Argument(input.parameter, inputConnections));
             }
-        });
-        op.outputs.forEach((output) => {
+        }
+        for (var output of op.outputs) {
             if (output.arguments.length > 0) {
-                var connections = output.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, null));
-                this._outputs.push(new paddle.Argument(output.parameter, connections));
+                var outputConnections = output.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, null));
+                this._outputs.push(new paddle.Argument(output.parameter, outputConnections));
             }
-        });
+        }
         this._update(this._inputs, 'X');
         this._update(this._inputs, 'Input');
         this._update(this._outputs, 'Y');
@@ -249,9 +253,17 @@ paddle.Node = class {
         return this._operator;
     }
 
+    get name() {
+        return '';
+    }
+
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
+    }
+
+    get documentation() {
+        return '';
     }
 
     get attributes() {
@@ -347,9 +359,17 @@ paddle.Attribute = class {
         var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.hasOwnProperty('default')) {
-                if (schema.default == this._value) {
+                var defaultValue = schema.default;
+                var value = this._value;
+                if (defaultValue == value) {
                     this._visible = false;
                 }
+                else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length == defaultValue.length) {
+                    if (value.every((item, index) => { return item == defaultValue[index]; })) {
+                        this._visible = false;
+                    }
+                }
+                
             }
         }
     }
@@ -379,6 +399,18 @@ paddle.Tensor = class {
 
     get type() {
         return this._type;
+    }
+
+    get state() {
+        return 'Tensor data not implemented.';
+    }
+
+    get value() {
+        return null;
+    }
+
+    toString() {
+        return '';
     }
 };
 
@@ -459,11 +491,11 @@ paddle.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -478,9 +510,9 @@ paddle.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }

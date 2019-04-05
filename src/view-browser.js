@@ -50,12 +50,12 @@ host.BrowserHost = class {
         });
 
         var meta = {};
-        Array.from(document.getElementsByTagName('meta')).forEach((element) => {
+        for (var element of Array.from(document.getElementsByTagName('meta'))) {
             if (element.content) {
                 meta[element.name] = meta[element.name] || [];
                 meta[element.name].push(element.content);
             }
-        });
+        }
 
         this._version = meta.version ? meta.version[0] : null;
         this._type = meta.type ? meta.type[0] : 'Browser';
@@ -323,7 +323,7 @@ host.BrowserHost = class {
                 return;
             }
             if (json.files) {
-                Object.keys(json.files).forEach((key) => {
+                for (var key of Object.keys(json.files)) {
                     var file = json.files[key];
                     identifier = file.filename;
                     var extension = identifier.split('.').pop().toLowerCase();
@@ -331,7 +331,7 @@ host.BrowserHost = class {
                         var encoder = new TextEncoder();
                         buffer = encoder.encode(file.content);
                     }
-                });
+                }
             }
             if (buffer == null || identifier == null) {
                 this.error('Error while loading Gist.', 'Gist does not contain model file.');
@@ -568,7 +568,6 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 class BrowserContext {
 
     constructor(host, url, identifier, buffer) {
-        this._tags = {};
         this._host = host;
         this._buffer = buffer;
         if (identifier) {
@@ -597,54 +596,6 @@ class BrowserContext {
 
     get buffer() {
         return this._buffer;
-    }
-
-    get text() {
-        if (!this._text) {
-            var decoder = new TextDecoder('utf-8');
-            this._text = decoder.decode(this._buffer);
-        }
-        return this._text;
-    }
-
-    tags(extension) {
-        var tags = this._tags[extension];
-        if (!tags) {
-            tags = {};
-            try {
-                var reader = null;
-                switch (extension) {
-                    case 'pbtxt':
-                        reader = protobuf.TextReader.create(this.text);
-                        reader.start(false);
-                        while (!reader.end(false)) {
-                            var tag = reader.tag();
-                            tags[tag] = true;
-                            reader.skip();
-                        }
-                        break;
-                    case 'pb':
-                        reader = new protobuf.Reader.create(this.buffer);
-                        while (reader.pos < reader.len) {
-                            var tagType = reader.uint32();
-                            tags[tagType >>> 3] = tagType & 7;
-                            try {
-                                reader.skipType(tagType & 7);
-                            }
-                            catch (err) {
-                                tags = {};
-                                break;
-                            }
-                        }
-                        break;
-                }
-            }
-            catch (error) {
-                tags = {};
-            }
-            this._tags[extension] = tags;
-        }
-        return tags;
     }
 }
 

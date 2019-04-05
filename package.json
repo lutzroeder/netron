@@ -5,36 +5,32 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "2.9.2",
+    "version": "2.9.8",
     "description": "Viewer neural network models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
     "scripts": {
-        "reset": "git fetch -p && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)",
-        "clean": "rm -rf ./build ./node_modules ./third_party",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@",
-        "update": "[ -d node_modules ] || npm install && ./tools/update",
-        "test": "[ -d node_modules ] || npm install && node ./test/test.js"
+        "start_server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@"
     },
     "dependencies": {
-        "d3": "^5.9.1",
-        "dagre": "^0.8.4",
-        "electron-updater": "^4.0.6",
-        "flatbuffers": "^1.10.2",
-        "handlebars": "^4.1.0",
-        "long": "^4.0.0",
-        "marked": "^0.6.0",
-        "npm-font-open-sans": "^1.1.0",
-        "pako": "^1.0.8",
+        "d3": "5.9.2",
+        "dagre": "0.8.4",
+        "electron-updater": "4.0.6",
+        "flatbuffers": "1.10.2",
+        "handlebars": "4.1.1",
+        "long": "4.0.0",
+        "marked": "0.6.1",
+        "npm-font-open-sans": "1.1.0",
+        "pako": "1.0.10",
         "protobufjs": "github:lutzroeder/protobuf.js#pbtxt",
-        "universal-analytics": "^0.4.20"
+        "universal-analytics": "0.4.20"
     },
     "devDependencies": {
-        "electron": "^4.0.5",
-        "electron-builder": "^20.38.5",
-        "eslint": "^5.14.1",
-        "xmldom": "^0.1.27"
+        "electron": "4.1.3",
+        "electron-builder": "20.39.0",
+        "eslint": "5.16.0",
+        "xmldom": "0.1.27"
     }
 }

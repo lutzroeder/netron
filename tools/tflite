@@ -47,26 +47,18 @@ install() {
     bold "flatbuffers install"
     case "$(uname)" in
         "Linux")
-            if [ -z "$(which cmake)" ]; then
-                sudo apt install -y cmake
-            fi
+            [ -n "$(which cmake)" ] || sudo apt install -y cmake
             ;;
         "Darwin")
-            if [ -z "$(which cmake)" ]; then
-                brew install cmake
-            fi
+            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
             ;;
     esac
     pushd "${third_party}/flatbuffers" > /dev/null
     cmake -G "Unix Makefiles" .
     make
     popd > /dev/null
-    if [ -z "$(which virtualenv)" ]; then
-        sudo ${python} -m pip install --force-reinstall --quiet virtualenv
-    fi
-    if [ ! -d "${virtualenv}" ]; then
-        virtualenv --quiet -p ${python} ${virtualenv}
-    fi
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
 }
 
 schema() {

@@ -45,9 +45,9 @@ sidebar.Sidebar = class {
                 contentElement.innerHTML = content;
             }
             else if (content instanceof Array) {
-                content.forEach((element) => {
+                for (var element of content) {
                     contentElement.appendChild(element);
-                });
+                }
             }
             else {
                 contentElement.appendChild(content);
@@ -121,25 +121,25 @@ sidebar.NodeSidebar = class {
         var attributes = node.attributes;
         if (attributes && attributes.length > 0) {
             this.addHeader('Attributes');
-            attributes.forEach((attribute) => {
+            for (var attribute of attributes) {
                 this.addAttribute(attribute.name, attribute);
-            });
+            }
         }
 
         var inputs = node.inputs;
         if (inputs && inputs.length > 0) {
             this.addHeader('Inputs');
-            inputs.forEach((input) => {
+            for (var input of inputs) {
                 this.addInput(input.name, input);
-            });
+            }
         }
 
         var outputs = node.outputs;
         if (outputs && outputs.length > 0) {
             this.addHeader('Outputs');
-            outputs.forEach((output) => {
+            for (var output of outputs) {
                 this.addOutput(output.name, output);
-            });
+            }
         }
 
         var divider = document.createElement('div');
@@ -147,7 +147,7 @@ sidebar.NodeSidebar = class {
         this._elements.push(divider);
     }
 
-    get elements() {
+    render() {
         return this._elements;
     }
 
@@ -160,13 +160,13 @@ sidebar.NodeSidebar = class {
 
     addProperty(name, value) {
         var item = new sidebar.NameValueView(name, value);
-        this._elements.push(item.element);
+        this._elements.push(item.render());
     }
 
     addAttribute(name, attribute) {
         var item = new sidebar.NameValueView(name, new NodeAttributeView(attribute));
         this._attributes.push(item);
-        this._elements.push(item.element);
+        this._elements.push(item.render());
     }
 
     addInput(name, input) {
@@ -177,7 +177,7 @@ sidebar.NodeSidebar = class {
             });
             var item = new sidebar.NameValueView(name, view);
             this._inputs.push(item);
-            this._elements.push(item.element);
+            this._elements.push(item.render());
         }
     }
 
@@ -185,16 +185,16 @@ sidebar.NodeSidebar = class {
         if (output.connections.length > 0) {
             var item = new sidebar.NameValueView(name, new sidebar.ArgumentView(output));
             this._outputs.push(item);
-            this._elements.push(item.element);
+            this._elements.push(item.render());
         }
     }
 
     toggleInput(name) {
-        this._inputs.forEach((input) => {
+        for (var input of this._inputs) {
             if (name == input.name) {
                 input.toggle();
             }
-        });
+        }
     }
 
     on(event, callback) {
@@ -205,9 +205,9 @@ sidebar.NodeSidebar = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
+            }
         }
     }
 };
@@ -230,9 +230,9 @@ sidebar.NameValueView = class {
         var valueElement = document.createElement('div');
         valueElement.className = 'sidebar-view-item-value-list';
 
-        value.elements.forEach((element) => {
+        for (var element of value.render()) {
             valueElement.appendChild(element);
-        });
+        }
 
         this._element = document.createElement('div');
         this._element.className = 'sidebar-view-item';
@@ -244,7 +244,7 @@ sidebar.NameValueView = class {
         return this._name;
     }
 
-    get element() {
+    render() {
         return this._element;
     }
 
@@ -266,7 +266,7 @@ sidebar.ValueTextView = class {
         element.appendChild(line);
     }
 
-    get elements() {
+    render() {
         return this._elements;
     }
 
@@ -303,7 +303,7 @@ class NodeAttributeView {
         this._element.appendChild(valueLine);
     }
 
-    get elements() {
+    render() {
         return [ this._element ];
     }
 
@@ -357,24 +357,24 @@ sidebar.ArgumentView = class {
         this._list = list;
         this._elements = [];
         this._items = [];
-        list.connections.forEach((connection) => {
+        for (var connection of list.connections) {
             var item = new sidebar.ConnectionView(connection, host);
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
             this._items.push(item);
-            this._elements.push(item.element);
-        });
+            this._elements.push(item.render());
+        }
     }
 
-    get elements() {
+    render() {
         return this._elements;
     }
 
     toggle() {
-        this._items.forEach((item) => {
+        for (var item of this._items) {
             item.toggle();
-        });
+        }
     }
 
     on(event, callback) {
@@ -385,9 +385,9 @@ sidebar.ArgumentView = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
+            }
         }
     }
 };
@@ -429,14 +429,14 @@ sidebar.ConnectionView = class {
         else {
             var idLine = document.createElement('div');
             idLine.className = 'sidebar-view-item-value-line';
-            id = this._connection.id.split('\n').shift(); // custom connection id
+            id = id.split('\n').shift(); // custom connection id
             id = id || ' ';
             idLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>id: <b>' + id + '</b></span>';
             this._element.appendChild(idLine);
         }
     }
 
-    get element() {
+    render() {
         return this._element;
     }
 
@@ -538,9 +538,9 @@ sidebar.ConnectionView = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
+            }
         }
     }
 };
@@ -591,15 +591,16 @@ sidebar.ModelSidebar = class {
 
         var metadata = this._model.metadata;
         if (metadata) {
-            this._model.metadata.forEach((property) => {
+            for (var property of this._model.metadata) {
                 this.addProperty(property.name, new sidebar.ValueTextView(property.value));
-            });
+            }
         }
 
         var graphs = this._model.graphs;
-        graphs.forEach((graph, index) => {
+        for (var i = 0; i < graphs.length; i++) {
 
-            var name = graph.name ? ("'" + graph.name + "'") : ('(' + index.toString() + ')');
+            var graph = graphs[i];
+            var name = graph.name ? ("'" + graph.name + "'") : ('(' + i.toString() + ')');
 
             var graphTitleElement = document.createElement('div');
             graphTitleElement.className = 'sidebar-view-title';
@@ -635,28 +636,23 @@ sidebar.ModelSidebar = class {
                 this.addProperty('description', new sidebar.ValueTextView(graph.description));
             }
 
-            if (graph.operators) {
-                var item = new sidebar.NameValueView('operators', new sidebar.GraphOperatorListView(graph.operators));
-                this._elements.push(item.element);
-            }
-
             if (graph.inputs.length > 0) {
                 this.addHeader('Inputs');
-                graph.inputs.forEach((input) => {
+                for (var input of graph.inputs) {
                     this.addArgument(input.name, input);
-                });
+                }
             }
 
             if (graph.outputs.length > 0) {
                 this.addHeader('Outputs');
-                graph.outputs.forEach((output) => {
+                for (var output of graph.outputs) {
                     this.addArgument(output.name, output);
-                });
+                }
             }
-        });
+        }
     }
 
-    get elements() {
+    render() {
         return this._elements;
     }
 
@@ -669,14 +665,14 @@ sidebar.ModelSidebar = class {
 
     addProperty(name, value) {
         var item = new sidebar.NameValueView(name, value);
-        this._elements.push(item.element);
+        this._elements.push(item.render());
     }
 
     addArgument(name, argument) {
         var view = new sidebar.ArgumentView(argument, this._host);
         view.toggle();
         var item = new sidebar.NameValueView(name, view);
-        this._elements.push(item.element);
+        this._elements.push(item.render());
     }
 
     on(event, callback) {
@@ -687,63 +683,8 @@ sidebar.ModelSidebar = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
-        }
-    }
-};
-
-sidebar.GraphOperatorListView = class {
-
-    constructor(operators) {
-
-        this._element = document.createElement('div');
-        this._element.className = 'sidebar-view-item-value';
-
-        var count = 0;
-        this._list = [];
-        Object.keys(operators).forEach((operator) => {
-            this._list.push({ name: operator, count: operators[operator] });
-            count += operators[operator];
-        });
-        this._list = this._list.sort((a, b) => { return (a.name > b.name) - (a.name < b.name); });
-        this._list = this._list.map((item) => { return item.name + ': <b>' + item.count.toString() + '</b>'; });
-
-        this._expander = document.createElement('div');
-        this._expander.className = 'sidebar-view-item-value-expander';
-        this._expander.innerText = '+';
-        this._expander.addEventListener('click', () => {
-            this.toggle();
-        });
-
-        this._element.appendChild(this._expander);
-
-        var countLine = document.createElement('div');
-        countLine.className = 'sidebar-view-item-value-line';
-        countLine.innerHTML = 'Total: <b>' + count.toString() + '</b>';
-        this._element.appendChild(countLine);
-    }
-
-    get elements() {
-        return [ this._element ];
-    }
-
-    toggle() {
-        if (this._expander) {
-            if (this._expander.innerText == '+') {
-                this._expander.innerText = '-';
-    
-                var valueLine = document.createElement('div');
-                valueLine.className = 'sidebar-view-item-value-line-border';
-                valueLine.innerHTML = this._list.join('<br/>');
-                this._element.appendChild(valueLine);
-            }
-            else {
-                this._expander.innerText = '+';
-                while (this._element.childElementCount > 2) {
-                    this._element.removeChild(this._element.lastChild);
-                }
             }
         }
     }
@@ -752,8 +693,13 @@ sidebar.GraphOperatorListView = class {
 sidebar.OperatorDocumentationSidebar = class {
 
     constructor(documentation) {
-        this._elements = [];
-        var template = `
+        this._documentation = documentation;
+    }
+
+    render() {
+        if (!this._elements) {
+            this._elements = [];
+            var template = `
 <div id='documentation' class='sidebar-view-documentation'>
 
 <h1>{{{name}}}</h1>
@@ -830,25 +776,23 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
 
 </div>
 `;
-        var generator = Handlebars.compile(template, 'utf-8');
-        var html = generator(documentation);
-        var parser = new DOMParser();
-        var document = parser.parseFromString(html, 'text/html');
-        var element = document.firstChild;
-        element.addEventListener('click', (e) => {
-            if (e.target && e.target.href) {
-                var link = e.target.href;
-                if (link.startsWith('http://') || link.startsWith('https://')) {
-                    e.preventDefault();
-                    this._raise('navigate', { link: link });
+            var generator = Handlebars.compile(template, 'utf-8');
+            var html = generator(this._documentation);
+            var parser = new DOMParser();
+            var document = parser.parseFromString(html, 'text/html');
+            var element = document.firstChild;
+            element.addEventListener('click', (e) => {
+                if (e.target && e.target.href) {
+                    var link = e.target.href;
+                    if (link.startsWith('http://') || link.startsWith('https://')) {
+                        e.preventDefault();
+                        this._raise('navigate', { link: link });
+                    }
                 }
-            }
-        });
-        this._elements.push(element);
-    }
-
-    get elements() {
-        return this._elements;
+            });
+            this._elements.push(element);
+            return this._elements;
+        }
     }
 
     on(event, callback) {
@@ -859,9 +803,9 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
+            }
         }
     }
 };
@@ -898,9 +842,9 @@ sidebar.FindSidebar = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            this._events[event].forEach((callback) => {
+            for (var callback of this._events[event]) {
                 callback(this, data);
-            });
+            }
         }
     }
 
@@ -959,57 +903,60 @@ sidebar.FindSidebar = class {
         var nodeMatches = {};
         var edgeMatches = {};
 
-        this._graph.nodes.forEach((node) => {
+        var node;
+        var connection;
+
+        for (node of this._graph.nodes) {
 
             var initializers = [];
 
-            node.inputs.forEach((input) => {
-                input.connections.forEach((connection) => {
+            for (var input of node.inputs) {
+                for (connection of input.connections) {
                     if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
                         if (!connection.initializer) {
-                            var item = document.createElement('li');
-                            item.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
-                            item.id = 'edge-' + connection.id;
-                            this._resultElement.appendChild(item);
+                            var inputItem = document.createElement('li');
+                            inputItem.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
+                            inputItem.id = 'edge-' + connection.id;
+                            this._resultElement.appendChild(inputItem);
                             edgeMatches[connection.id] = true;
                         }
                         else {
                             initializers.push(connection.initializer);
                         }
                     }    
-                });
-            });
+                }
+            }
 
             var name = node.name;
             if (name && name.toLowerCase().indexOf(text) != -1 && !nodeMatches[name]) {
-                var item = document.createElement('li');
-                item.innerText = '\u25A2 ' + node.name;
-                item.id = 'node-' + node.name;
-                this._resultElement.appendChild(item);
+                var nameItem = document.createElement('li');
+                nameItem.innerText = '\u25A2 ' + node.name;
+                nameItem.id = 'node-' + node.name;
+                this._resultElement.appendChild(nameItem);
                 nodeMatches[node.name] = true;
             }
 
-            initializers.forEach((initializer) => {
-                var item = document.createElement('li');
-                item.innerText = '\u25A0 ' + initializer.name;
-                item.id = 'initializer-' + initializer.name;
-                this._resultElement.appendChild(item);
-            });
-        });
+            for (var initializer of initializers) {
+                var initializeItem = document.createElement('li');
+                initializeItem.innerText = '\u25A0 ' + initializer.name;
+                initializeItem.id = 'initializer-' + initializer.name;
+                this._resultElement.appendChild(initializeItem);
+            }
+        }
 
-        this._graph.nodes.forEach((node) => {
-            node.outputs.forEach((output) => {
-                output.connections.forEach((connection) => {
+        for (node of this._graph.nodes) {
+            for (var output of node.outputs) {
+                for (connection of output.connections) {
                     if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
-                        var item = document.createElement('li');
-                        item.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
-                        item.id = 'edge-' + connection.id;
-                        this._resultElement.appendChild(item);
+                        var outputItem = document.createElement('li');
+                        outputItem.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
+                        outputItem.id = 'edge-' + connection.id;
+                        this._resultElement.appendChild(outputItem);
                         edgeMatches[connection.id] = true;
                     }    
-                });
-            });
-        });
+                }
+            }
+        }
 
         this._resultElement.style.display = this._resultElement.childNodes.length != 0 ? 'block' : 'none';
     }

@@ -167,7 +167,7 @@
       ],
       "outputs": [
         {
-          "description": "Ouput blob containing a 2D output matrix of shape $(M,N)$, where $M$ is the batch size and $N$ is the number of nodes in the layer. The ouput is calculated as $Y=XW^T+b$.",
+          "description": "Output blob containing a 2D output matrix of shape $(M,N)$, where $M$ is the batch size and $N$ is the number of nodes in the layer. The output is calculated as $Y=XW^T+b$.",
           "name": "Y"
         }
       ],
@@ -193,7 +193,7 @@
           "type": "int"
         }
       ],
-      "description": "\nPerforms element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_op_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Add\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 6  8]\n [10 12]]\n\n```\n\n</details>\n\n\n",
+      "description": "\nPerforms element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_ops_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Add\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 6  8]\n [10 12]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
           "description": "*(type: Tensor`<float>`)* First operand, should share the type with the second operand.",
@@ -263,7 +263,7 @@
           "type": "int"
         }
       ],
-      "description": "\nPerforms element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_op_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Mul\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 5 12]\n [21 32]]\n\n```\n\n</details>\n\n\n",
+      "description": "\nPerforms element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_ops_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Mul\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 5 12]\n [21 32]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
           "description": "*(type: Tensor`<float>`)* First operand, should share the type with the second operand.",
@@ -1193,6 +1193,7 @@
       ],
       "outputs": [
         {
+          "description": "Output data blob that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
           "name": "Y"
         }
       ],
@@ -1276,6 +1277,7 @@
       ],
       "outputs": [
         {
+          "description": "Output data tensor from average pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
           "name": "Y"
         }
       ],

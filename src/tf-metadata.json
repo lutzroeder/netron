@@ -3740,7 +3740,7 @@
           "type": "type"
         }
       ],
-      "description": "Note that in case of ties the identity of the return value is not guaranteed.",
+      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmax(input = a)\n  c = tf.keras.backend.eval(b)  \n  # c = 4\n  # here a[4] = 166.32 which is the largest element of a across axis 0\n  ```",
       "inputs": [
         {
           "name": "input",
@@ -3876,7 +3876,7 @@
           "type": "type"
         }
       ],
-      "description": "Note that in case of ties the identity of the return value is not guaranteed.",
+      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmin(input = a)\n  c = tf.keras.backend.eval(b)  \n  # c = 0\n  # here a[0] = 1 which is the smallest element of a across axis 0\n  ```",
       "inputs": [
         {
           "name": "input",
@@ -4033,6 +4033,7 @@
           "type": "type"
         }
       ],
+      "description": "The `tf.math.asin` operation returns the inverse of `tf.math.sin`, such that\nif `y = tf.math.sin(x)` then, `x = tf.math.asin(y)`.\n\n**Note**: The output of `tf.math.asin` will lie within the invertible range \nof sine, i.e [-pi/2, pi/2].\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.sin(x) # [0.8659266, 0.7068252]\n\ntf.math.asin(y) # [1.047, 0.785] = x\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -4045,7 +4046,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes asin of x element-wise."
+      "summary": "Computes the trignometric inverse sine of x element-wise."
     }
   },
   {
@@ -4518,6 +4519,7 @@
           "type": "type"
         }
       ],
+      "description": "The `tf.math.atan` operation returns the inverse of `tf.math.tan`, such that\nif `y = tf.math.tan(x)` then, `x = tf.math.atan(y)`.\n\n**Note**: The output of `tf.math.atan` will lie within the invertible range \nof tan, i.e (-pi/2, pi/2).\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.tan(x) # [1.731261, 0.99920404]\n\ntf.math.atan(y) # [1.047, 0.785] = x\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -4530,7 +4532,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes atan of x element-wise."
+      "summary": "Computes the trignometric inverse tangent of x element-wise."
     }
   },
   {
@@ -5744,6 +5746,84 @@
         }
       ],
       "description": "Multiplies all slices of `Tensor` `x` and `y` (each slice can be\nviewed as an element of a batch), and arranges the individual results\nin a single output tensor of the same batch size. Each of the\nindividual slices can optionally be adjointed (to adjoint a matrix\nmeans to transpose and conjugate it) before multiplication by setting\nthe `adj_x` or `adj_y` flag to `True`, which are by default `False`.\n\nThe input tensors `x` and `y` are 2-D or higher with shape `[..., r_x, c_x]`\nand `[..., r_y, c_y]`.\n\nThe output tensor is 2-D or higher with shape `[..., r_o, c_o]`, where:\n\n    r_o = c_x if adj_x else r_x\n    c_o = r_y if adj_y else c_y\n\nIt is computed as:\n\n    output[..., :, :] = matrix(x[..., :, :]) * matrix(y[..., :, :])",
+      "inputs": [
+        {
+          "description": "2-D or higher with shape `[..., r_x, c_x]`.",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2-D or higher with shape `[..., r_y, c_y]`.",
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "3-D or higher with shape `[..., r_o, c_o]`",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Multiplies slices of two tensors in batches."
+    }
+  },
+  {
+    "name": "BatchMatMulV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, adjoint the slices of `x`. Defaults to `False`.",
+          "name": "adj_x",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "If `True`, adjoint the slices of `y`. Defaults to `False`.",
+          "name": "adj_y",
+          "type": "bool"
+        }
+      ],
+      "description": "Multiplies all slices of `Tensor` `x` and `y` (each slice can be\nviewed as an element of a batch), and arranges the individual results\nin a single output tensor of the same batch size. Each of the\nindividual slices can optionally be adjointed (to adjoint a matrix\nmeans to transpose and conjugate it) before multiplication by setting\nthe `adj_x` or `adj_y` flag to `True`, which are by default `False`.\n\nThe input tensors `x` and `y` are 2-D or higher with shape `[..., r_x, c_x]`\nand `[..., r_y, c_y]`.\n\nThe output tensor is 2-D or higher with shape `[..., r_o, c_o]`, where:\n\n    r_o = c_x if adj_x else r_x\n    c_o = r_y if adj_y else c_y\n\nIt is computed as:\n\n    output[..., :, :] = matrix(x[..., :, :]) * matrix(y[..., :, :])\n\n*NOTE*: `BatchMatMulV2` supports broadcasting in the batch dimensions. More\nabout broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html).\n",
       "inputs": [
         {
           "description": "2-D or higher with shape `[..., r_x, c_x]`.",
@@ -8932,6 +9012,67 @@
     }
   },
   {
+    "name": "ChooseFastestBranchDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "num_elements_per_branch",
+          "type": "int"
+        },
+        {
+          "minimum": 1,
+          "name": "branches",
+          "type": "list(func)"
+        },
+        {
+          "minimum": 1,
+          "name": "other_arguments_lengths",
+          "type": "list(int)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "ratio_numerator",
+          "type": 9
+        },
+        {
+          "name": "ratio_denominator",
+          "type": 9
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ClipByValue",
     "schema": {
       "attributes": [
@@ -12006,9 +12147,14 @@
           "default": 0,
           "name": "seed2",
           "type": "int"
+        },
+        {
+          "default": true,
+          "name": "time_major",
+          "type": "bool"
         }
       ],
-      "description": "Compute the backprop of both data and weights in a RNN. Takes an extra\n    \"sequence_lengths\" input than CudnnRNNBackprop.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n    the actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\noutput_backprop: A 3-D tensor with the same shape as output in the forward pass.\noutput_h_backprop: A 3-D tensor with the same shape as output_h in the forward\n    pass.\noutput_c_backprop: A 3-D tensor with the same shape as output_c in the forward\n    pass.\nreserve_space: The same reserve_space produced in the forward operation.\ninput_backprop: The backprop to input in the forward pass. Has the same shape\n    as input.\ninput_h_backprop: The backprop to input_h in the forward pass. Has the same\n    shape as input_h.\ninput_c_backprop: The backprop to input_c in the forward pass. Has the same\n    shape as input_c.\nparams_backprop: The backprop to the params buffer in the forward pass. Has the\n    same shape as params.",
+      "description": "Compute the backprop of both data and weights in a RNN. Takes an extra\n    \"sequence_lengths\" input than CudnnRNNBackprop.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n    the actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, input_size]. If time_major is false, the shape is\n    [batch_size, seq_length, input_size].\ninput_h: If time_major is true, this is a 3-D tensor with the shape of\n    [num_layer * dir, batch_size, num_units]. If time_major is false, the shape\n    is [batch_size, num_layer * dir, num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, dir * num_units]. If time_major is false, the\n    shape is [batch_size, seq_length, dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\noutput_backprop: A 3-D tensor with the same shape as output in the forward pass.\noutput_h_backprop: A 3-D tensor with the same shape as output_h in the forward\n    pass.\noutput_c_backprop: A 3-D tensor with the same shape as output_c in the forward\n    pass.\ntime_major: Indicates whether the input/output format is time major or batch\n    major.\nreserve_space: The same reserve_space produced in the forward operation.\ninput_backprop: The backprop to input in the forward pass. Has the same shape\n    as input.\ninput_h_backprop: The backprop to input_h in the forward pass. Has the same\n    shape as input_h.\ninput_c_backprop: The backprop to input_c in the forward pass. Has the same\n    shape as input_c.\nparams_backprop: The backprop to the params buffer in the forward pass. Has the\n    same shape as params.",
       "inputs": [
         {
           "name": "input",
@@ -12590,9 +12736,14 @@
           "default": true,
           "name": "is_training",
           "type": "bool"
+        },
+        {
+          "default": true,
+          "name": "time_major",
+          "type": "bool"
         }
       ],
-      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Accepts one extra input \"sequence_lengths\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.",
+      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Accepts one extra input \"sequence_lengths\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, input_size]. If time_major is false, the shape is\n    [batch_size, seq_length, input_size].\ninput_h: If time_major is true, this is a 3-D tensor with the shape of\n    [num_layer * dir, batch_size, num_units]. If time_major is false, the shape\n    is [batch_size, num_layer * dir, num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, dir * num_units]. If time_major is false, the\n    shape is [batch_size, seq_length, dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\ntime_major: Indicates whether the input/output format is time major or batch\n    major.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.",
       "inputs": [
         {
           "name": "input",
@@ -13480,7 +13631,7 @@
   {
     "name": "DecodeGif",
     "schema": {
-      "description": "GIF with frame or transparency compression are not supported\nconvert animated GIF from compressed to uncompressed by:\n\n    convert $src.gif -coalesce $dst.gif\n\nThis op also supports decoding JPEGs and PNGs, though it is cleaner to use\n`tf.image.decode_image`.",
+      "description": "GIF images with frame or transparency compression are not supported.\nOn Linux and MacOS systems, convert animated GIFs from compressed to\nuncompressed by running:\n\n    convert $src.gif -coalesce $dst.gif\n\nThis op also supports decoding JPEGs and PNGs, though it is cleaner to use\n`tf.image.decode_image`.",
       "inputs": [
         {
           "description": "0-D.  The GIF-encoded image.",
@@ -13490,12 +13641,12 @@
       ],
       "outputs": [
         {
-          "description": "4-D with shape `[num_frames, height, width, 3]`. RGB order",
+          "description": "4-D with shape `[num_frames, height, width, 3]`. RGB channel order.",
           "name": "image",
           "type": 4
         }
       ],
-      "summary": "Decode the first frame of a GIF-encoded image to a uint8 tensor."
+      "summary": "Decode the frame(s) of a GIF-encoded image to a uint8 tensor."
     }
   },
   {
@@ -13736,6 +13887,10 @@
             {
               "type": "type",
               "value": 18
+            },
+            {
+              "type": "type",
+              "value": 10
             }
           ],
           "name": "out_type",
@@ -15114,11 +15269,23 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
               "type": "type",
               "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
             }
           ],
           "name": "T",
@@ -15639,6 +15806,32 @@
     }
   },
   {
+    "name": "EncodeJpegVariableQuality",
+    "schema": {
+      "description": "`image` is a 3-D uint8 Tensor of shape `[height, width, channels]`.\n`quality` is an int32 jpeg compression quality value between 0 and 100.\n",
+      "inputs": [
+        {
+          "description": "Images to adjust.  At least 3-D.",
+          "name": "images",
+          "type": 4
+        },
+        {
+          "description": "An int quality to encode to.",
+          "name": "quality",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "0-D. JPEG-encoded image.",
+          "name": "contents",
+          "type": 7
+        }
+      ],
+      "summary": "JPEG encode input image with provided compression quality."
+    }
+  },
+  {
     "name": "EncodePng",
     "schema": {
       "attributes": [
@@ -15797,6 +15990,60 @@
     "schema": {
       "attributes": [
         {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T3",
+          "type": "type"
+        },
+        {
           "minimum": 1,
           "name": "N",
           "type": "int"
@@ -15820,19 +16067,19 @@
           "description": "A list of rank 1 Tensors specifying the training example and\nfeature to which the corresponding embedding_indices and aggregation_weights\nvalues belong. sample_indices[i] must equal b * nf + f, where nf is the\nnumber of features from the corresponding table, f is in [0, nf), and\nb is in [0, batch size).",
           "name": "sample_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T1"
         },
         {
           "description": "A list of rank 1 Tensors, indices into the embedding tables.",
           "name": "embedding_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T2"
         },
         {
           "description": "A list of rank 1 Tensors containing per sample -- i.e. per\n(training example, feature) -- aggregation weights.",
           "name": "aggregation_weights",
           "numberAttr": "N",
-          "type": 1
+          "typeAttr": "T3"
         },
         {
           "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
@@ -15847,6 +16094,60 @@
     "name": "EnqueueTPUEmbeddingSparseTensorBatch",
     "schema": {
       "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T3",
+          "type": "type"
+        },
         {
           "minimum": 1,
           "name": "N",
@@ -15876,19 +16177,19 @@
           "description": "A list of rank 1 Tensors specifying the training example to\nwhich the corresponding embedding_indices and aggregation_weights values\nbelong. It corresponds to sp_ids.indices[:,0] in  embedding_lookup_sparse().",
           "name": "sample_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T1"
         },
         {
           "description": "A list of rank 1 Tensors, indices into the embedding tables.\nIt corresponds to sp_ids.values in embedding_lookup_sparse().",
           "name": "embedding_indices",
           "numberAttr": "N",
-          "type": 3
+          "typeAttr": "T2"
         },
         {
           "description": "A list of rank 1 Tensors containing per training example\naggregation weights. It corresponds to sp_weights.values in\nembedding_lookup_sparse().",
           "name": "aggregation_weights",
           "numberAttr": "N",
-          "type": 1
+          "typeAttr": "T3"
         },
         {
           "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
@@ -16437,6 +16738,48 @@
           "type": 21
         }
       ]
+    }
+  },
+  {
+    "name": "ExperimentalAutoShardDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "Creates a dataset that shards the input dataset by num_workers, returning a\nsharded dataset for the index-th worker. This attempts to automatically shard\na dataset by examining the Dataset graph and inserting a shard op before the\ninputs to a reader Dataset (e.g. CSVDataset, TFRecordDataset).\n\nThis dataset will throw a NotFound error if we cannot shard the dataset\nautomatically.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A scalar representing the number of workers to distribute this dataset across.",
+          "name": "num_workers",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing the index of the current worker out of num_workers.",
+          "name": "index",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that shards the input dataset."
     }
   },
   {
@@ -18706,7 +19049,7 @@
           "type": "bool"
         }
       ],
-      "description": "Attributes `[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nQuantization is called fake since the output is still in floating point.",
+      "description": "Attributes `[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\nIf `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\nIf `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\nIf `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nQuantization is called fake since the output is still in floating point.",
       "inputs": [
         {
           "name": "inputs",
@@ -18784,7 +19127,7 @@
           "type": "bool"
         }
       ],
-      "description": "and `max` to 'outputs' tensor of same shape as `inputs`.\n\n`[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
+      "description": "and `max` to 'outputs' tensor of same shape as `inputs`.\n\n`[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\nIf `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\nIf `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\nIf `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
       "inputs": [
         {
           "name": "inputs",
@@ -18880,7 +19223,7 @@
           "type": "bool"
         }
       ],
-      "description": "`[b, d]` `[b, h, w, d]` via per-channel floats `min` and `max` of shape `[d]`\nto 'outputs' tensor of same shape as `inputs`.\n\n`[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
+      "description": "`[b, d]` `[b, h, w, d]` via per-channel floats `min` and `max` of shape `[d]`\nto 'outputs' tensor of same shape as `inputs`.\n\n`[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\nIf `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\nIf `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\nIf `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
       "inputs": [
         {
           "name": "inputs",
@@ -22275,6 +22618,27 @@
         }
       ],
       "summary": "An op which feeds a single Tensor value into the computation."
+    }
+  },
+  {
+    "name": "InfeedEnqueuePrelinearizedBuffer",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "description": "The TPU device to use. This should be -1 when the Op is running on a TPU device\nand = 0 when the Op is running on the CPU device.",
+          "name": "device_ordinal",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A variant tensor representing linearized output.",
+          "name": "input",
+          "type": 21
+        }
+      ],
+      "summary": "An op which enqueues prelinearized buffer into TPU infeed."
     }
   },
   {
@@ -25935,6 +26299,11 @@
         {
           "name": "f",
           "type": "func"
+        },
+        {
+          "default": 1,
+          "name": "max_intra_op_parallelism",
+          "type": "int"
         }
       ],
       "inputs": [
@@ -25956,7 +26325,7 @@
           "typeListAttr": "output_types"
         }
       ],
-      "summary": "  Maps a function on the list of tensors unpacked from arguments on dimension 0."
+      "summary": "  Maps a function on the list of tensors unpacked from arguments on dimension 0.\n  The function given by `f` is assumed to be stateless, and is executed\n  concurrently on all the slices; up to batch_size (i.e. the size of the 0th\n  dimension of each argument) functions will be scheduled at once.\n\n  The `max_intra_op_parallelism` attr, which defaults to 1, can be used to\n  limit the intra op parallelism. To limit inter-op parallelism, a user can\n  set a private threadpool on the dataset using `tf.data.Options`'s\n  `ThreadingOptions`.\n\n  Note that this op is not exposed to users directly, but is invoked in tf.data\n  rewrites."
     }
   },
   {
@@ -27823,6 +28192,12 @@
           "type": "string"
         },
         {
+          "default": false,
+          "description": "Whether to include batch dimension in flattened index of `argmax`.",
+          "name": "include_batch_in_index",
+          "type": "bool"
+        },
+        {
           "allowedValues": [
             {
               "type": "type",
@@ -28061,6 +28436,12 @@
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": false,
+          "description": "Whether to include batch dimension in flattened index of `argmax`.",
+          "name": "include_batch_in_index",
+          "type": "bool"
         },
         {
           "allowedValues": [
@@ -28309,6 +28690,12 @@
           "type": "string"
         },
         {
+          "default": false,
+          "description": "Whether to include batch dimension in flattened index of `argmax`.",
+          "name": "include_batch_in_index",
+          "type": "bool"
+        },
+        {
           "allowedValues": [
             {
               "type": "type",
@@ -28363,7 +28750,7 @@
           "type": "type"
         }
       ],
-      "description": "The indices in `argmax` are flattened, so that a maximum value at position\n`[b, y, x, c]` becomes flattened index\n`((b * height + y) * width + x) * channels + c`.\n\nThe indices returned are always in `[0, height) x [0, width)` before flattening,\neven if padding is involved and the mathematically correct answer is outside\n(either negative or too large).  This is a bug, but fixing it is difficult to do\nin a safe backwards compatible way, especially due to flattening.",
+      "description": "The indices in `argmax` are flattened, so that a maximum value at position\n`[b, y, x, c]` becomes flattened index:\n`(y * width + x) * channels + c` if `include_batch_in_index` is False;\n`((b * height + y) * width + x) * channels + c` if `include_batch_in_index` is True.\n\nThe indices returned are always in `[0, height) x [0, width)` before flattening,\neven if padding is involved and the mathematically correct answer is outside\n(either negative or too large).  This is a bug, but fixing it is difficult to do\nin a safe backwards compatible way, especially due to flattening.",
       "inputs": [
         {
           "description": "4-D with shape `[batch, height, width, channels]`.  Input to pool over.",
@@ -29075,6 +29462,11 @@
     "schema": {
       "attributes": [
         {
+          "default": 0,
+          "name": "cpu_budget",
+          "type": "int"
+        },
+        {
           "minimum": 1,
           "name": "output_types",
           "type": "list(type)"
@@ -29189,11 +29581,23 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
               "type": "type",
               "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
             }
           ],
           "name": "T",
@@ -30287,6 +30691,46 @@
     }
   },
   {
+    "name": "NonDeterministicInts",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "This op may use some OS-provided source of non-determinism (e.g. an RNG), so each execution will give different results.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Non-deterministic integer values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Non-deterministically generates some integers."
+    }
+  },
+  {
     "name": "NonMaxSuppression",
     "schema": {
       "attributes": [
@@ -30942,6 +31386,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": [],
+          "name": "optimization_configs",
+          "type": "list(string)"
         }
       ],
       "description": "Creates a dataset by applying optimizations to `input_dataset`.",
@@ -32935,7 +33384,7 @@
           "type": "type"
         }
       ],
-      "description": "The polygamma function is defined as:\n\n\n\\\\(\\psi^{(n)}(x) = \\frac{d^n}{dx^n} \\psi(x)\\\\)\n\nwhere \\\\(\\psi(x)\\\\) is the digamma function.",
+      "description": "The polygamma function is defined as:\n\n\n\\\\(\\psi^{(a)}(x) = \\frac{d^a}{dx^a} \\psi(x)\\\\)\n\nwhere \\\\(\\psi(x)\\\\) is the digamma function.\nThe polygamma function is defined only for non-negative integer orders \\\\a\\\\.",
       "inputs": [
         {
           "name": "a",
@@ -33110,6 +33559,85 @@
         }
       ],
       "summary": "Creates a dataset that asynchronously prefetches elements from `input_dataset`."
+    }
+  },
+  {
+    "name": "Prelinearize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of elements in the tensor.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "shape",
+            "value": "?"
+          },
+          "description": "The shape of the tensor.",
+          "name": "shape",
+          "type": "shape"
+        },
+        {
+          "default": [],
+          "description": "A vector holding the requested layout in minor-to-major sequence. If a layout\nattribute is passed but its values are all -1 the layout will be computed by\nthe infeed operation.",
+          "name": "layout",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A tensor that will be linearized.",
+          "name": "input",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "An op which linearizes one Tensor value to an opaque variant tensor."
+    }
+  },
+  {
+    "name": "PrelinearizeTuple",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The element types of each element in `inputs`.",
+          "minimum": 1,
+          "name": "dtypes",
+          "type": "list(type)"
+        },
+        {
+          "description": "The shapes of each tensor in `inputs`.",
+          "name": "shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": [],
+          "description": "A vector holding the requested layout in minor-to-major sequence for all the\ntuple shapes in the order the shapes appear in the \"shapes\" input. The layout\nelements for a sub-shape can be set to -1 in which case the corresponding layout\nwill be computed by the infeed operation.",
+          "name": "layouts",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of tensors that will be provided using the infeed mechanism.",
+          "name": "inputs",
+          "typeListAttr": "dtypes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "An op which linearizes multiple Tensor values to an opaque variant tensor."
     }
   },
   {
@@ -34820,6 +35348,11 @@
           ],
           "name": "dilations",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -34970,6 +35503,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35130,6 +35668,11 @@
           ],
           "name": "dilations",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -35180,6 +35723,172 @@
           "type": 1
         }
       ]
+    }
+  },
+  {
+    "name": "QuantizedConv2DPerChannel",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The quantized type of input tensor that needs to be converted. ",
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The quantized type of filter tensor that needs to be converted. ",
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "description": "The quantized type of output tensor that needs to be converted.",
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "description": "list of stride values.",
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "description": "list of dilation values.",
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "description": "The original filter tensor.",
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "description": "The minimum value of the input tensor",
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the input tensor.",
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "description": "The minimum value of the filter tensor.",
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the filter tensor.",
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output tensor.",
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "description": "The minimum value of the final output tensor.",
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "description": "The maximum value of the final output tensor.",
+          "name": "max_output",
+          "type": 1
+        }
+      ],
+      "summary": "Computes QuantizedConv2D per channel."
     }
   },
   {
@@ -35288,6 +35997,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35443,6 +36157,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35612,6 +36331,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35789,6 +36513,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -35993,6 +36722,11 @@
           ],
           "name": "dilations",
           "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -36167,6 +36901,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -36366,6 +37105,11 @@
             1
           ],
           "name": "dilations",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "list(int)"
         }
       ],
@@ -37326,6 +38070,11 @@
           "default": false,
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
           "type": "bool"
         }
       ],
@@ -40132,7 +40881,7 @@
       "attributes": [
         {
           "default": true,
-          "description": "If True, the replacement is global, otherwise the replacement\nis done only on the first match.",
+          "description": "If True, the replacement is global (that is, all matches of the `pattern` regular\nexpression in each input string are rewritten), otherwise the `rewrite`\nsubstitution is only made for the first `pattern` match.",
           "name": "replace_global",
           "type": "bool"
         }
@@ -40145,24 +40894,24 @@
           "type": 7
         },
         {
-          "description": "The regular expression to match the input.",
+          "description": "The regular expression to be matched in the `input` strings.",
           "name": "pattern",
           "type": 7
         },
         {
-          "description": "The rewrite to be applied to the matched expression.",
+          "description": "The rewrite string to be substituted for the `pattern` expression where it is\nmatched in the `input` strings.",
           "name": "rewrite",
           "type": 7
         }
       ],
       "outputs": [
         {
-          "description": "The text after applying pattern and rewrite.",
+          "description": "The text after applying pattern match and rewrite substitution.",
           "name": "output",
           "type": 7
         }
       ],
-      "summary": "Replaces the match of pattern in input with rewrite."
+      "summary": "Replaces matches of the `pattern` regular expression in `input` with the\nreplacement string provided in `rewrite`."
     }
   },
   {
@@ -41130,6 +41879,11 @@
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
+          "type": "bool"
         }
       ],
       "description": "Input images can be of different types but output images are always float.",
@@ -41177,6 +41931,11 @@
           "default": false,
           "description": "If true, the centers of the 4 corner pixels of the input and grad tensors are\naligned. Defaults to false.",
           "name": "align_corners",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
           "type": "bool"
         }
       ],
@@ -41257,6 +42016,11 @@
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
+          "type": "bool"
         }
       ],
       "description": "Input images can be of different types but output images are always float.",
@@ -41312,6 +42076,11 @@
           "default": false,
           "description": "If true, the centers of the 4 corner pixels of the input and grad tensors are\naligned. Defaults to false.",
           "name": "align_corners",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
           "type": "bool"
         }
       ],
@@ -41388,6 +42157,11 @@
           "description": "If true, the centers of the 4 corner pixels of the input and output tensors are\naligned, preserving the values at the corner pixels. Defaults to false.",
           "name": "align_corners",
           "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
+          "type": "bool"
         }
       ],
       "inputs": [
@@ -41450,6 +42224,11 @@
           "default": false,
           "description": "If true, the centers of the 4 corner pixels of the input and grad tensors are\naligned. Defaults to false.",
           "name": "align_corners",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "name": "half_pixel_centers",
           "type": "bool"
         }
       ],
@@ -43690,6 +44469,11 @@
     "name": "ResourceGather",
     "schema": {
       "attributes": [
+        {
+          "default": 0,
+          "name": "batch_dims",
+          "type": "int"
+        },
         {
           "default": true,
           "name": "validate_indices",
@@ -48272,6 +49056,11 @@
           "default": "lanczos3",
           "name": "kernel_type",
           "type": "string"
+        },
+        {
+          "default": true,
+          "name": "antialias",
+          "type": "bool"
         }
       ],
       "inputs": [
@@ -48318,6 +49107,11 @@
           "default": "lanczos3",
           "name": "kernel_type",
           "type": "string"
+        },
+        {
+          "default": true,
+          "name": "antialias",
+          "type": "bool"
         }
       ],
       "inputs": [
@@ -58088,7 +58882,7 @@
           "typeAttr": "dtype"
         }
       ],
-      "summary": "Outputs random values from a normal distribution."
+      "summary": "Outputs random values from a normal distribution. This op is deprecated in favor of op 'StatefulStandardNormalV2'"
     }
   },
   {
@@ -58139,6 +58933,216 @@
         }
       ],
       "summary": "Outputs random values from a normal distribution."
+    }
+  },
+  {
+    "name": "StatefulTruncatedNormal",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a normal distribution with mean 0 and standard\ndeviation 1, except that values whose magnitude is more than 2 standard\ndeviations from the mean are dropped and re-picked.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random values from a truncated normal distribution."
+    }
+  },
+  {
+    "name": "StatefulUniform",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a uniform distribution in the range `[0, 1)`. The\nlower bound 0 is included in the range, while the upper bound 1 is excluded.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random values from a uniform distribution."
+    }
+  },
+  {
+    "name": "StatefulUniformFullInt",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 23
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values are uniform integers covering the whole range of `dtype`. ",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random integers from a uniform distribution."
+    }
+  },
+  {
+    "name": "StatefulUniformInt",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "shape_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values are uniform integers in the range `[minval, maxval)`.\nThe lower bound `minval` is included in the range, while the upper bound\n`maxval` is excluded.\n\nThe random integers are slightly biased unless `maxval - minval` is an exact\npower of two.  The bias is small for values of `maxval - minval` significantly\nsmaller than the range of the output (either `2^32` or `2^64`).",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "shape_dtype"
+        },
+        {
+          "description": "Minimum value (inclusive, scalar).",
+          "name": "minval",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "Maximum value (exclusive, scalar).",
+          "name": "maxval",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs random integers from a uniform distribution."
     }
   },
   {
@@ -58777,6 +59781,45 @@
         }
       ],
       "summary": "Replaces the match of pattern in input with rewrite."
+    }
+  },
+  {
+    "name": "StatsAggregatorHandleV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
+    "name": "StatsAggregatorSetSummaryWriter",
+    "schema": {
+      "inputs": [
+        {
+          "name": "stats_aggregator",
+          "type": 20
+        },
+        {
+          "name": "summary",
+          "type": 20
+        }
+      ],
+      "summary": "Set a summary_writer_interface to record statistics using given stats_aggregator."
     }
   },
   {

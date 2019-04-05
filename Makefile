@@ -5,8 +5,12 @@ build: clean lint build_python build_electron
 
 publish: clean lint publish_github_electron publish_pip publish_github_pages publish_cask
 
+pull:
+	git pull --rebase --prune
+
 install:
 	rm -rf ./node_modules
+	rm -rf ./package-lock.json
 	npm install
 
 clean:
@@ -16,6 +20,11 @@ reset:
 	rm -rf ./build
 	rm -rf ./node_modules
 	rm -rf ./third_party
+	rm -rf ./package-lock.json
+
+update:
+	@[ -d node_modules ] || npm install
+	./tools/update
 
 build_python:
 	@[ -d node_modules ] || npm install
@@ -43,8 +52,8 @@ publish_pip:
 	@[ -d node_modules ] || npm install
 	rm -rf ./build/python
 	python ./setup.py build --version bdist_wheel
-	python install --user keyring
-	python install --user twine
+	python -m pip install --user keyring
+	python -m pip install --user twine
 	twine upload build/python/dist/*
 
 publish_github_electron:

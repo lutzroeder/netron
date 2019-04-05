@@ -85,104 +85,114 @@ pytorch.ModelFactory = class {
             constructorTable['argparse.Namespace'] = function (args) {
                 this.args = args;
             };
-            constructorTable['torch.autograd.variable.Variable'] = function () {};
-            constructorTable['torch.backends.cudnn.rnn.Unserializable'] = function () {};
-            constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
-            constructorTable['torch.nn.modules.activation.ELU'] = function () {};
-            constructorTable['torch.nn.modules.activation.Hardtanh'] = function () {};
-            constructorTable['torch.nn.modules.activation.LeakyReLU'] = function () {};
-            constructorTable['torch.nn.modules.activation.LogSoftmax'] = function () {};
-            constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
-            constructorTable['torch.nn.modules.activation.ReLU6'] = function () {};
-            constructorTable['torch.nn.modules.activation.PReLU'] = function () {};
-            constructorTable['torch.nn.modules.activation.Sigmoid'] = function () {};
-            constructorTable['torch.nn.modules.activation.Softmax'] = function () {};
-            constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
-            constructorTable['torch.nn.modules.activation.Threshold'] = function () {};
-            constructorTable['torch.nn.modules.batchnorm.BatchNorm1d'] = function () {};
-            constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
-            constructorTable['torch.nn.modules.batchnorm.BatchNorm3d'] = function () {};
-            constructorTable['torch.nn.modules.container.ModuleList'] = function () {};
-            constructorTable['torch.nn.modules.container.ParameterList'] = function () {};
-            constructorTable['torch.nn.modules.container.Sequential'] = function () {};
-            constructorTable['torch.nn.modules.conv.Conv1d'] = function () {};
-            constructorTable['torch.nn.modules.conv.Conv2d'] = function () {};
-            constructorTable['torch.nn.modules.conv.Conv3d'] = function () {};
-            constructorTable['torch.nn.modules.conv.ConvTranspose1d'] = function () {};
-            constructorTable['torch.nn.modules.conv.ConvTranspose2d'] = function () {};
-            constructorTable['torch.nn.modules.conv.ConvTranspose3d'] = function () {};
-            constructorTable['torch.nn.modules.dropout.Dropout'] = function () {};
-            constructorTable['torch.nn.modules.dropout.Dropout2d'] = function () {};
-            constructorTable['torch.nn.modules.dropout.Dropout3d'] = function () {};
+            constructorTable['torch.autograd.variable.Variable'] = function() {};
+            constructorTable['torch.backends.cudnn.rnn.Unserializable'] = function() {};
+            constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function() {};
+            constructorTable['torch.nn.modules.activation.ELU'] = function() {};
+            constructorTable['torch.nn.modules.activation.Hardtanh'] = function() {};
+            constructorTable['torch.nn.modules.activation.LeakyReLU'] = function() {};
+            constructorTable['torch.nn.modules.activation.LogSoftmax'] = function() {};
+            constructorTable['torch.nn.modules.activation.ReLU'] = function() {};
+            constructorTable['torch.nn.modules.activation.ReLU6'] = function() {};
+            constructorTable['torch.nn.modules.activation.PReLU'] = function() {};
+            constructorTable['torch.nn.modules.activation.SELU'] = function() {};
+            constructorTable['torch.nn.modules.activation.Sigmoid'] = function() {};
+            constructorTable['torch.nn.modules.activation.Softmax'] = function() {};
+            constructorTable['torch.nn.modules.activation.Tanh'] = function() {};
+            constructorTable['torch.nn.modules.activation.Threshold'] = function() {};
+            constructorTable['torch.nn.modules.batchnorm.BatchNorm1d'] = function() {};
+            constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function() {};
+            constructorTable['torch.nn.modules.batchnorm.BatchNorm3d'] = function() {};
+            constructorTable['torch.nn.modules.container.ModuleDict'] = function() {};
+            constructorTable['torch.nn.modules.container.ModuleList'] = function() {};
+            constructorTable['torch.nn.modules.container.ParameterList'] = function() {};
+            constructorTable['torch.nn.modules.container.Sequential'] = function() {};
+            constructorTable['torch.nn.modules.conv.Conv1d'] = function() {};
+            constructorTable['torch.nn.modules.conv.Conv2d'] = function() {};
+            constructorTable['torch.nn.modules.conv.Conv3d'] = function() {};
+            constructorTable['torch.nn.modules.conv.ConvTranspose1d'] = function() {};
+            constructorTable['torch.nn.modules.conv.ConvTranspose2d'] = function() {};
+            constructorTable['torch.nn.modules.conv.ConvTranspose3d'] = function() {};
+            constructorTable['torch.nn.modules.distance.CosineSimilarity'] = function() {};
+            constructorTable['torch.nn.modules.dropout.Dropout'] = function() {};
+            constructorTable['torch.nn.modules.dropout.Dropout2d'] = function() {};
+            constructorTable['torch.nn.modules.dropout.Dropout3d'] = function() {};
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm1d'] = function() {};
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm2d'] = function() {};
             constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
-            constructorTable['torch.nn.modules.linear.Linear'] = function () {};
-            constructorTable['torch.nn.modules.loss.BCELoss'] = function () {};
-            constructorTable['torch.nn.modules.loss.BCEWithLogitsLoss'] = function () {}; 
-            constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function () {};
-            constructorTable['torch.nn.modules.loss.MSELoss'] = function () {};
-            constructorTable['torch.nn.modules.normalization.GroupNorm'] = function () {};
-            constructorTable['torch.nn.modules.normalization.LayerNorm'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReplicationPad1d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReplicationPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ReplicationPad3d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ZeroPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ConstantPad1d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ConstantPad2d'] = function () {};
-            constructorTable['torch.nn.modules.padding.ConstantPad3d'] = function () {};
-            constructorTable['torch.nn.modules.pixelshuffle.PixelShuffle'] = function () {};
+            constructorTable['torch.nn.modules.linear.Linear'] = function() {};
+            constructorTable['torch.nn.modules.loss.BCELoss'] = function() {};
+            constructorTable['torch.nn.modules.loss.BCEWithLogitsLoss'] = function() {}; 
+            constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function() {};
+            constructorTable['torch.nn.modules.loss.MSELoss'] = function() {};
+            constructorTable['torch.nn.modules.normalization.GroupNorm'] = function() {};
+            constructorTable['torch.nn.modules.normalization.LayerNorm'] = function() {};
+            constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad1d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad2d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ReplicationPad3d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ZeroPad2d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ConstantPad1d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ConstantPad2d'] = function() {};
+            constructorTable['torch.nn.modules.padding.ConstantPad3d'] = function() {};
+            constructorTable['torch.nn.modules.pixelshuffle.PixelShuffle'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool1d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool2d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveAvgPool3d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveMaxPool1d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveMaxPool2d'] = function() {};
             constructorTable['torch.nn.modules.pooling.AdaptiveMaxPool3d'] = function() {};
-            constructorTable['torch.nn.modules.pooling.AvgPool1d'] = function () {};
-            constructorTable['torch.nn.modules.pooling.AvgPool2d'] = function () {};
-            constructorTable['torch.nn.modules.pooling.AvgPool3d'] = function () {};
+            constructorTable['torch.nn.modules.pooling.AvgPool1d'] = function() {};
+            constructorTable['torch.nn.modules.pooling.AvgPool2d'] = function() {};
+            constructorTable['torch.nn.modules.pooling.AvgPool3d'] = function() {};
             constructorTable['torch.nn.modules.pooling.MaxPool1d'] = function() {};
-            constructorTable['torch.nn.modules.pooling.MaxPool2d'] = function () {};
+            constructorTable['torch.nn.modules.pooling.MaxPool2d'] = function() {};
             constructorTable['torch.nn.modules.pooling.MaxPool3d'] = function() {};
-            constructorTable['torch.nn.modules.pooling.MaxUnpool1d'] = function () {};
-            constructorTable['torch.nn.modules.pooling.MaxUnpool2d'] = function () {};
-            constructorTable['torch.nn.modules.pooling.MaxUnpool3d'] = function () {};
-            constructorTable['torch.nn.modules.rnn.GRU'] = function () {};
-            constructorTable['torch.nn.modules.rnn.GRUCell'] = function () {};
-            constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
-            constructorTable['torch.nn.modules.rnn.LSTMCell'] = function () {};
-            constructorTable['torch.nn.modules.rnn.RNN'] = function () {};
-            constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
+            constructorTable['torch.nn.modules.pooling.MaxUnpool1d'] = function() {};
+            constructorTable['torch.nn.modules.pooling.MaxUnpool2d'] = function() {};
+            constructorTable['torch.nn.modules.pooling.MaxUnpool3d'] = function() {};
+            constructorTable['torch.nn.modules.rnn.GRU'] = function() {};
+            constructorTable['torch.nn.modules.rnn.GRUCell'] = function() {};
+            constructorTable['torch.nn.modules.rnn.LSTM'] = function() {};
+            constructorTable['torch.nn.modules.rnn.LSTMCell'] = function() {};
+            constructorTable['torch.nn.modules.rnn.RNN'] = function() {};
+            constructorTable['torch.nn.modules.sparse.Embedding'] = function() {};
             constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
+            constructorTable['torch.nn.modules.upsampling.UpsamplingNearest2d'] = function() {};
             constructorTable['torch.nn.parallel.data_parallel.DataParallel'] = function() {}; 
+            constructorTable['torch.nn.parallel.distributed.DistributedDataParallel'] = function() {};
             constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) {
                 this.data = data; this.requires_grad = requires_grad;
             };
-            constructorTable['torch.nn.utils.spectral_norm.SpectralNorm'] = function () {};
-            constructorTable['torch.nn.utils.spectral_norm.SpectralNormStateDictHook'] = function () {};
-            constructorTable['torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook'] = function () {};
-            constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function () {};
-            constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
-            constructorTable['torchvision.models.densenet.DenseNet'] = function () {};
-            constructorTable['torchvision.models.densenet._DenseBlock'] = function () {};
-            constructorTable['torchvision.models.densenet._DenseLayer'] = function () {};
-            constructorTable['torchvision.models.densenet._Transition'] = function () {};
-            constructorTable['torchvision.models.inception.BasicConv2d'] = function () {};
-            constructorTable['torchvision.models.inception.Inception3'] = function () {};
-            constructorTable['torchvision.models.inception.InceptionAux'] = function () {};
-            constructorTable['torchvision.models.inception.InceptionA'] = function () {};
-            constructorTable['torchvision.models.inception.InceptionB'] = function () {};
-            constructorTable['torchvision.models.inception.InceptionC'] = function () {};
-            constructorTable['torchvision.models.inception.InceptionD'] = function () {};
-            constructorTable['torchvision.models.inception.InceptionE'] = function () {};
-            constructorTable['torchvision.models.squeezenet.Fire'] = function () {};
-            constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function () {};
-            constructorTable['torchvision.models.resnet.Bottleneck'] = function () {};
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNorm'] = function() {};
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNormStateDictHook'] = function() {};
+            constructorTable['torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook'] = function() {};
+            constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function() {};
+            constructorTable['torch.optim.adam.Adam'] = function() {};
+            constructorTable['torchvision.models.alexnet.AlexNet'] = function() {};
+            constructorTable['torchvision.models.densenet.DenseNet'] = function() {};
+            constructorTable['torchvision.models.densenet._DenseBlock'] = function() {};
+            constructorTable['torchvision.models.densenet._DenseLayer'] = function() {};
+            constructorTable['torchvision.models.densenet._Transition'] = function() {};
+            constructorTable['torchvision.models.inception.BasicConv2d'] = function() {};
+            constructorTable['torchvision.models.inception.Inception3'] = function() {};
+            constructorTable['torchvision.models.inception.InceptionAux'] = function() {};
+            constructorTable['torchvision.models.inception.InceptionA'] = function() {};
+            constructorTable['torchvision.models.inception.InceptionB'] = function() {};
+            constructorTable['torchvision.models.inception.InceptionC'] = function() {};
+            constructorTable['torchvision.models.inception.InceptionD'] = function() {};
+            constructorTable['torchvision.models.inception.InceptionE'] = function() {};
+            constructorTable['torchvision.models.resnet.Bottleneck'] = function() {};
             constructorTable['torchvision.models.resnet.BasicBlock'] = function() {};
-            constructorTable['torchvision.models.resnet.ResNet'] = function () {};
-            constructorTable['torchvision.models.vgg.VGG'] = function () {};
+            constructorTable['torchvision.models.squeezenet.Fire'] = function() {};
+            constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function() {};
+            constructorTable['torchvision.models.resnet.ResNet'] = function() {};
+            constructorTable['torchvision.models.vgg.VGG'] = function() {};
+            constructorTable['torchvision.transforms.transforms.Compose'] = function() {};
+            constructorTable['torchvision.transforms.transforms.Normalize'] = function() {};
+            constructorTable['torchvision.transforms.transforms.Resize'] = function() {};
+            constructorTable['torchvision.transforms.transforms.ToTensor'] = function() {};
             constructorTable['torch.ByteStorage'] = function (size) { 
                 this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
             };
@@ -314,9 +324,9 @@ pytorch.ModelFactory = class {
                     obj.push({ key: key, value: value });
                 };
                 if (args) {
-                    args.forEach((arg) => {
+                    for (var arg of args) {
                         obj.__setitem__(arg[0], arg[1]);
-                    });
+                    }
                 }
                 return obj;
             };
@@ -439,12 +449,12 @@ pytorch.ModelFactory = class {
 
             var root = unpickler.load(function_call, persistent_load);
             var deserialized_storage_keys = unpickler.load();
-            deserialized_storage_keys.forEach((key) => {
+            for (var key of deserialized_storage_keys) {
                 if (deserialized_objects[key]) {
                     var storage = deserialized_objects[key];
                     storage.data = unpickler.read(storage.dataTypeSize * storage.size);
                 }
-            });
+            }
 
             if ((Array.isArray(root) && root.__setitem__ && root.every((item) => item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) ||
                 (root != null && root.state_dict && Array.isArray(root.state_dict))) {
@@ -534,9 +544,9 @@ pytorch.Graph = class {
         this._inputs.push(new pytorch.Argument(input, true, [ new pytorch.Connection(input, null, null) ]));
 
         var outputs = this._loadModule(root, module_source_map, [], [ input ]);
-        outputs.forEach((output) => {
+        for (var output of outputs) {
             this._outputs.push(new pytorch.Argument(output, true, [ new pytorch.Connection(output, null, null) ]));
-        });
+        }
     }
 
     _loadModule(parent, module_source_map, groups, inputs) {
@@ -544,8 +554,7 @@ pytorch.Graph = class {
         if (parent.__type__ &&
             !parent.__type__.startsWith('torch.nn.modules.container.') &&
             (!parent._modules || parent._modules.length == 0)) {
-            var node = new pytorch.Node(this._metadata, '', parent, groups, inputs, this._littleEndian);
-            this._nodes.push(node);
+            this._nodes.push(new pytorch.Node(this._metadata, '', parent, groups, inputs, this._littleEndian));
             return [];
         }
 
@@ -553,7 +562,7 @@ pytorch.Graph = class {
             throw new pytorch.Error('Module does not contain modules.');
         }
 
-        parent._modules.forEach((module) => {
+        for (var module of parent._modules) {
             switch (module.value.__type__) {
                 case 'torch.nn.modules.container.Sequential':
                     groups.push(module.key);
@@ -581,7 +590,7 @@ pytorch.Graph = class {
                     inputs = [ node.name ];
                     break;
             }
-        });
+        }
 
         return inputs;
     }
@@ -684,17 +693,13 @@ pytorch.Node = class {
 
         var parameters = [];
         if (obj._parameters) {
-            obj._parameters.forEach((parameter) => {
-                parameters.push(parameter);
-            });
+            parameters = parameters.concat(obj._parameters);
         }
         if (obj._buffers) {
-            obj._buffers.forEach((buffer) => {
-                parameters.push(buffer);
-            });
+            parameters = parameters.concat(obj._buffers);
         }
 
-        parameters.forEach((parameter) => {
+        for (var parameter of parameters) {
             var visible = true;
             var inputName = ''; 
             if (inputs.length > 0) {
@@ -710,19 +715,19 @@ pytorch.Node = class {
                 else if (parameter.value.storage) {
                     initializer = new pytorch.Tensor(parameter.value, littleEndian);
                 }
-                this._inputs.push(new pytorch.Argument(inputName || parameter.key, visible, [ new pytorch.Connection(null, null, initializer) ]));
+                this._inputs.push(new pytorch.Argument(inputName || parameter.key, visible, [ new pytorch.Connection('', null, initializer) ]));
             }
-        });
+        }
 
         this._outputs = [];
         this._outputs.push(new pytorch.Argument('output', true, [ new pytorch.Connection(this._name, null, null) ]));
 
         this._attributes = [];
-        Object.keys(obj).forEach((key) => {
-            if (!key.startsWith('_')) {
-                this._attributes.push(new pytorch.Attribute(this._metadata, this, key, obj[key]));
+        for (var attributeName of Object.keys(obj)) {
+            if (!attributeName.startsWith('_')) {
+                this._attributes.push(new pytorch.Attribute(this._metadata, this, attributeName, obj[attributeName]));
             }
-        });
+        }
     }
 
     get name() {
@@ -739,7 +744,7 @@ pytorch.Node = class {
 
     get category() {
         var schema = this._metadata.getSchema(this._operator);
-        return (schema && schema.category) ? schema.category : null;
+        return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
@@ -751,29 +756,29 @@ pytorch.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
-                });
+                }
             }
             if (schema.inputs) {
-                schema.inputs.forEach((input) => {
+                for (var input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
-                });
+                }
             }
             if (schema.outputs) {
-                schema.outputs.forEach((output) => {
+                for (var output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
-                });
+                }
             }
             return schema;
         }
-        return null;
+        return '';
     }
 
     get function() {
@@ -1056,11 +1061,11 @@ pytorch.Metadata = class {
         if (data) {
             var items = JSON.parse(data);
             if (items) {
-                items.forEach((item) => {
+                for (var item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
-                });
+                }
             }
         }
     }
@@ -1075,9 +1080,9 @@ pytorch.Metadata = class {
             map = {};
             var schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                schema.attributes.forEach((attribute) => {
+                for (var attribute of schema.attributes) {
                     map[attribute.name] = attribute;
-                });
+                }
             }
             this._attributeCache[operator] = map;
         }
