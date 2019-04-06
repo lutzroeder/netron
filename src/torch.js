@@ -688,6 +688,7 @@ torch.T7Reader = class {
         this._registry['inn.ConstAffine'] = function(reader) { reader.nn(this); };
         this._registry['inn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.AddConstant'] = function(reader) { reader.nn(this); };
+        this._registry['nn.BatchNormalization'] = function(reader) { reader.nn(this); };
         this._registry['nn.BilinearSamplerBHWD'] = function(reader) { reader.nn(this); };
         this._registry['nn.BinActiveZ'] = function(reader) { reader.nn(this); }; // allenai/XNOR-Net
         this._registry['nn.CAddTable'] = function(reader) { reader.nn(this); };
