@@ -436,7 +436,7 @@ view.View = class {
     
                 var graphOptions = {};
                 graphOptions.nodesep = 25;
-                graphOptions.ranksep = 30;
+                graphOptions.ranksep = 20;
 
                 var g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
