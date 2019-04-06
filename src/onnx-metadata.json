@@ -1,48 +1,5 @@
 [
   {
-    "name": "ATen",
-    "schema": {
-      "description": "Experimental allowing ATen operations to be accessed directly from Caffe2\nto allow for quick prototyping when ONNX is missing standard versions of\nand op",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "Arbitrary input",
-          "name": "input",
-          "option": "variadic",
-          "type": "T"
-        }
-      ],
-      "max_input": 2147483647,
-      "max_output": 2147483647,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Arbitrary output",
-          "name": "output",
-          "option": "variadic",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(bool)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain output types to bool, int32, int64, float16, float, double tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Abs",
     "schema": {
       "attributes": [
@@ -977,7 +934,7 @@
           "summary": "averagepool_1d_default"
         },
         {
-          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [6, 7.5],\n    [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='export_averagepool_2d_ceil')",
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [6, 7.5],\n    [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_ceil')",
           "summary": "averagepool_2d_ceil"
         },
         {
@@ -1103,7 +1060,7 @@
           "summary": "averagepool_1d_default"
         },
         {
-          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [6, 7.5],\n    [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='export_averagepool_2d_ceil')",
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [6, 7.5],\n    [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_ceil')",
           "summary": "averagepool_2d_ceil"
         },
         {
@@ -1235,7 +1192,7 @@
           "summary": "averagepool_1d_default"
         },
         {
-          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [6, 7.5],\n    [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='export_averagepool_2d_ceil')",
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [6, 7.5],\n    [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_ceil')",
           "summary": "averagepool_2d_ceil"
         },
         {
@@ -5004,67 +4961,6 @@
     }
   },
   {
-    "name": "GRUUnit",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length.",
-          "name": "drop_states",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "description": "GRUUnit computes the activations of a standard GRU,\nin a sequence-length aware fashion.\nConcretely, given the (fused) inputs X (TxNxD), the previous hidden\nstate (NxD), and the sequence lengths (N), computes the GRU\nactivations, avoiding computation if the input is invalid (as in, the\nvalue at X[t][n] >= seqLengths[n].\n",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "The previous GRU hidden state.",
-          "name": "hidden_prev",
-          "type": "T"
-        },
-        {
-          "description": "Unactivated gate outputs from forget, update, and output gates, pre-activation.",
-          "name": "gates",
-          "type": "T"
-        },
-        {
-          "description": "Array of sequence lengths.  len(seq_lengths) should equal batch size N.",
-          "name": "seq_lengths",
-          "type": "T"
-        },
-        {
-          "description": "The timestep for this operation.",
-          "name": "t",
-          "type": "T"
-        }
-      ],
-      "max_input": 4,
-      "max_output": 1,
-      "min_input": 4,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "The new GRU hidden state calculated by this op.",
-          "name": "hidden",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Gather",
     "schema": {
       "attributes": [
@@ -5505,70 +5401,6 @@
             "tensor(int64)"
           ],
           "description": "Constrain input and output types to float/int tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
-    "name": "GivenTensorFill",
-    "schema": {
-      "attributes": [
-        {
-          "description": "",
-          "name": "extra_shape",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "",
-          "name": "input_as_shape",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "",
-          "name": "shape",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "",
-          "name": "values",
-          "required": false,
-          "type": "float[]"
-        }
-      ],
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "The shape of filled tensor",
-          "name": "shape",
-          "option": "optional",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 0,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "The filled tensor",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
         }
       ]
@@ -8326,7 +8158,7 @@
           "summary": "maxpool_1d_default"
         },
         {
-          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='export_maxpool_2d_ceil')",
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_ceil')",
           "summary": "maxpool_2d_ceil"
         },
         {
@@ -8456,7 +8288,7 @@
           "summary": "maxpool_1d_default"
         },
         {
-          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='export_maxpool_2d_ceil')",
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_ceil')",
           "summary": "maxpool_2d_ceil"
         },
         {
@@ -8611,7 +8443,7 @@
           "summary": "maxpool_1d_default"
         },
         {
-          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='export_maxpool_2d_ceil')",
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_ceil')",
           "summary": "maxpool_2d_ceil"
         },
         {
@@ -12395,53 +12227,6 @@
     }
   },
   {
-    "name": "Scale",
-    "schema": {
-      "attributes": [
-        {
-          "default": 1.0,
-          "description": "The scale to apply.",
-          "name": "scale",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "description": "Scale takes one input data (Tensor<float>) and produces one output data\n(Tensor<float>) whose value is the input data tensor scaled element-wise.\n",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "Input data to be scaled",
-          "name": "input",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Output data after scaling",
-          "name": "output",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Scaler",
     "schema": {
       "attributes": [
@@ -14026,7 +13811,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "List of positive integers, indicate the dimensions to squeeze.",
+          "description": "List of non-negative integers, indicate the dimensions to squeeze.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -15497,7 +15282,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "List of positive integers, indicate the dimensions to be inserted",
+          "description": "List of non-negative integers, indicate the dimensions to be inserted",
           "name": "axes",
           "required": true,
           "type": "int[]"
