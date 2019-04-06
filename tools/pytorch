@@ -76,6 +76,11 @@ schema() {
 metadata() {
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
+    case "$(uname)" in
+        "Linux")
+            export LD_LIBRARY_PATH=$(dirname $(locate libiomp5.so)):${LD_LIBRARY_PATH}
+            ;;
+    esac
     bold "pytorch metadata"
     ${python} pytorch-script.py metadata
     bold "caffe2 metadata"
@@ -88,6 +93,11 @@ zoo() {
     bold "pytorch zoo"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
+    case "$(uname)" in
+        "Linux")
+            export LD_LIBRARY_PATH=$(dirname $(locate libiomp5.so)):${LD_LIBRARY_PATH}
+            ;;
+    esac
     ${python} pytorch-script.py zoo torchvision.models.alexnet ${test}/data/pytorch/alexnet.pth
     ${python} pytorch-script.py zoo torchvision.models.densenet121 ${test}/data/pytorch/densenet121.pth
     ${python} pytorch-script.py zoo torchvision.models.densenet161 ${test}/data/pytorch/densenet161.pth
