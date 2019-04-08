@@ -1875,6 +1875,12 @@
   },
   {
     "type":   "keras",
+    "target": "resnet50_weights_tf_dim_ordering_tf_kernels.h5",
+    "source": "https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resnet50_weights_tf_dim_ordering_tf_kernels.h5",
+    "format": "Keras"
+  },
+  {
+    "type":   "keras",
     "target": "sentiment_model.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[sentiment_model.h5]",
     "format": "Keras v2.1.3",
@@ -1891,7 +1897,7 @@
     "type":   "keras",
     "target": "snapshot_parent_0097.h5",
     "source": "https://github.com/uber-research/deep-neuroevolution/blob/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5?raw=true",
-    "error":  "HDF5 file does not contain a Keras 'model_config' graph. Use 'save()' instead of 'save_weights()' to save both the graph and weights.",
+    "error":  "File format is not Keras HDF5 in 'snapshot_parent_0097.h5'.",
     "link":   "https://github.com/uber-research/deep-neuroevolution"
   },
   {

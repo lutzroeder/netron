@@ -12,7 +12,7 @@ keras.ModelFactory = class {
         var extension = identifier.split('.').pop().toLowerCase();
         var buffer = null;
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
-            // Filter PyTorch models published with incorrect .h5 file extension.
+            // Reject PyTorch models with .h5 file extension.
             buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
@@ -67,11 +67,13 @@ keras.ModelFactory = class {
                     case 'model':
                         var file = new hdf5.File(context.buffer);
                         rootGroup = file.rootGroup;
-                        if (!rootGroup.attribute('model_config')) {
-                            callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
+                        if (!rootGroup.attribute('model_config') && !rootGroup.attribute('layer_names')) {
+                            callback(new keras.Error("File format is not Keras HDF5 in '" + context.identifier + "'."), null);
                             return;
                         }
-                        model_config = JSON.parse(rootGroup.attribute('model_config'));
+                        if (rootGroup.attribute('model_config')) {
+                            model_config = JSON.parse(rootGroup.attribute('model_config'));
+                        }
                         break;
                     case 'json':
                         model_config = JSON.parse(context.text);
@@ -89,16 +91,16 @@ keras.ModelFactory = class {
                 callback(new keras.Error(message + " in '" + identifier + "'."), null);
                 return;
             }
-    
-            if (!model_config) {
+
+            if (!rootGroup && !model_config) {
                 callback(new keras.Error('\'model_config\' is not present.'));
                 return;
             }
-            if (!model_config.class_name) {
+            if (!rootGroup && !model_config.class_name) {
                 callback(new keras.Error('\'class_name\' is not present.'), null);
                 return;
             }
-    
+ 
             keras.Metadata.open(host, (err, metadata) => {
                 try {
                     var model = new keras.Model(metadata, format, model_config, rootGroup, rootJson);
@@ -134,6 +136,9 @@ keras.Model = class {
                 this._backend = backend;
             }
             var model_weights_group = rootGroup.group('model_weights');
+            if (!model_weights_group && rootGroup.attribute('layer_names')) {
+                model_weights_group = rootGroup;
+            }
             if (model_weights_group) {
                 model_weights_group = new keras.Group(model_weights_group);
                 var layer_names = model_weights_group.attribute('layer_names');
@@ -227,27 +232,29 @@ keras.Model = class {
 keras.Graph = class {
 
     constructor(metadata, model, weights) {
-        if (model.name) {
-            this._name = model.name;
-        }
-        else if (model.config && model.config.name) {
-            this._name = model.config.name;
-        }
         this._metadata = metadata;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
         this._groups = false;
 
-        switch (model.class_name) {
-            case 'Sequential':
-                this._loadSequential(model.config, weights, '', null, null);
-                break;
-            case 'Model':
-                this._loadModel(model.config, weights, '', null, null);
-                break;
-            default:
-                throw new keras.Error('\'' + model.class_name + '\' is not supported.');
+        if (model) {
+            this._name = model.name || (model.config && model.config.name ? model.config.name : '');
+            switch (model.class_name) {
+                case 'Sequential':
+                    this._loadSequential(model.config, weights, '', null, null);
+                    break;
+                case 'Model':
+                    this._loadModel(model.config, weights, '', null, null);
+                    break;
+                default:
+                    throw new keras.Error('\'' + model.class_name + '\' is not supported.');
+            }
+        }
+        else if (weights) {
+            for (var layer in weights) {
+                this._nodes.push(new keras.Node(metadata, 'Weights', { name: layer }, [], [], false, weights))
+            }
         }
     }
 
@@ -506,10 +513,9 @@ keras.Node = class {
         this._metadata = metadata;
         this._operator = operator;
         this._name = (config && config.name) ? config.name : '';
-        this._inputs = inputs;
-        this._outputs = outputs;
+        this._inputs = [];
+        this._outputs = [];
         this._attributes = [];
-        this._initializers = {};
 
         var names = [ this._name ];
         if ((operator == 'Bidirectional' || operator == 'TimeDistributed') && (config && config.layer)) {
@@ -521,13 +527,13 @@ keras.Node = class {
             }
         }
 
+        var initializers = {};
         if (weights) {
             for (var name of names) {
-                var initializers = weights[name];
-                if (initializers) {
-                    for (var initializer of initializers) {
-                        this._inputs.push(initializer.name);
-                        this._initializers[initializer.name] = initializer;
+                if (weights[name]) {
+                    for (var initializer of weights[name]) {
+                        inputs.push(initializer.name);
+                        initializers[initializer.name] = initializer;
                     }
                 }
             }
@@ -541,6 +547,68 @@ keras.Node = class {
                 }
             }
         }
+
+        var schema = this._metadata.getSchema(this.operator);
+        var innerOperator = this.inner ? this.inner.operator : null;
+        var innerSchema = innerOperator ? this._metadata.getSchema(innerOperator) : null;
+        var inputIndex = 0;
+        while (inputIndex < inputs.length) {
+            var inputCount = 1;
+            var inputName = null;
+            var visible = true;
+            if (!innerSchema || inputIndex == 0)
+            {
+                if (schema && schema.inputs && inputIndex < schema.inputs.length) {
+                    var input = schema.inputs[inputIndex];
+                    inputName = input.name;
+                    visible = input.visible == false ? false : true; 
+                    if (schema.inputs[inputIndex].option == 'variadic') {
+                        inputCount = this._inputs.length - inputIndex;
+                    }
+                }
+            }
+            else {
+                switch (operator) {
+                    case 'Bidirectional':
+                        var innerIndex = inputIndex;
+                        if (innerSchema && innerSchema.inputs) {
+                            if (innerIndex < innerSchema.inputs.length) {
+                                inputName = 'forward_' + innerSchema.inputs[innerIndex].name;
+                            }
+                            else {
+                                innerIndex = innerIndex - innerSchema.inputs.length + 1;
+                                if (innerIndex < innerSchema.inputs.length) {
+                                    inputName = 'backward_' + innerSchema.inputs[innerIndex].name;
+                                }
+                            }
+                        }
+                        visible = false;
+                        break;
+                    case 'TimeDistributed':
+                        if (innerSchema && innerSchema.inputs && inputIndex < innerSchema.inputs.length) {
+                            inputName = innerSchema.inputs[inputIndex].name;
+                        }
+                        break;
+                }
+            }
+            var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+                return new keras.Connection(id, null, initializers[id]);
+            });
+            if (!inputName && inputConnections.length == 1 && inputConnections[0].initializer && inputConnections[0].initializer.name) {
+                inputName = inputConnections[0].initializer.name.split('/').pop().split(':').shift().split('_').pop();
+            }
+            inputName = inputName || inputIndex.toString();
+            this._inputs.push(new keras.Argument(inputName, visible, inputConnections));
+            inputIndex += inputCount;
+        }
+
+        this._outputs = outputs.map((output, outputIndex) => {
+            var outputName = 
+                (schema && schema.outputs && outputIndex < schema.outputs.length && schema.outputs[outputIndex] && schema.outputs[outputIndex].name) ?
+                    schema.outputs[outputIndex].name :
+                    outputIndex.toString();
+            return new keras.Argument(outputName, true, [ new keras.Connection(output, null, null) ]);
+        });
     }
 
     get operator() {
@@ -602,74 +670,11 @@ keras.Node = class {
     }
 
     get inputs() {
-        var operator = this.operator;
-        var schema = this._metadata.getSchema(operator);
-        var innerOperator = this.inner ? this.inner.operator : null;
-        var innerSchema = innerOperator ? this._metadata.getSchema(innerOperator) : null;
-        var args = [];
-        var index = 0;
-        while (index < this._inputs.length) {
-            var count = 1;
-            var name = null;
-            var visible = true;
-            if (!innerSchema || index == 0)
-            {
-                if (schema && schema.inputs && index < schema.inputs.length) {
-                    var input = schema.inputs[index];
-                    name = input.name;
-                    visible = input.visible == false ? false : true; 
-                    if (schema.inputs[index].option == 'variadic') {
-                        count = this._inputs.length - index;
-                    }
-                }
-            }
-            else {
-                switch (operator) {
-                    case 'Bidirectional':
-                        var innerIndex = index;
-                        if (innerSchema && innerSchema.inputs) {
-                            if (innerIndex < innerSchema.inputs.length) {
-                                name = 'forward_' + innerSchema.inputs[innerIndex].name;
-                            }
-                            else {
-                                innerIndex = innerIndex - innerSchema.inputs.length + 1;
-                                if (innerIndex < innerSchema.inputs.length) {
-                                    name = 'backward_' + innerSchema.inputs[innerIndex].name;
-                                }
-                            }
-                        }
-                        visible = false;
-                        break;
-                    case 'TimeDistributed':
-                        if (innerSchema && innerSchema.inputs && index < innerSchema.inputs.length) {
-                            name = innerSchema.inputs[index].name;
-                        }
-                        break;
-                }
-            }
-            var argumentName = name ? name : index.toString();
-            var connections = [];
-            var array = this._inputs.slice(index, index + count);
-            for (var j = 0; j < array.length; j++) {
-                var id = array[j];
-                connections.push(new keras.Connection(id, null, this._initializers[id]));
-            }
-            index += count;
-            args.push(new keras.Argument(argumentName, visible, connections));
-        }
-        return args;
+        return this._inputs;
     }
 
     get outputs() {
-        var schema = this._metadata.getSchema(this.operator);
-        return this._outputs.map((output, index) => {
-            var outputName = index.toString();
-            if (schema && schema.outputs && index < schema.outputs.length && 
-                schema.outputs[index] && schema.outputs[index].name) {
-                outputName = schema.outputs[index].name;
-            }
-            return new keras.Argument(outputName, true, [ new keras.Connection(output, null, null) ]);
-        });
+        return this._outputs;
     }
 
     get attributes() {
