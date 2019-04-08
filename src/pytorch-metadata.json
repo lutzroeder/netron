@@ -481,7 +481,8 @@
           "name": "running_var"
         },
         {
-          "name": "num_batches_tracked"
+          "name": "num_batches_tracked",
+          "visible": false
         }
       ],
       "package": "torch.nn.modules.batchnorm"

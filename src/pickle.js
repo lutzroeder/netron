@@ -37,13 +37,8 @@ pickle.Unpickler = class {
                     table[reader.line()] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.OBJ:
-                    obj = new (stack.pop())();
-                    start = marker.pop();
-                    for (i = start; i < stack.length; i += 2) {
-                        obj[stack[i]] = stack[i + 1];
-                    }
-                    stack = stack.slice(0, start);
-                    stack.push(obj);
+                    var args = stack.splice(marker.pop());
+                    stack.push(function_call(args.pop(), args));
                     break;
                 case pickle.OpCode.GET:
                     stack.push(table[reader.line()]);

@@ -458,8 +458,10 @@ function loadModel(target, item, callback) {
                 var connection;
                 for (input of graph.inputs) {
                     input.name.toString();
+                    input.name.length;
                     for (connection of input.connections) {
                         connection.id.toString();
+                        connection.id.length;
                         if (connection.type) {
                             connection.type.toString();
                         }
@@ -468,6 +470,7 @@ function loadModel(target, item, callback) {
                 var output;
                 for (output of graph.outputs) {
                     output.name.toString();
+                    output.name.length;
                     for (connection of output.connections) {
                         connection.id.toString();
                         if (connection.type) {
@@ -477,10 +480,12 @@ function loadModel(target, item, callback) {
                 }
                 for (var node of graph.nodes) {
                     node.name.toString();
+                    node.name.length;
                     node.documentation.toString();
                     node.category.toString();
                     for (var attribute of node.attributes) {
                         attribute.name.toString();
+                        attribute.name.length;
                         var value = view.View.formatAttributeValue(attribute.value, attribute.type)
                         if (value && value.length > 1000) {
                             value = value.substring(0, 1000) + '...';
@@ -489,8 +494,10 @@ function loadModel(target, item, callback) {
                     }
                     for (input of node.inputs) {
                         input.name.toString();
+                        input.name.length;
                         for (connection of input.connections) {
                             connection.id.toString();
+                            connection.id.length;
                             if (connection.type) {
                                 connection.type.toString();
                             }
@@ -501,11 +508,19 @@ function loadModel(target, item, callback) {
                     }
                     for (output of node.outputs) {
                         output.name.toString();
+                        output.name.length;
                         for (connection of output.connections) {
                             connection.id.toString();
+                            connection.id.length;
                             if (connection.type) {
                                 connection.type.toString();
                             }
+                        }
+                    }
+                    if (node.chain) {
+                        for (var chain of node.chain) {
+                            (node.name || '').length;
+                            node.name.toString();
                         }
                     }
                 }

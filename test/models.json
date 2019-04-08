@@ -3079,6 +3079,20 @@
   },
   {
     "type":   "pytorch",
+    "target": "bvlc_googlenet.caffemodel.pth",
+    "source": "https://www.dropbox.com/s/2ljm35ztj6hllcu/bvlc_googlenet.caffemodel.pth?dl=1",
+    "format": "PyTorch",
+    "link":   "https://sea-region.github.com/yuminsuh/part_bilinear_reid/issues/2"
+  },
+  {
+    "type":   "pytorch",
+    "target": "ckpt.t7",
+    "source": "https://raw.githubusercontent.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation/master/checkpoint/ckpt.t7",
+    "format": "PyTorch",
+    "link":   "https://github.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation"
+  },
+  {
+    "type":   "pytorch",
     "target": "coco_resnet_50_map_0_335.pt",
     "source": "https://drive.google.com/uc?export=download&id=1hCtM35R_t6T8RJVSd74K4gB-A1MR-TxC",
     "format": "PyTorch",
@@ -3114,6 +3128,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "resnet-18-at-export.pth",
+    "source": "https://s3.amazonaws.com/modelzoo-networks/resnet-18-at-export.pth",
+    "error":  "File does not contain root module or state dictionary in 'resnet-18-at-export.pth'.",
+    "link":   "https://github.com/szagoruyko/attention-transfer"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet50.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
@@ -3125,6 +3146,19 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet50_tucker.pth",
+    "source": "https://raw.githubusercontent.com/larry0123du/Decompose-CNN/master/models/resnet50_tucker.pth",
+    "error":  "Root object does not contain modules in 'resnet50_tucker.pth'.",
+    "link":   "https://github.com/larry0123du/Decompose-CNN"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet50_tucker_state.pth",
+    "source": "https://raw.githubusercontent.com/larry0123du/Decompose-CNN/master/models/resnet50_tucker_state.pth",
+    "link":   "https://github.com/larry0123du/Decompose-CNN"
   },
   {
     "type":   "pytorch",
@@ -3136,10 +3170,24 @@
   },
   {
     "type":   "pytorch",
+    "target": "SiamFC_50_model.pth",
+    "source": "https://raw.githubusercontent.com/HengLan/SiamFC-PyTorch/master/Train/model/SiamFC_50_model.pth",
+    "format": "PyTorch",
+    "link":   "https://github.com/HengLan/SiamFC-PyTorch"
+  },
+  {
+    "type":   "pytorch",
     "target": "squeezenet1_0.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "superpoint_v1.pth",
+    "source": "https://raw.githubusercontent.com/MagicLeapResearch/SuperPointPretrainedNetwork/master/superpoint_v1.pth",
+    "format": "PyTorch",
+    "link":   "https://github.com/MagicLeapResearch/SuperPointPretrainedNetwork"
   },
   {
     "type":   "pytorch",
@@ -3220,6 +3268,13 @@
     "status": "script"
   },
   {
+    "type":   "pytorch",
+    "target": "yolov3-tiny.pt",
+    "source": "https://drive.google.com/uc?export=download&id=1qKSgejNeNczgNNiCn9ZF_o55GFk1DjY_",
+    "format": "PyTorch",
+    "link":   "https://github.com/satrajit-chatterjee/yolov3"
+  },
+  {
     "type":   "sklearn",
     "target": "binarizer.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.pkl]",
@@ -3267,6 +3322,13 @@
     "source": "https://github.com/lutzroeder/netron/files/2656501/pima.xgboost.joblib.pkl.zip[pima.xgboost.joblib.pkl]",
     "format": "scikit-learn",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":   "sklearn",
+    "target": "R-50.pkl",
+    "source": "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
+    "format": "scikit-learn",
+    "link":   "https://github.com/facebookresearch/Detectron"
   },
   {
     "type":   "sklearn",
