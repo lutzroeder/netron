@@ -7653,6 +7653,545 @@
             return VariantTensorDataProto;
         })();
     
+        tensorflow.VariableSynchronization = (function() {
+            var valuesById = {}, values = Object.create(valuesById);
+            values[valuesById[0] = "VARIABLE_SYNCHRONIZATION_AUTO"] = 0;
+            values[valuesById[1] = "VARIABLE_SYNCHRONIZATION_NONE"] = 1;
+            values[valuesById[2] = "VARIABLE_SYNCHRONIZATION_ON_WRITE"] = 2;
+            values[valuesById[3] = "VARIABLE_SYNCHRONIZATION_ON_READ"] = 3;
+            return values;
+        })();
+    
+        tensorflow.VariableAggregation = (function() {
+            var valuesById = {}, values = Object.create(valuesById);
+            values[valuesById[0] = "VARIABLE_AGGREGATION_NONE"] = 0;
+            values[valuesById[1] = "VARIABLE_AGGREGATION_SUM"] = 1;
+            values[valuesById[2] = "VARIABLE_AGGREGATION_MEAN"] = 2;
+            values[valuesById[3] = "VARIABLE_AGGREGATION_ONLY_FIRST_REPLICA"] = 3;
+            return values;
+        })();
+    
+        tensorflow.VariableDef = (function() {
+    
+            function VariableDef(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            VariableDef.prototype.variable_name = "";
+            VariableDef.prototype.initial_value_name = "";
+            VariableDef.prototype.initializer_name = "";
+            VariableDef.prototype.snapshot_name = "";
+            VariableDef.prototype.save_slice_info_def = null;
+            VariableDef.prototype.is_resource = false;
+            VariableDef.prototype.trainable = false;
+            VariableDef.prototype.synchronization = 0;
+            VariableDef.prototype.aggregation = 0;
+    
+            VariableDef.create = function create(properties) {
+                return new VariableDef(properties);
+            };
+    
+            VariableDef.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.VariableDef();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.variable_name = reader.string();
+                        break;
+                    case 6:
+                        message.initial_value_name = reader.string();
+                        break;
+                    case 2:
+                        message.initializer_name = reader.string();
+                        break;
+                    case 3:
+                        message.snapshot_name = reader.string();
+                        break;
+                    case 4:
+                        message.save_slice_info_def = $root.tensorflow.SaveSliceInfoDef.decode(reader, reader.uint32());
+                        break;
+                    case 5:
+                        message.is_resource = reader.bool();
+                        break;
+                    case 7:
+                        message.trainable = reader.bool();
+                        break;
+                    case 8:
+                        message.synchronization = reader.int32();
+                        break;
+                    case 9:
+                        message.aggregation = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            VariableDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.VariableDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "variable_name":
+                        reader.value();
+                        message.variable_name = reader.string();
+                        break;
+                    case "initial_value_name":
+                        reader.value();
+                        message.initial_value_name = reader.string();
+                        break;
+                    case "initializer_name":
+                        reader.value();
+                        message.initializer_name = reader.string();
+                        break;
+                    case "snapshot_name":
+                        reader.value();
+                        message.snapshot_name = reader.string();
+                        break;
+                    case "save_slice_info_def":
+                        message.save_slice_info_def = $root.tensorflow.SaveSliceInfoDef.decodeText(reader, true);
+                        break;
+                    case "is_resource":
+                        reader.value();
+                        message.is_resource = reader.bool();
+                        break;
+                    case "trainable":
+                        reader.value();
+                        message.trainable = reader.bool();
+                        break;
+                    case "synchronization":
+                        reader.value();
+                        message.synchronization = reader.enum($root.tensorflow.VariableSynchronization);
+                        break;
+                    case "aggregation":
+                        reader.value();
+                        message.aggregation = reader.enum($root.tensorflow.VariableAggregation);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            VariableDef.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.variable_name != null && message.hasOwnProperty("variable_name"))
+                    if (!$util.isString(message.variable_name))
+                        return "variable_name: string expected";
+                if (message.initial_value_name != null && message.hasOwnProperty("initial_value_name"))
+                    if (!$util.isString(message.initial_value_name))
+                        return "initial_value_name: string expected";
+                if (message.initializer_name != null && message.hasOwnProperty("initializer_name"))
+                    if (!$util.isString(message.initializer_name))
+                        return "initializer_name: string expected";
+                if (message.snapshot_name != null && message.hasOwnProperty("snapshot_name"))
+                    if (!$util.isString(message.snapshot_name))
+                        return "snapshot_name: string expected";
+                if (message.save_slice_info_def != null && message.hasOwnProperty("save_slice_info_def")) {
+                    var error = $root.tensorflow.SaveSliceInfoDef.verify(message.save_slice_info_def);
+                    if (error)
+                        return "save_slice_info_def." + error;
+                }
+                if (message.is_resource != null && message.hasOwnProperty("is_resource"))
+                    if (typeof message.is_resource !== "boolean")
+                        return "is_resource: boolean expected";
+                if (message.trainable != null && message.hasOwnProperty("trainable"))
+                    if (typeof message.trainable !== "boolean")
+                        return "trainable: boolean expected";
+                if (message.synchronization != null && message.hasOwnProperty("synchronization"))
+                    switch (message.synchronization) {
+                    default:
+                        return "synchronization: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        break;
+                    }
+                if (message.aggregation != null && message.hasOwnProperty("aggregation"))
+                    switch (message.aggregation) {
+                    default:
+                        return "aggregation: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        break;
+                    }
+                return null;
+            };
+    
+            VariableDef.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.VariableDef)
+                    return object;
+                var message = new $root.tensorflow.VariableDef();
+                if (object.variable_name != null)
+                    message.variable_name = String(object.variable_name);
+                if (object.initial_value_name != null)
+                    message.initial_value_name = String(object.initial_value_name);
+                if (object.initializer_name != null)
+                    message.initializer_name = String(object.initializer_name);
+                if (object.snapshot_name != null)
+                    message.snapshot_name = String(object.snapshot_name);
+                if (object.save_slice_info_def != null) {
+                    if (typeof object.save_slice_info_def !== "object")
+                        throw TypeError(".tensorflow.VariableDef.save_slice_info_def: object expected");
+                    message.save_slice_info_def = $root.tensorflow.SaveSliceInfoDef.fromObject(object.save_slice_info_def);
+                }
+                if (object.is_resource != null)
+                    message.is_resource = Boolean(object.is_resource);
+                if (object.trainable != null)
+                    message.trainable = Boolean(object.trainable);
+                switch (object.synchronization) {
+                case "VARIABLE_SYNCHRONIZATION_AUTO":
+                case 0:
+                    message.synchronization = 0;
+                    break;
+                case "VARIABLE_SYNCHRONIZATION_NONE":
+                case 1:
+                    message.synchronization = 1;
+                    break;
+                case "VARIABLE_SYNCHRONIZATION_ON_WRITE":
+                case 2:
+                    message.synchronization = 2;
+                    break;
+                case "VARIABLE_SYNCHRONIZATION_ON_READ":
+                case 3:
+                    message.synchronization = 3;
+                    break;
+                }
+                switch (object.aggregation) {
+                case "VARIABLE_AGGREGATION_NONE":
+                case 0:
+                    message.aggregation = 0;
+                    break;
+                case "VARIABLE_AGGREGATION_SUM":
+                case 1:
+                    message.aggregation = 1;
+                    break;
+                case "VARIABLE_AGGREGATION_MEAN":
+                case 2:
+                    message.aggregation = 2;
+                    break;
+                case "VARIABLE_AGGREGATION_ONLY_FIRST_REPLICA":
+                case 3:
+                    message.aggregation = 3;
+                    break;
+                }
+                return message;
+            };
+    
+            VariableDef.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.variable_name = "";
+                    object.initializer_name = "";
+                    object.snapshot_name = "";
+                    object.save_slice_info_def = null;
+                    object.is_resource = false;
+                    object.initial_value_name = "";
+                    object.trainable = false;
+                    object.synchronization = options.enums === String ? "VARIABLE_SYNCHRONIZATION_AUTO" : 0;
+                    object.aggregation = options.enums === String ? "VARIABLE_AGGREGATION_NONE" : 0;
+                }
+                if (message.variable_name != null && message.hasOwnProperty("variable_name"))
+                    object.variable_name = message.variable_name;
+                if (message.initializer_name != null && message.hasOwnProperty("initializer_name"))
+                    object.initializer_name = message.initializer_name;
+                if (message.snapshot_name != null && message.hasOwnProperty("snapshot_name"))
+                    object.snapshot_name = message.snapshot_name;
+                if (message.save_slice_info_def != null && message.hasOwnProperty("save_slice_info_def"))
+                    object.save_slice_info_def = $root.tensorflow.SaveSliceInfoDef.toObject(message.save_slice_info_def, options);
+                if (message.is_resource != null && message.hasOwnProperty("is_resource"))
+                    object.is_resource = message.is_resource;
+                if (message.initial_value_name != null && message.hasOwnProperty("initial_value_name"))
+                    object.initial_value_name = message.initial_value_name;
+                if (message.trainable != null && message.hasOwnProperty("trainable"))
+                    object.trainable = message.trainable;
+                if (message.synchronization != null && message.hasOwnProperty("synchronization"))
+                    object.synchronization = options.enums === String ? $root.tensorflow.VariableSynchronization[message.synchronization] : message.synchronization;
+                if (message.aggregation != null && message.hasOwnProperty("aggregation"))
+                    object.aggregation = options.enums === String ? $root.tensorflow.VariableAggregation[message.aggregation] : message.aggregation;
+                return object;
+            };
+    
+            VariableDef.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return VariableDef;
+        })();
+    
+        tensorflow.SaveSliceInfoDef = (function() {
+    
+            function SaveSliceInfoDef(properties) {
+                this.full_shape = [];
+                this.var_offset = [];
+                this.var_shape = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SaveSliceInfoDef.prototype.full_name = "";
+            SaveSliceInfoDef.prototype.full_shape = $util.emptyArray;
+            SaveSliceInfoDef.prototype.var_offset = $util.emptyArray;
+            SaveSliceInfoDef.prototype.var_shape = $util.emptyArray;
+    
+            SaveSliceInfoDef.create = function create(properties) {
+                return new SaveSliceInfoDef(properties);
+            };
+    
+            SaveSliceInfoDef.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SaveSliceInfoDef();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.full_name = reader.string();
+                        break;
+                    case 2:
+                        if (!(message.full_shape && message.full_shape.length))
+                            message.full_shape = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.full_shape.push(reader.int64());
+                        } else
+                            message.full_shape.push(reader.int64());
+                        break;
+                    case 3:
+                        if (!(message.var_offset && message.var_offset.length))
+                            message.var_offset = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.var_offset.push(reader.int64());
+                        } else
+                            message.var_offset.push(reader.int64());
+                        break;
+                    case 4:
+                        if (!(message.var_shape && message.var_shape.length))
+                            message.var_shape = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.var_shape.push(reader.int64());
+                        } else
+                            message.var_shape.push(reader.int64());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SaveSliceInfoDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SaveSliceInfoDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "full_name":
+                        reader.value();
+                        message.full_name = reader.string();
+                        break;
+                    case "full_shape":
+                        if (!(message.full_shape && message.full_shape.length))
+                            message.full_shape = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.full_shape.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.full_shape.push(reader.int64());
+                        break;
+                    case "var_offset":
+                        if (!(message.var_offset && message.var_offset.length))
+                            message.var_offset = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.var_offset.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.var_offset.push(reader.int64());
+                        break;
+                    case "var_shape":
+                        if (!(message.var_shape && message.var_shape.length))
+                            message.var_shape = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.var_shape.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.var_shape.push(reader.int64());
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SaveSliceInfoDef.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.full_name != null && message.hasOwnProperty("full_name"))
+                    if (!$util.isString(message.full_name))
+                        return "full_name: string expected";
+                if (message.full_shape != null && message.hasOwnProperty("full_shape")) {
+                    if (!Array.isArray(message.full_shape))
+                        return "full_shape: array expected";
+                    for (var i = 0; i < message.full_shape.length; ++i)
+                        if (!$util.isInteger(message.full_shape[i]) && !(message.full_shape[i] && $util.isInteger(message.full_shape[i].low) && $util.isInteger(message.full_shape[i].high)))
+                            return "full_shape: integer|Long[] expected";
+                }
+                if (message.var_offset != null && message.hasOwnProperty("var_offset")) {
+                    if (!Array.isArray(message.var_offset))
+                        return "var_offset: array expected";
+                    for (var i = 0; i < message.var_offset.length; ++i)
+                        if (!$util.isInteger(message.var_offset[i]) && !(message.var_offset[i] && $util.isInteger(message.var_offset[i].low) && $util.isInteger(message.var_offset[i].high)))
+                            return "var_offset: integer|Long[] expected";
+                }
+                if (message.var_shape != null && message.hasOwnProperty("var_shape")) {
+                    if (!Array.isArray(message.var_shape))
+                        return "var_shape: array expected";
+                    for (var i = 0; i < message.var_shape.length; ++i)
+                        if (!$util.isInteger(message.var_shape[i]) && !(message.var_shape[i] && $util.isInteger(message.var_shape[i].low) && $util.isInteger(message.var_shape[i].high)))
+                            return "var_shape: integer|Long[] expected";
+                }
+                return null;
+            };
+    
+            SaveSliceInfoDef.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SaveSliceInfoDef)
+                    return object;
+                var message = new $root.tensorflow.SaveSliceInfoDef();
+                if (object.full_name != null)
+                    message.full_name = String(object.full_name);
+                if (object.full_shape) {
+                    if (!Array.isArray(object.full_shape))
+                        throw TypeError(".tensorflow.SaveSliceInfoDef.full_shape: array expected");
+                    message.full_shape = [];
+                    for (var i = 0; i < object.full_shape.length; ++i)
+                        if ($util.Long)
+                            (message.full_shape[i] = $util.Long.fromValue(object.full_shape[i])).unsigned = false;
+                        else if (typeof object.full_shape[i] === "string")
+                            message.full_shape[i] = parseInt(object.full_shape[i], 10);
+                        else if (typeof object.full_shape[i] === "number")
+                            message.full_shape[i] = object.full_shape[i];
+                        else if (typeof object.full_shape[i] === "object")
+                            message.full_shape[i] = new $util.LongBits(object.full_shape[i].low >>> 0, object.full_shape[i].high >>> 0).toNumber();
+                }
+                if (object.var_offset) {
+                    if (!Array.isArray(object.var_offset))
+                        throw TypeError(".tensorflow.SaveSliceInfoDef.var_offset: array expected");
+                    message.var_offset = [];
+                    for (var i = 0; i < object.var_offset.length; ++i)
+                        if ($util.Long)
+                            (message.var_offset[i] = $util.Long.fromValue(object.var_offset[i])).unsigned = false;
+                        else if (typeof object.var_offset[i] === "string")
+                            message.var_offset[i] = parseInt(object.var_offset[i], 10);
+                        else if (typeof object.var_offset[i] === "number")
+                            message.var_offset[i] = object.var_offset[i];
+                        else if (typeof object.var_offset[i] === "object")
+                            message.var_offset[i] = new $util.LongBits(object.var_offset[i].low >>> 0, object.var_offset[i].high >>> 0).toNumber();
+                }
+                if (object.var_shape) {
+                    if (!Array.isArray(object.var_shape))
+                        throw TypeError(".tensorflow.SaveSliceInfoDef.var_shape: array expected");
+                    message.var_shape = [];
+                    for (var i = 0; i < object.var_shape.length; ++i)
+                        if ($util.Long)
+                            (message.var_shape[i] = $util.Long.fromValue(object.var_shape[i])).unsigned = false;
+                        else if (typeof object.var_shape[i] === "string")
+                            message.var_shape[i] = parseInt(object.var_shape[i], 10);
+                        else if (typeof object.var_shape[i] === "number")
+                            message.var_shape[i] = object.var_shape[i];
+                        else if (typeof object.var_shape[i] === "object")
+                            message.var_shape[i] = new $util.LongBits(object.var_shape[i].low >>> 0, object.var_shape[i].high >>> 0).toNumber();
+                }
+                return message;
+            };
+    
+            SaveSliceInfoDef.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.full_shape = [];
+                    object.var_offset = [];
+                    object.var_shape = [];
+                }
+                if (options.defaults)
+                    object.full_name = "";
+                if (message.full_name != null && message.hasOwnProperty("full_name"))
+                    object.full_name = message.full_name;
+                if (message.full_shape && message.full_shape.length) {
+                    object.full_shape = [];
+                    for (var j = 0; j < message.full_shape.length; ++j)
+                        if (typeof message.full_shape[j] === "number")
+                            object.full_shape[j] = options.longs === String ? String(message.full_shape[j]) : message.full_shape[j];
+                        else
+                            object.full_shape[j] = options.longs === String ? $util.Long.prototype.toString.call(message.full_shape[j]) : options.longs === Number ? new $util.LongBits(message.full_shape[j].low >>> 0, message.full_shape[j].high >>> 0).toNumber() : message.full_shape[j];
+                }
+                if (message.var_offset && message.var_offset.length) {
+                    object.var_offset = [];
+                    for (var j = 0; j < message.var_offset.length; ++j)
+                        if (typeof message.var_offset[j] === "number")
+                            object.var_offset[j] = options.longs === String ? String(message.var_offset[j]) : message.var_offset[j];
+                        else
+                            object.var_offset[j] = options.longs === String ? $util.Long.prototype.toString.call(message.var_offset[j]) : options.longs === Number ? new $util.LongBits(message.var_offset[j].low >>> 0, message.var_offset[j].high >>> 0).toNumber() : message.var_offset[j];
+                }
+                if (message.var_shape && message.var_shape.length) {
+                    object.var_shape = [];
+                    for (var j = 0; j < message.var_shape.length; ++j)
+                        if (typeof message.var_shape[j] === "number")
+                            object.var_shape[j] = options.longs === String ? String(message.var_shape[j]) : message.var_shape[j];
+                        else
+                            object.var_shape[j] = options.longs === String ? $util.Long.prototype.toString.call(message.var_shape[j]) : options.longs === Number ? new $util.LongBits(message.var_shape[j].low >>> 0, message.var_shape[j].high >>> 0).toNumber() : message.var_shape[j];
+                }
+                return object;
+            };
+    
+            SaveSliceInfoDef.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SaveSliceInfoDef;
+        })();
+    
         tensorflow.ResourceHandleProto = (function() {
     
             function ResourceHandleProto(properties) {
@@ -9075,6 +9614,8 @@
             SavedVariable.prototype.dtype = 0;
             SavedVariable.prototype.shape = null;
             SavedVariable.prototype.trainable = false;
+            SavedVariable.prototype.synchronization = 0;
+            SavedVariable.prototype.aggregation = 0;
     
             SavedVariable.create = function create(properties) {
                 return new SavedVariable(properties);
@@ -9095,6 +9636,12 @@
                         break;
                     case 3:
                         message.trainable = reader.bool();
+                        break;
+                    case 4:
+                        message.synchronization = reader.int32();
+                        break;
+                    case 5:
+                        message.aggregation = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -9122,6 +9669,14 @@
                     case "trainable":
                         reader.value();
                         message.trainable = reader.bool();
+                        break;
+                    case "synchronization":
+                        reader.value();
+                        message.synchronization = reader.enum($root.tensorflow.VariableSynchronization);
+                        break;
+                    case "aggregation":
+                        reader.value();
+                        message.aggregation = reader.enum($root.tensorflow.VariableAggregation);
                         break;
                     default:
                         reader.field(tag, message);
@@ -9195,6 +9750,26 @@
                 if (message.trainable != null && message.hasOwnProperty("trainable"))
                     if (typeof message.trainable !== "boolean")
                         return "trainable: boolean expected";
+                if (message.synchronization != null && message.hasOwnProperty("synchronization"))
+                    switch (message.synchronization) {
+                    default:
+                        return "synchronization: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        break;
+                    }
+                if (message.aggregation != null && message.hasOwnProperty("aggregation"))
+                    switch (message.aggregation) {
+                    default:
+                        return "aggregation: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        break;
+                    }
                 return null;
             };
     
@@ -9399,6 +9974,42 @@
                 }
                 if (object.trainable != null)
                     message.trainable = Boolean(object.trainable);
+                switch (object.synchronization) {
+                case "VARIABLE_SYNCHRONIZATION_AUTO":
+                case 0:
+                    message.synchronization = 0;
+                    break;
+                case "VARIABLE_SYNCHRONIZATION_NONE":
+                case 1:
+                    message.synchronization = 1;
+                    break;
+                case "VARIABLE_SYNCHRONIZATION_ON_WRITE":
+                case 2:
+                    message.synchronization = 2;
+                    break;
+                case "VARIABLE_SYNCHRONIZATION_ON_READ":
+                case 3:
+                    message.synchronization = 3;
+                    break;
+                }
+                switch (object.aggregation) {
+                case "VARIABLE_AGGREGATION_NONE":
+                case 0:
+                    message.aggregation = 0;
+                    break;
+                case "VARIABLE_AGGREGATION_SUM":
+                case 1:
+                    message.aggregation = 1;
+                    break;
+                case "VARIABLE_AGGREGATION_MEAN":
+                case 2:
+                    message.aggregation = 2;
+                    break;
+                case "VARIABLE_AGGREGATION_ONLY_FIRST_REPLICA":
+                case 3:
+                    message.aggregation = 3;
+                    break;
+                }
                 return message;
             };
     
@@ -9410,6 +10021,8 @@
                     object.dtype = options.enums === String ? "DT_INVALID" : 0;
                     object.shape = null;
                     object.trainable = false;
+                    object.synchronization = options.enums === String ? "VARIABLE_SYNCHRONIZATION_AUTO" : 0;
+                    object.aggregation = options.enums === String ? "VARIABLE_AGGREGATION_NONE" : 0;
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
@@ -9417,6 +10030,10 @@
                     object.shape = $root.tensorflow.TensorShapeProto.toObject(message.shape, options);
                 if (message.trainable != null && message.hasOwnProperty("trainable"))
                     object.trainable = message.trainable;
+                if (message.synchronization != null && message.hasOwnProperty("synchronization"))
+                    object.synchronization = options.enums === String ? $root.tensorflow.VariableSynchronization[message.synchronization] : message.synchronization;
+                if (message.aggregation != null && message.hasOwnProperty("aggregation"))
+                    object.aggregation = options.enums === String ? $root.tensorflow.VariableAggregation[message.aggregation] : message.aggregation;
                 return object;
             };
     
@@ -9438,8 +10055,6 @@
     
             FunctionSpec.prototype.fullargspec = null;
             FunctionSpec.prototype.is_method = false;
-            FunctionSpec.prototype.args_to_prepend = null;
-            FunctionSpec.prototype.kwargs_to_include = null;
             FunctionSpec.prototype.input_signature = null;
     
             FunctionSpec.create = function create(properties) {
@@ -9458,12 +10073,6 @@
                         break;
                     case 2:
                         message.is_method = reader.bool();
-                        break;
-                    case 3:
-                        message.args_to_prepend = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
-                        break;
-                    case 4:
-                        message.kwargs_to_include = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
                         break;
                     case 5:
                         message.input_signature = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
@@ -9491,12 +10100,6 @@
                         reader.value();
                         message.is_method = reader.bool();
                         break;
-                    case "args_to_prepend":
-                        message.args_to_prepend = $root.tensorflow.StructuredValue.decodeText(reader, true);
-                        break;
-                    case "kwargs_to_include":
-                        message.kwargs_to_include = $root.tensorflow.StructuredValue.decodeText(reader, true);
-                        break;
                     case "input_signature":
                         message.input_signature = $root.tensorflow.StructuredValue.decodeText(reader, true);
                         break;
@@ -9519,16 +10122,6 @@
                 if (message.is_method != null && message.hasOwnProperty("is_method"))
                     if (typeof message.is_method !== "boolean")
                         return "is_method: boolean expected";
-                if (message.args_to_prepend != null && message.hasOwnProperty("args_to_prepend")) {
-                    var error = $root.tensorflow.StructuredValue.verify(message.args_to_prepend);
-                    if (error)
-                        return "args_to_prepend." + error;
-                }
-                if (message.kwargs_to_include != null && message.hasOwnProperty("kwargs_to_include")) {
-                    var error = $root.tensorflow.StructuredValue.verify(message.kwargs_to_include);
-                    if (error)
-                        return "kwargs_to_include." + error;
-                }
                 if (message.input_signature != null && message.hasOwnProperty("input_signature")) {
                     var error = $root.tensorflow.StructuredValue.verify(message.input_signature);
                     if (error)
@@ -9548,16 +10141,6 @@
                 }
                 if (object.is_method != null)
                     message.is_method = Boolean(object.is_method);
-                if (object.args_to_prepend != null) {
-                    if (typeof object.args_to_prepend !== "object")
-                        throw TypeError(".tensorflow.FunctionSpec.args_to_prepend: object expected");
-                    message.args_to_prepend = $root.tensorflow.StructuredValue.fromObject(object.args_to_prepend);
-                }
-                if (object.kwargs_to_include != null) {
-                    if (typeof object.kwargs_to_include !== "object")
-                        throw TypeError(".tensorflow.FunctionSpec.kwargs_to_include: object expected");
-                    message.kwargs_to_include = $root.tensorflow.StructuredValue.fromObject(object.kwargs_to_include);
-                }
                 if (object.input_signature != null) {
                     if (typeof object.input_signature !== "object")
                         throw TypeError(".tensorflow.FunctionSpec.input_signature: object expected");
@@ -9573,18 +10156,12 @@
                 if (options.defaults) {
                     object.fullargspec = null;
                     object.is_method = false;
-                    object.args_to_prepend = null;
-                    object.kwargs_to_include = null;
                     object.input_signature = null;
                 }
                 if (message.fullargspec != null && message.hasOwnProperty("fullargspec"))
                     object.fullargspec = $root.tensorflow.StructuredValue.toObject(message.fullargspec, options);
                 if (message.is_method != null && message.hasOwnProperty("is_method"))
                     object.is_method = message.is_method;
-                if (message.args_to_prepend != null && message.hasOwnProperty("args_to_prepend"))
-                    object.args_to_prepend = $root.tensorflow.StructuredValue.toObject(message.args_to_prepend, options);
-                if (message.kwargs_to_include != null && message.hasOwnProperty("kwargs_to_include"))
-                    object.kwargs_to_include = $root.tensorflow.StructuredValue.toObject(message.kwargs_to_include, options);
                 if (message.input_signature != null && message.hasOwnProperty("input_signature"))
                     object.input_signature = $root.tensorflow.StructuredValue.toObject(message.input_signature, options);
                 return object;
