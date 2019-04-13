@@ -901,7 +901,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -1021,7 +1021,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -1147,7 +1147,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -2774,7 +2774,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -2869,12 +2869,121 @@
     }
   },
   {
+    "name": "ConvInteger",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
+          "name": "dilations",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "default": 1,
+          "description": "number of groups input channels and output channels are divided into. default is 1.",
+          "name": "group",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "The shape of the convolution kernel. If not present, should be inferred from input 'w'.",
+          "name": "kernel_shape",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0.The value represent the number of pixels added to the beginning and end part of the corresponding axis.`pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number ofpixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaultsto 0 along start and end of each axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "The integer convolution operator consumes an input tensor, its zero-point, a filter, and its zero-point,\nand computes the output. The production MUST never overflow. The accumulation may overflow if and only if in 32 bits.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image. Otherwise the size is (N x C x D1 x D2 ... x Dn). Optionally, if dimension denotation is in effect, the operation expects input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "x",
+          "type": "T1"
+        },
+        {
+          "description": "The weight tensor that will be used in the convolutions; has size (M x C/group x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the kernel shape will be (M x C/group x k1 x k2 x ... x kn), where (k1 x k2 x ... kn) is the dimension of the kernel. Optionally, if dimension denotation is in effect, the operation expects the weight tensor to arrive with the dimension denotation of [FILTER_OUT_CHANNEL, FILTER_IN_CHANNEL, FILTER_SPATIAL, FILTER_SPATIAL ...]. X.shape[1] == (W.shape[1] * group) == C (assuming zero based indices for the shape array). Or in other words FILTER_IN_CHANNEL should be equal to DATA_CHANNEL. ",
+          "name": "w",
+          "type": "T2"
+        },
+        {
+          "description": "Zero point tensor for input 'x'. It's optional and default value is 0. It's a scalar, which means a per-tensor/layer quantization.",
+          "name": "x_zero_point",
+          "option": "optional",
+          "type": "T1"
+        },
+        {
+          "description": "Scale tensor for input 'w'. It's optional and default value is 0.  It could be a scalar or a 1-D tensor, which means a per-tensor/layer or per output channel quantization. If it's a 1-D tensor, its number of elements should be equal to the number of output channels (M)",
+          "name": "w_zero_point",
+          "option": "optional",
+          "type": "T2"
+        }
+      ],
+      "max_input": 4,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
+          "name": "y",
+          "type": "T3"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain input x and its zero point data type to 8-bit integer tensor.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain input w and its zero point data type to 8-bit integer tensor.",
+          "type_param_str": "T2"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)"
+          ],
+          "description": "Constrain output y data type to 32-bit integer tensor.",
+          "type_param_str": "T3"
+        }
+      ]
+    }
+  },
+  {
     "name": "ConvTranspose",
     "schema": {
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -3147,6 +3256,55 @@
             "tensor(complex128)"
           ],
           "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "DequantizeLinear",
+    "schema": {
+      "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, a zero point to compute the full precision tensor.\nThe dequantization formula is y = (x - x_zero_point) * x_scale. 'x_scale' and 'x_zero_point' must have same shape.\n'x_zero_point' and 'x' must have same type. 'x' and 'y' must have same shape. In the case of dequantizing int32,\nthere's no zero point (zero point is supposed to be 0).\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "N-D quantized input tensor to be de-quantized.",
+          "name": "x",
+          "type": "T"
+        },
+        {
+          "description": "Scale for input 'x'. It's a scalar, which means a per-tensor/layer quantization.",
+          "name": "x_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "Zero point for input 'x'. It's a scalar, which means a per-tensor/layer quantization. It's optional. 0 is the default value when it's not specified.",
+          "name": "x_zero_point",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "N-D full precision output tensor. It has same shape as input 'x'.",
+          "name": "y",
+          "type": "tensor(float)"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)",
+            "tensor(int32)"
+          ],
+          "description": "Constrain 'x_zero_point' and 'x' to 8-bit/32-bit integer tensor.",
           "type_param_str": "T"
         }
       ]
@@ -7807,7 +7965,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -7977,6 +8135,75 @@
     }
   },
   {
+    "name": "MatMulInteger",
+    "schema": {
+      "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html.\nThe production MUST never overflow. The accumulation may overflow if and only if in 32 bits.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "N-dimensional matrix A",
+          "name": "A",
+          "type": "T1"
+        },
+        {
+          "description": "N-dimensional matrix B",
+          "name": "B",
+          "type": "T2"
+        },
+        {
+          "description": "Zero point tensor for input 'A'. It's optional and default value is 0. It could be a scalar or a 1-D tensor, which means a per-tensor or per-row quantization. If it's a 1-D tensor, its number of elements should be equal to the number of rows of input 'A'.",
+          "name": "a_zero_point",
+          "option": "optional",
+          "type": "T1"
+        },
+        {
+          "description": "Scale tensor for input 'B'. It's optional and default value is 0.  It could be a scalar or a 1-D tensor, which means a per-tensor or per-column quantization. If it's a 1-D tensor, its number of elements should be equal to the number of columns of input 'B'.",
+          "name": "b_zero_point",
+          "option": "optional",
+          "type": "T2"
+        }
+      ],
+      "max_input": 4,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Matrix multiply results from A * B",
+          "name": "Y",
+          "type": "T3"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain input A data type to 8-bit integer tensor.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain input B data type to 8-bit integer tensor.",
+          "type_param_str": "T2"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)"
+          ],
+          "description": "Constrain output Y data type as 32-bit integer tensor.",
+          "type_param_str": "T3"
+        }
+      ]
+    }
+  },
+  {
     "name": "Max",
     "schema": {
       "attributes": [
@@ -8125,7 +8352,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -8249,7 +8476,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -8392,7 +8619,7 @@
       "attributes": [
         {
           "default": "NOTSET",
-          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -10330,6 +10557,291 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "QLinearConv",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
+          "name": "dilations",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "default": 1,
+          "description": "number of groups input channels and output channels are divided into. default is 1.",
+          "name": "group",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "The shape of the convolution kernel. If not present, should be inferred from input 'w'.",
+          "name": "kernel_shape",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0.The value represent the number of pixels added to the beginning and end part of the corresponding axis.`pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number ofpixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaultsto 0 along start and end of each axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "The convolution operator consumes a quantized input tensor, its scale and zero point,\na quantized filter, its scale and zero point, and output's scale and zero point,\nand computes the quantized output. Each scale and zero-point pair must have same shape.\nIt means they must be either scalars (per tensor) or 1-D tensors (per output channel).\nEach input or output and its related zero point must have same type.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image. Otherwise the size is (N x C x D1 x D2 ... x Dn). Optionally, if dimension denotation is in effect, the operation expects input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "x",
+          "type": "T1"
+        },
+        {
+          "description": "Scale tensor for input 'x'. It's a scalar, which means a per-tensor/layer quantization.",
+          "name": "x_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "Zero point tensor for input 'x'. It's a scalar, which means a per-tensor/layer quantization.",
+          "name": "x_zero_point",
+          "type": "T1"
+        },
+        {
+          "description": "The weight tensor that will be used in the convolutions; has size (M x C/group x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the kernel shape will be (M x C/group x k1 x k2 x ... x kn), where (k1 x k2 x ... kn) is the dimension of the kernel. Optionally, if dimension denotation is in effect, the operation expects the weight tensor to arrive with the dimension denotation of [FILTER_OUT_CHANNEL, FILTER_IN_CHANNEL, FILTER_SPATIAL, FILTER_SPATIAL ...]. X.shape[1] == (W.shape[1] * group) == C (assuming zero based indices for the shape array). Or in other words FILTER_IN_CHANNEL should be equal to DATA_CHANNEL. ",
+          "name": "w",
+          "type": "T2"
+        },
+        {
+          "description": "Scale tensor for input 'w'. It could be a scalar or a 1-D tensor, which means a per-tensor/layer or per output channel quantization. If it's a 1-D tensor, its number of elements should be equal to the number of output channels (M).",
+          "name": "w_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "Scale tensor for input 'w'. It could be a scalar or a 1-D tensor, which means a per-tensor/layer or per output channel quantization. If it's a 1-D tensor, its number of elements should be equal to the number of output channels (M).",
+          "name": "w_zero_point",
+          "type": "T2"
+        },
+        {
+          "description": "Scale tensor for output 'y'. It's a scalar, which means a per-tensor/layer quantization.",
+          "name": "y_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "Scale tensor for output 'y'. It's a scalar, which means a per-tensor/layer quantization.",
+          "name": "y_zero_point",
+          "type": "T3"
+        },
+        {
+          "description": "Optional 1D bias to be added to the convolution, has size of M.",
+          "name": "B",
+          "option": "optional",
+          "type": "T4"
+        }
+      ],
+      "max_input": 9,
+      "max_output": 1,
+      "min_input": 8,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
+          "name": "y",
+          "type": "T3"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain input type to 8-bit integer tensor.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain filter type to 8-bit integer tensor.",
+          "type_param_str": "T2"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain output type to 8-bit integer tensor.",
+          "type_param_str": "T3"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)"
+          ],
+          "description": "Constrain bias type to 32-bit integer tensor.",
+          "type_param_str": "T4"
+        }
+      ]
+    }
+  },
+  {
+    "name": "QLinearMatMul",
+    "schema": {
+      "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html.\nIt consumes two quantized input tensors, their scales and zero points, scale and zero point of output, and computes the quantized output.\nThe quantization formula is y = saturate((x / y_scale) + y_zero_point). For (x / y_scale), it is rounding to nearest ties to even.\nRefer to https://en.wikipedia.org/wiki/Rounding for details. Scale and zero point must have same shape.\nThey must be either scalar (per tensor) or 1-D tensor (per row for 'a' and per column for 'b'). If scale and zero point are 1-D tensor,\nthe number of elements of scale and zero point tensor of input 'a' and output 'y' should be equal to the number of rows of input 'a',\nand the number of elements of scale and zero point tensor of input 'b' should be equal to the number of columns of input 'b'.\nProduction must never overflow, and accumulation may overflow if and only if in 32 bits.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "N-dimensional quantized matrix a",
+          "name": "a",
+          "type": "T1"
+        },
+        {
+          "description": "scale of quantized input a",
+          "name": "a_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "zero point of quantized input a",
+          "name": "a_zero_point",
+          "type": "T1"
+        },
+        {
+          "description": "N-dimensional quantized matrix b",
+          "name": "b",
+          "type": "T2"
+        },
+        {
+          "description": "scale of quantized input b",
+          "name": "b_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "zero point of quantized input b",
+          "name": "b_zero_point",
+          "type": "T2"
+        },
+        {
+          "description": "scale of quantized output y",
+          "name": "y_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "zero point of quantized output y",
+          "name": "y_zero_point",
+          "type": "T3"
+        }
+      ],
+      "max_input": 8,
+      "max_output": 1,
+      "min_input": 8,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Quantized matrix multiply results from a * b",
+          "name": "y",
+          "type": "T3"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain input a and its zero point data type to 8-bit integer tensor.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain input b and its zero point data type to 8-bit integer tensor.",
+          "type_param_str": "T2"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain output y and its zero point data type to 8-bit integer tensor.",
+          "type_param_str": "T3"
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizeLinear",
+    "schema": {
+      "description": "The linear per-tensor/layer quantization operator. It consumes a high precision tensor, a scale, a zero point to compute the low precision / quantized tensor.\nThe quantization formula is y = saturate ((x / y_scale) + y_zero_point). For saturation, it saturates to [0, 255] if it's uint8, or [-128, 127] if it's int8.\nFor (x / y_scale), it's rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details. 'y_zero_point' and 'y' must have same type.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "N-D full precision Input tensor to be quantized.",
+          "name": "x",
+          "type": "T1"
+        },
+        {
+          "description": "Scale for doing quantization to get 'y'. It's a scalar, which means a per-tensor/layer quantization.",
+          "name": "y_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "Zero point for doing quantization to get 'y'. It's a scalar, which means a per-tensor/layer quantization. Default value is 0 if it's not specified.",
+          "name": "y_zero_point",
+          "option": "optional",
+          "type": "T2"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "N-D quantized output tensor. It has same shape as input 'x'.",
+          "name": "y",
+          "type": "T2"
+        }
+      ],
+      "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(int32)"
+          ],
+          "description": "Constrain 'x' to float or int32 tensor.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain 'y_zero_point' and 'y' to 8-bit integer tensor.",
+          "type_param_str": "T2"
         }
       ]
     }
