@@ -16,7 +16,8 @@
             values[valuesById[1] = "IR_VERSION_2017_10_10"] = 1;
             values[valuesById[2] = "IR_VERSION_2017_10_30"] = 2;
             values[valuesById[3] = "IR_VERSION_2017_11_3"] = 3;
-            values[valuesById[4] = "IR_VERSION"] = 4;
+            values[valuesById[4] = "IR_VERSION_2019_1_22"] = 4;
+            values[valuesById[5] = "IR_VERSION"] = 5;
             return values;
         })();
     
@@ -1340,6 +1341,133 @@
             return StringStringEntryProto;
         })();
     
+        onnx.TensorAnnotation = (function() {
+    
+            function TensorAnnotation(properties) {
+                this.quant_parameter_tensor_names = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TensorAnnotation.prototype.tensor_name = "";
+            TensorAnnotation.prototype.quant_parameter_tensor_names = $util.emptyArray;
+    
+            TensorAnnotation.create = function create(properties) {
+                return new TensorAnnotation(properties);
+            };
+    
+            TensorAnnotation.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TensorAnnotation();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.tensor_name = reader.string();
+                        break;
+                    case 2:
+                        if (!(message.quant_parameter_tensor_names && message.quant_parameter_tensor_names.length))
+                            message.quant_parameter_tensor_names = [];
+                        message.quant_parameter_tensor_names.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorAnnotation.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.TensorAnnotation();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "tensor_name":
+                        reader.value();
+                        message.tensor_name = reader.string();
+                        break;
+                    case "quant_parameter_tensor_names":
+                        if (!(message.quant_parameter_tensor_names && message.quant_parameter_tensor_names.length))
+                            message.quant_parameter_tensor_names = [];
+                        message.quant_parameter_tensor_names.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorAnnotation.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.tensor_name != null && message.hasOwnProperty("tensor_name"))
+                    if (!$util.isString(message.tensor_name))
+                        return "tensor_name: string expected";
+                if (message.quant_parameter_tensor_names != null && message.hasOwnProperty("quant_parameter_tensor_names")) {
+                    if (!Array.isArray(message.quant_parameter_tensor_names))
+                        return "quant_parameter_tensor_names: array expected";
+                    for (var i = 0; i < message.quant_parameter_tensor_names.length; ++i) {
+                        var error = $root.onnx.StringStringEntryProto.verify(message.quant_parameter_tensor_names[i]);
+                        if (error)
+                            return "quant_parameter_tensor_names." + error;
+                    }
+                }
+                return null;
+            };
+    
+            TensorAnnotation.fromObject = function fromObject(object) {
+                if (object instanceof $root.onnx.TensorAnnotation)
+                    return object;
+                var message = new $root.onnx.TensorAnnotation();
+                if (object.tensor_name != null)
+                    message.tensor_name = String(object.tensor_name);
+                if (object.quant_parameter_tensor_names) {
+                    if (!Array.isArray(object.quant_parameter_tensor_names))
+                        throw TypeError(".onnx.TensorAnnotation.quant_parameter_tensor_names: array expected");
+                    message.quant_parameter_tensor_names = [];
+                    for (var i = 0; i < object.quant_parameter_tensor_names.length; ++i) {
+                        if (typeof object.quant_parameter_tensor_names[i] !== "object")
+                            throw TypeError(".onnx.TensorAnnotation.quant_parameter_tensor_names: object expected");
+                        message.quant_parameter_tensor_names[i] = $root.onnx.StringStringEntryProto.fromObject(object.quant_parameter_tensor_names[i]);
+                    }
+                }
+                return message;
+            };
+    
+            TensorAnnotation.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.quant_parameter_tensor_names = [];
+                if (options.defaults)
+                    object.tensor_name = "";
+                if (message.tensor_name != null && message.hasOwnProperty("tensor_name"))
+                    object.tensor_name = message.tensor_name;
+                if (message.quant_parameter_tensor_names && message.quant_parameter_tensor_names.length) {
+                    object.quant_parameter_tensor_names = [];
+                    for (var j = 0; j < message.quant_parameter_tensor_names.length; ++j)
+                        object.quant_parameter_tensor_names[j] = $root.onnx.StringStringEntryProto.toObject(message.quant_parameter_tensor_names[j], options);
+                }
+                return object;
+            };
+    
+            TensorAnnotation.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return TensorAnnotation;
+        })();
+    
         onnx.GraphProto = (function() {
     
             function GraphProto(properties) {
@@ -1348,6 +1476,7 @@
                 this.input = [];
                 this.output = [];
                 this.value_info = [];
+                this.quantization_annotation = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -1361,6 +1490,7 @@
             GraphProto.prototype.input = $util.emptyArray;
             GraphProto.prototype.output = $util.emptyArray;
             GraphProto.prototype.value_info = $util.emptyArray;
+            GraphProto.prototype.quantization_annotation = $util.emptyArray;
     
             GraphProto.create = function create(properties) {
                 return new GraphProto(properties);
@@ -1403,6 +1533,11 @@
                         if (!(message.value_info && message.value_info.length))
                             message.value_info = [];
                         message.value_info.push($root.onnx.ValueInfoProto.decode(reader, reader.uint32()));
+                        break;
+                    case 14:
+                        if (!(message.quantization_annotation && message.quantization_annotation.length))
+                            message.quantization_annotation = [];
+                        message.quantization_annotation.push($root.onnx.TensorAnnotation.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1452,6 +1587,11 @@
                         if (!(message.value_info && message.value_info.length))
                             message.value_info = [];
                         message.value_info.push($root.onnx.ValueInfoProto.decodeText(reader, true));
+                        break;
+                    case "quantization_annotation":
+                        if (!(message.quantization_annotation && message.quantization_annotation.length))
+                            message.quantization_annotation = [];
+                        message.quantization_annotation.push($root.onnx.TensorAnnotation.decodeText(reader, true));
                         break;
                     default:
                         reader.field(tag, message);
@@ -1515,6 +1655,15 @@
                             return "value_info." + error;
                     }
                 }
+                if (message.quantization_annotation != null && message.hasOwnProperty("quantization_annotation")) {
+                    if (!Array.isArray(message.quantization_annotation))
+                        return "quantization_annotation: array expected";
+                    for (var i = 0; i < message.quantization_annotation.length; ++i) {
+                        var error = $root.onnx.TensorAnnotation.verify(message.quantization_annotation[i]);
+                        if (error)
+                            return "quantization_annotation." + error;
+                    }
+                }
                 return null;
             };
     
@@ -1576,6 +1725,16 @@
                         message.value_info[i] = $root.onnx.ValueInfoProto.fromObject(object.value_info[i]);
                     }
                 }
+                if (object.quantization_annotation) {
+                    if (!Array.isArray(object.quantization_annotation))
+                        throw TypeError(".onnx.GraphProto.quantization_annotation: array expected");
+                    message.quantization_annotation = [];
+                    for (var i = 0; i < object.quantization_annotation.length; ++i) {
+                        if (typeof object.quantization_annotation[i] !== "object")
+                            throw TypeError(".onnx.GraphProto.quantization_annotation: object expected");
+                        message.quantization_annotation[i] = $root.onnx.TensorAnnotation.fromObject(object.quantization_annotation[i]);
+                    }
+                }
                 return message;
             };
     
@@ -1589,6 +1748,7 @@
                     object.input = [];
                     object.output = [];
                     object.value_info = [];
+                    object.quantization_annotation = [];
                 }
                 if (options.defaults) {
                     object.name = "";
@@ -1622,6 +1782,11 @@
                     object.value_info = [];
                     for (var j = 0; j < message.value_info.length; ++j)
                         object.value_info[j] = $root.onnx.ValueInfoProto.toObject(message.value_info[j], options);
+                }
+                if (message.quantization_annotation && message.quantization_annotation.length) {
+                    object.quantization_annotation = [];
+                    for (var j = 0; j < message.quantization_annotation.length; ++j)
+                        object.quantization_annotation[j] = $root.onnx.TensorAnnotation.toObject(message.quantization_annotation[j], options);
                 }
                 return object;
             };
