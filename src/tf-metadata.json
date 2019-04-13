@@ -1412,6 +1412,36 @@
     }
   },
   {
+    "name": "AnonymousIteratorV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A handle to the iterator that can be passed to a \"MakeIterator\" or\n\"IteratorGetNext\" op. In contrast to Iterator, AnonymousIterator prevents\nresource sharing by name, and does not keep a reference to the resource\ncontainer.",
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "A variant deleter that should be passed into the op that deletes the iterator.",
+          "name": "deleter",
+          "type": 21
+        }
+      ],
+      "summary": "A container for an iterator resource."
+    }
+  },
+  {
     "name": "Any",
     "schema": {
       "attributes": [
@@ -6619,7 +6649,7 @@
       ],
       "outputs": [
         {
-          "description": "4-D with shape `[batch, height, width, depth]`, where:\n\n      height = height_pad - crop_top - crop_bottom\n      width = width_pad - crop_left - crop_right\n\nThe attr `block_size` must be greater than one. It indicates the block size.\n\nSome examples:\n\n(1) For the following input of shape `[4, 1, 1, 1]` and block_size of 2:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\nThe output tensor has shape `[1, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\n(2) For the following input of shape `[4, 1, 1, 3]` and block_size of 2:\n\n```\n[[[1, 2, 3]], [[4, 5, 6]], [[7, 8, 9]], [[10, 11, 12]]]\n```\n\nThe output tensor has shape `[1, 2, 2, 3]` and value:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[4, 2, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\nThe output tensor has shape `[1, 4, 4, 1]` and value:\n\n```\nx = [[[1],   [2],  [3],  [4]],\n     [[5],   [6],  [7],  [8]],\n     [[9],  [10], [11],  [12]],\n     [[13], [14], [15],  [16]]]\n```\n\n(4) For the following input of shape `[8, 1, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [3]]], [[[9], [11]]], [[[2], [4]]], [[[10], [12]]],\n     [[[5], [7]]], [[[13], [15]]], [[[6], [8]]], [[[14], [16]]]]\n```\n\nThe output tensor has shape `[2, 2, 4, 1]` and value:\n\n```\nx = [[[[1], [3]], [[5], [7]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```",
+          "description": "4-D with shape `[batch, height, width, depth]`, where:\n\n      height = height_pad - crop_top - crop_bottom\n      width = width_pad - crop_left - crop_right\n\nThe attr `block_size` must be greater than one. It indicates the block size.\n\nSome examples:\n\n(1) For the following input of shape `[4, 1, 1, 1]` and block_size of 2:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\nThe output tensor has shape `[1, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\n(2) For the following input of shape `[4, 1, 1, 3]` and block_size of 2:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\nThe output tensor has shape `[1, 2, 2, 3]` and value:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[4, 2, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\nThe output tensor has shape `[1, 4, 4, 1]` and value:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n     [[5],   [6],  [7],  [8]],\n     [[9],  [10], [11],  [12]],\n     [[13], [14], [15],  [16]]]]\n```\n\n(4) For the following input of shape `[8, 1, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [3]]], [[[9], [11]]], [[[2], [4]]], [[[10], [12]]],\n     [[[5], [7]]], [[[13], [15]]], [[[6], [8]]], [[[14], [16]]]]\n```\n\nThe output tensor has shape `[2, 2, 4, 1]` and value:\n\n```\nx = [[[[1], [3]], [[5], [7]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```",
           "name": "output",
           "typeAttr": "T"
         }
@@ -7580,6 +7610,56 @@
     }
   },
   {
+    "name": "BoostedTreesAggregateStats",
+    "schema": {
+      "attributes": [
+        {
+          "description": "int; the maximum number of splits possible in the whole tree.",
+          "minimum": 1,
+          "name": "max_splits",
+          "type": "int"
+        },
+        {
+          "description": "int; equals to the maximum possible value of bucketized feature.",
+          "minimum": 1,
+          "name": "num_buckets",
+          "type": "int"
+        }
+      ],
+      "description": "The summary stats contains gradients and hessians accumulated for each node, feature dimension id and bucket.",
+      "inputs": [
+        {
+          "description": "int32; Rank 1 Tensor containing node ids for each example, shape [batch_size].",
+          "name": "node_ids",
+          "type": 3
+        },
+        {
+          "description": "float32; Rank 2 Tensor (shape=[batch_size, logits_dimension]) with gradients for each example.",
+          "name": "gradients",
+          "type": 1
+        },
+        {
+          "description": "float32; Rank 2 Tensor (shape=[batch_size, hessian_dimension]) with hessians for each example.",
+          "name": "hessians",
+          "type": 1
+        },
+        {
+          "description": "int32; Rank 2 feature Tensors (shape=[batch_size, feature_dimension]).",
+          "name": "feature",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output Rank 4 Tensor (shape=[splits, feature_dimension, buckets, logits_dimension + hessian_dimension])\ncontaining accumulated stats for each node, feature dimension and bucket.",
+          "name": "stats_summary",
+          "type": 1
+        }
+      ],
+      "summary": "Aggregates the summary of accumulated stats for the batch."
+    }
+  },
+  {
     "name": "BoostedTreesBucketize",
     "schema": {
       "attributes": [
@@ -7613,6 +7693,99 @@
         }
       ],
       "summary": "Bucketize each feature based on bucket boundaries."
+    }
+  },
+  {
+    "name": "BoostedTreesCalculateBestFeatureSplit",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The dimension of logit, i.e., number of classes.",
+          "minimum": 1,
+          "name": "logits_dimension",
+          "type": "int"
+        },
+        {
+          "allowedValues": [
+            "inequality"
+          ],
+          "default": "inequality",
+          "description": "A string indicating if this Op should perform inequality split or equality split.",
+          "name": "split_type",
+          "type": "string"
+        }
+      ],
+      "description": "The split information is the best threshold (bucket id), gains and left/right node contributions per node for each feature.\n\nIt is possible that not all nodes can be split on each feature. Hence, the list of possible nodes can differ between the features. Therefore, we return `node_ids_list` for each feature, containing the list of nodes that this feature can be used to split.\n\nIn this manner, the output is the best split per features and per node, so that it needs to be combined later to produce the best split for each node (among all possible features).\n\nThe output shapes are compatible in a way that the first dimension of all tensors are the same and equal to the number of possible split nodes for each feature.",
+      "inputs": [
+        {
+          "description": "A Rank 1 tensor (shape=[2]) to specify the range [first, last) of node ids to process within `stats_summary_list`. The nodes are iterated between the two nodes specified by the tensor, as like `for node_id in range(node_id_range[0], node_id_range[1])` (Note that the last index node_id_range[1] is exclusive).",
+          "name": "node_id_range",
+          "type": 3
+        },
+        {
+          "description": "A Rank 4 tensor (#shape=[max_splits, feature_dims, bucket, stats_dims]) for accumulated stats summary (gradient/hessian) per node, per dimension, per buckets for each feature.\nThe first dimension of the tensor is the maximum number of splits, and thus not all elements of it will be used, but only the indexes specified by node_ids will be used.",
+          "name": "stats_summary",
+          "type": 1
+        },
+        {
+          "description": "l1 regularization factor on leaf weights, per instance based.",
+          "name": "l1",
+          "type": 1
+        },
+        {
+          "description": "l2 regularization factor on leaf weights, per instance based.",
+          "name": "l2",
+          "type": 1
+        },
+        {
+          "description": "adjustment to the gain, per leaf based.",
+          "name": "tree_complexity",
+          "type": 1
+        },
+        {
+          "description": "mininum avg of hessians in a node before required for the node to be considered for splitting.",
+          "name": "min_node_weight",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A Rank 1 tensors indicating possible split node ids for each feature. The length of the list is num_features, but each tensor has different size as each feature provides different possible nodes. See above for details like shapes and sizes.",
+          "name": "node_ids",
+          "type": 3
+        },
+        {
+          "description": "A Rank 1 tensors indicating the best gains for each feature to split for certain nodes. See above for details like shapes and sizes.",
+          "name": "gains",
+          "type": 1
+        },
+        {
+          "description": "A Rank 1 tensors indicating the best feature dimension for each feature to split for certain nodes if the feature is multi-dimension. See above for details like shapes and sizes.",
+          "name": "feature_dimensions",
+          "type": 3
+        },
+        {
+          "description": "A Rank 1 tensors indicating the bucket id to compare with (as a threshold) for split in each node. See above for details like shapes and sizes.",
+          "name": "thresholds",
+          "type": 3
+        },
+        {
+          "description": "A Rank 2 tensors indicating the contribution of the left nodes when branching from parent nodes (given by the tensor element in the output node_ids_list) to the left direction by the given threshold for each feature. This value will be used to make the left node value by adding to the parent node value. Second dimension size is 1 for 1-dimensional logits, but would be larger for multi-class problems. See above for details like shapes and sizes.",
+          "name": "left_node_contribs",
+          "type": 1
+        },
+        {
+          "description": "A Rank 2 tensors, with the same shape/conditions as left_node_contribs_list, but just that the value is for the right node.",
+          "name": "right_node_contribs",
+          "type": 1
+        },
+        {
+          "description": "A Rank 1 tensors indicating the which direction to go if data is missing. See above for details like shapes and sizes.",
+          "name": "split_with_default_directions",
+          "type": 7
+        }
+      ],
+      "summary": "Calculates gains for each feature and returns the best possible split information for the feature."
     }
   },
   {
@@ -9566,6 +9739,12 @@
           "default": false,
           "description": "If false, the output nmsed boxes, scores and classes\nare padded/clipped to `max_total_size`. If true, the\noutput nmsed boxes, scores and classes are padded to be of length\n`max_size_per_class`*`num_classes`, unless it exceeds `max_total_size` in\nwhich case it is clipped to `max_total_size`. Defaults to false.",
           "name": "pad_per_class",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "If true, assume the box coordinates are between [0, 1] and clip the output boxes\nif they fall beyond [0, 1]. If false, do not do clipping and output the box\ncoordinates as it is.",
+          "name": "clip_boxes",
           "type": "bool"
         }
       ],
@@ -13987,6 +14166,24 @@
     }
   },
   {
+    "name": "DeleteIterator",
+    "schema": {
+      "inputs": [
+        {
+          "description": "A handle to the iterator to delete.",
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "A variant deleter.",
+          "name": "deleter",
+          "type": 21
+        }
+      ],
+      "summary": "A container for an iterator resource."
+    }
+  },
+  {
     "name": "DeleteSessionTensor",
     "schema": {
       "inputs": [
@@ -16219,6 +16416,11 @@
         {
           "description": "A list of integers specifying the identifier of the embedding table\n(offset of TableDescriptor in the TPUEmbeddingConfiguration) to lookup the\ncorresponding input. The ith input is looked up using table_ids[i]. The size\nof the table_ids list must be equal to that of sample_indices,\nembedding_indices and aggregation_weights.",
           "name": "table_ids",
+          "type": "list(int)"
+        },
+        {
+          "default": [],
+          "name": "max_sequence_lengths",
           "type": "list(int)"
         }
       ],
@@ -37231,6 +37433,710 @@
     }
   },
   {
+    "name": "QuantizedDepthwiseConv2D",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the input.",
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the filter.",
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "description": "The type of the output.",
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "description": "List of stride values.",
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "description": "List of dilation values.",
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "description": "The original filter tensor.",
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "description": "The float value that the minimum quantized input value represents.",
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized input value represents.",
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the minimum quantized filter value represents.",
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized filter value represents.",
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output tensor.",
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "description": "The float value that the minimum quantized output value represents.",
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized output value represents.",
+          "name": "max_output",
+          "type": 1
+        }
+      ],
+      "summary": "Computes quantized depthwise Conv2D."
+    }
+  },
+  {
+    "name": "QuantizedDepthwiseConv2DWithBias",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the input.",
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the filter.",
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "description": "The type of the output.",
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "description": "List of stride values.",
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "description": "List of dilation values.",
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "description": "The original filter tensor.",
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "description": "The original bias tensor.",
+          "name": "bias",
+          "type": 1
+        },
+        {
+          "description": "The float value that the minimum quantized input value represents.",
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized input value represents.",
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the minimum quantized filter value represents.",
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized filter value represents.",
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output tensor.",
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "description": "The float value that the minimum quantized output value represents.",
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized output value represents.",
+          "name": "max_output",
+          "type": 1
+        }
+      ],
+      "summary": "Computes quantized depthwise Conv2D with Bias."
+    }
+  },
+  {
+    "name": "QuantizedDepthwiseConv2DWithBiasAndRelu",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the input.",
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the filter.",
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "description": "The type of the output.",
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "description": "List of stride values.",
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "description": "List of dilation values.",
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "description": "The original filter tensor.",
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "description": "The original bias tensor.",
+          "name": "bias",
+          "type": 1
+        },
+        {
+          "description": "The float value that the minimum quantized input value represents.",
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized input value represents.",
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the minimum quantized filter value represents.",
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized filter value represents.",
+          "name": "max_filter",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output tensor.",
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "description": "The float value that the minimum quantized output value represents.",
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized output value represents.",
+          "name": "max_output",
+          "type": 1
+        }
+      ],
+      "summary": "Computes quantized depthwise Conv2D with Bias and Relu."
+    }
+  },
+  {
+    "name": "QuantizedDepthwiseConv2DWithBiasAndReluAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the input.",
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "description": "The type of the filter.",
+          "name": "Tfilter",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "description": "The type of the bias.",
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "description": "The type of the output.",
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "description": "List of stride values.",
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "name": "padding",
+          "type": "string"
+        },
+        {
+          "default": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "description": "List of dilation values.",
+          "name": "dilations",
+          "type": "list(int)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The original input tensor.",
+          "name": "input",
+          "typeAttr": "Tinput"
+        },
+        {
+          "description": "The original filter tensor.",
+          "name": "filter",
+          "typeAttr": "Tfilter"
+        },
+        {
+          "description": "The original bias tensor.",
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "description": "The float value that the minimum quantized input value represents.",
+          "name": "min_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized input value represents.",
+          "name": "max_input",
+          "type": 1
+        },
+        {
+          "description": "The float value that the minimum quantized filter value represents.",
+          "name": "min_filter",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized filter value represents.",
+          "name": "max_filter",
+          "type": 1
+        },
+        {
+          "description": "The minimum float value of the output tensor.",
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "description": "The maximum float value of the output tensor.",
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output tensor.",
+          "name": "output",
+          "typeAttr": "out_type"
+        },
+        {
+          "description": "The float value that the minimum quantized output value represents.",
+          "name": "min_output",
+          "type": 1
+        },
+        {
+          "description": "The float value that the maximum quantized output value represents.",
+          "name": "max_output",
+          "type": 1
+        }
+      ],
+      "summary": "Computes quantized depthwise Conv2D with Bias, Relu and Requantize."
+    }
+  },
+  {
     "name": "QuantizedInstanceNorm",
     "schema": {
       "attributes": [
@@ -48910,6 +49816,51 @@
     }
   },
   {
+    "name": "SamplingDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A scalar representing the sample rate of elements from the `input_dataset`\nthat should be taken.",
+          "name": "rate",
+          "type": 1
+        },
+        {
+          "description": "A scalar representing seed of random number generator.",
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing seed2 of random number generator.",
+          "name": "seed2",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that contains `rate` elements from the `input_dataset`."
+    }
+  },
+  {
     "name": "Save",
     "schema": {
       "attributes": [
@@ -52942,7 +53893,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "2-D tensor of non-negative integers with shape `[2, 2]`. It specifies\n  the padding of the input with zeros across the spatial dimensions as follows:\n\n      paddings = [[pad_top, pad_bottom], [pad_left, pad_right]]\n\n  The effective spatial dimensions of the zero-padded input tensor will be:\n\n      height_pad = pad_top + height + pad_bottom\n      width_pad = pad_left + width + pad_right\n\nThe attr `block_size` must be greater than one. It indicates the block size.\n\n  * Non-overlapping blocks of size `block_size x block size` in the height and\n    width dimensions are rearranged into the batch dimension at each location.\n  * The batch of the output tensor is `batch * block_size * block_size`.\n  * Both height_pad and width_pad must be divisible by block_size.\n\nThe shape of the output will be:\n\n    [batch*block_size*block_size, height_pad/block_size, width_pad/block_size,\n     depth]\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]` and block_size of 2:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[1, 2, 3]], [[4, 5, 6]], [[7, 8, 9]], [[10, 11, 12]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 2, 1]` and value:\n\n```\nx = [[[[1], [3]]], [[[9], [11]]], [[[2], [4]]], [[[10], [12]]],\n     [[[5], [7]]], [[[13], [15]]], [[[6], [8]]], [[[14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
+          "description": "2-D tensor of non-negative integers with shape `[2, 2]`. It specifies\n  the padding of the input with zeros across the spatial dimensions as follows:\n\n      paddings = [[pad_top, pad_bottom], [pad_left, pad_right]]\n\n  The effective spatial dimensions of the zero-padded input tensor will be:\n\n      height_pad = pad_top + height + pad_bottom\n      width_pad = pad_left + width + pad_right\n\nThe attr `block_size` must be greater than one. It indicates the block size.\n\n  * Non-overlapping blocks of size `block_size x block size` in the height and\n    width dimensions are rearranged into the batch dimension at each location.\n  * The batch of the output tensor is `batch * block_size * block_size`.\n  * Both height_pad and width_pad must be divisible by block_size.\n\nThe shape of the output will be:\n\n    [batch*block_size*block_size, height_pad/block_size, width_pad/block_size,\n     depth]\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]` and block_size of 2:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 2, 1]` and value:\n\n```\nx = [[[[1], [3]]], [[[9], [11]]], [[[2], [4]]], [[[10], [12]]],\n     [[[5], [7]]], [[[13], [15]]], [[[6], [8]]], [[[14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
           "name": "paddings",
           "typeAttr": "Tpaddings"
         }
@@ -53014,7 +53965,7 @@
           "typeAttr": "Tblock_shape"
         },
         {
-          "description": "2-D with shape `[M, 2]`, all values must be >= 0.\n  `paddings[i] = [pad_start, pad_end]` specifies the padding for input dimension\n  `i + 1`, which corresponds to spatial dimension `i`.  It is required that\n  `block_shape[i]` divides `input_shape[i + 1] + pad_start + pad_end`.\n\nThis operation is equivalent to the following steps:\n\n1. Zero-pad the start and end of dimensions `[1, ..., M]` of the\n   input according to `paddings` to produce `padded` of shape `padded_shape`.\n\n2. Reshape `padded` to `reshaped_padded` of shape:\n\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n       block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1],\n      block_shape[M-1]] +\n     remaining_shape\n\n3. Permute dimensions of `reshaped_padded` to produce\n   `permuted_reshaped_padded` of shape:\n\n     block_shape +\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\n4. Reshape `permuted_reshaped_padded` to flatten `block_shape` into the batch\n   dimension, producing an output tensor of shape:\n\n     [batch * prod(block_shape)] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[1, 2, 3]], [[4, 5, 6]], [[7, 8, 9]], [[10, 11, 12]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]`, block_shape = `[2, 2]`, and\n    paddings = `[[0, 0], [2, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 3, 1]` and value:\n\n```\nx = [[[[0], [1], [3]]], [[[0], [9], [11]]],\n     [[[0], [2], [4]]], [[[0], [10], [12]]],\n     [[[0], [5], [7]]], [[[0], [13], [15]]],\n     [[[0], [6], [8]]], [[[0], [14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
+          "description": "2-D with shape `[M, 2]`, all values must be >= 0.\n  `paddings[i] = [pad_start, pad_end]` specifies the padding for input dimension\n  `i + 1`, which corresponds to spatial dimension `i`.  It is required that\n  `block_shape[i]` divides `input_shape[i + 1] + pad_start + pad_end`.\n\nThis operation is equivalent to the following steps:\n\n1. Zero-pad the start and end of dimensions `[1, ..., M]` of the\n   input according to `paddings` to produce `padded` of shape `padded_shape`.\n\n2. Reshape `padded` to `reshaped_padded` of shape:\n\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n       block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1],\n      block_shape[M-1]] +\n     remaining_shape\n\n3. Permute dimensions of `reshaped_padded` to produce\n   `permuted_reshaped_padded` of shape:\n\n     block_shape +\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\n4. Reshape `permuted_reshaped_padded` to flatten `block_shape` into the batch\n   dimension, producing an output tensor of shape:\n\n     [batch * prod(block_shape)] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]`, block_shape = `[2, 2]`, and\n    paddings = `[[0, 0], [2, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 3, 1]` and value:\n\n```\nx = [[[[0], [1], [3]]], [[[0], [9], [11]]],\n     [[[0], [2], [4]]], [[[0], [10], [12]]],\n     [[[0], [5], [7]]], [[[0], [13], [15]]],\n     [[[0], [6], [8]]], [[[0], [14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
           "name": "paddings",
           "typeAttr": "Tpaddings"
         }
@@ -58933,6 +59884,115 @@
     }
   },
   {
+    "name": "StatefulRandomBinomial",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "S",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 2
+          },
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "dtype",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "name": "shape",
+          "typeAttr": "S"
+        },
+        {
+          "name": "counts",
+          "typeAttr": "T"
+        },
+        {
+          "name": "probs",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ]
+    }
+  },
+  {
     "name": "StatefulStandardNormal",
     "schema": {
       "attributes": [
@@ -63898,6 +64958,80 @@
     }
   },
   {
+    "name": "TensorStridedSliceUpdate",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Index",
+          "type": "type"
+        },
+        {
+          "default": 0,
+          "name": "begin_mask",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "name": "end_mask",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "name": "ellipsis_mask",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "name": "new_axis_mask",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "name": "shrink_axis_mask",
+          "type": "int"
+        }
+      ],
+      "description": "The values of `value` are assigned to the positions in the tensor `input` that\nare selected by the slice parameters. The slice parameters `begin` `end`\n`strides` etc. work exactly as in `StridedSlice`.\n\nNOTE this op currently does not support broadcasting and so `value`'s shape\nmust be exactly the shape produced by the slice of `input`.",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "begin",
+          "typeAttr": "Index"
+        },
+        {
+          "name": "end",
+          "typeAttr": "Index"
+        },
+        {
+          "name": "strides",
+          "typeAttr": "Index"
+        },
+        {
+          "name": "value",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Assign `value` to the sliced l-value reference of `input`."
+    }
+  },
+  {
     "name": "TensorSummary",
     "schema": {
       "attributes": [
@@ -66829,6 +67963,25 @@
         {
           "name": "bad_color",
           "type": 4
+        }
+      ]
+    }
+  },
+  {
+    "name": "WriteRawProtoSummary",
+    "schema": {
+      "inputs": [
+        {
+          "name": "writer",
+          "type": 20
+        },
+        {
+          "name": "step",
+          "type": 9
+        },
+        {
+          "name": "tensor",
+          "type": 7
         }
       ]
     }
