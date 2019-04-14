@@ -501,7 +501,9 @@ pytorch.ModelFactory = class {
             var state_dict = null;
             var root_module = find_root_module([ root, root.model, root.net ]);
             if (!root_module) {
-                state_dict = find_state_dict([ root, root.model, root.state, root.state_dict, root.params, root.generator, root.discriminator ]);
+                state_dict = find_state_dict([ 
+                    root, root.model, root.state, root.state_dict, root.params, 
+                    root.generator, root.discriminator, root.network ]);
                 if (!state_dict) {
                     callback(new pytorch.Error("File does not contain root module or state dictionary in '" + identifier + "'."), null);
                     return;

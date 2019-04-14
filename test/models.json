@@ -3128,6 +3128,12 @@
   },
   {
     "type":   "pytorch",
+    "target": "model_chall_train_152ft_384x288.pth.tar",
+    "source": "https://www.dropbox.com/s/hfz5nkd39uisvbr/model_chall_train_152ft_384x288.pth.tar?dl=1",
+    "link":   "https://github.com/JimmySuen/integral-human-pose"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet18.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
