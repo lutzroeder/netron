@@ -141,6 +141,13 @@
   },
   {
     "type":   "caffe",
+    "target": "deploy_iResNet_ROB.tpl.prototxt",
+    "source": "https://raw.githubusercontent.com/leonzfa/iResNet/master/models/model/deploy_iResNet_ROB.tpl.prototxt",
+    "error":  "Unsupported file content for extension '.prototxt' in 'deploy_iResNet_ROB.tpl.prototxt'.",
+    "link":   "https://github.com/leonzfa/iResNet"
+  },
+  {
+    "type":   "caffe",
     "target": "dpn92.caffemodel",
     "source": "https://drive.google.com/uc?export=download&id=0B9mkjlmP0d7zTmh2M3RKSVFTWjQ",
     "format": "Caffe v2",
