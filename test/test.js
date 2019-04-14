@@ -519,8 +519,8 @@ function loadModel(target, item, callback) {
                     }
                     if (node.chain) {
                         for (var chain of node.chain) {
-                            (node.name || '').length;
-                            node.name.toString();
+                            chain.name.toString();
+                            chain.name.length;
                         }
                     }
                 }

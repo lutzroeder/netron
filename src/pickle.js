@@ -13,6 +13,8 @@ pickle.Unpickler = class {
         var i;
         var start;
         var obj;
+        var type;
+        var args;
         var reader = this._reader;
         var stack = [];
         var marker = [];
@@ -37,7 +39,7 @@ pickle.Unpickler = class {
                     table[reader.line()] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.OBJ:
-                    var args = stack.splice(marker.pop());
+                    args = stack.splice(marker.pop());
                     stack.push(function_call(args.pop(), args));
                     break;
                 case pickle.OpCode.GET:
@@ -60,14 +62,14 @@ pickle.Unpickler = class {
                     stack.push(persistent_load(stack.pop()));
                     break;
                 case pickle.OpCode.REDUCE:
-                    var args = stack.pop();
-                    var type = stack.pop();
+                    args = stack.pop();
+                    type = stack.pop();
                     stack.push(function_call(type, args));
                     break;
                 case pickle.OpCode.NEWOBJ:
-                    var newObjArgs = stack.pop();
-                    var newObjType = stack.pop();
-                    stack.push(function_call(newObjType, newObjArgs));
+                    args = stack.pop();
+                    type = stack.pop();
+                    stack.push(function_call(type, args));
                     break;
                 case pickle.OpCode.BINGET:
                     stack.push(table[reader.byte()]);

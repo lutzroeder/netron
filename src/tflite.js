@@ -259,7 +259,7 @@ tflite.Node = class {
                                     value = activationFunctionMap[value];
                                 }
                                 this._chain = [];
-                                this._chain.push(new tflite.Node(metadata, null, value, null, []));
+                                this._chain.push(new tflite.Node(metadata, null, value, '', []));
                             }
                         }
                         this._attributes.push(attribute);
