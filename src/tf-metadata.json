@@ -65028,6 +65028,12 @@
           "typeAttr": "T"
         }
       ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
       "summary": "Assign `value` to the sliced l-value reference of `input`."
     }
   },
