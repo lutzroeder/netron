@@ -703,7 +703,7 @@ view.View = class {
                         tuple.to.push({ node: nodeId });
                     }
                     var outputTypes = output.connections.map(connection => connection.type || '').join('\n');
-                    var outputName = output.name;
+                    var outputName = output.name || '';
                     if (outputName.length > 16) {
                         outputName = outputName.split('/').pop();
                     }
