@@ -114,7 +114,6 @@ onnx.Model = class {
     constructor(metadata, model) {
         this._graphs = [];
         this._irVersion = model.ir_version;
-        this._opsetImports = model.opset_import;
         this._producerName = model.producer_name;
         this._producerVersion = model.producer_version;
         this._domain = model.domain;
@@ -122,6 +121,29 @@ onnx.Model = class {
         this._description = model.doc_string;
         this._metadata = [];
         this._imageFormat = '';
+        this._imports = null;
+
+        var imports = {};
+        if (model.opset_import && model.opset_import.length > 0) {
+            var results = [];
+            for (var opset_import of model.opset_import) {
+                var domain = opset_import.domain || 'ai.onnx';
+                var result = domain + ' v' + opset_import.version;
+                if (!results.includes(result)) {
+                    results.push(result);
+                }
+                domain = domain == 'ai.onnx' ? '' : domain;
+                if (!imports[domain] || imports[domain] > opset_import.version) {
+                    imports[domain] = opset_import.version;
+                }
+            }
+            this._imports = results.join(', ');
+        }
+        if (Object.keys(imports).length == 0) {
+            imports[''] = 1;
+            imports['ai.onnx.ml'] = 1;
+        }
+
         if (model.metadata_props)
         {
             var imageMetadata = {};
@@ -156,7 +178,7 @@ onnx.Model = class {
         }
         this._graphs = [];
         if (model && model.graph) {
-            var graphMetadata = new onnx.GraphMetadata(metadata, this._opsetImports);
+            var graphMetadata = new onnx.GraphMetadata(metadata, imports);
             var graph = new onnx.Graph(graphMetadata, this._imageFormat, model.graph);
             this._graphs.push(graph);
         }
@@ -171,18 +193,7 @@ onnx.Model = class {
     }
 
     get imports() {
-        if (this._opsetImports && this._opsetImports.length > 0) {
-            var opsetImports = [];
-            for (var opsetImport of this._opsetImports) {
-                var domain = opsetImport.domain ? opsetImport.domain : 'ai.onnx';
-                var result = domain + ' v' + opsetImport.version;
-                if (!opsetImports.includes(result)) {
-                    opsetImports.push(result);
-                }
-            }
-            return opsetImports.join(', ');
-        }
-        return null;
+        return this._imports;
     }
 
     get producer() {
@@ -1133,26 +1144,11 @@ onnx.OpaqueType = class {
 
 onnx.GraphMetadata = class {
 
-    constructor(metadata, opsetImports) {
+    constructor(metadata, imports) {
         this._metadata = metadata;
         this._cache = {};
         this._attributeCache = {};
-        this._imports = {};
-        if (opsetImport) {
-            for (var opsetImport of opsetImports) {
-                var domain = opsetImport.domain || '';
-                if (domain == 'ai.onnx') {
-                    domain = '';
-                }
-                if (!this._imports[domain] || this._imports[domain] > opsetImport.version) {
-                    this._imports[domain] = opsetImport.version;
-                }
-            }
-        }
-        if (Object.keys(this._imports).length == 0) {
-            this._imports[''] = 1;
-            this._imports['ai.onnx.ml'] = 1;
-        }
+        this._imports = imports;
     }
 
     getSchema(operator) {
