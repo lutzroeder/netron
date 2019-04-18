@@ -86,20 +86,16 @@ sidebar.NodeSidebar = class {
         this._inputs = [];
         this._outputs = [];
 
-        var operatorElement = document.createElement('div');
-        operatorElement.className = 'sidebar-view-title';
-        operatorElement.innerText = node.operator;
-        this._elements.push(operatorElement);
-
-        if (node.documentation) {
-            operatorElement.innerText += ' ';
-            var documentationButton = document.createElement('a');
-            documentationButton.className = 'sidebar-view-title-button';
-            documentationButton.innerText = '?';
-            documentationButton.addEventListener('click', () => {
-                this._raise('show-documentation', null);
-            });
-            operatorElement.appendChild(documentationButton);
+        if (node.operator) {
+            var showDocumentation = null;
+            if (node.documentation) {
+                showDocumentation = {};
+                showDocumentation.text = '?';
+                showDocumentation.callback = () => {
+                    this._raise('show-documentation', null);
+                };
+            }
+            this.addProperty('type', new sidebar.ValueTextView(node.operator, showDocumentation));
         }
 
         if (node.name) {
@@ -255,11 +251,22 @@ sidebar.NameValueView = class {
 
 sidebar.ValueTextView = class {
 
-    constructor(value) {
+    constructor(value, action) {
         this._elements = [];
         var element = document.createElement('div');
         element.className = 'sidebar-view-item-value';
         this._elements.push(element);
+
+        if (action) {
+            this._action = document.createElement('div');
+            this._action.className = 'sidebar-view-item-value-expander';
+            this._action.innerHTML = action.text;
+            this._action.addEventListener('click', () => {
+                action.callback();
+            });
+            element.appendChild(this._action);
+        }
+
         var line = document.createElement('div');
         line.className = 'sidebar-view-item-value-line';
         line.innerText = value;
@@ -602,11 +609,11 @@ sidebar.ModelSidebar = class {
             var graph = graphs[i];
             var name = graph.name ? ("'" + graph.name + "'") : ('(' + i.toString() + ')');
 
-            var graphTitleElement = document.createElement('div');
-            graphTitleElement.className = 'sidebar-view-title';
-            graphTitleElement.style.marginTop = '16px';
-            graphTitleElement.innerText = 'Graph';
             if (graphs.length > 1) {
+                var graphTitleElement = document.createElement('div');
+                graphTitleElement.className = 'sidebar-view-title';
+                graphTitleElement.style.marginTop = '16px';
+                graphTitleElement.innerText = 'Graph';
                 graphTitleElement.innerText += " " + name;
                 graphTitleElement.innerText += ' ';
                 var graphButton = document.createElement('a');
@@ -617,8 +624,8 @@ sidebar.ModelSidebar = class {
                     this._raise('update-active-graph', e.target.id);
                 });
                 graphTitleElement.appendChild(graphButton);
+                this._elements.push(graphTitleElement);
             }
-            this._elements.push(graphTitleElement);
     
             if (graph.name) {
                 this.addProperty('name', new sidebar.ValueTextView(graph.name));

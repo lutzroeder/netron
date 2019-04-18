@@ -22,7 +22,6 @@
         "handlebars": "4.1.2",
         "long": "4.0.0",
         "marked": "0.6.2",
-        "npm-font-open-sans": "1.1.0",
         "pako": "1.0.10",
         "protobufjs": "github:lutzroeder/protobuf.js#pbtxt",
         "universal-analytics": "0.4.20"

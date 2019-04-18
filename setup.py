@@ -17,26 +17,7 @@ node_dependencies = [
         'node_modules/pako/dist/pako.min.js',
         'node_modules/long/dist/long.js',
         'node_modules/protobufjs/dist/protobuf.min.js',
-        'node_modules/flatbuffers/js/flatbuffers.js',
-        'node_modules/npm-font-open-sans/open-sans.css' ]),
-    ( 'netron/fonts/Regular', [
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.eot',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.svg',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.ttf',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.woff',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.woff2' ]),
-    ( 'netron/fonts/Semibold', [
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.eot',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.svg',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.ttf',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.woff',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.woff2' ]),
-    ( 'netron/fonts/Bold', [
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.eot',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.svg',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.ttf',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.woff',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.woff2' ])
+        'node_modules/flatbuffers/js/flatbuffers.js' ] )
 ]
 
 class build(distutils.command.build.build):
