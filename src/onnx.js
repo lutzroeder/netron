@@ -98,6 +98,7 @@ onnx.ModelFactory = class {
                 try {
                     var result = new onnx.Model(metadata, model);
                     callback(null, result);
+                    return;
                 }
                 catch (error) {
                     host.exception(error, false);
