@@ -233,7 +233,7 @@
   {
     "name": "padding",
     "schema": {
-      "category": "Layer",
+      "category": "Shape",
       "description": "Fill a constant value in the padded region.",
       "attributes": [
         { "name": "paddingAmounts", "visible": false }
