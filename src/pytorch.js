@@ -172,6 +172,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.optim.adam.Adam'] = function() {};
             constructorTable['torch.optim.lr_scheduler.StepLR'] = function() {};
             constructorTable['torch.optim.rmsprop.RMSprop'] = function() {};
+            constructorTable['torchvision.datasets.folder.ImageFolder'] = function() {};
             constructorTable['torchvision.models.alexnet.AlexNet'] = function() {};
             constructorTable['torchvision.models.densenet.DenseNet'] = function() {};
             constructorTable['torchvision.models.densenet._DenseBlock'] = function() {};
