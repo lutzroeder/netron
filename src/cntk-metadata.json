@@ -876,6 +876,7 @@
     "name": "Pad",
     "schema": {
       "operator": 83,
+      "category": "Shape",
       "inputs": [
         { "name": "input" }
       ],
@@ -887,7 +888,8 @@
   {
     "name": "Crop",
     "schema": {
-      "operator": 84
+      "operator": 84,
+      "category": "Shape"
     }
   },
   {
