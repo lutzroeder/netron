@@ -643,7 +643,7 @@
           "type": " a list of integers of the length equal to the length of *axis* attribute. In the list, `offset[i]` is greater than or equal to 0 and less than or equal to `input_shape[axis[i]] - crop_size[axis[i]]`, where `crop_size` is the shape of the second input."
         }
       ],
-      "category": "Layer",
+      "category": "Shape",
       "description": "**Short description**: *Crop* layer changes selected dimensions of the input blob according to the specified parameters.\n**Parameters**: *Crop* layer parameters should be specified in `data` section, which is placed as a child of the layer node. Due to various representation of Crop attributes in existing frameworks, this layer can be described in three independent ways: *Crop* **Type 1** layer takes two input blobs, and the shape of the second blob specifies the *Crop* size. The layer has two attributes: *axis* and *offset*. Crop layer takes two input blobs, and the shape of the second blob specifies the *Crop* size.  The *Crop* layer of this type supports shape inference.\n**Inputs**\n*   **1**:  Multidimensional input blob *(for example, NCHW, NCH, or NC)*\n*   **2**:  Shape of this input will be used for crop\n**Example**\n\n```html\n<layer id=\"39\" name=\"score_pool4c\" precision=\"FP32\" type=\"Crop\">\n    <data axis=\"2,3\" offset=\"0,0\"/>\n    <input>\n        <port id=\"0\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>44</dim>\n            <dim>44</dim>\n        </port>\n        <port id=\"1\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </input>\n    <output>\n        <port id=\"2\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </output>\n</layer>\n```",
       "inputs": null,
       "outputs": null,
@@ -676,7 +676,7 @@
           "type": " a list of integers"
         }
       ],
-      "category": "Layer",
+      "category": "Shape",
       "description": "**Short description**: *Crop* layer changes selected dimensions of the input blob according to the specified parameters.\n**Parameters**: *Crop* layer parameters should be specified in `data` section, which is placed as a child of the layer node. Due to various representation of Crop attributes in existing frameworks, this layer can be described in three independent ways: *Crop* **Type 2** layer takes one input blob to Crop and has three attributes: *axis*, *offset*, and *dim*. *Crop* layer takes one input blob to Crop and has *axis*, *offset*, and *dim* attributes. The *Crop* layer of this type supports shape inference only when shape propagation is applied to dimensions that are not specified in the *axis* attribute.\n**Example**\n\n```html\n<layer id=\"39\" name=\"score_pool4c\" precision=\"FP32\" type=\"Crop\">\n    <data axis=\"2,3\" offset=\"0,0\" dim=\"34,34\"/>\n    <input>\n        <port id=\"0\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>44</dim>\n            <dim>44</dim>\n        </port>\n    </input>\n    <output>\n        <port id=\"1\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </output>\n</layer>\n```",
       "inputs": null,
       "outputs": null,
@@ -709,7 +709,7 @@
           "type": " a list of integers, where `crop_end[i]` is greater than or equal to 0 and less than `input_shape[axis[i]] - crop_begin[i]`"
         }
       ],
-      "category": "Layer",
+      "category": "Shape",
       "description": "**Short description**: *Crop* layer changes selected dimensions of the input blob according to the specified parameters.\n**Parameters**: *Crop* layer parameters should be specified in `data` section, which is placed as a child of the layer node. Due to various representation of Crop attributes in existing frameworks, this layer can be described in three independent ways: *Crop* **Type 3** layer takes one input blob to Crop and has three attributes: *axis*, *crop_begin*, and *crop_end*. *Crop* layer takes one input blob to Crop and has *axis*, *crop_begin*, and *crop_end* attributes. The *Crop* layer of this type supports shape inference.\n**Example**\n\n```html\n<layer id=\"39\" name=\"score_pool4c\" precision=\"FP32\" type=\"Crop\">\n    <data axis=\"2,3\" crop_begin=\"4,4\" crop_end=\"6,6\"/>\n    <input>\n        <port id=\"0\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>44</dim>\n            <dim>44</dim>\n        </port>\n    </input>\n    <output>\n        <port id=\"1\">\n            <dim>1</dim>\n            <dim>21</dim>\n            <dim>34</dim>\n            <dim>34</dim>\n        </port>\n    </output>\n</layer>\n```",
       "inputs": null,
       "outputs": null,
