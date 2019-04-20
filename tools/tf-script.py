@@ -173,7 +173,7 @@ def convert_attr_value(attr_value):
 
 api_def_map = read_api_def_map('../third_party/tensorflow/tensorflow/core/api_def/base_api')
 
-input_file = '../third_party/tensorflow/tensorflow/core/ops/ops.pbtxt';
+input_file = '../third_party/tensorflow/tensorflow/core/ops/ops.pbtxt'
 
 ops_list = op_def_pb2.OpList()
 with open(input_file) as input_handle:
