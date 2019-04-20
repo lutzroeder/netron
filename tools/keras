@@ -5,8 +5,8 @@ set -e
 root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
 test=${root}/test
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 if [ $(which python3) ]; then
     python="python3"
@@ -15,7 +15,7 @@ else
 fi
 
 identifier=keras
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 

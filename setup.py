@@ -28,10 +28,7 @@ class build(distutils.command.build.build):
     def finalize_options(self):
         distutils.command.build.build.finalize_options(self)
     def run(self):
-        if self.version:
-            build_py.version = True;
-        else:
-            build_py.version = False;
+        build_py.version = bool(self.version)
         return distutils.command.build.build.run(self)
 
 class build_py(setuptools.command.build_py.build_py):
@@ -42,14 +39,13 @@ class build_py(setuptools.command.build_py.build_py):
     def finalize_options(self):
         setuptools.command.build_py.build_py.finalize_options(self)
     def run(self):
-        result = setuptools.command.build_py.build_py.run(self)
+        setuptools.command.build_py.build_py.run(self)
         for target, files in node_dependencies:
             target = os.path.join(self.build_lib, target)
             if not os.path.exists(target):
                 os.makedirs(target)
             for file in files:
                 self.copy_file(file, target)
-        return result
     def build_module(self, module, module_file, package):
         setuptools.command.build_py.build_py.build_module(self, module, module_file, package)
         if build_py.version and module == '__version__':

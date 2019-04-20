@@ -5,11 +5,11 @@ set -e
 root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=tflite
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/${identifier}
 
 if [ $(which python3) ]; then
     python="python3"

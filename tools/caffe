@@ -5,8 +5,8 @@ set -e
 root=$(cd $(dirname ${0})/..; pwd)
 node_modules=${root}/node_modules
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=caffe
 

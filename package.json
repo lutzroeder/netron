@@ -12,7 +12,7 @@
     "main": "src/app.js",
     "scripts": {
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "start_server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@"
+        "start_server": "[ -d node_modules ] || npm install && python3 setup.py --quiet build && PYTHONPATH=build/lib python3 -c 'import netron; netron.main()' $@"
     },
     "dependencies": {
         "d3": "5.9.2",

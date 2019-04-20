@@ -6,11 +6,11 @@ root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=tensorflow
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/${identifier}
 
 if [ $(which python3) ]; then
     python="python3"

@@ -7,11 +7,11 @@ build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
 test=${root}/test
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=pytorch
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/${identifier}
 
 if [ $(which python3) ]; then
     python="python3"

@@ -3,7 +3,7 @@
 
 build: clean lint build_python build_electron
 
-publish: clean lint publish_github_electron publish_pip publish_github_pages publish_cask
+publish: clean lint publish_github_electron publish_python publish_github_pages publish_cask
 
 pull:
 	git pull --rebase --prune
@@ -28,8 +28,8 @@ update:
 
 build_python:
 	@[ -d node_modules ] || npm install
-	rm -rf ./build/python
-	python ./setup.py build --version
+	rm -rf ./build
+	python3 ./setup.py build --version
 
 build_electron:
 	@[ -d node_modules ] || npm install
@@ -48,13 +48,13 @@ start:
 	@[ -d node_modules ] || npm install
 	npx electron .
 
-publish_pip:
+publish_python:
 	@[ -d node_modules ] || npm install
-	rm -rf ./build/python
-	python ./setup.py build --version bdist_wheel
-	python -m pip install --user keyring
-	python -m pip install --user twine
-	twine upload build/python/dist/*
+	rm -rf ./build
+	python3 ./setup.py build --version bdist_wheel
+	python3 -m pip install --user keyring
+	python3 -m pip install --user twine
+	# twine upload build/dist/*
 
 publish_github_electron:
 	@[ -d node_modules ] || npm install
@@ -63,11 +63,11 @@ publish_github_electron:
 
 publish_github_pages:
 	@[ -d node_modules ] || npm install
-	python ./setup.py build --version
+	python3 ./setup.py build --version
 	rm -rf ./build/gh-pages
 	git clone git@github.com:lutzroeder/netron.git ./build/gh-pages --branch gh-pages
 	rm -rf ./build/gh-pages/*
-	cp -R ./build/python/lib/netron/* ./build/gh-pages/
+	cp -R ./build/lib/netron/* ./build/gh-pages/
 	rm -rf ./build/gh-pages/*.py
 	rm -rf ./build/gh-pages/*.pyc
 	rm -rf ./build/gh-pages/netron

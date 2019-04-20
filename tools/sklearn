@@ -3,9 +3,11 @@
 set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
-virtualenv=${root}/build/virtualenv/scikit-learn
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
+
+identifier=scikit-learn
+virtualenv=${third_party}/virtualenv/${identifier}
 
 if [ $(which python3) ]; then
     python="python3"

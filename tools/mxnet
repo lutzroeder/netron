@@ -4,8 +4,8 @@ set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 if [ $(which python3) ] && [ $(which pip3) ]; then
     python="python3"

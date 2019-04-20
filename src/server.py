@@ -112,7 +112,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 
 class HTTPServerThread(threading.Thread):
-    def __init__(self, data, file, verbose, browse, port, host):
+    def __init__(self, data, file, log, browse, port, host):
         threading.Thread.__init__(self)
         self.port = port
         self.host = host
@@ -128,7 +128,7 @@ class HTTPServerThread(threading.Thread):
             self.server.RequestHandlerClass.folder = ''
             self.server.RequestHandlerClass.file = ''
         self.server.RequestHandlerClass.data = data
-        self.server.RequestHandlerClass.verbose = verbose
+        self.server.RequestHandlerClass.log = log
         self.terminate_event = threading.Event()
         self.terminate_event.set()
         self.stop_event = threading.Event()
@@ -147,7 +147,7 @@ class HTTPServerThread(threading.Thread):
                     threading.Timer(1, webbrowser.open, args=(self.url,)).start()
                 sys.stdout.flush()
                 self.server.handle_request()
-        except Exception as e:
+        except Exception:
             pass
         self.terminate_event.set()
         self.stop_event.clear()
@@ -189,13 +189,13 @@ def wait():
             thread.stop()
         thread_list = [ thread for thread in thread_list if thread.alive() ]
 
-def serve(file, data, verbose=False, browse=False, port=8080, host=''):
+def serve(file, data, log=False, browse=False, port=8080, host=''):
     '''Start serving model from file or data buffer at host:port and open in web browser.
     
     Args:
         file (string): Model file to serve. Required to detect format.
         data (bytes): Model data to serve. None will load data from file.
-        verbose (bool, optional): Log details to console. Default: False
+        log (bool, optional): Log details to console. Default: False
         browse (bool, optional): Launch web browser, Default: True
         port (int, optional): Port to serve. Default: 8080
         host (string, optional): Host to serve. Default: ''
@@ -204,19 +204,19 @@ def serve(file, data, verbose=False, browse=False, port=8080, host=''):
     if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
     stop(port, host)
-    thread = HTTPServerThread(data, file, verbose, browse, port, host)
+    thread = HTTPServerThread(data, file, log, browse, port, host)
     thread.start()
     thread_list.append(thread)
     thread_list = [ thread for thread in thread_list if thread.alive() ]
 
-def start(file, verbose=False, browse=True, port=8080, host=''):
+def start(file, log=False, browse=True, port=8080, host=''):
     '''Start serving model file at host:port and open in web browser
     
     Args:
         file (string): Model file to serve.
-        verbose (bool, optional): Log details to console. Default: False
+        log (bool, optional): Log details to console. Default: False
         browse (bool, optional): Launch web browser, Default: True
         port (int, optional): Port to serve. Default: 8080
         host (string, optional): Host to serve. Default: ''
     '''
-    serve(file, None, verbose=verbose, browse=browse, port=port, host=host)
+    serve(file, None, log=log, browse=browse, port=port, host=host)

@@ -10,7 +10,7 @@ third_party=${root}/third_party
 tools=${root}/tools
 
 identifier=onnx
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/${identifier}
 
 if [ $(which python3) ]; then
     python="python3"
