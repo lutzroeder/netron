@@ -5489,6 +5489,11 @@
     "schema": {
       "attributes": [
         {
+          "default": false,
+          "name": "parallel_copy",
+          "type": "bool"
+        },
+        {
           "minimum": 1,
           "name": "output_types",
           "type": "list(type)"
@@ -13906,6 +13911,81 @@
         }
       ],
       "summary": "Decode a JPEG-encoded image to a uint8 tensor."
+    }
+  },
+  {
+    "name": "DecodePaddedRaw",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "out_type",
+          "type": "type"
+        },
+        {
+          "default": true,
+          "description": "Whether the input `input_bytes` is in little-endian order. Ignored for\n`out_type` values that are stored in a single byte, like `uint8`",
+          "name": "little_endian",
+          "type": "bool"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of string to be decoded.",
+          "name": "input_bytes",
+          "type": 7
+        },
+        {
+          "description": "Length in bytes for each element of the decoded output. Must be a multiple\nof the size of the output type.",
+          "name": "fixed_length",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A Tensor with one more dimension than the input `bytes`. The added dimension\nwill have size equal to the length of the elements of `bytes` divided by the\nnumber of bytes to represent `out_type`.",
+          "name": "output",
+          "typeAttr": "out_type"
+        }
+      ],
+      "summary": "Reinterpret the bytes of a string as a vector of numbers."
     }
   },
   {
@@ -32378,6 +32458,11 @@
     "name": "PaddedBatchDatasetV2",
     "schema": {
       "attributes": [
+        {
+          "default": false,
+          "name": "parallel_copy",
+          "type": "bool"
+        },
         {
           "minimum": 1,
           "name": "Toutput_types",
