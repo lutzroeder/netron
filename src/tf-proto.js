@@ -4804,6 +4804,7 @@
     
             function FunctionDef(properties) {
                 this.attr = {};
+                this.arg_attr = {};
                 this.node_def = [];
                 this.ret = {};
                 this.control_ret = {};
@@ -4815,6 +4816,7 @@
     
             FunctionDef.prototype.signature = null;
             FunctionDef.prototype.attr = $util.emptyObject;
+            FunctionDef.prototype.arg_attr = $util.emptyObject;
             FunctionDef.prototype.node_def = $util.emptyArray;
             FunctionDef.prototype.ret = $util.emptyObject;
             FunctionDef.prototype.control_ret = $util.emptyObject;
@@ -4840,6 +4842,14 @@
                         key = reader.string();
                         reader.pos++;
                         message.attr[key] = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
+                        break;
+                    case 7:
+                        reader.skip().pos++;
+                        if (message.arg_attr === $util.emptyObject)
+                            message.arg_attr = {};
+                        key = reader.uint32();
+                        reader.pos++;
+                        message.arg_attr[key] = $root.tensorflow.FunctionDef.ArgAttrs.decode(reader, reader.uint32());
                         break;
                     case 3:
                         if (!(message.node_def && message.node_def.length))
@@ -4890,6 +4900,17 @@
                         key = reader.string();
                         reader.assert("value");
                         message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    case "arg_attr":
+                        reader.assert("{");
+                        if (message.arg_attr === $util.emptyObject)
+                            message.arg_attr = {};
+                        reader.assert("key");
+                        reader.value();
+                        key = reader.uint32();
+                        reader.assert("value");
+                        message.arg_attr[key] = $root.tensorflow.FunctionDef.ArgAttrs.decodeText(reader, true);
                         reader.assert("}");
                         break;
                     case "node_def":
@@ -4947,6 +4968,20 @@
                             return "attr." + error;
                     }
                 }
+                if (message.arg_attr != null && message.hasOwnProperty("arg_attr")) {
+                    if (!$util.isObject(message.arg_attr))
+                        return "arg_attr: object expected";
+                    var key = Object.keys(message.arg_attr);
+                    for (var i = 0; i < key.length; ++i) {
+                        if (!$util.key32Re.test(key[i]))
+                            return "arg_attr: integer key{k:uint32} expected";
+                        {
+                            var error = $root.tensorflow.FunctionDef.ArgAttrs.verify(message.arg_attr[key[i]]);
+                            if (error)
+                                return "arg_attr." + error;
+                        }
+                    }
+                }
                 if (message.node_def != null && message.hasOwnProperty("node_def")) {
                     if (!Array.isArray(message.node_def))
                         return "node_def: array expected";
@@ -4994,6 +5029,16 @@
                         message.attr[keys[i]] = $root.tensorflow.AttrValue.fromObject(object.attr[keys[i]]);
                     }
                 }
+                if (object.arg_attr) {
+                    if (typeof object.arg_attr !== "object")
+                        throw TypeError(".tensorflow.FunctionDef.arg_attr: object expected");
+                    message.arg_attr = {};
+                    for (var keys = Object.keys(object.arg_attr), i = 0; i < keys.length; ++i) {
+                        if (typeof object.arg_attr[keys[i]] !== "object")
+                            throw TypeError(".tensorflow.FunctionDef.arg_attr: object expected");
+                        message.arg_attr[keys[i]] = $root.tensorflow.FunctionDef.ArgAttrs.fromObject(object.arg_attr[keys[i]]);
+                    }
+                }
                 if (object.node_def) {
                     if (!Array.isArray(object.node_def))
                         throw TypeError(".tensorflow.FunctionDef.node_def: array expected");
@@ -5031,6 +5076,7 @@
                     object.ret = {};
                     object.attr = {};
                     object.control_ret = {};
+                    object.arg_attr = {};
                 }
                 if (options.defaults)
                     object.signature = null;
@@ -5057,12 +5103,138 @@
                     for (var j = 0; j < keys2.length; ++j)
                         object.control_ret[keys2[j]] = message.control_ret[keys2[j]];
                 }
+                if (message.arg_attr && (keys2 = Object.keys(message.arg_attr)).length) {
+                    object.arg_attr = {};
+                    for (var j = 0; j < keys2.length; ++j)
+                        object.arg_attr[keys2[j]] = $root.tensorflow.FunctionDef.ArgAttrs.toObject(message.arg_attr[keys2[j]], options);
+                }
                 return object;
             };
     
             FunctionDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
+    
+            FunctionDef.ArgAttrs = (function() {
+    
+                function ArgAttrs(properties) {
+                    this.attr = {};
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ArgAttrs.prototype.attr = $util.emptyObject;
+    
+                ArgAttrs.create = function create(properties) {
+                    return new ArgAttrs(properties);
+                };
+    
+                ArgAttrs.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.FunctionDef.ArgAttrs(), key;
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            reader.skip().pos++;
+                            if (message.attr === $util.emptyObject)
+                                message.attr = {};
+                            key = reader.string();
+                            reader.pos++;
+                            message.attr[key] = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                ArgAttrs.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.FunctionDef.ArgAttrs(), key;
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "attr":
+                            reader.assert("{");
+                            if (message.attr === $util.emptyObject)
+                                message.attr = {};
+                            reader.assert("key");
+                            reader.value();
+                            key = reader.string();
+                            reader.assert("value");
+                            message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
+                            reader.assert("}");
+                            break;
+                        default:
+                            reader.field(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                ArgAttrs.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.attr != null && message.hasOwnProperty("attr")) {
+                        if (!$util.isObject(message.attr))
+                            return "attr: object expected";
+                        var key = Object.keys(message.attr);
+                        for (var i = 0; i < key.length; ++i) {
+                            var error = $root.tensorflow.AttrValue.verify(message.attr[key[i]]);
+                            if (error)
+                                return "attr." + error;
+                        }
+                    }
+                    return null;
+                };
+    
+                ArgAttrs.fromObject = function fromObject(object) {
+                    if (object instanceof $root.tensorflow.FunctionDef.ArgAttrs)
+                        return object;
+                    var message = new $root.tensorflow.FunctionDef.ArgAttrs();
+                    if (object.attr) {
+                        if (typeof object.attr !== "object")
+                            throw TypeError(".tensorflow.FunctionDef.ArgAttrs.attr: object expected");
+                        message.attr = {};
+                        for (var keys = Object.keys(object.attr), i = 0; i < keys.length; ++i) {
+                            if (typeof object.attr[keys[i]] !== "object")
+                                throw TypeError(".tensorflow.FunctionDef.ArgAttrs.attr: object expected");
+                            message.attr[keys[i]] = $root.tensorflow.AttrValue.fromObject(object.attr[keys[i]]);
+                        }
+                    }
+                    return message;
+                };
+    
+                ArgAttrs.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.objects || options.defaults)
+                        object.attr = {};
+                    var keys2;
+                    if (message.attr && (keys2 = Object.keys(message.attr)).length) {
+                        object.attr = {};
+                        for (var j = 0; j < keys2.length; ++j)
+                            object.attr[keys2[j]] = $root.tensorflow.AttrValue.toObject(message.attr[keys2[j]], options);
+                    }
+                    return object;
+                };
+    
+                ArgAttrs.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return ArgAttrs;
+            })();
     
             return FunctionDef;
         })();
@@ -9616,6 +9788,7 @@
             SavedVariable.prototype.trainable = false;
             SavedVariable.prototype.synchronization = 0;
             SavedVariable.prototype.aggregation = 0;
+            SavedVariable.prototype.name = "";
     
             SavedVariable.create = function create(properties) {
                 return new SavedVariable(properties);
@@ -9642,6 +9815,9 @@
                         break;
                     case 5:
                         message.aggregation = reader.int32();
+                        break;
+                    case 6:
+                        message.name = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -9677,6 +9853,10 @@
                     case "aggregation":
                         reader.value();
                         message.aggregation = reader.enum($root.tensorflow.VariableAggregation);
+                        break;
+                    case "name":
+                        reader.value();
+                        message.name = reader.string();
                         break;
                     default:
                         reader.field(tag, message);
@@ -9770,6 +9950,9 @@
                     case 3:
                         break;
                     }
+                if (message.name != null && message.hasOwnProperty("name"))
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
                 return null;
             };
     
@@ -10010,6 +10193,8 @@
                     message.aggregation = 3;
                     break;
                 }
+                if (object.name != null)
+                    message.name = String(object.name);
                 return message;
             };
     
@@ -10023,6 +10208,7 @@
                     object.trainable = false;
                     object.synchronization = options.enums === String ? "VARIABLE_SYNCHRONIZATION_AUTO" : 0;
                     object.aggregation = options.enums === String ? "VARIABLE_AGGREGATION_NONE" : 0;
+                    object.name = "";
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
@@ -10034,6 +10220,8 @@
                     object.synchronization = options.enums === String ? $root.tensorflow.VariableSynchronization[message.synchronization] : message.synchronization;
                 if (message.aggregation != null && message.hasOwnProperty("aggregation"))
                     object.aggregation = options.enums === String ? $root.tensorflow.VariableAggregation[message.aggregation] : message.aggregation;
+                if (message.name != null && message.hasOwnProperty("name"))
+                    object.name = message.name;
                 return object;
             };
     
