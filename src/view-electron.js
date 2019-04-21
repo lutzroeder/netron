@@ -17,7 +17,6 @@ host.ElectronHost = class {
             this._telemetry = require('universal-analytics')('UA-54146-13');
         }
 
-        this._name = electron.remote.app.getName();
         this._version = electron.remote.app.getVersion();
 
         process.on('uncaughtException', (err) => {
@@ -46,10 +45,6 @@ host.ElectronHost = class {
         else {
             document.body.classList.remove('dark-mode');
         }
-    }
-
-    get name() {
-        return this._name;
     }
 
     get version() {

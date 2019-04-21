@@ -1,5 +1,6 @@
 {
-    "name": "Netron",
+    "name": "netron",
+    "productName": "Netron",
     "author": {
         "name": "Lutz Roeder",
         "email": "lutzroeder@users.noreply.github.com",

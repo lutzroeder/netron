@@ -30,10 +30,6 @@ host.BrowserHost = class {
         return window.document;
     }
 
-    get name() {
-        return 'Netron';
-    }
-
     get version() {
         return this._version;
     }
