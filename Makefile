@@ -28,7 +28,6 @@ update:
 
 build_python:
 	@[ -d node_modules ] || npm install
-	rm -rf ./build
 	python3 ./setup.py build --version
 
 build_electron:
@@ -50,11 +49,10 @@ start:
 
 publish_python:
 	@[ -d node_modules ] || npm install
-	rm -rf ./build
 	python3 ./setup.py build --version bdist_wheel
 	python3 -m pip install --user keyring
 	python3 -m pip install --user twine
-	# twine upload build/dist/*
+	twine upload build/dist/*
 
 publish_github_electron:
 	@[ -d node_modules ] || npm install
