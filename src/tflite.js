@@ -218,51 +218,53 @@ tflite.Node = class {
             var optionsType = tflite.Node._getType(optionsTypeName);
             if (typeof optionsType === 'function') {
                 var options = Reflect.construct(optionsType, []);
-                node.builtinOptions(options);
-                var attributeName;
-                var attributeNames = [];
-                var attributeNamesMap = {};
-                for (attributeName of Object.keys(Object.getPrototypeOf(options))) {
-                    if (attributeName != '__init') {
-                        attributeNames.push(attributeName);
-                    }
-                    attributeNamesMap[attributeName] = true;
-                }
-                var attributeArrayNamesMap = {}; 
-                for (attributeName of Object.keys(attributeNamesMap)) {
-                    if (attributeNamesMap[attributeName + 'Array'] && attributeNamesMap[attributeName + 'Length']) {
-                        attributeArrayNamesMap[attributeName] = true;
-                        attributeNames = attributeNames.filter((item) => item != (attributeName + 'Array') && item != (attributeName + 'Length'));
-                    }
-                }
-                for (attributeName of attributeNames) {
-                    if (options[attributeName] && typeof options[attributeName] == 'function') {
-                        var value = null;
-                        if (attributeArrayNamesMap[attributeName]) {
-                            var array = [];
-                            var length = options[attributeName + 'Length']();
-                            var a = options[attributeName + 'Array']();
-                            for (var l = 0; l < length; l++) {
-                                array.push(a[l]);
-                            }
-                            value = array;
+                options = node.builtinOptions(options);
+                if (options) {
+                    var attributeName;
+                    var attributeNames = [];
+                    var attributeNamesMap = {};
+                    for (attributeName of Object.keys(Object.getPrototypeOf(options))) {
+                        if (attributeName != '__init') {
+                            attributeNames.push(attributeName);
                         }
-                        else {
-                            value = options[attributeName]();
+                        attributeNamesMap[attributeName] = true;
+                    }
+                    var attributeArrayNamesMap = {}; 
+                    for (attributeName of Object.keys(attributeNamesMap)) {
+                        if (attributeNamesMap[attributeName + 'Array'] && attributeNamesMap[attributeName + 'Length']) {
+                            attributeArrayNamesMap[attributeName] = true;
+                            attributeNames = attributeNames.filter((item) => item != (attributeName + 'Array') && item != (attributeName + 'Length'));
                         }
-                        var attribute = new tflite.Attribute(this._metadata, operator, attributeName, value);
-                        if (attribute.name == 'fused_activation_function') {
-                            value = attribute.value;
-                            if (attribute.value != 'NONE') {
-                                var activationFunctionMap = { 'RELU': 'Relu', 'RELU_N1_TO_1': "ReluN1To1", "RELU6": "Relu6", "TANH": "Tanh", "SIGN_BIT": "SignBit" };
-                                if (activationFunctionMap[value]) {
-                                    value = activationFunctionMap[value];
+                    }
+                    for (attributeName of attributeNames) {
+                        if (options[attributeName] && typeof options[attributeName] == 'function') {
+                            var value = null;
+                            if (attributeArrayNamesMap[attributeName]) {
+                                var array = [];
+                                var length = options[attributeName + 'Length']();
+                                var a = options[attributeName + 'Array']();
+                                for (var l = 0; l < length; l++) {
+                                    array.push(a[l]);
                                 }
-                                this._chain = [];
-                                this._chain.push(new tflite.Node(metadata, null, value, '', []));
+                                value = array;
                             }
+                            else {
+                                value = options[attributeName]();
+                            }
+                            var attribute = new tflite.Attribute(this._metadata, operator, attributeName, value);
+                            if (attribute.name == 'fused_activation_function') {
+                                value = attribute.value;
+                                if (attribute.value != 'NONE') {
+                                    var activationFunctionMap = { 'RELU': 'Relu', 'RELU_N1_TO_1': "ReluN1To1", "RELU6": "Relu6", "TANH": "Tanh", "SIGN_BIT": "SignBit" };
+                                    if (activationFunctionMap[value]) {
+                                        value = activationFunctionMap[value];
+                                    }
+                                    this._chain = [];
+                                    this._chain.push(new tflite.Node(metadata, null, value, '', []));
+                                }
+                            }
+                            this._attributes.push(attribute);
                         }
-                        this._attributes.push(attribute);
                     }
                 }
             }
