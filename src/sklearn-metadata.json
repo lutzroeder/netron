@@ -1619,7 +1619,7 @@
           "name": "ngram_range"
         },
         {
-          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n",
+          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n\n.. versionchanged:: 0.21\nSince v0.21, if ``input`` is ``filename`` or ``file``, the data is\nfirst read from the file and then passed to the given callable\nanalyzer.\n",
           "name": "analyzer"
         },
         {
@@ -1698,7 +1698,7 @@
           "name": "tokenizer"
         },
         {
-          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n",
+          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n\n.. versionchanged:: 0.21\nSince v0.21, if ``input`` is ``filename`` or ``file``, the data is\nfirst read from the file and then passed to the given callable\nanalyzer.\n",
           "name": "analyzer"
         },
         {
