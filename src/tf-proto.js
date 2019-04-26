@@ -10371,6 +10371,8 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
+            SavedResource.prototype.device = "";
+    
             SavedResource.create = function create(properties) {
                 return new SavedResource(properties);
             };
@@ -10382,6 +10384,9 @@
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
+                    case 1:
+                        message.device = reader.string();
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -10398,6 +10403,10 @@
                 while (!reader.end(block)) {
                     var tag = reader.tag();
                     switch (tag) {
+                    case "device":
+                        reader.value();
+                        message.device = reader.string();
+                        break;
                     default:
                         reader.field(tag, message);
                         break;
@@ -10409,17 +10418,30 @@
             SavedResource.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
+                if (message.device != null && message.hasOwnProperty("device"))
+                    if (!$util.isString(message.device))
+                        return "device: string expected";
                 return null;
             };
     
             SavedResource.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.SavedResource)
                     return object;
-                return new $root.tensorflow.SavedResource();
+                var message = new $root.tensorflow.SavedResource();
+                if (object.device != null)
+                    message.device = String(object.device);
+                return message;
             };
     
-            SavedResource.toObject = function toObject() {
-                return {};
+            SavedResource.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.device = "";
+                if (message.device != null && message.hasOwnProperty("device"))
+                    object.device = message.device;
+                return object;
             };
     
             SavedResource.prototype.toJSON = function toJSON() {
