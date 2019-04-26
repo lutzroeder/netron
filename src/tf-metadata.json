@@ -65717,22 +65717,22 @@
           "type": "type"
         }
       ],
-      "description": "`diagonals` is a tensor of shape `[..., 3, M]` whose inner-most 2 dimensions\nrepresent matrices with three rows being the superdiagonal, diagonals, and\nsubdiagonals, in order. The last element of the superdiagonal and the first\nelement of the subdiagonal is ignored.\n`rhs` is a tensor of shape `[..., M, K]`, representing K right-hand sides per\neach left-hand side.\nThe output is a tensor of shape `[..., M, K]` containing the solutions.",
+      "description": "  Solves tridiagonal systems of equations.\n  Supports batch dimensions and multiple right-hand sides per each left-hand\n  side.\n  On CPU, solution is computed via Gaussian elimination with or without partial\n  pivoting, depending on `partial_pivoting` attribute. On GPU, Nvidia's cuSPARSE\n  library is used: https://docs.nvidia.com/cuda/cusparse/index.html#gtsv",
       "inputs": [
         {
-          "description": "Shape is `[..., 3, M]`.",
+          "description": "Tensor of shape `[..., 3, M]` whose innermost 2 dimensions represent the\ntridiagonal matrices with three rows being the superdiagonal, diagonals, and\nsubdiagonals, in order. The last element of the superdiagonal and the first\nelement of the subdiagonal is ignored.",
           "name": "diagonals",
           "typeAttr": "T"
         },
         {
-          "description": "Shape is `[..., M, K]`.",
+          "description": "Tensor of shape `[..., M, K]`, representing K right-hand sides per each\nleft-hand side.",
           "name": "rhs",
           "typeAttr": "T"
         }
       ],
       "outputs": [
         {
-          "description": "Shape is `[..., M, K]`.",
+          "description": "Tensor of shape `[..., M, K]` containing the solutions",
           "name": "output",
           "typeAttr": "T"
         }
