@@ -590,6 +590,7 @@ class View {
                 options.y = 0;
             }
         }
+        options.webPreferences = { nodeIntegration: true };
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
         this._updateCallback = (e, data) => { 
