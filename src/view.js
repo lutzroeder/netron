@@ -740,19 +740,19 @@ view.View = class {
                         }
                     }
                 }
-            
+
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
                 var backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
-                if (this._host.environment('zoom') == 'scroll') {
+                if (this._host.environment('zoom') == 'd3') {
                     backgroundElement.setAttribute('width', '100%');
                     backgroundElement.setAttribute('height', '100%');
                 }
                 backgroundElement.setAttribute('fill', 'none');
                 backgroundElement.setAttribute('pointer-events', 'all');
                 graphElement.appendChild(backgroundElement);
-            
+
                 var originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
                 graphElement.appendChild(originElement);
