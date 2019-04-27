@@ -2,7 +2,7 @@
 (function($protobuf) {
     "use strict";
 
-    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $util = $protobuf.util;
     
     var $root = $protobuf.roots.onnx || ($protobuf.roots.onnx = {});
     
@@ -132,8 +132,6 @@
             };
     
             AttributeProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.AttributeProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -602,8 +600,6 @@
             };
     
             ValueInfoProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.ValueInfoProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -753,8 +749,6 @@
             };
     
             NodeProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.NodeProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1013,8 +1007,6 @@
             };
     
             ModelProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.ModelProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1273,8 +1265,6 @@
             };
     
             StringStringEntryProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.StringStringEntryProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1382,8 +1372,6 @@
             };
     
             TensorAnnotation.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.TensorAnnotation();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1548,8 +1536,6 @@
             };
     
             GraphProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.GraphProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1964,8 +1950,6 @@
             };
     
             TensorProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.TensorProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2452,8 +2436,6 @@
                 };
     
                 Segment.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.onnx.TensorProto.Segment();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -2595,8 +2577,6 @@
             };
     
             TensorShapeProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.TensorShapeProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2714,8 +2694,6 @@
                 };
     
                 Dimension.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.onnx.TensorShapeProto.Dimension();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -2878,8 +2856,6 @@
             };
     
             TypeProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.TypeProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3082,8 +3058,6 @@
                 };
     
                 Tensor.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.onnx.TypeProto.Tensor();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -3188,8 +3162,6 @@
                 };
     
                 Sequence.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.onnx.TypeProto.Sequence();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -3285,8 +3257,6 @@
                 };
     
                 Map.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.onnx.TypeProto.Map();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -3395,8 +3365,6 @@
                 };
     
                 Opaque.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.onnx.TypeProto.Opaque();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -3501,8 +3469,6 @@
                 };
     
                 SparseTensor.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.onnx.TypeProto.SparseTensor();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -3614,8 +3580,6 @@
             };
     
             OperatorSetIdProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.OperatorSetIdProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3777,8 +3741,6 @@
             };
     
             FunctionProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.FunctionProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4070,8 +4032,6 @@
             };
     
             OperatorProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.OperatorProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4261,8 +4221,6 @@
             };
     
             OperatorSetProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.onnx.OperatorSetProto();
                 reader.start(block);
                 while (!reader.end(block)) {

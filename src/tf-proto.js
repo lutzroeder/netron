@@ -2,7 +2,7 @@
 (function($protobuf) {
     "use strict";
 
-    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $util = $protobuf.util;
     
     var $root = $protobuf.roots.tf || ($protobuf.roots.tf = {});
     
@@ -51,8 +51,6 @@
             };
     
             SavedModel.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedModel();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -224,8 +222,6 @@
             };
     
             MetaGraphDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.MetaGraphDef(), key;
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -498,8 +494,6 @@
                 };
     
                 MetaInfoDef.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.MetaGraphDef.MetaInfoDef();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -715,8 +709,6 @@
             };
     
             CollectionDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.CollectionDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -905,8 +897,6 @@
                 };
     
                 NodeList.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.CollectionDef.NodeList();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -1017,8 +1007,6 @@
                 };
     
                 BytesList.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.CollectionDef.BytesList();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -1137,8 +1125,6 @@
                 };
     
                 Int64List.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.CollectionDef.Int64List();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -1264,8 +1250,6 @@
                 };
     
                 FloatList.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.CollectionDef.FloatList();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -1376,8 +1360,6 @@
                 };
     
                 AnyList.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.CollectionDef.AnyList();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -1505,8 +1487,6 @@
             };
     
             TensorInfo.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.TensorInfo();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1894,8 +1874,6 @@
                 };
     
                 CooSparse.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.TensorInfo.CooSparse();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -2031,8 +2009,6 @@
             };
     
             SignatureDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SignatureDef(), key;
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2201,8 +2177,6 @@
             };
     
             AssetFileDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.AssetFileDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2331,8 +2305,6 @@
             };
     
             SaverDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SaverDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2534,8 +2506,6 @@
             };
     
             GraphDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.GraphDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2743,8 +2713,6 @@
             };
     
             OpDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.OpDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3066,8 +3034,6 @@
                 };
     
                 ArgDef.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.OpDef.ArgDef();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -3490,8 +3456,6 @@
                 };
     
                 AttrDef.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.OpDef.AttrDef();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -3681,8 +3645,6 @@
             };
     
             OpDeprecation.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.OpDeprecation();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3786,8 +3748,6 @@
             };
     
             OpList.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.OpList();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3900,8 +3860,6 @@
             };
     
             TensorShapeProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.TensorShapeProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4021,8 +3979,6 @@
                 };
     
                 Dim.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.TensorShapeProto.Dim();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -4221,8 +4177,6 @@
             };
     
             NodeDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.NodeDef(), key;
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4423,8 +4377,6 @@
                 };
     
                 ExperimentalDebugInfo.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.NodeDef.ExperimentalDebugInfo();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -4551,8 +4503,6 @@
             };
     
             VersionDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.VersionDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4696,8 +4646,6 @@
             };
     
             FunctionDefLibrary.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.FunctionDefLibrary();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4881,8 +4829,6 @@
             };
     
             FunctionDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.FunctionDef(), key;
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5155,8 +5101,6 @@
                 };
     
                 ArgAttrs.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.FunctionDef.ArgAttrs(), key;
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -5277,8 +5221,6 @@
             };
     
             GradientDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.GradientDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5422,8 +5364,6 @@
             };
     
             AttrValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.AttrValue();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -6017,8 +5957,6 @@
                 };
     
                 ListValue.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.AttrValue.ListValue();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -6611,8 +6549,6 @@
             };
     
             NameAttrList.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.NameAttrList(), key;
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -6892,8 +6828,6 @@
             };
     
             TensorProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.TensorProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7717,8 +7651,6 @@
             };
     
             VariantTensorDataProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.VariantTensorDataProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7909,8 +7841,6 @@
             };
     
             VariableDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.VariableDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8181,8 +8111,6 @@
             };
     
             SaveSliceInfoDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SaveSliceInfoDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8414,8 +8342,6 @@
             };
     
             ResourceHandleProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.ResourceHandleProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8579,8 +8505,6 @@
             };
     
             SavedObjectGraph.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedObjectGraph(), key;
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8770,8 +8694,6 @@
             };
     
             SavedObject.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedObject();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9072,8 +8994,6 @@
             };
     
             SavedUserObject.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedUserObject();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9178,8 +9098,6 @@
             };
     
             SavedAsset.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedAsset();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9274,8 +9192,6 @@
             };
     
             SavedFunction.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedFunction();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9416,8 +9332,6 @@
             };
     
             SavedConcreteFunction.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedConcreteFunction();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9570,8 +9484,6 @@
             };
     
             SavedBareConcreteFunction.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedBareConcreteFunction();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9719,8 +9631,6 @@
             };
     
             SavedConstant.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedConstant();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9828,8 +9738,6 @@
             };
     
             SavedVariable.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedVariable();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10274,8 +10182,6 @@
             };
     
             FunctionSpec.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.FunctionSpec();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10396,8 +10302,6 @@
             };
     
             SavedResource.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedResource();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10488,8 +10392,6 @@
             };
     
             TrackableObjectGraph.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.TrackableObjectGraph();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10609,8 +10511,6 @@
                 };
     
                 TrackableObject.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -10778,8 +10678,6 @@
                     };
     
                     ObjectReference.decodeText = function decodeText(reader, block) {
-                        if (!(reader instanceof $TextReader))
-                            reader = $TextReader.create(reader);
                         var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference();
                         reader.start(block);
                         while (!reader.end(block)) {
@@ -10892,8 +10790,6 @@
                     };
     
                     SerializedTensor.decodeText = function decodeText(reader, block) {
-                        if (!(reader instanceof $TextReader))
-                            reader = $TextReader.create(reader);
                         var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor();
                         reader.start(block);
                         while (!reader.end(block)) {
@@ -11026,8 +10922,6 @@
                     };
     
                     SlotVariableReference.decodeText = function decodeText(reader, block) {
-                        if (!(reader instanceof $TextReader))
-                            reader = $TextReader.create(reader);
                         var message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference();
                         reader.start(block);
                         while (!reader.end(block)) {
@@ -11197,8 +11091,6 @@
             };
     
             StructuredValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.StructuredValue();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11766,8 +11658,6 @@
             };
     
             NoneValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.NoneValue();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11841,8 +11731,6 @@
             };
     
             ListValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.ListValue();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11951,8 +11839,6 @@
             };
     
             TupleValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.TupleValue();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -12064,8 +11950,6 @@
             };
     
             DictValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.DictValue(), key;
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -12183,8 +12067,6 @@
             };
     
             PairValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.PairValue();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -12296,8 +12178,6 @@
             };
     
             NamedTupleValue.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.NamedTupleValue();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -12424,8 +12304,6 @@
             };
     
             TensorSpecProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.TensorSpecProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -12795,8 +12673,6 @@
                 };
     
                 Any.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.google.protobuf.Any();
                     reader.start(block);
                     if (reader.any(message))

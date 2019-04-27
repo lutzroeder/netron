@@ -2,7 +2,7 @@
 (function($protobuf) {
     "use strict";
 
-    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $util = $protobuf.util;
     
     var $root = $protobuf.roots.caffe || ($protobuf.roots.caffe = {});
     
@@ -52,8 +52,6 @@
             };
     
             BlobShape.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.BlobShape();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -248,8 +246,6 @@
             };
     
             BlobProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.BlobProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -523,8 +519,6 @@
             };
     
             BlobProtoVector.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.BlobProtoVector();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -662,8 +656,6 @@
             };
     
             Datum.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.Datum();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -882,8 +874,6 @@
             };
     
             FillerParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.FillerParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1134,8 +1124,6 @@
             };
     
             NetParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.NetParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1612,8 +1600,6 @@
             };
     
             SolverParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.SolverParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2437,8 +2423,6 @@
             };
     
             SolverState.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.SolverState();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2600,8 +2584,6 @@
             };
     
             NetState.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.NetState();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2770,8 +2752,6 @@
             };
     
             NetStateRule.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.NetStateRule();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2975,8 +2955,6 @@
             };
     
             ParamSpec.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ParamSpec();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3391,8 +3369,6 @@
             };
     
             LayerParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.LayerParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4584,8 +4560,6 @@
             };
     
             TransformationParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.TransformationParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4775,8 +4749,6 @@
             };
     
             LossParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.LossParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4929,8 +4901,6 @@
             };
     
             AccuracyParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.AccuracyParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5051,8 +5021,6 @@
             };
     
             ArgMaxParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ArgMaxParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5169,8 +5137,6 @@
             };
     
             ClipParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ClipParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5275,8 +5241,6 @@
             };
     
             ConcatParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ConcatParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5385,8 +5349,6 @@
             };
     
             BatchNormParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.BatchNormParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5507,8 +5469,6 @@
             };
     
             BiasParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.BiasParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5629,8 +5589,6 @@
             };
     
             ContrastiveLossParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ContrastiveLossParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -5831,8 +5789,6 @@
             };
     
             ConvolutionParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ConvolutionParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -6253,8 +6209,6 @@
             };
     
             CropParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.CropParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -6411,8 +6365,6 @@
             };
     
             DataParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.DataParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -6629,8 +6581,6 @@
             };
     
             DropoutParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.DropoutParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -6776,8 +6726,6 @@
             };
     
             DummyDataParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.DummyDataParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7058,8 +7006,6 @@
             };
     
             EltwiseParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.EltwiseParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7219,8 +7165,6 @@
             };
     
             ELUParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ELUParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7324,8 +7268,6 @@
             };
     
             EmbedParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.EmbedParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7478,8 +7420,6 @@
             };
     
             ExpParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ExpParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7596,8 +7536,6 @@
             };
     
             FlattenParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.FlattenParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7706,8 +7644,6 @@
             };
     
             HDF5DataParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.HDF5DataParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7820,8 +7756,6 @@
             };
     
             HDF5OutputParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.HDF5OutputParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -7909,8 +7843,6 @@
             };
     
             HingeLossParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.HingeLossParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8062,8 +7994,6 @@
             };
     
             ImageDataParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ImageDataParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8288,8 +8218,6 @@
             };
     
             InfogainLossParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.InfogainLossParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8410,8 +8338,6 @@
             };
     
             InnerProductParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.InnerProductParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8571,8 +8497,6 @@
             };
     
             InputParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.InputParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8686,8 +8610,6 @@
             };
     
             LogParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.LogParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -8820,8 +8742,6 @@
             };
     
             LRNParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.LRNParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9028,8 +8948,6 @@
             };
     
             MemoryDataParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.MemoryDataParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9162,8 +9080,6 @@
             };
     
             MVNParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.MVNParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9276,8 +9192,6 @@
             };
     
             ParameterParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ParameterParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9417,8 +9331,6 @@
             };
     
             PoolingParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.PoolingParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9731,8 +9643,6 @@
             };
     
             PowerParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.PowerParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9857,8 +9767,6 @@
             };
     
             PythonParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.PythonParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -9999,8 +9907,6 @@
             };
     
             RecurrentParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.RecurrentParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10153,8 +10059,6 @@
             };
     
             ReductionParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ReductionParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10303,8 +10207,6 @@
             };
     
             ReLUParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ReLUParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10439,8 +10341,6 @@
             };
     
             ReshapeParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ReshapeParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10573,8 +10473,6 @@
             };
     
             ScaleParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ScaleParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10719,8 +10617,6 @@
             };
     
             SigmoidParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.SigmoidParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10850,8 +10746,6 @@
             };
     
             SliceParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.SliceParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -10989,8 +10883,6 @@
             };
     
             SoftmaxParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.SoftmaxParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11117,8 +11009,6 @@
             };
     
             SwishParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.SwishParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11206,8 +11096,6 @@
             };
     
             TanHParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.TanHParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11325,8 +11213,6 @@
             };
     
             TileParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.TileParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11427,8 +11313,6 @@
             };
     
             ThresholdParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.ThresholdParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11564,8 +11448,6 @@
             };
     
             WindowDataParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.WindowDataParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -11806,8 +11688,6 @@
             };
     
             SPPParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.SPPParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -12190,8 +12070,6 @@
             };
     
             V1LayerParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.V1LayerParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -13541,8 +13419,6 @@
             };
     
             V0LayerParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.V0LayerParameter();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -14177,8 +14053,6 @@
             };
     
             PReLUParameter.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe.PReLUParameter();
                 reader.start(block);
                 while (!reader.end(block)) {

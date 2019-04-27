@@ -4,6 +4,7 @@
 var caffe = caffe || {};
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
+var prototxt = prototxt || require('protobufjs/ext/prototxt');
 var marked = marked || require('marked');
 
 caffe.ModelFactory = class {
@@ -42,7 +43,7 @@ caffe.ModelFactory = class {
                     var tags = context.tags('pbtxt');
                     if (tags.net || tags.train_net || tags.net_param) {
                         try {
-                            var reader = new protobuf.TextReader(context.text);
+                            var reader = prototxt.TextReader.create(context.text);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe.proto.SolverParameter) {
                                     message[tag] = this.skip();
@@ -96,7 +97,7 @@ caffe.ModelFactory = class {
 
     _openNetParameterText(metadata, identifier, text, host, callback) {
         try {
-            var reader = new protobuf.TextReader(text);
+            var reader = prototxt.TextReader.create(text);
             reader.field = function(tag, message) {
                 var type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {

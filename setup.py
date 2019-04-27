@@ -17,6 +17,7 @@ node_dependencies = [
         'node_modules/pako/dist/pako.min.js',
         'node_modules/long/dist/long.js',
         'node_modules/protobufjs/dist/protobuf.min.js',
+        'node_modules/protobufjs/ext/prototxt/prototxt.js',
         'node_modules/flatbuffers/js/flatbuffers.js' ] )
 ]
 

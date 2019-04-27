@@ -8,6 +8,7 @@ var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var protobuf = protobuf || require('protobufjs');
+var prototxt = prototxt || require('protobufjs/ext/prototxt');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -1071,7 +1072,7 @@ class ModelContext {
                 var reader = null;
                 switch (extension) {
                     case 'pbtxt':
-                        reader = protobuf.TextReader.create(this.text);
+                        reader = prototxt.TextReader.create(this.text);
                         reader.start(false);
                         while (!reader.end(false)) {
                             var tag = reader.tag();

@@ -3,6 +3,7 @@
 
 var caffe2 = caffe2 || {};
 var protobuf = protobuf || require('protobufjs');
+var prototxt = prototxt || require('protobufjs/ext/prototxt');
 var marked = marked || require('marked');
 
 caffe2.ModelFactory = class {
@@ -68,7 +69,7 @@ caffe2.ModelFactory = class {
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
                     caffe2.proto = protobuf.roots.caffe2.caffe2;
-                    var reader = new protobuf.TextReader(context.text);
+                    var reader = prototxt.TextReader.create(context.text);
                     reader.field = function(tag, message) {
                         if (message instanceof caffe2.proto.DeviceOption) {
                             message[tag] = this.skip();

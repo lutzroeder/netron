@@ -5,6 +5,7 @@ var onnx = onnx || {};
 var base = base || require('./base');
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
+var prototxt = prototxt || require('protobufjs/ext/prototxt');
 var marked = marked || require('marked');
 
 onnx.ModelFactory = class {
@@ -77,7 +78,8 @@ onnx.ModelFactory = class {
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
                     onnx.proto = protobuf.roots.onnx.onnx;
-                    model = onnx.proto.ModelProto.decodeText(context.text);
+                    var reader = prototxt.TextReader.create(context.text);
+                    model = onnx.proto.ModelProto.decodeText(reader);
                 }
                 catch (error) {
                     callback(new onnx.Error("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'."), null);

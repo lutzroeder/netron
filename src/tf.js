@@ -6,6 +6,7 @@
 var tf = tf || {};
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
+var prototxt = prototxt || require('protobufjs/ext/prototxt');
 var marked = marked || require('marked');
 
 tf.ModelFactory = class {
@@ -79,7 +80,7 @@ tf.ModelFactory = class {
                 if (tags.saved_model_schema_version || tags.meta_graphs) {
                     try {
                         if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                            savedModel = tf.proto.SavedModel.decodeText(context.text);
+                            savedModel = tf.proto.SavedModel.decodeText(prototxt.TextReader.create(context.text));
                             format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
                         }
                     }
@@ -91,7 +92,7 @@ tf.ModelFactory = class {
                 else if (tags.graph_def) {
                     try {
                         if (!savedModel) {
-                            metaGraph = tf.proto.MetaGraphDef.decodeText(context.text);
+                            metaGraph = tf.proto.MetaGraphDef.decodeText(prototxt.TextReader.create(context.text));
                             savedModel = new tf.proto.SavedModel();
                             savedModel.meta_graphs.push(metaGraph);
                             format = 'TensorFlow MetaGraph';
@@ -104,7 +105,7 @@ tf.ModelFactory = class {
                 }
                 else if (tags.node) {
                     try {
-                        graph = tf.proto.GraphDef.decodeText(context.text);
+                        graph = tf.proto.GraphDef.decodeText(prototxt.TextReader.create(context.text));
                         metaGraph = new tf.proto.MetaGraphDef();
                         metaGraph.graph_def = graph;
                         savedModel = new tf.proto.SavedModel();

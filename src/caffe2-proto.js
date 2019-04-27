@@ -2,7 +2,7 @@
 (function($protobuf) {
     "use strict";
 
-    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $util = $protobuf.util;
     
     var $root = $protobuf.roots.caffe2 || ($protobuf.roots.caffe2 = {});
     
@@ -68,8 +68,6 @@
             };
     
             ExternalDataProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.ExternalDataProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -380,8 +378,6 @@
             };
     
             TensorProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.TensorProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -924,8 +920,6 @@
                 };
     
                 Segment.decodeText = function decodeText(reader, block) {
-                    if (!(reader instanceof $TextReader))
-                        reader = $TextReader.create(reader);
                     var message = new $root.caffe2.TensorProto.Segment();
                     reader.start(block);
                     while (!reader.end(block)) {
@@ -1111,8 +1105,6 @@
             };
     
             QTensorProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.QTensorProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1412,8 +1404,6 @@
             };
     
             TensorProtos.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.TensorProtos();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1551,8 +1541,6 @@
             };
     
             TensorShape.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.TensorShape();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -1812,8 +1800,6 @@
             };
     
             TensorShapes.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.TensorShapes();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2013,8 +1999,6 @@
             };
     
             Argument.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.Argument();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2435,8 +2419,6 @@
             };
     
             DeviceOption.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.DeviceOption();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -2662,8 +2644,6 @@
             };
     
             OperatorDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.OperatorDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3022,8 +3002,6 @@
             };
     
             NetDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.NetDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3332,8 +3310,6 @@
             };
     
             ExecutionStep.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.ExecutionStep();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3648,8 +3624,6 @@
             };
     
             PlanDef.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.PlanDef();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -3823,8 +3797,6 @@
             };
     
             BlobProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.BlobProto();
                 reader.start(block);
                 while (!reader.end(block)) {
@@ -4014,8 +3986,6 @@
             };
     
             DBReaderProto.decodeText = function decodeText(reader, block) {
-                if (!(reader instanceof $TextReader))
-                    reader = $TextReader.create(reader);
                 var message = new $root.caffe2.DBReaderProto();
                 reader.start(block);
                 while (!reader.end(block)) {
