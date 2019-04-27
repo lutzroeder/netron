@@ -98,6 +98,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.activation.SELU'] = function() {};
             constructorTable['torch.nn.modules.activation.Sigmoid'] = function() {};
             constructorTable['torch.nn.modules.activation.Softmax'] = function() {};
+            constructorTable['torch.nn.modules.activation.Softmax2d'] = function() {};
             constructorTable['torch.nn.modules.activation.Tanh'] = function() {};
             constructorTable['torch.nn.modules.activation.Threshold'] = function() {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm1d'] = function() {};
