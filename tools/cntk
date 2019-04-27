@@ -37,7 +37,7 @@ sync() {
 
 schema() {
     bold "cntk schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r cntk -o ${src}/cntk-proto.js ${third_party}/${identifier}/Source/CNTKv2LibraryDll/proto/CNTK.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r cntk -o ${src}/cntk-proto.js ${third_party}/${identifier}/Source/CNTKv2LibraryDll/proto/CNTK.proto
     node ${tools}/update_pbjs.js array ${src}/cntk-proto.js value float 1
 }
 

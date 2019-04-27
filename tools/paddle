@@ -37,7 +37,7 @@ sync() {
 
 schema() {
     bold "paddle schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r paddle -o ${src}/paddle-proto.js ${third_party}/${identifier}/paddle/fluid/framework/framework.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r paddle -o ${src}/paddle-proto.js ${third_party}/${identifier}/paddle/fluid/framework/framework.proto
 }
 
 while [ "$#" != 0 ]; do

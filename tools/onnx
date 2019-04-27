@@ -71,7 +71,7 @@ install() {
 schema() {
     bold "onnx schema"
     source ${virtualenv}/bin/activate
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx-proto.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r onnx -o ${src}/onnx-proto.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
     node ${tools}/update_pbjs.js array ${src}/onnx-proto.js float_data float 1
     node ${tools}/update_pbjs.js array ${src}/onnx-proto.js double_data double 1
     deactivate
