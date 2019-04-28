@@ -775,6 +775,13 @@
   },
   {
     "type":   "caffe2",
+    "target": "mask_rcnn_2go/model.pbtxt",
+    "source": "https://raw.githubusercontent.com/caffe2/models/master/mask_rcnn_2go/model/fp32/model.pbtxt",
+    "format": "Caffe2",
+    "link":   "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "type":   "caffe2",
     "target": "mobilenet_v2/predict_net.pb,mobilenet_v2/init_net.pb",
     "source": "https://media.githubusercontent.com/media/caffe2/models/master/mobilenet_v2/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/mobilenet_v2/init_net.pb",
     "format": "Caffe2",
