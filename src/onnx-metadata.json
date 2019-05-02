@@ -9358,20 +9358,56 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([-4.3, 7.2, 5.0, 4.3, -7.2, 8.0])\ny = np.array([2.1, -3.4, 8.0, -2.1, 3.4, 5.0])\nz = np.mod(x, y)  # expected output [2., -3.,  5., -2.,  3.,  3.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_float_mixed_sign_example')",
-          "summary": "float_mixed_sign"
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.arange(0, 30).reshape([3, 2, 5])\ny = np.array([7])\nz = np.mod(x, y)\nz\n#   array([[[0, 1, 2, 3, 4],\n#     [5, 6, 0, 1, 2]],\n\n#    [[3, 4, 5, 6, 0],\n#     [1, 2, 3, 4, 5]],\n\n#    [[6, 0, 1, 2, 3],\n#     [4, 5, 6, 0, 1]]], dtype=int32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_broadcast')",
+          "summary": "mod_broadcast"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    fmod=1\n)\n\nx = np.array([-4.3, 7.2, 5.0, 4.3, -7.2, 8.0])\ny = np.array([2.1, -3.4, 8.0, -2.1, 3.4, 5.0])\nz = np.fmod(x, y)  # expected output [-0.1,  0.4,  5. ,  0.1, -0.4,  3.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_fmod_mixed_sign_example')",
-          "summary": "fmod_mixed_sign"
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    fmod=1\n)\n\nx = np.array([-4, 7, 5, 4, -7, 8]).astype(np.int64)\ny = np.array([2, -3, 8, -2, 3, 5]).astype(np.int64)\nz = np.fmod(x, y)  # expected output [ 0,  1,  5,  0, -1,  3]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_int64_fmod')",
+          "summary": "mod_int64_fmod"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([-4, 7, 5, 4, -7, 8]).astype(np.int64)\ny = np.array([2, -3, 8, -2, 3, 5]).astype(np.int64)\nz = np.mod(x, y)  # expected output [ 0, -2,  5,  0,  2,  3]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_int64_mixed_sign_example')",
-          "summary": "int64_mixed_sign"
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    fmod=1\n)\n\nx = np.array([-4.3, 7.2, 5.0, 4.3, -7.2, 8.0]).astype(np.float16)\ny = np.array([2.1, -3.4, 8.0, -2.1, 3.4, 5.0]).astype(np.float16)\nz = np.fmod(x, y)  # expected output [-0.10156, 0.3984 , 5. , 0.10156, -0.3984 ,  3.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_mixed_sign_float16')",
+          "summary": "mod_mixed_sign_float16"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.arange(0, 30).reshape([3, 2, 5])\ny = np.array([7])\nz = np.mod(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_bcast')",
-          "summary": "mul_broadcast"
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    fmod=1\n)\n\nx = np.array([-4.3, 7.2, 5.0, 4.3, -7.2, 8.0]).astype(np.float32)\ny = np.array([2.1, -3.4, 8.0, -2.1, 3.4, 5.0]).astype(np.float32)\nz = np.fmod(x, y)  # expected output [-0.10000038, 0.39999962, 5. , 0.10000038, -0.39999962, 3.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_mixed_sign_float32')",
+          "summary": "mod_mixed_sign_float32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    fmod=1\n)\n\nx = np.array([-4.3, 7.2, 5.0, 4.3, -7.2, 8.0]).astype(np.float64)\ny = np.array([2.1, -3.4, 8.0, -2.1, 3.4, 5.0]).astype(np.float64)\nz = np.fmod(x, y)  # expected output [-0.1,  0.4,  5. ,  0.1, -0.4,  3.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_mixed_sign_float64')",
+          "summary": "mod_mixed_sign_float64"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([-4, 7, 5, 4, -7, 8]).astype(np.int16)\ny = np.array([2, -3, 8, -2, 3, 5]).astype(np.int16)\nz = np.mod(x, y)  # expected output [ 0, -2,  5,  0,  2,  3]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_mixed_sign_int16')",
+          "summary": "mod_mixed_sign_int16"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([-4, 7, 5, 4, -7, 8]).astype(np.int32)\ny = np.array([2, -3, 8, -2, 3, 5]).astype(np.int32)\nz = np.mod(x, y)  # expected output [ 0, -2,  5,  0,  2,  3]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_mixed_sign_int32')",
+          "summary": "mod_mixed_sign_int32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([-4, 7, 5, 4, -7, 8]).astype(np.int64)\ny = np.array([2, -3, 8, -2, 3, 5]).astype(np.int64)\nz = np.mod(x, y)  # expected output [ 0, -2,  5,  0,  2,  3]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_mixed_sign_int64')",
+          "summary": "mod_mixed_sign_int64"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([-4, 7, 5, 4, -7, 8]).astype(np.int8)\ny = np.array([2, -3, 8, -2, 3, 5]).astype(np.int8)\nz = np.mod(x, y)  # expected output [ 0, -2,  5,  0,  2,  3]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_mixed_sign_int8')",
+          "summary": "mod_mixed_sign_int8"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([4, 7, 5]).astype(np.uint16)\ny = np.array([2, 3, 8]).astype(np.uint16)\nz = np.mod(x, y)  # expected output [0, 1, 5]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_uint16')",
+          "summary": "mod_uint16"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([4, 7, 5]).astype(np.uint32)\ny = np.array([2, 3, 8]).astype(np.uint32)\nz = np.mod(x, y)  # expected output [0, 1, 5]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_uint32')",
+          "summary": "mod_uint32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([4, 7, 5]).astype(np.uint64)\ny = np.array([2, 3, 8]).astype(np.uint64)\nz = np.mod(x, y)  # expected output [0, 1, 5]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_uint64')",
+          "summary": "mod_uint64"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mod',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([4, 7, 5]).astype(np.uint8)\ny = np.array([2, 3, 8]).astype(np.uint8)\nz = np.mod(x, y)  # expected output [0, 1, 5]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mod_uint8')",
+          "summary": "mod_uint8"
         }
       ],
       "inputs": [
