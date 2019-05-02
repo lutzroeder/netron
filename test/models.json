@@ -3088,7 +3088,6 @@
     "target": "alexnet-owt-4df8aa71.pth",
     "source": "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
     "format": "PyTorch",
-    "error":  "PyTorch legacy tar format not supported.",
     "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py"
   },
   {
@@ -3128,10 +3127,20 @@
   },
   {
     "type":   "pytorch",
+    "target": "densenet161-8d451a50.pth",
+    "source": "https://download.pytorch.org/models/densenet161-8d451a50.pth"
+  },
+  {
+    "type":   "pytorch",
     "target": "inception_v3.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "inception_v3_google-1a9a5a14.pth",
+    "source": "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
   },
   {
     "type":   "pytorch",
@@ -3148,10 +3157,20 @@
   },
   {
     "type":   "pytorch",
+    "target": "resnet18-5c106cde.pth",
+    "source": "https://download.pytorch.org/models/resnet18-5c106cde.pth"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet-18-at-export.pth",
     "source": "https://s3.amazonaws.com/modelzoo-networks/resnet-18-at-export.pth",
     "error":  "File does not contain root module or state dictionary in 'resnet-18-at-export.pth'.",
     "link":   "https://github.com/szagoruyko/attention-transfer"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet34-333f7ec4.pth",
+    "source": "https://download.pytorch.org/models/resnet34-333f7ec4.pth"
   },
   {
     "type":   "pytorch",
@@ -3171,7 +3190,6 @@
     "type":   "pytorch",
     "target": "resnet50_tucker.pth",
     "source": "https://raw.githubusercontent.com/larry0123du/Decompose-CNN/master/models/resnet50_tucker.pth",
-    "error":  "Root object does not contain modules in 'resnet50_tucker.pth'.",
     "link":   "https://github.com/larry0123du/Decompose-CNN"
   },
   {
@@ -3182,10 +3200,14 @@
   },
   {
     "type":   "pytorch",
+    "target": "resnet101-5d3b4d8f.pth",
+    "source": "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth"
+  },
+  {
+    "type":   "pytorch",
     "target": "SiamRPNBIG.model",
     "source": "https://drive.google.com/uc?export=download&id=1-vNVZxfbIplXHrqMHiJJYWXYWsOIvGsf",
     "format": "PyTorch",
-    "error":  "File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data.",
     "link":   "https://github.com/foolwood/DaSiamRPN"
   },
   {
@@ -3201,6 +3223,18 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "squeezenet1_0-a815701f.pth",
+    "source": "https://download.pytorch.org/models/squeezenet1_0-a815701f.pth",
+    "format": "PyTorch"
+  },
+  {
+    "type":   "pytorch",
+    "target": "squeezenet1_1-f364aa15.pth",
+    "source": "https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth",
+    "format": "PyTorch"
   },
   {
     "type":   "pytorch",
@@ -3269,15 +3303,21 @@
     "type":   "pytorch",
     "target": "vgg_conv.pth",
     "source": "https://bethgelab.org/media/uploads/pytorch_models/vgg_conv.pth",
-    "error":  "File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data.",
     "format": "PyTorch",
     "link":   "https://github.com/leongatys/PytorchNeuralStyleTransfer"
+  },
+  {
+    "type":   "pytorch",
+    "target": "vgg11-bbd30ac9.pth",
+    "format": "PyTorch",
+    "source": "https://download.pytorch.org/models/vgg11-bbd30ac9.pth"
   },
   {
     "type":   "pytorch",
     "target": "vgg11_bn.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "PyTorch",
     "status": "script"
   },
   {
@@ -3285,6 +3325,7 @@
     "target": "vgg16.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "PyTorch",
     "status": "script"
   },
   {
