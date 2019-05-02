@@ -1011,7 +1011,7 @@ view.View = class {
             return value.map((item) => item.toString()).join(', ');
         }
         if (type == 'tensor') {
-            if (value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+            if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
                 return value.toString();
             }
             return '[...]';
