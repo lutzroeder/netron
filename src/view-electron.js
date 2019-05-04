@@ -198,11 +198,26 @@ host.ElectronHost = class {
             fs.writeFile(file, data, encoding, (err) => {
                 if (err) {
                     this.exception(err, false);
-                    this.error('Export write failure.', err);
+                    this.error('Error writing file.', err.message);
                 }
             });
         };
-        reader.readAsArrayBuffer(blob);
+
+        var err = null;
+        if (!blob) {
+            err = new Error("Export blob is '" + JSON.stringify(blob) + "'.");
+        }
+        else if (!(blob instanceof Blob)) {
+            err = new Error("Export blob type is '" + (typeof blob) + "'.");
+        }
+
+        if (err) {
+            this.exception(err, false);
+            this.error('Error exporting image.', err.message);
+        }
+        else {
+            reader.readAsArrayBuffer(blob);
+        }
     }
 
     request(base, file, encoding, callback) {
