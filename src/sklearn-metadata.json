@@ -142,9 +142,16 @@
           "name": "random_state",
           "option": "optional",
           "type": "int32"
+        },
+        {
+          "default": false,
+          "description": "If true, ``decision_function_shape='ovr'``, and number of classes > 2,\n:term:`predict` will break ties according to the confidence values of\n:term:`decision_function`; otherwise the first class among the tied\nclasses is returned. Please note that breaking ties comes at a\nrelatively high computational cost compared to a simple predict.\n\n.. versionadded:: 0.22\n",
+          "name": "break_ties",
+          "option": "optional",
+          "type": "boolean"
         }
       ],
-      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to datasets with more than a couple of 10000 samples. For large\ndatasets consider using :class:`sklearn.linear_model.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`sklearn.linear_model.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
       "package": "sklearn.svm"
     }
   },
@@ -242,9 +249,16 @@
           "description": "The seed of the pseudo random number generator used when shuffling\nthe data for probability estimates. If int, random_state is the\nseed used by the random number generator; If RandomState instance,\nrandom_state is the random number generator; If None, the random\nnumber generator is the RandomState instance used by `np.random`.\n",
           "name": "random_state",
           "option": "optional"
+        },
+        {
+          "default": false,
+          "description": "If true, ``decision_function_shape='ovr'``, and number of classes > 2,\n:term:`predict` will break ties according to the confidence values of\n:term:`decision_function`; otherwise the first class among the tied\nclasses is returned. Please note that breaking ties comes at a\nrelatively high computational cost compared to a simple predict.\n\n.. versionadded:: 0.22\n",
+          "name": "break_ties",
+          "option": "optional",
+          "type": "boolean"
         }
       ],
-      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to datasets with more than a couple of 10000 samples. For large\ndatasets consider using :class:`sklearn.linear_model.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`sklearn.linear_model.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
       "package": "sklearn.svm"
     }
   },
