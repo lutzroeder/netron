@@ -143,12 +143,7 @@ view.View = class {
 
     toggleAttributes() {
         this._showAttributes = !this._showAttributes;
-        this.show('Spinner');
-        this.updateGraph(this._model, this._activeGraph, (err) => {
-            if (err) {
-                this.error('Graph update failed.', err);
-            }
-        });
+        this._reload();
     }
 
     get showAttributes() {
@@ -157,12 +152,7 @@ view.View = class {
 
     toggleInitializers() {
         this._showInitializers = !this._showInitializers;
-        this.show('Spinner');
-        this.updateGraph(this._model, this._activeGraph, (err) => {
-            if (err) {
-                this.error('Graph update failed.', err);
-            }
-        });
+        this._reload();
     }
 
     get showInitializers() {
@@ -171,16 +161,20 @@ view.View = class {
 
     toggleNames() {
         this._showNames = !this._showNames;
+        this._reload();
+    }
+
+    get showNames() {
+        return this._showNames;
+    }
+
+    _reload() {
         this.show('Spinner');
         this.updateGraph(this._model, this._activeGraph, (err) => {
             if (err) {
                 this.error('Graph update failed.', err);
             }
         });
-    }
-
-    get showNames() {
-        return this._showNames;
     }
 
     zoomIn() {
