@@ -27594,7 +27594,7 @@
           "type": "type"
         }
       ],
-      "description": "backsubstitution.\n\n`matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions form\nsquare matrices. If `lower` is `True` then the strictly upper triangular part\nof each inner-most matrix is assumed to be zero and not accessed.\nIf `lower` is False then the strictly lower triangular part of each inner-most\nmatrix is assumed to be zero and not accessed.\n`rhs` is a tensor of shape `[..., M, K]`.\n\nThe output is a tensor of shape `[..., M, K]`. If `adjoint` is\n`True` then the innermost matrices in `output` satisfy matrix equations\n`matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `False` then the strictly then the  innermost matrices in\n`output` satisfy matrix equations\n`adjoint(matrix[..., i, k]) * output[..., k, j] = rhs[..., i, j]`.",
+      "description": "\n`matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions form\nsquare matrices. If `lower` is `True` then the strictly upper triangular part\nof each inner-most matrix is assumed to be zero and not accessed.\nIf `lower` is False then the strictly lower triangular part of each inner-most\nmatrix is assumed to be zero and not accessed.\n`rhs` is a tensor of shape `[..., M, K]`.\n\nThe output is a tensor of shape `[..., M, K]`. If `adjoint` is\n`True` then the innermost matrices in `output` satisfy matrix equations\n`matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `False` then the strictly then the  innermost matrices in\n`output` satisfy matrix equations\n`adjoint(matrix[..., i, k]) * output[..., k, j] = rhs[..., i, j]`.\n\nExample:\n```python\n\na = tf.constant([[3,  0,  0,  0],\n                 [2,  1,  0,  0],\n                 [1,  0,  1,  0],\n                 [1,  1,  1,  1]], dtype=tf.float32)\n\nb = tf.constant([[4],\n                 [2],\n                 [4],\n                 [2]], dtype=tf.float32)\n\nx = tf.linalg.triangular_solve(a, b, lower=True)\nx\n# <tf.Tensor: id=257, shape=(4, 1), dtype=float32, numpy=\n# array([[ 1.3333334 ],\n#        [-0.66666675],\n#        [ 2.6666665 ],\n#        [-1.3333331 ]], dtype=float32)>\n\n# in python3 one can use `a@x`\ntf.matmul(a, x)\n# <tf.Tensor: id=263, shape=(4, 1), dtype=float32, numpy=\n# array([[4.       ],\n#        [2.       ],\n#        [4.       ],\n#        [1.9999999]], dtype=float32)>\n```",
       "inputs": [
         {
           "description": "Shape is `[..., M, M]`.",
@@ -27614,7 +27614,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Solves systems of linear equations with upper or lower triangular matrices by"
+      "summary": "Solves systems of linear equations with upper or lower triangular matrices by backsubstitution."
     }
   },
   {
