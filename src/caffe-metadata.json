@@ -163,7 +163,7 @@
       "category": "Normalization",
       "attributes": [
         { "name": "local_size", "type": "uint32", "default": 5 },
-        { "name": "alpha", "type": "float32", "default": 1 },
+        { "name": "alpha", "type": "float32", "default": 0.0001 },
         { "name": "beta", "type": "float32", "default": 0.75 }
       ],
       "inputs": [
@@ -459,6 +459,11 @@
       ],
       "outputs": [
         { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weight_filler", "visible": false },
+        { "name": "bias_filler", "visible": false },
+        { "name": "num_output", "visible": false }
       ]
     }
   },
