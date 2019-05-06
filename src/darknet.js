@@ -84,15 +84,21 @@ darknet.Graph = class {
             inputs = [ i.toString() ];
             switch (layer.__type__) {
                 case 'shortcut':
-                    var shortcut = cfg[i + Number.parseInt(layer.from, 10)]._outputs[0];
-                    layer._inputs.push(shortcut);
+                    var shortcut = cfg[i + Number.parseInt(layer.from, 10)];
+                    if (shortcut) {
+                        layer._inputs.push(shortcut._outputs[0]);
+                    }
                     break;
                 case 'route':
+                    layer._inputs = [];
                     var routes = layer.layers.split(',').map((route) => Number.parseInt(route.trim(), 10));
-                    layer._inputs = routes.map((route) => {
-                        var layer = (route < 0) ? i + route : route;
-                        return cfg[layer]._outputs[0];
-                    });
+                    for (var j = 0; j < routes.length; j++) {
+                        var index = (routes[j] < 0) ? i + routes[j] : routes[j];
+                        var route = cfg[index];
+                        if (route) {
+                            layer._inputs.push(route._outputs[0]);
+                        }
+                    }
                     break;
             }
         }
