@@ -4206,6 +4206,13 @@
   },
   {
     "type":   "torch",
+    "target": "rnnTracker_r300_l1_n1_m1_d4.t7",
+    "source": "https://github.com/aghagol/minimal_rnntracking_deploy/blob/master/bin/rnnTracker_r300_l1_n1_m1_d4.t7?raw=true",
+    "format": "Torch v7",
+    "link":   "https://github.com/aghagol"
+  },
+  {
+    "type":   "torch",
     "target": "siam_liberty.t7",
     "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam/siam_liberty.t7]",
     "format": "Torch v7",
