@@ -5,9 +5,6 @@ build: clean lint build_python build_electron
 
 publish: clean lint publish_github_electron publish_python publish_github_pages publish_cask
 
-pull:
-	git pull --rebase --prune
-
 install:
 	rm -rf ./node_modules
 	rm -rf ./package-lock.json
