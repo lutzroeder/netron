@@ -74,7 +74,7 @@
         },
         {
           "default": "auto",
-          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.var())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
+          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
           "name": "gamma",
           "option": "optional",
           "type": "float32"
@@ -182,7 +182,7 @@
         },
         {
           "default": "auto",
-          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.var())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
+          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
           "name": "gamma",
           "option": "optional",
           "type": "float32"
@@ -602,7 +602,7 @@
       "attributes": [
         {
           "default": "10",
-          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.20\nThe default value of ``n_estimators`` will change from 10 in\nversion 0.20 to 100 in version 0.22.\n",
+          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.22\nThe default value of ``n_estimators`` changed from 10 to 100\nin 0.22.\n",
           "name": "n_estimators",
           "option": "optional"
         },
@@ -812,7 +812,7 @@
       "attributes": [
         {
           "default": "10",
-          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.20\nThe default value of ``n_estimators`` will change from 10 in\nversion 0.20 to 100 in version 0.22.\n",
+          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.22\nThe default value of ``n_estimators`` changed from 10 to 100\nin 0.22.\n",
           "name": "n_estimators",
           "option": "optional"
         },
@@ -927,8 +927,8 @@
     "schema": {
       "attributes": [
         {
-          "default": "10",
-          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.20\nThe default value of ``n_estimators`` will change from 10 in\nversion 0.20 to 100 in version 0.22.\n",
+          "default": "100",
+          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.22\nThe default value of ``n_estimators`` changed from 10 to 100\nin 0.22.\n",
           "name": "n_estimators",
           "option": "optional"
         },
@@ -1143,8 +1143,8 @@
           "type": "int32"
         },
         {
-          "default": "liblinear",
-          "description": "\nAlgorithm to use in the optimization problem.\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag' and\n'saga' are faster for large ones.\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and 'lbfgs'\nhandle multinomial loss; 'liblinear' is limited to one-versus-rest\nschemes.\n- 'newton-cg', 'lbfgs', 'sag' and 'saga' handle L2 or no penalty\n- 'liblinear' and 'saga' also handle L1 penalty\n- 'saga' also supports 'elasticnet' penalty\n- 'liblinear' does not handle no penalty\n\nNote that 'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from sklearn.preprocessing.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.20\nDefault will change from 'liblinear' to 'lbfgs' in 0.22.\n",
+          "default": "lbfgs",
+          "description": "\nAlgorithm to use in the optimization problem.\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag' and\n'saga' are faster for large ones.\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and 'lbfgs'\nhandle multinomial loss; 'liblinear' is limited to one-versus-rest\nschemes.\n- 'newton-cg', 'lbfgs', 'sag' and 'saga' handle L2 or no penalty\n- 'liblinear' and 'saga' also handle L1 penalty\n- 'saga' also supports 'elasticnet' penalty\n- 'liblinear' does not handle no penalty\n\nNote that 'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from sklearn.preprocessing.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
           "name": "solver",
           "option": "optional"
         },
