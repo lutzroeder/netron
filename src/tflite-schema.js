@@ -173,7 +173,8 @@ tflite_schema.BuiltinOperator = {
   REVERSE_SEQUENCE: 112,
   MATRIX_DIAG: 113,
   QUANTIZE: 114,
-  MATRIX_SET_DIAG: 115
+  MATRIX_SET_DIAG: 115,
+  ROUND: 116
 };
 
 /**
@@ -294,7 +295,8 @@ tflite_schema.BuiltinOperatorName = {
   112: 'REVERSE_SEQUENCE',
   113: 'MATRIX_DIAG',
   114: 'QUANTIZE',
-  115: 'MATRIX_SET_DIAG'
+  115: 'MATRIX_SET_DIAG',
+  116: 'ROUND'
 };
 
 /**
