@@ -47159,7 +47159,7 @@
           "type": "bool"
         }
       ],
-      "description": "That is for rows we have grad for, we update var, accum and linear as follows:\naccum_new = accum + grad * grad\nlinear += grad + (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
+      "description": "That is for rows we have grad for, we update var, accum and linear as follows:\naccum_new = accum + grad * grad\nlinear += grad - (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -61621,7 +61621,7 @@
           "type": "list(int)"
         }
       ],
-      "description": "The hash function is deterministic on the content of the string within the\nprocess. The hash function is a keyed hash function, where attribute `key`\ndefines the key of the hash function. `key` is an array of 2 elements.\n\nA strong hash is important when inputs may be malicious, e.g. URLs with\nadditional components. Adversaries could try to make their inputs hash to the\nsame bucket for a denial-of-service attack or to skew the results. A strong\nhash prevents this by making it difficult, if not infeasible, to compute inputs\nthat hash to the same bucket. This comes at a cost of roughly 4x higher compute\ntime than `tf.string_to_hash_bucket_fast`.",
+      "description": "The hash function is deterministic on the content of the string within the\nprocess. The hash function is a keyed hash function, where attribute `key`\ndefines the key of the hash function. `key` is an array of 2 elements.\n\nA strong hash is important when inputs may be malicious, e.g. URLs with\nadditional components. Adversaries could try to make their inputs hash to the\nsame bucket for a denial-of-service attack or to skew the results. A strong\nhash can be used to make it difficult to find inputs with a skewed hash value\ndistribution over buckets. This requires that the hash function is\nrandomized by high-entropy \"salt\", a random string unknown to the adversary.\nTo hash a string x using salt y, compute the hash function on the concatenation\nof x and y.\n\nThe additional robustness comes at a cost of roughly 4x higher compute\ntime than `tf.string_to_hash_bucket_fast`.",
       "inputs": [
         {
           "description": "The strings to assign a hash bucket.",
