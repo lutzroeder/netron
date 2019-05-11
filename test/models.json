@@ -2516,6 +2516,13 @@
   },
   {
     "type":   "onnx",
+    "target": "ssd.onnx",
+    "source": "https://onnxzoo.blob.core.windows.net/models/opset_10/ssd/ssd.onnx",
+    "format": "ONNX v4",
+    "link":   "https://github.com/onnx/models/tree/master/ssd"
+  },
+  {
+    "type":   "onnx",
     "target": "super_resolution_0.2.onnx",
     "source": "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193/raw/93672b029103648953c4e5ad3ac3aadf346a4cdc/super_resolution_0.2.onnx",
     "format": "ONNX v1", "producer": "pytorch 0.2"
@@ -2550,6 +2557,13 @@
     "type":   "onnx",
     "target": "YOLOv2_tiny.onnx",
     "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/YOLOv2_tiny/YOLOv2_tiny.onnx"
+  },
+  {
+    "type":   "onnx",
+    "target": "yolov3.onnx",
+    "source": "https://onnxzoo.blob.core.windows.net/models/opset_10/yolov3/yolov3.onnx",
+    "format": "ONNX v5", "producer": "keras2onnx 1.4.1",
+    "link":   "https://github.com/onnx/models/tree/master/yolov3"
   },
   {
     "type":   "onnx",
