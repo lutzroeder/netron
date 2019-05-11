@@ -916,7 +916,16 @@ view.View = class {
                     context.drawImage(imageElement, 0, 0);
                     this._host.document.body.removeChild(imageElement);
                     canvas.toBlob((blob) => {
-                        this._host.export(file, blob);
+                        if (blob) {
+                            this._host.export(file, blob);
+                        }
+                        else {
+                            var err = new Error();
+                            err.name = 'Error exporting image.';
+                            err.message = 'Image may be too large to render as PNG.';
+                            this._host.exception(err, false);
+                            this._host.error(err.name, err.message);
+                        }
                     }, 'image/png');
                 };
                 imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
