@@ -29,6 +29,9 @@ torch.ModelFactory = class {
                     return null;
                 });
                 var root = reader.read();
+                if (root && Array.isArray(root) && root.length == 2 && root[0].__type__ && !root[1].__type__) {
+                    root = root[0];
+                }
                 var model = new torch.Model(metadata, root);
                 callback(null, model);
                 return;
@@ -274,6 +277,9 @@ torch.Node = class {
         delete module._gradOutput;
         delete module.buffer;
         delete module.buffer2;
+        delete module.tmp_in;
+        delete module.tmp_out;
+        delete module.accUpdateGradParameters;
         switch (type) {
             case 'nn.Linear':
                 delete module.addBuffer;
@@ -340,17 +346,17 @@ torch.Node = class {
         this._attributes = [];
         if (module.__type__) {
             for (key of Object.keys(module)) {
+                obj = module[key];
                 if (key == '__type__' || key == '_type') {
                     continue;
                 }
-                obj = module[key];
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
                     initializers.push(new torch.Argument(key, true, [ 
                         new torch.Connection(key, null, new torch.Tensor(obj))
                     ]));
                     continue;
                 }
-                if (key == 'modules' || obj.__type__) {
+                if (key == 'modules' || (obj.__type__ && obj.__type__ != 'Function')) {
                     continue;
                 }
                 this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
@@ -724,6 +730,7 @@ torch.T7Reader = class {
         this._registry['nn.Narrow'] = function(reader) { reader.nn(this); };
         this._registry['nn.NarrowTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.Normalize'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Normalize2'] = function(reader) { reader.nn(this); };
         this._registry['nn.NoiseFill'] = function(reader) { reader.nn(this); };
         this._registry['nn.Parallel'] = function(reader) { reader.nn(this); };
         this._registry['nn.ParallelCriterion'] = function(reader) { reader.nn(this); };
@@ -761,6 +768,7 @@ torch.T7Reader = class {
         this._registry['nn.SplitTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.Square'] = function(reader) { reader.nn(this); };
         this._registry['nn.Sqrt'] = function(reader) { reader.nn(this); };
+        this._registry['nn.StereoJoin'] = function(reader) { reader.nn(this); };
         this._registry['nn.Tanh'] = function(reader) { reader.nn(this); };
         this._registry['nn.Transpose'] = function(reader) { reader.nn(this); };
         this._registry['nn.TotalVariation'] = function(reader) { reader.nn(this); };
@@ -932,10 +940,19 @@ torch.T7Reader = class {
     }
 
     function() {
+        var index = this.int32();
+        if (this._memo[index]) {
+            return this._memo[index];
+        }
+
         var size = this.int32();
         var dumped = this.bytes(size);
         var upvalues = this.read();
-        return { size: size, dumped: dumped, upvalues: upvalues };
+
+        var func = { __type__: 'Function', size: size, dumped: dumped, upvalues: upvalues };
+
+        this._memo[index] = func;
+        return func;
     }
 
     nn(obj) {
@@ -1098,15 +1115,15 @@ torch.TextReader = class {
             }
             size--;
         }
-        throw torch.Error('Line exceeded maximum length.');
+        throw new torch.Error('Line exceeded maximum length.');
     }
 
     boolean() {
         return this.int32() == 1;
     }
 
-    bytes(/* size */) {
-        throw new torch.Error('Byte array not supported in ASCII mode.');
+    bytes(size) {
+        return this.line(size);
     }
 
     int8() {
@@ -1150,7 +1167,7 @@ torch.TextReader = class {
     }
 
     float64() {
-        var token = this._textDecoder.decode(this.line(20));
+        var token = this._textDecoder.decode(this.line(24));
         if (token.startsWith('-nan')) {
             return -NaN;
         }
@@ -1172,7 +1189,11 @@ torch.TextReader = class {
 
     string() {
         var size = this.int32();
-        var text = this._textDecoder.decode(this.line(size));
+        if (size == 0) {
+            return '';
+        }
+        var data = this.line(size);
+        var text = this._textDecoder.decode(data);
         if (size != text.length) {
             throw torch.Error('Invalid text length.');
         }

@@ -277,6 +277,14 @@
     }
   },
   {
+    "name": "Normalize2",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+      ]
+    }
+  },
+  {
     "name": "SpatialCrossMapLRN",
     "schema": {
       "category": "Normalization",
