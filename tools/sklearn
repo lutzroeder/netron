@@ -57,7 +57,8 @@ install() {
     source ${virtualenv}/bin/activate
     ${python} -m pip install --quiet Cython
     ${python} -m pip install --quiet numpy
-    ${python} -m pip install ${third_party}/scikit-learn
+    ${python} -m pip install --quiet scipy
+    ${python} -m pip install --quiet ${third_party}/scikit-learn
     deactivate
 }
 
