@@ -33,8 +33,11 @@ keras.ModelFactory = class {
                     if (root && root.nodes && root.arg_nodes && root.heads) {
                         return false;
                     }
-                    if (root && root.modelTopology && root.modelTopology.model_config) {
-                        root = root.modelTopology.model_config;
+                    if (root && root.modelTopology) {
+                        root = root.modelTopology;
+                    }
+                    if (root && root.model_config) {
+                        root = root.model_config;
                     }
                     if (root && root.class_name) {
                         return true;
@@ -55,9 +58,12 @@ keras.ModelFactory = class {
                 return;
             }
             var format = 'Keras';
+            var producer = '';
+            var version = '';
+            var backend = '';
             var model_config = null;
             var rootGroup = null;
-            var rootJson = null;
+            var weightsManifest = null;
             var identifier = context.identifier;
             try {
                 switch (identifier.split('.').pop().toLowerCase()) {
@@ -74,13 +80,30 @@ keras.ModelFactory = class {
                         if (rootGroup.attribute('model_config')) {
                             model_config = JSON.parse(rootGroup.attribute('model_config'));
                         }
+                        backend = rootGroup.attribute('backend') || '';
+                        version = rootGroup.attribute('keras_version') || '';
+                        format = format + (version ? (' v' + version) : '');
                         break;
                     case 'json':
                         model_config = JSON.parse(context.text);
-                        if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
-                            format = 'TensorFlow.js ' + format;
-                            rootJson = model_config;
-                            model_config = model_config.modelTopology.model_config;
+                        if (model_config.keras_version) {
+                            version = model_config.keras_version;
+                            format = format + (version ? (' v' + version) : '');
+                        }
+                        if (model_config.backend) {
+                            backend = model_config.backend;
+                        }
+                        if (model_config && model_config.modelTopology) {
+                            weightsManifest = model_config.weightsManifest || null;
+                            backend = model_config.modelTopology.backend;
+                            version = model_config.modelTopology.keras_version;
+                            format = format + (version ? (' v' + version) : '');
+                            format = 'TensorFlow.js ' + (model_config.format ? model_config.format : format);
+                            producer = model_config.generatedBy ? model_config.generatedBy : '';
+                            model_config = model_config.modelTopology;
+                        }
+                        if (model_config.model_config) {
+                            model_config = model_config.model_config;
                         }
                         break;
                 }
@@ -103,7 +126,7 @@ keras.ModelFactory = class {
  
             keras.Metadata.open(host, (err, metadata) => {
                 try {
-                    var model = new keras.Model(metadata, format, model_config, rootGroup, rootJson);
+                    var model = new keras.Model(metadata, format, producer, backend, model_config, rootGroup, weightsManifest);
                     callback(null, model);
                     return;
                 }
@@ -120,21 +143,15 @@ keras.ModelFactory = class {
 
 keras.Model = class {
 
-    constructor(metadata, format, model_config, rootGroup, rootJson) {
+    constructor(metadata, format, producer, backend, model_config, rootGroup, weightsManifest) {
         this._format = format;
+        this._backend = backend;
+        this._producer = producer;
         this._graphs = [];
 
         var initializer;
         var weights = {};
         if (rootGroup) {
-            var version = rootGroup.attribute('keras_version');
-            if (version) {
-                this._version = version;
-            }
-            var backend = rootGroup.attribute('backend');
-            if (backend) {
-                this._backend = backend;
-            }
             var model_weights_group = rootGroup.group('model_weights');
             if (!model_weights_group && rootGroup.attribute('layer_names')) {
                 model_weights_group = rootGroup;
@@ -180,25 +197,17 @@ keras.Model = class {
                 }
             }
         }
-        else if (rootJson) {
-            if (rootJson.modelTopology && rootJson.modelTopology.keras_version) {
-                this._version = rootJson.modelTopology.keras_version;
-            }
-            if (rootJson.modelTopology && rootJson.modelTopology.backend) {
-                this._backend = rootJson.modelTopology.backend;
-            }
-            if (rootJson.weightsManifest) {
-                for (var manifest of rootJson.weightsManifest) {
-                    for (var weight of manifest.weights) {
-                        var p = weight.name.split('/');
-                        p.pop();
-                        initializer = new keras.Tensor(weight.name, weight.dtype, weight.shape, null, manifest.paths.join(';'));
-                        while (p.length > 0) {
-                            var weightName = p.join('/');
-                            weights[weightName] = weights[weightName] || [];
-                            weights[weightName].push(initializer);
-                            p.shift();
-                        }
+        else if (weightsManifest) {
+            for (var manifest of weightsManifest) {
+                for (var weight of manifest.weights) {
+                    var p = weight.name.split('/');
+                    p.pop();
+                    initializer = new keras.Tensor(weight.name, weight.dtype, weight.shape, null, manifest.paths.join(';'));
+                    while (p.length > 0) {
+                        var weightName = p.join('/');
+                        weights[weightName] = weights[weightName] || [];
+                        weights[weightName].push(initializer);
+                        p.shift();
                     }
                 }
             }
@@ -217,7 +226,11 @@ keras.Model = class {
     }
 
     get format() {
-        return this._format + (this._version ? (' v' + this._version) : '');
+        return this._format;
+    }
+
+    get producer() {
+        return this._producer;
     }
 
     get runtime() {

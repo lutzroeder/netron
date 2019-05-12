@@ -1932,7 +1932,7 @@
     "type":   "keras",
     "target": "tiramisu_fc_dense103_model.json",
     "source": "https://raw.githubusercontent.com/0bserver07/One-Hundred-Layers-Tiramisu/master/tiramisu_fc_dense103_model.json",
-    "format": "Keras",
+    "format": "Keras v2.0.2", "runtime": "tensorflow",
     "link":   "https://github.com/0bserver07/One-Hundred-Layers-Tiramisu"
   },
   {
@@ -3833,6 +3833,13 @@
     "source": "https://deepdetect.com/models/tf/vgg_19/vgg_19.pb",
     "format": "TensorFlow Graph",
     "link":   "https://deepdetect.com/models/tf"
+  },
+  {
+    "type":   "tfjs",
+    "target": "air-time-model/air-time-model.json",
+    "source": "https://github.com/lutzroeder/netron/files/3170424/air-time-model.json.zip[air-time-model.json]",
+    "format": "TensorFlow.js layers-model", "producer": "TensorFlow.js tfjs-layers v1.0.4",
+    "link":   "https://github.com/lutzroeder/netron/issues/270"
   },
   {
     "type":   "tfjs",

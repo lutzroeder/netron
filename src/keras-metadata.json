@@ -1341,90 +1341,112 @@
           "name": "units"
         },
         {
+          "default": "tanh",
           "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    Default: hyperbolic tangent (`tanh`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
+          "default": "hard_sigmoid",
           "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "recurrent_activation"
         },
         {
           "description": "Boolean, whether the layer uses a bias vector.",
-          "name": "use_bias"
+          "name": "use_bias",
+          "visible": false
         },
         {
           "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs.\n    (see [initializers](https://keras.io/initializers)).",
-          "name": "kernel_initializer"
+          "name": "kernel_initializer",
+          "visible": false
         },
         {
           "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state.\n    (see [initializers](https://keras.io/initializers)).",
-          "name": "recurrent_initializer"
+          "name": "recurrent_initializer",
+          "visible": false
         },
         {
           "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
-          "name": "bias_initializer"
+          "name": "bias_initializer",
+          "visible": false
         },
         {
+          "default": true,
           "description": "Boolean.\n    If True, add 1 to the bias of the forget gate at initialization.\n    Setting it to true will also force `bias_initializer=\"zeros\"`.\n    This is recommended in [Jozefowicz et al. (2015)](\n    http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
           "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "kernel_regularizer"
+          "name": "kernel_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "recurrent_regularizer"
+          "name": "recurrent_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "bias_regularizer"
+          "name": "bias_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "activity_regularizer"
+          "name": "activity_regularizer",
+          "visible": false
         },
         {
           "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
-          "name": "kernel_constraint"
+          "name": "kernel_constraint",
+          "visible": false
         },
         {
           "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
-          "name": "recurrent_constraint"
+          "name": "recurrent_constraint",
+          "visible": false
         },
         {
           "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
-          "name": "bias_constraint"
+          "name": "bias_constraint",
+          "visible": false
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
         {
+          "default": 1,
           "description": "Implementation mode, either 1 or 2.\n    Mode 1 will structure its operations as a larger number of\n    smaller dot products and additions, whereas mode 2 will\n    batch them into fewer, larger operations. These modes will\n    have different performance profiles on different hardware and\n    for different applications.",
           "name": "implementation"
         },
         {
+          "default": false,
           "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
+          "default": false,
           "description": "Boolean. Whether to return the last state\n    in addition to the output. The returned elements of the\n    states list are the hidden state and the cell state, respectively.",
           "name": "return_state"
         },
         {
+          "default": false,
           "description": "Boolean (default False).\n    If True, process the input sequence backwards and return the\n    reversed sequence.",
           "name": "go_backwards"
         },
         {
+          "default": false,
           "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
+          "default": false,
           "description": "Boolean (default False).\n    If True, the network will be unrolled,\n    else a symbolic loop will be used.\n    Unrolling can speed-up a RNN,\n    although it tends to be more memory-intensive.\n    Unrolling is only suitable for short sequences.\n",
           "name": "unroll"
         }
@@ -1681,20 +1703,25 @@
           "name": "recurrent_activation"
         },
         {
+          "default": true,
           "description": "Boolean, whether the layer uses a bias vector.",
-          "name": "use_bias"
+          "name": "use_bias",
+          "visible": false
         },
         {
           "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs.\n    (see [initializers](https://keras.io/initializers)).",
-          "name": "kernel_initializer"
+          "name": "kernel_initializer",
+          "visible": false
         },
         {
           "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state.\n    (see [initializers](https://keras.io/initializers)).",
-          "name": "recurrent_initializer"
+          "name": "recurrent_initializer",
+          "visible": false
         },
         {
           "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
-          "name": "bias_initializer"
+          "name": "bias_initializer",
+          "visible": false
         },
         {
           "description": "Boolean.\n    If True, add 1 to the bias of the forget gate at initialization.\n    Use in combination with `bias_initializer=\"zeros\"`.\n    This is recommended in [Jozefowicz et al. (2015)](\n    http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
@@ -1702,31 +1729,38 @@
         },
         {
           "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "kernel_regularizer"
+          "name": "kernel_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "recurrent_regularizer"
+          "name": "recurrent_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "bias_regularizer"
+          "name": "bias_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
-          "name": "activity_regularizer"
+          "name": "activity_regularizer",
+          "visible": false
         },
         {
           "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
-          "name": "kernel_constraint"
+          "name": "kernel_constraint",
+          "visible": false
         },
         {
           "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
-          "name": "recurrent_constraint"
+          "name": "recurrent_constraint",
+          "visible": false
         },
         {
           "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
-          "name": "bias_constraint"
+          "name": "bias_constraint",
+          "visible": false
         },
         {
           "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
@@ -1741,6 +1775,7 @@
           "name": "stateful"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
@@ -2185,10 +2220,12 @@
           "name": "bias_constraint"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.\n",
           "name": "recurrent_dropout"
         },
@@ -2218,6 +2255,7 @@
           "name": "recurrent_activation"
         },
         {
+          "default": true,
           "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias",
           "visible": false
@@ -2265,10 +2303,12 @@
           "name": "bias_constraint"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
@@ -2306,6 +2346,7 @@
           "name": "recurrent_activation"
         },
         {
+          "default": true,
           "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
@@ -2350,10 +2391,12 @@
           "name": "bias_constraint"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
+          "default": 0.0,
           "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
@@ -2655,6 +2698,7 @@
           "name": "activation"
         },
         {
+          "default": true,
           "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias",
           "visible": false

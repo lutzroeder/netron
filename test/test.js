@@ -452,6 +452,10 @@ function loadModel(target, item, callback) {
             callback(new Error("Invalid producer '" + model.producer + "'."), null);
             return;
         }
+        if (item.runtime && model.runtime != item.runtime) {
+            callback(new Error("Invalid runtime '" + model.runtime + "'."), null);
+            return;
+        }
         try {
             for (var graph of model.graphs) {
                 var input;
