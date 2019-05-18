@@ -29937,7 +29937,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `Mul` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "description": "*NOTE*: `MulNoNan` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
       "inputs": [
         {
           "name": "x",
