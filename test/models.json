@@ -3178,7 +3178,6 @@
     "type":   "pytorch",
     "target": "resnet-18-at-export.pth",
     "source": "https://s3.amazonaws.com/modelzoo-networks/resnet-18-at-export.pth",
-    "error":  "File does not contain root module or state dictionary in 'resnet-18-at-export.pth'.",
     "link":   "https://github.com/szagoruyko/attention-transfer"
   },
   {

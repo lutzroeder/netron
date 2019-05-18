@@ -452,47 +452,10 @@ pytorch.ModelFactory = class {
                         storage.data = unpickler.read(storage.dataTypeSize * storage.size);
                     }
                 }
-
-                var find_root_module = function(roots) {
-                    for (var root of roots) {
-                        if (root && root._modules) {
-                            return root;
-                        }
-                    }
-                    return null;
-                }
     
-                var find_state_dict = function(dicts) {
-                    for (var dict of dicts) {
-                        if (dict && Array.isArray(dict) && dict.__setitem__ &&
-                            dict.every((item) => item.key.indexOf('.') != -1) &&
-                            dict.every((item) => item.value.__type__ && item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) {
-                            return dict;
-                        }
-                        if (dict && !Array.isArray(dict)) {
-                            var list = [];
-                            for (var key in dict) {
-                                var value = dict[key]
-                                if (!key || key.indexOf('.') == -1 || 
-                                    !value.__type__ || !value.__type__.startsWith('torch.') || !value.__type__.endsWith('Tensor')) {
-                                    list = null;
-                                    break;
-                                }
-                                list.push({ key: key, value: value });
-                            }
-                            if (list) {
-                                return list;
-                            }
-                        }
-                    }
-                    return null;
-                }
-
-                root_module = find_root_module([ root, root.model, root.net ]);
+                root_module = pytorch.ModelFactory._findRootModule(root);
                 if (!root_module) {
-                    state_dict = find_state_dict([ 
-                        root, root.model, root.state, root.state_dict, root.params, 
-                        root.generator, root.discriminator, root.network ]);
+                    state_dict = pytorch.ModelFactory._findStateDict(root);
                     if (!state_dict) {
                         callback(new pytorch.Error("File does not contain root module or state dictionary in '" + identifier + "'."), null);
                         return;
@@ -628,6 +591,41 @@ pytorch.ModelFactory = class {
         }
         catch (err) {
             // continue regardless of error
+        }
+        return null;
+    }
+
+    static _findRootModule(root) {
+        var candidates = [ root, root.model, root.net ];
+        for (var obj of candidates) {
+            if (obj && obj._modules) {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    static _findStateDict(root) {
+        var candidates = [ root, root.model, root.state, root.state_dict, root.params, root.generator, root.discriminator, root.network ];
+        for (var dict of candidates) {
+            if (dict && Array.isArray(dict) && dict.__setitem__ &&
+                dict.every((item) => item.value.__type__ && item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) {
+                return dict;
+            }
+            if (dict && !Array.isArray(dict)) {
+                var list = [];
+                for (var key in dict) {
+                    var value = dict[key]
+                    if (!key || !value.__type__ || !value.__type__.startsWith('torch.') || !value.__type__.endsWith('Tensor')) {
+                        list = null;
+                        break;
+                    }
+                    list.push({ key: key, value: value });
+                }
+                if (list) {
+                    return list;
+                }
+            }
         }
         return null;
     }
