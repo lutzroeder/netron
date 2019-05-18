@@ -455,6 +455,8 @@
             function QTensorProto(properties) {
                 this.dims = [];
                 this.data = [];
+                this.scales = [];
+                this.biases = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -469,6 +471,10 @@
             QTensorProto.prototype.data = $util.emptyArray;
             QTensorProto.prototype.name = "";
             QTensorProto.prototype.data_type = 2;
+            QTensorProto.prototype.scales = $util.emptyArray;
+            QTensorProto.prototype.biases = $util.emptyArray;
+            QTensorProto.prototype.axis = 0;
+            QTensorProto.prototype.is_multiparam = false;
     
             QTensorProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -514,6 +520,32 @@
                         break;
                     case 8:
                         message.data_type = reader.int32();
+                        break;
+                    case 9:
+                        if (!(message.scales && message.scales.length))
+                            message.scales = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.scales.push(reader.double());
+                        } else
+                            message.scales.push(reader.double());
+                        break;
+                    case 10:
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.biases.push(reader.double());
+                        } else
+                            message.biases.push(reader.double());
+                        break;
+                    case 11:
+                        message.axis = reader.int32();
+                        break;
+                    case 12:
+                        message.is_multiparam = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -584,6 +616,38 @@
                     case "data_type":
                         reader.value();
                         message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                        break;
+                    case "scales":
+                        if (!(message.scales && message.scales.length))
+                            message.scales = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.scales.push(reader.double());
+                                reader.next();
+                            }
+                        else
+                            message.scales.push(reader.double());
+                        break;
+                    case "biases":
+                        if (!(message.biases && message.biases.length))
+                            message.biases = [];
+                        reader.value();
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.biases.push(reader.double());
+                                reader.next();
+                            }
+                        else
+                            message.biases.push(reader.double());
+                        break;
+                    case "axis":
+                        reader.value();
+                        message.axis = reader.int32();
+                        break;
+                    case "is_multiparam":
+                        reader.value();
+                        message.is_multiparam = reader.bool();
                         break;
                     default:
                         reader.field(tag, message);
