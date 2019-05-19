@@ -379,12 +379,14 @@ openvino.Node = class {
         const blobs = openvino.Node.children(layer, 'blobs')[0];
         if (blobs){
             for (var blob of Array.from(blobs.childNodes).filter((node) => node.nodeName != '#text')) {
-                var name = blob.nodeName;
-                var offset = parseInt(blob.getAttribute('offset'));
-                var size = parseInt(blob.getAttribute('size'));
-                this._initializers.push(new openvino.Argument(name, [
-                    new openvino.Connection('', null, new openvino.Tensor(precision, null, offset, size))
-                ]));
+                if (blob.getAttribute && typeof blob.getAttribute === 'function') {
+                    var name = blob.nodeName;
+                    var offset = parseInt(blob.getAttribute('offset'));
+                    var size = parseInt(blob.getAttribute('size'));
+                    this._initializers.push(new openvino.Argument(name, [
+                        new openvino.Connection('', null, new openvino.Tensor(precision, null, offset, size))
+                    ]));
+                }
             }
         }
     }
