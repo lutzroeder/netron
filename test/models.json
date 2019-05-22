@@ -4156,6 +4156,13 @@
   },
   {
     "type":   "torch",
+    "target": "model-ende_epoch7_5.55_release.t7",
+    "source": "https://s3.amazonaws.com/opennmt-models/wmt-ende_l2-h1024-bpe32k_release.tar.gz[model-ende_epoch7_5.55_release.t7]",
+    "format": "Torch v7",
+    "link":   "https://github.com/OpenNMT/opennmt.github.io/issues/22"
+  },
+  {
+    "type":   "torch",
     "target": "net_kitti2015_fast_-a_train_all.t7",
     "source": "https://github.com/lutzroeder/netron/files/3165404/net_kitti2015_fast_-a_train_all.t7.zip[net_kitti2015_fast_-a_train_all.t7]",
     "format": "Torch v7",

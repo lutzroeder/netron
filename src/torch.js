@@ -23,7 +23,7 @@ torch.ModelFactory = class {
             var identifier = context.identifier;
             try {
                 var reader = new torch.T7Reader(context.buffer, (name) => {
-                    if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_')) {
+                    if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
                         host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                     }
                     return null;
@@ -692,6 +692,7 @@ torch.T7Reader = class {
         this._registry['cudnn.VolumetricBatchNormalization'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.VolumetricConvolution'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.VolumetricMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['Dict'] = function(reader) { reader.nn(this); };
         this._registry['inn.ConstAffine'] = function(reader) { reader.nn(this); };
         this._registry['inn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.Abs'] = function(reader) { reader.nn(this); };
@@ -723,6 +724,8 @@ torch.T7Reader = class {
         this._registry['nn.LeakyReLU'] = function(reader) { reader.nn(this); };
         this._registry['nn.Linear'] = function(reader) { reader.nn(this); };
         this._registry['nn.LogSoftMax'] = function(reader) { reader.nn(this); };
+        this._registry['nn.LookupTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.MapTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.Mean'] = function(reader) { reader.nn(this); };
         this._registry['nn.MulConstant'] = function(reader) { reader.nn(this); };
         this._registry['nn.MM'] = function(reader) { reader.nn(this); };
@@ -766,6 +769,7 @@ torch.T7Reader = class {
         this._registry['nn.SpatialUpSamplingNearest'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialZeroPadding'] = function(reader) { reader.nn(this); };
         this._registry['nn.SplitTable'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Squeeze'] = function(reader) { reader.nn(this); };
         this._registry['nn.Square'] = function(reader) { reader.nn(this); };
         this._registry['nn.Sqrt'] = function(reader) { reader.nn(this); };
         this._registry['nn.StereoJoin'] = function(reader) { reader.nn(this); };
