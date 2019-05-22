@@ -2711,11 +2711,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "x = np.array([4, 3, 2])\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.FLOAT,\n                                       [1], [1])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\n\ny = np.ones(x, dtype=np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_float_ones')",
+          "code": "x = np.array([4, 3, 2]).astype(np.int64)\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.FLOAT,\n                                       [1], [1])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\n\ny = np.ones(x, dtype=np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_float_ones')",
           "summary": "float_ones"
         },
         {
-          "code": "x = np.array([10, 6])\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.INT32,\n                                       [1], [0])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_int_zeros')",
+          "code": "x = np.array([10, 6]).astype(np.int64)\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.INT32,\n                                       [1], [0])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_int_zeros')",
           "summary": "int32_zeros"
         }
       ],
