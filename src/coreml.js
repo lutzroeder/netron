@@ -14,12 +14,8 @@ coreml.ModelFactory = class {
         return extension == 'mlmodel';
     }
 
-    open(context, host, callback) { 
-        host.require('./coreml-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) { 
+        return host.require('./coreml-proto').then(() => {
             var identifier = context.identifier;
             var decodedBuffer = null;
             try {
@@ -27,20 +23,17 @@ coreml.ModelFactory = class {
                 decodedBuffer = coreml.proto.Model.decode(context.buffer);
             }
             catch (error) {
-                callback(new coreml.Error("File format is not coreml.Model (" + error.message + ") in '" + identifier + "'."), null);
-                return;
+                throw new coreml.Error("File format is not coreml.Model (" + error.message + ") in '" + identifier + "'.");
             }
-            coreml.Metadata.open(host, (err, metadata) => {
+            return coreml.Metadata.open(host).then((metadata) => {
                 try {
-                    var model = new coreml.Model(metadata, decodedBuffer);
-                    callback(null, model);
+                    return new coreml.Model(metadata, decodedBuffer);
                 }
                 catch (error) {
                     host.exception(error, false);
                     var message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    callback(new coreml.Error(message + " in '" + identifier + "'."), null);
-                    return;
+                    return new coreml.Error(message + " in '" + identifier + "'.");
                 }
             });
         });
@@ -1035,16 +1028,17 @@ coreml.OptionalType = class {
 
 coreml.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (coreml.Metadata._metadata) {
-            callback(null, coreml.Metadata._metadata);
+            return Promise.resolve(coreml.Metadata._metadata);
         }
-        else {
-            host.request(null, 'coreml-metadata.json', 'utf-8', (err, data) => {
-                coreml.Metadata._metadata = new coreml.Metadata(data);
-                callback(null, coreml.Metadata._metadata);
-            });
-        }    
+        return host.request(null, 'coreml-metadata.json', 'utf-8').then((data) => {
+            coreml.Metadata._metadata = new coreml.Metadata(data);
+            return coreml.Metadata._metadata;
+        }).catch(() => {
+            coreml.Metadata._metadata = new coreml.Metadata(null);
+            return coreml.Metadata._metadata;
+        });
     }
 
     constructor(data) {

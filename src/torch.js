@@ -18,8 +18,8 @@ torch.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) {
-        torch.Metadata.open(host, (err, metadata) => {
+    open(context, host) {
+        return torch.Metadata.open(host).then((metadata) => {
             var identifier = context.identifier;
             try {
                 var reader = new torch.T7Reader(context.buffer, (name) => {
@@ -32,15 +32,12 @@ torch.ModelFactory = class {
                 if (root && Array.isArray(root) && root.length == 2 && root[0].__type__ && !root[1].__type__) {
                     root = root[0];
                 }
-                var model = new torch.Model(metadata, root);
-                callback(null, model);
-                return;
+                return new torch.Model(metadata, root);
             }
             catch (error) {
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                callback(new torch.Error(message + " in '" + identifier + "'."), null);
-                return;
+                throw new torch.Error(message + " in '" + identifier + "'.");
             }
         });
     }
@@ -613,15 +610,16 @@ torch.TensorShape = class {
 
 torch.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (torch.Metadata._metadata) {
-            callback(null, torch.Metadata._metadata);
-            return;
+            return Promise.resolve(torch.Metadata._metadata);
         }
-        host.request(null, 'torch-metadata.json', 'utf-8', (err, data) => {
+        return host.request(null, 'torch-metadata.json', 'utf-8').then((data) => {
             torch.Metadata._metadata = new torch.Metadata(data);
-            callback(null, torch.Metadata._metadata);
-            return;
+            return torch.Metadata._metadata;
+        }).catch(() => {
+            torch.Metadata._metadata = new torch.Metadata(null);
+            return torch.Metadata._metadata;
         });
     }
 

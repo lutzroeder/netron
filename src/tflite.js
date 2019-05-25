@@ -13,12 +13,8 @@ tflite.ModelFactory = class {
         return extension == 'tflite' || extension == 'lite';
     }
 
-    open(context, host, callback) {
-        host.require('./tflite-schema', (err, tflite_schema) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) {
+        return host.require('./tflite-schema').then((tflite_schema) => {
             var identifier = context.identifier;
             var model = null;
             try {
@@ -28,8 +24,7 @@ tflite.ModelFactory = class {
                 if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
                 {
                     var signature = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
-                    callback(new tflite.Error("Invalid FlatBuffers signature '" + signature + "' in '" + identifier + "'."));
-                    return;
+                    throw new tflite.Error("Invalid FlatBuffers signature '" + signature + "' in '" + identifier + "'.");
                 }
                 model = tflite.schema.Model.getRootAsModel(byteBuffer);
             }
@@ -37,18 +32,17 @@ tflite.ModelFactory = class {
                 host.exception(error, false);
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                callback(new tflite.Error(message + " in '" + identifier + "'."), null);
-                return;
+                throw new tflite.Error(message + " in '" + identifier + "'.");
             }
 
-            tflite.Metadata.open(host, (err, metadata) => {
+            return tflite.Metadata.open(host).then((metadata) => {
                 try {
-                    callback(null, new tflite.Model(metadata, model));
+                    return new tflite.Model(metadata, model);
                 }
                 catch (error) {
                     var message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    callback(new tflite.Error(message + " in '" + identifier + "'."), null);
+                    throw new new tflite.Error(message + " in '" + identifier + "'.");
                 }
             });
         });
@@ -676,16 +670,17 @@ tflite.TensorShape = class {
 
 tflite.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (tflite.Metadata._metadata) {
-            callback(null, tflite.Metadata._metadata);
+            return Promise.resolve(tflite.Metadata._metadata);
         }
-        else {
-            host.request(null, 'tflite-metadata.json', 'utf-8', (err, data) => {
-                tflite.Metadata._metadata = new tflite.Metadata(data);
-                callback(null, tflite.Metadata._metadata);
-            });
-        }
+        return host.request(null, 'tflite-metadata.json', 'utf-8').then((data) => {
+            tflite.Metadata._metadata = new tflite.Metadata(data);
+            return tflite.Metadata._metadata;
+        }).catch(() => {
+            tflite.Metadata._metadata = new tflite.Metadata(null);
+            return tflite.Metadata._metadata;
+        });
     }
 
     constructor(data) {

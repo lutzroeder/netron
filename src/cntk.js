@@ -35,12 +35,8 @@ cntk.ModelFactory = class {
         }
     }
 
-    open(context, host, callback) { 
-        host.require('./cntk-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) { 
+        return host.require('./cntk-proto').then(() => {
             var version = 0;
             var obj = null;
             try {
@@ -53,8 +49,7 @@ cntk.ModelFactory = class {
                 }
             }
             catch (error) {
-                callback(new cntk.Error("File format is not CNTK v1 (" + error.message + ") in '" + context.identifier + "'."), null);
-                return;
+                throw new cntk.Error("File format is not CNTK v1 (" + error.message + ") in '" + context.identifier + "'.");
             }
             try {
                 if (!obj) {
@@ -66,16 +61,14 @@ cntk.ModelFactory = class {
                 }
             }
             catch (error) {
-                callback(new cntk.Error("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'."), null);
-                return;
+                throw new new cntk.Error("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'.");
             }
-            cntk.Metadata.open(host, (err, metadata) => {
+            return cntk.Metadata.open(host).then((metadata) => {
                 try {
-                    var model = new cntk.Model(metadata, version, obj);
-                    callback(null, model);
+                    return new cntk.Model(metadata, version, obj);
                 }
                 catch (error) {
-                    callback(new cntk.Error(error.message), null);
+                    throw new cntk.Error(error.message);
                 }
             });
         });
@@ -792,16 +785,17 @@ cntk.TensorShape = class {
 
 cntk.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (cntk.Metadata._metadata) {
-            callback(null, cntk.Metadata._metadata);
+            return Promise.resolve(cntk.Metadata._metadata);
         }
-        else {
-            host.request(null, 'cntk-metadata.json', 'utf-8', (err, data) => {
-                cntk.Metadata._metadata = new cntk.Metadata(data);
-                callback(null, cntk.Metadata._metadata);
-            });
-        }    
+        return host.request(null, 'cntk-metadata.json', 'utf-8').then((data) => {
+            cntk.Metadata._metadata = new cntk.Metadata(data);
+            return cntk.Metadata._metadata;
+        }).catch(() => {
+            cntk.Metadata._metadata = new cntk.Metadata(null);
+            return cntk.Metadata._metadata;
+        });
     }
 
     constructor(data) {

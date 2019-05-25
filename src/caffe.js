@@ -30,14 +30,10 @@ caffe.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) { 
-        host.require('./caffe-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) {
+        return host.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.roots.caffe.caffe;
-            caffe.Metadata.open(host, (err, metadata) => {
+            return caffe.Metadata.open(host).then((metadata) => {
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
                     var tags = context.tags('pbtxt');
@@ -53,49 +49,46 @@ caffe.ModelFactory = class {
                             };
                             var solver = caffe.proto.SolverParameter.decodeText(reader);
                             if (solver.net_param) {
-                                this._openNetParameter(metadata, solver.net_param, host, callback);
-                                return;
+                                return this._openNetParameter(metadata, solver.net_param, host);
                             }
                             else if (solver.net || solver.train_net) {
                                 var file = solver.net || solver.train_net;
                                 file = file.split('/').pop();
-                                context.request(file, 'utf-8', (err, text) => {
-                                    if (err) {
-                                        var message = err && err.message ? err.message : err.toString();
+                                return context.request(file, 'utf-8').then((text) => {
+                                    return this._openNetParameterText(metadata, context.identifier, text, host);
+                                }).catch((error) => {
+                                    if (error) {
+                                        var message = error && error.message ? error.message : error.toString();
                                         message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                                        callback(new caffe.Error("Failed to load '" + file + "' (" + message + ")."), null);
-                                        return;
+                                        throw new caffe.Error("Failed to load '" + file + "' (" + message + ").");
                                     }
-                                    this._openNetParameterText(metadata, context.identifier, text, host, callback);
                                 });
-                                return;
                             }
                         }
                         catch (error) {
                             // continue regardless of error
                         }
                     }
-                    this._openNetParameterText(metadata, context.identifier, context.text, host, callback);
+                    return this._openNetParameterText(metadata, context.identifier, context.text, host);
                 }
                 else {
-                    this._openNetParameterBuffer(metadata, context.identifier, context.buffer, host, callback);
+                    return this._openNetParameterBuffer(metadata, context.identifier, context.buffer, host);
                 }
             });
         });
     }
 
-    _openNetParameterBuffer(metadata, identifier, buffer, host, callback) {
+    _openNetParameterBuffer(metadata, identifier, buffer, host, resolve, reject) {
         try {
             var netParameter = caffe.proto.NetParameter.decode(buffer);
-            this._openNetParameter(metadata, netParameter, host, callback);
+            return this._openNetParameter(metadata, netParameter, host, resolve, reject);
         }
         catch (error) {
-            callback(new caffe.Error("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
-            return;
+            throw new caffe.Error("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'.");
         }
     }
 
-    _openNetParameterText(metadata, identifier, text, host, callback) {
+    _openNetParameterText(metadata, identifier, text, host) {
         try {
             var reader = prototxt.TextReader.create(text);
             reader.field = function(tag, message) {
@@ -130,22 +123,20 @@ caffe.ModelFactory = class {
                 return type[token];
             };
             var netParameter = caffe.proto.NetParameter.decodeText(reader);
-            this._openNetParameter(metadata, netParameter, host, callback);
+            return this._openNetParameter(metadata, netParameter, host);
         }
         catch (error) {
-            callback(new caffe.Error("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
+            throw new caffe.Error("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'.");
         }
     }
 
-    _openNetParameter(metadata, netParameter, host, callback) {
+    _openNetParameter(metadata, netParameter, host) {
         try {
-            var model = new caffe.Model(metadata, netParameter);
-            callback(null, model);
+            return new caffe.Model(metadata, netParameter);
         }
         catch (error) {
             host.exception(error, false);
-            callback(new caffe.Error(error.message), null);
-            return;
+            throw new caffe.Error(error.message);
         }
     }
 
@@ -770,16 +761,17 @@ caffe.TensorShape = class {
 
 caffe.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (caffe.Metadata._metadata) {
-            callback(null, caffe.Metadata._metadata);
+            return Promise.resolve(caffe.Metadata._metadata);
         }
-        else {
-            host.request(null, 'caffe-metadata.json', 'utf-8', (err, data) => {
-                caffe.Metadata._metadata = new caffe.Metadata(data);
-                callback(null, caffe.Metadata._metadata);
-            });
-        }
+        return host.request(null, 'caffe-metadata.json', 'utf-8').then((data) => {
+            caffe.Metadata._metadata = new caffe.Metadata(data);
+            return caffe.Metadata._metadata;
+        }).catch(() => {
+            caffe.Metadata._metadata = new caffe.Metadata(null);
+            return caffe.Metadata._metadata;
+        });
     }
 
     constructor(data) {

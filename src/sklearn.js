@@ -23,13 +23,8 @@ sklearn.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) { 
-        host.require('./pickle', (err, pickle) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            
+    open(context, host) { 
+        return host.require('./pickle').then((pickle) => {
             var obj = null;
             var weights = null;
             var identifier = context.identifier;
@@ -364,20 +359,16 @@ sklearn.ModelFactory = class {
             catch (error) {
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                callback(new sklearn.Error(message + " in '" + identifier + "'."), null);
-                return;
+                throw new sklearn.Error(message + " in '" + identifier + "'.");
             }
     
-            sklearn.Metadata.open(host, (err, metadata) => {
+            return sklearn.Metadata.open(host).then((metadata) => {
                 try {
-                    var model = new sklearn.Model(metadata, obj, weights);
-                    callback(null, model);
-                    return;
+                    return new sklearn.Model(metadata, obj, weights);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new sklearn.Error(error.message), null);
-                    return;
+                    throw new sklearn.Error(error.message);
                 }
             });
         });
@@ -938,16 +929,17 @@ sklearn.TensorShape = class {
 
 sklearn.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (sklearn.Metadata._metadata) {
-            callback(null, sklearn.Metadata._metadata);
+            return Promise.resolve(sklearn.Metadata._metadata);
         }
-        else {
-            host.request(null, 'sklearn-metadata.json', 'utf-8', (err, data) => {
-                sklearn.Metadata._metadata = new sklearn.Metadata(data);
-                callback(null, sklearn.Metadata._metadata);
-            });
-        }
+        return host.request(null, 'sklearn-metadata.json', 'utf-8').then((data) => {
+            sklearn.Metadata._metadata = new sklearn.Metadata(data);
+            return sklearn.Metadata._metadata;
+        }).catch(() => {
+            sklearn.Metadata._metadata = new sklearn.Metadata(null);
+            return sklearn.Metadata._metadata;
+        });
     }
 
     constructor(data) {

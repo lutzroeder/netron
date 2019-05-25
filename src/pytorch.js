@@ -28,19 +28,15 @@ pytorch.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) { 
-        host.require('./pickle', (err, pickle) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            pytorch.Metadata.open(host, (err, metadata) => {
-                this._openModel(metadata, context, host, pickle, callback);
+    open(context, host) {
+        return host.require('./pickle').then((pickle) => {
+            return pytorch.Metadata.open(host).then((metadata) => {
+                return this._openModel(metadata, context, host, pickle);
             });
         });
     }
 
-    _openModel(metadata, context, host, pickle, callback) {
+    _openModel(metadata, context, host, pickle) {
         var identifier = context.identifier;
         try {
             var buffer = context.buffer;
@@ -432,18 +428,16 @@ pytorch.ModelFactory = class {
             {
                 var protocol_version = unpickler.load();
                 if (protocol_version != 1001) {
-                    callback(new pytorch.Error("Unsupported protocol version '" + protocol_version + "'.", null));
-                    return;
+                    throw new pytorch.Error("Unsupported protocol version '" + protocol_version + "'.");
                 }
                 sys_info = unpickler.load();
                 if (sys_info.protocol_version != 1001) {
-                    callback(new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.", null));
-                    return;
+                    throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
                 }
 
                 var root = unpickler.load(function_call, persistent_load);
                 if (!root) {
-                    callback(new pytorch.Error("File format is not PyTorch in '" + identifier + "'."), null);
+                    throw new pytorch.Error("File format is not PyTorch in '" + identifier + "'.");
                 }
 
                 var deserialized_storage_keys = unpickler.load();
@@ -458,23 +452,20 @@ pytorch.ModelFactory = class {
                 if (!root_module) {
                     state_dict = pytorch.ModelFactory._findStateDict(root);
                     if (!state_dict) {
-                        callback(new pytorch.Error("File does not contain root module or state dictionary in '" + identifier + "'."), null);
-                        return;
+                        throw new pytorch.Error("File does not contain root module or state dictionary in '" + identifier + "'.");
                     }
                 }
             }
             else {
                 var legacyRoot = this._legacyLoad(buffer);
                 if (!legacyRoot) {
-                    callback(new pytorch.Error('Invalid signature.', null));
-                    return;
+                    throw new pytorch.Error('Invalid signature.');
                 } 
 
                 unpickler = new pickle.Unpickler(legacyRoot.sys_info);
                 sys_info = unpickler.load();
                 if (sys_info.protocol_version != 1000) {
-                    callback(new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.", null));
-                    return;
+                    throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
                 }
 
                 unpickler = new pickle.Unpickler(legacyRoot.storages);
@@ -551,18 +542,15 @@ pytorch.ModelFactory = class {
                  (sys_info.type_sizes.long && sys_info.type_sizes.long != 4) ||
                  (sys_info.type_sizes.short && sys_info.type_sizes.short != 2)))
             {
-                callback(new pytorch.Error('Unsupported type sizes.'));
-                return;
+                throw new pytorch.Error('Unsupported type sizes.');
             }
 
-            var model = new pytorch.Model(metadata, sys_info, root_module, state_dict, module_source_map); 
-            callback(null, model);
+            return new pytorch.Model(metadata, sys_info, root_module, state_dict, module_source_map);
         }
         catch (error) {
             var message = error && error.message ? error.message : error.toString();
             message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            callback(new pytorch.Error(message + " in '" + identifier + "'."), null);
-            return;
+            throw new pytorch.Error(message + " in '" + identifier + "'.");
         }
     }
 
@@ -1196,16 +1184,19 @@ pytorch.TensorShape = class {
 
 pytorch.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (pytorch.Metadata._metadata) {
-            callback(null, pytorch.Metadata._metadata);
+            return Promise.resolve(pytorch.Metadata._metadata);
         }
         else {
-            host.request(null, 'pytorch-metadata.json', 'utf-8', (err, data) => {
+            return host.request(null, 'openvino-metadata.json', 'utf-8').then((data) => {
                 pytorch.Metadata._metadata = new pytorch.Metadata(data);
-                callback(null, pytorch.Metadata._metadata);
+                return pytorch.Metadata._metadata;
+            }).catch(() => {
+                pytorch.Metadata._metadata = new pytorch.Metadata(null);
+                return pytorch.Metadata._metadata;
             });
-        }    
+        }
     }
 
     constructor(data) {

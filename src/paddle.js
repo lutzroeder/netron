@@ -16,12 +16,8 @@ paddle.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) {
-        host.require('./paddle-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) {
+        return host.require('./paddle-proto').then(() => {
             var desc = null;
             var identifier = context.identifier; 
             try {
@@ -29,18 +25,15 @@ paddle.ModelFactory = class {
                 desc = paddle.proto.ProgramDesc.decode(context.buffer);
             }
             catch (error) {
-                callback(new paddle.Error("File format is not paddle.ProgramDesc (" + error.message + ") in '" + identifier + "'."), null);
-                return;
+                throw new paddle.Error("File format is not paddle.ProgramDesc (" + error.message + ") in '" + identifier + "'.");
             }
-            paddle.Metadata.open(host, (err, metadata) => {
+            return paddle.Metadata.open(host).then((metadata) => {
                 try {
-                    var model = new paddle.Model(metadata, desc);
-                    callback(null, model);
+                    return new paddle.Model(metadata, desc);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new paddle.Error(error.message), null);
-                    return;
+                    throw new paddle.Error(error.message);
                 }
             });
         });
@@ -473,16 +466,17 @@ paddle.TensorShape = class {
 
 paddle.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (paddle.Metadata._metadata) {
-            callback(null, paddle.Metadata._metadata);
+            return Promise.resolve(paddle.Metadata._metadata);
         }
-        else {
-            host.request(null, 'paddle-metadata.json', 'utf-8', (err, data) => {
-                paddle.Metadata._metadata = new paddle.Metadata(data);
-                callback(null, paddle.Metadata._metadata);
-            });
-        }    
+        return host.request(null, 'paddle-metadata.json', 'utf-8').then((data) => {
+            paddle.Metadata._metadata = new paddle.Metadata(data);
+            return paddle.Metadata._metadata;
+        }).catch(() => {
+            paddle.Metadata._metadata = new paddle.Metadata(null);
+            return paddle.Metadata._metadata;
+        });
     }
 
     constructor(data) {

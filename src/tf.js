@@ -62,12 +62,8 @@ tf.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) { 
-        host.require('./tf-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) { 
+        return host.require('./tf-proto').then(() => {
             tf.proto = protobuf.roots.tf.tensorflow;
             var graph = null;
             var metaGraph = null;
@@ -85,8 +81,7 @@ tf.ModelFactory = class {
                         }
                     }
                     catch (error) {
-                        callback(new tf.Error("File text format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'."), null);
-                        return;
+                        throw new tf.Error("File text format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
                     }
                 }
                 else if (tags.graph_def) {
@@ -99,8 +94,7 @@ tf.ModelFactory = class {
                         }
                     }
                     catch (error) {
-                        callback(new tf.Error("File text format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'."), null);
-                        return;
+                        throw new tf.Error("File text format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
                     }
                 }
                 else if (tags.node) {
@@ -113,8 +107,7 @@ tf.ModelFactory = class {
                         format = 'TensorFlow Graph';
                     }
                     catch (error) {
-                        callback(new tf.Error("File text format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'."), null);
-                        return;
+                        throw new tf.Error("File text format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
                     }
                 }
             }
@@ -128,8 +121,7 @@ tf.ModelFactory = class {
                 catch (error) {
                     var buffer = context.buffer;
                     if (buffer.length > 3 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x12) {
-                        callback(new tf.Error("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'."), null);
-                        return;
+                        throw new tf.Error("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
                     }
                 }
                 try {
@@ -141,8 +133,7 @@ tf.ModelFactory = class {
                     }
                 }
                 catch (error) {
-                    callback(new tf.Error("File format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'."), null);
-                    return;
+                    throw new tf.Error("File format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
                 }
                 try {
                     if (!savedModel) {
@@ -155,19 +146,17 @@ tf.ModelFactory = class {
                     }
                 }
                 catch (error) {
-                    callback(new tf.Error("File format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'."), null);
-                    return;
+                    throw new tf.Error("File format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
                 }
             }
 
-            tf.Metadata.open(host, (err, metadata) => {
+            return tf.Metadata.open(host).then((metadata) => {
                 try {
-                    var model = new tf.Model(metadata, savedModel, format);
-                    callback(null, model);
+                    return new tf.Model(metadata, savedModel, format);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new tf.Error(error.message), null);
+                    throw new tf.Error(error.message);
                 }
             });
         });
@@ -1145,19 +1134,18 @@ tf.GraphMetadata = class {
 
 tf.Metadata = class {
 
-    static open(host, callback) {
-
+    static open(host) {
         tf.Metadata.textDecoder = tf.Metadata.textDecoder || new TextDecoder('utf-8');
-
         if (tf.Metadata._metadata) {
-            callback(null, tf.Metadata._metadata);
+            return Promise.resolve(tf.Metadata._metadata);
         }
-        else {
-            host.request(null, 'tf-metadata.json', 'utf-8', (err, data) => {
-                tf.Metadata._metadata = new tf.Metadata(data);
-                callback(null, tf.Metadata._metadata);
-            });
-        }
+        return host.request(null, 'tf-metadata.json', 'utf-8').then((data) => {
+            tf.Metadata._metadata = new tf.Metadata(data);
+            return tf.Metadata._metadata;
+        }).catch(() => {
+            tf.Metadata._metadata = new tf.Metadata(null);
+            return tf.Metadata._metadata;
+        });
     }
 
     constructor(data) {

@@ -78,6 +78,13 @@
   },
   {
     "type":   "caffe",
+    "target": "caffe_invalid_file.caffemodel",
+    "source": "https://github.com/lutzroeder/netron/files/3219686/caffe_invalid_file.caffemodel.zip",
+    "error":  "File format is not caffe.NetParameter (invalid wire type 4 at offset 11) in 'caffe_invalid_file.caffemodel'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/276"
+  },
+  {
+    "type":   "caffe",
     "target": "caffenet.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/caffenet.prototxt",
     "format": "Caffe v2",
@@ -1141,6 +1148,13 @@
   },
   {
     "type":   "coreml",
+    "target": "coreml_invalid_file.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
+    "error":  "File format is not coreml.Model (invalid wire type 4 at offset 11) in 'coreml_invalid_file.mlmodel'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":   "coreml",
     "target": "digit_recognizer.mlmodel",
     "source": "https://media.githubusercontent.com/media/erkandiken/mnist-scikit-svm-to-coreml/master/digit_recognizer.mlmodel",
     "format": "CoreML v1",
@@ -1676,6 +1690,13 @@
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg,https://pjreddie.com/media/files/alexnet.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "darknet_invalid_file.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/3219696/darknet_invalid_file.cfg.zip[darknet_invalid_file.cfg]",
+    "error":  "Invalid cfg 'xxxx' at line 4 in 'darknet_invalid_file.cfg'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/277"
   },
   {
     "type":   "darknet",

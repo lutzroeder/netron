@@ -66,12 +66,8 @@ onnx.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) { 
-        host.require('./onnx-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) { 
+        return host.require('./onnx-proto').then(() => {
             var model = null;
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop().toLowerCase();
@@ -82,8 +78,7 @@ onnx.ModelFactory = class {
                     model = onnx.proto.ModelProto.decodeText(reader);
                 }
                 catch (error) {
-                    callback(new onnx.Error("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'."), null);
-                    return;
+                    throw new onnx.Error("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'.");
                 }
             }
             else {
@@ -92,20 +87,16 @@ onnx.ModelFactory = class {
                     model = onnx.proto.ModelProto.decode(context.buffer);
                 }
                 catch (error) {
-                    callback(new onnx.Error("File format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'."), null);
-                    return;
+                    throw  new onnx.Error("File format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'.");
                 }
             }
-            onnx.Metadata.open(host, (err, metadata) => {
+            return onnx.Metadata.open(host).then((metadata) => {
                 try {
-                    var result = new onnx.Model(metadata, model);
-                    callback(null, result);
-                    return;
+                    return new onnx.Model(metadata, model);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new onnx.Error(error.message), null);
-                    return;
+                    throw new onnx.Error(error.message);
                 }
             });
         });
@@ -1183,16 +1174,17 @@ onnx.GraphMetadata = class {
 
 onnx.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (onnx.Metadata._metadata) {
-            callback(null, onnx.Metadata._metadata);
+            return Promise.resolve(onnx.Metadata._metadata);
         }
-        else {
-            host.request(null, 'onnx-metadata.json', 'utf-8', (err, data) => {
-                onnx.Metadata._metadata = new onnx.Metadata(data);
-                callback(null, onnx.Metadata._metadata);
-            });
-        }    
+        return host.request(null, 'onnx-metadata.json', 'utf-8').then((data) => {
+            onnx.Metadata._metadata = new onnx.Metadata(data);
+            return onnx.Metadata._metadata;
+        }).catch(() => {
+            onnx.Metadata._metadata = new onnx.Metadata(null);
+            return onnx.Metadata._metadata;
+        });
     }
 
     constructor(data) {

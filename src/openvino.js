@@ -16,33 +16,28 @@ openvino.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) {
-        openvino.Metadata.open(host, (err, metadata) => {
+    open(context, host) {
+        return openvino.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier;
             try {
                 var errors = false;
                 const parser = new DOMParser({ errorHandler: () => { errors = true; } });
                 const xml = parser.parseFromString(context.text, 'text/xml');
                 if (errors || xml.documentElement == null || xml.getElementsByTagName('parsererror').length > 0) {
-                    callback(new openvino.Error("File format is not OpenVINO XML in '" + identifier + "'."), null);
-                    return;
+                    throw new openvino.Error("File format is not OpenVINO XML in '" + identifier + "'.");
                 }
                 const net = xml.documentElement;
                 if (!net || net.nodeName != 'net' ||
                     openvino.Node.children(net, 'layers').length != 1 ||
                     openvino.Node.children(net, 'edges').length != 1) {
-                    callback(new openvino.Error("File format is not OpenVINO IR in '" + identifier + "'."), null);
-                    return;
+                    throw new openvino.Error("File format is not OpenVINO IR in '" + identifier + "'.");
                 }
-                var model = new openvino.Model(metadata, net);
-                callback(null, model);
-                return;
+                return new openvino.Model(metadata, net);
             } catch (error) {
                 host.exception(error, false);
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                callback(new openvino.Error(message + " in '" + identifier + "'."), null);
-                return;
+                throw new openvino.Error(message + " in '" + identifier + "'.");
             }
         });
     }
@@ -764,16 +759,17 @@ openvino.TensorShape = class {
 
 openvino.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (openvino.Metadata._metadata) {
-            callback(null, openvino.Metadata._metadata);
+            return Promise.resolve(openvino.Metadata._metadata);
         }
-        else {
-            host.request(null, 'openvino-metadata.json', 'utf-8', (err, data) => {
-                openvino.Metadata._metadata = new openvino.Metadata(data);
-                callback(null, openvino.Metadata._metadata);
-            });
-        }
+        return host.request(null, 'openvino-metadata.json', 'utf-8').then((data) => {
+            openvino.Metadata._metadata = new openvino.Metadata(data);
+            return openvino.Metadata._metadata;
+        }).catch(() => {
+            openvino.Metadata._metadata = new openvino.Metadata(null);
+            return openvino.Metadata._metadata;
+        });
     }
 
     constructor(data) {

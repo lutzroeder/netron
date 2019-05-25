@@ -166,12 +166,12 @@ host.ElectronHost = class {
         return result == 0;
     }
 
-    require(id, callback) {
+    require(id) {
         try {
-            callback(null, require(id));
+            return Promise.resolve(require(id));
         }
-        catch (err) {
-            callback(err, null);
+        catch (error) {
+            return Promise.reject(error);
         }
     }
 
@@ -220,22 +220,24 @@ host.ElectronHost = class {
         }
     }
 
-    request(base, file, encoding, callback) {
-        var pathname = path.join(base || __dirname, file);
-        fs.exists(pathname, (exists) => {
-            if (!exists) {
-                callback(new Error('File not found.'), null);
-            }
-            else {
-                fs.readFile(pathname, encoding, (err, data) => {
-                    if (err) {
-                        callback(err, null);
-                    }
-                    else {
-                        callback(null, data);
-                    }
-                });
-            }
+    request(base, file, encoding) {
+        return new Promise((resolve, reject) => {
+            var pathname = path.join(base || __dirname, file);
+            fs.exists(pathname, (exists) => {
+                if (!exists) {
+                    reject(new Error('File not found.'));
+                }
+                else {
+                    fs.readFile(pathname, encoding, (err, data) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(data);
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -301,65 +303,52 @@ host.ElectronHost = class {
     _openFile(file) {
         if (file) {
             this._view.show('Spinner');
-            this._readFile(file, (err, buffer) => {
-                if (err) {
-                    this.exception(err, false);
-                    this._view.show(null);
-                    this.error('Error while reading file.', err.message);
-                    this._update('path', null);
-                    return;
-                }
+            this._readFile(file).then((buffer) => {
                 var context = new ElectonContext(this, path.dirname(file), path.basename(file), buffer);
-                this._view.openContext(context, (err, model) => {
+                this._view.open(context).then((model) => {
                     this._view.show(null);
-                    if (err) {
-                        this.exception(err, false);
-                        this.error(err.name, err.message);
-                        this._update('path', null);
-                    }
                     if (model) {
                         this._update('path', file);
                     }
                     this._update('show-attributes', this._view.showAttributes);
                     this._update('show-initializers', this._view.showInitializers);
                     this._update('show-names', this._view.showNames);
+                }).catch((error) => {
+                    if (error) {
+                        this._view.show(null);
+                        this.exception(error, false);
+                        this.error(error.name, error.message);
+                        this._update('path', null);
+                    }
+                    this._update('show-attributes', this._view.showAttributes);
+                    this._update('show-initializers', this._view.showInitializers);
+                    this._update('show-names', this._view.showNames);
                 });
+            }).catch((error) => {
+                this.exception(error, false);
+                this._view.show(null);
+                this.error('Error while reading file.', error.message);
+                this._update('path', null);
             });
         }
     }
 
-    _readFile(file, callback) {
-        fs.exists(file, (exists) => {
-            if (!exists) {
-                callback(new Error('The file \'' + file + '\' does not exist.'), null);
-                return;
-            }
-            fs.stat(file, (err, stats) => {
-                if (err) {
-                    callback(err, null);
-                    return;
+    _readFile(file) {
+        return new Promise((resolve, reject) => {
+            fs.exists(file, (exists) => {
+                if (!exists) {
+                    reject(new Error('The file \'' + file + '\' does not exist.'));
                 }
-                fs.open(file, 'r', (err, fd) => {
-                    if (err) {
-                        callback(err, null);
-                        return;
-                    }
-                    var size = stats.size;
-                    var buffer = new Uint8Array(size);
-                    fs.read(fd, buffer, 0, size, 0, (err, bytesRead, buffer) => {
+                else {
+                    fs.readFile(file, null, (err, buffer) => {
                         if (err) {
-                            callback(err, null);
-                            return;
+                            reject(err);
                         }
-                        fs.close(fd, (err) => {
-                            if (err) {
-                                callback(err, null);
-                                return;
-                            }
-                            callback(null, buffer);
-                        });
+                        else {
+                            resolve(buffer);
+                        }
                     });
-                });
+                }
             });
         });
     }
@@ -378,10 +367,8 @@ class ElectonContext {
         this._buffer = buffer;
     }
 
-    request(file, encoding, callback) {
-        this._host.request(this._folder, file, encoding, (err, buffer) => {
-            callback(err, buffer);
-        });
+    request(file, encoding) {
+        return this._host.request(this._folder, file, encoding);
     }
 
     get identifier() {

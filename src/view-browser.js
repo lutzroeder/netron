@@ -121,29 +121,30 @@ host.BrowserHost = class {
         return confirm(message + ' ' + detail);
     }
 
-    require(id, callback) {
+    require(id) {
         var url = this._url(id + '.js');
         window.__modules__ = window.__modules__ || {};
         if (window.__modules__[url]) {
-            callback(null, window.__exports__[url]);
-            return;
+            return Promise.resolve(window.__exports__[url]);
         }
-        window.module = { exports: {} };
-        var script = document.createElement('script');
-        script.setAttribute('id', id);
-        script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', url);
-        script.onload = () => {
-            var exports = window.module.exports;
-            delete window.module;
-            window.__modules__[id] = exports;
-            callback(null, exports);
-        };
-        script.onerror = (e) => {
-            delete window.module;
-            callback(new Error('The script \'' + e.target.src + '\' failed to load.'), null);
-        };
-        document.head.appendChild(script);
+        return new Promise((resolve, reject) => {
+            window.module = { exports: {} };
+            var script = document.createElement('script');
+            script.setAttribute('id', id);
+            script.setAttribute('type', 'text/javascript');
+            script.setAttribute('src', url);
+            script.onload = () => {
+                var exports = window.module.exports;
+                delete window.module;
+                window.__modules__[id] = exports;
+                resolve(exports);
+            };
+            script.onerror = (e) => {
+                delete window.module;
+                reject(new Error('The script \'' + e.target.src + '\' failed to load.'));
+            };
+            document.head.appendChild(script);
+        });
     }
 
     save(name, extension, defaultPath, callback) {
@@ -159,30 +160,32 @@ host.BrowserHost = class {
         document.body.removeChild(element);
     }
 
-    request(base, file, encoding, callback) {
-        var url = base ? (base + '/' + file) : this._url(file);
-        var request = new XMLHttpRequest();
-        if (encoding == null) {
-            request.responseType = 'arraybuffer';
-        }
-        request.onload = () => {
-            if (request.status == 200) {
-                if (request.responseType == 'arraybuffer') {
-                    callback(null, new Uint8Array(request.response));
+    request(base, file, encoding) {
+        return new Promise((resolve, reject) => {
+            var url = base ? (base + '/' + file) : this._url(file);
+            var request = new XMLHttpRequest();
+            if (encoding == null) {
+                request.responseType = 'arraybuffer';
+            }
+            request.onload = () => {
+                if (request.status == 200) {
+                    if (request.responseType == 'arraybuffer') {
+                        resolve(new Uint8Array(request.response));
+                    }
+                    else {
+                        resolve(request.responseText);
+                    }
                 }
                 else {
-                    callback(null, request.responseText);
+                    reject(request.status);
                 }
-            }
-            else {
-                callback(request.status, null);
-            }
-        };
-        request.onerror = () => {
-            callback(request.status, null);
-        };
-        request.open('GET', url, true);
-        request.send();
+            };
+            request.onerror = () => {
+                reject(request.status);
+            };
+            request.open('GET', url, true);
+            request.send();
+        });
     }
 
     openURL(url) {
@@ -271,13 +274,12 @@ host.BrowserHost = class {
             if (request.status == 200) {
                 var buffer = new Uint8Array(request.response);
                 var context = new BrowserContext(this, url, identifier, buffer);
-                this._view.openContext(context, (err, model) => {
-                    if (err) {
-                        this.exception(err, false);
-                        this.error(err.name, err.message);
-                    }
-                    if (model) {
-                        document.title = identifier || url.split('/').pop();
+                this._view.open(context).then(() => {
+                    document.title = identifier || url.split('/').pop();
+                }).catch((error) => {
+                    if (error) {
+                        this.exception(error, false);
+                        this.error(error.name, error.message);
                     }
                 });
             }
@@ -294,15 +296,13 @@ host.BrowserHost = class {
 
     _openFile(file) {
         this._view.show('Spinner');
-        this._openBuffer(file, (err, model) => {
+        this._openBuffer(file).then(() => {
             this._view.show(null);
-            if (err) {
-                this.exception(err, false);
-                this.error(err.name, err.message);
-            }
-            if (model) {
-                document.title = file.name;
-            }
+            document.title = file.name;
+        }).catch((error) => {
+            this._view.show(null);
+            this.exception(error, false);
+            this.error(error.name, error.message);
         });
     }
 
@@ -334,13 +334,12 @@ host.BrowserHost = class {
                 return;
             }
             var context = new BrowserContext(this, '', identifier, buffer);
-            this._view.openContext(context, (err, model) => {
-                if (err) {
-                    this.exception(err, false);
-                    this.error(err.name, err.message);
-                }
-                if (model) {
-                    document.title = identifier;
+            this._view.open(context).then(() => {
+                document.title = identifier;
+            }).catch((error) => {
+                if (error) {
+                    this.exception(error, false);
+                    this.error(error.name, error.message);
                 }
             });
         };
@@ -351,35 +350,38 @@ host.BrowserHost = class {
         request.send();
     }
 
-    _openBuffer(file, callback) {
-        var reader = new FileReader();
-        reader.onload = (e) => {
-            var buffer = new Uint8Array(e.target.result);
+    _openBuffer(file) {
+        return new Promise((resolve, reject) => {
+            var reader = new FileReader();
+            reader.onload = (e) => {
+                resolve(new Uint8Array(e.target.result));
+            };
+            reader.onerror = (e) => {
+                e = e || window.event;
+                var message = '';
+                switch(e.target.error.code) {
+                    case e.target.error.NOT_FOUND_ERR:
+                        message = 'File not found.';
+                        break;
+                    case e.target.error.NOT_READABLE_ERR:
+                        message = 'File not readable.';
+                        break;
+                    case e.target.error.SECURITY_ERR:
+                        message = 'File access denied.';
+                        break;
+                    default:
+                        message = "File read error '" + e.target.error.code.toString() + "'.";
+                        break;
+                }
+                reject(new Error(message));
+            };
+            reader.readAsArrayBuffer(file);
+        }).then((buffer => {
             var context = new BrowserContext(this, '', file.name, buffer);
-            this._view.openContext(context, (err, model) => {
-                callback(err, model);
-            });
-        };
-        reader.onerror = (e) => {
-            e = e || window.event;
-            var message = '';
-            switch(e.target.error.code) {
-                case e.target.error.NOT_FOUND_ERR:
-                    message = 'File not found.';
-                    break;
-                case e.target.error.NOT_READABLE_ERR:
-                    message = 'File not readable.';
-                    break;
-                case e.target.error.SECURITY_ERR:
-                    message = 'File access denied.';
-                    break;
-                default:
-                    message = "File read error '" + e.target.error.code.toString() + "'.";
-                    break;
-            }
-            callback(new Error(message), null);
-        };
-        reader.readAsArrayBuffer(file);
+            return this._view.open(context).then((model) => {
+                return model;
+            })
+        }));
     }
 
     _keyHandler(e) {
@@ -580,10 +582,8 @@ class BrowserContext {
         }
     }
 
-    request(file, encoding, callback) {
-        this._host.request(this._base, file, encoding, (err, buffer) => {
-            callback(err, buffer);
-        });
+    request(file, encoding) {
+        return this._host.request(this._base, file, encoding);
     }
 
     get identifier() {

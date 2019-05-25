@@ -57,12 +57,8 @@ caffe2.ModelFactory = class {
         return false;
     }    
 
-    open(context, host, callback) {
-        host.require('./caffe2-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) {
+        return host.require('./caffe2-proto').then(() => {
             var netDef = null;
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop().toLowerCase();
@@ -80,9 +76,8 @@ caffe2.ModelFactory = class {
                     netDef = caffe2.proto.NetDef.decodeText(reader);
                 }
                 catch (error) {
-                    callback(new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'."), null);
-                    return;
-                }    
+                    throw new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
+                }
             }
             else {
                 try {
@@ -90,14 +85,22 @@ caffe2.ModelFactory = class {
                     netDef = caffe2.proto.NetDef.decode(context.buffer);
                 }
                 catch (error) {
-                    callback(new caffe2.Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'."), null);
-                    return;
-                }    
+                    throw new caffe2.Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
+                }
             }
-            caffe2.Metadata.open(host, (err, metadata) => {
-                context.request('init_net.pb', null, (err, data) => {
-                    var init = null;
-                    if (!err && data) {
+            return caffe2.Metadata.open(host).then((metadata) => {
+                var init = null;
+                var next = () => {
+                    try {
+                        return new caffe2.Model(metadata, netDef, init);
+                    }
+                    catch (error) {
+                        host.exception(error, false);
+                        throw new caffe2.Error(error.message);
+                    }
+                };
+                return context.request('init_net.pb', null).then((data) => {
+                    if (data) {
                         try {
                             init = caffe2.proto.NetDef.decode(data);
                         }
@@ -105,22 +108,13 @@ caffe2.ModelFactory = class {
                             // continue regardless of error
                         }
                     }
-
-                    var model = null;
-                    try {
-                        model = new caffe2.Model(metadata, netDef, init);
-                    }
-                    catch (error) {
-                        host.exception(error, false);
-                        callback(new caffe2.Error(error.message), null);
-                        return;
-                    }
-                    callback(null, model);
+                    return next();
+                }).catch(() => {
+                    return next();
                 }); 
             });
         });
     }
-
 };
 
 caffe2.Model = class {
@@ -747,16 +741,17 @@ caffe2.TensorShape = class {
 
 caffe2.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (caffe2.Metadata._metadata) {
-            callback(null, caffe2.Metadata._metadata);
+            return Promise.resolve(caffe2.Metadata._metadata);
         }
-        else {
-            host.request(null, 'caffe2-metadata.json', 'utf-8', (err, data) => {
-                caffe2.Metadata._metadata = new caffe2.Metadata(data);
-                callback(null, caffe2.Metadata._metadata);
-            });
-        }    
+        return host.request(null, 'caffe2-metadata.json', 'utf-8').then((data) => {
+            caffe2.Metadata._metadata = new caffe2.Metadata(data);
+            return caffe2.Metadata._metadata;
+        }).catch(() => {
+            caffe2.Metadata._metadata = new caffe2.Metadata(null);
+            return caffe2.Metadata._metadata;
+        });
     }
 
     constructor(data) {

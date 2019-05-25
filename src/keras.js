@@ -51,12 +51,8 @@ keras.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) {
-        host.require('./hdf5', (err, hdf5) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context, host) {
+        return host.require('./hdf5').then((hdf5) => {
             var format = 'Keras';
             var producer = '';
             var version = '';
@@ -74,8 +70,7 @@ keras.ModelFactory = class {
                         var file = new hdf5.File(context.buffer);
                         rootGroup = file.rootGroup;
                         if (!rootGroup.attribute('model_config') && !rootGroup.attribute('layer_names')) {
-                            callback(new keras.Error("File format is not Keras HDF5 in '" + context.identifier + "'."), null);
-                            return;
+                            throw new keras.Error("File format is not Keras HDF5.");
                         }
                         if (rootGroup.attribute('model_config')) {
                             model_config = JSON.parse(rootGroup.attribute('model_config'));
@@ -111,30 +106,24 @@ keras.ModelFactory = class {
             catch (error) {
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                callback(new keras.Error(message + " in '" + identifier + "'."), null);
-                return;
+                throw new keras.Error(message + " in '" + identifier + "'.");
             }
 
             if (!rootGroup && !model_config) {
-                callback(new keras.Error('\'model_config\' is not present.'));
-                return;
+                throw new keras.Error('\'model_config\' is not present.');
             }
             if (!rootGroup && !model_config.class_name) {
-                callback(new keras.Error('\'class_name\' is not present.'), null);
-                return;
+                throw new new keras.Error('\'class_name\' is not present.');
             }
- 
-            keras.Metadata.open(host, (err, metadata) => {
+    
+            return keras.Metadata.open(host).then((metadata) => {
                 try {
-                    var model = new keras.Model(metadata, format, producer, backend, model_config, rootGroup, weightsManifest);
-                    callback(null, model);
-                    return;
+                    return new keras.Model(metadata, format, producer, backend, model_config, rootGroup, weightsManifest);
                 }
                 catch (error) {
                     var message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    callback(new keras.Error(message + " in '" + identifier + "'."), null);
-                    return;
+                    throw new keras.Error(message + " in '" + identifier + "'.");
                 }
             });
         });
@@ -985,19 +974,19 @@ keras.TensorShape = class {
 
 keras.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (keras.Metadata._metadata) {
-            callback(null, keras.Metadata._metadata);
+            return Promise.resolve(keras.Metadata._metadata);
         }
-        else {
-            host.request(null, 'keras-metadata.json', 'utf-8', (err, data) => {
-                keras.Metadata._metadata = new keras.Metadata(data);
-                callback(null, keras.Metadata._metadata);
-            });
-        }
+        return host.request(null, 'keras-metadata.json', 'utf-8').then((data) => {
+            keras.Metadata._metadata = new keras.Metadata(data);
+            return keras.Metadata._metadata;
+        }).catch(() => {
+            keras.Metadata._metadata = new keras.Metadata(null);
+            return keras.Metadata._metadatas;
+        });
     }
 
-    
     constructor(data) {
         this._map = {};
         this._attributeCache = {};

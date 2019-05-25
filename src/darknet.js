@@ -14,21 +14,18 @@ darknet.ModelFactory = class {
         return false;
     }
 
-    open(context, host, callback) {
-        darknet.Metadata.open(host, (err, metadata) => {
+    open(context, host) {
+        return darknet.Metadata.open(host).then((metadata) => {
             var identifier = context.identifier;
             try {
                 var reader = new darknet.CfgReader(context.text);
                 var cfg = reader.read();
-                var model = new darknet.Model(metadata, cfg);
-                callback(null, model);
-                return;
+                return new darknet.Model(metadata, cfg);
             }
             catch (error) {
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                callback(new darknet.Error(message + " in '" + identifier + "'."), null);
-                return;
+                throw new darknet.Error(message + " in '" + identifier + "'.");
             }
         });
     }
@@ -424,15 +421,16 @@ darknet.TensorShape = class {
 
 darknet.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (darknet.Metadata._metadata) {
-            callback(null, darknet.Metadata._metadata);
-            return;
+            return Promise.resolve(darknet.Metadata._metadata);
         }
-        host.request(null, 'darknet-metadata.json', 'utf-8', (err, data) => {
+        return host.request(null, 'darknet-metadata.json', 'utf-8').then((data) => {
             darknet.Metadata._metadata = new darknet.Metadata(data);
-            callback(null, darknet.Metadata._metadata);
-            return;
+            return darknet.Metadata._metadata;
+        }).catch(() => {
+            darknet.Metadata._metadata = new darknet.Metadata(null);
+            return darknet.Metadata._metadata;
         });
     }
 
