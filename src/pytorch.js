@@ -68,6 +68,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.activation.ELU'] = function() {};
             constructorTable['torch.nn.modules.activation.Hardtanh'] = function() {};
             constructorTable['torch.nn.modules.activation.LeakyReLU'] = function() {};
+            constructorTable['torch.nn.modules.activation.LogSigmoid'] = function() {};
             constructorTable['torch.nn.modules.activation.LogSoftmax'] = function() {};
             constructorTable['torch.nn.modules.activation.ReLU'] = function() {};
             constructorTable['torch.nn.modules.activation.ReLU6'] = function() {};
