@@ -62328,37 +62328,31 @@
     "schema": {
       "attributes": [
         {
-          "description": "a function containing the computation to run.",
           "name": "computation",
           "type": "func"
         },
         {
-          "description": "the number of replicas of the computation to run.",
           "minimum": 1,
           "name": "num_replicas",
           "type": "int"
         },
         {
           "default": 1,
-          "description": "the number of logical cores in each replica.",
           "name": "num_cores_per_replica",
           "type": "int"
         },
         {
           "default": "",
-          "description": "A serialized tensorflow.tpu.TopologyProto that describes the TPU\ntopology.",
           "name": "topology",
           "type": "string"
         },
         {
           "default": true,
-          "description": "a bool indicating if this computation will run on TPU or CPU/GPU.\nCurrently, only supports a default placement (computation is placed on GPU\nif one is available, and on CPU if not).",
           "name": "use_tpu",
           "type": "bool"
         },
         {
           "default": [],
-          "description": "a flattened array with shape\n[replica, num_cores_per_replica, mesh_dimension] that maps the coordinates\nof logical cores in each replica of a computation to physical coordinates in\nthe TPU topology.",
           "name": "device_assignment",
           "type": "list(int)"
         },
@@ -62368,13 +62362,11 @@
           "type": "list(string)"
         },
         {
-          "description": "the types of the arguments to 'computation'.",
           "minimum": 0,
           "name": "Tinputs",
           "type": "list(type)"
         },
         {
-          "description": "the types of the additional arguments to broadcast to all\nreplicas.",
           "minimum": 0,
           "name": "Tbroadcast_inputs",
           "type": "list(type)"
@@ -62385,13 +62377,11 @@
           "type": "int"
         },
         {
-          "description": "the types of the arguments to 'guaranteed_constants'.",
           "minimum": 0,
           "name": "Tguaranteed_constants",
           "type": "list(type)"
         },
         {
-          "description": "the types of the outputs of 'computation'.",
           "minimum": 0,
           "name": "output_types",
           "type": "list(type)"
@@ -62409,12 +62399,10 @@
       ],
       "inputs": [
         {
-          "description": "the inputs to 'computation', flattened, in replica-major order.",
           "name": "inputs",
           "typeListAttr": "Tinputs"
         },
         {
-          "description": "additional arguments to broadcast to all replicas. The\nbroadcast inputs are appended to the per-replica inputs when calling\ncomputation.",
           "name": "broadcast_inputs",
           "typeListAttr": "Tbroadcast_inputs"
         },
@@ -62424,19 +62412,16 @@
           "type": 20
         },
         {
-          "description": "arguments which have been guaranteed to not\nchange their values during the session lifetime. These contain tensors marked as\nconstant using the GuaranteeConstOp.",
           "name": "guaranteed_constants",
           "typeListAttr": "Tguaranteed_constants"
         }
       ],
       "outputs": [
         {
-          "description": "the outputs of 'computation'.",
           "name": "outputs",
           "typeListAttr": "output_types"
         }
-      ],
-      "summary": "Runs replicated computations on a distributed TPU system."
+      ]
     }
   },
   {
