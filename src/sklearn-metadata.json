@@ -1156,8 +1156,8 @@
           "type": "int32"
         },
         {
-          "default": "ovr",
-          "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.20\nDefault will change from 'ovr' to 'auto' in 0.22.\n",
+          "default": "auto",
+          "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.22\nDefault changed from 'ovr' to 'auto' in 0.22.\n",
           "name": "multi_class",
           "option": "optional"
         },
