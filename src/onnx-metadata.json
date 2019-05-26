@@ -1780,6 +1780,92 @@
     }
   },
   {
+    "name": "BitShift",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Direction of moving bits. It can be either \"RIGHT\" (for right shift) or \"LEFT\" (for left shift).",
+          "name": "direction",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "description": "Bitwise shift operator performs element-wise operation. For each input element, if the\n attribute \"direction\" is \"RIGHT\", this operator moves its binary representation toward\n the right side so that the input value is effectively decreased. If the attribute \"direction\"\n is \"LEFT\", bits of binary representation moves toward the left side, which results the\n increase of its actual value. The input X is the tensor to be shifted and another input\n Y specifies the amounts of shifting. For example, if \"direction\" is \"Right\", X is [1, 4],\n and S is [1, 1], the corresponding output Z would be [0, 2]. If \"direction\" is \"LEFT\" with\n X=[1, 2] and S=[1, 2], the corresponding output Y would be [2, 8].\n \n Because this operator supports Numpy-style broadcasting, X's and Y's shapes are\n not necessarily identical.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"LEFT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint16)\ny = np.array([1, 2, 3]).astype(np.uint16)\nz = x << y  # expected output [32, 16, 8]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_left_uint16')",
+          "summary": "left_unit16"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"LEFT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint32)\ny = np.array([1, 2, 3]).astype(np.uint32)\nz = x << y  # expected output [32, 16, 8]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_left_uint32')",
+          "summary": "left_unit32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"LEFT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint64)\ny = np.array([1, 2, 3]).astype(np.uint64)\nz = x << y  # expected output [32, 16, 8]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_left_uint64')",
+          "summary": "left_unit64"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"LEFT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint8)\ny = np.array([1, 2, 3]).astype(np.uint8)\nz = x << y  # expected output [32, 16, 8]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_left_uint8')",
+          "summary": "left_unit8"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"RIGHT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint16)\ny = np.array([1, 2, 3]).astype(np.uint16)\nz = x >> y  # expected output [8, 1, 0]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_right_uint16')",
+          "summary": "right_unit16"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"RIGHT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint32)\ny = np.array([1, 2, 3]).astype(np.uint32)\nz = x >> y  # expected output [8, 1, 0]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_right_uint32')",
+          "summary": "right_unit32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"RIGHT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint64)\ny = np.array([1, 2, 3]).astype(np.uint64)\nz = x >> y  # expected output [8, 1, 0]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_right_uint64')",
+          "summary": "right_unit64"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'BitShift',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    direction=\"RIGHT\"\n)\n\nx = np.array([16, 4, 1]).astype(np.uint8)\ny = np.array([1, 2, 3]).astype(np.uint8)\nz = x >> y  # expected output [8, 1, 0]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_bitshift_right_uint8')",
+          "summary": "right_unit8"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "First operand, input to be shifted.",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "Second operand, amounts of shift.",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Z",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)"
+          ],
+          "description": "Constrain input and output types to integer tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Cast",
     "schema": {
       "attributes": [
@@ -2915,7 +3001,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "\nx = np.array([2, 3, 4, 5, 6, 7, 8, 9, 10]).astype(np.uint8).reshape((1, 1, 3, 3))\nx_zero_point = np.array([1]).astype(np.uint8)\nw = np.array([1, 1, 1, 1]).astype(np.uint8).reshape((1, 1, 2, 2))\n\ny = np.array([12, 16, 24, 28]).astype(np.int32).reshape(1, 1, 2, 2)\n\n# ConvInteger without padding\nconvinteger_node = onnx.helper.make_node('ConvInteger',\n    inputs=['x', 'w', 'x_zero_point'],\n    outputs=['y'])\n\nexpect(convinteger_node, inputs=[x, w, x_zero_point], outputs=[y],\n       name='test_basic_convinteger')\n\n# ConvInteger with padding\ny_with_padding = np.array([1, 3, 5, 3, 5, 12, 16, 9, 11, 24, 28, 15, 7, 15, 17, 9]).astype(np.int32).reshape((1, 1, 4, 4))\n\nconvinteger_node_with_padding = onnx.helper.make_node('ConvInteger',\n    inputs=['x', 'w', 'x_zero_point'],\n    outputs=['y'],\n    pads=[1, 1, 1, 1],)\n\nexpect(convinteger_node_with_padding, inputs=[x, w, x_zero_point], outputs=[y_with_padding],\n       name='test_convinteger_with_padding')",
+          "code": "\nx = np.array([2, 3, 4, 5, 6, 7, 8, 9, 10]).astype(np.uint8).reshape((1, 1, 3, 3))\nx_zero_point = np.uint8(1)\nw = np.array([1, 1, 1, 1]).astype(np.uint8).reshape((1, 1, 2, 2))\n\ny = np.array([12, 16, 24, 28]).astype(np.int32).reshape(1, 1, 2, 2)\n\n# ConvInteger without padding\nconvinteger_node = onnx.helper.make_node('ConvInteger',\n    inputs=['x', 'w', 'x_zero_point'],\n    outputs=['y'])\n\nexpect(convinteger_node, inputs=[x, w, x_zero_point], outputs=[y],\n       name='test_basic_convinteger')\n\n# ConvInteger with padding\ny_with_padding = np.array([1, 3, 5, 3, 5, 12, 16, 9, 11, 24, 28, 15, 7, 15, 17, 9]).astype(np.int32).reshape((1, 1, 4, 4))\n\nconvinteger_node_with_padding = onnx.helper.make_node('ConvInteger',\n    inputs=['x', 'w', 'x_zero_point'],\n    outputs=['y'],\n    pads=[1, 1, 1, 1],)\n\nexpect(convinteger_node_with_padding, inputs=[x, w, x_zero_point], outputs=[y_with_padding],\n       name='test_convinteger_with_padding')",
           "summary": "convinteger"
         }
       ],
@@ -3274,7 +3360,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node('DequantizeLinear',\n    inputs=['x', 'x_scale', 'x_zero_point'],\n    outputs=['y'],)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.array([2], dtype=np.float32)\nx_zero_point = np.array([128], dtype=np.uint8)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(node, inputs=[x, x_scale, x_zero_point], outputs=[y],\n       name='test_dequantizelinear')",
+          "code": "node = onnx.helper.make_node('DequantizeLinear',\n    inputs=['x', 'x_scale', 'x_zero_point'],\n    outputs=['y'],)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.float32(2)\nx_zero_point = np.uint8(128)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(node, inputs=[x, x_scale, x_zero_point], outputs=[y],\n       name='test_dequantizelinear')",
           "summary": "dequantizelinear"
         }
       ],
@@ -10995,7 +11081,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node('QLinearConv',\n    inputs=['x', 'x_scale', 'x_zero_point', 'w', 'w_scale', 'w_zero_point', 'y_scale', 'y_zero_point'],\n    outputs=['y'],)\n\nx = np.array([[255, 174, 162, 25, 203, 168, 58],\n    [15, 59, 237, 95, 129, 0, 64],\n    [56, 242, 153, 221, 168, 12, 166],\n    [232, 178, 186, 195, 237, 162, 237],\n    [188, 39, 124, 77, 80, 102, 43],\n    [127, 230, 21, 83, 41, 40, 134],\n    [255, 154, 92, 141, 42, 148, 247], ], dtype=np.uint8).reshape((1, 1, 7, 7))\n\nx_scale = np.array([0.00369204697], dtype=np.float32)\nx_zero_point = np.array([132], dtype=np.uint8)\n\nw = np.array([0], dtype=np.uint8).reshape((1, 1, 1, 1))\n\nw_scale = np.array([0.00172794575], dtype=np.float32)\nw_zero_point = np.array([255], dtype=np.uint8)\n\ny_scale = np.array([0.00162681262], dtype=np.float32)\ny_zero_point = np.array([123], dtype=np.uint8)\n\noutput = np.array([[0, 81, 93, 230, 52, 87, 197],\n    [240, 196, 18, 160, 126, 255, 191],\n    [199, 13, 102, 34, 87, 243, 89],\n    [23, 77, 69, 60, 18, 93, 18],\n    [67, 216, 131, 178, 175, 153, 212],\n    [128, 25, 234, 172, 214, 215, 121],\n    [0, 101, 163, 114, 213, 107, 8], ], dtype=np.uint8).reshape((1, 1, 7, 7))\n\nexpect(node, inputs=[x, x_scale, x_zero_point, w, w_scale, w_zero_point, y_scale, y_zero_point], outputs=[output],\n       name='test_qlinearconv')",
+          "code": "node = onnx.helper.make_node('QLinearConv',\n    inputs=['x', 'x_scale', 'x_zero_point', 'w', 'w_scale', 'w_zero_point', 'y_scale', 'y_zero_point'],\n    outputs=['y'],)\n\nx = np.array([[255, 174, 162, 25, 203, 168, 58],\n    [15, 59, 237, 95, 129, 0, 64],\n    [56, 242, 153, 221, 168, 12, 166],\n    [232, 178, 186, 195, 237, 162, 237],\n    [188, 39, 124, 77, 80, 102, 43],\n    [127, 230, 21, 83, 41, 40, 134],\n    [255, 154, 92, 141, 42, 148, 247], ], dtype=np.uint8).reshape((1, 1, 7, 7))\n\nx_scale = np.float32(0.00369204697)\nx_zero_point = np.uint8(132)\n\nw = np.array([0], dtype=np.uint8).reshape((1, 1, 1, 1))\n\nw_scale = np.array([0.00172794575], dtype=np.float32)\nw_zero_point = np.array([255], dtype=np.uint8)\n\ny_scale = np.array([0.00162681262], dtype=np.float32)\ny_zero_point = np.array([123], dtype=np.uint8)\n\noutput = np.array([[0, 81, 93, 230, 52, 87, 197],\n    [240, 196, 18, 160, 126, 255, 191],\n    [199, 13, 102, 34, 87, 243, 89],\n    [23, 77, 69, 60, 18, 93, 18],\n    [67, 216, 131, 178, 175, 153, 212],\n    [128, 25, 234, 172, 214, 215, 121],\n    [0, 101, 163, 114, 213, 107, 8], ], dtype=np.uint8).reshape((1, 1, 7, 7))\n\nexpect(node, inputs=[x, x_scale, x_zero_point, w, w_scale, w_zero_point, y_scale, y_zero_point], outputs=[output],\n       name='test_qlinearconv')",
           "summary": "qlinearconv"
         }
       ],
@@ -11196,7 +11282,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node('QuantizeLinear',\n    inputs=['x', 'y_scale', 'y_zero_point'],\n    outputs=['y'],)\n\nx = np.array([0, 2, 3, 1000, -254, -1000]).astype(np.float32)\ny_scale = np.array([2], dtype=np.float32)\ny_zero_point = np.array([128], dtype=np.uint8)\ny = np.array([128, 129, 130, 255, 1, 0]).astype(np.uint8)\n\nexpect(node, inputs=[x, y_scale, y_zero_point], outputs=[y],\n       name='test_quantizelinear')",
+          "code": "node = onnx.helper.make_node('QuantizeLinear',\n    inputs=['x', 'y_scale', 'y_zero_point'],\n    outputs=['y'],)\n\nx = np.array([0, 2, 3, 1000, -254, -1000]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = np.uint8(128)\ny = np.array([128, 129, 130, 255, 1, 0]).astype(np.uint8)\n\nexpect(node, inputs=[x, y_scale, y_zero_point], outputs=[y],\n       name='test_quantizelinear')",
           "summary": "quantizelinear"
         }
       ],
