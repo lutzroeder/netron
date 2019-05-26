@@ -2629,10 +2629,18 @@ tflite_schema.FullyConnectedOptions.prototype.weightsFormat = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+tflite_schema.FullyConnectedOptions.prototype.keepNumDims = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_schema.FullyConnectedOptions.startFullyConnectedOptions = function(builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 };
 
 /**
@@ -2653,6 +2661,14 @@ tflite_schema.FullyConnectedOptions.addWeightsFormat = function(builder, weights
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {boolean} keepNumDims
+ */
+tflite_schema.FullyConnectedOptions.addKeepNumDims = function(builder, keepNumDims) {
+  builder.addFieldInt8(2, +keepNumDims, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.FullyConnectedOptions.endFullyConnectedOptions = function(builder) {
@@ -2664,12 +2680,14 @@ tflite_schema.FullyConnectedOptions.endFullyConnectedOptions = function(builder)
  * @param {flatbuffers.Builder} builder
  * @param {tflite_schema.ActivationFunctionType} fusedActivationFunction
  * @param {tflite_schema.FullyConnectedOptionsWeightsFormat} weightsFormat
+ * @param {boolean} keepNumDims
  * @returns {flatbuffers.Offset}
  */
-tflite_schema.FullyConnectedOptions.createFullyConnectedOptions = function(builder, fusedActivationFunction, weightsFormat) {
+tflite_schema.FullyConnectedOptions.createFullyConnectedOptions = function(builder, fusedActivationFunction, weightsFormat, keepNumDims) {
   tflite_schema.FullyConnectedOptions.startFullyConnectedOptions(builder);
   tflite_schema.FullyConnectedOptions.addFusedActivationFunction(builder, fusedActivationFunction);
   tflite_schema.FullyConnectedOptions.addWeightsFormat(builder, weightsFormat);
+  tflite_schema.FullyConnectedOptions.addKeepNumDims(builder, keepNumDims);
   return tflite_schema.FullyConnectedOptions.endFullyConnectedOptions(builder);
 }
 
@@ -10391,6 +10409,112 @@ tflite_schema.Buffer.createBuffer = function(builder, dataOffset) {
 /**
  * @constructor
  */
+tflite_schema.Metadata = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.Metadata}
+ */
+tflite_schema.Metadata.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.Metadata=} obj
+ * @returns {tflite_schema.Metadata}
+ */
+tflite_schema.Metadata.getRootAsMetadata = function(bb, obj) {
+  return (obj || new tflite_schema.Metadata).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.Metadata=} obj
+ * @returns {tflite_schema.Metadata}
+ */
+tflite_schema.Metadata.getSizePrefixedRootAsMetadata = function(bb, obj) {
+  return (obj || new tflite_schema.Metadata).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+tflite_schema.Metadata.prototype.name = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.Metadata.prototype.buffer = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.Metadata.startMetadata = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ */
+tflite_schema.Metadata.addName = function(builder, nameOffset) {
+  builder.addFieldOffset(0, nameOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} buffer
+ */
+tflite_schema.Metadata.addBuffer = function(builder, buffer) {
+  builder.addFieldInt32(1, buffer, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Metadata.endMetadata = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {number} buffer
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Metadata.createMetadata = function(builder, nameOffset, buffer) {
+  tflite_schema.Metadata.startMetadata(builder);
+  tflite_schema.Metadata.addName(builder, nameOffset);
+  tflite_schema.Metadata.addBuffer(builder, buffer);
+  return tflite_schema.Metadata.endMetadata(builder);
+}
+
+/**
+ * @constructor
+ */
 tflite_schema.Model = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -10537,10 +10661,28 @@ tflite_schema.Model.prototype.metadataBufferArray = function() {
 };
 
 /**
+ * @param {number} index
+ * @param {tflite_schema.Metadata=} obj
+ * @returns {tflite_schema.Metadata}
+ */
+tflite_schema.Model.prototype.metadata = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? (obj || new tflite_schema.Metadata).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.Model.prototype.metadataLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_schema.Model.startModel = function(builder) {
-  builder.startObject(6);
+  builder.startObject(7);
 };
 
 /**
@@ -10677,6 +10819,35 @@ tflite_schema.Model.startMetadataBufferVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} metadataOffset
+ */
+tflite_schema.Model.addMetadata = function(builder, metadataOffset) {
+  builder.addFieldOffset(6, metadataOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Model.createMetadataVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_schema.Model.startMetadataVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.Model.endModel = function(builder) {
@@ -10708,9 +10879,10 @@ tflite_schema.Model.finishSizePrefixedModelBuffer = function(builder, offset) {
  * @param {flatbuffers.Offset} descriptionOffset
  * @param {flatbuffers.Offset} buffersOffset
  * @param {flatbuffers.Offset} metadataBufferOffset
+ * @param {flatbuffers.Offset} metadataOffset
  * @returns {flatbuffers.Offset}
  */
-tflite_schema.Model.createModel = function(builder, version, operatorCodesOffset, subgraphsOffset, descriptionOffset, buffersOffset, metadataBufferOffset) {
+tflite_schema.Model.createModel = function(builder, version, operatorCodesOffset, subgraphsOffset, descriptionOffset, buffersOffset, metadataBufferOffset, metadataOffset) {
   tflite_schema.Model.startModel(builder);
   tflite_schema.Model.addVersion(builder, version);
   tflite_schema.Model.addOperatorCodes(builder, operatorCodesOffset);
@@ -10718,6 +10890,7 @@ tflite_schema.Model.createModel = function(builder, version, operatorCodesOffset
   tflite_schema.Model.addDescription(builder, descriptionOffset);
   tflite_schema.Model.addBuffers(builder, buffersOffset);
   tflite_schema.Model.addMetadataBuffer(builder, metadataBufferOffset);
+  tflite_schema.Model.addMetadata(builder, metadataOffset);
   return tflite_schema.Model.endModel(builder);
 }
 
