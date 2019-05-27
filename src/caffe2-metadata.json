@@ -50,31 +50,31 @@
           "description": "Should the legacy padding be VALID or SAME. When used, pads should not be used.",
           "name": "legacy_pad",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Desired kernel size. If left at default the kernel size will be inferred from the input $filter$ blob.",
           "name": "kernels",
           "option": "optional",
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Controls the stride of the kernel as it traverses the input blob.",
           "name": "strides",
           "option": "optional",
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Controls the amount of padding applied to the input feature map before computation.",
           "name": "pads",
           "option": "optional",
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "",
           "name": "adjs",
           "option": "optional",
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": "NCHW",
@@ -88,14 +88,14 @@
           "description": "",
           "name": "shared_buffer",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": false,
           "description": "",
           "name": "no_bias",
           "option": "optional",
-          "type": "bool"
+          "type": "boolean"
         }
       ],
       "category": "Layer",
@@ -132,21 +132,21 @@
           "description": "Describes the axis of the input data $X$. Defaults to one because in the common case when the input $X$ has shape $(M,K)$, the first axis encodes the batch size.",
           "name": "axis",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1,
           "description": "Describes the axis of the input weight matrix $W$. Defaults to one because the first axis most likely describes the batch_size.",
           "name": "axis_w",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": false,
           "description": "Whether to use float-16 compute kernel.",
           "name": "float16_compute",
           "option": "optional",
-          "type": "bool"
+          "type": "boolean"
         }
       ],
       "category": "Layer",
@@ -183,14 +183,14 @@
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": -1,
           "description": "Axis to concatenate on.",
           "name": "axis",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "\nPerforms element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_ops_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Add\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 6  8]\n [10 12]]\n\n```\n\n</details>\n\n\n",
@@ -253,14 +253,14 @@
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": -1,
           "description": "Axis to concatenate on.",
           "name": "axis",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "\nPerforms element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_ops_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Mul\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 5 12]\n [21 32]]\n\n```\n\n</details>\n\n\n",
@@ -292,28 +292,28 @@
           "description": "Exclusive axis that divides the first and second dimension of matrix `A`.",
           "name": "axis_a",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1,
           "description": "Exclusive axis that divides the first and second dimension of matrix `B`.",
           "name": "axis_b",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 0,
           "description": "Pass 1 to transpose `A` before multiplication and after the dimension adjustment using `axis_a`.",
           "name": "trans_a",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 0,
           "description": "Pass 1 to transpose `B` before multiplication and after the dimension adjustment using `axis_b`.",
           "name": "trans_b",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "\nMatrix multiplication $Y = A * B$, where `A` has size (M x K), `B` has size\n(K x N), and `Y` will have a size (M x N). To transpose `A` or `B` before\nmultiplication, pass 1 to the `trans_a` and/or `trans_b` arguments, which\nseparate the first and second dimensions of the respective matrices using\n`axis_a` and `axis_b`.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/matmul_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"MatMul\",\n    [\"A\", \"B\"],\n    [\"Y\"],\n)\n\nworkspace.FeedBlob(\"A\", np.random.randint(10, size=(3,3)).astype(np.float32))\nworkspace.FeedBlob(\"B\", np.random.randint(10, size=(3,3)).astype(np.float32))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nA: [[1. 8. 3.]\n [6. 4. 4.]\n [5. 4. 7.]]\nB: [[4. 0. 3.]\n [3. 1. 1.]\n [8. 5. 8.]]\nY: [[52. 23. 35.]\n [68. 24. 54.]\n [88. 39. 75.]]\n```\n\n</details>\n\n",
@@ -416,7 +416,7 @@
           "description": "Axis of the inputs when coerced to 2D matrix.",
           "name": "axis",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Activation",
@@ -507,14 +507,14 @@
           "default": 0,
           "description": "If set to nonzero, run spatial batch normalization in test mode.",
           "name": "is_test",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1e-05,
           "description": "The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
           "option": "optional",
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "NCHW",
@@ -528,14 +528,14 @@
           "description": "Factor used in computing the running mean and variance. e.g., running_mean = running_mean x momentum + mean x (1 - momentum)",
           "name": "momentum",
           "option": "optional",
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": "Specifies the number of batches to apply normalization on. Requires specifying the optional sums and sumsq inputs that provide statistics across multiple batches from which mean and variance can be determined.",
           "name": "num_batches",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Normalization",
@@ -607,35 +607,35 @@
           "description": "Amount of neighboring channels to sum over for normalization",
           "name": "size",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 0.0,
           "description": "Multiplicative (scaling) factor.",
           "name": "alpha",
           "option": "optional",
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0.0,
           "description": "Exponent.",
           "name": "beta",
           "option": "optional",
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "Additive factor.",
           "name": "bias",
           "option": "optional",
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0,
           "description": "Order of blob dimensions.",
           "name": "order",
           "option": "optional",
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -668,13 +668,13 @@
           "description": "Probability of an element to be zeroed.",
           "name": "ratio",
           "option": "optional",
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0,
           "description": "If zero (train mode), perform dropout. If non-zero(test mode), Y = X.",
           "name": "is_test",
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Dropout",
@@ -715,7 +715,7 @@
           "description": "Axis to concatenate on.",
           "name": "axis",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Order of blob dimensions. Concats on the C dimension.",
@@ -727,7 +727,7 @@
           "description": "Pass non-zero integer to add the axis specified in `axis` to all input tensors.",
           "name": "add_axis",
           "option": "optional",
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Tensor",

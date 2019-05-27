@@ -21,25 +21,25 @@ def get_support_level(dir):
 
 def update_argument_type(type):
     if type == 'int':
-        return 'int'
+        return 'int64'
     elif type == '[int]' or type == 'int[]':
-        return 'int[]'
+        return 'int64[]'
     elif type == 'float':
-        return 'float'
+        return 'float32'
     elif type == 'string':
         return 'string'
     elif type == 'List(string)':
         return 'string[]'
     elif type == 'bool':
-        return 'bool'
+        return 'boolean'
     raise Exception('Unknown argument type ' + str(type))
 
 def update_argument_default(value, type):
-    if type == 'int':
+    if type == 'int64':
         return int(value)
-    elif type == 'float':
+    elif type == 'float32':
         return float(value.rstrip('~'))
-    elif type == 'bool':
+    elif type == 'boolean':
         if value == 'True':
             return True
         if value == 'False':
@@ -87,9 +87,9 @@ def update_argument(schema, arg):
                     default = parts[1].strip()
                     if default == '2, possible values':
                         default = '2'
-                    if type == 'float' and default == '\'NCHW\'':
+                    if type == 'float32' and default == '\'NCHW\'':
                         continue
-                    if type == 'int[]':
+                    if type == 'int64[]':
                         continue
                     attribute['default'] = update_argument_default(default, type)
             elif name == 'optional':
