@@ -80,13 +80,19 @@ categories = {
     'Squeeze': 'Transform',
 }
 
+attribute_type_table = {
+    'undefined': None,
+    'float': 'float32', 'int': 'int64', 'string': 'string', 'tensor': 'tensor', 'graph': 'graph',
+    'floats': 'float32[]', 'ints': 'int64[]', 'strings': 'string[]', 'tensors': 'tensor[]', 'graphs': 'graph[]',
+}
+
 def generate_json_attr_type(type):
     assert isinstance(type, OpSchema.AttrType)
     s = str(type)
     s = s[s.rfind('.')+1:].lower()
-    if s[-1] == 's':
-        s = s[0:-1] + '[]'
-    return s
+    if s in attribute_type_table:
+        return attribute_type_table[s]
+    return None
 
 def generate_json_attr_default_value(attr_value):
     if not str(attr_value):
@@ -157,7 +163,11 @@ def generate_json(schemas, json_file):
                 json_attribute = {}
                 json_attribute['name'] = attribute.name
                 json_attribute['description'] = attribute.description
-                json_attribute['type'] = generate_json_attr_type(attribute.type)
+                attribute_type = generate_json_attr_type(attribute.type)
+                if attribute_type:
+                    json_attribute['type'] = attribute_type
+                else:
+                    del json_attribute['type']
                 json_attribute['required'] = attribute.required
                 default_value = generate_json_attr_default_value(attribute.default_value)
                 if default_value:

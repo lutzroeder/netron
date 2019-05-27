@@ -7,7 +7,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Absolute takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the absolute is, y = abs(x), is applied to\nthe tensor elementwise.\n",
@@ -199,19 +199,19 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Performs element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -272,13 +272,13 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Performs element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -400,13 +400,13 @@
           "description": "If set, defines the broadcast dimensions.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Logic",
@@ -532,14 +532,14 @@
           "description": "The axis in which to compute the arg indices.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
@@ -607,14 +607,14 @@
           "description": "The axis in which to compute the arg indices.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
@@ -910,19 +910,19 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -1030,25 +1030,25 @@
           "description": "Whether include pad pixels when calculating values for the edges. Default is 0, doesn't count include pad.",
           "name": "count_include_pad",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -1156,31 +1156,31 @@
           "description": "Wether to use ceil or floor (default) to compute the output shape.",
           "name": "ceil_mode",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Whether include pad pixels when calculating values for the edges. Default is 0, doesn't count include pad.",
           "name": "count_include_pad",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -1281,34 +1281,34 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 9.999999747378752e-06,
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "If set to nonzero, run spatial batch normalization in test mode, default is 0.",
           "name": "is_test",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 0.8999999761581421,
           "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
           "name": "momentum",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
           "name": "spatial",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Normalization",
@@ -1406,27 +1406,27 @@
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "If set to nonzero, run spatial batch normalization in test mode, default is 0.",
           "name": "is_test",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 0.8999999761581421,
           "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
           "name": "momentum",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
           "name": "spatial",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Normalization",
@@ -1524,21 +1524,21 @@
           "description": "The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0.8999999761581421,
           "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum).",
           "name": "momentum",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": "If true, compute the mean and variance across per activation. If false, compute the mean and variance across per feature over each mini-batch.",
           "name": "spatial",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Normalization",
@@ -1636,14 +1636,14 @@
           "description": "The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0.8999999761581421,
           "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum).",
           "name": "momentum",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -1740,7 +1740,7 @@
           "description": "Values greater than this are mapped to 1, others to 0.",
           "name": "threshold",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Maps the values of the input tensor to either 0 or 1, element-wise, based on the outcome of a comparison against a threshold value.\n",
@@ -1952,7 +1952,7 @@
           "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto",
           "name": "to",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message.\nNOTE: Casting to and from strings is not supported yet.\n",
@@ -2031,7 +2031,7 @@
           "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto",
           "name": "to",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message.\n\nCasting from string tensor in plain (e.g., \"3.14\" and \"1000\") and scientific numeric representations\n(e.g., \"1e-5\" and \"1E8\") to float types is supported. For example, converting string \"100.5\" to an integer may\nresult 100. There are some string literals reserved for special floating-point values;\n\"+INF\" (and \"INF\"), \"-INF\", and \"NaN\" are positive infinity, negative infinity, and not-a-number, respectively.\nAny string which can exactly match \"+INF\" in a case-insensitive way would be mapped to positive infinite. Similarly,\nthis case-insensitive rule is applied to \"INF\" and \"NaN\". When casting from numeric tensors\nto string tensors, plain floating-point representation (such as \"314.15926\") would be used. \nConverting non-numerical-literal string such as \"Hello World!\" is an undefined behavior. Cases \nof converting string representing floating-point arithmetic value, such as \"2.718\", to INT is an undefined behavior.\n\nConversion from a numerical type to any numerical type is always allowed.\nUser must be aware of precision loss and value change caused by range difference between two types.\nFor example, a 64-bit float 3.1415926459 may be round to a 32-bit float 3.141592. Similarly, converting\nan integer 36 to Boolean may produce 1 because we truncate bits which can't be stored in the targeted type.\n",
@@ -2127,7 +2127,7 @@
           "description": "If the value of map_form is 'SPARSE,' this attribute indicates the total length of the output tensor.",
           "name": "max_map",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Converts a map to a tensor.<br>The map key must be an int64 and the values will be ordered\n    in ascending order based on this key.<br>The operator supports dense packing or sparse packing.\n    If using sparse packing, the key cannot exceed the max_map-1 value.\n",
@@ -2181,7 +2181,7 @@
           "description": "The integers of the map. This sequence must be the same length as the 'cats_strings' sequence.",
           "name": "cats_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The strings of the map. This sequence must be the same length as the 'cats_int64s' sequence",
@@ -2194,7 +2194,7 @@
           "description": "An integer to use when an input string value is not found in the map.<br>One and only one of the 'default_*' attributes must be defined.",
           "name": "default_int64",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": "_Unused",
@@ -2254,7 +2254,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Ceil takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the ceil is, y = ceil(x), is applied to\nthe tensor elementwise.\n",
@@ -2350,19 +2350,19 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Maximum value, above which element is replaced by max",
           "name": "max",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Minimum value, under which element is replaced by min",
           "name": "min",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Clip operator limits the given input within an interval. The interval is\nspecified with arguments 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max() respectively.\n",
@@ -2419,14 +2419,14 @@
           "description": "Maximum value, above which element is replaced by max",
           "name": "max",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": -3.4028234663852886e+38,
           "description": "Minimum value, under which element is replaced by min",
           "name": "min",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Clip operator limits the given input within an interval. The interval is\nspecified with arguments 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max() respectively.\n",
@@ -2482,7 +2482,7 @@
           "description": "(Optional) Axis along which to take slices. If not specified, input is flattened before elements being selected.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Selects slices from an input tensor along a given axis where condition evaluates to True for each axis index.\n    In case axis is not provided, input is flattened before elements are selected.\n    Compress behaves like numpy.compress: https://docs.scipy.org/doc/numpy/reference/generated/numpy.compress.html\n    ",
@@ -2566,7 +2566,7 @@
           "description": "Which axis to concat on.  Default value is 1.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Tensor",
@@ -2620,7 +2620,7 @@
           "description": "Which axis to concat on",
           "name": "axis",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Tensor",
@@ -2869,32 +2869,32 @@
           "description": "dilation value along each axis of the filter.",
           "name": "dilations",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "number of groups input channels and output channels are divided into.",
           "name": "group",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The shape of the convolution kernel. If not present, should be inferred from input W.",
           "name": "kernel_shape",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Layer",
@@ -2969,32 +2969,32 @@
           "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
           "name": "dilations",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "number of groups input channels and output channels are divided into. default is 1.",
           "name": "group",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The shape of the convolution kernel. If not present, should be inferred from input 'w'.",
           "name": "kernel_shape",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0.The value represent the number of pixels added to the beginning and end part of the corresponding axis.`pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number ofpixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaultsto 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "The integer convolution operator consumes an input tensor, its zero-point, a filter, and its zero-point,\nand computes the output. The production MUST never overflow. The accumulation may overflow if and only if in 32 bits.\n",
@@ -3084,44 +3084,44 @@
           "description": "dilation value along each axis of the filter.",
           "name": "dilations",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "number of groups input channels and output channels are divided into.",
           "name": "group",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The shape of the convolution kernel. If not present, should be inferred from input W.",
           "name": "kernel_shape",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The zero-padding added to one side of the output. This is also called adjs/adjustment in some frameworks.",
           "name": "output_padding",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The shape of the output can be explicitly set which will cause pads values to be auto generated. If output_shape is specified pads values are ignored. See doc for details for equations to generate pads",
           "name": "output_shape",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Layer",
@@ -3293,7 +3293,7 @@
           "description": "Blocks of [blocksize, blocksize] are moved.",
           "name": "blocksize",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions.\n",
@@ -3416,7 +3416,7 @@
           "description": "An integer vocabulary array.<br>One and only one of the vocabularies must be defined.",
           "name": "int64_vocabulary",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "A string vocabulary array.<br>One and only one of the vocabularies must be defined.",
@@ -3481,19 +3481,19 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -3554,13 +3554,13 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -3682,20 +3682,20 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "(int, default 0) if nonzero, run dropout in test mode where the output is simply Y = X.",
           "name": "is_test",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 0.5,
           "description": "(float, default 0.5) the ratio of random dropout",
           "name": "ratio",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Dropout",
@@ -3758,14 +3758,14 @@
           "description": "(int, default 0) if nonzero, run dropout in test mode where the output is simply Y = X.",
           "name": "is_test",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 0.5,
           "description": "(float, default 0.5) the ratio of random dropout",
           "name": "ratio",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Dropout",
@@ -3829,7 +3829,7 @@
           "description": "The ratio of random dropout",
           "name": "ratio",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Dropout",
@@ -3893,7 +3893,7 @@
           "description": "The ratio of random dropout",
           "name": "ratio",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Dropout",
@@ -3964,13 +3964,13 @@
           "description": "Coefficient of ELU default to 1.0.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Activation",
@@ -4028,7 +4028,7 @@
           "description": "Coefficient of ELU.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Activation",
@@ -4085,13 +4085,13 @@
           "description": "If set, defines the broadcast dimensions.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Logic",
@@ -4273,7 +4273,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Calculates the exponential of the given input tensor, element-wise.\n",
@@ -4434,13 +4434,13 @@
           "description": "(Optional) The data type for the elements of the output tensor. If not specified,the data type of the input tensor T1 is used. If input tensor T1 is also notspecified, then type defaults to 'float'.",
           "name": "dtype",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "(Optional) Index of the diagonal to be populated with ones. Default is 0. If T2 is the output, this op sets T2[i, i+k] = 1. k = 0 populates the main diagonal, k > 0 populates an upper diagonal,  and k < 0 populates a lower diagonal.",
           "name": "k",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Generate a 2D tensor (matrix) with ones on the diagonal and zeros everywhere else. Only 2D\ntensors are supported, i.e. input T1 must be of rank 2. The shape of the output tensor is the\nsame as the input tensor. The data type can be specified by the 'dtype' argument. If\n'dtype' is not specified, then the type of input tensor is used. By default, the main diagonal\nis populated with ones, but attribute 'k' can be used to populate upper or lower diagonals.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
@@ -4527,7 +4527,7 @@
           "description": "The size of each input in the input list",
           "name": "inputdimensions",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Concatenates input tensors into one continuous output.<br>\n    All input shapes are 2-D and are concatenated along the second dimention. 1-D tensors are treated as [1,C].\n    Inputs are copied to the output maintaining the order of the input arguments.<br>\n    All inputs must be integers or floats, while the output will be all floating point values.\n",
@@ -4576,7 +4576,7 @@
           "description": "Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output. The value for axis must be in the range [0, R], where R is the rank of the input tensor. When axis = 0, the shape of the output tensor is (1, (d_0 X d_1 ... d_n), where the shape of the input tensor is (d_0, d_1, ... d_n). ",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Shape",
@@ -4634,7 +4634,7 @@
           "description": "Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output. The value for axis must be in the range [0, R], where R is the rank of the input tensor. When axis = 0, the shape of the output tensor is (1, (d_0 X d_1 ... d_n), where the shape of the input tensor is (d_0, d_1, ... d_n). ",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Shape",
@@ -4703,7 +4703,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Floor takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the floor is, y = floor(x), is applied to\nthe tensor elementwise.\n",
@@ -4799,13 +4799,13 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_alpha",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_beta",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
@@ -4817,7 +4817,7 @@
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
           "name": "clip",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "foward",
@@ -4830,13 +4830,13 @@
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The sequence output for the hidden is optional if 0. Default 0.",
           "name": "output_sequence",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -4938,13 +4938,13 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
@@ -4956,7 +4956,7 @@
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
           "name": "clip",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "forward",
@@ -4969,19 +4969,19 @@
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
           "name": "linear_before_reset",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The sequence output for the hidden is optional if 0. Default 0.",
           "name": "output_sequence",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -5084,13 +5084,13 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
@@ -5102,7 +5102,7 @@
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
           "name": "clip",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "forward",
@@ -5115,13 +5115,13 @@
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
           "name": "linear_before_reset",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -5224,7 +5224,7 @@
           "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Transform",
@@ -5307,32 +5307,32 @@
           "description": "Scalar multiplier for the product of input tensors A * B, the default value is 1.0.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "Scalar multiplier for input tensor C, the default value is 1.0.",
           "name": "beta",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Whether C should be broadcasted",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Whether A should be transposed",
           "name": "transA",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Whether B should be transposed",
           "name": "transB",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -5400,32 +5400,32 @@
           "description": "Scalar multiplier for the product of input tensors A * B, the default value is 1.0.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "Scalar multiplier for input tensor C, the default value is 1.0.",
           "name": "beta",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Whether C should be broadcasted",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Whether A should be transposed",
           "name": "transA",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Whether B should be transposed",
           "name": "transB",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -5493,26 +5493,26 @@
           "description": "Scalar multiplier for the product of input tensors A * B.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "Scalar multiplier for input tensor C.",
           "name": "beta",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Whether A should be transposed",
           "name": "transA",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Whether B should be transposed",
           "name": "transB",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -5580,26 +5580,26 @@
           "description": "Scalar multiplier for the product of input tensors A * B.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "Scalar multiplier for input tensor C.",
           "name": "beta",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Whether A should be transposed",
           "name": "transA",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Whether B should be transposed",
           "name": "transB",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -5720,7 +5720,7 @@
           "description": "p value of the Lp norm used to pool over the input data, default is 2.0.",
           "name": "p",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Pool",
@@ -5768,7 +5768,7 @@
           "description": "p value of the Lp norm used to pool over the input data.",
           "name": "p",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Pool",
@@ -5864,13 +5864,13 @@
           "description": "If set, defines the broadcast dimensions.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Logic",
@@ -6070,20 +6070,20 @@
           "description": "Value of alpha default to 0.2",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0.5,
           "description": "Value of beta default to 0.5",
           "name": "beta",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Activation",
@@ -6141,14 +6141,14 @@
           "description": "Value of alpha.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0.5,
           "description": "Value of beta.",
           "name": "beta",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Activation",
@@ -6206,7 +6206,7 @@
           "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "The operator computes the hardmax (1 for the first maximum value, and 0 for all others) values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the hardmax values of the corresponding input.\n\nInput does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\ninput \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then input will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the input tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
@@ -6390,25 +6390,25 @@
           "description": "Value(s) to change to",
           "name": "imputed_value_floats",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Value(s) to change to.",
           "name": "imputed_value_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "A value that needs replacing.",
           "name": "replaced_value_float",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "A value that needs replacing.",
           "name": "replaced_value_int64",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Replaces inputs that equal one value with another, leaving all other elements alone.<br>\n    This operator is typically used to replace missing values in situations where they have a canonical\n    representation, such as -1, 0, NaN, or some extreme value.<br>\n    One and only one of imputed_value_floats or imputed_value_int64s should be defined -- floats if the input tensor\n    holds floats, integers if the input tensor holds integers. The imputed values must all fit within the\n    width of the tensor element type. One and only one of the replaced_value_float or replaced_value_int64 should be defined,\n    which one depends on whether floats or integers are being processed.<br>\n    The imputed_value attribute length can be 1 element, or it can have one element per input feature.<br>In other words, if the input tensor has the shape [*,F], then the length of the attribute array may be 1 or F. If it is 1, then it is broadcast along the last dimension and applied to each feature.\n",
@@ -6455,14 +6455,14 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 9.999999747378752e-06,
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -6526,7 +6526,7 @@
           "description": "The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -6590,14 +6590,14 @@
           "description": "(Optional) Whether map negative infinity to true. Default to 1 so that negative infinity induces true. Set this attribute to 0 if negative infinity should be mapped to false.",
           "name": "detect_negative",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1,
           "description": "(Optional) Whether map positive infinity to true. Default to 1 so that positive infinity induces true. Set this attribute to 0 if positive infinity should be mapped to false.",
           "name": "detect_positive",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Map infinity to true and other values to false.",
@@ -6715,27 +6715,27 @@
           "description": "Scaling parameter.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0.75,
           "description": "The exponent.",
           "name": "beta",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "",
           "name": "bias",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "The number of channels to sum over",
           "name": "size",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Normalization",
@@ -6792,13 +6792,13 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A list of 3 (or 6 if bidirectional) activation functions for input, output, forget, cell, and hidden. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
@@ -6810,7 +6810,7 @@
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
           "name": "clip",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "forward",
@@ -6823,19 +6823,19 @@
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Couple the input and forget gates if 1, default 0.",
           "name": "input_forget",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The sequence output for the hidden is optional if 0. Default 0.",
           "name": "output_sequence",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -6956,13 +6956,13 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A list of 3 (or 6 if bidirectional) activation functions for input, output, forget, cell, and hidden. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
@@ -6974,7 +6974,7 @@
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
           "name": "clip",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "forward",
@@ -6987,13 +6987,13 @@
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Couple the input and forget gates if 1.",
           "name": "input_forget",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -7121,7 +7121,7 @@
           "description": "An integer to use when an input string value is not found in the map.<br>One and only one of the 'default_*' attributes must be defined.",
           "name": "default_int64",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": "_Unused",
@@ -7181,14 +7181,14 @@
           "description": "A float.",
           "name": "default_float",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": -1,
           "description": "An integer.",
           "name": "default_int64",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": "_Unused",
@@ -7201,13 +7201,13 @@
           "description": "A list of floats.",
           "name": "keys_floats",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A list of ints.",
           "name": "keys_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "A list of strings. One and only one of 'keys_*'s should be set.",
@@ -7219,13 +7219,13 @@
           "description": "A list of floats.",
           "name": "values_floats",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A list of ints.",
           "name": "values_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "A list of strings. One and only one of 'value_*'s should be set.",
@@ -7287,13 +7287,13 @@
           "description": "Coefficient of leakage default to 0.01.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Activation",
@@ -7351,7 +7351,7 @@
           "description": "Coefficient of leakage.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Activation",
@@ -7408,13 +7408,13 @@
           "description": "If set, defines the broadcast dimensions.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Logic",
@@ -7613,7 +7613,7 @@
           "description": "Class labels when using integer labels. One and only one 'classlabels' attribute must be defined.",
           "name": "classlabels_ints",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Class labels when using string labels. One and only one 'classlabels' attribute must be defined.",
@@ -7625,19 +7625,19 @@
           "description": "A collection of weights of the model(s).",
           "name": "coefficients",
           "required": true,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "A collection of intercepts.",
           "name": "intercepts",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Indicates whether to do OvR or multinomial (0=OvR is the default).",
           "name": "multi_class",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": "NONE",
@@ -7704,13 +7704,13 @@
           "description": "Weights of the model(s).",
           "name": "coefficients",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Weights of the intercepts, if used.",
           "name": "intercepts",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "default": "NONE",
@@ -7724,7 +7724,7 @@
           "description": "The total number of regression targets, 1 if not defined.",
           "name": "targets",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Generalized linear regression evaluation.<br>\n    If targets is set to 1 (default) then univariate regression is performed.<br>\n    If targets is set to M then M sets of coefficients must be passed in as a sequence\n    and M results will be output for each input n in N.<br>\n    The coefficients array is of length n, and the coefficients for each target are contiguous.\n    Intercepts are optional but if provided must match the number of targets.\n",
@@ -7771,7 +7771,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Calculates the natural log of the given input tensor, element-wise.\n",
@@ -7868,7 +7868,7 @@
           "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Activation",
@@ -8098,14 +8098,14 @@
           "description": "The axis on which to apply normalization, -1 mean last axis.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 2,
           "description": "The order of the normalization, only 1 or 2 are supported.",
           "name": "p",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Normalization",
@@ -8159,26 +8159,26 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 2.0,
           "description": "p value of the Lp norm used to pool over the input data, default is 2.0.",
           "name": "p",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -8232,26 +8232,26 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 2,
           "description": "p value of the Lp norm used to pool over the input data.",
           "name": "p",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -8475,7 +8475,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Element-wise max of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
@@ -8625,19 +8625,19 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -8749,25 +8749,25 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The storage order of the tensor. 0 is row major, and 1 is column major.",
           "name": "storage_order",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -8892,37 +8892,37 @@
           "description": "Wether to use ceil or floor (default) to compute the output shape.",
           "name": "ceil_mode",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Dilation value along each axis of filter.",
           "name": "dilations",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The storage order of the tensor. 0 is row major, and 1 is column major.",
           "name": "storage_order",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Pool",
@@ -9040,14 +9040,14 @@
           "description": "ROI pool output shape (height, width).",
           "name": "pooled_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1.0,
           "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling.",
           "name": "spatial_scale",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Pool",
@@ -9099,19 +9099,19 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "MaxUnpool essentially computes the partial inverse of the MaxPool op.\n The input information to this op is typically the the output information from a MaxPool op. The first\n input tensor X is the tensor that needs to be unpooled, which is typically the pooled tensor (first output)\n from MaxPool. The second input tensor, I, contains the indices to the (locally maximal) elements corrsponding\n to the elements in the first input tensor X. Input tensor I is typically the second output of the MaxPool op.\n The third (optional) input is a tensor that specifies the output size of the unpooling operation.\n\nMaxUnpool is intended to do 'partial' inverse of the MaxPool op. 'Partial' because all the non-maximal\n values from the original input to MaxPool are set to zero in the output of the MaxUnpool op. Pooling\n the result of an unpooling operation should give back the original input to the unpooling op.\n\nMaxUnpool can produce the same output size for several input sizes, which makes unpooling op ambiguous.\n The third input argument, output_size, is meant to disambiguate the op and produce output tensor of\n known/predictable size.\n\nIn addition to the inputs, MaxUnpool takes three attributes, namely kernel_shape, strides, and pads,\n which define the exact unpooling op. The attributes typically have the same values as the corrsponding\n pooling op that the unpooling op is trying to invert.\n",
@@ -9185,7 +9185,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Element-wise mean of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
@@ -9328,7 +9328,7 @@
           "description": "A list of integers, along which to reduce. The default is to caculate along axes [0,2,3] for calculating mean and variance along each channel. Two variables with the same C-coordinate are associated with the same mean and variance.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "A MeanVarianceNormalization Function: Perform mean variance normalization\n      on the input tensor X using formula: <br/> ``` (X-EX)/sqrt(E(X-EX)^2) ```\n",
@@ -9380,7 +9380,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Element-wise min of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
@@ -9523,7 +9523,7 @@
           "description": "Whether the operator should behave like fmod (default=0 meaning it will do integer mods); Set this to 1 to force fmod treatment",
           "name": "fmod",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Performs element-wise binary modulus (with Numpy-style broadcasting support). \n    The sign of the remainder is the same as that of the Divisor.\n  \n    Mod operator can also behave like C fmod() or numpy.fmod. In this case, the sign of the remainder however, will be the same as the Dividend \n    (in contrast to integer mod). To force a behavior like numpy.fmod() an 'fmod' Attribute is provided.\n    This attribute is set to 0 by default causing the behavior to be like integer mod. \n    Setting this attribute to 1 causes the remainder to be calculated similar to that of numpy.fmod().\n\n    If the input type is floating point, then `fmod` attribute must be set to 1.\n  \n    In case of dividend being zero, the results will be platform dependent.\n\n  This operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
@@ -9636,19 +9636,19 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Performs element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -9709,13 +9709,13 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Performs element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -9838,20 +9838,20 @@
           "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will use int32.",
           "name": "dtype",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1,
           "description": "Number of times to sample.",
           "name": "sample_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "(Optional) Seed to the random generator, if not specified we will auto generate one.",
           "name": "seed",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Generate a tensor of samples from a multinomial distribution according to the probabilities\nof each of the possible outcomes.\n",
@@ -9905,7 +9905,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Neg takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where each element flipped sign, y = -x, is applied to\nthe tensor elementwise.\n",
@@ -10005,7 +10005,7 @@
           "description": "Integer indicate the format of the box data. The default is 0.0 - the box data is supplied as [y1, x1, y2, x2] where (y1, x1) and (y2, x2) are the coordinates of any diagonal pair of box cornersand the coordinates can be provided as normalized (i.e., lying in the interval [0, 1]) or absolute. Mostly used for TF models.1 - the box data is supplied as [x_center, y_center, width, height]. Mostly used for Pytoch models.",
           "name": "center_point_box",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Filter out boxes that have high intersection-over-union (IOU) overlap with previously selected boxes.\nBounding boxes with score less than score_threshold are removed. Bounding box format is indicated by attribute center_point_box.\nNote that this algorithm is agnostic to where the origin is in the coordinate system and more generally is invariant to\northogonal transformations and translations of the coordinate system; thus translating or reflections of the coordinate system\nresult in the same boxes being selected by the algorithm.\nThe selected_indices output is a set of integers indexing into the input collection of bounding boxes representing the selected boxes.\nThe bounding box coordinates corresponding to the selected indices can then be obtained using the Gather or GatherND operation.\nNote: The boxes doesn't has class dimension which means it alwasy has scores calculated for different classes on same box.\n",
@@ -10249,7 +10249,7 @@
           "description": "(Optional) Axis along which one-hot representation in added. Default: axis=-1. axis=-1 means that the additional dimension will be inserted as the innermost/last dimension in the output tensor.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Produces a one-hot tensor based on inputs.\n    The locations represented by the index values in the 'indices' input tensor will have 'on_value'\n    and the other locations will have 'off_value' in the output tensor, where 'on_value' and 'off_value'\n    are specified as part of required input argument 'values', which is a two-element tensor of format\n    [off_value, on_value]. The rank of the output tensor will be one greater than the rank of the\n    input tensor. The additional dimension is for one-hot representation. The additional dimension will\n    be inserted at the position specified by 'axis'. If 'axis' is not specified then then additional\n    dimension will be inserted as the innermost dimension, i.e. axis=-1. The size of the additional\n    dimension is specified by required scalar input 'depth'. The type of the output tensor is the same\n    as the type of the 'values' input. Any entries in the 'indices' input tensor with values outside\n    the range [0, depth) will result in one-hot representation with all 'off_value' values in the\n    output tensor.\n",
@@ -10361,7 +10361,7 @@
           "description": "List of categories, ints.<br>One and only one of the 'cats_*' attributes must be defined.",
           "name": "cats_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "List of categories, strings.<br>One and only one of the 'cats_*' attributes must be defined.",
@@ -10374,7 +10374,7 @@
           "description": "If true and category is not present, will return all zeros; if false and a category if not found, the operator will fail.",
           "name": "zeros",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Replace each input element with an array of ones and zeros, where a single\n    one is placed at the index of the category that was passed in. The total category count \n    will determine the size of the extra dimension of the output array Y.<br>\n    For example, if we pass a tensor with a single value of 4, and a category count of 8, \n    the output will be a tensor with ``[0,0,0,0,1,0,0,0]``.<br>\n    This operator assumes every input feature is from the same set of categories.<br>\n    If the input is a tensor of float, int32, or double, the data will be cast\n    to integers and the cats_int64s category list will be used for the lookups.\n",
@@ -10422,13 +10422,13 @@
           "description": "If set, defines the broadcast dimensions.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Logic",
@@ -10554,7 +10554,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Activation",
@@ -10789,13 +10789,13 @@
           "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `paddings` rank should be double of the input's rank. `paddings` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "paddings",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "One float, indicates the value to be filled, default is 0",
           "name": "value",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Tensor",
@@ -10859,13 +10859,13 @@
           "description": "List of integers indicating the number of padding elements to add or remove (if negative) at the beginning and end of each axis. For 2D it is the number of pixels. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "pads",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "One float, indicates the value to be filled.",
           "name": "value",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Tensor",
@@ -10922,13 +10922,13 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -11049,32 +11049,32 @@
           "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
           "name": "dilations",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "number of groups input channels and output channels are divided into. default is 1.",
           "name": "group",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The shape of the convolution kernel. If not present, should be inferred from input 'w'.",
           "name": "kernel_shape",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0.The value represent the number of pixels added to the beginning and end part of the corresponding axis.`pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number ofpixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaultsto 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
           "name": "strides",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "The convolution operator consumes a quantized input tensor, its scale and zero point,\na quantized filter, its scale and zero point, and output's scale and zero point,\nand computes the quantized output. Each scale and zero-point pair must have same shape.\nIt means they must be either scalars (per tensor) or 1-D tensors (per output channel).\nEach input or output and its related zero point must have same type.\n",
@@ -11345,13 +11345,13 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `Tanh` if not specified.",
@@ -11363,7 +11363,7 @@
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
           "name": "clip",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "forward",
@@ -11376,13 +11376,13 @@
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The sequence output for the hidden is optional if 0. Default 0.",
           "name": "output_sequence",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -11485,13 +11485,13 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `Tanh` if not specified.",
@@ -11503,7 +11503,7 @@
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
           "name": "clip",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "forward",
@@ -11516,7 +11516,7 @@
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Layer",
@@ -11620,32 +11620,32 @@
           "description": "The data type for the elements of the output tensor. Default is TensorProto::FLOAT.",
           "name": "dtype",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The mean of the normal distribution.",
           "name": "mean",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "The standard deviation of the normal distribution.",
           "name": "scale",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "(Optional) Seed to the random generator, if not specified we will auto generate one.",
           "name": "seed",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "The shape of the output tensor.",
           "name": "shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is specified by the `shape` argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
@@ -11684,26 +11684,26 @@
           "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will usethe data type of the input tensor.",
           "name": "dtype",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The mean of the normal distribution.",
           "name": "mean",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0,
           "description": "The standard deviation of the normal distribution.",
           "name": "scale",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "(Optional) Seed to the random generator, if not specified we will auto generate one.",
           "name": "seed",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Generate a tensor with random values drawn from a normal distribution.\nThe shape of the output tensor is copied from the shape of the input tensor,\nand the parameters of the normal distribution are specified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message, and be valid as an output type.\n",
@@ -11771,32 +11771,32 @@
           "description": "The data type for the elements of the output tensor. If not specified, default is TensorProto::FLOAT.",
           "name": "dtype",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1.0,
           "description": "Upper boundary of the output values.",
           "name": "high",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Lower boundary of the output values.",
           "name": "low",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "(Optional) Seed to the random generator, if not specified we will auto generate one.",
           "name": "seed",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "The shape of the output tensor.",
           "name": "shape",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is specified by the `shape` argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
@@ -11835,26 +11835,26 @@
           "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will usethe data type of the input tensor.",
           "name": "dtype",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1.0,
           "description": "Upper boundary of the output values.",
           "name": "high",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "Lower boundary of the output values.",
           "name": "low",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "(Optional) Seed to the random generator, if not specified we will auto generate one.",
           "name": "seed",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Generate a tensor with random values drawn from a uniform distribution.\nThe shape of the output tensor is copied from the shape of the input tensor,\nand the parameters of the uniform distribution are specified by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided.\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
@@ -11921,7 +11921,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Reciprocal takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the reciprocal is, y = 1/x, is applied to\nthe tensor elementwise.\n",
@@ -12017,14 +12017,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12088,14 +12088,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12159,14 +12159,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12226,14 +12226,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12297,14 +12297,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12368,14 +12368,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12439,14 +12439,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12510,14 +12510,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12581,14 +12581,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12652,14 +12652,14 @@
           "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
@@ -12723,7 +12723,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Activation",
@@ -12821,13 +12821,13 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "New shape",
           "name": "shape",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Shape",
@@ -13025,13 +13025,13 @@
           "description": "(Optional) Specify which axis is batch axis. Must be one of 1 (default), or 0.",
           "name": "batch_axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "(Optional) Specify which axis is time axis. Must be one of 0 (default), or 1.",
           "name": "time_axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Reverse batch of sequences having different lengths specified by `sequence_lens`.\n\nFor each slice i iterating on batch axis, the operator reverses the first sequence_lens[i] elements on time axis,\nand copies elements whose index's beyond sequence_lens[i] to the output. So the output slice i contains reversed\nsequences on the first sequence_lens[i] elements, then have original values copied for the other elements.\n\nExample 1:\n  input = [[0.0, 4.0, 8.0,  12.0],\n           [1.0, 5.0, 9.0,  13.0],\n           [2.0, 6.0, 10.0, 14.0],\n           [3.0, 7.0, 11.0, 15.0]]\n  sequence_lens = [4, 3, 2, 1]\n  time_axis = 0\n  batch_axis = 1\n\n  output = [[3.0, 6.0, 9.0,  12.0],\n            [2.0, 5.0, 8.0,  13.0],\n            [1.0, 4.0, 10.0, 14.0],\n            [0.0, 7.0, 11.0, 15.0]]\n\nExample 2:\n  input = [[0.0,  1.0,  2.0,  3.0 ],\n           [4.0,  5.0,  6.0,  7.0 ],\n           [8.0,  9.0,  10.0, 11.0],\n           [12.0, 13.0, 14.0, 15.0]]\n  sequence_lens = [1, 2, 3, 4]\n  time_axis = 1\n  batch_axis = 0\n\n  output = [[0.0,  1.0,  2.0,  3.0 ],\n            [5.0,  4.0,  6.0,  7.0 ],\n            [10.0, 9.0,  8.0,  11.0],\n            [15.0, 14.0, 13.0, 12.0]]\n",
@@ -13112,27 +13112,27 @@
           "description": "default 1; Pooled output Y's height.",
           "name": "output_height",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1,
           "description": "default 1; Pooled output Y's width.",
           "name": "output_width",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Number of sampling points in the interpolation grid used to compute the output value of each pooled output bin. If > 0, then exactly sampling_ratio x sampling_ratio grid points are used. If == 0, then an adaptive number of grid points are used (computed as ceil(roi_width / output_width), and likewise for height). Default is 0.",
           "name": "sampling_ratio",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": 1.0,
           "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input spatial scale to the scale used when pooling, i.e., spatial scale of the input feature map X relative to the input image. E.g.; default is 1.0f. ",
           "name": "spatial_scale",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Region of Interest (RoI) align operation described in the\n[Mask R-CNN paper](https://arxiv.org/abs/1703.06870).\nRoiAlign consumes an input tensor X and region of interests (rois)\nto apply pooling across each RoI; it produces a 4-D tensor of shape\n(num_rois, C, output_height, output_width).\n\nRoiAlign is proposed to avoid the misalignment by removing\nquantizations while converting from original image into feature\nmap and from feature map into RoI feature; in each ROI bin,\nthe value of the sampled locations are computed directly\nthrough bilinear interpolation.\n",
@@ -13201,7 +13201,7 @@
           "description": "Class labels if using integer labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_ints",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Class labels if using string labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
@@ -13213,13 +13213,13 @@
           "description": "",
           "name": "coefficients",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "List of 3 elements containing gamma, coef0, and degree, in that order. Zero if unused for the kernel.",
           "name": "kernel_params",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "default": "LINEAR",
@@ -13239,31 +13239,31 @@
           "description": "First set of probability coefficients.",
           "name": "prob_a",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Second set of probability coefficients. This array must be same size as prob_a.<br>If these are provided then output Z are probability estimates, otherwise they are raw scores.",
           "name": "prob_b",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "",
           "name": "rho",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "",
           "name": "support_vectors",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "",
           "name": "vectors_per_class",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Support Vector Machine classifier\n",
@@ -13323,13 +13323,13 @@
           "description": "Support vector coefficients.",
           "name": "coefficients",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "List of 3 elements containing gamma, coef0, and degree, in that order. Zero if unused for the kernel.",
           "name": "kernel_params",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "default": "LINEAR",
@@ -13342,13 +13342,13 @@
           "description": "The number of support vectors.",
           "name": "n_supports",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Flag indicating whether the regression is a one-class SVM or not.",
           "name": "one_class",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "default": "NONE",
@@ -13361,13 +13361,13 @@
           "description": "",
           "name": "rho",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Chosen support vectors",
           "name": "support_vectors",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         }
       ],
       "description": "Support Vector Machine regression prediction and one-class SVM anomaly detection.\n",
@@ -13414,13 +13414,13 @@
           "description": "First, offset by this.<br>Can be length of features in an [N,F] tensor or length 1, in which case it applies to all features, regardless of dimension count.",
           "name": "offset",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Second, multiply by this.<br>Can be length of features in an [N,F] tensor or length 1, in which case it applies to all features, regardless of dimension count.<br>Must be same length as 'offset'",
           "name": "scale",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         }
       ],
       "description": "Rescale input data, for example to standardize features by removing the mean and scaling to unit variance.\n",
@@ -13473,13 +13473,13 @@
           "description": "An optional list of M flags. The i-th element of the list specifies the direction to be scanned for the i-th scan_input tensor: 0 indicates forward direction and 1 indicates reverse direction. If omitted, all scan_input tensors will be scanned in the forward direction.",
           "name": "directions",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "An attribute specifying the number of scan_inputs M. ",
           "name": "num_scan_inputs",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n \n",
@@ -13568,31 +13568,31 @@
           "description": "An attribute specifying the number of scan_inputs M. ",
           "name": "num_scan_inputs",
           "required": true,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "An optional list of M flags. The i-th element of the list specifies the axis to be scanned (the sequence axis) for the i-th scan_input. If omitted, 0 will be used as the scan axis for every scan_input.",
           "name": "scan_input_axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "An optional list of M flags. The i-th element of the list specifies the direction to be scanned for the i-th scan_input tensor: 0 indicates forward direction and 1 indicates reverse direction. If omitted, all scan_input tensors will be scanned in the forward direction.",
           "name": "scan_input_directions",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "An optional list of K flags. The i-th element of the list specifies the axis for the i-th scan_output. The scan outputs are accumulated along the specified axis. If omitted, 0 will be used as the scan axis for every scan_output.",
           "name": "scan_output_axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "An optional list of K flags, one for each scan_output. The i-th element of the list specifies whether the i-th scan_output should be constructed by appending or prepending a new value in each iteration: 0 indicates appending and 1 indicates prepending. If omitted, all scan_output tensors will be produced by appending a value in each iteration.",
           "name": "scan_output_directions",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
@@ -13669,7 +13669,7 @@
           "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Given `data`, `updates` and `indices` input tensors of rank r >= 1, write the values provided by `updates` \ninto the first input, `data`, along `axis` dimension of `data` (by default outer-most one as axis=0) at corresponding `indices`. \nFor each entry in `updates`, the target index in `data` is specified by corresponding entry in `indices`\nfor dimension = axis, and index in source for dimension != axis. For instance, in a 2-D tensor case,\ndata[indices[i][j]][j] = updates[i][j] if axis = 0, or data[i][indices[i][j]] = updates[i][j] if axis = 1,\nwhere i and j are loop counters from 0 up to the respective size in `updates` - 1.\n\nExample 1:\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n\nExample 2:\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n",
@@ -13756,20 +13756,20 @@
           "description": "Coefficient of SELU default to 1.6732.",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "default": 1.0506999492645264,
           "description": "Coefficient of SELU default to 1.0507.",
           "name": "gamma",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Activation",
@@ -13827,14 +13827,14 @@
           "description": "Coefficient of SELU default to 1.67326319217681884765625 (i.e., float32 approximation of 1.6732632423543772848170429916717).",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 1.0507010221481323,
           "description": "Coefficient of SELU default to 1.05070102214813232421875 (i.e., float32 approximation of 1.0507009873554804934193349852946).",
           "name": "gamma",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Activation",
@@ -13954,14 +13954,14 @@
           "description": "The bias value added to output. Default is 0.",
           "name": "bias",
           "required": false,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": 0.5,
           "description": "The lambd value for the Shrink formulation. Default is 0.5.",
           "name": "lambd",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Shrink takes one input data (Tensor<numeric>) and produces one Tensor output,\nhaving same datatype and shape with input. It has two attributes, lambd and\nbias. The formula of this operator is: If x < -lambd, y = x + bias;\nIf x > lambd, y = x - bias; Otherwise, y = 0.\n",
@@ -14025,7 +14025,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Activation",
@@ -14326,19 +14326,19 @@
           "description": "Axes that `starts` and `ends` apply to. It's optional. If not present, will be treated as [0, 1, ..., len(`starts`) - 1].",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Ending indices (exclusive) of corresponding axis in axes`",
           "name": "ends",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Starting indices of corresponding axis in `axes`",
           "name": "starts",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Tensor",
@@ -14539,7 +14539,7 @@
           "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Activation",
@@ -14686,7 +14686,7 @@
           "description": "Blocks of [blocksize, blocksize] are moved.",
           "name": "blocksize",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "SpaceToDepth rearranges blocks of spatial data into depth. More specifically,\nthis op outputs a copy of the input tensor where values from the height and width dimensions\nare moved to the depth dimension.\n",
@@ -14744,13 +14744,13 @@
           "description": "Which axis to split on",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "length of each output",
           "name": "split",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Tensor",
@@ -14818,13 +14818,13 @@
           "description": "Which axis to split on.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "length of each output",
           "name": "split",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Tensor",
@@ -14898,7 +14898,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Square root takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the square root is, y = x^0.5, is applied to\nthe tensor elementwise. If x is negative, then it will return NaN.\n",
@@ -14994,7 +14994,7 @@
           "description": "List of non-negative integers, indicate the dimensions to squeeze.",
           "name": "axes",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Transform",
@@ -15066,7 +15066,7 @@
           "description": "Boolean. Whether the identification of stop words in X is case-sensitive. Default is false",
           "name": "is_case_sensitive",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Environment dependent string that denotes the locale according to which output strings needs to be upper/lowercased.Default en_US or platform specific equivalent as decided by the implementation.",
@@ -15139,19 +15139,19 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -15212,13 +15212,13 @@
           "description": "If set, defines the broadcast dimensions. See doc for details.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Pass 1 to enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -15340,7 +15340,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "description": "Element-wise sum of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
@@ -15527,7 +15527,7 @@
           "description": "legacy optimization attribute.",
           "name": "consumed_inputs",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Activation",
@@ -15625,19 +15625,19 @@
           "description": "Maximum n-gram length. If this value is 3, 3-grams will be used to generate the output.",
           "name": "max_gram_length",
           "required": true,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Maximum number of items (integers/strings) to be skipped when constructing an n-gram from X. If max_skip_count=1, min_gram_length=2, max_gram_length=3, this operator may generate 2-grams with skip_count=0 and skip_count=1, and 3-grams with skip_count=0 and skip_count=1",
           "name": "max_skip_count",
           "required": true,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Minimum n-gram length. If this value is 2 and max_gram_length is 3, output may contain counts of 2-grams and 3-grams.",
           "name": "min_gram_length",
           "required": true,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "The weighting criteria. It can be one of \"TF\" (term frequency), \"IDF\" (inverse document frequency), and \"TFIDF\" (the combination of TF and IDF)",
@@ -15649,19 +15649,19 @@
           "description": "The starting indexes of 1-grams, 2-grams, and so on in pool. It is useful when determining the boundary between two consecutive collections of n-grams. For example, if ngram_counts is [0, 17, 36], the first index (zero-based) of 1-gram/2-gram/3-gram in pool are 0/17/36. This format is essentially identical to CSR (or CSC) sparse matrix format, and we choose to use this due to its popularity.",
           "name": "ngram_counts",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "list of int64s (type: AttributeProto::INTS). This list is parallel to the specified 'pool_*' attribute. The i-th element in ngram_indexes indicate the coordinate of the i-th n-gram in the output tensor.",
           "name": "ngram_indexes",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "List of int64 n-grams learned from the training set. Either this or pool_strings attributes must be present but not both. It's an 1-D tensor starting with the collections of all 1-grams and ending with the collections of n-grams. The i-th element in pool stores the n-gram that should be mapped to coordinate ngram_indexes[i] in the output vector.",
           "name": "pool_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "List of strings n-grams learned from the training set. Either this or pool_int64s attributes must be present but not both. It's an 1-D tensor starting with the collections of all 1-grams and ending with the collections of n-grams. The i-th element in pool stores the n-gram that should be mapped to coordinate ngram_indexes[i] in the output vector.",
@@ -15673,7 +15673,7 @@
           "description": "list of floats. This attribute stores the weight of each n-gram in pool. The i-th element in weights is the weight of the i-th n-gram in pool. Its length equals to the size of ngram_indexes. By default, weights is an all-one tensor.This attribute is used when mode is \"IDF\" or \"TFIDF\" to scale the associated word counts.",
           "name": "weights",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         }
       ],
       "description": "This transform extracts n-grams from the input sequence and save them as a vector. Input can\nbe either a 1-D or 2-D tensor. For 1-D input, output is the n-gram representation of that input.\nFor 2-D input, the output is also a  2-D tensor whose i-th row is the n-gram representation of the i-th input row.\nMore specifically, if input shape is [C], the corresponding output shape would be [max(ngram_indexes) + 1].\nIf input shape is [N, C], this operator produces a [N, max(ngram_indexes) + 1]-tensor.\n\nIn contrast to standard n-gram extraction, here, the indexes of extracting an n-gram from the original\nsequence are not necessarily consecutive numbers. The discontinuity between indexes are controlled by the number of skips.\nIf the number of skips is 2, we should skip two tokens when scanning through the original sequence.\nLet's consider an example. Assume that input sequence is [94, 17, 36, 12, 28] and the number of skips is 2.\nThe associated 2-grams are [94, 12] and [17, 28] respectively indexed by [0, 3] and [1, 4].\nIf the number of skips becomes 0, the 2-grams generated are [94, 17], [17, 36], [36, 12], [12, 28]\nindexed by [0, 1], [1, 2], [2, 3], [3, 4], respectively.\n\nThe output vector (denoted by Y) stores the count of each n-gram;\nY[ngram_indexes[i]] indicates the times that the i-th n-gram is found. The attribute ngram_indexes is used to determine the mapping\nbetween index i and the corresponding n-gram's output coordinate. If pool_int64s is [94, 17, 17, 36], ngram_indexes is [1, 0],\nngram_counts=[0, 0], then the Y[0] (first element in Y) and Y[1] (second element in Y) are the counts of [17, 36] and [94, 17],\nrespectively. An n-gram which cannot be found in pool_strings/pool_int64s should be ignored and has no effect on the output.\nNote that we may consider all skips up to S when generating the n-grams.\n\nThe examples used above are true if mode is \"TF\". If mode is \"IDF\", all the counts larger than 1 would be truncated to 1 and\nthe i-th element in weights would be used to scale (by multiplication) the count of the i-th n-gram in pool. If mode is \"TFIDF\",\nthis operator first computes the counts of all n-grams and then scale them by the associated values in the weights attribute.\n\nOnly one of pool_strings and pool_int64s can be set. If pool_int64s is set, the input should be an integer tensor.\nIf pool_strings is set, the input must be a string tensor.\n",
@@ -15757,7 +15757,7 @@
           "description": "Threshold value",
           "name": "alpha",
           "required": false,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "category": "Activation",
@@ -15954,13 +15954,13 @@
           "description": "Dimension on which to do the sort.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Number of top elements to retrieve",
           "name": "k",
           "required": true,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
@@ -16025,7 +16025,7 @@
           "description": "Dimension on which to do the sort.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\n   \nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
@@ -16094,7 +16094,7 @@
           "description": "A list of integers. By default, reverse the dimensions, otherwise permute the axes according to the values given.",
           "name": "perm",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Shape",
@@ -16163,37 +16163,37 @@
           "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)",
           "name": "base_values",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "The index of the class list that each weight is for.",
           "name": "class_ids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "node id that this weight is for.",
           "name": "class_nodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The id of the tree that this node is in.",
           "name": "class_treeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The weight for the class in class_id.",
           "name": "class_weights",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "Class labels if using integer labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Class labels if using string labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
@@ -16205,25 +16205,25 @@
           "description": "Child node if expression is false.",
           "name": "nodes_falsenodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Feature id for each node.",
           "name": "nodes_featureids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Popularity of each node, used for performance and may be omitted.",
           "name": "nodes_hitrates",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "For each node, define what to do in the presence of a missing value: if a value is missing (NaN), use the 'true' or 'false' branch based on the value in this array.<br>This attribute may be left undefined, and the defalt value is false (0) for all nodes.",
           "name": "nodes_missing_value_tracks_true",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'",
@@ -16235,25 +16235,25 @@
           "description": "Node id for each node. Ids may restart at zero for each tree, but it not required to.",
           "name": "nodes_nodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Tree id for each node.",
           "name": "nodes_treeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Child node if expression is true.",
           "name": "nodes_truenodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Thresholds to do the splitting on for each node.",
           "name": "nodes_values",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "default": "NONE",
@@ -16327,37 +16327,37 @@
           "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)",
           "name": "base_values",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "The total number of targets.",
           "name": "n_targets",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Child node if expression is false",
           "name": "nodes_falsenodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Feature id for each node.",
           "name": "nodes_featureids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Popularity of each node, used for performance and may be omitted.",
           "name": "nodes_hitrates",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "description": "For each node, define what to do in the presence of a NaN: use the 'true' (if the attribute value is 1) or 'false' (if the attribute value is 0) branch based on the value in this array.<br>This attribute may be left undefined and the defalt value is false (0) for all nodes.",
           "name": "nodes_missing_value_tracks_true",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'",
@@ -16369,25 +16369,25 @@
           "description": "Node id for each node. Node ids must restart at zero for each tree and increase sequentially.",
           "name": "nodes_nodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Tree id for each node.",
           "name": "nodes_treeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Child node if expression is true",
           "name": "nodes_truenodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "Thresholds to do the splitting on for each node.",
           "name": "nodes_values",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         },
         {
           "default": "NONE",
@@ -16400,25 +16400,25 @@
           "description": "The index of the target that each weight is for",
           "name": "target_ids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The node id of each weight",
           "name": "target_nodeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The id of the tree that each node is in.",
           "name": "target_treeids",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The weight for each target",
           "name": "target_weights",
           "required": false,
-          "type": "float[]"
+          "type": "float32[]"
         }
       ],
       "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.<br>\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.<br>\n    All fields prefixed with target_ are tuples of votes at the leaves.<br>\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.<br>\n    All trees must have their node ids start at 0 and increment by 1.<br>\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
@@ -16465,7 +16465,7 @@
           "description": "List of non-negative integers, indicate the dimensions to be inserted",
           "name": "axes",
           "required": true,
-          "type": "int[]"
+          "type": "int64[]"
         }
       ],
       "category": "Transform",
@@ -16530,7 +16530,7 @@
           "description": "The scale along height dimension. It takes value greater than or equal to 1.",
           "name": "height_scale",
           "required": true,
-          "type": "float"
+          "type": "float32"
         },
         {
           "default": "nearest",
@@ -16543,7 +16543,7 @@
           "description": "The scale along width dimension. It takes value greater than or equal to 1.",
           "name": "width_scale",
           "required": true,
-          "type": "float"
+          "type": "float32"
         }
       ],
       "description": "Upsample the input tensor.\nThe width and height of the output tensor are:\n  output_width = floor(input_width * width_scale),\n  output_height = floor(input_height * height_scale).\nExample:\n  Given `data` tensor, width_scale, height_scale, mode,\n  Upsample the input 4-D tensor in nearest mode:\n  data = [[[\n      [1, 2],\n      [3, 4]\n  ]]]\n  width_scale = 2\n  height_scale = 2\n  mode = \"nearest\"\n  output = [[[\n      [1, 1, 2, 2],\n      [1, 1, 2, 2],\n      [3, 3, 4, 4],\n      [3, 3, 4, 4]\n  ]]]\n",
@@ -16605,7 +16605,7 @@
           "description": "The scale array along each dimension. It takes value greater than or equal to 1. The number of elements of 'scales' should be the same as the rank of input 'X'.",
           "name": "scales",
           "required": true,
-          "type": "float[]"
+          "type": "float32[]"
         }
       ],
       "description": "Upsample the input tensor.\nEach dimension value of the output tensor is:\n  output_dimension = floor(input_dimension * scale).\n",
@@ -16882,13 +16882,13 @@
           "description": "If set, defines the broadcast dimensions.",
           "name": "axis",
           "required": false,
-          "type": "int"
+          "type": "int64"
         },
         {
           "description": "Enable broadcasting",
           "name": "broadcast",
           "required": false,
-          "type": "int"
+          "type": "int64"
         }
       ],
       "category": "Logic",
@@ -17014,7 +17014,7 @@
           "description": "The keys when using int keys.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_int64s",
           "required": false,
-          "type": "int[]"
+          "type": "int64[]"
         },
         {
           "description": "The keys when using string keys.<br>One and only one of the 'classlabels_*' attributes must be defined.",

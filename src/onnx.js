@@ -633,13 +633,13 @@ onnx.Attribute = class {
                 if (!onnx.Attribute._attributeTypeMap) {
                     var map = {};
                     map[onnx.proto.AttributeProto.AttributeType.UNDEFINED] = 'undefined';
-                    map[onnx.proto.AttributeProto.AttributeType.FLOAT] = 'float';
-                    map[onnx.proto.AttributeProto.AttributeType.INT] = 'int';
+                    map[onnx.proto.AttributeProto.AttributeType.FLOAT] = 'float32';
+                    map[onnx.proto.AttributeProto.AttributeType.INT] = 'int64';
                     map[onnx.proto.AttributeProto.AttributeType.STRING] = 'string';
                     map[onnx.proto.AttributeProto.AttributeType.TENSOR] = 'tensor';
                     map[onnx.proto.AttributeProto.AttributeType.GRAPH] = 'graph';
-                    map[onnx.proto.AttributeProto.AttributeType.FLOATS] = 'float';
-                    map[onnx.proto.AttributeProto.AttributeType.INTS] = 'int[]';
+                    map[onnx.proto.AttributeProto.AttributeType.FLOATS] = 'float32';
+                    map[onnx.proto.AttributeProto.AttributeType.INTS] = 'int64[]';
                     map[onnx.proto.AttributeProto.AttributeType.STRINGS] = 'string[]';
                     map[onnx.proto.AttributeProto.AttributeType.TENSORS] = 'tensor[]';
                     map[onnx.proto.AttributeProto.AttributeType.GRAPHS] = 'graph[]';
