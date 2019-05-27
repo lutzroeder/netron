@@ -1063,8 +1063,7 @@
       "attributes": [
         {
           "description": "Positive integer, dimensionality of the output space.",
-          "name": "units",
-          "type": "int"
+          "name": "units"
         },
         {
           "default": "linear",
