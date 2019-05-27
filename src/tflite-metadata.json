@@ -14,10 +14,10 @@
       "attributes": [
         { "name": "padding", "type": "Padding", "default": "SAME" },
         { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "stride_w", "type": "int", "default": 1 },
-        { "name": "stride_h", "type": "int", "default": 1 },
-        { "name": "dilation_w_factor", "type": "int", "default": 1 },
-        { "name": "dilation_h_factor", "type": "int", "default": 1 }
+        { "name": "stride_w", "type": "int32", "default": 1 },
+        { "name": "stride_h", "type": "int32", "default": 1 },
+        { "name": "dilation_w_factor", "type": "int32", "default": 1 },
+        { "name": "dilation_h_factor", "type": "int32", "default": 1 }
       ]
     }
   },
@@ -52,7 +52,10 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+        { "name": "cell_clip", "type": "float32", "default": 0.0 },
+        { "name": "proj_clip", "type": "float32", "default": 0.0 },
+        { "name": "kernel_type", "type": "LSTMKernelType", "default": "FULL" }
       ]
     }
   },
@@ -108,11 +111,11 @@
       "attributes": [
         { "name": "padding", "type": "Padding", "default": "SAME" },
         { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "stride_w", "type": "int", "default": 1 },
-        { "name": "stride_h", "type": "int", "default": 1 },
-        { "name": "depth_multiplier", "type": "int", "default": 1 },
-        { "name": "dilation_w_factor", "type": "int", "default": 1 },
-        { "name": "dilation_h_factor", "type": "int", "default": 1 }
+        { "name": "stride_w", "type": "int32", "default": 1 },
+        { "name": "stride_h", "type": "int32", "default": 1 },
+        { "name": "depth_multiplier", "type": "int32", "default": 1 },
+        { "name": "dilation_w_factor", "type": "int32", "default": 1 },
+        { "name": "dilation_h_factor", "type": "int32", "default": 1 }
       ]
     }
   },
@@ -128,7 +131,11 @@
       ],
       "attributes": [
         { "name": "padding", "type": "Padding", "default": "SAME" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+        { "name": "stride_w", "type": "int32" },
+        { "name": "stride_h", "type": "int32" },
+        { "name": "filter_width", "type": "int32" },
+        { "name": "filter_height", "type": "int32" }
       ]
     }
   },
@@ -208,7 +215,11 @@
       ],
       "attributes": [
         { "name": "padding", "type": "Padding", "default": "SAME" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+        { "name": "stride_w", "type": "int32" },
+        { "name": "stride_h", "type": "int32" },
+        { "name": "filter_width", "type": "int32" },
+        { "name": "filter_height", "type": "int32" }
       ]
     }
   },
@@ -303,7 +314,7 @@
         { "name": "output" }
       ],
       "attributes": [
-        { "name": "axis", "type": "int" },
+        { "name": "axis", "type": "int32" },
         { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
