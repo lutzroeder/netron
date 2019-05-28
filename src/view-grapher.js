@@ -480,7 +480,9 @@ grapher.NodeElement.List = class {
             }
             var textNameElement = this.createElement('tspan');
             textNameElement.textContent = item.name;
-            textNameElement.style.fontWeight = 'bold';
+            if (item.separator.trim() != '=') {
+                textNameElement.style.fontWeight = 'bold';
+            }
             textElement.appendChild(textNameElement);
             var textValueElement = this.createElement('tspan');
             textValueElement.textContent = item.separator + item.value;
