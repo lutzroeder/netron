@@ -620,7 +620,7 @@ tf.Node = class {
     }
 };
 
-tf.Attribute = class { 
+tf.Attribute = class {
     constructor(name, value, operator, metadata) {
         this._name = name;
         this._value = null;
@@ -732,9 +732,6 @@ tf.Attribute = class {
         var attributeVisibleMap = metadata.getAttributeVisibleMap(operator);
         if (attributeVisibleMap[name]) {
             this._visible = false;
-        }
-        if (this._type == 'list(shape)') {
-            this._type = 'shape[]';
         }
     }
 

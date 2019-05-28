@@ -134,6 +134,23 @@ def convert_number(number):
         return '-NaN'
     return number
 
+attr_type_table = {
+    'type': 'type', 'list(type)': 'type[]',
+    'bool': 'boolean',
+    'int': 'int64', 'list(int)': 'int64[]',
+    'float': 'float32', 'list(float)': 'float32[]',
+    'string': 'string', 'list(string)': 'string[]',
+    'shape': 'shape', 'list(shape)': 'shape[]',
+    'tensor': 'tensor',
+    'func': 'function', 'list(func)': 'function[]'
+}
+
+def convert_attr_type(type):
+    if type in attr_type_table:
+        return attr_type_table[type]
+    print(type)
+    return type
+
 def convert_attr_value(attr_value):
     if attr_value.HasField('list'):
         list = []
@@ -211,8 +228,11 @@ for op in ops_list.op:
             json_schema['attributes'] = []
         json_attribute = {}
         json_attribute['name'] = attr.name
-        if attr.type:
-            json_attribute['type'] = attr.type
+        attr_type = convert_attr_type(attr.type)
+        if attr_type:
+            json_attribute['type'] = attr_type
+        else:
+            del json_attribute['type']
         if attr.name in api_def_attr_map:
             api_def_attr = api_def_attr_map[attr.name]
             if api_def_attr.description:
