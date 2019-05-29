@@ -29,9 +29,9 @@ git_sync() {
         git -C "${third_party}/${1}" fetch --quiet -p
         git -C "${third_party}/${1}" reset --quiet --hard origin/$(git -C "${third_party}/${1}" rev-parse --abbrev-ref HEAD)
     else
-        git -C "${third_party}" clone --quiet --recursive ${2}
+        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -43,6 +43,7 @@ clean() {
 sync() {
     bold "pytorch sync"
     git_sync pytorch https://github.com/pytorch/pytorch.git
+    git_sync torchvision https://github.com/pytorch/vision.git
 }
 
 install() {
@@ -63,7 +64,7 @@ install() {
     source ${virtualenv}/bin/activate
     ${python} -m pip install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
     ${python} -m pip install --quiet ${third_party}/pytorch
-    ${python} -m pip install --quiet torchvision
+    ${python} -m pip install --quiet ${third_party}/torchvision
     deactivate
 }
 
