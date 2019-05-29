@@ -3335,13 +3335,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "vgg_conv.pth",
-    "source": "https://bethgelab.org/media/uploads/pytorch_models/vgg_conv.pth",
-    "format": "PyTorch",
-    "link":   "https://github.com/leongatys/PytorchNeuralStyleTransfer"
-  },
-  {
-    "type":   "pytorch",
     "target": "vgg11-bbd30ac9.pth",
     "format": "PyTorch",
     "source": "https://download.pytorch.org/models/vgg11-bbd30ac9.pth"
