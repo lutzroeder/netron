@@ -258,7 +258,7 @@ onnx.Graph = class {
         this._imageFormat = imageFormat;
 
         if (graph) {
-            this._name = name || null;
+            this._name = graph.name || null;
             this._description = graph.doc_string || '';
 
             var initializers = {};
