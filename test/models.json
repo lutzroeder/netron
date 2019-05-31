@@ -3485,7 +3485,17 @@
   {
     "type":   "tf",
     "target": "densenet.pb",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.pb]"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/guide/hosted_models.md"
+  },
+  {
+    "type":   "tf",
+    "target": "efficientnet-b3.ckpt.meta",
+    "source": "https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/efficientnet-b3.tar.gz[efficientnet-b3/model.ckpt.meta]",
+    "render": "skip",
+    "format": "TensorFlow MetaGraph",
+    "link":   "https://github.com/tensorflow/tpu/tree/master/models/official/efficientnet"
   },
   {
     "type":   "tf",
