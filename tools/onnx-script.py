@@ -264,7 +264,7 @@ def infer():
     import onnx.shape_inference
     from onnx import shape_inference
     file = sys.argv[2]
-    base = os.path.splitext(file)
+    base = os.path.splitext(file)[0]
     onnx_model = onnx.load(base + '.onnx')
     onnx_model = onnx.shape_inference.infer_shapes(onnx_model)
     onnx.save(onnx_model, base + '.shape.onnx')
