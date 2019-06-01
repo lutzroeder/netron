@@ -510,6 +510,9 @@ view.View = class {
                                     shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
                                     if (type.shape.dimensions.length == 0 && connection.initializer) {
                                         shape = connection.initializer.toString();
+                                        if (shape && shape.length > 25) {
+                                            shape = shape.substring(0, 25) + '...';
+                                        }
                                         separator = ' = ';
                                     }
                                 }
