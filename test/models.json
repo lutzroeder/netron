@@ -2461,6 +2461,27 @@
   },
   {
     "type":   "onnx",
+    "target": "netron_issue168_onnx_if.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/3239859/netron_issue168_onnx.zip[netron_issue168_onnx_if.pbtxt]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "type":   "onnx",
+    "target": "netron_issue168_onnx_loop.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/3239859/netron_issue168_onnx.zip[netron_issue168_onnx_loop.pbtxt]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "type":   "onnx",
+    "target": "netron_issue168_onnx_scan.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/3239859/netron_issue168_onnx.zip[netron_issue168_onnx_scan.pbtxt]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "type":   "onnx",
     "target": "optional_1.pb",
     "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/optional_1.pb",
     "format": "ONNX v0",
