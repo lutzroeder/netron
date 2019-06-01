@@ -885,6 +885,13 @@
   },
   {
     "type":   "cntk",
+    "target": "v1/cntkSpeechFF.dnn",
+    "source": "https://github.com/lutzroeder/netron/files/3243442/cntkSpeechFF.dnn.zip[cntkSpeechFF.dnn]",
+    "format": "CNTK v1.31",
+    "link":   "https://github.com/lutzroeder/netron/issues/153"
+  },
+  {
+    "type":   "cntk",
     "target": "v1/ResNet_18.model",
     "source": "https://www.cntk.ai/Models/ResNet/ResNet_18.model",
     "format": "CNTK v1.17"

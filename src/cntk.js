@@ -1138,6 +1138,16 @@ cntk_v1.ComputationNetwork = class {
         op.AveragePooling = function(reader) {
             op.PoolingBase.apply(this, [ reader ]);
         };
+        op.InvStdDev = function(reader) {
+            this.hasComputed = reader.bool();
+            this.value = new cntk_v1.Matrix(reader);
+        };
+        op.Mean = function(reader) {
+            this.hasComputed = reader.bool();
+            this.value = new cntk_v1.Matrix(reader);
+        };
+        op.PerDimMeanVarNormalization = function() {};
+        op.Softmax = function() {};
 
         var nodes = [];
         this.nodes = {};

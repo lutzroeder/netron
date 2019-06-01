@@ -1108,5 +1108,27 @@
         { "name": "H" }
       ]
     }
+  },
+  {
+    "name": "Mean",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "InvStdDev",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]
