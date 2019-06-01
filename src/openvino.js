@@ -58,10 +58,7 @@ openvino.Model = class {
         return this._graphs;
     }
 
-    validate() {
-    }
 };
-
 
 openvino.Graph = class {
 
@@ -646,66 +643,15 @@ openvino.Tensor = class {
     }
 
     get state() {
-        return this._context().state;
+        return 'Tensor data is empty.';
     }
 
     get value() {
-        var context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
+        return null;
     }
 
     toString() {
-        var context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        var value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        var context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        context.data = this._data;
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.state = this._data.toString();
-        return context;
-    }
-
-    _decode(context, dimension) {
-        var results = [];
-        var size = this._shape[dimension];
-        if (dimension == this._shape.length - 1) {
-            for (var i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(context.data[context.index]);
-                context.index++;
-                context.count++;
-            }
-        }
-        else {
-            for (var j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
+        return '';
     }
 };
 
