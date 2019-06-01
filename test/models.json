@@ -3461,6 +3461,22 @@
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
+      "type":   "tf",
+      "target": "bert_uncased_L-12_H-768_A-12.meta",
+      "source": "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip[uncased_L-12_H-768_A-12/bert_model.ckpt.meta]",
+      "format": "TensorFlow MetaGraph",
+      "render": "skip",
+      "link":   "https://github.com/google-research/bert#pre-trained-models"
+  },
+  {
+      "type":   "tf",
+      "target": "bert_cased_L-24_H-1024_A-16.meta",
+      "source": "https://storage.googleapis.com/bert_models/2018_10_18/cased_L-24_H-1024_A-16.zip[cased_L-24_H-1024_A-16/bert_model.ckpt.meta]",
+      "format": "TensorFlow MetaGraph",
+      "render": "skip",
+      "link":   "https://github.com/google-research/bert#pre-trained-models"
+  },
+  {
     "type":   "tf",
     "target": "char-rnn-tensorflow.pb",
     "source": "https://github.com/lutzroeder/netron/files/2592462/char-rnn-tensorflow.pb.zip[char-rnn-tensorflow.pb]",
