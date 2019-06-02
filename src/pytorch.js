@@ -102,6 +102,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.loss.MSELoss'] = function() {};
             constructorTable['torch.nn.modules.normalization.GroupNorm'] = function() {};
             constructorTable['torch.nn.modules.normalization.LayerNorm'] = function() {};
+            constructorTable['torch.nn.modules.normalization.LocalResponseNorm'] = function() {};
             constructorTable['torch.nn.modules.padding.ReflectionPad1d'] = function() {};
             constructorTable['torch.nn.modules.padding.ReflectionPad2d'] = function() {};
             constructorTable['torch.nn.modules.padding.ReplicationPad1d'] = function() {};
