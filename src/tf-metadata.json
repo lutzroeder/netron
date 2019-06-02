@@ -8392,6 +8392,76 @@
     }
   },
   {
+    "name": "BoostedTreesSparseAggregateStats",
+    "schema": {
+      "attributes": [
+        {
+          "description": "int; the maximum number of splits possible in the whole tree.",
+          "minimum": 1,
+          "name": "max_splits",
+          "type": "int64"
+        },
+        {
+          "description": "int; equals to the maximum possible value of bucketized feature + 1.",
+          "minimum": 1,
+          "name": "num_buckets",
+          "type": "int64"
+        }
+      ],
+      "description": "The summary stats contains gradients and hessians accumulated for each node, bucket and dimension id.",
+      "inputs": [
+        {
+          "description": "int32; Rank 1 Tensor containing node ids for each example, shape [batch_size].",
+          "name": "node_ids",
+          "type": 3
+        },
+        {
+          "description": "float32; Rank 2 Tensor (shape=[batch_size, logits_dimension]) with gradients for each example.",
+          "name": "gradients",
+          "type": 1
+        },
+        {
+          "description": "float32; Rank 2 Tensor (shape=[batch_size, hessian_dimension]) with hessians for each example.",
+          "name": "hessians",
+          "type": 1
+        },
+        {
+          "description": "int32; Rank 2 indices of feature sparse Tensors (shape=[number of sparse entries, 2]).\nNumber of sparse entries across all instances from the batch. The first value is\nthe index of the instance, the second is dimension of the feature. The second axis\ncan only have 2 values, i.e., the input dense version of Tensor can only be matrix.",
+          "name": "feature_indices",
+          "type": 3
+        },
+        {
+          "description": "int32; Rank 1 values of feature sparse Tensors (shape=[number of sparse entries]).\nNumber of sparse entries across all instances from the batch. The first value is\nthe index of the instance, the second is dimension of the feature.",
+          "name": "feature_values",
+          "type": 3
+        },
+        {
+          "description": "int32; Rank 1 dense shape of feature sparse Tensors (shape=[2]).\nThe first axis can only have 2 values, [batch_size, feature_dimension].",
+          "name": "feature_shape",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "int32; Rank 2 indices of summary sparse Tensors (shape=[number of non zero statistics, 4])\nThe second axis can only be 4 including node id, feature dimension, bucket id, and statistics_dimension.\nstatistics_dimension = logits_dimension + hessian_dimension.",
+          "name": "stats_summary_indices",
+          "type": 3
+        },
+        {
+          "description": "output Rank 1 Tensor (shape=[number of non zero statistics])",
+          "name": "stats_summary_values",
+          "type": 1
+        },
+        {
+          "description": "output Rank 1 Tensor (shape=[4])\nThe tensor has following 4 values: [max_splits, feature_dimension, num_buckets, statistics_dimension],\nwhere statistics_dimension = gradient_dimension + hessian_dimension. gradient_dimension\nis the same as label_dimension, i.e., the output space. hessian_dimension can be the same\nas logits dimension when diagonal hessian is used, or label_dimension^2 when full\nhessian is used.",
+          "name": "stats_summary_shape",
+          "type": 3
+        }
+      ],
+      "summary": "Aggregates the summary of accumulated stats for the batch."
+    }
+  },
+  {
     "name": "BoostedTreesTrainingPredict",
     "schema": {
       "attributes": [
@@ -19782,6 +19852,39 @@
     }
   },
   {
+    "name": "Fingerprint",
+    "schema": {
+      "attributes": [
+        {
+          "description": "This can be a POD-type or string type.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Generates fingerprint values of `data`.\n\nFingerprint op considers the first dimension of `data` as the batch dimension,\nand `output[i]` contains the fingerprint value generated from contents in\n`data[i, ...]` for all `i`.\n\nFingerprint op writes fingerprint values as byte arrays. For example, the\ndefault method `farmhash64` generates a 64-bit fingerprint value at a time.\nThis 8-byte value is written out as an `uint8` array of size 8, in little-endian\norder.\n\nFor example, suppose that `data` has data type `DT_INT32` and shape (2, 3, 4),\nand that the fingerprint method is `farmhash64`. In this case, the output shape\nis (2, 8), where 2 is the batch dimension size of `data`, and 8 is the size of\neach fingerprint value in bytes. `output[0, :]` is generated from 12 integers in\n`data[0, :, :]` and similarly `output[1, :]` is generated from other 12 integers\nin `data[1, :, :]`.\n\nNote that this op fingerprints the raw underlying buffer, and it does not\nfingerprint Tensor's metadata such as data type and/or shape. For example, the\nfingerprint values are invariant under reshapes and bitcasts as long as the\nbatch dimension remain the same:\n\n```\nFingerprint(data) == Fingerprint(Reshape(data, ...))\nFingerprint(data) == Fingerprint(Bitcast(data, ...))\n```\n\nFor string data, one should expect `Fingerprint(data) !=\nFingerprint(ReduceJoin(data))` in general.",
+      "inputs": [
+        {
+          "description": "Must have rank 1 or higher.",
+          "name": "data",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Fingerprint method used by this op. Currently available method is\n`farmhash::fingerprint64`.",
+          "name": "method",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A two-dimensional `Tensor` of type `tf.uint8`. The first dimension equals to\n`data`'s first dimension, and the second dimension size depends on the\nfingerprint algorithm.",
+          "name": "fingerprint",
+          "type": 4
+        }
+      ],
+      "summary": "Generates fingerprint values."
+    }
+  },
+  {
     "name": "FixedLengthRecordDataset",
     "schema": {
       "inputs": [
@@ -20977,6 +21080,126 @@
     }
   },
   {
+    "name": "FusedBatchNormGradV3",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "description": "The data type for the elements of input and output Tensors.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "description": "The data type for the scale, offset, mean, and variance.",
+          "name": "U",
+          "type": "type"
+        },
+        {
+          "default": 9.999999747378752e-05,
+          "description": "A small float number added to the variance of x.",
+          "name": "epsilon",
+          "type": "float32"
+        },
+        {
+          "allowedValues": [
+            "NHWC",
+            "NCHW"
+          ],
+          "default": "NHWC",
+          "description": "The data format for y_backprop, x, x_backprop.\nEither \"NHWC\" (default) or \"NCHW\".",
+          "name": "data_format",
+          "type": "string"
+        },
+        {
+          "default": true,
+          "description": "A bool value to indicate the operation is for training (default)\nor inference.",
+          "name": "is_training",
+          "type": "boolean"
+        }
+      ],
+      "description": "Note that the size of 4D Tensors are defined by either \"NHWC\" or \"NCHW\".\nThe size of 1D Tensors matches the dimension C of the 4D Tensors.",
+      "inputs": [
+        {
+          "description": "A 4D Tensor for the gradient with respect to y.",
+          "name": "y_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 4D Tensor for input data.",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 1D Tensor for scaling factor, to scale the normalized x.",
+          "name": "scale",
+          "type": 1
+        },
+        {
+          "description": "When is_training is True, a 1D Tensor for the computed batch\nmean to be reused in gradient computation. When is_training is\nFalse, a 1D Tensor for the population mean to be reused in both\n1st and 2nd order gradient computation.",
+          "name": "reserve_space_1",
+          "typeAttr": "U"
+        },
+        {
+          "description": "When is_training is True, a 1D Tensor for the computed batch\nvariance (inverted variance in the cuDNN case) to be reused in\ngradient computation. When is_training is False, a 1D Tensor\nfor the population variance to be reused in both 1st and 2nd\norder gradient computation.",
+          "name": "reserve_space_2",
+          "typeAttr": "U"
+        },
+        {
+          "description": "When is_training is True, a 1D Tensor for some intermediate results to be reused\nin gradient computation. When is_training is False, a dummy empty Tensor will be\ncreated.",
+          "name": "reserve_space_3",
+          "typeAttr": "U"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 4D Tensor for the gradient with respect to x.",
+          "name": "x_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 1D Tensor for the gradient with respect to scale.",
+          "name": "scale_backprop",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for the gradient with respect to offset.",
+          "name": "offset_backprop",
+          "typeAttr": "U"
+        },
+        {
+          "description": "Unused placeholder to match the mean input in FusedBatchNorm.",
+          "name": "reserve_space_4",
+          "typeAttr": "U"
+        },
+        {
+          "description": "Unused placeholder to match the variance input\nin FusedBatchNorm.",
+          "name": "reserve_space_5",
+          "typeAttr": "U"
+        }
+      ],
+      "summary": "Gradient for batch normalization."
+    }
+  },
+  {
     "name": "FusedBatchNormV2",
     "schema": {
       "attributes": [
@@ -21085,6 +21308,126 @@
         {
           "description": "A 1D Tensor for the computed batch variance (inverted variance\nin the cuDNN case), to be reused in the gradient computation.",
           "name": "reserve_space_2",
+          "typeAttr": "U"
+        }
+      ],
+      "summary": "Batch normalization."
+    }
+  },
+  {
+    "name": "FusedBatchNormV3",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "description": "The data type for the elements of input and output Tensors.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "description": "The data type for the scale, offset, mean, and variance.",
+          "name": "U",
+          "type": "type"
+        },
+        {
+          "default": 9.999999747378752e-05,
+          "description": "A small float number added to the variance of x.",
+          "name": "epsilon",
+          "type": "float32"
+        },
+        {
+          "allowedValues": [
+            "NHWC",
+            "NCHW"
+          ],
+          "default": "NHWC",
+          "description": "The data format for x and y. Either \"NHWC\" (default) or \"NCHW\".",
+          "name": "data_format",
+          "type": "string"
+        },
+        {
+          "default": true,
+          "description": "A bool value to indicate the operation is for training (default)\nor inference.",
+          "name": "is_training",
+          "type": "boolean"
+        }
+      ],
+      "description": "Note that the size of 4D Tensors are defined by either \"NHWC\" or \"NCHW\".\nThe size of 1D Tensors matches the dimension C of the 4D Tensors.",
+      "inputs": [
+        {
+          "description": "A 4D Tensor for input data.",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 1D Tensor for scaling factor, to scale the normalized x.",
+          "name": "scale",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for offset, to shift to the normalized x.",
+          "name": "offset",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for population mean. Used for inference only;\nmust be empty for training.",
+          "name": "mean",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for population variance. Used for inference only;\nmust be empty for training.",
+          "name": "variance",
+          "typeAttr": "U"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 4D Tensor for output data.",
+          "name": "y",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 1D Tensor for the computed batch mean, to be used by TensorFlow\nto compute the running mean.",
+          "name": "batch_mean",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for the computed batch variance, to be used by\nTensorFlow to compute the running variance.",
+          "name": "batch_variance",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for the computed batch mean, to be reused\nin the gradient computation.",
+          "name": "reserve_space_1",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for the computed batch variance (inverted variance\nin the cuDNN case), to be reused in the gradient computation.",
+          "name": "reserve_space_2",
+          "typeAttr": "U"
+        },
+        {
+          "description": "A 1D Tensor for some intermediate results, to be reused in the gradient\ncomputation for better efficiency.",
+          "name": "reserve_space_3",
           "typeAttr": "U"
         }
       ],
@@ -21344,6 +21687,11 @@
     "name": "GatherV2",
     "schema": {
       "attributes": [
+        {
+          "default": 0,
+          "name": "batch_dims",
+          "type": "int64"
+        },
         {
           "name": "Tparams",
           "type": "type"
@@ -31123,6 +31471,24 @@
           },
           "name": "T",
           "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T_threshold",
+          "type": "type"
         }
       ],
       "description": "pruning away boxes that have high intersection-over-union (IOU) overlap\nwith previously selected boxes.  Bounding boxes are supplied as\n[y1, x1, y2, x2], where (y1, x1) and (y2, x2) are the coordinates of any\ndiagonal pair of box corners and the coordinates can be provided as normalized\n(i.e., lying in the interval [0, 1]) or absolute.  Note that this algorithm\nis agnostic to where the origin is in the coordinate system.  Note that this\nalgorithm is invariant to orthogonal transformations and translations\nof the coordinate system; thus translating or reflections of the coordinate\nsystem result in the same boxes being selected by the algorithm.\n\nThe output of this operation is a set of integers indexing into the input\ncollection of bounding boxes representing the selected boxes.  The bounding\nbox coordinates corresponding to the selected indices can then be obtained\nusing the `tf.gather operation`.  For example:\n\n  selected_indices = tf.image.non_max_suppression_v2(\n      boxes, scores, max_output_size, iou_threshold)\n  selected_boxes = tf.gather(boxes, selected_indices)",
@@ -31145,7 +31511,7 @@
         {
           "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
           "name": "iou_threshold",
-          "type": 1
+          "typeAttr": "T_threshold"
         }
       ],
       "outputs": [
@@ -31179,6 +31545,24 @@
           },
           "name": "T",
           "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T_threshold",
+          "type": "type"
         }
       ],
       "description": "pruning away boxes that have high intersection-over-union (IOU) overlap\nwith previously selected boxes.  Bounding boxes with score less than\n`score_threshold` are removed.  Bounding boxes are supplied as\n[y1, x1, y2, x2], where (y1, x1) and (y2, x2) are the coordinates of any\ndiagonal pair of box corners and the coordinates can be provided as normalized\n(i.e., lying in the interval [0, 1]) or absolute.  Note that this algorithm\nis agnostic to where the origin is in the coordinate system and more\ngenerally is invariant to orthogonal transformations and translations\nof the coordinate system; thus translating or reflections of the coordinate\nsystem result in the same boxes being selected by the algorithm.\nThe output of this operation is a set of integers indexing into the input\ncollection of bounding boxes representing the selected boxes.  The bounding\nbox coordinates corresponding to the selected indices can then be obtained\nusing the `tf.gather operation`.  For example:\n  selected_indices = tf.image.non_max_suppression_v2(\n      boxes, scores, max_output_size, iou_threshold, score_threshold)\n  selected_boxes = tf.gather(boxes, selected_indices)",
@@ -31201,12 +31585,12 @@
         {
           "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
           "name": "iou_threshold",
-          "type": 1
+          "typeAttr": "T_threshold"
         },
         {
           "description": "A 0-D float tensor representing the threshold for deciding when to remove\nboxes based on score.",
           "name": "score_threshold",
-          "type": 1
+          "typeAttr": "T_threshold"
         }
       ],
       "outputs": [
@@ -31242,6 +31626,24 @@
           "type": "type"
         },
         {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T_threshold",
+          "type": "type"
+        },
+        {
           "default": false,
           "description": "If true, the output `selected_indices` is padded to be of length\n`max_output_size`. Defaults to false.",
           "name": "pad_to_max_output_size",
@@ -31268,12 +31670,12 @@
         {
           "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
           "name": "iou_threshold",
-          "type": 1
+          "typeAttr": "T_threshold"
         },
         {
           "description": "A 0-D float tensor representing the threshold for deciding when to remove\nboxes based on score.",
           "name": "score_threshold",
-          "type": 1
+          "typeAttr": "T_threshold"
         }
       ],
       "outputs": [
@@ -31281,6 +31683,88 @@
           "description": "A 1-D integer tensor of shape `[M]` representing the selected\nindices from the boxes tensor, where `M <= max_output_size`.",
           "name": "selected_indices",
           "type": 3
+        },
+        {
+          "description": "A 0-D integer tensor representing the number of valid elements in\n`selected_indices`, with the valid elements appearing first.",
+          "name": "valid_outputs",
+          "type": 3
+        }
+      ],
+      "summary": "Greedily selects a subset of bounding boxes in descending order of score,"
+    }
+  },
+  {
+    "name": "NonMaxSuppressionV5",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If true, the output `selected_indices` is padded to be of length\n`max_output_size`. Defaults to false.",
+          "name": "pad_to_max_output_size",
+          "type": "boolean"
+        }
+      ],
+      "description": "pruning away boxes that have high intersection-over-union (IOU) overlap\nwith previously selected boxes.  Bounding boxes with score less than\n`score_threshold` are removed.  Bounding boxes are supplied as\n[y1, x1, y2, x2], where (y1, x1) and (y2, x2) are the coordinates of any\ndiagonal pair of box corners and the coordinates can be provided as normalized\n(i.e., lying in the interval [0, 1]) or absolute.  Note that this algorithm\nis agnostic to where the origin is in the coordinate system and more\ngenerally is invariant to orthogonal transformations and translations\nof the coordinate system; thus translating or reflections of the coordinate\nsystem result in the same boxes being selected by the algorithm.\nThe output of this operation is a set of integers indexing into the input\ncollection of bounding boxes representing the selected boxes.  The bounding\nbox coordinates corresponding to the selected indices can then be obtained\nusing the `tf.gather operation`.  For example:\n  selected_indices = tf.image.non_max_suppression_v2(\n      boxes, scores, max_output_size, iou_threshold, score_threshold)\n  selected_boxes = tf.gather(boxes, selected_indices)\nThis op also supports a Soft-NMS (with Gaussian weighting) mode (c.f.\nBodla et al, https://arxiv.org/abs/1704.04503) where boxes reduce the score\nof other overlapping boxes instead of directly causing them to be pruned.\nTo enable this Soft-NMS mode, set the `soft_nms_sigma` parameter to be\nlarger than 0.",
+      "inputs": [
+        {
+          "description": "A 2-D float tensor of shape `[num_boxes, 4]`.",
+          "name": "boxes",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 1-D float tensor of shape `[num_boxes]` representing a single\nscore corresponding to each box (each row of boxes).",
+          "name": "scores",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A scalar integer tensor representing the maximum number of\nboxes to be selected by non max suppression.",
+          "name": "max_output_size",
+          "type": 3
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
+          "name": "iou_threshold",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding when to remove\nboxes based on score.",
+          "name": "score_threshold",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A 0-D float tensor representing the sigma parameter for Soft NMS; see Bodla et\nal (c.f. https://arxiv.org/abs/1704.04503).  When `soft_nms_sigma=0.0` (which\nis default), we fall back to standard (hard) NMS.",
+          "name": "soft_nms_sigma",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 1-D integer tensor of shape `[M]` representing the selected\nindices from the boxes tensor, where `M <= max_output_size`.",
+          "name": "selected_indices",
+          "type": 3
+        },
+        {
+          "description": "A 1-D float tensor of shape `[M]` representing the corresponding\nscores for each selected box, where `M <= max_output_size`.  Scores only differ\nfrom corresponding input scores when using Soft NMS (i.e. when\n`soft_nms_sigma>0`)",
+          "name": "selected_scores",
+          "typeAttr": "T"
         },
         {
           "description": "A 0-D integer tensor representing the number of valid elements in\n`selected_indices`, with the valid elements appearing first.",
@@ -33877,6 +34361,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "shape[]"
+        },
+        {
+          "default": 0,
+          "name": "slack_period",
+          "type": "int64"
         }
       ],
       "inputs": [
@@ -34074,6 +34563,11 @@
           "default": "stderr",
           "description": "A string specifying the output stream or logging level to print to.",
           "name": "output_stream",
+          "type": "string"
+        },
+        {
+          "default": "\n",
+          "name": "end",
           "type": "string"
         }
       ],
@@ -38502,6 +38996,541 @@
     }
   },
   {
+    "name": "QuantizedMatMulWithBias",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "name": "Toutput",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If true, `a` is transposed before multiplication.",
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "If true, `b` is transposed before multiplication.",
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            "MIN_FIRST",
+            "SCALED"
+          ],
+          "default": "MIN_FIRST",
+          "description": "Input data quantization mode. Either MIN_FIRST(default) or SCALED.",
+          "name": "input_quant_mode",
+          "type": "string"
+        }
+      ],
+      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmulplication result. The bias size must match inner dimension of `b`.",
+      "inputs": [
+        {
+          "description": "A matrix to be multiplied. Must be a two-dimensional tensor of type `quint8`.",
+          "name": "a",
+          "typeAttr": "T1"
+        },
+        {
+          "description": "A matrix to be multiplied and must be a two-dimensional tensor of type `qint8`.",
+          "name": "b",
+          "typeAttr": "T2"
+        },
+        {
+          "description": "A 1D bias tensor with size matching inner dimension of `b` (after being\ntransposed if `transposed_b` is non-zero).",
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "description": "The float value that the lowest quantized `a` value represents.",
+          "name": "min_a",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized `a` value represents.",
+          "name": "max_a",
+          "type": 1
+        },
+        {
+          "description": "The float value that the lowest quantized `b` value represents.",
+          "name": "min_b",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized `b` value represents.",
+          "name": "max_b",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "typeAttr": "Toutput"
+        },
+        {
+          "description": "The float value that the lowest quantized output value represents.",
+          "name": "min_out",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized output value represents.",
+          "name": "max_out",
+          "type": 1
+        }
+      ],
+      "summary": "Performs a quantized matrix multiplication of `a` by the matrix `b` with bias\nadd."
+    }
+  },
+  {
+    "name": "QuantizedMatMulWithBiasAndRelu",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 13
+          },
+          "name": "Toutput",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If true, `a` is transposed before multiplication.",
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "If true, `b` is transposed before multiplication.",
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            "MIN_FIRST",
+            "SCALED"
+          ],
+          "default": "MIN_FIRST",
+          "description": "Input data quantization mode. Either MIN_FIRST(default) or SCALED.",
+          "name": "input_quant_mode",
+          "type": "string"
+        }
+      ],
+      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmulplication result. The bias size must match inner dimension of `b`. Then do\nrelu activation to get non-negative result.",
+      "inputs": [
+        {
+          "description": "A matrix to be multiplied. Must be a two-dimensional tensor of type `quint8`.",
+          "name": "a",
+          "typeAttr": "T1"
+        },
+        {
+          "description": "A matrix to be multiplied and must be a two-dimensional tensor of type `qint8`.",
+          "name": "b",
+          "typeAttr": "T2"
+        },
+        {
+          "description": "A 1D bias tensor with size matching with inner dimension of `b` (after being\ntransposed if `transposed_b` is non-zero).",
+          "name": "bias",
+          "type": 1
+        },
+        {
+          "description": "The float value that the lowest quantized `a` value represents.",
+          "name": "min_a",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized `a` value represents.",
+          "name": "max_a",
+          "type": 1
+        },
+        {
+          "description": "The float value that the lowest quantized `b` value represents.",
+          "name": "min_b",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized `b` value represents.",
+          "name": "max_b",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "typeAttr": "Toutput"
+        },
+        {
+          "description": "The float value that the lowest quantized output value represents.",
+          "name": "min_out",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized output value represents.",
+          "name": "max_out",
+          "type": 1
+        }
+      ],
+      "summary": "Perform a quantized matrix multiplication of  `a` by the matrix `b` with bias\nadd and relu fusion."
+    }
+  },
+  {
+    "name": "QuantizedMatMulWithBiasAndReluAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "name": "Toutput",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If true, `a` is transposed before multiplication.",
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "If true, `b` is transposed before multiplication.",
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            "MIN_FIRST",
+            "SCALED"
+          ],
+          "default": "MIN_FIRST",
+          "description": "Input data quantization mode. Either MIN_FIRST(default) or SCALED.",
+          "name": "input_quant_mode",
+          "type": "string"
+        }
+      ],
+      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmulplication result. The bias size must match inner dimension of `b`.  Then do\nrelu activation to get non-negative result. Then do requantize operation to get\nfinal uint8 result.",
+      "inputs": [
+        {
+          "description": "A matrix to be multiplied. Must be a two-dimensional tensor of type `quint8`.",
+          "name": "a",
+          "typeAttr": "T1"
+        },
+        {
+          "description": "A matrix to be multiplied and must be a two-dimensional tensor of type `qint8`.",
+          "name": "b",
+          "typeAttr": "T2"
+        },
+        {
+          "description": "A 1D bias tensor with size matching with inner dimension of `b` (after being\ntransposed if `transposed_b` is non-zero).",
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "description": "The float value that the lowest quantized `a` value represents.",
+          "name": "min_a",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized `a` value represents.",
+          "name": "max_a",
+          "type": 1
+        },
+        {
+          "description": "The float value that the lowest quantized `b` value represents.",
+          "name": "min_b",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized `b` value represents.",
+          "name": "max_b",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized output value after requantize.",
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "typeAttr": "Toutput"
+        },
+        {
+          "description": "The float value that the lowest quantized output value represents.",
+          "name": "min_out",
+          "type": 1
+        },
+        {
+          "description": "The float value that the highest quantized output value represents.",
+          "name": "max_out",
+          "type": 1
+        }
+      ],
+      "summary": "Perform a quantized matrix multiplication of  `a` by the matrix `b` with bias\nadd and relu and requantize fusion."
+    }
+  },
+  {
     "name": "QuantizedMaxPool",
     "schema": {
       "attributes": [
@@ -39799,6 +40828,24 @@
           "type": "type"
         },
         {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tsplits",
+          "type": "type"
+        },
+        {
           "description": "The ragged rank of the `params` RaggedTensor. `params_nested_splits` should\ncontain this number of `row_splits` tensors. This value should equal\n`params.ragged_rank`.",
           "minimum": 1,
           "name": "PARAMS_RAGGED_RANK",
@@ -39817,7 +40864,7 @@
           "description": "The `nested_row_splits` tensors that define the row-partitioning for the\n`params` RaggedTensor input.",
           "name": "params_nested_splits",
           "numberAttr": "PARAMS_RAGGED_RANK",
-          "type": 9
+          "typeAttr": "Tsplits"
         },
         {
           "description": "The `flat_values` for the `params` RaggedTensor. There was a terminology change\nat the python level from dense_values to flat_values, so dense_values is the\ndeprecated name.",
@@ -39834,7 +40881,7 @@
         {
           "description": "The `nested_row_splits` tensors that define the row-partitioning for the\nreturned RaggedTensor.",
           "name": "output_nested_splits",
-          "type": 9
+          "typeAttr": "Tsplits"
         },
         {
           "description": "The `flat_values` for the returned RaggedTensor.",
@@ -39878,6 +40925,24 @@
           },
           "name": "T",
           "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tsplits",
+          "type": "type"
         }
       ],
       "description": "\nReturns a `RaggedTensor` `result` composed from `rt_dense_values` and\n`rt_nested_splits`, such that\n`result[i] = range(starts[i], limits[i], deltas[i])`.\n\n```python\n>>> (rt_nested_splits, rt_dense_values) = gen_ragged_ops.ragged_range(\n...     starts=[2, 5, 8], limits=[3, 5, 12], deltas=1)\n>>> result = ragged.from_nested_row_splits(rt_dense_values, rt_nested_splits)\n>>> print result.eval().tolist()\n[[2],               # result[0] = range(2, 3)\n [],                # result[1] = range(5, 5)\n [8, 9, 10, 11]]    # result[2] = range(8, 12)\n```\n\nThe input tensors `starts`, `limits`, and `deltas` may be scalars or vectors.\nThe vector inputs must all have the same size.  Scalar inputs are broadcast\nto match the size of the vector inputs.",
@@ -39902,7 +40967,7 @@
         {
           "description": "The `row_splits` for the returned `RaggedTensor`.",
           "name": "rt_nested_splits",
-          "type": 9
+          "typeAttr": "Tsplits"
         },
         {
           "description": "The `flat_values` for the returned `RaggedTensor`.",
@@ -39911,6 +40976,64 @@
         }
       ],
       "summary": "Returns a `RaggedTensor` containing the specified sequences of numbers."
+    }
+  },
+  {
+    "name": "RaggedTensorFromVariant",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The ragged rank of each encoded `RaggedTensor` component in the input. If set to\n-1, this is inferred as `output_ragged_rank` - `rank(encoded_ragged)`",
+          "minimum": -1,
+          "name": "input_ragged_rank",
+          "type": "int64"
+        },
+        {
+          "description": "The expected ragged rank of the output `RaggedTensor`. The following must hold:\n`output_ragged_rank = rank(encoded_ragged) + input_ragged_rank`.",
+          "minimum": 1,
+          "name": "output_ragged_rank",
+          "type": "int64"
+        },
+        {
+          "name": "Tvalues",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tsplits",
+          "type": "type"
+        }
+      ],
+      "description": "Decodes the given `variant` Tensor and returns a `RaggedTensor`. The input\ncould be a scalar, meaning it encodes a single `RaggedTensor` with ragged_rank\n`output_ragged_rank`. It could also have an arbitrary rank, in which case each\nelement is decoded into a `RaggedTensor` with ragged_rank `input_ragged_rank`\nand these are then stacked according to the input shape to output a single\n`RaggedTensor` with ragged_rank `output_ragged_rank`. Each `variant` element in\nthe input Tensor is decoded by retrieving from the element a 1-D `variant`\nTensor with `input_ragged_rank + 1` Tensors, corresponding to the splits and\nvalues of the decoded `RaggedTensor`. If `input_ragged_rank` is -1, then it is\ninferred as `output_ragged_rank` - `rank(encoded_ragged)`. See\n`RaggedTensorToVariant` for the corresponding encoding logic.\n",
+      "inputs": [
+        {
+          "description": "A `variant` Tensor containing encoded `RaggedTensor`s.",
+          "name": "encoded_ragged",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of one or more Tensors representing the splits of the output\n`RaggedTensor`.",
+          "name": "output_nested_splits",
+          "typeAttr": "Tsplits"
+        },
+        {
+          "description": "A Tensor representing the values of the output `RaggedTensor`.",
+          "name": "output_dense_values",
+          "typeAttr": "Tvalues"
+        }
+      ],
+      "summary": "Decodes a `variant` Tensor into a `RaggedTensor`."
     }
   },
   {
@@ -39926,6 +41049,24 @@
         {
           "name": "T",
           "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tsplits",
+          "type": "type"
         }
       ],
       "description": "input=ragged.from_nested_row_splits(rt_dense_values, rt_nested_splits)\noutput=SparseTensor(indices=sparse_indices, values=sparse_values,\n                    dense_shape=sparse_dense_shape)",
@@ -39934,7 +41075,7 @@
           "description": "The `row_splits` for the `RaggedTensor`.",
           "name": "rt_nested_splits",
           "numberAttr": "RAGGED_RANK",
-          "type": 9
+          "typeAttr": "Tsplits"
         },
         {
           "description": "The `flat_values` for the `RaggedTensor`.",
@@ -39960,6 +41101,63 @@
         }
       ],
       "summary": "Converts a `RaggedTensor` into a `SparseTensor` with the same values."
+    }
+  },
+  {
+    "name": "RaggedTensorToVariant",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "RAGGED_RANK",
+          "type": "int64"
+        },
+        {
+          "name": "Tvalues",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tsplits",
+          "type": "type"
+        },
+        {
+          "description": "A `bool` denoting whether the input is a batched `RaggedTensor`.",
+          "name": "batched_input",
+          "type": "boolean"
+        }
+      ],
+      "description": "\nEncodes the given `RaggedTensor` and returns a `variant` Tensor. If\n`batched_input` is True, then input `RaggedTensor` is unbatched along the\nzero-th dimension, each component `RaggedTensor` is encoded into a scalar\n`variant` Tensor, and these are stacked to return a 1-D `variant` Tensor.\nIf `batched_input` is False, then the input `RaggedTensor` is encoded as is and\na scalar `variant` Tensor is returned. A `RaggedTensor` is encoded by first\ncreating a 1-D `variant` Tensor with `ragged_rank + 1` elements, containing the\nsplits and values Tensors of the `RaggedTensor`. Then the 1-D `variant` Tensor\nis wrapped in a scalar `variant` Tensor. See `RaggedTensorFromVariant` for the\ncorresponding decoding logic.\n",
+      "inputs": [
+        {
+          "description": "A list of one or more Tensors representing the splits of the input\n`RaggedTensor`.",
+          "name": "rt_nested_splits",
+          "numberAttr": "RAGGED_RANK",
+          "typeAttr": "Tsplits"
+        },
+        {
+          "description": "A Tensor representing the values of the input `RaggedTensor`.",
+          "name": "rt_dense_values",
+          "typeAttr": "Tvalues"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A `variant` Tensor that containing encoded `RaggedTensor`.",
+          "name": "encoded_ragged",
+          "type": 21
+        }
+      ],
+      "summary": "Encodes a `RaggedTensor` into a `variant` Tensor."
     }
   },
   {
@@ -49398,6 +50596,30 @@
     }
   },
   {
+    "name": "RngSkip",
+    "schema": {
+      "description": "The state of the RNG after\n`rng_skip(n)` will be the same as that after `stateful_uniform([n])`\n(or any other distribution). The actual increment added to the\ncounter is an unspecified implementation detail.  ",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "algorithm",
+          "type": 9
+        },
+        {
+          "description": "The amount of advancement.",
+          "name": "delta",
+          "type": 9
+        }
+      ],
+      "summary": "Advance the counter of a counter-based RNG."
+    }
+  },
+  {
     "name": "Roll",
     "schema": {
       "attributes": [
@@ -52417,6 +53639,37 @@
     }
   },
   {
+    "name": "SelectV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "condition",
+          "type": 10
+        },
+        {
+          "name": "t",
+          "typeAttr": "T"
+        },
+        {
+          "name": "e",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "SelfAdjointEig",
     "schema": {
       "attributes": [
@@ -52971,6 +54224,11 @@
     "name": "ShardDataset",
     "schema": {
       "attributes": [
+        {
+          "default": false,
+          "name": "require_non_empty",
+          "type": "boolean"
+        },
         {
           "minimum": 1,
           "name": "output_types",
@@ -53653,6 +54911,58 @@
         }
       ],
       "summary": "Returns a copy of the input tensor."
+    }
+  },
+  {
+    "name": "SnapshotDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": "",
+          "name": "compression",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "reader_path_prefix",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "writer_path_prefix",
+          "type": "string"
+        }
+      ],
+      "description": "This dataset attempts to determine whether a valid snapshot exists at the\n`snapshot_path`, and reads from the snapshot in lieu of using `input_dataset`.\nIf not, it will run the preprocessing pipeline as usual, and write out a\nsnapshot of the data processed for future use.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "The path we should write snapshots to / read snapshots from.",
+          "name": "path",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that will write to / read from a snapshot."
     }
   },
   {
@@ -61444,6 +62754,30 @@
     }
   },
   {
+    "name": "StringLower",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "encoding",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 7
+        }
+      ]
+    }
+  },
+  {
     "name": "StringSplit",
     "schema": {
       "attributes": [
@@ -61686,6 +63020,30 @@
         }
       ],
       "summary": "Converts each string in the input Tensor to the specified numeric type."
+    }
+  },
+  {
+    "name": "StringUpper",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "encoding",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 7
+        }
+      ]
     }
   },
   {
@@ -62321,107 +63679,6 @@
         }
       ],
       "summary": "Calls a function placed on a specified TPU device."
-    }
-  },
-  {
-    "name": "TPUReplicate",
-    "schema": {
-      "attributes": [
-        {
-          "name": "computation",
-          "type": "function"
-        },
-        {
-          "minimum": 1,
-          "name": "num_replicas",
-          "type": "int64"
-        },
-        {
-          "default": 1,
-          "name": "num_cores_per_replica",
-          "type": "int64"
-        },
-        {
-          "default": "",
-          "name": "topology",
-          "type": "string"
-        },
-        {
-          "default": true,
-          "name": "use_tpu",
-          "type": "boolean"
-        },
-        {
-          "default": [],
-          "name": "device_assignment",
-          "type": "int64[]"
-        },
-        {
-          "default": [],
-          "name": "host_compute_core",
-          "type": "string[]"
-        },
-        {
-          "minimum": 0,
-          "name": "Tinputs",
-          "type": "type[]"
-        },
-        {
-          "minimum": 0,
-          "name": "Tbroadcast_inputs",
-          "type": "type[]"
-        },
-        {
-          "minimum": 0,
-          "name": "NumVariables",
-          "type": "int64"
-        },
-        {
-          "minimum": 0,
-          "name": "Tguaranteed_constants",
-          "type": "type[]"
-        },
-        {
-          "minimum": 0,
-          "name": "output_types",
-          "type": "type[]"
-        },
-        {
-          "default": [],
-          "name": "padding_map",
-          "type": "string[]"
-        },
-        {
-          "default": "STEP_MARK_AT_ENTRY",
-          "name": "step_marker_location",
-          "type": "string"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "inputs",
-          "typeListAttr": "Tinputs"
-        },
-        {
-          "name": "broadcast_inputs",
-          "typeListAttr": "Tbroadcast_inputs"
-        },
-        {
-          "name": "variables",
-          "numberAttr": "NumVariables",
-          "type": 20
-        },
-        {
-          "name": "guaranteed_constants",
-          "typeListAttr": "Tguaranteed_constants"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "outputs",
-          "typeListAttr": "output_types"
-        }
-      ]
     }
   },
   {
@@ -65676,9 +66933,75 @@
     }
   },
   {
+    "name": "TridiagonalMatMul",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Calculates product of two matrices, where left matrix is a tridiagonal matrix.",
+      "inputs": [
+        {
+          "description": "Tensor of shape `[..., 1, M]`, representing superdiagonals of\ntri-diagonal matrices to the left of multiplication. Last element is ingored.",
+          "name": "superdiag",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Tensor of shape `[..., 1, M]`, representing main diagonals of tri-diagonal\nmatrices to the left of multiplication.",
+          "name": "maindiag",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Tensor of shape `[..., 1, M]`, representing subdiagonals of tri-diagonal\nmatrices to the left of multiplication. First element is ingored.",
+          "name": "subdiag",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Tensor of shape `[..., M, N]`, representing MxN matrices to the right of\nmultiplication.",
+          "name": "rhs",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Tensor of shape `[..., M, N]` containing the product.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Calculate product with tridiagonal matrix."
+    }
+  },
+  {
     "name": "TridiagonalSolve",
     "schema": {
       "attributes": [
+        {
+          "default": true,
+          "description": "Whether to apply partial pivoting. Partial pivoting makes the procedure more\nstable, but slower.",
+          "name": "partial_pivoting",
+          "type": "boolean"
+        },
         {
           "allowedValues": [
             {
@@ -66117,6 +67440,24 @@
           "description": "Whether to replace the C0 control characters (00-1F) with the\n`replacement_char`. Default is false.",
           "name": "replace_control_characters",
           "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tsplits",
+          "type": "type"
         }
       ],
       "description": "The character codepoints for all strings are returned using a single vector\n`char_values`, with strings expanded to characters in row-major order.\n\nThe `row_splits` tensor indicates where the codepoints for\neach input string begin and end within the `char_values` tensor.\nIn particular, the values for the `i`th\nstring (in row-major order) are stored in the slice\n`[row_splits[i]:row_splits[i+1]]`. Thus:\n\n* `char_values[row_splits[i]+j]` is the Unicode codepoint for the `j`th\n  character in the `i`th string (in row-major order).\n* `row_splits[i+1] - row_splits[i]` is the number of characters in the `i`th\n  string (in row-major order).",
@@ -66131,7 +67472,7 @@
         {
           "description": "A 1D int32 tensor containing the row splits.",
           "name": "row_splits",
-          "type": 9
+          "typeAttr": "Tsplits"
         },
         {
           "description": "A 1D int32 Tensor containing the decoded codepoints.",
@@ -66173,6 +67514,24 @@
           "description": "Whether to replace the C0 control characters (00-1F) with the\n`replacement_char`. Default is false.",
           "name": "replace_control_characters",
           "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tsplits",
+          "type": "type"
         }
       ],
       "description": "The character codepoints for all strings are returned using a single vector\n`char_values`, with strings expanded to characters in row-major order.\nSimilarly, the character start byte offsets are returned using a single vector\n`char_to_byte_starts`, with strings expanded in row-major order.\n\nThe `row_splits` tensor indicates where the codepoints and start offsets for\neach input string begin and end within the `char_values` and\n`char_to_byte_starts` tensors.  In particular, the values for the `i`th\nstring (in row-major order) are stored in the slice\n`[row_splits[i]:row_splits[i+1]]`. Thus:\n\n* `char_values[row_splits[i]+j]` is the Unicode codepoint for the `j`th\n  character in the `i`th string (in row-major order).\n* `char_to_bytes_starts[row_splits[i]+j]` is the start byte offset for the `j`th\n  character in the `i`th string (in row-major order).\n* `row_splits[i+1] - row_splits[i]` is the number of characters in the `i`th\n  string (in row-major order).",
@@ -66187,7 +67546,7 @@
         {
           "description": "A 1D int32 tensor containing the row splits.",
           "name": "row_splits",
-          "type": 9
+          "typeAttr": "Tsplits"
         },
         {
           "description": "A 1D int32 Tensor containing the decoded codepoints.",
@@ -66233,6 +67592,24 @@
           "description": "The replacement character codepoint to be used in place of any invalid\nformatting in the input when `errors='replace'`. Any valid unicode codepoint may\nbe used. The default value is the default unicode replacement character is\n0xFFFD (U+65533).",
           "name": "replacement_char",
           "type": "int64"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tsplits",
+          "type": "type"
         }
       ],
       "description": "Returns a vector of strings, where `output[i]` is constructed by encoding the\nUnicode codepoints in `input_values[input_splits[i]:input_splits[i+1]]`\nusing `output_encoding`.\n\n---\n\nExample:\n\n```\ninput_values = [72, 101, 108, 108, 111, 87, 111, 114, 108, 100]\ninput_splits = [0, 5, 10]\noutput_encoding = 'UTF-8'\n\noutput = ['Hello', 'World']\n```",
@@ -66245,7 +67622,7 @@
         {
           "description": "A 1D tensor specifying how the unicode codepoints should be split into strings.\nIn particular, `output[i]` is constructed by encoding the codepoints in the\nslice `input_values[input_splits[i]:input_splits[i+1]]`.",
           "name": "input_splits",
-          "type": 9
+          "typeAttr": "Tsplits"
         }
       ],
       "outputs": [
