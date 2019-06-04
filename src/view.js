@@ -3,7 +3,6 @@
 
 var view = view || {};
 
-var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
@@ -524,7 +523,7 @@ view.View = class {
 
                             for (var attribute of attributes) {
                                 if (attribute.visible) {
-                                    var attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
+                                    var attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
                                         attributeValue = attributeValue.substring(0, 25) + '...';
                                     }
@@ -964,54 +963,6 @@ view.View = class {
             });
             this._sidebar.open(view.render(), 'Documentation');
         }
-    }
-
-    static formatAttributeValue(value, type) {
-        if (typeof value === 'function') {
-            return value();
-        }
-        if (typeof value === 'string' && type && type != 'string') {
-            return value;
-        }
-        if (value && long.Long.isLong(value)) {
-            return value.toString();
-        }
-        if (value && long.Long.isLong(value)) {
-            return value.toString();
-        }
-        if (Number.isNaN(value)) {
-            return 'NaN';
-        }
-        if (type == 'shape') {
-            return value.toString();
-        }
-        if (type == 'shape[]') {
-            return value.map((item) => item.toString()).join(', ');
-        }
-        if (type == 'graph') {
-            return value.toString();
-        }
-        if (type == 'graph[]') {
-            return value.map((item) => item.toString()).join(', ');
-        }
-        if (type == 'tensor') {
-            if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
-                return value.toString();
-            }
-            return '[...]';
-        }
-        if (Array.isArray(value)) {
-            return value.map((item) => {
-                if (item && long.Long.isLong(item)) {
-                    return item.toString();
-                }
-                if (Number.isNaN(item)) {
-                    return 'NaN';
-                }
-                return JSON.stringify(item);
-            }).join(', ');
-        }
-        return JSON.stringify(value);
     }
 };
 

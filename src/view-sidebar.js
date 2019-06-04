@@ -1,8 +1,8 @@
 /* jshint esversion: 6 */
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
-/* global view */
 
 var sidebar = sidebar || {};
+var long = long || { Long: require('long') };
 var Handlebars = Handlebars || require('handlebars');
 
 sidebar.Sidebar = class {
@@ -206,6 +206,54 @@ sidebar.NodeSidebar = class {
             }
         }
     }
+
+    static formatAttributeValue(value, type) {
+        if (typeof value === 'function') {
+            return value();
+        }
+        if (typeof value === 'string' && type && type != 'string') {
+            return value;
+        }
+        if (value && long.Long.isLong(value)) {
+            return value.toString();
+        }
+        if (value && long.Long.isLong(value)) {
+            return value.toString();
+        }
+        if (Number.isNaN(value)) {
+            return 'NaN';
+        }
+        if (type == 'shape') {
+            return value.toString();
+        }
+        if (type == 'shape[]') {
+            return value.map((item) => item.toString()).join(', ');
+        }
+        if (type == 'graph') {
+            return value.toString();
+        }
+        if (type == 'graph[]') {
+            return value.map((item) => item.toString()).join(', ');
+        }
+        if (type == 'tensor') {
+            if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+                return value.toString();
+            }
+            return '[...]';
+        }
+        if (Array.isArray(value)) {
+            return value.map((item) => {
+                if (item && long.Long.isLong(item)) {
+                    return item.toString();
+                }
+                if (Number.isNaN(item)) {
+                    return 'NaN';
+                }
+                return JSON.stringify(item);
+            }).join(', ');
+        }
+        return JSON.stringify(value);
+    }
 };
 
 sidebar.NameValueView = class {
@@ -297,7 +345,7 @@ class NodeAttributeView {
             });
             this._element.appendChild(this._expander);
         }
-        var value = view.View.formatAttributeValue(this._attribute.value, this._attribute.type);
+        var value = sidebar.NodeSidebar.formatAttributeValue(this._attribute.value, this._attribute.type);
         if (value && value.length > 1000) {
             value = value.substring(0, 1000) + '...';
         }

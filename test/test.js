@@ -10,6 +10,7 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const protobuf = require('protobufjs');
+const sidebar = require('../src/view-sidebar.js');
 const view = require('../src/view.js');
 const zip = require('../src/zip');
 const gzip = require('../src/gzip');
@@ -466,7 +467,7 @@ function loadModel(target, item) {
                 for (var attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;
-                    var value = view.View.formatAttributeValue(attribute.value, attribute.type)
+                    var value = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type)
                     if (value && value.length > 1000) {
                         value = value.substring(0, 1000) + '...';
                     }

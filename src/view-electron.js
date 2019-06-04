@@ -7,8 +7,9 @@ const electron = require('electron');
 const fs = require('fs');
 const process = require('process');
 const path = require('path');
-const protobuf = require('protobufjs'); // eslint-disable-line no-unused-vars
 const view = require('./view');
+
+global.protobuf = require('protobufjs');
 
 host.ElectronHost = class {
 
