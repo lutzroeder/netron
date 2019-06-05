@@ -204,6 +204,14 @@ pytorch.ModelFactory = class {
                     this.stride = state[3];
                 };
             };
+            constructorTable['torch.DoubleTensor'] = function () {
+                this.__setstate__ = function(state) {
+                    this.storage = state[0];
+                    this.storage_offset = state[1];
+                    this.size = state[2];
+                    this.stride = state[3];
+                };
+            };
             constructorTable['numpy.dtype'] = function(obj, align, copy) { 
                 switch (obj) {
                     case 'i1': this.name = 'int8'; this.itemsize = 1; break;
@@ -442,8 +450,8 @@ pytorch.ModelFactory = class {
                 }
 
                 var deserialized_storage_keys = unpickler.load();
-                for (var key of deserialized_storage_keys) {
-                    storage = deserialized_objects[key];
+                for (var deserialized_storage_key of deserialized_storage_keys) {
+                    storage = deserialized_objects[deserialized_storage_key];
                     if (storage) {
                         storage.data = unpickler.read(storage.dataTypeSize * storage.size);
                     }
@@ -519,6 +527,13 @@ pytorch.ModelFactory = class {
                 root_module = null;
                 state_dict = [];
 
+                if (obj && !Array.isArray(obj)) {
+                    var array = [];
+                    for (var key of Object.keys(obj)) {
+                        array.push({ key: key, value: obj[key] });
+                    }
+                    obj = array;
+                }
                 if (obj && Array.isArray(obj)) {
                     for (var item of obj) {
                         var value = null;
@@ -600,20 +615,22 @@ pytorch.ModelFactory = class {
         for (var dict of candidates) {
             if (dict && Array.isArray(dict) && dict.__setitem__ &&
                 dict.every((item) => item.value.__type__ && item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) {
+                delete dict.__setitem__;
                 return dict;
             }
             if (dict && !Array.isArray(dict)) {
-                var list = [];
-                for (var key in dict) {
+                var match = true;
+                var array = [];
+                for (var key of Object.keys(dict)) {
                     var value = dict[key]
-                    if (!key || !value.__type__ || !value.__type__.startsWith('torch.') || !value.__type__.endsWith('Tensor')) {
-                        list = null;
+                    if (!key || !value || !value.__type__ || !value.__type__.startsWith('torch.') || !value.__type__.endsWith('Tensor')) {
+                        match = false;
                         break;
                     }
-                    list.push({ key: key, value: value });
+                    array.push({ key: key, value: value });
                 }
-                if (list) {
-                    return list;
+                if (match) {
+                    return array;
                 }
             }
         }
