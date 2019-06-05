@@ -267,20 +267,31 @@ onnx.Graph = class {
             }
             var nodes = [];
             var outputCountMap = {};
+            var inputCountMap = {};
             var node;
+            var input;
             var output;
             for (node of graph.node) {
+                for (input of node.input) {
+                    inputCountMap[input] = (inputCountMap[input] || 0) + 1;
+                }
                 for (output of node.output) {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 }
             }
+            for (input of graph.input) {
+                delete inputCountMap[input];
+            }
+            for (output of graph.output) {
+                delete outputCountMap[output];
+            }
             for (node of graph.node) {
                 var initializerNode = false;
-                if (node.op_type == 'Constant' && node.output && node.output.length == 1) {
+                if (node.op_type == 'Constant' && node.input.length == 0 && node.output.length == 1) {
                     var name = node.output[0];
-                    if (outputCountMap[name] == 1) {
-                        var attribute = node.attribute.find((attribute) => { return attribute.name == 'value' && attribute.t; }); 
-                        if (attribute) {
+                    if (inputCountMap[name] == 1 && outputCountMap[name] == 1 && node.attribute.length == 1) {
+                        var attribute = node.attribute[0];
+                        if (attribute && attribute.name == 'value' && attribute.t) {
                             initializers[name] = new onnx.Tensor(attribute.t, 'Constant');
                             initializerNode = true;
                         }
