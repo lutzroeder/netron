@@ -517,6 +517,7 @@
           "type": "type"
         }
       ],
+      "description": "Given an input tensor, the function computes inverse hyperbolic cosine of every element.\nInput range is `[1, inf]`. It returns `nan` if the input lies outside the range.\n\n```python\nx = tf.constant([-2, -0.5, 1, 1.2, 200, 10000, float(\"inf\")])\ntf.math.acosh(x) ==> [nan nan 0. 0.62236255 5.9914584 9.903487 inf]\n```",
       "inputs": [
         {
           "name": "x",
@@ -7612,6 +7613,293 @@
         }
       ],
       "summary": "Elementwise computes the bitwise XOR of `x` and `y`."
+    }
+  },
+  {
+    "name": "BlockLSTM",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "The forget gate bias.",
+          "name": "forget_bias",
+          "type": "float32"
+        },
+        {
+          "default": 3.0,
+          "description": "Value to clip the 'cs' value to.",
+          "name": "cell_clip",
+          "type": "float32"
+        },
+        {
+          "default": false,
+          "description": "Whether to use peephole weights.",
+          "name": "use_peephole",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This is equivalent to applying LSTMBlockCell in a loop, like so:\n\n```python\nfor x1 in unpack(x):\n  i1, cs1, f1, o1, ci1, co1, h1 = LSTMBlock(\n    x1, cs_prev, h_prev, w, wci, wcf, wco, b)\n  cs_prev = cs1\n  h_prev = h1\n  i.append(i1)\n  cs.append(cs1)\n  f.append(f1)\n  o.append(o1)\n  ci.append(ci1)\n  co.append(co1)\n  h.append(h1)\nreturn pack(i), pack(cs), pack(f), pack(o), pack(ci), pack(ch), pack(h)\n```",
+      "inputs": [
+        {
+          "description": "Maximum time length actually used by this input. Outputs are padded\nwith zeros beyond this length.",
+          "name": "seq_len_max",
+          "type": 9
+        },
+        {
+          "description": "The sequence input to the LSTM, shape (timelen, batch_size, num_inputs).",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Value of the initial cell state.",
+          "name": "cs_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Initial output of cell (to be used for peephole).",
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix.",
+          "name": "w",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for input gate peephole connection.",
+          "name": "wci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for forget gate peephole connection.",
+          "name": "wcf",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for output gate peephole connection.",
+          "name": "wco",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The bias vector.",
+          "name": "b",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The input gate over the whole time sequence.",
+          "name": "i",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell state before the tanh over the whole time sequence.",
+          "name": "cs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The forget gate over the whole time sequence.",
+          "name": "f",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output gate over the whole time sequence.",
+          "name": "o",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell input over the whole time sequence.",
+          "name": "ci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell after the tanh over the whole time sequence.",
+          "name": "co",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output h vector over the whole time sequence.",
+          "name": "h",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the LSTM cell forward propagation for all the time steps."
+    }
+  },
+  {
+    "name": "BlockLSTMGrad",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Whether to use peephole weights.",
+          "name": "use_peephole",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This implementation is to be used in conjunction of LSTMBlock.",
+      "inputs": [
+        {
+          "description": "Maximum time length actually used by this input. Outputs are padded\nwith zeros beyond this length.",
+          "name": "seq_len_max",
+          "type": 9
+        },
+        {
+          "description": "The sequence input to the LSTM, shape (timelen, batch_size, num_inputs).",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Value of the initial cell state.",
+          "name": "cs_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Initial output of cell (to be used for peephole).",
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix.",
+          "name": "w",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for input gate peephole connection.",
+          "name": "wci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for forget gate peephole connection.",
+          "name": "wcf",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for output gate peephole connection.",
+          "name": "wco",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The bias vector.",
+          "name": "b",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The input gate over the whole time sequence.",
+          "name": "i",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell state before the tanh over the whole time sequence.",
+          "name": "cs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The forget gate over the whole time sequence.",
+          "name": "f",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output gate over the whole time sequence.",
+          "name": "o",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell input over the whole time sequence.",
+          "name": "ci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell after the tanh over the whole time sequence.",
+          "name": "co",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output h vector over the whole time sequence.",
+          "name": "h",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The current gradient of cs.",
+          "name": "cs_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient of h vector.",
+          "name": "h_grad",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The gradient of x to be back-propped.",
+          "name": "x_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient of cs_prev to be back-propped.",
+          "name": "cs_prev_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient of h_prev to be back-propped.",
+          "name": "h_prev_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for w to be back-propped.",
+          "name": "w_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wci to be back-propped.",
+          "name": "wci_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wcf to be back-propped.",
+          "name": "wcf_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wco to be back-propped.",
+          "name": "wco_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for w to be back-propped.",
+          "name": "b_grad",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the LSTM cell backward propagation for the entire time sequence."
     }
   },
   {
@@ -16754,7 +17042,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `Equal` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "description": "*NOTE*: `Equal` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n```python\nx = tf.constant([2, 4])\ny = tf.constant(2)\ntf.math.equal(x, y) ==> array([True, False])\n\nx = tf.constant([2, 4])\ny = tf.constant([2, 4])\ntf.math.equal(x, y) ==> array([True,  True])\n```",
       "inputs": [
         {
           "name": "x",
@@ -17046,6 +17334,7 @@
           "type": "type"
         }
       ],
+      "description": "  This function computes the exponential of every element in the input tensor.\n  i.e. `exp(x)` or `e^(x)`, where `x` is the input tensor.\n  `e` denotes Euler's number and is approximately equal to 2.718281.\n  Output is positive for any real input.\n\n  ```python\n  x = tf.constant(2.0)\n  tf.math.exp(x) ==> 7.389056\n\n  x = tf.constant([2.0, 8.0])\n  tf.math.exp(x) ==> array([7.389056, 2980.958], dtype=float32)\n  ```\n\n  For complex numbers, the exponential value is calculated as follows:\n\n  ```\n  e^(x+iy) = e^x * e^iy = e^x * (cos y + i sin y)\n  ```\n\n  Let's consider complex number 1+1j as an example.\n  e^1 * (cos 1 + i sin 1) = 2.7182818284590 * (0.54030230586+0.8414709848j)\n\n  ```python\n  x = tf.constant(1 + 1j)\n  tf.math.exp(x) ==> 1.4686939399158851+2.2873552871788423j\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -18859,7 +19148,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\\\(y = (\\exp x) - 1\\\\).",
+      "description": "  i.e. `exp(x) - 1` or `e^(x) - 1`, where `x` is the input tensor.\n  `e` denotes Euler's number and is approximately equal to 2.718281.\n\n  ```python\n  x = tf.constant(2.0)\n  tf.math.expm1(x) ==> 6.389056\n\n  x = tf.constant([2.0, 8.0])\n  tf.math.expm1(x) ==> array([6.389056, 2979.958], dtype=float32)\n\n  x = tf.constant(1 + 1j)\n  tf.math.expm1(x) ==> (0.46869393991588515+2.2873552871788423j)\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -18872,7 +19161,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes exponential of x - 1 element-wise."
+      "summary": "Computes `exp(x) - 1` element-wise."
     }
   },
   {
@@ -21590,6 +21879,148 @@
     }
   },
   {
+    "name": "GRUBlockCell",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Args\n    x: Input to the GRU cell.\n    h_prev: State input from the previous GRU cell.\n    w_ru: Weight matrix for the reset and update gate.\n    w_c: Weight matrix for the cell connection gate.\n    b_ru: Bias vector for the reset and update gate.\n    b_c: Bias vector for the cell connection gate.\n\nReturns\n    r: Output of the reset gate.\n    u: Output of the update gate.\n    c: Output of the cell connection gate.\n    h: Current state of the GRU cell.\n\nNote on notation of the variables:\n\nConcatenation of a and b is represented by a_b\nElement-wise dot product of a and b is represented by ab\nElement-wise dot product is represented by \\circ\nMatrix multiplication is represented by *\n\nBiases are initialized with :\n`b_ru` - constant_initializer(1.0)\n`b_c` - constant_initializer(0.0)\n\nThis kernel op implements the following mathematical equations:\n\n```\nx_h_prev = [x, h_prev]\n\n[r_bar u_bar] = x_h_prev * w_ru + b_ru\n\nr = sigmoid(r_bar)\nu = sigmoid(u_bar)\n\nh_prevr = h_prev \\circ r\n\nx_h_prevr = [x h_prevr]\n\nc_bar = x_h_prevr * w_c + b_c\nc = tanh(c_bar)\n\nh = (1-u) \\circ c + u \\circ h_prev\n```",
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "name": "w_ru",
+          "typeAttr": "T"
+        },
+        {
+          "name": "w_c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "b_ru",
+          "typeAttr": "T"
+        },
+        {
+          "name": "b_c",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "r",
+          "typeAttr": "T"
+        },
+        {
+          "name": "u",
+          "typeAttr": "T"
+        },
+        {
+          "name": "c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "h",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the GRU cell forward propagation for 1 time step."
+    }
+  },
+  {
+    "name": "GRUBlockCellGrad",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Args\n    x: Input to the GRU cell.\n    h_prev: State input from the previous GRU cell.\n    w_ru: Weight matrix for the reset and update gate.\n    w_c: Weight matrix for the cell connection gate.\n    b_ru: Bias vector for the reset and update gate.\n    b_c: Bias vector for the cell connection gate.\n    r: Output of the reset gate.\n    u: Output of the update gate.\n    c: Output of the cell connection gate.\n    d_h: Gradients of the h_new wrt to objective function.\n\nReturns\n    d_x: Gradients of the x wrt to objective function.\n    d_h_prev: Gradients of the h wrt to objective function.\n    d_c_bar Gradients of the c_bar wrt to objective function.\n    d_r_bar_u_bar Gradients of the r_bar & u_bar wrt to objective function.\n\nThis kernel op implements the following mathematical equations:\n\nNote on notation of the variables:\n\nConcatenation of a and b is represented by a_b\nElement-wise dot product of a and b is represented by ab\nElement-wise dot product is represented by \\circ\nMatrix multiplication is represented by *\n\nAdditional notes for clarity:\n\n`w_ru` can be segmented into 4 different matrices.\n```\nw_ru = [w_r_x w_u_x\n        w_r_h_prev w_u_h_prev]\n```\nSimilarly, `w_c` can be segmented into 2 different matrices.\n```\nw_c = [w_c_x w_c_h_prevr]\n```\nSame goes for biases.\n```\nb_ru = [b_ru_x b_ru_h]\nb_c = [b_c_x b_c_h]\n```\nAnother note on notation:\n```\nd_x = d_x_component_1 + d_x_component_2\n\nwhere d_x_component_1 = d_r_bar * w_r_x^T + d_u_bar * w_r_x^T\nand d_x_component_2 = d_c_bar * w_c_x^T\n\nd_h_prev = d_h_prev_component_1 + d_h_prevr \\circ r + d_h \\circ u\nwhere d_h_prev_componenet_1 = d_r_bar * w_r_h_prev^T + d_u_bar * w_r_h_prev^T\n```\n\nMathematics behind the Gradients below:\n```\nd_c_bar = d_h \\circ (1-u) \\circ (1-c \\circ c)\nd_u_bar = d_h \\circ (h-c) \\circ u \\circ (1-u)\n\nd_r_bar_u_bar = [d_r_bar d_u_bar]\n\n[d_x_component_1 d_h_prev_component_1] = d_r_bar_u_bar * w_ru^T\n\n[d_x_component_2 d_h_prevr] = d_c_bar * w_c^T\n\nd_x = d_x_component_1 + d_x_component_2\n\nd_h_prev = d_h_prev_component_1 + d_h_prevr \\circ r + u\n```\nBelow calculation is performed in the python wrapper for the Gradients\n(not in the gradient kernel.)\n```\nd_w_ru = x_h_prevr^T * d_c_bar\n\nd_w_c = x_h_prev^T * d_r_bar_u_bar\n\nd_b_ru = sum of d_r_bar_u_bar along axis = 0\n\nd_b_c = sum of d_c_bar along axis = 0\n```",
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "name": "w_ru",
+          "typeAttr": "T"
+        },
+        {
+          "name": "w_c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "b_ru",
+          "typeAttr": "T"
+        },
+        {
+          "name": "b_c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "r",
+          "typeAttr": "T"
+        },
+        {
+          "name": "u",
+          "typeAttr": "T"
+        },
+        {
+          "name": "c",
+          "typeAttr": "T"
+        },
+        {
+          "name": "d_h",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "d_x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "d_h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "name": "d_c_bar",
+          "typeAttr": "T"
+        },
+        {
+          "name": "d_r_bar_u_bar",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the GRU cell back-propagation for 1 time step."
+    }
+  },
+  {
     "name": "Gather",
     "schema": {
       "attributes": [
@@ -23838,7 +24269,7 @@
           "type": "type"
         }
       ],
-      "description": "The result will have exactly those bits set, that are not set in `x`. The\ncomputation is performed on the underlying representation of x.",
+      "description": "Flip each bit of supported types.  For example, type `int8` (decimal 2) binary 00000010 becomes (decimal -3) binary 11111101.\nThis operation is performed on each element of the tensor argument `x`.",
       "inputs": [
         {
           "name": "x",
@@ -23851,7 +24282,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Flips all bits elementwise."
+      "summary": "Invert (flip) each bit of supported types; for example, type `uint8` value 01010101 becomes 10101010."
     }
   },
   {
@@ -24615,6 +25046,263 @@
         }
       ],
       "summary": "Gradients for Local Response Normalization."
+    }
+  },
+  {
+    "name": "LSTMBlockCell",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "The forget gate bias.",
+          "name": "forget_bias",
+          "type": "float32"
+        },
+        {
+          "default": 3.0,
+          "description": "Value to clip the 'cs' value to.",
+          "name": "cell_clip",
+          "type": "float32"
+        },
+        {
+          "default": false,
+          "description": "Whether to use peephole weights.",
+          "name": "use_peephole",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This implementation uses 1 weight matrix and 1 bias vector, and there's an\noptional peephole connection.\n\nThis kernel op implements the following mathematical equations:\n\n```python\nxh = [x, h_prev]\n[i, f, ci, o] = xh * w + b\nf = f + forget_bias\n\nif not use_peephole:\n  wci = wcf = wco = 0\n\ni = sigmoid(cs_prev * wci + i)\nf = sigmoid(cs_prev * wcf + f)\nci = tanh(ci)\n\ncs = ci .* i + cs_prev .* f\ncs = clip(cs, cell_clip)\n\no = sigmoid(cs * wco + o)\nco = tanh(cs)\nh = co .* o\n```",
+      "inputs": [
+        {
+          "description": "The input to the LSTM cell, shape (batch_size, num_inputs).",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Value of the cell state at previous time step.",
+          "name": "cs_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Output of the previous cell at previous time step.",
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix.",
+          "name": "w",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for input gate peephole connection.",
+          "name": "wci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for forget gate peephole connection.",
+          "name": "wcf",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for output gate peephole connection.",
+          "name": "wco",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The bias vector.",
+          "name": "b",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The input gate.",
+          "name": "i",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell state before the tanh.",
+          "name": "cs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The forget gate.",
+          "name": "f",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output gate.",
+          "name": "o",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell input.",
+          "name": "ci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell after the tanh.",
+          "name": "co",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output h vector.",
+          "name": "h",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the LSTM cell forward propagation for 1 time step."
+    }
+  },
+  {
+    "name": "LSTMBlockCellGrad",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Whether the cell uses peephole connections.",
+          "name": "use_peephole",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This implementation is to be used in conjunction of LSTMBlockCell.",
+      "inputs": [
+        {
+          "description": "The input to the LSTM cell, shape (batch_size, num_inputs).",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The previous cell state.",
+          "name": "cs_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The previous h state.",
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix.",
+          "name": "w",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for input gate peephole connection.",
+          "name": "wci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for forget gate peephole connection.",
+          "name": "wcf",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for output gate peephole connection.",
+          "name": "wco",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The bias vector.",
+          "name": "b",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The input gate.",
+          "name": "i",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell state before the tanh.",
+          "name": "cs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The forget gate.",
+          "name": "f",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output gate.",
+          "name": "o",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell input.",
+          "name": "ci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell after the tanh.",
+          "name": "co",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The current gradient of cs.",
+          "name": "cs_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient of h vector.",
+          "name": "h_grad",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The gradient of cs to be back-propped.",
+          "name": "cs_prev_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The derivative wrt to [i, cs, f, o].",
+          "name": "dicfo",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wci to be back-propped.",
+          "name": "wci_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wcf to be back-propped.",
+          "name": "wcf_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wco to be back-propped.",
+          "name": "wco_grad",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the LSTM cell backward propagation for 1 timestep."
     }
   },
   {
@@ -35057,6 +35745,12 @@
           "description": "The 'round_mode' attribute controls which rounding tie-breaking algorithm is\nused when rounding float values to their quantized equivalents. The following\nrounding modes are currently supported:\n\n*   HALF_TO_EVEN: this is the default round_mode.\n*   HALF_UP: round towards positive. In this mode 7.5 rounds up to 8 and -7.5\n    rounds up to -7.\n",
           "name": "round_mode",
           "type": "string"
+        },
+        {
+          "default": false,
+          "description": "If True, then the absolute value of the quantized minimum value is the same as\nthe quantized maximum value, instead of 1 greater.\ni.e. for 8 bit quantization, the minimum value is -127 instead of -128.",
+          "name": "narrow_range",
+          "type": "boolean"
         }
       ],
       "description": "This op simulates the precision loss from the quantized forward pass by:\n\n1. Quantizing the tensor to fixed point numbers, which should match the target\n   quantization method when it is used in inference.\n2. Dequantizing it back to floating point numbers for the following ops, most\n   likely matmul.\n\nThere are different ways to quantize. This version uses only scaling, so 0.0\nmaps to 0.\n\nFrom the specified 'num_bits' in the quantized output type, it determines\nminimum and maximum representable quantized values.\n\ne.g.\n\n*   [-128, 127] for signed, num_bits = 8, or\n*   [0, 255] for unsigned, num_bits = 8.\n\nIf range_given == False, the initial input_min, input_max will be determined\nautomatically as the minimum and maximum values in the input tensor, otherwise\nthe specified values of input_min, input_max are used.\n\nNote: If the input_min, input_max are specified, they do not need to equal the\nactual minimum and maximum values in the tensor. e.g. in some cases it may be\nbeneficial to specify these values such that the low probability extremes of the\ninput distribution are clipped.\n\nThis op determines the maximum scale_factor that would map the initial\n[input_min, input_max] range to a range that lies within the representable\nquantized range.\n\nIt determines the scale from one of input_min and input_max, then updates the\nother one to maximize the respresentable range.\n\ne.g.\n\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    5.0]: it would use a scale_factor of -128 / -10.0 = 12.8 In this case, it\n    would update input_max to be 127 / 12.8 = 9.921875\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    10.0]: it would use a scale_factor of 127 / 10.0 = 12.7 In this case, it\n    would update input_min to be 128.0 / 12.7 = -10.07874\n*   if the output is unsigned, input_min is forced to be 0, and only the\n    specified input_max is used.\n\nAfter determining the scale_factor and updating the input range, it applies the\nfollowing to each value in the 'input' tensor.\n\noutput = round(clamp(value, input_min, input_max) * scale_factor) / scale_factor.\n\nThe above round function rounds the value based on the given round_mode.\n",
@@ -35121,6 +35815,11 @@
           ],
           "name": "T",
           "type": "type"
+        },
+        {
+          "default": false,
+          "name": "narrow_range",
+          "type": "boolean"
         }
       ],
       "description": "This is almost identical to QuantizeAndDequantizeV2, except that num_bits is a\ntensor, so its value can change during training.",
@@ -68123,6 +68822,76 @@
         }
       ],
       "summary": "Converts a flat index or array of flat indices into a tuple of"
+    }
+  },
+  {
+    "name": "UnsortedSegmentJoin",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "description": "The separator to use when joining.",
+          "name": "separator",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "Tnumsegments",
+          "type": "type"
+        }
+      ],
+      "description": "Computes the string join along segments of a tensor.\nGiven `segment_ids` with rank `N` and `data` with rank `N+M`:\n\n    `output[i, k1...kM] = strings.join([data[j1...jN, k1...kM])`\n\nwhere the join is over all [j1...jN] such that segment_ids[j1...jN] = i.\nStrings are joined in row-major order.\n\nFor example:\n\n```python\ninputs = [['Y', 'q', 'c'], ['Y', '6', '6'], ['p', 'G', 'a']]\noutput_array = string_ops.unsorted_segment_join(inputs=inputs,\n                                                segment_ids=[1, 0, 1],\n                                                num_segments=2,\n                                                separator=':'))\n# output_array ==> [['Y', '6', '6'], ['Y:p', 'q:G', 'c:a']]\n\n\ninputs = ['this', 'is', 'a', 'test']\noutput_array = string_ops.unsorted_segment_join(inputs=inputs,\n                                                segment_ids=[0, 0, 0, 0],\n                                                num_segments=1,\n                                                separator=':'))\n# output_array ==> ['this:is:a:test']\n```",
+      "inputs": [
+        {
+          "description": "The input to be joined.",
+          "name": "inputs",
+          "type": 7
+        },
+        {
+          "description": "A tensor whose shape is a prefix of data.shape.  Negative segment ids are not\nsupported.",
+          "name": "segment_ids",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A scalar.",
+          "name": "num_segments",
+          "typeAttr": "Tnumsegments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 7
+        }
+      ],
+      "summary": "Joins the elements of `inputs` based on `segment_ids`."
     }
   },
   {
