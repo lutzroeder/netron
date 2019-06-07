@@ -3757,6 +3757,7 @@
     
             SavedUserObject.prototype.identifier = "";
             SavedUserObject.prototype.version = null;
+            SavedUserObject.prototype.metadata = "";
     
             SavedUserObject.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -3770,6 +3771,9 @@
                         break;
                     case 2:
                         message.version = $root.tensorflow.VersionDef.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.metadata = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3791,6 +3795,10 @@
                         break;
                     case "version":
                         message.version = $root.tensorflow.VersionDef.decodeText(reader, true);
+                        break;
+                    case "metadata":
+                        reader.value();
+                        message.metadata = reader.string();
                         break;
                     default:
                         reader.field(tag, message);
