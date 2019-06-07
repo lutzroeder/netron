@@ -174,7 +174,8 @@ tflite_schema.BuiltinOperator = {
   MATRIX_DIAG: 113,
   QUANTIZE: 114,
   MATRIX_SET_DIAG: 115,
-  ROUND: 116
+  ROUND: 116,
+  HARD_SWISH: 117
 };
 
 /**
@@ -296,7 +297,8 @@ tflite_schema.BuiltinOperatorName = {
   113: 'MATRIX_DIAG',
   114: 'QUANTIZE',
   115: 'MATRIX_SET_DIAG',
-  116: 'ROUND'
+  116: 'ROUND',
+  117: 'HARD_SWISH'
 };
 
 /**
@@ -393,7 +395,8 @@ tflite_schema.BuiltinOptions = {
   ReverseSequenceOptions: 87,
   MatrixDiagOptions: 88,
   QuantizeOptions: 89,
-  MatrixSetDiagOptions: 90
+  MatrixSetDiagOptions: 90,
+  HardSwishOptions: 91
 };
 
 /**
@@ -490,7 +493,8 @@ tflite_schema.BuiltinOptionsName = {
   87: 'ReverseSequenceOptions',
   88: 'MatrixDiagOptions',
   89: 'QuantizeOptions',
-  90: 'MatrixSetDiagOptions'
+  90: 'MatrixSetDiagOptions',
+  91: 'HardSwishOptions'
 };
 
 /**
@@ -7916,6 +7920,75 @@ tflite_schema.AbsOptions.endAbsOptions = function(builder) {
 tflite_schema.AbsOptions.createAbsOptions = function(builder) {
   tflite_schema.AbsOptions.startAbsOptions(builder);
   return tflite_schema.AbsOptions.endAbsOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.HardSwishOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.HardSwishOptions}
+ */
+tflite_schema.HardSwishOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.HardSwishOptions=} obj
+ * @returns {tflite_schema.HardSwishOptions}
+ */
+tflite_schema.HardSwishOptions.getRootAsHardSwishOptions = function(bb, obj) {
+  return (obj || new tflite_schema.HardSwishOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.HardSwishOptions=} obj
+ * @returns {tflite_schema.HardSwishOptions}
+ */
+tflite_schema.HardSwishOptions.getSizePrefixedRootAsHardSwishOptions = function(bb, obj) {
+  return (obj || new tflite_schema.HardSwishOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.HardSwishOptions.startHardSwishOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.HardSwishOptions.endHardSwishOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.HardSwishOptions.createHardSwishOptions = function(builder) {
+  tflite_schema.HardSwishOptions.startHardSwishOptions(builder);
+  return tflite_schema.HardSwishOptions.endHardSwishOptions(builder);
 }
 
 /**
