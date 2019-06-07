@@ -13194,6 +13194,50 @@
     }
   },
   {
+    "name": "Round",
+    "schema": {
+      "description": "Round takes one input Tensor and rounds the values, element-wise, meaning\nit finds the nearest integer for each value.\nIn case of halfs, the rule is to round them to the nearest even integer.\nThe output tensor has the same shape and type as the input.\n\nExamples:\n```\nround([0.9]) = [1.0]\nround([2.5]) = [2.0]\nround([2.3]) = [2.0]\nround([1.5]) = [2.0]\nround([-4.5]) = [-4.0]\n```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Round',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([0.1, 0.5, 0.9, 1.2, 1.5,\n            1.8, 2.3, 2.5, 2.7, -1.1,\n            -1.5, -1.9, -2.2, -2.5, -2.8]).astype(np.float32)\ny = np.array([0., 0., 1., 1., 2.,\n            2., 2., 2., 3., -1.,\n            -2., -2., -2., -2., -3.]).astype(np.float32)  # expected output\nexpect(node, inputs=[x], outputs=[y],\n       name='test_round')",
+          "summary": "round"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "SVMClassifier",
     "schema": {
       "attributes": [
