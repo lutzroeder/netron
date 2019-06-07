@@ -18,6 +18,7 @@
     
                 function Pipeline(properties) {
                     this.models = [];
+                    this.names = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -25,6 +26,7 @@
                 }
     
                 Pipeline.prototype.models = $util.emptyArray;
+                Pipeline.prototype.names = $util.emptyArray;
     
                 Pipeline.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -37,6 +39,11 @@
                             if (!(message.models && message.models.length))
                                 message.models = [];
                             message.models.push($root.CoreML.Specification.Model.decode(reader, reader.uint32()));
+                            break;
+                        case 2:
+                            if (!(message.names && message.names.length))
+                                message.names = [];
+                            message.names.push(reader.string());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -212,6 +219,7 @@
                 function ModelDescription(properties) {
                     this.input = [];
                     this.output = [];
+                    this.trainingInput = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -222,6 +230,7 @@
                 ModelDescription.prototype.output = $util.emptyArray;
                 ModelDescription.prototype.predictedFeatureName = "";
                 ModelDescription.prototype.predictedProbabilitiesName = "";
+                ModelDescription.prototype.trainingInput = $util.emptyArray;
                 ModelDescription.prototype.metadata = null;
     
                 ModelDescription.decode = function decode(reader, length) {
@@ -246,6 +255,11 @@
                             break;
                         case 12:
                             message.predictedProbabilitiesName = reader.string();
+                            break;
+                        case 50:
+                            if (!(message.trainingInput && message.trainingInput.length))
+                                message.trainingInput = [];
+                            message.trainingInput.push($root.CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
                             break;
                         case 100:
                             message.metadata = $root.CoreML.Specification.Metadata.decode(reader, reader.uint32());
@@ -272,6 +286,7 @@
     
                 Model.prototype.specificationVersion = 0;
                 Model.prototype.description = null;
+                Model.prototype.isUpdatable = false;
                 Model.prototype.pipelineClassifier = null;
                 Model.prototype.pipelineRegressor = null;
                 Model.prototype.pipeline = null;
@@ -284,8 +299,11 @@
                 Model.prototype.supportVectorClassifier = null;
                 Model.prototype.treeEnsembleClassifier = null;
                 Model.prototype.neuralNetworkClassifier = null;
+                Model.prototype.kNearestNeighborsClassifier = null;
                 Model.prototype.neuralNetwork = null;
+                Model.prototype.itemSimilarityRecommender = null;
                 Model.prototype.customModel = null;
+                Model.prototype.linkedModel = null;
                 Model.prototype.oneHotEncoder = null;
                 Model.prototype.imputer = null;
                 Model.prototype.featureVectorizer = null;
@@ -299,11 +317,12 @@
                 Model.prototype.textClassifier = null;
                 Model.prototype.wordTagger = null;
                 Model.prototype.visionFeaturePrint = null;
+                Model.prototype.soundAnalysisPreprocessing = null;
     
                 var $oneOfFields;
     
                 Object.defineProperty(Model.prototype, "Type", {
-                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "neuralNetwork", "customModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint"]),
+                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "customModel", "linkedModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -319,6 +338,9 @@
                             break;
                         case 2:
                             message.description = $root.CoreML.Specification.ModelDescription.decode(reader, reader.uint32());
+                            break;
+                        case 10:
+                            message.isUpdatable = reader.bool();
                             break;
                         case 200:
                             message.pipelineClassifier = $root.CoreML.Specification.PipelineClassifier.decode(reader, reader.uint32());
@@ -356,11 +378,20 @@
                         case 403:
                             message.neuralNetworkClassifier = $root.CoreML.Specification.NeuralNetworkClassifier.decode(reader, reader.uint32());
                             break;
+                        case 404:
+                            message.kNearestNeighborsClassifier = $root.CoreML.Specification.KNearestNeighborsClassifier.decode(reader, reader.uint32());
+                            break;
                         case 500:
                             message.neuralNetwork = $root.CoreML.Specification.NeuralNetwork.decode(reader, reader.uint32());
                             break;
+                        case 501:
+                            message.itemSimilarityRecommender = $root.CoreML.Specification.ItemSimilarityRecommender.decode(reader, reader.uint32());
+                            break;
                         case 555:
                             message.customModel = $root.CoreML.Specification.CustomModel.decode(reader, reader.uint32());
+                            break;
+                        case 556:
+                            message.linkedModel = $root.CoreML.Specification.LinkedModel.decode(reader, reader.uint32());
                             break;
                         case 600:
                             message.oneHotEncoder = $root.CoreML.Specification.OneHotEncoder.decode(reader, reader.uint32());
@@ -400,6 +431,9 @@
                             break;
                         case 2002:
                             message.visionFeaturePrint = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.decode(reader, reader.uint32());
+                            break;
+                        case 2003:
+                            message.soundAnalysisPreprocessing = $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -610,6 +644,72 @@
                     };
     
                     return WordTagger;
+                })();
+    
+                CoreMLModels.SoundAnalysisPreprocessing = (function() {
+    
+                    function SoundAnalysisPreprocessing(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    SoundAnalysisPreprocessing.prototype.vggish = null;
+    
+                    var $oneOfFields;
+    
+                    Object.defineProperty(SoundAnalysisPreprocessing.prototype, "SoundAnalysisPreprocessingType", {
+                        get: $util.oneOfGetter($oneOfFields = ["vggish"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+    
+                    SoundAnalysisPreprocessing.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 20:
+                                message.vggish = $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    SoundAnalysisPreprocessing.Vggish = (function() {
+    
+                        function Vggish(properties) {
+                            if (properties)
+                                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                    if (properties[keys[i]] != null)
+                                        this[keys[i]] = properties[keys[i]];
+                        }
+    
+                        Vggish.decode = function decode(reader, length) {
+                            if (!(reader instanceof $Reader))
+                                reader = $Reader.create(reader);
+                            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish();
+                            while (reader.pos < end) {
+                                var tag = reader.uint32();
+                                switch (tag >>> 3) {
+                                default:
+                                    reader.skipType(tag & 7);
+                                    break;
+                                }
+                            }
+                            return message;
+                        };
+    
+                        return Vggish;
+                    })();
+    
+                    return SoundAnalysisPreprocessing;
                 })();
     
                 return CoreMLModels;
@@ -842,6 +942,46 @@
                 return Int64Vector;
             })();
     
+            Specification.FloatVector = (function() {
+    
+                function FloatVector(properties) {
+                    this.vector = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                FloatVector.prototype.vector = $util.emptyArray;
+    
+                FloatVector.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.FloatVector();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.vector && message.vector.length))
+                                message.vector = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.vector.push(reader.float());
+                            } else
+                                message.vector.push(reader.float());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return FloatVector;
+            })();
+    
             Specification.DoubleVector = (function() {
     
                 function DoubleVector(properties) {
@@ -880,6 +1020,118 @@
                 };
     
                 return DoubleVector;
+            })();
+    
+            Specification.Int64Range = (function() {
+    
+                function Int64Range(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Int64Range.prototype.minValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                Int64Range.prototype.maxValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                Int64Range.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Int64Range();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.minValue = reader.int64();
+                            break;
+                        case 2:
+                            message.maxValue = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Int64Range;
+            })();
+    
+            Specification.Int64Set = (function() {
+    
+                function Int64Set(properties) {
+                    this.values = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Int64Set.prototype.values = $util.emptyArray;
+    
+                Int64Set.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Int64Set();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.values && message.values.length))
+                                message.values = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.values.push(reader.int64());
+                            } else
+                                message.values.push(reader.int64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Int64Set;
+            })();
+    
+            Specification.DoubleRange = (function() {
+    
+                function DoubleRange(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                DoubleRange.prototype.minValue = 0;
+                DoubleRange.prototype.maxValue = 0;
+    
+                DoubleRange.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.DoubleRange();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.minValue = reader.double();
+                            break;
+                        case 2:
+                            message.maxValue = reader.double();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return DoubleRange;
             })();
     
             Specification.Int64FeatureType = (function() {
@@ -2229,6 +2481,286 @@
                 return GLMClassifier;
             })();
     
+            Specification.KNearestNeighborsClassifier = (function() {
+    
+                function KNearestNeighborsClassifier(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                KNearestNeighborsClassifier.prototype.nearestNeighborsIndex = null;
+                KNearestNeighborsClassifier.prototype.k = 0;
+                KNearestNeighborsClassifier.prototype.stringClassLabels = null;
+                KNearestNeighborsClassifier.prototype.int64ClassLabels = null;
+                KNearestNeighborsClassifier.prototype.defaultStringLabel = "";
+                KNearestNeighborsClassifier.prototype.defaultInt64Label = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                KNearestNeighborsClassifier.prototype.uniformWeighting = null;
+                KNearestNeighborsClassifier.prototype.inverseDistanceWeighting = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(KNearestNeighborsClassifier.prototype, "ClassLabels", {
+                    get: $util.oneOfGetter($oneOfFields = ["stringClassLabels", "int64ClassLabels"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Object.defineProperty(KNearestNeighborsClassifier.prototype, "DefaultClassLabel", {
+                    get: $util.oneOfGetter($oneOfFields = ["defaultStringLabel", "defaultInt64Label"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Object.defineProperty(KNearestNeighborsClassifier.prototype, "WeightingScheme", {
+                    get: $util.oneOfGetter($oneOfFields = ["uniformWeighting", "inverseDistanceWeighting"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                KNearestNeighborsClassifier.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.KNearestNeighborsClassifier();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.nearestNeighborsIndex = $root.CoreML.Specification.NearestNeighborsIndex.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.k = reader.int32();
+                            break;
+                        case 100:
+                            message.stringClassLabels = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
+                            break;
+                        case 101:
+                            message.int64ClassLabels = $root.CoreML.Specification.Int64Vector.decode(reader, reader.uint32());
+                            break;
+                        case 110:
+                            message.defaultStringLabel = reader.string();
+                            break;
+                        case 111:
+                            message.defaultInt64Label = reader.int64();
+                            break;
+                        case 200:
+                            message.uniformWeighting = $root.CoreML.Specification.UniformWeighting.decode(reader, reader.uint32());
+                            break;
+                        case 210:
+                            message.inverseDistanceWeighting = $root.CoreML.Specification.InverseDistanceWeighting.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return KNearestNeighborsClassifier;
+            })();
+    
+            Specification.NearestNeighborsIndex = (function() {
+    
+                function NearestNeighborsIndex(properties) {
+                    this.floatSamples = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                NearestNeighborsIndex.prototype.numberOfDimensions = 0;
+                NearestNeighborsIndex.prototype.floatSamples = $util.emptyArray;
+                NearestNeighborsIndex.prototype.linearIndex = null;
+                NearestNeighborsIndex.prototype.singleKdTreeIndex = null;
+                NearestNeighborsIndex.prototype.squaredEuclideanDistance = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(NearestNeighborsIndex.prototype, "IndexType", {
+                    get: $util.oneOfGetter($oneOfFields = ["linearIndex", "singleKdTreeIndex"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Object.defineProperty(NearestNeighborsIndex.prototype, "DistanceFunction", {
+                    get: $util.oneOfGetter($oneOfFields = ["squaredEuclideanDistance"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                NearestNeighborsIndex.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.NearestNeighborsIndex();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.numberOfDimensions = reader.int32();
+                            break;
+                        case 2:
+                            if (!(message.floatSamples && message.floatSamples.length))
+                                message.floatSamples = [];
+                            message.floatSamples.push($root.CoreML.Specification.FloatVector.decode(reader, reader.uint32()));
+                            break;
+                        case 100:
+                            message.linearIndex = $root.CoreML.Specification.LinearIndex.decode(reader, reader.uint32());
+                            break;
+                        case 110:
+                            message.singleKdTreeIndex = $root.CoreML.Specification.SingleKdTreeIndex.decode(reader, reader.uint32());
+                            break;
+                        case 200:
+                            message.squaredEuclideanDistance = $root.CoreML.Specification.SquaredEuclideanDistance.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return NearestNeighborsIndex;
+            })();
+    
+            Specification.UniformWeighting = (function() {
+    
+                function UniformWeighting(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                UniformWeighting.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.UniformWeighting();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return UniformWeighting;
+            })();
+    
+            Specification.InverseDistanceWeighting = (function() {
+    
+                function InverseDistanceWeighting(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                InverseDistanceWeighting.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.InverseDistanceWeighting();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return InverseDistanceWeighting;
+            })();
+    
+            Specification.LinearIndex = (function() {
+    
+                function LinearIndex(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LinearIndex.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LinearIndex();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LinearIndex;
+            })();
+    
+            Specification.SingleKdTreeIndex = (function() {
+    
+                function SingleKdTreeIndex(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SingleKdTreeIndex.prototype.leafSize = 0;
+    
+                SingleKdTreeIndex.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SingleKdTreeIndex();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.leafSize = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SingleKdTreeIndex;
+            })();
+    
+            Specification.SquaredEuclideanDistance = (function() {
+    
+                function SquaredEuclideanDistance(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SquaredEuclideanDistance.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SquaredEuclideanDistance();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SquaredEuclideanDistance;
+            })();
+    
             Specification.Identity = (function() {
     
                 function Identity(properties) {
@@ -2336,6 +2868,20 @@
                 return Imputer;
             })();
     
+            Specification.NeuralNetworkMultiArrayShapeMapping = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "RANK5_ARRAY_MAPPING"] = 0;
+                values[valuesById[1] = "EXACT_ARRAY_MAPPING"] = 1;
+                return values;
+            })();
+    
+            Specification.NeuralNetworkImageShapeMapping = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "RANK5_IMAGE_MAPPING"] = 0;
+                values[valuesById[1] = "RANK4_IMAGE_MAPPING"] = 1;
+                return values;
+            })();
+    
             Specification.NeuralNetwork = (function() {
     
                 function NeuralNetwork(properties) {
@@ -2349,6 +2895,9 @@
     
                 NeuralNetwork.prototype.layers = $util.emptyArray;
                 NeuralNetwork.prototype.preprocessing = $util.emptyArray;
+                NeuralNetwork.prototype.arrayInputShapeMapping = 0;
+                NeuralNetwork.prototype.imageInputShapeMapping = 0;
+                NeuralNetwork.prototype.updateParams = null;
     
                 NeuralNetwork.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -2366,6 +2915,15 @@
                             if (!(message.preprocessing && message.preprocessing.length))
                                 message.preprocessing = [];
                             message.preprocessing.push($root.CoreML.Specification.NeuralNetworkPreprocessing.decode(reader, reader.uint32()));
+                            break;
+                        case 5:
+                            message.arrayInputShapeMapping = reader.int32();
+                            break;
+                        case 6:
+                            message.imageInputShapeMapping = reader.int32();
+                            break;
+                        case 10:
+                            message.updateParams = $root.CoreML.Specification.NetworkUpdateParameters.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3007,11 +3565,57 @@
                 return ActivationParams;
             })();
     
+            Specification.Tensor = (function() {
+    
+                function Tensor(properties) {
+                    this.dimValue = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Tensor.prototype.rank = 0;
+                Tensor.prototype.dimValue = $util.emptyArray;
+    
+                Tensor.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Tensor();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.rank = reader.uint32();
+                            break;
+                        case 2:
+                            if (!(message.dimValue && message.dimValue.length))
+                                message.dimValue = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.dimValue.push(reader.int64());
+                            } else
+                                message.dimValue.push(reader.int64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Tensor;
+            })();
+    
             Specification.NeuralNetworkLayer = (function() {
     
                 function NeuralNetworkLayer(properties) {
                     this.input = [];
                     this.output = [];
+                    this.inputTensor = [];
+                    this.outputTensor = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -3021,6 +3625,9 @@
                 NeuralNetworkLayer.prototype.name = "";
                 NeuralNetworkLayer.prototype.input = $util.emptyArray;
                 NeuralNetworkLayer.prototype.output = $util.emptyArray;
+                NeuralNetworkLayer.prototype.inputTensor = $util.emptyArray;
+                NeuralNetworkLayer.prototype.outputTensor = $util.emptyArray;
+                NeuralNetworkLayer.prototype.isUpdatable = false;
                 NeuralNetworkLayer.prototype.convolution = null;
                 NeuralNetworkLayer.prototype.pooling = null;
                 NeuralNetworkLayer.prototype.activation = null;
@@ -3060,11 +3667,120 @@
                 NeuralNetworkLayer.prototype.uniDirectionalLSTM = null;
                 NeuralNetworkLayer.prototype.biDirectionalLSTM = null;
                 NeuralNetworkLayer.prototype.custom = null;
+                NeuralNetworkLayer.prototype.copy = null;
+                NeuralNetworkLayer.prototype.branch = null;
+                NeuralNetworkLayer.prototype.loop = null;
+                NeuralNetworkLayer.prototype.loopBreak = null;
+                NeuralNetworkLayer.prototype.loopContinue = null;
+                NeuralNetworkLayer.prototype.rangeStatic = null;
+                NeuralNetworkLayer.prototype.rangeDynamic = null;
+                NeuralNetworkLayer.prototype.clip = null;
+                NeuralNetworkLayer.prototype.ceil = null;
+                NeuralNetworkLayer.prototype.floor = null;
+                NeuralNetworkLayer.prototype.sign = null;
+                NeuralNetworkLayer.prototype.round = null;
+                NeuralNetworkLayer.prototype.exp2 = null;
+                NeuralNetworkLayer.prototype.sin = null;
+                NeuralNetworkLayer.prototype.cos = null;
+                NeuralNetworkLayer.prototype.tan = null;
+                NeuralNetworkLayer.prototype.asin = null;
+                NeuralNetworkLayer.prototype.acos = null;
+                NeuralNetworkLayer.prototype.atan = null;
+                NeuralNetworkLayer.prototype.sinh = null;
+                NeuralNetworkLayer.prototype.cosh = null;
+                NeuralNetworkLayer.prototype.tanh = null;
+                NeuralNetworkLayer.prototype.asinh = null;
+                NeuralNetworkLayer.prototype.acosh = null;
+                NeuralNetworkLayer.prototype.atanh = null;
+                NeuralNetworkLayer.prototype.erf = null;
+                NeuralNetworkLayer.prototype.gelu = null;
+                NeuralNetworkLayer.prototype.equal = null;
+                NeuralNetworkLayer.prototype.notEqual = null;
+                NeuralNetworkLayer.prototype.lessThan = null;
+                NeuralNetworkLayer.prototype.lessEqual = null;
+                NeuralNetworkLayer.prototype.greaterThan = null;
+                NeuralNetworkLayer.prototype.greaterEqual = null;
+                NeuralNetworkLayer.prototype.logicalOr = null;
+                NeuralNetworkLayer.prototype.logicalXor = null;
+                NeuralNetworkLayer.prototype.logicalNot = null;
+                NeuralNetworkLayer.prototype.logicalAnd = null;
+                NeuralNetworkLayer.prototype.modBroadcastable = null;
+                NeuralNetworkLayer.prototype.minBroadcastable = null;
+                NeuralNetworkLayer.prototype.maxBroadcastable = null;
+                NeuralNetworkLayer.prototype.addBroadcastable = null;
+                NeuralNetworkLayer.prototype.powBroadcastable = null;
+                NeuralNetworkLayer.prototype.divideBroadcastable = null;
+                NeuralNetworkLayer.prototype.floorDivBroadcastable = null;
+                NeuralNetworkLayer.prototype.multiplyBroadcastable = null;
+                NeuralNetworkLayer.prototype.subtractBroadcastable = null;
+                NeuralNetworkLayer.prototype.tile = null;
+                NeuralNetworkLayer.prototype.stack = null;
+                NeuralNetworkLayer.prototype.gather = null;
+                NeuralNetworkLayer.prototype.scatter = null;
+                NeuralNetworkLayer.prototype.gatherND = null;
+                NeuralNetworkLayer.prototype.scatterND = null;
+                NeuralNetworkLayer.prototype.softmaxND = null;
+                NeuralNetworkLayer.prototype.gatherAlongAxis = null;
+                NeuralNetworkLayer.prototype.scatterAlongAxis = null;
+                NeuralNetworkLayer.prototype.reverse = null;
+                NeuralNetworkLayer.prototype.reverseSeq = null;
+                NeuralNetworkLayer.prototype.splitND = null;
+                NeuralNetworkLayer.prototype.concatND = null;
+                NeuralNetworkLayer.prototype.transpose = null;
+                NeuralNetworkLayer.prototype.sliceStatic = null;
+                NeuralNetworkLayer.prototype.sliceDynamic = null;
+                NeuralNetworkLayer.prototype.slidingWindows = null;
+                NeuralNetworkLayer.prototype.topK = null;
+                NeuralNetworkLayer.prototype.argMin = null;
+                NeuralNetworkLayer.prototype.argMax = null;
+                NeuralNetworkLayer.prototype.embeddingND = null;
+                NeuralNetworkLayer.prototype.batchedMatmul = null;
+                NeuralNetworkLayer.prototype.getShape = null;
+                NeuralNetworkLayer.prototype.loadConstantND = null;
+                NeuralNetworkLayer.prototype.fillLike = null;
+                NeuralNetworkLayer.prototype.fillStatic = null;
+                NeuralNetworkLayer.prototype.fillDynamic = null;
+                NeuralNetworkLayer.prototype.broadcastToLike = null;
+                NeuralNetworkLayer.prototype.broadcastToStatic = null;
+                NeuralNetworkLayer.prototype.broadcastToDynamic = null;
+                NeuralNetworkLayer.prototype.squeeze = null;
+                NeuralNetworkLayer.prototype.expandDims = null;
+                NeuralNetworkLayer.prototype.flattenTo2D = null;
+                NeuralNetworkLayer.prototype.reshapeLike = null;
+                NeuralNetworkLayer.prototype.reshapeStatic = null;
+                NeuralNetworkLayer.prototype.reshapeDynamic = null;
+                NeuralNetworkLayer.prototype.rankPreservingReshape = null;
+                NeuralNetworkLayer.prototype.randomNormalLike = null;
+                NeuralNetworkLayer.prototype.randomNormalStatic = null;
+                NeuralNetworkLayer.prototype.randomNormalDynamic = null;
+                NeuralNetworkLayer.prototype.randomUniformLike = null;
+                NeuralNetworkLayer.prototype.randomUniformStatic = null;
+                NeuralNetworkLayer.prototype.randomUniformDynamic = null;
+                NeuralNetworkLayer.prototype.randomBernoulliLike = null;
+                NeuralNetworkLayer.prototype.randomBernoulliStatic = null;
+                NeuralNetworkLayer.prototype.randomBernoulliDynamic = null;
+                NeuralNetworkLayer.prototype.categoricalDistribution = null;
+                NeuralNetworkLayer.prototype.reduceL1 = null;
+                NeuralNetworkLayer.prototype.reduceL2 = null;
+                NeuralNetworkLayer.prototype.reduceMax = null;
+                NeuralNetworkLayer.prototype.reduceMin = null;
+                NeuralNetworkLayer.prototype.reduceSum = null;
+                NeuralNetworkLayer.prototype.reduceProd = null;
+                NeuralNetworkLayer.prototype.reduceMean = null;
+                NeuralNetworkLayer.prototype.reduceLogSum = null;
+                NeuralNetworkLayer.prototype.reduceSumSquare = null;
+                NeuralNetworkLayer.prototype.reduceLogSumExp = null;
+                NeuralNetworkLayer.prototype.whereNonZero = null;
+                NeuralNetworkLayer.prototype.matrixBandPart = null;
+                NeuralNetworkLayer.prototype.lowerTriangular = null;
+                NeuralNetworkLayer.prototype.upperTriangular = null;
+                NeuralNetworkLayer.prototype.whereBroadcastable = null;
+                NeuralNetworkLayer.prototype.layerNormalization = null;
     
                 var $oneOfFields;
     
                 Object.defineProperty(NeuralNetworkLayer.prototype, "layer", {
-                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom"]),
+                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom", "copy", "branch", "loop", "loopBreak", "loopContinue", "rangeStatic", "rangeDynamic", "clip", "ceil", "floor", "sign", "round", "exp2", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "erf", "gelu", "equal", "notEqual", "lessThan", "lessEqual", "greaterThan", "greaterEqual", "logicalOr", "logicalXor", "logicalNot", "logicalAnd", "modBroadcastable", "minBroadcastable", "maxBroadcastable", "addBroadcastable", "powBroadcastable", "divideBroadcastable", "floorDivBroadcastable", "multiplyBroadcastable", "subtractBroadcastable", "tile", "stack", "gather", "scatter", "gatherND", "scatterND", "softmaxND", "gatherAlongAxis", "scatterAlongAxis", "reverse", "reverseSeq", "splitND", "concatND", "transpose", "sliceStatic", "sliceDynamic", "slidingWindows", "topK", "argMin", "argMax", "embeddingND", "batchedMatmul", "getShape", "loadConstantND", "fillLike", "fillStatic", "fillDynamic", "broadcastToLike", "broadcastToStatic", "broadcastToDynamic", "squeeze", "expandDims", "flattenTo2D", "reshapeLike", "reshapeStatic", "reshapeDynamic", "rankPreservingReshape", "randomNormalLike", "randomNormalStatic", "randomNormalDynamic", "randomUniformLike", "randomUniformStatic", "randomUniformDynamic", "randomBernoulliLike", "randomBernoulliStatic", "randomBernoulliDynamic", "categoricalDistribution", "reduceL1", "reduceL2", "reduceMax", "reduceMin", "reduceSum", "reduceProd", "reduceMean", "reduceLogSum", "reduceSumSquare", "reduceLogSumExp", "whereNonZero", "matrixBandPart", "lowerTriangular", "upperTriangular", "whereBroadcastable", "layerNormalization"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -3087,6 +3803,19 @@
                             if (!(message.output && message.output.length))
                                 message.output = [];
                             message.output.push(reader.string());
+                            break;
+                        case 4:
+                            if (!(message.inputTensor && message.inputTensor.length))
+                                message.inputTensor = [];
+                            message.inputTensor.push($root.CoreML.Specification.Tensor.decode(reader, reader.uint32()));
+                            break;
+                        case 5:
+                            if (!(message.outputTensor && message.outputTensor.length))
+                                message.outputTensor = [];
+                            message.outputTensor.push($root.CoreML.Specification.Tensor.decode(reader, reader.uint32()));
+                            break;
+                        case 10:
+                            message.isUpdatable = reader.bool();
                             break;
                         case 100:
                             message.convolution = $root.CoreML.Specification.ConvolutionLayerParams.decode(reader, reader.uint32());
@@ -3205,6 +3934,333 @@
                         case 500:
                             message.custom = $root.CoreML.Specification.CustomLayerParams.decode(reader, reader.uint32());
                             break;
+                        case 600:
+                            message.copy = $root.CoreML.Specification.CopyLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 605:
+                            message.branch = $root.CoreML.Specification.BranchLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 615:
+                            message.loop = $root.CoreML.Specification.LoopLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 620:
+                            message.loopBreak = $root.CoreML.Specification.LoopBreakLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 625:
+                            message.loopContinue = $root.CoreML.Specification.LoopContinueLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 635:
+                            message.rangeStatic = $root.CoreML.Specification.RangeStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 640:
+                            message.rangeDynamic = $root.CoreML.Specification.RangeDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 660:
+                            message.clip = $root.CoreML.Specification.ClipLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 665:
+                            message.ceil = $root.CoreML.Specification.CeilLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 670:
+                            message.floor = $root.CoreML.Specification.FloorLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 680:
+                            message.sign = $root.CoreML.Specification.SignLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 685:
+                            message.round = $root.CoreML.Specification.RoundLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 700:
+                            message.exp2 = $root.CoreML.Specification.Exp2LayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 710:
+                            message.sin = $root.CoreML.Specification.SinLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 715:
+                            message.cos = $root.CoreML.Specification.CosLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 720:
+                            message.tan = $root.CoreML.Specification.TanLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 730:
+                            message.asin = $root.CoreML.Specification.AsinLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 735:
+                            message.acos = $root.CoreML.Specification.AcosLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 740:
+                            message.atan = $root.CoreML.Specification.AtanLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 750:
+                            message.sinh = $root.CoreML.Specification.SinhLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 755:
+                            message.cosh = $root.CoreML.Specification.CoshLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 760:
+                            message.tanh = $root.CoreML.Specification.TanhLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 770:
+                            message.asinh = $root.CoreML.Specification.AsinhLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 775:
+                            message.acosh = $root.CoreML.Specification.AcoshLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 780:
+                            message.atanh = $root.CoreML.Specification.AtanhLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 790:
+                            message.erf = $root.CoreML.Specification.ErfLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 795:
+                            message.gelu = $root.CoreML.Specification.GeluLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 815:
+                            message.equal = $root.CoreML.Specification.EqualLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 820:
+                            message.notEqual = $root.CoreML.Specification.NotEqualLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 825:
+                            message.lessThan = $root.CoreML.Specification.LessThanLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 827:
+                            message.lessEqual = $root.CoreML.Specification.LessEqualLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 830:
+                            message.greaterThan = $root.CoreML.Specification.GreaterThanLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 832:
+                            message.greaterEqual = $root.CoreML.Specification.GreaterEqualLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 840:
+                            message.logicalOr = $root.CoreML.Specification.LogicalOrLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 845:
+                            message.logicalXor = $root.CoreML.Specification.LogicalXorLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 850:
+                            message.logicalNot = $root.CoreML.Specification.LogicalNotLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 855:
+                            message.logicalAnd = $root.CoreML.Specification.LogicalAndLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 865:
+                            message.modBroadcastable = $root.CoreML.Specification.ModBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 870:
+                            message.minBroadcastable = $root.CoreML.Specification.MinBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 875:
+                            message.maxBroadcastable = $root.CoreML.Specification.MaxBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 880:
+                            message.addBroadcastable = $root.CoreML.Specification.AddBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 885:
+                            message.powBroadcastable = $root.CoreML.Specification.PowBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 890:
+                            message.divideBroadcastable = $root.CoreML.Specification.DivideBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 895:
+                            message.floorDivBroadcastable = $root.CoreML.Specification.FloorDivBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 900:
+                            message.multiplyBroadcastable = $root.CoreML.Specification.MultiplyBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 905:
+                            message.subtractBroadcastable = $root.CoreML.Specification.SubtractBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 920:
+                            message.tile = $root.CoreML.Specification.TileLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 925:
+                            message.stack = $root.CoreML.Specification.StackLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 930:
+                            message.gather = $root.CoreML.Specification.GatherLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 935:
+                            message.scatter = $root.CoreML.Specification.ScatterLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 940:
+                            message.gatherND = $root.CoreML.Specification.GatherNDLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 945:
+                            message.scatterND = $root.CoreML.Specification.ScatterNDLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 950:
+                            message.softmaxND = $root.CoreML.Specification.SoftmaxNDLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 952:
+                            message.gatherAlongAxis = $root.CoreML.Specification.GatherAlongAxisLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 954:
+                            message.scatterAlongAxis = $root.CoreML.Specification.ScatterAlongAxisLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 960:
+                            message.reverse = $root.CoreML.Specification.ReverseLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 965:
+                            message.reverseSeq = $root.CoreML.Specification.ReverseSeqLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 975:
+                            message.splitND = $root.CoreML.Specification.SplitNDLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 980:
+                            message.concatND = $root.CoreML.Specification.ConcatNDLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 985:
+                            message.transpose = $root.CoreML.Specification.TransposeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 995:
+                            message.sliceStatic = $root.CoreML.Specification.SliceStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1000:
+                            message.sliceDynamic = $root.CoreML.Specification.SliceDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1005:
+                            message.slidingWindows = $root.CoreML.Specification.SlidingWindowsLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1015:
+                            message.topK = $root.CoreML.Specification.TopKLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1020:
+                            message.argMin = $root.CoreML.Specification.ArgMinLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1025:
+                            message.argMax = $root.CoreML.Specification.ArgMaxLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1040:
+                            message.embeddingND = $root.CoreML.Specification.EmbeddingNDLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1045:
+                            message.batchedMatmul = $root.CoreML.Specification.BatchedMatMulLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1065:
+                            message.getShape = $root.CoreML.Specification.GetShapeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1070:
+                            message.loadConstantND = $root.CoreML.Specification.LoadConstantNDLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1080:
+                            message.fillLike = $root.CoreML.Specification.FillLikeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1085:
+                            message.fillStatic = $root.CoreML.Specification.FillStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1090:
+                            message.fillDynamic = $root.CoreML.Specification.FillDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1100:
+                            message.broadcastToLike = $root.CoreML.Specification.BroadcastToLikeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1105:
+                            message.broadcastToStatic = $root.CoreML.Specification.BroadcastToStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1110:
+                            message.broadcastToDynamic = $root.CoreML.Specification.BroadcastToDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1120:
+                            message.squeeze = $root.CoreML.Specification.SqueezeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1125:
+                            message.expandDims = $root.CoreML.Specification.ExpandDimsLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1130:
+                            message.flattenTo2D = $root.CoreML.Specification.FlattenTo2DLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1135:
+                            message.reshapeLike = $root.CoreML.Specification.ReshapeLikeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1140:
+                            message.reshapeStatic = $root.CoreML.Specification.ReshapeStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1145:
+                            message.reshapeDynamic = $root.CoreML.Specification.ReshapeDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1150:
+                            message.rankPreservingReshape = $root.CoreML.Specification.RankPreservingReshapeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1170:
+                            message.randomNormalLike = $root.CoreML.Specification.RandomNormalLikeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1175:
+                            message.randomNormalStatic = $root.CoreML.Specification.RandomNormalStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1180:
+                            message.randomNormalDynamic = $root.CoreML.Specification.RandomNormalDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1190:
+                            message.randomUniformLike = $root.CoreML.Specification.RandomUniformLikeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1195:
+                            message.randomUniformStatic = $root.CoreML.Specification.RandomUniformStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1200:
+                            message.randomUniformDynamic = $root.CoreML.Specification.RandomUniformDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1210:
+                            message.randomBernoulliLike = $root.CoreML.Specification.RandomBernoulliLikeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1215:
+                            message.randomBernoulliStatic = $root.CoreML.Specification.RandomBernoulliStaticLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1220:
+                            message.randomBernoulliDynamic = $root.CoreML.Specification.RandomBernoulliDynamicLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1230:
+                            message.categoricalDistribution = $root.CoreML.Specification.CategoricalDistributionLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1250:
+                            message.reduceL1 = $root.CoreML.Specification.ReduceL1LayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1255:
+                            message.reduceL2 = $root.CoreML.Specification.ReduceL2LayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1260:
+                            message.reduceMax = $root.CoreML.Specification.ReduceMaxLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1265:
+                            message.reduceMin = $root.CoreML.Specification.ReduceMinLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1270:
+                            message.reduceSum = $root.CoreML.Specification.ReduceSumLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1275:
+                            message.reduceProd = $root.CoreML.Specification.ReduceProdLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1280:
+                            message.reduceMean = $root.CoreML.Specification.ReduceMeanLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1285:
+                            message.reduceLogSum = $root.CoreML.Specification.ReduceLogSumLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1290:
+                            message.reduceSumSquare = $root.CoreML.Specification.ReduceSumSquareLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1295:
+                            message.reduceLogSumExp = $root.CoreML.Specification.ReduceLogSumExpLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1313:
+                            message.whereNonZero = $root.CoreML.Specification.WhereNonZeroLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1315:
+                            message.matrixBandPart = $root.CoreML.Specification.MatrixBandPartLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1320:
+                            message.lowerTriangular = $root.CoreML.Specification.LowerTriangularLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1325:
+                            message.upperTriangular = $root.CoreML.Specification.UpperTriangularLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1330:
+                            message.whereBroadcastable = $root.CoreML.Specification.WhereBroadcastableLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1350:
+                            message.layerNormalization = $root.CoreML.Specification.LayerNormalizationLayerParams.decode(reader, reader.uint32());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -3214,6 +4270,467 @@
                 };
     
                 return NeuralNetworkLayer;
+            })();
+    
+            Specification.BranchLayerParams = (function() {
+    
+                function BranchLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                BranchLayerParams.prototype.ifBranch = null;
+                BranchLayerParams.prototype.elseBranch = null;
+    
+                BranchLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BranchLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.ifBranch = $root.CoreML.Specification.NeuralNetwork.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.elseBranch = $root.CoreML.Specification.NeuralNetwork.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return BranchLayerParams;
+            })();
+    
+            Specification.LoopLayerParams = (function() {
+    
+                function LoopLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LoopLayerParams.prototype.maxLoopIterations = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                LoopLayerParams.prototype.conditionVar = "";
+                LoopLayerParams.prototype.conditionNetwork = null;
+                LoopLayerParams.prototype.bodyNetwork = null;
+    
+                LoopLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LoopLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.maxLoopIterations = reader.uint64();
+                            break;
+                        case 2:
+                            message.conditionVar = reader.string();
+                            break;
+                        case 3:
+                            message.conditionNetwork = $root.CoreML.Specification.NeuralNetwork.decode(reader, reader.uint32());
+                            break;
+                        case 4:
+                            message.bodyNetwork = $root.CoreML.Specification.NeuralNetwork.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LoopLayerParams;
+            })();
+    
+            Specification.LoopBreakLayerParams = (function() {
+    
+                function LoopBreakLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LoopBreakLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LoopBreakLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LoopBreakLayerParams;
+            })();
+    
+            Specification.LoopContinueLayerParams = (function() {
+    
+                function LoopContinueLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LoopContinueLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LoopContinueLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LoopContinueLayerParams;
+            })();
+    
+            Specification.CopyLayerParams = (function() {
+    
+                function CopyLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CopyLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CopyLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CopyLayerParams;
+            })();
+    
+            Specification.GreaterThanLayerParams = (function() {
+    
+                function GreaterThanLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GreaterThanLayerParams.prototype.alpha = 0;
+    
+                GreaterThanLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GreaterThanLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 2:
+                            message.alpha = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return GreaterThanLayerParams;
+            })();
+    
+            Specification.GreaterEqualLayerParams = (function() {
+    
+                function GreaterEqualLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GreaterEqualLayerParams.prototype.alpha = 0;
+    
+                GreaterEqualLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GreaterEqualLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 2:
+                            message.alpha = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return GreaterEqualLayerParams;
+            })();
+    
+            Specification.LessThanLayerParams = (function() {
+    
+                function LessThanLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LessThanLayerParams.prototype.alpha = 0;
+    
+                LessThanLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LessThanLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 2:
+                            message.alpha = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LessThanLayerParams;
+            })();
+    
+            Specification.LessEqualLayerParams = (function() {
+    
+                function LessEqualLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LessEqualLayerParams.prototype.alpha = 0;
+    
+                LessEqualLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LessEqualLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 2:
+                            message.alpha = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LessEqualLayerParams;
+            })();
+    
+            Specification.EqualLayerParams = (function() {
+    
+                function EqualLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                EqualLayerParams.prototype.alpha = 0;
+    
+                EqualLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.EqualLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.alpha = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return EqualLayerParams;
+            })();
+    
+            Specification.NotEqualLayerParams = (function() {
+    
+                function NotEqualLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                NotEqualLayerParams.prototype.alpha = 0;
+    
+                NotEqualLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.NotEqualLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.alpha = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return NotEqualLayerParams;
+            })();
+    
+            Specification.LogicalAndLayerParams = (function() {
+    
+                function LogicalAndLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LogicalAndLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LogicalAndLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LogicalAndLayerParams;
+            })();
+    
+            Specification.LogicalOrLayerParams = (function() {
+    
+                function LogicalOrLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LogicalOrLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LogicalOrLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LogicalOrLayerParams;
+            })();
+    
+            Specification.LogicalXorLayerParams = (function() {
+    
+                function LogicalXorLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LogicalXorLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LogicalXorLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LogicalXorLayerParams;
+            })();
+    
+            Specification.LogicalNotLayerParams = (function() {
+    
+                function LogicalNotLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LogicalNotLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LogicalNotLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LogicalNotLayerParams;
             })();
     
             Specification.BorderAmounts = (function() {
@@ -3454,6 +4971,7 @@
                 WeightParams.prototype.float16Value = $util.newBuffer([]);
                 WeightParams.prototype.rawValue = $util.newBuffer([]);
                 WeightParams.prototype.quantization = null;
+                WeightParams.prototype.isUpdatable = false;
     
                 WeightParams.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -3493,6 +5011,9 @@
                             break;
                         case 40:
                             message.quantization = $root.CoreML.Specification.QuantizationParams.decode(reader, reader.uint32());
+                            break;
+                        case 50:
+                            message.isUpdatable = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3870,6 +5391,54 @@
                 };
     
                 return EmbeddingLayerParams;
+            })();
+    
+            Specification.EmbeddingNDLayerParams = (function() {
+    
+                function EmbeddingNDLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                EmbeddingNDLayerParams.prototype.vocabSize = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                EmbeddingNDLayerParams.prototype.embeddingSize = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                EmbeddingNDLayerParams.prototype.hasBias = false;
+                EmbeddingNDLayerParams.prototype.weights = null;
+                EmbeddingNDLayerParams.prototype.bias = null;
+    
+                EmbeddingNDLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.EmbeddingNDLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.vocabSize = reader.uint64();
+                            break;
+                        case 2:
+                            message.embeddingSize = reader.uint64();
+                            break;
+                        case 3:
+                            message.hasBias = reader.bool();
+                            break;
+                        case 20:
+                            message.weights = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        case 21:
+                            message.bias = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return EmbeddingNDLayerParams;
             })();
     
             Specification.BatchnormLayerParams = (function() {
@@ -5833,6 +7402,3407 @@
                 return CustomLayerParams;
             })();
     
+            Specification.TransposeLayerParams = (function() {
+    
+                function TransposeLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                TransposeLayerParams.prototype.axes = $util.emptyArray;
+    
+                TransposeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.TransposeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.uint64());
+                            } else
+                                message.axes.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return TransposeLayerParams;
+            })();
+    
+            Specification.BatchedMatMulLayerParams = (function() {
+    
+                function BatchedMatMulLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                BatchedMatMulLayerParams.prototype.transposeA = false;
+                BatchedMatMulLayerParams.prototype.transposeB = false;
+                BatchedMatMulLayerParams.prototype.weightMatrixFirstDimension = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                BatchedMatMulLayerParams.prototype.weightMatrixSecondDimension = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                BatchedMatMulLayerParams.prototype.hasBias = false;
+                BatchedMatMulLayerParams.prototype.weights = null;
+                BatchedMatMulLayerParams.prototype.bias = null;
+    
+                BatchedMatMulLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BatchedMatMulLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.transposeA = reader.bool();
+                            break;
+                        case 2:
+                            message.transposeB = reader.bool();
+                            break;
+                        case 5:
+                            message.weightMatrixFirstDimension = reader.uint64();
+                            break;
+                        case 6:
+                            message.weightMatrixSecondDimension = reader.uint64();
+                            break;
+                        case 7:
+                            message.hasBias = reader.bool();
+                            break;
+                        case 8:
+                            message.weights = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        case 9:
+                            message.bias = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return BatchedMatMulLayerParams;
+            })();
+    
+            Specification.ConcatNDLayerParams = (function() {
+    
+                function ConcatNDLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ConcatNDLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                ConcatNDLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ConcatNDLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ConcatNDLayerParams;
+            })();
+    
+            Specification.SoftmaxNDLayerParams = (function() {
+    
+                function SoftmaxNDLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SoftmaxNDLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                SoftmaxNDLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SoftmaxNDLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SoftmaxNDLayerParams;
+            })();
+    
+            Specification.ReverseLayerParams = (function() {
+    
+                function ReverseLayerParams(properties) {
+                    this.reverseDim = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReverseLayerParams.prototype.reverseDim = $util.emptyArray;
+    
+                ReverseLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReverseLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.reverseDim && message.reverseDim.length))
+                                message.reverseDim = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.reverseDim.push(reader.bool());
+                            } else
+                                message.reverseDim.push(reader.bool());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReverseLayerParams;
+            })();
+    
+            Specification.ReverseSeqLayerParams = (function() {
+    
+                function ReverseSeqLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReverseSeqLayerParams.prototype.batchAxis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                ReverseSeqLayerParams.prototype.sequenceAxis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                ReverseSeqLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReverseSeqLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.batchAxis = reader.int64();
+                            break;
+                        case 2:
+                            message.sequenceAxis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReverseSeqLayerParams;
+            })();
+    
+            Specification.LoadConstantNDLayerParams = (function() {
+    
+                function LoadConstantNDLayerParams(properties) {
+                    this.shape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LoadConstantNDLayerParams.prototype.shape = $util.emptyArray;
+                LoadConstantNDLayerParams.prototype.data = null;
+    
+                LoadConstantNDLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LoadConstantNDLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.shape && message.shape.length))
+                                message.shape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.shape.push(reader.uint64());
+                            } else
+                                message.shape.push(reader.uint64());
+                            break;
+                        case 2:
+                            message.data = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LoadConstantNDLayerParams;
+            })();
+    
+            Specification.FillLikeLayerParams = (function() {
+    
+                function FillLikeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                FillLikeLayerParams.prototype.value = 0;
+    
+                FillLikeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.FillLikeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.value = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return FillLikeLayerParams;
+            })();
+    
+            Specification.FillStaticLayerParams = (function() {
+    
+                function FillStaticLayerParams(properties) {
+                    this.targetShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                FillStaticLayerParams.prototype.value = 0;
+                FillStaticLayerParams.prototype.targetShape = $util.emptyArray;
+    
+                FillStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.FillStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.value = reader.float();
+                            break;
+                        case 2:
+                            if (!(message.targetShape && message.targetShape.length))
+                                message.targetShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.targetShape.push(reader.uint64());
+                            } else
+                                message.targetShape.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return FillStaticLayerParams;
+            })();
+    
+            Specification.FillDynamicLayerParams = (function() {
+    
+                function FillDynamicLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                FillDynamicLayerParams.prototype.value = 0;
+    
+                FillDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.FillDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.value = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return FillDynamicLayerParams;
+            })();
+    
+            Specification.WhereBroadcastableLayerParams = (function() {
+    
+                function WhereBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                WhereBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.WhereBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return WhereBroadcastableLayerParams;
+            })();
+    
+            Specification.SinLayerParams = (function() {
+    
+                function SinLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SinLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SinLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SinLayerParams;
+            })();
+    
+            Specification.CosLayerParams = (function() {
+    
+                function CosLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CosLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CosLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CosLayerParams;
+            })();
+    
+            Specification.TanLayerParams = (function() {
+    
+                function TanLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                TanLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.TanLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return TanLayerParams;
+            })();
+    
+            Specification.AsinLayerParams = (function() {
+    
+                function AsinLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AsinLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AsinLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AsinLayerParams;
+            })();
+    
+            Specification.AcosLayerParams = (function() {
+    
+                function AcosLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AcosLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AcosLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AcosLayerParams;
+            })();
+    
+            Specification.AtanLayerParams = (function() {
+    
+                function AtanLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AtanLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AtanLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AtanLayerParams;
+            })();
+    
+            Specification.SinhLayerParams = (function() {
+    
+                function SinhLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SinhLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SinhLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SinhLayerParams;
+            })();
+    
+            Specification.CoshLayerParams = (function() {
+    
+                function CoshLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CoshLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoshLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CoshLayerParams;
+            })();
+    
+            Specification.TanhLayerParams = (function() {
+    
+                function TanhLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                TanhLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.TanhLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return TanhLayerParams;
+            })();
+    
+            Specification.AsinhLayerParams = (function() {
+    
+                function AsinhLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AsinhLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AsinhLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AsinhLayerParams;
+            })();
+    
+            Specification.AcoshLayerParams = (function() {
+    
+                function AcoshLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AcoshLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AcoshLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AcoshLayerParams;
+            })();
+    
+            Specification.AtanhLayerParams = (function() {
+    
+                function AtanhLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AtanhLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AtanhLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AtanhLayerParams;
+            })();
+    
+            Specification.PowBroadcastableLayerParams = (function() {
+    
+                function PowBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                PowBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.PowBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return PowBroadcastableLayerParams;
+            })();
+    
+            Specification.Exp2LayerParams = (function() {
+    
+                function Exp2LayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Exp2LayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Exp2LayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Exp2LayerParams;
+            })();
+    
+            Specification.WhereNonZeroLayerParams = (function() {
+    
+                function WhereNonZeroLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                WhereNonZeroLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.WhereNonZeroLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return WhereNonZeroLayerParams;
+            })();
+    
+            Specification.MatrixBandPartLayerParams = (function() {
+    
+                function MatrixBandPartLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                MatrixBandPartLayerParams.prototype.numLower = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                MatrixBandPartLayerParams.prototype.numUpper = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                MatrixBandPartLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.MatrixBandPartLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.numLower = reader.int64();
+                            break;
+                        case 2:
+                            message.numUpper = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return MatrixBandPartLayerParams;
+            })();
+    
+            Specification.UpperTriangularLayerParams = (function() {
+    
+                function UpperTriangularLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                UpperTriangularLayerParams.prototype.k = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                UpperTriangularLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.UpperTriangularLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.k = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return UpperTriangularLayerParams;
+            })();
+    
+            Specification.LowerTriangularLayerParams = (function() {
+    
+                function LowerTriangularLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LowerTriangularLayerParams.prototype.k = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                LowerTriangularLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LowerTriangularLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.k = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LowerTriangularLayerParams;
+            })();
+    
+            Specification.BroadcastToLikeLayerParams = (function() {
+    
+                function BroadcastToLikeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                BroadcastToLikeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BroadcastToLikeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return BroadcastToLikeLayerParams;
+            })();
+    
+            Specification.BroadcastToStaticLayerParams = (function() {
+    
+                function BroadcastToStaticLayerParams(properties) {
+                    this.targetShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                BroadcastToStaticLayerParams.prototype.targetShape = $util.emptyArray;
+    
+                BroadcastToStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BroadcastToStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.targetShape && message.targetShape.length))
+                                message.targetShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.targetShape.push(reader.uint64());
+                            } else
+                                message.targetShape.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return BroadcastToStaticLayerParams;
+            })();
+    
+            Specification.BroadcastToDynamicLayerParams = (function() {
+    
+                function BroadcastToDynamicLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                BroadcastToDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BroadcastToDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return BroadcastToDynamicLayerParams;
+            })();
+    
+            Specification.AddBroadcastableLayerParams = (function() {
+    
+                function AddBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AddBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AddBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AddBroadcastableLayerParams;
+            })();
+    
+            Specification.MaxBroadcastableLayerParams = (function() {
+    
+                function MaxBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                MaxBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.MaxBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return MaxBroadcastableLayerParams;
+            })();
+    
+            Specification.MinBroadcastableLayerParams = (function() {
+    
+                function MinBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                MinBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.MinBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return MinBroadcastableLayerParams;
+            })();
+    
+            Specification.ModBroadcastableLayerParams = (function() {
+    
+                function ModBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ModBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ModBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ModBroadcastableLayerParams;
+            })();
+    
+            Specification.FloorDivBroadcastableLayerParams = (function() {
+    
+                function FloorDivBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                FloorDivBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.FloorDivBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return FloorDivBroadcastableLayerParams;
+            })();
+    
+            Specification.SubtractBroadcastableLayerParams = (function() {
+    
+                function SubtractBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SubtractBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SubtractBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SubtractBroadcastableLayerParams;
+            })();
+    
+            Specification.MultiplyBroadcastableLayerParams = (function() {
+    
+                function MultiplyBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                MultiplyBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.MultiplyBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return MultiplyBroadcastableLayerParams;
+            })();
+    
+            Specification.DivideBroadcastableLayerParams = (function() {
+    
+                function DivideBroadcastableLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                DivideBroadcastableLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.DivideBroadcastableLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return DivideBroadcastableLayerParams;
+            })();
+    
+            Specification.GatherLayerParams = (function() {
+    
+                function GatherLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GatherLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                GatherLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GatherLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return GatherLayerParams;
+            })();
+    
+            Specification.ScatterMode = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "SCATTER_UPDATE"] = 0;
+                values[valuesById[1] = "SCATTER_ADD"] = 1;
+                values[valuesById[2] = "SCATTER_SUB"] = 2;
+                values[valuesById[3] = "SCATTER_MUL"] = 3;
+                values[valuesById[4] = "SCATTER_DIV"] = 4;
+                values[valuesById[5] = "SCATTER_MAX"] = 5;
+                values[valuesById[6] = "SCATTER_MIN"] = 6;
+                return values;
+            })();
+    
+            Specification.ScatterLayerParams = (function() {
+    
+                function ScatterLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ScatterLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                ScatterLayerParams.prototype.mode = 0;
+    
+                ScatterLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ScatterLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.mode = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ScatterLayerParams;
+            })();
+    
+            Specification.GatherNDLayerParams = (function() {
+    
+                function GatherNDLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GatherNDLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GatherNDLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return GatherNDLayerParams;
+            })();
+    
+            Specification.ScatterNDLayerParams = (function() {
+    
+                function ScatterNDLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ScatterNDLayerParams.prototype.mode = 0;
+    
+                ScatterNDLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ScatterNDLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.mode = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ScatterNDLayerParams;
+            })();
+    
+            Specification.GatherAlongAxisLayerParams = (function() {
+    
+                function GatherAlongAxisLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GatherAlongAxisLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                GatherAlongAxisLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GatherAlongAxisLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return GatherAlongAxisLayerParams;
+            })();
+    
+            Specification.ScatterAlongAxisLayerParams = (function() {
+    
+                function ScatterAlongAxisLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ScatterAlongAxisLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                ScatterAlongAxisLayerParams.prototype.mode = 0;
+    
+                ScatterAlongAxisLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ScatterAlongAxisLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.mode = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ScatterAlongAxisLayerParams;
+            })();
+    
+            Specification.StackLayerParams = (function() {
+    
+                function StackLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                StackLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                StackLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.StackLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return StackLayerParams;
+            })();
+    
+            Specification.RankPreservingReshapeLayerParams = (function() {
+    
+                function RankPreservingReshapeLayerParams(properties) {
+                    this.targetShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RankPreservingReshapeLayerParams.prototype.targetShape = $util.emptyArray;
+    
+                RankPreservingReshapeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RankPreservingReshapeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.targetShape && message.targetShape.length))
+                                message.targetShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.targetShape.push(reader.int64());
+                            } else
+                                message.targetShape.push(reader.int64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RankPreservingReshapeLayerParams;
+            })();
+    
+            Specification.RandomNormalLikeLayerParams = (function() {
+    
+                function RandomNormalLikeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomNormalLikeLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomNormalLikeLayerParams.prototype.mean = 0;
+                RandomNormalLikeLayerParams.prototype.stdDev = 0;
+    
+                RandomNormalLikeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomNormalLikeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.mean = reader.float();
+                            break;
+                        case 3:
+                            message.stdDev = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomNormalLikeLayerParams;
+            })();
+    
+            Specification.RandomNormalStaticLayerParams = (function() {
+    
+                function RandomNormalStaticLayerParams(properties) {
+                    this.outputShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomNormalStaticLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomNormalStaticLayerParams.prototype.mean = 0;
+                RandomNormalStaticLayerParams.prototype.stdDev = 0;
+                RandomNormalStaticLayerParams.prototype.outputShape = $util.emptyArray;
+    
+                RandomNormalStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomNormalStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.mean = reader.float();
+                            break;
+                        case 3:
+                            message.stdDev = reader.float();
+                            break;
+                        case 4:
+                            if (!(message.outputShape && message.outputShape.length))
+                                message.outputShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.outputShape.push(reader.uint64());
+                            } else
+                                message.outputShape.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomNormalStaticLayerParams;
+            })();
+    
+            Specification.RandomNormalDynamicLayerParams = (function() {
+    
+                function RandomNormalDynamicLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomNormalDynamicLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomNormalDynamicLayerParams.prototype.mean = 0;
+                RandomNormalDynamicLayerParams.prototype.stdDev = 0;
+    
+                RandomNormalDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomNormalDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.mean = reader.float();
+                            break;
+                        case 3:
+                            message.stdDev = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomNormalDynamicLayerParams;
+            })();
+    
+            Specification.RandomUniformLikeLayerParams = (function() {
+    
+                function RandomUniformLikeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomUniformLikeLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomUniformLikeLayerParams.prototype.minVal = 0;
+                RandomUniformLikeLayerParams.prototype.maxVal = 0;
+    
+                RandomUniformLikeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomUniformLikeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.minVal = reader.float();
+                            break;
+                        case 3:
+                            message.maxVal = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomUniformLikeLayerParams;
+            })();
+    
+            Specification.RandomUniformStaticLayerParams = (function() {
+    
+                function RandomUniformStaticLayerParams(properties) {
+                    this.outputShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomUniformStaticLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomUniformStaticLayerParams.prototype.minVal = 0;
+                RandomUniformStaticLayerParams.prototype.maxVal = 0;
+                RandomUniformStaticLayerParams.prototype.outputShape = $util.emptyArray;
+    
+                RandomUniformStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomUniformStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.minVal = reader.float();
+                            break;
+                        case 3:
+                            message.maxVal = reader.float();
+                            break;
+                        case 4:
+                            if (!(message.outputShape && message.outputShape.length))
+                                message.outputShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.outputShape.push(reader.uint64());
+                            } else
+                                message.outputShape.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomUniformStaticLayerParams;
+            })();
+    
+            Specification.RandomUniformDynamicLayerParams = (function() {
+    
+                function RandomUniformDynamicLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomUniformDynamicLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomUniformDynamicLayerParams.prototype.minVal = 0;
+                RandomUniformDynamicLayerParams.prototype.maxVal = 0;
+    
+                RandomUniformDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomUniformDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.minVal = reader.float();
+                            break;
+                        case 3:
+                            message.maxVal = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomUniformDynamicLayerParams;
+            })();
+    
+            Specification.RandomBernoulliLikeLayerParams = (function() {
+    
+                function RandomBernoulliLikeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomBernoulliLikeLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomBernoulliLikeLayerParams.prototype.prob = 0;
+    
+                RandomBernoulliLikeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomBernoulliLikeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.prob = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomBernoulliLikeLayerParams;
+            })();
+    
+            Specification.RandomBernoulliStaticLayerParams = (function() {
+    
+                function RandomBernoulliStaticLayerParams(properties) {
+                    this.outputShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomBernoulliStaticLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomBernoulliStaticLayerParams.prototype.prob = 0;
+                RandomBernoulliStaticLayerParams.prototype.outputShape = $util.emptyArray;
+    
+                RandomBernoulliStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomBernoulliStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.prob = reader.float();
+                            break;
+                        case 3:
+                            if (!(message.outputShape && message.outputShape.length))
+                                message.outputShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.outputShape.push(reader.uint64());
+                            } else
+                                message.outputShape.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomBernoulliStaticLayerParams;
+            })();
+    
+            Specification.RandomBernoulliDynamicLayerParams = (function() {
+    
+                function RandomBernoulliDynamicLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RandomBernoulliDynamicLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                RandomBernoulliDynamicLayerParams.prototype.prob = 0;
+    
+                RandomBernoulliDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RandomBernoulliDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.prob = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RandomBernoulliDynamicLayerParams;
+            })();
+    
+            Specification.CategoricalDistributionLayerParams = (function() {
+    
+                function CategoricalDistributionLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CategoricalDistributionLayerParams.prototype.seed = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                CategoricalDistributionLayerParams.prototype.numSamples = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                CategoricalDistributionLayerParams.prototype.isLogits = false;
+                CategoricalDistributionLayerParams.prototype.eps = 0;
+                CategoricalDistributionLayerParams.prototype.temperature = 0;
+    
+                CategoricalDistributionLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CategoricalDistributionLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.seed = reader.int64();
+                            break;
+                        case 2:
+                            message.numSamples = reader.int64();
+                            break;
+                        case 3:
+                            message.isLogits = reader.bool();
+                            break;
+                        case 4:
+                            message.eps = reader.float();
+                            break;
+                        case 5:
+                            message.temperature = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CategoricalDistributionLayerParams;
+            })();
+    
+            Specification.ReduceL1LayerParams = (function() {
+    
+                function ReduceL1LayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceL1LayerParams.prototype.axes = $util.emptyArray;
+                ReduceL1LayerParams.prototype.keepDims = false;
+                ReduceL1LayerParams.prototype.reduceAll = false;
+    
+                ReduceL1LayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceL1LayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceL1LayerParams;
+            })();
+    
+            Specification.ReduceL2LayerParams = (function() {
+    
+                function ReduceL2LayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceL2LayerParams.prototype.axes = $util.emptyArray;
+                ReduceL2LayerParams.prototype.keepDims = false;
+                ReduceL2LayerParams.prototype.reduceAll = false;
+    
+                ReduceL2LayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceL2LayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceL2LayerParams;
+            })();
+    
+            Specification.ReduceMaxLayerParams = (function() {
+    
+                function ReduceMaxLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceMaxLayerParams.prototype.axes = $util.emptyArray;
+                ReduceMaxLayerParams.prototype.keepDims = false;
+                ReduceMaxLayerParams.prototype.reduceAll = false;
+    
+                ReduceMaxLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceMaxLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceMaxLayerParams;
+            })();
+    
+            Specification.ReduceMinLayerParams = (function() {
+    
+                function ReduceMinLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceMinLayerParams.prototype.axes = $util.emptyArray;
+                ReduceMinLayerParams.prototype.keepDims = false;
+                ReduceMinLayerParams.prototype.reduceAll = false;
+    
+                ReduceMinLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceMinLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceMinLayerParams;
+            })();
+    
+            Specification.ReduceSumLayerParams = (function() {
+    
+                function ReduceSumLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceSumLayerParams.prototype.axes = $util.emptyArray;
+                ReduceSumLayerParams.prototype.keepDims = false;
+                ReduceSumLayerParams.prototype.reduceAll = false;
+    
+                ReduceSumLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceSumLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceSumLayerParams;
+            })();
+    
+            Specification.ReduceProdLayerParams = (function() {
+    
+                function ReduceProdLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceProdLayerParams.prototype.axes = $util.emptyArray;
+                ReduceProdLayerParams.prototype.keepDims = false;
+                ReduceProdLayerParams.prototype.reduceAll = false;
+    
+                ReduceProdLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceProdLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceProdLayerParams;
+            })();
+    
+            Specification.ReduceMeanLayerParams = (function() {
+    
+                function ReduceMeanLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceMeanLayerParams.prototype.axes = $util.emptyArray;
+                ReduceMeanLayerParams.prototype.keepDims = false;
+                ReduceMeanLayerParams.prototype.reduceAll = false;
+    
+                ReduceMeanLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceMeanLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceMeanLayerParams;
+            })();
+    
+            Specification.ReduceLogSumLayerParams = (function() {
+    
+                function ReduceLogSumLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceLogSumLayerParams.prototype.axes = $util.emptyArray;
+                ReduceLogSumLayerParams.prototype.keepDims = false;
+                ReduceLogSumLayerParams.prototype.reduceAll = false;
+    
+                ReduceLogSumLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceLogSumLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceLogSumLayerParams;
+            })();
+    
+            Specification.ReduceSumSquareLayerParams = (function() {
+    
+                function ReduceSumSquareLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceSumSquareLayerParams.prototype.axes = $util.emptyArray;
+                ReduceSumSquareLayerParams.prototype.keepDims = false;
+                ReduceSumSquareLayerParams.prototype.reduceAll = false;
+    
+                ReduceSumSquareLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceSumSquareLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceSumSquareLayerParams;
+            })();
+    
+            Specification.ReduceLogSumExpLayerParams = (function() {
+    
+                function ReduceLogSumExpLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReduceLogSumExpLayerParams.prototype.axes = $util.emptyArray;
+                ReduceLogSumExpLayerParams.prototype.keepDims = false;
+                ReduceLogSumExpLayerParams.prototype.reduceAll = false;
+    
+                ReduceLogSumExpLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReduceLogSumExpLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.keepDims = reader.bool();
+                            break;
+                        case 3:
+                            message.reduceAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReduceLogSumExpLayerParams;
+            })();
+    
+            Specification.ExpandDimsLayerParams = (function() {
+    
+                function ExpandDimsLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ExpandDimsLayerParams.prototype.axes = $util.emptyArray;
+    
+                ExpandDimsLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ExpandDimsLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ExpandDimsLayerParams;
+            })();
+    
+            Specification.FlattenTo2DLayerParams = (function() {
+    
+                function FlattenTo2DLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                FlattenTo2DLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                FlattenTo2DLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.FlattenTo2DLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return FlattenTo2DLayerParams;
+            })();
+    
+            Specification.ReshapeStaticLayerParams = (function() {
+    
+                function ReshapeStaticLayerParams(properties) {
+                    this.targetShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReshapeStaticLayerParams.prototype.targetShape = $util.emptyArray;
+    
+                ReshapeStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReshapeStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.targetShape && message.targetShape.length))
+                                message.targetShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.targetShape.push(reader.int64());
+                            } else
+                                message.targetShape.push(reader.int64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReshapeStaticLayerParams;
+            })();
+    
+            Specification.ReshapeLikeLayerParams = (function() {
+    
+                function ReshapeLikeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReshapeLikeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReshapeLikeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReshapeLikeLayerParams;
+            })();
+    
+            Specification.ReshapeDynamicLayerParams = (function() {
+    
+                function ReshapeDynamicLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ReshapeDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ReshapeDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ReshapeDynamicLayerParams;
+            })();
+    
+            Specification.SqueezeLayerParams = (function() {
+    
+                function SqueezeLayerParams(properties) {
+                    this.axes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SqueezeLayerParams.prototype.axes = $util.emptyArray;
+                SqueezeLayerParams.prototype.squeezeAll = false;
+    
+                SqueezeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SqueezeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.axes && message.axes.length))
+                                message.axes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.axes.push(reader.int64());
+                            } else
+                                message.axes.push(reader.int64());
+                            break;
+                        case 2:
+                            message.squeezeAll = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SqueezeLayerParams;
+            })();
+    
+            Specification.TopKLayerParams = (function() {
+    
+                function TopKLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                TopKLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                TopKLayerParams.prototype.K = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                TopKLayerParams.prototype.useBottomK = false;
+    
+                TopKLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.TopKLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.K = reader.uint64();
+                            break;
+                        case 3:
+                            message.useBottomK = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return TopKLayerParams;
+            })();
+    
+            Specification.ArgMaxLayerParams = (function() {
+    
+                function ArgMaxLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ArgMaxLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                ArgMaxLayerParams.prototype.removeDim = false;
+    
+                ArgMaxLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArgMaxLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.removeDim = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ArgMaxLayerParams;
+            })();
+    
+            Specification.ArgMinLayerParams = (function() {
+    
+                function ArgMinLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ArgMinLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                ArgMinLayerParams.prototype.removeDim = false;
+    
+                ArgMinLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArgMinLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.removeDim = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ArgMinLayerParams;
+            })();
+    
+            Specification.SplitNDLayerParams = (function() {
+    
+                function SplitNDLayerParams(properties) {
+                    this.splitSizes = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SplitNDLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                SplitNDLayerParams.prototype.numSplits = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                SplitNDLayerParams.prototype.splitSizes = $util.emptyArray;
+    
+                SplitNDLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SplitNDLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.numSplits = reader.uint64();
+                            break;
+                        case 3:
+                            if (!(message.splitSizes && message.splitSizes.length))
+                                message.splitSizes = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.splitSizes.push(reader.uint64());
+                            } else
+                                message.splitSizes.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SplitNDLayerParams;
+            })();
+    
+            Specification.CeilLayerParams = (function() {
+    
+                function CeilLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CeilLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CeilLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CeilLayerParams;
+            })();
+    
+            Specification.RoundLayerParams = (function() {
+    
+                function RoundLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RoundLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RoundLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RoundLayerParams;
+            })();
+    
+            Specification.FloorLayerParams = (function() {
+    
+                function FloorLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                FloorLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.FloorLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return FloorLayerParams;
+            })();
+    
+            Specification.SignLayerParams = (function() {
+    
+                function SignLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SignLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SignLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SignLayerParams;
+            })();
+    
+            Specification.ClipLayerParams = (function() {
+    
+                function ClipLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ClipLayerParams.prototype.minVal = 0;
+                ClipLayerParams.prototype.maxVal = 0;
+    
+                ClipLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ClipLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.minVal = reader.float();
+                            break;
+                        case 2:
+                            message.maxVal = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ClipLayerParams;
+            })();
+    
+            Specification.SliceStaticLayerParams = (function() {
+    
+                function SliceStaticLayerParams(properties) {
+                    this.beginIds = [];
+                    this.beginMasks = [];
+                    this.endIds = [];
+                    this.endMasks = [];
+                    this.strides = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SliceStaticLayerParams.prototype.beginIds = $util.emptyArray;
+                SliceStaticLayerParams.prototype.beginMasks = $util.emptyArray;
+                SliceStaticLayerParams.prototype.endIds = $util.emptyArray;
+                SliceStaticLayerParams.prototype.endMasks = $util.emptyArray;
+                SliceStaticLayerParams.prototype.strides = $util.emptyArray;
+    
+                SliceStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SliceStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.beginIds && message.beginIds.length))
+                                message.beginIds = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.beginIds.push(reader.int64());
+                            } else
+                                message.beginIds.push(reader.int64());
+                            break;
+                        case 2:
+                            if (!(message.beginMasks && message.beginMasks.length))
+                                message.beginMasks = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.beginMasks.push(reader.bool());
+                            } else
+                                message.beginMasks.push(reader.bool());
+                            break;
+                        case 3:
+                            if (!(message.endIds && message.endIds.length))
+                                message.endIds = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.endIds.push(reader.int64());
+                            } else
+                                message.endIds.push(reader.int64());
+                            break;
+                        case 4:
+                            if (!(message.endMasks && message.endMasks.length))
+                                message.endMasks = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.endMasks.push(reader.bool());
+                            } else
+                                message.endMasks.push(reader.bool());
+                            break;
+                        case 5:
+                            if (!(message.strides && message.strides.length))
+                                message.strides = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.strides.push(reader.int64());
+                            } else
+                                message.strides.push(reader.int64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SliceStaticLayerParams;
+            })();
+    
+            Specification.SliceDynamicLayerParams = (function() {
+    
+                function SliceDynamicLayerParams(properties) {
+                    this.beginMasks = [];
+                    this.endIds = [];
+                    this.endMasks = [];
+                    this.strides = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SliceDynamicLayerParams.prototype.beginMasks = $util.emptyArray;
+                SliceDynamicLayerParams.prototype.endIds = $util.emptyArray;
+                SliceDynamicLayerParams.prototype.endMasks = $util.emptyArray;
+                SliceDynamicLayerParams.prototype.strides = $util.emptyArray;
+    
+                SliceDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SliceDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 2:
+                            if (!(message.beginMasks && message.beginMasks.length))
+                                message.beginMasks = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.beginMasks.push(reader.bool());
+                            } else
+                                message.beginMasks.push(reader.bool());
+                            break;
+                        case 3:
+                            if (!(message.endIds && message.endIds.length))
+                                message.endIds = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.endIds.push(reader.int64());
+                            } else
+                                message.endIds.push(reader.int64());
+                            break;
+                        case 4:
+                            if (!(message.endMasks && message.endMasks.length))
+                                message.endMasks = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.endMasks.push(reader.bool());
+                            } else
+                                message.endMasks.push(reader.bool());
+                            break;
+                        case 5:
+                            if (!(message.strides && message.strides.length))
+                                message.strides = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.strides.push(reader.int64());
+                            } else
+                                message.strides.push(reader.int64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SliceDynamicLayerParams;
+            })();
+    
+            Specification.TileLayerParams = (function() {
+    
+                function TileLayerParams(properties) {
+                    this.reps = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                TileLayerParams.prototype.reps = $util.emptyArray;
+    
+                TileLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.TileLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.reps && message.reps.length))
+                                message.reps = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.reps.push(reader.uint64());
+                            } else
+                                message.reps.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return TileLayerParams;
+            })();
+    
+            Specification.GetShapeLayerParams = (function() {
+    
+                function GetShapeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GetShapeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GetShapeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return GetShapeLayerParams;
+            })();
+    
+            Specification.ErfLayerParams = (function() {
+    
+                function ErfLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ErfLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ErfLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ErfLayerParams;
+            })();
+    
+            Specification.GeluLayerParams = (function() {
+    
+                function GeluLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GeluLayerParams.prototype.mode = 0;
+    
+                GeluLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GeluLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.mode = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                GeluLayerParams.GeluMode = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "EXACT"] = 0;
+                    values[valuesById[1] = "TANH_APPROXIMATION"] = 1;
+                    values[valuesById[2] = "SIGMOID_APPROXIMATION"] = 2;
+                    return values;
+                })();
+    
+                return GeluLayerParams;
+            })();
+    
+            Specification.RangeStaticLayerParams = (function() {
+    
+                function RangeStaticLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RangeStaticLayerParams.prototype.endValue = 0;
+                RangeStaticLayerParams.prototype.startValue = 0;
+                RangeStaticLayerParams.prototype.stepSizeValue = 0;
+    
+                RangeStaticLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RangeStaticLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.endValue = reader.float();
+                            break;
+                        case 2:
+                            message.startValue = reader.float();
+                            break;
+                        case 3:
+                            message.stepSizeValue = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RangeStaticLayerParams;
+            })();
+    
+            Specification.RangeDynamicLayerParams = (function() {
+    
+                function RangeDynamicLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                RangeDynamicLayerParams.prototype.startValue = 0;
+                RangeDynamicLayerParams.prototype.stepSizeValue = 0;
+    
+                RangeDynamicLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.RangeDynamicLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 2:
+                            message.startValue = reader.float();
+                            break;
+                        case 3:
+                            message.stepSizeValue = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return RangeDynamicLayerParams;
+            })();
+    
+            Specification.SlidingWindowsLayerParams = (function() {
+    
+                function SlidingWindowsLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SlidingWindowsLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                SlidingWindowsLayerParams.prototype.windowSize = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                SlidingWindowsLayerParams.prototype.step = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    
+                SlidingWindowsLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SlidingWindowsLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.windowSize = reader.uint64();
+                            break;
+                        case 3:
+                            message.step = reader.uint64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SlidingWindowsLayerParams;
+            })();
+    
+            Specification.LayerNormalizationLayerParams = (function() {
+    
+                function LayerNormalizationLayerParams(properties) {
+                    this.normalizedShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LayerNormalizationLayerParams.prototype.normalizedShape = $util.emptyArray;
+                LayerNormalizationLayerParams.prototype.eps = 0;
+                LayerNormalizationLayerParams.prototype.gamma = null;
+                LayerNormalizationLayerParams.prototype.beta = null;
+    
+                LayerNormalizationLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LayerNormalizationLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.normalizedShape && message.normalizedShape.length))
+                                message.normalizedShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.normalizedShape.push(reader.int64());
+                            } else
+                                message.normalizedShape.push(reader.int64());
+                            break;
+                        case 2:
+                            message.eps = reader.float();
+                            break;
+                        case 3:
+                            message.gamma = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        case 4:
+                            message.beta = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LayerNormalizationLayerParams;
+            })();
+    
             Specification.NeuralNetworkClassifier = (function() {
     
                 function NeuralNetworkClassifier(properties) {
@@ -5846,6 +10816,9 @@
     
                 NeuralNetworkClassifier.prototype.layers = $util.emptyArray;
                 NeuralNetworkClassifier.prototype.preprocessing = $util.emptyArray;
+                NeuralNetworkClassifier.prototype.arrayInputShapeMapping = 0;
+                NeuralNetworkClassifier.prototype.imageInputShapeMapping = 0;
+                NeuralNetworkClassifier.prototype.updateParams = null;
                 NeuralNetworkClassifier.prototype.stringClassLabels = null;
                 NeuralNetworkClassifier.prototype.int64ClassLabels = null;
                 NeuralNetworkClassifier.prototype.labelProbabilityLayerName = "";
@@ -5873,6 +10846,15 @@
                             if (!(message.preprocessing && message.preprocessing.length))
                                 message.preprocessing = [];
                             message.preprocessing.push($root.CoreML.Specification.NeuralNetworkPreprocessing.decode(reader, reader.uint32()));
+                            break;
+                        case 5:
+                            message.arrayInputShapeMapping = reader.int32();
+                            break;
+                        case 6:
+                            message.imageInputShapeMapping = reader.int32();
+                            break;
+                        case 10:
+                            message.updateParams = $root.CoreML.Specification.NetworkUpdateParameters.decode(reader, reader.uint32());
                             break;
                         case 100:
                             message.stringClassLabels = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
@@ -5907,6 +10889,9 @@
     
                 NeuralNetworkRegressor.prototype.layers = $util.emptyArray;
                 NeuralNetworkRegressor.prototype.preprocessing = $util.emptyArray;
+                NeuralNetworkRegressor.prototype.arrayInputShapeMapping = 0;
+                NeuralNetworkRegressor.prototype.imageInputShapeMapping = 0;
+                NeuralNetworkRegressor.prototype.updateParams = null;
     
                 NeuralNetworkRegressor.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -5925,6 +10910,15 @@
                                 message.preprocessing = [];
                             message.preprocessing.push($root.CoreML.Specification.NeuralNetworkPreprocessing.decode(reader, reader.uint32()));
                             break;
+                        case 5:
+                            message.arrayInputShapeMapping = reader.int32();
+                            break;
+                        case 6:
+                            message.imageInputShapeMapping = reader.int32();
+                            break;
+                        case 10:
+                            message.updateParams = $root.CoreML.Specification.NetworkUpdateParameters.decode(reader, reader.uint32());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -5934,6 +10928,421 @@
                 };
     
                 return NeuralNetworkRegressor;
+            })();
+    
+            Specification.NetworkUpdateParameters = (function() {
+    
+                function NetworkUpdateParameters(properties) {
+                    this.lossLayers = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                NetworkUpdateParameters.prototype.lossLayers = $util.emptyArray;
+                NetworkUpdateParameters.prototype.optimizer = null;
+                NetworkUpdateParameters.prototype.epochs = null;
+    
+                NetworkUpdateParameters.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.NetworkUpdateParameters();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.lossLayers && message.lossLayers.length))
+                                message.lossLayers = [];
+                            message.lossLayers.push($root.CoreML.Specification.LossLayer.decode(reader, reader.uint32()));
+                            break;
+                        case 2:
+                            message.optimizer = $root.CoreML.Specification.Optimizer.decode(reader, reader.uint32());
+                            break;
+                        case 3:
+                            message.epochs = $root.CoreML.Specification.Int64Parameter.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return NetworkUpdateParameters;
+            })();
+    
+            Specification.LossLayer = (function() {
+    
+                function LossLayer(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LossLayer.prototype.name = "";
+                LossLayer.prototype.categoricalCrossEntropyLossLayer = null;
+                LossLayer.prototype.meanSquaredErrorLossLayer = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(LossLayer.prototype, "LossLayerType", {
+                    get: $util.oneOfGetter($oneOfFields = ["categoricalCrossEntropyLossLayer", "meanSquaredErrorLossLayer"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                LossLayer.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LossLayer();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.name = reader.string();
+                            break;
+                        case 10:
+                            message.categoricalCrossEntropyLossLayer = $root.CoreML.Specification.CategoricalCrossEntropyLossLayer.decode(reader, reader.uint32());
+                            break;
+                        case 11:
+                            message.meanSquaredErrorLossLayer = $root.CoreML.Specification.MeanSquaredErrorLossLayer.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LossLayer;
+            })();
+    
+            Specification.CategoricalCrossEntropyLossLayer = (function() {
+    
+                function CategoricalCrossEntropyLossLayer(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CategoricalCrossEntropyLossLayer.prototype.input = "";
+                CategoricalCrossEntropyLossLayer.prototype.target = "";
+    
+                CategoricalCrossEntropyLossLayer.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CategoricalCrossEntropyLossLayer();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.input = reader.string();
+                            break;
+                        case 2:
+                            message.target = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CategoricalCrossEntropyLossLayer;
+            })();
+    
+            Specification.MeanSquaredErrorLossLayer = (function() {
+    
+                function MeanSquaredErrorLossLayer(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                MeanSquaredErrorLossLayer.prototype.input = "";
+                MeanSquaredErrorLossLayer.prototype.target = "";
+    
+                MeanSquaredErrorLossLayer.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.MeanSquaredErrorLossLayer();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.input = reader.string();
+                            break;
+                        case 2:
+                            message.target = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return MeanSquaredErrorLossLayer;
+            })();
+    
+            Specification.Optimizer = (function() {
+    
+                function Optimizer(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Optimizer.prototype.sgdOptimizer = null;
+                Optimizer.prototype.adamOptimizer = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(Optimizer.prototype, "OptimizerType", {
+                    get: $util.oneOfGetter($oneOfFields = ["sgdOptimizer", "adamOptimizer"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Optimizer.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Optimizer();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 10:
+                            message.sgdOptimizer = $root.CoreML.Specification.SGDOptimizer.decode(reader, reader.uint32());
+                            break;
+                        case 11:
+                            message.adamOptimizer = $root.CoreML.Specification.AdamOptimizer.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Optimizer;
+            })();
+    
+            Specification.SGDOptimizer = (function() {
+    
+                function SGDOptimizer(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SGDOptimizer.prototype.learningRate = null;
+                SGDOptimizer.prototype.miniBatchSize = null;
+                SGDOptimizer.prototype.momentum = null;
+    
+                SGDOptimizer.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SGDOptimizer();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.learningRate = $root.CoreML.Specification.DoubleParameter.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.miniBatchSize = $root.CoreML.Specification.Int64Parameter.decode(reader, reader.uint32());
+                            break;
+                        case 3:
+                            message.momentum = $root.CoreML.Specification.DoubleParameter.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SGDOptimizer;
+            })();
+    
+            Specification.AdamOptimizer = (function() {
+    
+                function AdamOptimizer(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                AdamOptimizer.prototype.learningRate = null;
+                AdamOptimizer.prototype.miniBatchSize = null;
+                AdamOptimizer.prototype.beta1 = null;
+                AdamOptimizer.prototype.beta2 = null;
+                AdamOptimizer.prototype.eps = null;
+    
+                AdamOptimizer.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.AdamOptimizer();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.learningRate = $root.CoreML.Specification.DoubleParameter.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.miniBatchSize = $root.CoreML.Specification.Int64Parameter.decode(reader, reader.uint32());
+                            break;
+                        case 3:
+                            message.beta1 = $root.CoreML.Specification.DoubleParameter.decode(reader, reader.uint32());
+                            break;
+                        case 4:
+                            message.beta2 = $root.CoreML.Specification.DoubleParameter.decode(reader, reader.uint32());
+                            break;
+                        case 5:
+                            message.eps = $root.CoreML.Specification.DoubleParameter.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return AdamOptimizer;
+            })();
+    
+            Specification.Int64Parameter = (function() {
+    
+                function Int64Parameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Int64Parameter.prototype.defaultValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                Int64Parameter.prototype.range = null;
+                Int64Parameter.prototype.set = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(Int64Parameter.prototype, "AllowedValues", {
+                    get: $util.oneOfGetter($oneOfFields = ["range", "set"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Int64Parameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Int64Parameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.int64();
+                            break;
+                        case 10:
+                            message.range = $root.CoreML.Specification.Int64Range.decode(reader, reader.uint32());
+                            break;
+                        case 11:
+                            message.set = $root.CoreML.Specification.Int64Set.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Int64Parameter;
+            })();
+    
+            Specification.DoubleParameter = (function() {
+    
+                function DoubleParameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                DoubleParameter.prototype.defaultValue = 0;
+                DoubleParameter.prototype.range = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(DoubleParameter.prototype, "AllowedValues", {
+                    get: $util.oneOfGetter($oneOfFields = ["range"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                DoubleParameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.DoubleParameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.double();
+                            break;
+                        case 10:
+                            message.range = $root.CoreML.Specification.DoubleRange.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return DoubleParameter;
+            })();
+    
+            Specification.StringParameter = (function() {
+    
+                function StringParameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                StringParameter.prototype.defaultValue = "";
+    
+                StringParameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.StringParameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return StringParameter;
             })();
     
             Specification.Normalizer = (function() {
@@ -7043,6 +12452,227 @@
                 };
     
                 return TreeEnsembleRegressor;
+            })();
+    
+            Specification.ItemSimilarityRecommender = (function() {
+    
+                function ItemSimilarityRecommender(properties) {
+                    this.itemItemSimilarities = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ItemSimilarityRecommender.prototype.itemItemSimilarities = $util.emptyArray;
+                ItemSimilarityRecommender.prototype.itemStringIds = null;
+                ItemSimilarityRecommender.prototype.itemInt64Ids = null;
+                ItemSimilarityRecommender.prototype.itemInputFeatureName = "";
+                ItemSimilarityRecommender.prototype.numRecommendationsInputFeatureName = "";
+                ItemSimilarityRecommender.prototype.itemRestrictionInputFeatureName = "";
+                ItemSimilarityRecommender.prototype.itemExclusionInputFeatureName = "";
+                ItemSimilarityRecommender.prototype.recommendedItemListOutputFeatureName = "";
+                ItemSimilarityRecommender.prototype.recommendedItemScoreOutputFeatureName = "";
+    
+                ItemSimilarityRecommender.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ItemSimilarityRecommender();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.itemItemSimilarities && message.itemItemSimilarities.length))
+                                message.itemItemSimilarities = [];
+                            message.itemItemSimilarities.push($root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems.decode(reader, reader.uint32()));
+                            break;
+                        case 2:
+                            message.itemStringIds = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
+                            break;
+                        case 3:
+                            message.itemInt64Ids = $root.CoreML.Specification.Int64Vector.decode(reader, reader.uint32());
+                            break;
+                        case 10:
+                            message.itemInputFeatureName = reader.string();
+                            break;
+                        case 11:
+                            message.numRecommendationsInputFeatureName = reader.string();
+                            break;
+                        case 12:
+                            message.itemRestrictionInputFeatureName = reader.string();
+                            break;
+                        case 13:
+                            message.itemExclusionInputFeatureName = reader.string();
+                            break;
+                        case 20:
+                            message.recommendedItemListOutputFeatureName = reader.string();
+                            break;
+                        case 21:
+                            message.recommendedItemScoreOutputFeatureName = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                ItemSimilarityRecommender.ConnectedItem = (function() {
+    
+                    function ConnectedItem(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    ConnectedItem.prototype.itemId = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                    ConnectedItem.prototype.similarityScore = 0;
+    
+                    ConnectedItem.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.itemId = reader.uint64();
+                                break;
+                            case 2:
+                                message.similarityScore = reader.double();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    return ConnectedItem;
+                })();
+    
+                ItemSimilarityRecommender.SimilarItems = (function() {
+    
+                    function SimilarItems(properties) {
+                        this.similarItemList = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    SimilarItems.prototype.itemId = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                    SimilarItems.prototype.similarItemList = $util.emptyArray;
+                    SimilarItems.prototype.itemScoreAdjustment = 0;
+    
+                    SimilarItems.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.itemId = reader.uint64();
+                                break;
+                            case 2:
+                                if (!(message.similarItemList && message.similarItemList.length))
+                                    message.similarItemList = [];
+                                message.similarItemList.push($root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem.decode(reader, reader.uint32()));
+                                break;
+                            case 3:
+                                message.itemScoreAdjustment = reader.double();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    return SimilarItems;
+                })();
+    
+                return ItemSimilarityRecommender;
+            })();
+    
+            Specification.LinkedModel = (function() {
+    
+                function LinkedModel(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LinkedModel.prototype.linkedModelFile = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(LinkedModel.prototype, "LinkType", {
+                    get: $util.oneOfGetter($oneOfFields = ["linkedModelFile"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                LinkedModel.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LinkedModel();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.linkedModelFile = $root.CoreML.Specification.LinkedModelFile.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LinkedModel;
+            })();
+    
+            Specification.LinkedModelFile = (function() {
+    
+                function LinkedModelFile(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                LinkedModelFile.prototype.linkedModelFileName = null;
+                LinkedModelFile.prototype.linkedModelSearchPath = null;
+    
+                LinkedModelFile.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LinkedModelFile();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.linkedModelFileName = $root.CoreML.Specification.StringParameter.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.linkedModelSearchPath = $root.CoreML.Specification.StringParameter.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return LinkedModelFile;
             })();
     
             return Specification;

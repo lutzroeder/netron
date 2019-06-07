@@ -14,7 +14,7 @@ fileAssociations:
     ext: h5
   - name: "Keras Model"
     ext: keras
-  - name: "CoreML Model"
+  - name: "Core ML Model"
     ext: mlmodel
   - name: "MXNet Model"
     ext: model

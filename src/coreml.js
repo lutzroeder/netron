@@ -66,7 +66,7 @@ coreml.Model = class {
     }
 
     get format() {
-        return 'CoreML v' + this._specificationVersion.toString();
+        return 'Core ML v' + this._specificationVersion.toString();
     }
 
     get version() {
@@ -164,7 +164,7 @@ coreml.Graph = class {
     }
 
     _updatePreprocessing(scope, group, preprocessing) {
-        if (preprocessing && preprocessing.length > 0) {               
+        if (preprocessing && preprocessing.length > 0) {
             var preprocessingInput = this._description.input[0].name;
             var inputNodes = [];
             for (var node of this._nodes) {
@@ -1148,7 +1148,7 @@ coreml.Metadata = class {
 coreml.Error = class extends Error {
     constructor(message) {
         super(message);
-        this.name = 'Error loading CoreML model.';
+        this.name = 'Error loading Core ML model.';
     }
 };
 

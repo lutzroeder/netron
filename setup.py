@@ -66,7 +66,7 @@ setuptools.setup(
     version=package_version(),
     description="Viewer for neural network, deep learning and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning and machine learning models.\n\n' +
-                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`, `.prototxt`), **PyTorch** (`.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
+                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`, `.prototxt`), **PyTorch** (`.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
     keywords=[
         'onnx', 'keras', 'tensorflow', 'coreml', 'mxnet', 'caffe', 'caffe2',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',

@@ -1143,47 +1143,65 @@
   },
   {
     "type":   "coreml",
+    "target": "BERTSQUADFP16.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Text/QuestionAnswering/BERT_SQUAD/BERTSQUADFP16.mlmodel",
+    "format": "Core ML v4",
+    "link":   "https://developer.apple.com/machine-learning/models"
+  },
+  {
+    "type":   "coreml",
     "target": "CNNEmotions.mlmodel",
     "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mTlYtRGdXNFlpWDQ",
+    "format": "Core ML v1",
     "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
     "target": "DocumentClassification.mlmodel",
     "source": "https://raw.githubusercontent.com/toddkramer/DocumentClassifier/master/Sources/DocumentClassification.mlmodel",
+    "format": "Core ML v1",
     "link":   "https://github.com/toddkramer/DocumentClassifier"
+  },
+  {
+    "type":   "coreml",
+    "target": "DeepLabV3.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/ImageSegmentation/DeepLabV3/DeepLabV3.mlmodel",
+    "format": "Core ML v3",
+    "link":   "https://developer.apple.com/machine-learning/models"
   },
   {
     "type":   "coreml",
     "target": "coreml_invalid_file.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":  "File format is not coreml.Model (invalid wire type 4 at offset 11) in 'coreml_invalid_file.mlmodel'.",
+    "error":  "File format is not coreml.Model (invalid wire type 7 at offset 13) in 'coreml_invalid_file.mlmodel'.",
+    "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "digit_recognizer.mlmodel",
     "source": "https://media.githubusercontent.com/media/erkandiken/mnist-scikit-svm-to-coreml/master/digit_recognizer.mlmodel",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/erkandiken/mnist-scikit-svm-to-coreml"
   },
   {
     "type":   "coreml",
     "target": "Exermote.mlmodel",
-    "source": "https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel"
+    "source": "https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel",
+    "format": "Core ML v1"
   },
   {
     "type":   "coreml",
     "target": "faces_model.mlmodel",
     "source": "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/files/1526806/faces_model.mlmodel.zip[faces_model.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/issues/3"
   },
   {
     "type":   "coreml",
     "target": "float16.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/2382815/model.zip[model.mlmodel]",
-    "format": "CoreML v2",
+    "format": "Core ML v2",
     "link":   "https://github.com/lutzroeder/netron/issues/149"
   },
   {
@@ -1238,196 +1256,196 @@
     "type":   "coreml",
     "target": "food.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food.mlmodel",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_1.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_1.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_2.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_2.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_3.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_3.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_4.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_4.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_5.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_5.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_6.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_6.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_7.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_7.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_8.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_8.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_kmeans_16.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_16.mlmodel",
-    "format": "CoreML v2",
+    "format": "Core ML v2",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_1.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_1.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_2.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_2.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_3.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_3.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_4.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_4.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_5.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_5.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_6.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_6.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_7.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_7.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_8.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_8.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_16.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_16.mlmodel",
-    "format": "CoreML v2",
+    "format": "Core ML v2",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_1.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_1.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_2.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_2.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_3.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_3.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_4.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_4.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_5.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_5.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_6.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_6.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_7.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_7.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_8.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_8.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
     "type":   "coreml",
     "target": "food_linear_lut_16.mlmodel",
     "source": "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_16.mlmodel",
-    "format": "CoreML v2",
+    "format": "Core ML v2",
     "link":   "https://github.com/kingreza/quantization"
   },
   {
@@ -1469,14 +1487,14 @@
     "type":   "coreml",
     "target": "imdb_lstm.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/2591614/imdb_lstm.mlmodel.zip[imdb_lstm.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/149"
   },
   {
     "type":   "coreml",
     "target": "imdb_bidirectional_lstm.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/2591615/imdb_bidirectional_lstm.mlmodel.zip[imdb_bidirectional_lstm.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/149"
   },
   {
@@ -1488,7 +1506,7 @@
     "type":   "coreml",
     "target": "iris.mlmodel",
     "source": "https://raw.githubusercontent.com/gavi/Iris/master/Iris/iris.mlmodel",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/gavi/Iris"
   },
   {
@@ -1505,6 +1523,13 @@
   },
   {
     "type":   "coreml",
+    "target": "MNISTClassifier.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/DrawingClassification/MNISTClassifier/MNISTClassifier.mlmodel",
+    "format": "Core ML v1",
+    "link":   "https://developer.apple.com/machine-learning/models"
+  },
+  {
+    "type":   "coreml",
     "target": "MobileNet.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/MobileNet.mlmodel"
   },
@@ -1512,7 +1537,7 @@
     "type":   "coreml",
     "target": "mobilenet_v2_1.4_224.mlmodel",
     "source": "https://github.com/tf-coreml/tf-coreml/files/2575260/mobilenet_v2_1.4_224.mlmodel.zip[mobilenet_v2_1.4_224.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/tf-coreml/tf-coreml/issues/252"
   },
   {
@@ -1537,21 +1562,21 @@
     "type":   "coreml",
     "target": "PoseEstimationForMobile.mlmodel",
     "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.mlmodel?raw=true",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
   },
   {
     "type":   "coreml",
     "target": "ProductTagger.mlmodel",
     "source": "https://raw.githubusercontent.com/aidev1065/CustomEntityRecognition/master/ProductTagger.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/aidev1065/CustomEntityRecognition"
   },
   {
     "type":   "coreml",
     "target": "ProgrammingLanguageClassifier.mlmodel",
     "source": "https://raw.githubusercontent.com/Flight-School/Programming-Language-Classifier/master/ProgrammingLanguageClassifier.mlmodel",
-    "format": "CoreML v3",
+    "format": "Core ML v3",
     "link":   "https://github.com/Flight-School/Programming-Language-Classifier"
   },
   {
@@ -1569,104 +1594,126 @@
     "type":   "coreml",
     "target": "sentiment_model.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/2591618/sentiment_model.mlmodel.zip[sentiment_model.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/149"
   },
   {
     "type":   "coreml",
     "target": "SqueezeNet.mlmodel",
-    "source": "https://docs-assets.developer.apple.com/coreml/models/SqueezeNet.mlmodel"
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNet.mlmodel",
+    "format": "Core ML v1",
+    "link":   "https://developer.apple.com/machine-learning/models"
+  },
+  {
+    "type":   "coreml",
+    "target": "SqueezeNetFP16.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNetFP16.mlmodel",
+    "format": "Core ML v2",
+    "link":   "https://developer.apple.com/machine-learning/models"
+  },
+  {
+    "type":   "coreml",
+    "target": "SqueezeNetInt8LUT.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNetInt8LUT.mlmodel",
+    "format": "Core ML v3",
+    "link":   "https://developer.apple.com/machine-learning/models"
   },
   {
     "type":   "coreml",
     "target": "test_categorical_imputer.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_categorical_imputer.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_keras_embedding_model.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_keras_embedding_model.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_linear_regressor.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_linear_regressor.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_normalizer_boston.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_normalizer_boston.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_normalizer_random.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_normalizer_random.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_one_hot_encoder_many_columns.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_many_columns.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_one_hot_encoder_one_column_of_several.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_one_column_of_several.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_one_hot_encoder_pipeline.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_pipeline.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_random_forest_classifier.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_random_forest_classifier.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_random_forest_regressor.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_random_forest_regressor.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_support_vector_classifier.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_support_vector_classifier.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_support_vector_regressor.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_support_vector_regressor.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
   },
   {
     "type":   "coreml",
     "target": "test_tree_regressor.mlmodel",
     "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_tree_regressor.mlmodel]",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/apple/coremltools/issues/155"
+  },
+  {
+    "type":   "coreml",
+    "target": "TinyDrawingEmbedding.mlmodel",
+    "source": "https://github.com/apple/coremltools/raw/master/examples/updatable_models/models/TinyDrawingEmbedding.mlmodel",
+    "link":   "https://github.com/apple/coremltools"
   },
   {
     "type":   "coreml",
@@ -1688,7 +1735,7 @@
     "type":   "coreml",
     "target": "wave.mlmodel",
     "source": "https://raw.githubusercontent.com/UnusualWolf/coreML/master/StyleArt-master/StyleArt/CoreMLModels/wave.mlmodel",
-    "format": "CoreML v1",
+    "format": "Core ML v1",
     "link":   "https://github.com/UnusualWolf/coreML"
   },
   {
