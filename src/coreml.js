@@ -33,7 +33,7 @@ coreml.ModelFactory = class {
                     host.exception(error, false);
                     var message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    return new coreml.Error(message + " in '" + identifier + "'.");
+                    throw new coreml.Error(message + " in '" + identifier + "'.");
                 }
             });
         });
@@ -187,6 +187,7 @@ coreml.Graph = class {
     }
 
     _loadModel(model, scope, group) {
+        var i;
         this._groups = this._groups | (group.length > 0 ? true : false);
         var layer;
         if (model.neuralNetworkClassifier) {
@@ -215,20 +216,20 @@ coreml.Graph = class {
             return 'Neural Network Regressor';
         }
         else if (model.pipeline) {
-            for (layer of model.pipeline.models) {
-                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipeline');
+            for (i = 0; i < model.pipeline.models.length; i++) {
+                this._loadModel(model.pipeline.models[i], scope, (group ? (group + '/') : '') + 'pipeline[' + i.toString() + ']');
             }
             return 'Pipeline';
         }
         else if (model.pipelineClassifier) {
-            for (layer of model.pipelineClassifier.pipeline.models) {
-                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipelineClassifier');
+            for (i = 0; i < model.pipelineClassifier.pipeline.models.length; i++) {
+                this._loadModel(model.pipelineClassifier.pipeline.models[i], scope, (group ? (group + '/') : '') + 'pipelineClassifier[' + i.toString() + ']');
             }
             return 'Pipeline Classifier';
         }
         else if (model.pipelineRegressor) {
-            for (layer of model.pipelineRegressor.pipeline.models) {
-                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipelineRegressor');
+            for (i = 0; i < model.pipelineRegressor.pipeline.models.length; i++) {
+                this._loadModel(model.pipelineRegressor.pipeline.models[i], scope, (group ? (group + '/') : '') + 'pipelineRegressor[' + i.toString() + ']');
             }
             return 'Pipeline Regressor';
         }
@@ -361,7 +362,28 @@ coreml.Graph = class {
                 [ model.description.output[0].name ]);
             return 'Text Classifier';
         }
-        return 'Unknown';
+        else if (model.nonMaximumSuppression) {
+            var nonMaximumSuppressionParams = { 
+                pickTop: model.nonMaximumSuppression.pickTop,
+                stringClassLabels: model.nonMaximumSuppression.stringClassLabels,
+                iouThreshold: model.nonMaximumSuppression.iouThreshold, 
+                confidenceThreshold: model.nonMaximumSuppression.confidenceThreshold
+            };
+            this._createNode(scope, group, 'nonMaximumSuppression', null, 
+                nonMaximumSuppressionParams,
+                [
+                    model.nonMaximumSuppression.confidenceInputFeatureName,
+                    model.nonMaximumSuppression.coordinatesInputFeatureName,
+                    model.nonMaximumSuppression.iouThresholdInputFeatureName,
+                    model.nonMaximumSuppression.confidenceThresholdInputFeatureName,
+                ],
+                [ 
+                    model.nonMaximumSuppression.confidenceOutputFeatureName,
+                    model.nonMaximumSuppression.coordinatesOutputFeatureName
+                ]);
+            return 'Non Maximum Suppression';
+        }
+        throw new coreml.Error("Unknown model type '" + Object.keys(model).filter(k => k != 'specificationVersion' && k != 'description').join(',') + "'.");
     }
 
     _createNode(scope, group, operator, name, data, inputs, outputs) {
@@ -694,6 +716,9 @@ coreml.Node = class {
                 return { tokensOutputFeatureName: true, tokenTagsOutputFeatureName: true, tokenLengthsOutputFeatureName: true, tokenLocationsOutputFeatureName: true };
             case 'textClassifier':
                 data.modelParameterData = Array.from(data.modelParameterData);
+                data.stringClassLabels = this._convertVector(data.stringClassLabels);
+                return {};
+            case 'nonMaximumSuppression':
                 data.stringClassLabels = this._convertVector(data.stringClassLabels);
                 return {};
         }

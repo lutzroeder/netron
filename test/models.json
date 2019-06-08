@@ -1199,6 +1199,13 @@
   },
   {
     "type":   "coreml",
+    "target": "FCRNFP16.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/DepthEstimation/FCRN/FCRNFP16.mlmodel",
+    "format": "Core ML v2",
+    "link":   "https://developer.apple.com/machine-learning/models"
+  },
+  {
+    "type":   "coreml",
     "target": "float16.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/2382815/model.zip[model.mlmodel]",
     "format": "Core ML v2",
@@ -1737,6 +1744,20 @@
     "source": "https://raw.githubusercontent.com/UnusualWolf/coreML/master/StyleArt-master/StyleArt/CoreMLModels/wave.mlmodel",
     "format": "Core ML v1",
     "link":   "https://github.com/UnusualWolf/coreML"
+  },
+  {
+    "type":   "coreml",
+    "target": "YOLOv3.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/ObjectDetection/YOLOv3/YOLOv3.mlmodel",
+    "format": "Core ML v3",
+    "link":   "https://developer.apple.com/machine-learning/models"
+  },
+  {
+    "type":   "coreml",
+    "target": "YOLOv3Tiny.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/ObjectDetection/YOLOv3Tiny/YOLOv3Tiny.mlmodel",
+    "format": "Core ML v3",
+    "link":   "https://developer.apple.com/machine-learning/models"
   },
   {
     "type":   "darknet",

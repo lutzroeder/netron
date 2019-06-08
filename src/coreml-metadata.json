@@ -441,5 +441,24 @@
         { "name": "revision", "visible": false }
       ]
     }
+  },
+  {
+    "name": "nonMaximumSuppression",
+    "schema": {
+      "attributes": [
+        { "name": "iouThreshold" },
+        { "name": "confidenceThreshold" }
+      ],
+      "inputs": [
+        { "name": "confidence" },
+        { "name": "coordinates" },
+        { "name": "iouThreshold" },
+        { "name": "confidenceThreshold" }
+      ],
+      "outputs": [
+        { "name": "confidence" },
+        { "name": "coordinates" }
+      ]
+    }
   }
 ]
