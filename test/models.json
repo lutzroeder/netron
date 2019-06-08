@@ -1621,93 +1621,93 @@
   {
     "type":   "coreml",
     "target": "test_categorical_imputer.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_categorical_imputer.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_categorical_imputer.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_keras_embedding_model.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_keras_embedding_model.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_keras_embedding_model.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_linear_regressor.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_linear_regressor.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_linear_regressor.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_normalizer_boston.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_normalizer_boston.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_normalizer_boston.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_normalizer_random.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_normalizer_random.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_normalizer_random.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_one_hot_encoder_many_columns.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_many_columns.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_one_hot_encoder_many_columns.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_one_hot_encoder_one_column_of_several.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_one_column_of_several.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_one_hot_encoder_one_column_of_several.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_one_hot_encoder_pipeline.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_one_hot_encoder_pipeline.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_one_hot_encoder_pipeline.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_random_forest_classifier.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_random_forest_classifier.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_random_forest_classifier.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_random_forest_regressor.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_random_forest_regressor.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_random_forest_regressor.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_support_vector_classifier.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_support_vector_classifier.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_support_vector_classifier.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_support_vector_regressor.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_support_vector_regressor.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_support_vector_regressor.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
     "target": "test_tree_regressor.mlmodel",
-    "source": "https://github.com/apple/coremltools/files/2575280/test_models.zip[test_tree_regressor.mlmodel]",
+    "source": "https://github.com/lutzroeder/netron/files/3268269/coreml_models.zip[test_tree_regressor.mlmodel]",
     "format": "Core ML v1",
-    "link":   "https://github.com/apple/coremltools/issues/155"
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":   "coreml",
