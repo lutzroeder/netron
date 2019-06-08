@@ -368,7 +368,9 @@ sklearn.ModelFactory = class {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    throw new sklearn.Error(error.message);
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    throw new sklearn.Error(message + " in '" + identifier + "'.");
                 }
             });
         });
