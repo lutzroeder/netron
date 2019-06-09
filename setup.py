@@ -102,6 +102,7 @@ setuptools.setup(
             'tf.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite.js', 'tflite-metadata.json', 'tflite-schema.js', 
             'torch.js', 'torch-metadata.json',
+            'torchscript.js',
             'view-browser.html', 'view-browser.js',
             'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',

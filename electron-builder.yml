@@ -58,6 +58,8 @@ fileAssociations:
     ext: prototxt
   - name: "PyTorch Model"
     ext: pth
+  - name: "PyTorch Model"
+    ext: pt
   - name: "Torch Model"
     ext: t7
 publish:

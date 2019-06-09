@@ -66,20 +66,10 @@ zoo() {
     bold "keras zoo"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} keras-script.py zoo keras.applications.densenet.DenseNet121 ${test}/data/keras/DenseNet121.h5
-    ${python} keras-script.py zoo keras.applications.inception_resnet_v2.InceptionResNetV2 ${test}/data/keras/InceptionResNetV2.h5
-    ${python} keras-script.py zoo keras.applications.inception_v3.InceptionV3 ${test}/data/keras/InceptionV3.h5
-    ${python} keras-script.py zoo keras.applications.mobilenet_v2.MobileNetV2 ${test}/data/keras/MobileNetV2.h5
-    ${python} keras-script.py zoo keras.applications.nasnet.NASNetMobile ${test}/data/keras/NASNetMobile.h5
-    ${python} keras-script.py zoo keras.applications.resnet50.ResNet50 ${test}/data/keras/ResNet50.h5
-    ${python} keras-script.py zoo keras.applications.vgg16.VGG16 ${test}/data/keras/VGG16.h5
-    ${python} keras-script.py zoo keras.applications.vgg19.VGG19 ${test}/data/keras/VGG19.h5
-    ${python} keras-script.py zoo keras.applications.xception.Xception ${test}/data/keras/Xception.h5
-    rm -rf ~/.keras/models
+    ${python} keras-script.py zoo
     popd > /dev/null
     deactivate
 }
-
 
 while [ "$#" != 0 ]; do
     command="$1" && shift

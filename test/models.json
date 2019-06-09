@@ -3276,6 +3276,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "mobilenet_v2.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
     "target": "inception_v3_google-1a9a5a14.pth",
     "source": "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
   },
@@ -3284,13 +3291,6 @@
     "target": "mnist_linear.ckpt",
     "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear.ckpt]",
     "format": "PyTorch",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "pytorch",
-    "target": "mnist_linear_torchscript.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear_torchscript.pt]",
-    "error":  "Unsupported TorchScript format in 'mnist_linear_torchscript.pt'.",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -4429,11 +4429,109 @@
     "format": "Torch v7",
     "link":   "https://github.com/cpra/fer-cnn-sota"
   },
- {
+  {
     "type":   "torch",
     "target": "vgg16.t7",
     "source": "https://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7",
     "format": "Torch v7",
     "link":   "https://github.com/jcjohnson/fast-neural-style"
+  },
+  {
+    "type":   "torchscript",
+    "target": "alexnet.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "cruise_cutin_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_cutin_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "cruise_go_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_go_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "mnist_linear_torchscript.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear_torchscript.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
+    "target": "inception_v3.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "junction_mlp_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/junction_mlp_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "lane_scanning_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/lane_scanning_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "mobilenet_v2.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "pedestrian_interaction_position_embedding.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "pedestrian_interaction_prediction_layer.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_prediction_layer.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "pedestrian_interaction_single_lstm.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_single_lstm.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "pedestrian_interaction_social_embedding.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_social_embedding.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "resnet18.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "resnet50.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   }
 ]

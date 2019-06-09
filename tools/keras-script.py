@@ -337,14 +337,27 @@ def metadata():
             fout.write(line)
             fout.write('\n')
 
+def download_model(type, file):
+    file = os.path.expandvars(file)
+    if not os.path.exists(file):
+        folder = os.path.dirname(file);
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        model = pydoc.locate(type)()
+        model.save(file);
+
 def zoo():
-    type = sys.argv[2];
-    file = sys.argv[3];
-    directory = os.path.dirname(file);
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    model = pydoc.locate(type)()
-    model.save(file);
+    if not os.environ.get('test'):
+        os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
+    download_model('keras.applications.densenet.DenseNet121', '${test}/data/keras/DenseNet121.h5')
+    download_model('keras.applications.inception_resnet_v2.InceptionResNetV2', '${test}/data/keras/InceptionResNetV2.h5')
+    download_model('keras.applications.inception_v3.InceptionV3', '${test}/data/keras/InceptionV3.h5')
+    download_model('keras.applications.mobilenet_v2.MobileNetV2', '${test}/data/keras/MobileNetV2.h5')
+    download_model('keras.applications.nasnet.NASNetMobile', '${test}/data/keras/NASNetMobile.h5')
+    download_model('keras.applications.resnet50.ResNet50', '${test}/data/keras/ResNet50.h5')
+    download_model('keras.applications.vgg16.VGG16', '${test}/data/keras/VGG16.h5')
+    download_model('keras.applications.vgg19.VGG19', '${test}/data/keras/VGG19.h5')
+    download_model('keras.applications.xception.Xception', '${test}/data/keras/Xception.h5')
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }

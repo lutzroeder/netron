@@ -99,17 +99,7 @@ zoo() {
             export LD_LIBRARY_PATH=$(dirname $(locate libiomp5.so)):${LD_LIBRARY_PATH}
             ;;
     esac
-    ${python} pytorch-script.py zoo torchvision.models.alexnet ${test}/data/pytorch/alexnet.pth
-    ${python} pytorch-script.py zoo torchvision.models.densenet121 ${test}/data/pytorch/densenet121.pth
-    ${python} pytorch-script.py zoo torchvision.models.densenet161 ${test}/data/pytorch/densenet161.pth
-    ${python} pytorch-script.py zoo torchvision.models.inception_v3 ${test}/data/pytorch/inception_v3.pth
-    ${python} pytorch-script.py zoo torchvision.models.resnet101 ${test}/data/pytorch/resnet101.pth
-    ${python} pytorch-script.py zoo torchvision.models.resnet18 ${test}/data/pytorch/resnet18.pth
-    ${python} pytorch-script.py zoo torchvision.models.resnet50 ${test}/data/pytorch/resnet50.pth
-    ${python} pytorch-script.py zoo torchvision.models.squeezenet1_0 ${test}/data/pytorch/squeezenet1_0.pth
-    ${python} pytorch-script.py zoo torchvision.models.vgg11_bn ${test}/data/pytorch/vgg11_bn.pth
-    ${python} pytorch-script.py zoo torchvision.models.vgg16 ${test}/data/pytorch/vgg16.pth
-    rm -rf ~/.torch/models
+    ${python} pytorch-script.py zoo
     popd > /dev/null
     deactivate
 }

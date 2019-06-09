@@ -26,22 +26,14 @@ pytorch.ModelFactory = class {
             if (pytorch.ModelFactory._loadLegacyFormat(buffer)) {
                 return true;
             }
-            if (pytorch.ModelFactory._loadTorchScriptFormat(buffer)) {
-                return true;
-            }
         }
         return false;
     }
 
     open(context, host) {
-        var identifier = context.identifier;
-        var buffer = context.buffer;
-
-        if (pytorch.ModelFactory._loadTorchScriptFormat(buffer)) {
-            return Promise.reject(new pytorch.Error("Unsupported TorchScript format in '" + identifier + "'."));
-        }
-
         return host.require('./pickle').then((pickle) => {
+            var identifier = context.identifier;
+            var buffer = context.buffer;
             try {
                 var unpickler = new pickle.Unpickler(buffer);
 
@@ -165,6 +157,9 @@ pytorch.ModelFactory = class {
                 constructorTable['torchvision.models.inception.InceptionC'] = function() {};
                 constructorTable['torchvision.models.inception.InceptionD'] = function() {};
                 constructorTable['torchvision.models.inception.InceptionE'] = function() {};
+                constructorTable['torchvision.models.mobilenet.ConvBNReLU'] = function() {};
+                constructorTable['torchvision.models.mobilenet.MobileNetV2'] = function() {};
+                constructorTable['torchvision.models.mobilenet.InvertedResidual'] = function() {};
                 constructorTable['torchvision.models.resnet.Bottleneck'] = function() {};
                 constructorTable['torchvision.models.resnet.BasicBlock'] = function() {};
                 constructorTable['torchvision.models.squeezenet.Fire'] = function() {};
@@ -614,41 +609,6 @@ pytorch.ModelFactory = class {
         }
         return null;
     }
-
-    static _loadTorchScriptFormat(buffer) {
-        try {
-            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
-                var archive = new zip.Archive(buffer);
-                var model = { code: [], tensors: [] };
-                model.version = archive.entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
-                if (model.version) {
-                    var prefix = model.version.name.substring(0, model.version.name.length - 7);
-                    for (var entry of archive.entries) {
-                        if (entry.name == prefix + 'model.json') {
-                            model.model = entry;
-                        }
-                        else if (entry.name == prefix + 'attributes.pkl') {
-                            model.attributes = entry;
-                        }
-                        else if (entry.name.startsWith(prefix + 'code/')){
-                            model.code.push(entry);
-                        }
-                        else if (entry.name.startsWith(prefix + 'tensors/')) {
-                            model.tensors.push(entry);
-                        }
-                    }
-                    if (model.version && model.attributes && model.tensors.length > 0) {
-                        return model;
-                    }
-                }
-            }
-        }
-        catch (error) {
-            // continue regardless of error
-        }
-        return null;
-    }
-
 
     static _findRootModule(root) {
         var candidates = [ root, root.model, root.net ];
