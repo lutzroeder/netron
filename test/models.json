@@ -3281,9 +3281,30 @@
   },
   {
     "type":   "pytorch",
+    "target": "mnist_linear.ckpt",
+    "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear.ckpt]",
+    "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mnist_linear_torchscript.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear_torchscript.pt]",
+    "error":  "Unsupported TorchScript format in 'mnist_linear_torchscript.pt'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
     "target": "model_chall_train_152ft_384x288.pth.tar",
     "source": "https://www.dropbox.com/s/hfz5nkd39uisvbr/model_chall_train_152ft_384x288.pth.tar?dl=1",
     "link":   "https://github.com/JimmySuen/integral-human-pose"
+  },
+  {
+    "type":   "pytorch",
+    "target": "pytorch_invalid_file.pth",
+    "source": "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
+    "error":  "Could not find end of line in 'pytorch_invalid_file.pth'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
   },
   {
     "type":   "pytorch",
@@ -3397,13 +3418,6 @@
     "type":   "pytorch",
     "target": "tutorial_deep_residual_network.pth",
     "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_deep_residual_network.pth]",
-    "format": "PyTorch",
-    "link":   "https://github.com/lutzroeder/netron/issues/133"
-  },
-  {
-    "type":   "pytorch",
-    "target": "tutorial_feedforward_neural_network.pth",
-    "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_feedforward_neural_network.pth]",
     "format": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/133"
   },

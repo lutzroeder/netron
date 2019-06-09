@@ -1097,7 +1097,7 @@ view.ModelFactoryService = class {
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.t7', '.model', '.dms', '.pth.tar' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.t7', '.model', '.dms', '.pth.tar', '.ckpt' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
@@ -1289,7 +1289,7 @@ view.ModelFactoryService = class {
     accept(identifier) {
         var extension = identifier.toLowerCase().split('.').pop();
         var excludes = [
-            'blockmap', 'checkpoint', 'ckpt', 'dat', 'test', 'bytes', 'desktop', 'graph',
+            'blockmap', 'checkpoint', 'dat', 'test', 'bytes', 'desktop', 'graph',
             'index', 'data-00000-of-00001',
             'exe', 'dll', 'bin', 'raw', 'msg',
             'html', 'pdf', 'rtf', 'txt', 'md', 'svg', 'csv',
