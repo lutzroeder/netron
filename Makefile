@@ -21,7 +21,19 @@ reset:
 
 update:
 	@[ -d node_modules ] || npm install
-	./tools/update
+	@./tools/caffe sync schema
+	@./tools/coreml sync install schema
+	@./tools/cntk sync schema
+	@./tools/darknet sync
+	@./tools/keras sync install metadata
+	@./tools/mxnet sync metadata
+	@./tools/onnx sync install schema metadata
+	@./tools/paddle sync schema
+	@./tools/pytorch sync install schema metadata
+	@./tools/sklearn sync install metadata
+	@./tools/tf sync install schema metadata
+	@./tools/tflite sync install schema
+	@./tools/torch sync
 
 build_python:
 	@[ -d node_modules ] || npm install
