@@ -99,6 +99,13 @@
   },
   {
     "type":   "caffe",
+    "target": "cityscapes_713_pspnet.prototxt",
+    "source": "https://gist.githubusercontent.com/meetshah1995/6bfb59e6a3cfcb4e2bb8d47f827c2928/raw/cd1ea0091d6f9b40530d3390dad41fed60bd02aa/cityscapes_713_pspnet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://gist.github.com/meetshah1995/6bfb59e6a3cfcb4e2bb8d47f827c2928"
+  },
+  {
+    "type":   "caffe",
     "target": "conv.prototxt",
     "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/net_surgery/conv.prototxt",
     "format": "Caffe v2",
