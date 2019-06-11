@@ -127,38 +127,31 @@
                 return message;
             };
     
-            AttributeProto.decodeText = function decodeText(reader, block) {
+            AttributeProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.AttributeProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
-                        reader.value();
                         message.name = reader.string();
                         break;
                     case "ref_attr_name":
-                        reader.value();
                         message.ref_attr_name = reader.string();
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "type":
-                        reader.value();
                         message.type = reader.enum($root.onnx.AttributeProto.AttributeType);
                         break;
                     case "f":
-                        reader.value();
                         message.f = reader.float();
                         break;
                     case "i":
-                        reader.value();
                         message.i = reader.int64();
                         break;
                     case "s":
-                        reader.value();
                         message.s = reader.bytes();
                         break;
                     case "t":
@@ -170,7 +163,6 @@
                     case "floats":
                         if (!(message.floats && message.floats.length))
                             message.floats = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.floats.push(reader.float());
@@ -182,7 +174,6 @@
                     case "ints":
                         if (!(message.ints && message.ints.length))
                             message.ints = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.ints.push(reader.int64());
@@ -194,7 +185,6 @@
                     case "strings":
                         if (!(message.strings && message.strings.length))
                             message.strings = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.strings.push(reader.bytes());
@@ -277,21 +267,19 @@
                 return message;
             };
     
-            ValueInfoProto.decodeText = function decodeText(reader, block) {
+            ValueInfoProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.ValueInfoProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
-                        reader.value();
                         message.name = reader.string();
                         break;
                     case "type":
                         message.type = $root.onnx.TypeProto.decodeText(reader, true);
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
@@ -367,16 +355,15 @@
                 return message;
             };
     
-            NodeProto.decodeText = function decodeText(reader, block) {
+            NodeProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.NodeProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "input":
                         if (!(message.input && message.input.length))
                             message.input = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.input.push(reader.string());
@@ -388,7 +375,6 @@
                     case "output":
                         if (!(message.output && message.output.length))
                             message.output = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.output.push(reader.string());
@@ -398,15 +384,12 @@
                             message.output.push(reader.string());
                         break;
                     case "name":
-                        reader.value();
                         message.name = reader.string();
                         break;
                     case "op_type":
-                        reader.value();
                         message.op_type = reader.string();
                         break;
                     case "domain":
-                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "attribute":
@@ -415,7 +398,6 @@
                         message.attribute.push($root.onnx.AttributeProto.decodeText(reader, true));
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
@@ -496,14 +478,13 @@
                 return message;
             };
     
-            ModelProto.decodeText = function decodeText(reader, block) {
+            ModelProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.ModelProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "ir_version":
-                        reader.value();
                         message.ir_version = reader.int64();
                         break;
                     case "opset_import":
@@ -512,23 +493,18 @@
                         message.opset_import.push($root.onnx.OperatorSetIdProto.decodeText(reader, true));
                         break;
                     case "producer_name":
-                        reader.value();
                         message.producer_name = reader.string();
                         break;
                     case "producer_version":
-                        reader.value();
                         message.producer_version = reader.string();
                         break;
                     case "domain":
-                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "model_version":
-                        reader.value();
                         message.model_version = reader.int64();
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "graph":
@@ -583,18 +559,16 @@
                 return message;
             };
     
-            StringStringEntryProto.decodeText = function decodeText(reader, block) {
+            StringStringEntryProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.StringStringEntryProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "key":
-                        reader.value();
                         message.key = reader.string();
                         break;
                     case "value":
-                        reader.value();
                         message.value = reader.string();
                         break;
                     default:
@@ -644,14 +618,13 @@
                 return message;
             };
     
-            TensorAnnotation.decodeText = function decodeText(reader, block) {
+            TensorAnnotation.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.TensorAnnotation();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "tensor_name":
-                        reader.value();
                         message.tensor_name = reader.string();
                         break;
                     case "quant_parameter_tensor_names":
@@ -745,10 +718,10 @@
                 return message;
             };
     
-            GraphProto.decodeText = function decodeText(reader, block) {
+            GraphProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.GraphProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "node":
@@ -757,7 +730,6 @@
                         message.node.push($root.onnx.NodeProto.decodeText(reader, true));
                         break;
                     case "name":
-                        reader.value();
                         message.name = reader.string();
                         break;
                     case "initializer":
@@ -766,7 +738,6 @@
                         message.initializer.push($root.onnx.TensorProto.decodeText(reader, true));
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "input":
@@ -961,16 +932,15 @@
                 return message;
             };
     
-            TensorProto.decodeText = function decodeText(reader, block) {
+            TensorProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.TensorProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "dims":
                         if (!(message.dims && message.dims.length))
                             message.dims = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.dims.push(reader.int64());
@@ -980,7 +950,6 @@
                             message.dims.push(reader.int64());
                         break;
                     case "data_type":
-                        reader.value();
                         message.data_type = reader.int32();
                         break;
                     case "segment":
@@ -989,7 +958,6 @@
                     case "float_data":
                         if (!(message.float_data && message.float_data.length))
                             message.float_data = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.float_data.push(reader.float());
@@ -1001,7 +969,6 @@
                     case "int32_data":
                         if (!(message.int32_data && message.int32_data.length))
                             message.int32_data = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.int32_data.push(reader.int32());
@@ -1013,7 +980,6 @@
                     case "string_data":
                         if (!(message.string_data && message.string_data.length))
                             message.string_data = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.string_data.push(reader.bytes());
@@ -1025,7 +991,6 @@
                     case "int64_data":
                         if (!(message.int64_data && message.int64_data.length))
                             message.int64_data = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.int64_data.push(reader.int64());
@@ -1035,15 +1000,12 @@
                             message.int64_data.push(reader.int64());
                         break;
                     case "name":
-                        reader.value();
                         message.name = reader.string();
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "raw_data":
-                        reader.value();
                         message.raw_data = reader.bytes();
                         break;
                     case "external_data":
@@ -1052,13 +1014,11 @@
                         message.external_data.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
                         break;
                     case "data_location":
-                        reader.value();
                         message.data_location = reader.enum($root.onnx.TensorProto.DataLocation);
                         break;
                     case "double_data":
                         if (!(message.double_data && message.double_data.length))
                             message.double_data = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.double_data.push(reader.double());
@@ -1070,7 +1030,6 @@
                     case "uint64_data":
                         if (!(message.uint64_data && message.uint64_data.length))
                             message.uint64_data = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.uint64_data.push(reader.uint64());
@@ -1142,18 +1101,16 @@
                     return message;
                 };
     
-                Segment.decodeText = function decodeText(reader, block) {
+                Segment.decodeText = function decodeText(reader) {
                     var message = new $root.onnx.TensorProto.Segment();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "begin":
-                            reader.value();
                             message.begin = reader.int64();
                             break;
                         case "end":
-                            reader.value();
                             message.end = reader.int64();
                             break;
                         default:
@@ -1209,10 +1166,10 @@
                 return message;
             };
     
-            TensorShapeProto.decodeText = function decodeText(reader, block) {
+            TensorShapeProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.TensorShapeProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "dim":
@@ -1272,22 +1229,19 @@
                     return message;
                 };
     
-                Dimension.decodeText = function decodeText(reader, block) {
+                Dimension.decodeText = function decodeText(reader) {
                     var message = new $root.onnx.TensorShapeProto.Dimension();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "dim_value":
-                            reader.value();
                             message.dim_value = reader.int64();
                             break;
                         case "dim_param":
-                            reader.value();
                             message.dim_param = reader.string();
                             break;
                         case "denotation":
-                            reader.value();
                             message.denotation = reader.string();
                             break;
                         default:
@@ -1360,10 +1314,10 @@
                 return message;
             };
     
-            TypeProto.decodeText = function decodeText(reader, block) {
+            TypeProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.TypeProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "tensor_type":
@@ -1382,7 +1336,6 @@
                         message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decodeText(reader, true);
                         break;
                     case "denotation":
-                        reader.value();
                         message.denotation = reader.string();
                         break;
                     default:
@@ -1426,14 +1379,13 @@
                     return message;
                 };
     
-                Tensor.decodeText = function decodeText(reader, block) {
+                Tensor.decodeText = function decodeText(reader) {
                     var message = new $root.onnx.TypeProto.Tensor();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "elem_type":
-                            reader.value();
                             message.elem_type = reader.int32();
                             break;
                         case "shape":
@@ -1479,10 +1431,10 @@
                     return message;
                 };
     
-                Sequence.decodeText = function decodeText(reader, block) {
+                Sequence.decodeText = function decodeText(reader) {
                     var message = new $root.onnx.TypeProto.Sequence();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "elem_type":
@@ -1532,14 +1484,13 @@
                     return message;
                 };
     
-                Map.decodeText = function decodeText(reader, block) {
+                Map.decodeText = function decodeText(reader) {
                     var message = new $root.onnx.TypeProto.Map();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "key_type":
-                            reader.value();
                             message.key_type = reader.int32();
                             break;
                         case "value_type":
@@ -1589,18 +1540,16 @@
                     return message;
                 };
     
-                Opaque.decodeText = function decodeText(reader, block) {
+                Opaque.decodeText = function decodeText(reader) {
                     var message = new $root.onnx.TypeProto.Opaque();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "domain":
-                            reader.value();
                             message.domain = reader.string();
                             break;
                         case "name":
-                            reader.value();
                             message.name = reader.string();
                             break;
                         default:
@@ -1647,14 +1596,13 @@
                     return message;
                 };
     
-                SparseTensor.decodeText = function decodeText(reader, block) {
+                SparseTensor.decodeText = function decodeText(reader) {
                     var message = new $root.onnx.TypeProto.SparseTensor();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "elem_type":
-                            reader.value();
                             message.elem_type = reader.int32();
                             break;
                         case "shape":
@@ -1707,18 +1655,16 @@
                 return message;
             };
     
-            OperatorSetIdProto.decodeText = function decodeText(reader, block) {
+            OperatorSetIdProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.OperatorSetIdProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "domain":
-                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "version":
-                        reader.value();
                         message.version = reader.int64();
                         break;
                     default:
@@ -1808,28 +1754,24 @@
                 return message;
             };
     
-            FunctionProto.decodeText = function decodeText(reader, block) {
+            FunctionProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.FunctionProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
-                        reader.value();
                         message.name = reader.string();
                         break;
                     case "since_version":
-                        reader.value();
                         message.since_version = reader.int64();
                         break;
                     case "status":
-                        reader.value();
                         message.status = reader.enum($root.onnx.OperatorStatus);
                         break;
                     case "input":
                         if (!(message.input && message.input.length))
                             message.input = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.input.push(reader.string());
@@ -1841,7 +1783,6 @@
                     case "output":
                         if (!(message.output && message.output.length))
                             message.output = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.output.push(reader.string());
@@ -1853,7 +1794,6 @@
                     case "attribute":
                         if (!(message.attribute && message.attribute.length))
                             message.attribute = [];
-                        reader.value();
                         if (reader.first())
                             while (!reader.last()) {
                                 message.attribute.push(reader.string());
@@ -1868,7 +1808,6 @@
                         message.node.push($root.onnx.NodeProto.decodeText(reader, true));
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
@@ -1923,26 +1862,22 @@
                 return message;
             };
     
-            OperatorProto.decodeText = function decodeText(reader, block) {
+            OperatorProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.OperatorProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "op_type":
-                        reader.value();
                         message.op_type = reader.string();
                         break;
                     case "since_version":
-                        reader.value();
                         message.since_version = reader.int64();
                         break;
                     case "status":
-                        reader.value();
                         message.status = reader.enum($root.onnx.OperatorStatus);
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     default:
@@ -2023,38 +1958,31 @@
                 return message;
             };
     
-            OperatorSetProto.decodeText = function decodeText(reader, block) {
+            OperatorSetProto.decodeText = function decodeText(reader) {
                 var message = new $root.onnx.OperatorSetProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "magic":
-                        reader.value();
                         message.magic = reader.string();
                         break;
                     case "ir_version":
-                        reader.value();
                         message.ir_version = reader.int32();
                         break;
                     case "ir_version_prerelease":
-                        reader.value();
                         message.ir_version_prerelease = reader.string();
                         break;
                     case "ir_build_metadata":
-                        reader.value();
                         message.ir_build_metadata = reader.string();
                         break;
                     case "domain":
-                        reader.value();
                         message.domain = reader.string();
                         break;
                     case "opset_version":
-                        reader.value();
                         message.opset_version = reader.int64();
                         break;
                     case "doc_string":
-                        reader.value();
                         message.doc_string = reader.string();
                         break;
                     case "operator":
