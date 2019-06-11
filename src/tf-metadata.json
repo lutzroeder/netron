@@ -12691,6 +12691,11 @@
           "type": "int64"
         },
         {
+          "default": 0,
+          "name": "num_proj",
+          "type": "int64"
+        },
+        {
           "default": true,
           "name": "time_major",
           "type": "boolean"
@@ -12880,6 +12885,123 @@
     }
   },
   {
+    "name": "CudnnRNNCanonicalToParamsV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "minimum": 1,
+          "name": "num_params_weights",
+          "type": "int64"
+        },
+        {
+          "minimum": 1,
+          "name": "num_params_biases",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            "rnn_relu",
+            "rnn_tanh",
+            "lstm",
+            "gru"
+          ],
+          "default": "lstm",
+          "name": "rnn_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "linear_input",
+            "skip_input",
+            "auto_select"
+          ],
+          "default": "linear_input",
+          "name": "input_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "unidirectional",
+            "bidirectional"
+          ],
+          "default": "unidirectional",
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "dropout",
+          "type": "float32"
+        },
+        {
+          "default": 0,
+          "name": "seed",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "seed2",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "num_proj",
+          "type": "int64"
+        }
+      ],
+      "description": "Writes a set of weights into the opaque params buffer so they can be used in\nupcoming training or inferences.\n\nNote that the params buffer may not be compatible across different GPUs. So any\nsave and restoration should be converted to and from the canonical weights and\nbiases.\n\nnum_layers: Specifies the number of layers in the RNN model.\nnum_units: Specifies the size of the hidden state.\ninput_size: Specifies the size of the input state.\nweights: the canonical form of weights that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nbiases: the canonical form of biases that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nnum_params_weigths: number of weight parameter matrix for all layers.\nnum_params_biases: number of bias parameter vector for all layers.\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n    The actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used.\n    dir = (direction == bidirectional) ? 2 : 1\ndropout: dropout probability. When set to 0., dropout is disabled.\nseed: the 1st part of a seed to initialize dropout.\nseed2: the 2nd part of a seed to initialize dropout.\nnum_proj: The output dimensionality for the projection matrices. If None or 0,\n    no projection is performed.",
+      "inputs": [
+        {
+          "name": "num_layers",
+          "type": 3
+        },
+        {
+          "name": "num_units",
+          "type": 3
+        },
+        {
+          "name": "input_size",
+          "type": 3
+        },
+        {
+          "name": "weights",
+          "numberAttr": "num_params_weights",
+          "typeAttr": "T"
+        },
+        {
+          "name": "biases",
+          "numberAttr": "num_params_biases",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "params",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Converts CudnnRNN params from canonical form to usable form. It supports the projection in LSTM."
+    }
+  },
+  {
     "name": "CudnnRNNParamsSize",
     "schema": {
       "attributes": [
@@ -12958,6 +13080,11 @@
         {
           "default": 0,
           "name": "seed2",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "num_proj",
           "type": "int64"
         }
       ],
@@ -13088,6 +13215,121 @@
         }
       ],
       "summary": "Retrieves CudnnRNN params in canonical form."
+    }
+  },
+  {
+    "name": "CudnnRNNParamsToCanonicalV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "minimum": 1,
+          "name": "num_params_weights",
+          "type": "int64"
+        },
+        {
+          "minimum": 1,
+          "name": "num_params_biases",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            "rnn_relu",
+            "rnn_tanh",
+            "lstm",
+            "gru"
+          ],
+          "default": "lstm",
+          "name": "rnn_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "linear_input",
+            "skip_input",
+            "auto_select"
+          ],
+          "default": "linear_input",
+          "name": "input_mode",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "unidirectional",
+            "bidirectional"
+          ],
+          "default": "unidirectional",
+          "name": "direction",
+          "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "dropout",
+          "type": "float32"
+        },
+        {
+          "default": 0,
+          "name": "seed",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "seed2",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "num_proj",
+          "type": "int64"
+        }
+      ],
+      "description": "Retrieves a set of weights from the opaque params buffer that can be saved and\nrestored in a way compatible with future runs.\n\nNote that the params buffer may not be compatible across different GPUs. So any\nsave and restoration should be converted to and from the canonical weights and\nbiases.\n\nnum_layers: Specifies the number of layers in the RNN model.\nnum_units: Specifies the size of the hidden state.\ninput_size: Specifies the size of the input state.\nnum_params_weigths: number of weight parameter matrix for all layers.\nnum_params_biases: number of bias parameter vector for all layers.\nweights: the canonical form of weights that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nbiases: the canonical form of biases that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n    The actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used.\n    dir = (direction == bidirectional) ? 2 : 1\ndropout: dropout probability. When set to 0., dropout is disabled.\nseed: the 1st part of a seed to initialize dropout.\nseed2: the 2nd part of a seed to initialize dropout.\nnum_proj: The output dimensionality for the projection matrices. If None or 0,\n    no projection is performed.",
+      "inputs": [
+        {
+          "name": "num_layers",
+          "type": 3
+        },
+        {
+          "name": "num_units",
+          "type": 3
+        },
+        {
+          "name": "input_size",
+          "type": 3
+        },
+        {
+          "name": "params",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "weights",
+          "typeAttr": "T"
+        },
+        {
+          "name": "biases",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Retrieves CudnnRNN params in canonical form. It supports the projection in LSTM."
     }
   },
   {
@@ -13272,6 +13514,11 @@
         {
           "default": 0,
           "name": "seed2",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "num_proj",
           "type": "int64"
         },
         {
