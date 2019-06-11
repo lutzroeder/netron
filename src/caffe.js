@@ -145,7 +145,7 @@ caffe.ModelFactory = class {
         reader.start(block);
         while (!reader.end(block)) {
             var tag = reader.tag();
-            if (message[tag]) { 
+            if (message[tag]) {
                 if (!Array.isArray(message[tag])) {
                     message[tag] = [ message[tag] ];
                 }
