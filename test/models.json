@@ -2097,6 +2097,7 @@
     "type":   "mxnet",
     "target": "ferplus.model",
     "source": "https://s3.amazonaws.com/model-server/models/FERPlus/ferplus.model",
+    "format": "MXNet Model Server v0.2",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
@@ -2133,8 +2134,17 @@
   },
   {
     "type":   "mxnet",
+    "target": "Inception-BN-0126.params,Inception-BN-symbol.json",
+    "source": "http://data.mxnet.io/models/imagenet/inception-bn/Inception-BN-0126.params,http://data.mxnet.io/models/imagenet/inception-bn/Inception-BN-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
+  {
+    "type":   "mxnet",
     "target": "lstm_ptb.model",
-    "source": "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb.model"
+    "source": "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb.model",
+    "format": "MXNet Model Server v0.1",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
@@ -2153,17 +2163,21 @@
   {
     "type":   "mxnet",
     "target": "nin.model",
-    "source": "https://s3.amazonaws.com/model-server/models/nin/nin.model"
+    "source": "https://s3.amazonaws.com/model-server/models/nin/nin.model",
+    "format": "MXNet Model Server v0.1",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
     "target": "resnet-18.model",
-    "source": "https://s3.amazonaws.com/model-server/models/resnet-18/resnet-18.model"
+    "source": "https://s3.amazonaws.com/model-server/models/resnet-18/resnet-18.model",
+    "format": "MXNet Model Server v0.1",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
-    "target": "resnet-50-symbol.json",
-    "source": "http://data.mxnet.io/models/imagenet/resnet/50-layers/resnet-50-symbol.json",
+    "target": "resnet-50-0000.params",
+    "source": "http://data.mxnet.io/models/imagenet/resnet/50-layers/resnet-50-0000.params",
     "format": "MXNet",
     "link":   "https://github.com/awslabs/deeplearning-benchmark/blob/master/image_classification/common/modelzoo.py"
   },
@@ -2177,7 +2191,9 @@
   {
     "type":   "mxnet",
     "target": "resnet-152.model",
-    "source": "https://s3.amazonaws.com/model-server/models/resnet-152/resnet-152.model"
+    "source": "https://s3.amazonaws.com/model-server/models/resnet-152/resnet-152.model",
+    "format": "MXNet Model Server v0.1",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
@@ -2189,12 +2205,16 @@
   {
     "type":   "mxnet",
     "target": "resnet50_ssd_model.model",
-    "source": "https://s3.amazonaws.com/model-server/models/resnet50_ssd/resnet50_ssd_model.model"
+    "source": "https://s3.amazonaws.com/model-server/models/resnet50_ssd/resnet50_ssd_model.model",
+    "format": "MXNet Model Server v0.1",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
     "target": "ResNet_DUC_HDC.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-duc/ResNet_DUC_HDC.model"
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-duc/ResNet_DUC_HDC.model",
+    "format": "MXNet Model Server v0.2",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",

@@ -507,7 +507,7 @@ view.View = class {
                                 var separator = '';
                                 if (type && type.shape && type.shape.dimensions && type.shape.dimensions.hasOwnProperty('length')) {
                                     shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
-                                    if (type.shape.dimensions.length == 0 && connection.initializer) {
+                                    if (type.shape.dimensions.length == 0 && connection.initializer && !connection.initializer.state) {
                                         shape = connection.initializer.toString();
                                         if (shape && shape.length > 25) {
                                             shape = shape.substring(0, 25) + '...';
@@ -1092,7 +1092,7 @@ view.ModelFactoryService = class {
         this._host = host;
         this._extensions = [];
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./mxnet', [ '.model', '.json' ]);
+        this.register('./mxnet', [ '.model', '.json', '.params' ]);
         this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json', '.model' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
@@ -1297,7 +1297,7 @@ view.ModelFactoryService = class {
             'xls', 'doc', 'ppt', 'xlsx', 'docx', 'pptx',
             'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
             'js', 'py', 'pyc', 'ipynb',
-            'params', 'weights',
+            'weights',
             'mp3', 'mp4', 'mov',
             'npy', 'npz',
             'tmp'

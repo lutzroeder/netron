@@ -9,14 +9,16 @@ var zip = zip || require('./zip');
 mxnet.ModelFactory = class {
 
     match(context) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
+        var identifier = context.identifier;
+        var extension = identifier.split('.').pop().toLowerCase();
+        var buffer = null;
         if (extension == 'model') {
-            var buffer = context.buffer;
+            buffer = context.buffer;
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
                 return true;
             }
         }
-        if (extension == 'json') {
+        else if (extension == 'json') {
             var json = context.text;
             if (json.indexOf('"nodes":', 0) != -1) {
                 try {
@@ -30,6 +32,13 @@ mxnet.ModelFactory = class {
                 }
             }
         }
+        else if (mxnet.ModelFactory._basename(identifier, 'params')) {
+            buffer = context.buffer;
+            var signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+            if (buffer && buffer.length > signature.length && signature.every((v, i) => v == buffer[i])) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -39,6 +48,7 @@ mxnet.ModelFactory = class {
         var symbol = null;
         var params = null;
         var format = null;
+        var basename = null;
         switch (extension) {
             case 'json':
                 try {
@@ -46,11 +56,9 @@ mxnet.ModelFactory = class {
                     if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
                         format  = 'TVM';
                     }
-                    var mxnet_extension = '-symbol.json';
-                    if (identifier.toLowerCase().endsWith(mxnet_extension)) {
-                        var paramsIdentifier = identifier.substring(0, identifier.length - mxnet_extension.length) + '-0000.params';
-                        return context.request(paramsIdentifier, null).then((data) => {
-                            params = data;
+                    basename = mxnet.ModelFactory._basename(identifier, 'json', 'symbol');
+                    if (basename) {
+                        return context.request(basename + '-0000.params', null).then((params) => {
                             return this._openModel(identifier, format, null, symbol, null, params, host);
                         }).catch(() => {
                             return this._openModel(identifier, format, null, symbol, null, params, host);
@@ -62,6 +70,18 @@ mxnet.ModelFactory = class {
                     host.exception(error, false);
                     throw new mxnet.Error(error.message), null;
                 }
+            case 'params':
+                params = context.buffer;
+                basename = mxnet.ModelFactory._basename(context.identifier, 'params');
+                return context.request(basename + '-symbol.json', 'utf-8').then((text) => {
+                    symbol = JSON.parse(text);
+                    if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
+                        format  = 'TVM';
+                    }
+                    return this._openModel(identifier, format, null, symbol, null, params, host);
+                }).catch(() => {
+                    return this._openModel(identifier, format, null, null, null, params, host);
+                });
             case 'model':
                 var entries = {};
                 try {
@@ -112,7 +132,7 @@ mxnet.ModelFactory = class {
                     symbol = JSON.parse(decoder.decode(symbolEntry.data));
                 }
                 catch (err) {
-                    throw new mxnet.Error('Failed to load symbol entry. ' + err.message);
+                    throw new mxnet.Error('Failed to load symbol entry.' + err.message);
                 }
 
                 var signature = null;
@@ -187,25 +207,50 @@ mxnet.ModelFactory = class {
             }
         });
     }
+
+    static _basename(identifier, extension, suffix) {
+        var dots = identifier.split('.');
+        if (dots.length >= 2 && dots.pop().toLowerCase() === extension) {
+            var dashes = dots.pop().split('-');
+            if (dashes.length >= 2) {
+                var token = dashes.pop();
+                if (suffix) {
+                    if (token != suffix) {
+                        return null;
+                    }
+                }
+                else {
+                    for (var i = 0; i < token.length; i++) {
+                        var c = token.charAt(i);
+                        if (c < '0' || c > '9') {
+                            return null;
+                        }
+                    }
+                }
+                return dashes.join('-');
+            }
+        }
+        return null;
+    }
 };
 
 mxnet.Model = class {
 
-    constructor(metadata, format, manifest, symbol, signature, parameters) {
-        if (!symbol) {
-            throw new mxnet.Error('JSON file does not contain MXNet data.');
+    constructor(metadata, format, manifest, symbol, signature, params) {
+        if (!symbol && !params) {
+            throw new mxnet.Error('JSON symbol data not available.');
         }
-        if (!symbol.hasOwnProperty('nodes')) {
-            throw new mxnet.Error('JSON file does not contain an MXNet \'nodes\' property.');
+        if (symbol) {
+            if (!symbol.hasOwnProperty('nodes')) {
+                throw new mxnet.Error('JSON file does not contain an MXNet \'nodes\' property.');
+            }
+            if (!symbol.hasOwnProperty('arg_nodes')) {
+                throw new mxnet.Error('JSON file does not contain an MXNet \'arg_nodes\' property.');
+            }
+            if (!symbol.hasOwnProperty('heads')) {
+                throw new mxnet.Error('JSON file does not contain an MXNet \'heads\' property.');
+            }
         }
-        if (!symbol.hasOwnProperty('arg_nodes')) {
-            throw new mxnet.Error('JSON file does not contain an MXNet \'arg_nodes\' property.');
-        }
-        if (!symbol.hasOwnProperty('heads')) {
-            throw new mxnet.Error('JSON file does not contain an MXNet \'heads\' property.');
-        }
-
-        this._format = format;
 
         if (manifest) {
             if (manifest.Model && manifest.Model['Model-Name']) {
@@ -220,21 +265,19 @@ mxnet.Model = class {
             }
         }
 
-        if (!this._format) {
-            if (symbol.attrs && symbol.attrs.mxnet_version) {
-                var version = mxnet.Model._convert_version(symbol.attrs.mxnet_version);
-                if (version) {
-                    this._format = 'MXNet v' + version;
-                }
+        this._format = format;
+        if (!this._format && symbol && symbol.attrs && symbol.attrs.mxnet_version) {
+            var version = mxnet.Model._convert_version(symbol.attrs.mxnet_version);
+            if (version) {
+                this._format = 'MXNet v' + version;
             }
         }
-
         if (!this._format) {
             this._format = 'MXNet';
         }
 
         this._graphs = [];
-        this._graphs.push(new mxnet.Graph(metadata, manifest, symbol, signature, parameters));
+        this._graphs.push(new mxnet.Graph(metadata, manifest, symbol, signature, params));
     }
 
     get name() {
@@ -272,89 +315,129 @@ mxnet.Model = class {
 
 mxnet.Graph = class {
 
-    constructor(metadata, manifest, symbol, signature, parameters)
+    constructor(metadata, manifest, symbol, signature, params)
     {
         this._metadata = metadata;
         this._nodes = [];
-
-        var node;
-        var nodes = symbol.nodes;
-        for (node of nodes) {
-            if (node.op && node.op != 'null') { 
-                var operator = node.op;
-                var attrs = node.attrs || node.attr || node.param;
-                if (operator == 'tvm_op' && attrs && attrs.func_name) {
-                    operator = attrs.func_name;
-                }
-            }
-        }
-
-        var inputs = {};
-        var input;
-        if (signature && signature.inputs) {
-            for (input of signature.inputs) {
-                inputs[input.data_name] = input;
-            }
-        }
-        var outputs = {};
-        var output;
-        if (signature && signature.outputs) {
-            for (output of signature.outputs) {
-                outputs[output.data_name] = output;
-            }
-        }
-
-        for (node of nodes) {
-            node.outputs = [];
-        }
-        for (node of nodes) {
-            node.inputs = node.inputs.map((input) => {
-                return mxnet.Graph._updateOutput(nodes, input);
-            });
-        }
-
-        var outputCountMap = {};
-        for (node of nodes) {
-            for (output of node.outputs) {
-                outputCountMap[output] = (outputCountMap[output] || 0) + 1;
-            }
-        }
-
-        var argumentMap = {};
-        for (var index of symbol.arg_nodes) {
-            argumentMap[index] = (index < nodes.length) ? nodes[index] : null;
-        }
-
-        this._outputs = [];
-        for (var i = 0; i < symbol.heads.length; i++) {
-            var head = symbol.heads[i];
-            var outputId = mxnet.Graph._updateOutput(nodes, head);
-            var outputName = nodes[outputId[0]] ? nodes[outputId[0]].name : ('output' + ((i == 0) ? '' : (i + 1).toString()));
-            var outputType = null;
-            var outputSignature = outputs[outputName];
-            if (outputSignature && outputSignature.data_shape) {
-                outputType = new mxnet.TensorType(null, new mxnet.TensorShape(outputSignature.data_shape));
-            }
-            this._outputs.push(new mxnet.Argument(outputName, [ new mxnet.Connection('[' + outputId.join(',') + ']', outputType, null) ]));
-        }
-
-        var initializerMap = {};
-        for (node of nodes.filter((node, index) => !argumentMap[index])) {
-            this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, parameters));
-        }
-
         this._inputs = [];
-        for (var argumentKey of Object.keys(argumentMap)) {
-            var argument = argumentMap[argumentKey];
-            if (argument && (!argument.inputs || argument.inputs.length == 0) && (argument.outputs && argument.outputs.length == 1)) {
-                var inputId = argument.outputs[0];
-                var inputName = argument.name;
-                var inputType = null;
-                var inputSignature = inputs[inputName];
-                if (inputSignature && inputSignature.data_shape) {
-                    inputType = new mxnet.TensorType(null, new mxnet.TensorShape(inputSignature.data_shape));
+        this._outputs = [];
+
+        if (params) {
+            for (var key of Object.keys(params)) {
+                var param = params[key];
+                params[key] = new mxnet.Tensor('Initializer', key,
+                    new mxnet.TensorType(param.dataType, new mxnet.TensorShape(param.shape.dimensions)),
+                    param.data);
+            }
+        }
+
+        if (symbol) {
+            var node;
+            var nodes = symbol.nodes;
+            for (node of nodes) {
+                if (node.op && node.op != 'null') { 
+                    var operator = node.op;
+                    var attrs = node.attrs || node.attr || node.param;
+                    if (operator == 'tvm_op' && attrs && attrs.func_name) {
+                        operator = attrs.func_name;
+                    }
                 }
-                this._inputs.push(new mxnet.Argument(inputName, [ new mxnet.Connection('[' + inputId.join(',') + ']', inputType) ]));
+            }
+    
+            var inputs = {};
+            var input;
+            if (signature && signature.inputs) {
+                for (input of signature.inputs) {
+                    inputs[input.data_name] = input;
+                }
+            }
+            var outputs = {};
+            var output;
+            if (signature && signature.outputs) {
+                for (output of signature.outputs) {
+                    outputs[output.data_name] = output;
+                }
+            }
+    
+            for (node of nodes) {
+                node.outputs = [];
+            }
+            for (node of nodes) {
+                node.inputs = node.inputs.map((input) => {
+                    return mxnet.Graph._updateOutput(nodes, input);
+                });
+            }
+    
+            var outputCountMap = {};
+            for (node of nodes) {
+                for (output of node.outputs) {
+                    outputCountMap[output] = (outputCountMap[output] || 0) + 1;
+                }
+            }
+    
+            var argumentMap = {};
+            for (var index of symbol.arg_nodes) {
+                argumentMap[index] = (index < nodes.length) ? nodes[index] : null;
+            }
+    
+            for (var i = 0; i < symbol.heads.length; i++) {
+                var head = symbol.heads[i];
+                var outputId = mxnet.Graph._updateOutput(nodes, head);
+                var outputName = nodes[outputId[0]] ? nodes[outputId[0]].name : ('output' + ((i == 0) ? '' : (i + 1).toString()));
+                var outputType = null;
+                var outputSignature = outputs[outputName];
+                if (outputSignature && outputSignature.data_shape) {
+                    outputType = new mxnet.TensorType(-1, new mxnet.TensorShape(outputSignature.data_shape));
+                }
+                this._outputs.push(new mxnet.Argument(outputName, [ new mxnet.Connection('[' + outputId.join(',') + ']', outputType, null) ]));
+            }
+    
+            var initializerMap = {};
+            for (node of nodes.filter((node, index) => !argumentMap[index])) {
+                this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, params));
+            }
+    
+            for (var argumentKey of Object.keys(argumentMap)) {
+                var argument = argumentMap[argumentKey];
+                if (argument && (!argument.inputs || argument.inputs.length == 0) && (argument.outputs && argument.outputs.length == 1)) {
+                    var inputId = argument.outputs[0];
+                    var inputName = argument.name;
+                    var inputType = null;
+                    var inputSignature = inputs[inputName];
+                    if (inputSignature && inputSignature.data_shape) {
+                        inputType = new mxnet.TensorType(-1, new mxnet.TensorShape(inputSignature.data_shape));
+                    }
+                    this._inputs.push(new mxnet.Argument(inputName, [ new mxnet.Connection('[' + inputId.join(',') + ']', inputType) ]));
+                }
+            }
+        }
+        else if (params) {
+            var block = null;
+            var blocks = [];
+            var blockMap = {};
+            if (Object.keys(params).every((k) => k.indexOf('_') != -1)) {
+                for (var id of Object.keys(params)) {
+                    var parts = id.split('_');
+                    var argumentName = parts.pop();
+                    if (id.endsWith('moving_mean') || id.endsWith('moving_var')) {
+                        argumentName = [ parts.pop(), argumentName ].join('_');
+                    }
+                    var nodeName = parts.join('_');
+                    block = blockMap[nodeName];
+                    if (!block) {
+                        block = { name: nodeName, op: 'Weights', params: [] };
+                        blockMap[nodeName] = block;
+                        blocks.push(block)
+                    }
+                    blockMap[nodeName].params.push({ name: argumentName, id: key });
+                }
+            }
+            else {
+                throw new mxnet.Error("Unsupported key format in params.");
+            }
+
+            for (block of blocks) {
+                this._nodes.push(new mxnet.Node(metadata, block, {}, {}, params))
             }
         }
     }
@@ -435,13 +518,14 @@ mxnet.Connection = class {
 
 mxnet.Node = class {
 
-    constructor(metadata, node, argumentMap, initializerMap, parameters) {
+    constructor(metadata, node, argumentMap, initializerMap, params) {
         this._metadata = metadata;
         this._operator = node.op;
         this._name = node.name;
-        this._inputs = node.inputs;
-        this._outputs = node.outputs;
         this._attributes = [];
+        this._inputs = [];
+        this._outputs = [];
+
         var attrs = node.attrs || node.attr || node.param;
         if (attrs) {
             if (this._operator == 'tvm_op' && attrs.func_name) {
@@ -453,62 +537,130 @@ mxnet.Node = class {
                 }
             }
         }
-        if (this._operator == 'RNN') {
-            this._inputs = this._inputs.map((input) => {
-                var argumentNodeIndex = input[0];
-                var argument = argumentMap[argumentNodeIndex];
-                if (argument && argument.op == 'null' && argument.name &&
-                    argument.name.endsWith('_parameters') && argument.attr && argument.attr.__init__) {
-                    this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, argument.name, argument.attr.__init__));
-                    delete argumentMap[argumentNodeIndex];
-                    return null;
-                }
-                return input;
-            }); 
-            this._inputs = this._inputs.filter((item) => item != null);
-        }
 
-        this._initializers = {};
-        for (var input of this._inputs) {
-            var id = '[' + input.join(',') + ']';
-            var initializer = initializerMap[id];
-            if (!initializer) {
-                var argumentNodeIndex = input[0];
-                var argument = argumentMap[argumentNodeIndex];
-                if (argument && argument.name &&
-                    (!argument.inputs || argument.inputs.length == 0) &&
-                    (argument.outputs && argument.outputs.length == 1)) {
-                    var parameter = parameters[argument.name];
-                    if (parameter) {
-                        initializer  = new mxnet.Tensor('Initializer', argument.name, parameter.dataType, parameter.shape.dimensions, parameter.data);
+        var initializer = null;
+        var schema = metadata.getSchema(this.operator);
+        if (node.inputs) {
+            var inputs = node.inputs;
+            if (this._operator == 'RNN') {
+                inputs = inputs.map((input) => {
+                    var argumentNodeIndex = input[0];
+                    var argument = argumentMap[argumentNodeIndex];
+                    if (argument && argument.op == 'null' && argument.name &&
+                        argument.name.endsWith('_parameters') && argument.attr && argument.attr.__init__) {
+                        this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, argument.name, argument.attr.__init__));
                         delete argumentMap[argumentNodeIndex];
+                        return null;
                     }
-                    else {
-                        var prefix = this._name;
-                        if (prefix.endsWith('_fwd')) {
-                            prefix = prefix.slice(0, -3);
-                        }
-                        if (argument.name && (argument.name.startsWith(prefix + '_') || argument.name.startsWith(prefix + '.'))) {
-                            var dataType = '?';
-                            var shape = [];
-                            if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
-                                try {
-                                    dataType = parseInt(argument.attrs.__dtype__);
-                                    shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"' )).join(',') + ']');
-                                }
-                                catch (err) {
-                                    // continue regardless of error
-                                }
-                            }
-                            initializer = new mxnet.Tensor('Initializer', argument.name, dataType, shape, null);
+                    return input;
+                }); 
+                inputs = inputs.filter((item) => item != null);
+            }
+            var input = null;
+            var initializers = {};
+            for (input of inputs) {
+                var id = '[' + input.join(',') + ']';
+                initializer = initializerMap[id];
+                if (!initializer) {
+                    var argumentNodeIndex = input[0];
+                    var argument = argumentMap[argumentNodeIndex];
+                    if (argument && argument.name &&
+                        (!argument.inputs || argument.inputs.length == 0) &&
+                        (argument.outputs && argument.outputs.length == 1)) {
+                        initializer = params[argument.name] || null;
+                        if (initializer) {
                             delete argumentMap[argumentNodeIndex];
                         }
+                        else {
+                            var prefix = this._name;
+                            if (prefix.endsWith('_fwd')) {
+                                prefix = prefix.slice(0, -3);
+                            }
+                            if (argument.name && (argument.name.startsWith(prefix + '_') || argument.name.startsWith(prefix + '.'))) {
+                                var dataType = -1;
+                                var shape = [];
+                                if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
+                                    try {
+                                        dataType = parseInt(argument.attrs.__dtype__);
+                                        shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"' )).join(',') + ']');
+                                    }
+                                    catch (err) {
+                                        // continue regardless of error
+                                    }
+                                }
+                                var argumentType = null;
+                                if (dataType !== -1 || shape.length > 0) {
+                                    argumentType = new mxnet.TensorType(dataType, new mxnet.TensorShape(shape));
+                                }
+                                initializer = new mxnet.Tensor('Initializer', argument.name, argumentType, null);
+                                delete argumentMap[argumentNodeIndex];
+                            }
+                        }
+                    }
+                }
+                if (initializer) {
+                    initializers[id] = initializer;
+                    initializerMap[id] = initializer;
+                }
+            }
+
+            var inputIndex = 0;
+            if (schema && schema.inputs) {
+                for (var inputDef of schema.inputs) {
+                    if (inputIndex < inputs.length || inputDef.option != 'optional') {
+                        var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                        var inputConnections = [];
+                        for (input of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                            var inputId = '[' + input.join(',') + ']';
+                            if (inputId != '' || inputDef.option != 'optional') {
+                                inputConnections.push(new mxnet.Connection(inputId, inputDef.type, initializers[inputId]));
+                            }
+                        }
+                        this._inputs.push(new mxnet.Argument(inputDef.name, inputConnections));
+                        inputIndex += inputCount;
                     }
                 }
             }
-            if (initializer) {
-                this._initializers[id] = initializer;
-                initializerMap[id] = initializer;
+            if (inputIndex < inputs.length) {
+                this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+                    var inputId = '[' + input.join(',') + ']';
+                    return new mxnet.Argument((inputIndex + index).toString(), [ 
+                        new mxnet.Connection(inputId, null, initializers[inputId])
+                    ]);
+                }));
+            }
+        }
+
+        if (node.outputs) {
+            var outputs = node.outputs;
+            var outputIndex = 0;
+            if (schema && schema.outputs) {
+                for (var outputDef of schema.outputs) {
+                    if (outputIndex < outputs.length || outputDef.option != 'optional') {
+                        var outputConnections = [];
+                        var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                        for (var output of outputs.slice(outputIndex, outputIndex + outputCount)) {
+                            outputConnections.push(new mxnet.Connection('[' + output.join(',') + ']', null, null));
+                        }
+                        this._outputs.push(new mxnet.Argument(outputDef.name, outputConnections));
+                        outputIndex += outputCount;
+                    }
+                }
+            }
+            if (outputIndex < outputs.length) {
+                this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+                    return new mxnet.Argument((outputIndex + index).toString(), [ 
+                        new mxnet.Connection('[' + output.join(',') + ']', null, null)
+                    ]);
+                }));
+            }
+        }
+
+        if (node.params) {
+            for (var param of node.params) {
+                this._inputs.push(new mxnet.Argument(param.name, [
+                    new mxnet.Connection(param.id, null, params[param.id] || null)
+                ]));
             }
         }
     }
@@ -561,63 +713,11 @@ mxnet.Node = class {
     }
 
     get inputs() {
-        var args = [];
-        var inputIndex = 0;
-        var inputs = this._inputs;
-        var schema = this._metadata.getSchema(this.operator);
-        if (schema && schema.inputs) {
-            for (var inputDef of schema.inputs) {
-                if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputConnections = [];
-                    for (var input of inputs.slice(inputIndex, inputIndex + inputCount)) {
-                        var id = '[' + input.join(',') + ']';
-                        if (id != '' || inputDef.option != 'optional') {
-                            inputConnections.push(new mxnet.Connection(id, inputDef.type, this._initializers[id]));
-                        }
-                    }
-                    args.push(new mxnet.Argument(inputDef.name, inputConnections));
-                    inputIndex += inputCount;
-                }
-            }
-        }
-        if (inputIndex < inputs.length) {
-            args = args.concat(inputs.slice(inputIndex).map((input, index) => {
-                var id = '[' + input.join(',') + ']';
-                return new mxnet.Argument((inputIndex + index).toString(), [ 
-                    new mxnet.Connection(id, null, this._initializers[id])
-                ]);
-            }));
-        }
-        return args;
+        return this._inputs;
     }
 
     get outputs() {
-        var args = [];
-        var outputIndex = 0;
-        var outputs = this._outputs;
-        var schema = this._metadata.getSchema(this.operator);
-        if (schema && schema.outputs) {
-            for (var outputDef of schema.outputs) {
-                if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                    var outputConnections = [];
-                    var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    for (var output of outputs.slice(outputIndex, outputIndex + outputCount)) {
-                        outputConnections.push(new mxnet.Connection('[' + output.join(',') + ']', null, null));
-                    }
-                    args.push(new mxnet.Argument(outputDef.name, outputConnections));
-                    outputIndex += outputCount;
-                }
-            }
-        }
-        if (outputIndex < outputs.length) {
-            args = args.concat(outputs.slice(outputIndex).map((output, index) => {
-                return new mxnet.Argument((outputIndex + index).toString(), [ 
-                    new mxnet.Connection('[' + output.join(',') + ']', null, null)
-                ]);
-            }));
-        }
-        return args;
+        return this._outputs;
     }
 
     get attributes() {
@@ -721,12 +821,11 @@ mxnet.Attribute = class {
 
 mxnet.Tensor = class {
     
-    constructor(kind, name, dataType, shape, data) {
+    constructor(kind, name, type, data) {
         this._kind = kind;
         this._name = name;
-        this._dataType = dataType;
         this._data = data;
-        this._type = new mxnet.TensorType(dataType, new mxnet.TensorShape(shape));
+        this._type = type;
     }
 
     get kind() {
@@ -776,13 +875,8 @@ mxnet.Tensor = class {
             return context;
         }
 
-        if (this._type.dataType == '?') {
+        if (!this._type && this._type.dataType === '?') {
             context.state = 'Tensor has no data type.';
-            return context;
-        }
-
-        if (this._type.dataType.length <= 1) {
-            context.state = 'Tensor has unknown data type.';
             return context;
         }
 
@@ -791,6 +885,7 @@ mxnet.Tensor = class {
             return context;
         }
 
+        context.dataType = this._type.dataType;
         context.dimensions = this._type.shape.dimensions;
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
         return context;
@@ -805,39 +900,39 @@ mxnet.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                switch (this._dataType)
+                switch (context.dataType)
                 {
-                    case 0: // float32
+                    case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 1: // float64
+                    case 'float64':
                         results.push(context.data.getFloat64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;
-                    case 2: // float16:
+                    case 'float16':
                         results.push(mxnet.Tensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
                         context.index += 2;
                         context.count++;
                         break;
-                    case 3: // uint8
+                    case 'uint8':
                         results.push(context.data.getUint8(context.index, true));
                         context.index += 1;
                         context.count++;
                         break;
-                    case 4: // int32
+                    case 'int32':
                         results.push(context.data.getInt32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 5: // int8
+                    case 'int8':
                         results.push(context.data.getInt8(context.index, true));
                         context.index += 1;
                         context.count++;
                         break;
-                    case 6: // int64
+                    case 'int64':
                         results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
@@ -874,22 +969,22 @@ mxnet.Tensor = class {
 mxnet.TensorType = class {
 
     constructor(dataType, shape) {
-        mxnet.TensorType._dataTypeNameTable = mxnet.Tensor._dataTypeTable || [ 'float32', 'float64', 'float16', 'uint8', 'int32', 'int8', 'int64' ];
-        this._dataType = dataType;
+        switch (dataType) {
+            case 0: this._dataType = 'float32'; break;
+            case 1: this._dataType = 'float64'; break;
+            case 2: this._dataType = 'float16'; break;
+            case 3: this._dataType = 'uint8'; break;
+            case 4: this._dataType = 'int32'; break;
+            case 5: this._dataType = 'int8'; break;
+            case 6: this._dataType = 'int64'; break;
+            case -1: this._dataType = '?'; break;
+            default: throw new mxnet.Error("Unknown type '" + dataType + "'.");
+        }
         this._shape = shape;
     }
 
     get dataType() {
-        var dataType = '?';
-        if (this._dataType || this._dataType === 0) {
-            if (this._dataType < mxnet.TensorType._dataTypeNameTable.length) {
-                dataType = mxnet.TensorType._dataTypeNameTable[this._dataType];
-            }
-            else {
-                dataType = this._dataType.toString();
-            }
-        }
-        return dataType;
+        return this._dataType;
     }
 
     get shape() {
@@ -897,7 +992,7 @@ mxnet.TensorType = class {
     }
 
     toString() {
-        return (this.dataType || '?') + this._shape.toString();
+        return this._dataType + this._shape.toString();
     }
 };
 
