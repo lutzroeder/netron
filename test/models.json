@@ -1157,6 +1157,13 @@
   },
   {
     "type":   "coreml",
+    "target": "CarClassifier.mlmodel",
+    "source": "https://github.com/PZ1Sharer05/CreateMLmodels/blob/master/CarClassifier.mlmodel?raw=true",
+    "format": "Core ML v1",
+    "link":   "https://github.com/PZ1Sharer05/CreateMLmodels"
+  },
+  {
+    "type":   "coreml",
     "target": "CNNEmotions.mlmodel",
     "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mTlYtRGdXNFlpWDQ",
     "format": "Core ML v1",

@@ -383,6 +383,16 @@ coreml.Graph = class {
                 ]);
             return 'Non Maximum Suppression';
         }
+        else if (model.visionFeaturePrint) {
+            var visionFeaturePrintParams = {
+                scene: model.visionFeaturePrint.scene
+            }
+            this._createNode(scope, group, 'visionFeaturePrint', null,
+                visionFeaturePrintParams,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            return 'Vision Feature Print';
+        }
         throw new coreml.Error("Unknown model type '" + Object.keys(model).filter(k => k != 'specificationVersion' && k != 'description').join(',') + "'.");
     }
 
