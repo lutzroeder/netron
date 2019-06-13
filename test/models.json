@@ -176,6 +176,13 @@
   },
   {
     "type":   "caffe",
+    "target": "faster_rcnn_train_test_21cls.pt",
+    "source": "https://github.com/sanghoon/pva-faster-rcnn/raw/master/models/pvanet/pva9.1/faster_rcnn_train_test_21cls.pt?raw=true",
+    "format": "Caffe v2",
+    "link":   "https://github.com/sanghoon/pva-faster-rcnn"
+  },
+  {
+    "type":   "caffe",
     "target": "fasterRCNN_AlexNet.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fasterRCNN_AlexNet.prototxt",
     "format": "Caffe v2",
