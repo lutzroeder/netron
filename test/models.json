@@ -78,9 +78,30 @@
   },
   {
     "type":   "caffe",
+    "target": "caffe_array.prototxt",
+    "source": "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_array.prototxt]",
+    "format": "Caffe v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/276"
+  },
+  {
+    "type":   "caffe",
     "target": "caffe_invalid_file.caffemodel",
-    "source": "https://github.com/lutzroeder/netron/files/3219686/caffe_invalid_file.caffemodel.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_invalid_file.caffemodel]",
     "error":  "File format is not caffe.NetParameter (invalid wire type 4 at offset 11) in 'caffe_invalid_file.caffemodel'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/276"
+  },
+  {
+    "type":   "caffe",
+    "target": "caffe_invalid_semicolon.prototxt",
+    "source": "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_invalid_semicolon.prototxt]",
+    "error":  "File text format is not caffe.NetParameter (Unexpected token ';' at 7:18) in 'caffe_invalid_semicolon.prototxt'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/276"
+  },
+  {
+    "type":   "caffe",
+    "target": "caffe_semicolon.prototxt",
+    "source": "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_semicolon.prototxt]",
+    "format": "Caffe v2",
     "link":   "https://github.com/lutzroeder/netron/issues/276"
   },
   {
@@ -157,7 +178,7 @@
     "type":   "caffe",
     "target": "deploy_iResNet_ROB.tpl.prototxt",
     "source": "https://raw.githubusercontent.com/leonzfa/iResNet/master/models/model/deploy_iResNet_ROB.tpl.prototxt",
-    "error":  "Unsupported file content for extension '.prototxt' in 'deploy_iResNet_ROB.tpl.prototxt'.",
+    "error":  "File text format is not caffe.NetParameter (Unexpected token '$' at 70:17) in 'deploy_iResNet_ROB.tpl.prototxt'.",
     "link":   "https://github.com/leonzfa/iResNet"
   },
   {
@@ -416,13 +437,6 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/nin.prototxt",
     "format": "Caffe v1",
     "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "nin_imagenet.caffemodel",
-    "source": "https://www.dropbox.com/s/0cidxafrb2wuwxw/nin_imagenet.caffemodel?dl=1",
-    "format": "Caffe v1",
-    "link":   "https://github.com/natanielruiz/net-archive/tree/master/nin_imagenet"
   },
   {
     "type":   "caffe",
