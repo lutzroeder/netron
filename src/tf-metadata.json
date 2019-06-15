@@ -14679,7 +14679,7 @@
           "type": "boolean"
         }
       ],
-      "description": "The `decode_proto` op extracts fields from a serialized protocol buffers\nmessage into tensors.  The fields in `field_names` are decoded and converted\nto the corresponding `output_types` if possible.\n\nA `message_type` name must be provided to give context for the field\nnames. The actual message descriptor can be looked up either in the\nlinked-in descriptor pool or a filename provided by the caller using\nthe `descriptor_source` attribute.\n\nEach output tensor is a dense tensor. This means that it is padded to\nhold the largest number of repeated elements seen in the input\nminibatch. (The shape is also padded by one to prevent zero-sized\ndimensions). The actual repeat counts for each example in the\nminibatch can be found in the `sizes` output. In many cases the output\nof `decode_proto` is fed immediately into tf.squeeze if missing values\nare not a concern. When using tf.squeeze, always pass the squeeze\ndimension explicitly to avoid surprises.\n\nFor the most part, the mapping between Proto field types and\nTensorFlow dtypes is straightforward. However, there are a few\nspecial cases:\n\n- A proto field that contains a submessage or group can only be converted\nto `DT_STRING` (the serialized submessage). This is to reduce the\ncomplexity of the API. The resulting string can be used as input\nto another instance of the decode_proto op.\n\n- TensorFlow lacks support for unsigned integers. The ops represent uint64\ntypes as a `DT_INT64` with the same twos-complement bit pattern\n(the obvious way). Unsigned int32 values can be represented exactly by\nspecifying type `DT_INT64`, or using twos-complement if the caller\nspecifies `DT_INT32` in the `output_types` attribute.\n\nThe `descriptor_source` attribute selects a source of protocol\ndescriptors to consult when looking up `message_type`. This may be a\nfilename containing a serialized `FileDescriptorSet` message,\nor the special value `local://`, in which case only descriptors linked\ninto the code will be searched; the filename can be on any filesystem\naccessible to TensorFlow.\n\nYou can build a `descriptor_source` file using the `--descriptor_set_out`\nand `--include_imports` options to the protocol compiler `protoc`.\n\nThe `local://` database only covers descriptors linked into the\ncode via C++ libraries, not Python imports. You can link in a proto descriptor\nby creating a cc_library target with alwayslink=1.\n\nBoth binary and text proto serializations are supported, and can be\nchosen using the `format` attribute.",
+      "description": "The `decode_proto` op extracts fields from a serialized protocol buffers\nmessage into tensors.  The fields in `field_names` are decoded and converted\nto the corresponding `output_types` if possible.\n\nA `message_type` name must be provided to give context for the field names.\nThe actual message descriptor can be looked up either in the linked-in\ndescriptor pool or a filename provided by the caller using the\n`descriptor_source` attribute.\n\nEach output tensor is a dense tensor. This means that it is padded to hold\nthe largest number of repeated elements seen in the input minibatch. (The\nshape is also padded by one to prevent zero-sized dimensions). The actual\nrepeat counts for each example in the minibatch can be found in the `sizes`\noutput. In many cases the output of `decode_proto` is fed immediately into\ntf.squeeze if missing values are not a concern. When using tf.squeeze, always\npass the squeeze dimension explicitly to avoid surprises.\n\nFor the most part, the mapping between Proto field types and TensorFlow dtypes\nis straightforward. However, there are a few special cases:\n\n- A proto field that contains a submessage or group can only be converted\nto `DT_STRING` (the serialized submessage). This is to reduce the complexity\nof the API. The resulting string can be used as input to another instance of\nthe decode_proto op.\n\n- TensorFlow lacks support for unsigned integers. The ops represent uint64\ntypes as a `DT_INT64` with the same twos-complement bit pattern (the obvious\nway). Unsigned int32 values can be represented exactly by specifying type\n`DT_INT64`, or using twos-complement if the caller specifies `DT_INT32` in\nthe `output_types` attribute.\n\nBoth binary and text proto serializations are supported, and can be\nchosen using the `format` attribute.\n\nThe `descriptor_source` attribute selects the source of protocol\ndescriptors to consult when looking up `message_type`. This may be:\n\n- An empty string  or \"local://\", in which case protocol descriptors are\ncreated for C++ (not Python) proto definitions linked to the binary.\n\n- A file, in which case protocol descriptors are created from the file,\nwhich is expected to contain a `FileDescriptorSet` serialized as a string.\nNOTE: You can build a `descriptor_source` file using the `--descriptor_set_out`\nand `--include_imports` options to the protocol compiler `protoc`.\n\n- A \"bytes://<bytes>\", in which protocol descriptors are created from `<bytes>`,\nwhich is expected to be a `FileDescriptorSet` serialized as a string.",
       "inputs": [
         {
           "description": "Tensor of serialized protos with shape `batch_shape`.",
@@ -16837,7 +16837,7 @@
           "type": "type[]"
         }
       ],
-      "description": "The types of the tensors in `values` must match the schema for the\nfields specified in `field_names`. All the tensors in `values` must\nhave a common shape prefix, *batch_shape*.\n\nThe `sizes` tensor specifies repeat counts for each field.  The repeat\ncount (last dimension) of a each tensor in `values` must be greater\nthan or equal to corresponding repeat count in `sizes`.\n\nA `message_type` name must be provided to give context for the field\nnames. The actual message descriptor can be looked up either in the\nlinked-in descriptor pool or a filename provided by the caller using\nthe `descriptor_source` attribute.\n\nThe `descriptor_source` attribute selects a source of protocol\ndescriptors to consult when looking up `message_type`. This may be a\nfilename containing a serialized `FileDescriptorSet` message,\nor the special value `local://`, in which case only descriptors linked\ninto the code will be searched; the filename can be on any filesystem\naccessible to TensorFlow.\n\nYou can build a `descriptor_source` file using the `--descriptor_set_out`\nand `--include_imports` options to the protocol compiler `protoc`.\n\nThe `local://` database only covers descriptors linked into the\ncode via C++ libraries, not Python imports. You can link in a proto descriptor\nby creating a cc_library target with alwayslink=1.\n\nThere are a few special cases in the value mapping:\n\nSubmessage and group fields must be pre-serialized as TensorFlow strings.\n\nTensorFlow lacks support for unsigned int64s, so they must be\nrepresented as `tf.int64` with the same twos-complement bit pattern\n(the obvious way).\n\nUnsigned int32 values can be represented exactly with `tf.int64`, or\nwith sign wrapping if the input is of type `tf.int32`.",
+      "description": "The types of the tensors in `values` must match the schema for the fields\nspecified in `field_names`. All the tensors in `values` must have a common\nshape prefix, *batch_shape*.\n\nThe `sizes` tensor specifies repeat counts for each field.  The repeat count\n(last dimension) of a each tensor in `values` must be greater than or equal\nto corresponding repeat count in `sizes`.\n\nA `message_type` name must be provided to give context for the field names.\nThe actual message descriptor can be looked up either in the linked-in\ndescriptor pool or a filename provided by the caller using the\n`descriptor_source` attribute.\n\nFor the most part, the mapping between Proto field types and TensorFlow dtypes\nis straightforward. However, there are a few special cases:\n\n- A proto field that contains a submessage or group can only be converted\nto `DT_STRING` (the serialized submessage). This is to reduce the complexity\nof the API. The resulting string can be used as input to another instance of\nthe decode_proto op.\n\n- TensorFlow lacks support for unsigned integers. The ops represent uint64\ntypes as a `DT_INT64` with the same twos-complement bit pattern (the obvious\nway). Unsigned int32 values can be represented exactly by specifying type\n`DT_INT64`, or using twos-complement if the caller specifies `DT_INT32` in\nthe `output_types` attribute.\n\nThe `descriptor_source` attribute selects the source of protocol\ndescriptors to consult when looking up `message_type`. This may be:\n\n- An empty string  or \"local://\", in which case protocol descriptors are\ncreated for C++ (not Python) proto definitions linked to the binary.\n\n- A file, in which case protocol descriptors are created from the file,\nwhich is expected to contain a `FileDescriptorSet` serialized as a string.\nNOTE: You can build a `descriptor_source` file using the `--descriptor_set_out`\nand `--include_imports` options to the protocol compiler `protoc`.\n\n- A \"bytes://<bytes>\", in which protocol descriptors are created from `<bytes>`,\nwhich is expected to be a `FileDescriptorSet` serialized as a string.",
       "inputs": [
         {
           "description": "Tensor of int32 with shape `[batch_shape, len(field_names)]`.",
@@ -28493,6 +28493,90 @@
     }
   },
   {
+    "name": "MatrixDiagPartV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Returns a tensor with the `k[0]`-th to `k[1]`-th diagonals of the batched\n`input`.\n\nAssume `input` has `r` dimensions `[I, J, ..., L, M, N]`.\nLet `max_diag_len` be the maximum length among all diagonals to be extracted,\n`max_diag_len = min(M + min(k[1], 0), N + min(-k[0], 0))`\nLet `num_diags` be the number of diagonals to extract,\n`num_diags = k[1] - k[0] + 1`.\n\nIf `num_diags == 1`, the output tensor is of rank `r - 1` with shape\n`[I, J, ..., L, max_diag_len]` and values:\n\n```\ndiagonal[i, j, ..., l, n]\n  = input[i, j, ..., l, n+y, n+x] ; when 0 <= n-y < M and 0 <= n-x < N,\n    0                             ; otherwise.\n```\nwhere `y = max(-k[1], 0)`, `x = max(k[1], 0)`.\n\nOtherwise, the output tensor has rank `r` with dimensions\n`[I, J, ..., L, num_diags, max_diag_len]` with values:\n\n```\ndiagonal[i, j, ..., l, m, n]\n  = input[i, j, ..., l, n+y, n+x] ; when 0 <= n-y < M and 0 <= n-x < N,\n    0                             ; otherwise.\n```\nwhere `d = k[1] - m`, `y = max(-d, 0)`, and `x = max(d, 0)`.\n\nThe input must be at least a matrix.\n\nFor example:\n\n```\ninput = np.array([[[1, 2, 3, 4],  # Input shape: (2, 3, 4)\n                   [5, 6, 7, 8],\n                   [9, 8, 7, 6]],\n                  [[5, 4, 3, 2],\n                   [1, 2, 3, 4],\n                   [5, 6, 7, 8]]])\n\n# A main diagonal from each batch.\ntf.matrix_diag_part(input) ==> [[1, 6, 7],  # Output shape: (2, 3)\n                                [5, 2, 7]]\n\n# A superdiagonal from each batch.\ntf.matrix_diag_part(input, k = 1)\n  ==> [[2, 7, 6],  # Output shape: (2, 3)\n       [4, 3, 8]]\n\n# A tridiagonal band from each batch.\ntf.matrix_diag_part(input, k = (-1, 1))\n  ==> [[[2, 7, 6],  # Output shape: (2, 3, 3)\n        [1, 6, 7],\n        [5, 8, 0]],\n       [[4, 3, 8],\n        [5, 2, 7],\n        [1, 6, 0]]]\n\n# Padding = 9\ntf.matrix_diag_part(input, k = (1, 3), padding = 9)\n  ==> [[[4, 9, 9],  # Output shape: (2, 3, 3)\n        [3, 8, 9],\n        [2, 7, 6]],\n       [[2, 9, 9],\n        [3, 4, 9],\n        [4, 3, 8]]]\n```",
+      "inputs": [
+        {
+          "description": "Rank `r` tensor where `r >= 2`.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Diagonal offset(s). Positive value means superdiagonal, 0 refers to the main\ndiagonal, and negative value means subdiagonals. `k` can be a single integer\n(for a single diagonal) or a pair of integers specifying the low and high ends\nof a matrix band. `k[0]` must not be larger than `k[1]`.",
+          "name": "k",
+          "type": 3
+        },
+        {
+          "description": "The value to fill the area outside the specified diagonal band with.\nDefault is 0.",
+          "name": "padding_value",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The extracted diagonal(s).",
+          "name": "diagonal",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the batched diagonal part of a batched tensor."
+    }
+  },
+  {
+    "name": "MatrixDiagV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Returns a tensor with the contents in `diagonal` as `k[0]`-th to `k[1]`-th\ndiagonals of a matrix, with everything else padded with `padding`. `num_rows`\nand `num_cols` specify the dimension of the innermost matrix of the output. If\nboth are not specified, the op assumes the innermost matrix is square and infers\nits size from `k` and the innermost dimension of `diagonal`. If only one of them\nis specified, the op assumes the unspecified value is the smallest possible\nbased on other criteria.\n\nLet `diagonal` have `r` dimensions `[I, J, ..., L, M, N]`. The output tensor has\nrank `r+1` with shape `[I, J, ..., L, M, num_rows, num_cols]` when only one\ndiagonal is given (`k` is an integer or `k[0] == k[1]`). Otherwise, it has rank\n`r` with shape `[I, J, ..., L, num_rows, num_cols]`.\n\nThe second innermost dimension of `diagonal` has double meaning.\nWhen `k` is scalar or `k[0] == k[1]`, `M` is part of the batch size\n[I, J, ..., M], and the output tensor is:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, n-max(d_upper, 0)] ; if n - m == d_upper\n    output[i, j, ..., l, m, n]                ; otherwise\n```\n\nOtherwise, `M` is treated as the number of diagonals for the matrix in the\nsame batch (`M = k[1]-k[0]+1`), and the output tensor is:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, k[1]-d, n-max(d, 0)] ; if d_lower <= d <= d_upper\n    input[i, j, ..., l, m, n]                   ; otherwise\n```\nwhere `d = n - m`\n\nFor example:\n\n```\n# The main diagonal.\ndiagonal = np.array([[1, 2, 3, 4],            # Input shape: (2, 4)\n                     [5, 6, 7, 8]])\ntf.matrix_diag(diagonal) ==> [[[1, 0, 0, 0],  # Output shape: (2, 4, 4)\n                               [0, 2, 0, 0],\n                               [0, 0, 3, 0],\n                               [0, 0, 0, 4]],\n                              [[5, 0, 0, 0],\n                               [0, 6, 0, 0],\n                               [0, 0, 7, 0],\n                               [0, 0, 0, 8]]]\n\n# A superdiagonal (per batch).\ndiagonal = np.array([[1, 2, 3],  # Input shape: (2, 3)\n                     [4, 5, 6]])\ntf.matrix_diag(diagonal, k = 1)\n  ==> [[[0, 1, 0, 0],  # Output shape: (2, 4, 4)\n        [0, 0, 2, 0],\n        [0, 0, 0, 3],\n        [0, 0, 0, 0]],\n       [[0, 4, 0, 0],\n        [0, 0, 5, 0],\n        [0, 0, 0, 6],\n        [0, 0, 0, 0]]]\n\n# A band of diagonals.\ndiagonals = np.array([[[1, 2, 3],  # Input shape: (2, 2, 3)\n                       [4, 5, 0]],\n                      [[6, 7, 9],\n                       [9, 1, 0]]])\ntf.matrix_diag(diagonals, k = (-1, 0))\n  ==> [[[1, 0, 0],  # Output shape: (2, 3, 3)\n        [4, 2, 0],\n        [0, 5, 3]],\n       [[6, 0, 0],\n        [9, 7, 0],\n        [0, 1, 9]]]\n\n# Rectangular matrix.\ndiagonal = np.array([1, 2])  # Input shape: (2)\ntf.matrix_diag(diagonal, k = -1, num_rows = 3, num_cols = 4)\n  ==> [[0, 0, 0, 0],  # Output shape: (3, 4)\n       [1, 0, 0, 0],\n       [0, 2, 0, 0]]\n\n# Rectangular matrix with inferred num_cols and padding = 9.\ntf.matrix_diag(diagonal, k = -1, num_rows = 3, padding = 9)\n  ==> [[9, 9],  # Output shape: (3, 2)\n       [1, 9],\n       [9, 2]]\n```",
+      "inputs": [
+        {
+          "description": "Rank `r`, where `r >= 1`",
+          "name": "diagonal",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Diagonal offset(s). Positive value means superdiagonal, 0 refers to the main\ndiagonal, and negative value means subdiagonals. `k` can be a single integer\n(for a single diagonal) or a pair of integers specifying the low and high ends\nof a matrix band. `k[0]` must not be larger than `k[1]`.",
+          "name": "k",
+          "type": 3
+        },
+        {
+          "description": "The number of rows of the output matrix. If it is not provided, the op assumes\nthe output matrix is a square matrix and infers the matrix size from k and the\ninnermost dimension of `diagonal`.",
+          "name": "num_rows",
+          "type": 3
+        },
+        {
+          "description": "The number of columns of the output matrix. If it is not provided, the op\nassumes the output matrix is a square matrix and infers the matrix size from\nk and the innermost dimension of `diagonal`.",
+          "name": "num_cols",
+          "type": 3
+        },
+        {
+          "description": "The number to fill the area outside the specified diagonal band with.\nDefault is 0.",
+          "name": "padding_value",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Has rank `r+1` when `k` is an integer or `k[0] == k[1]`, rank `r` otherwise.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns a batched diagonal tensor with given batched diagonal values."
+    }
+  },
+  {
     "name": "MatrixExponential",
     "schema": {
       "attributes": [
@@ -28654,6 +28738,43 @@
       "outputs": [
         {
           "description": "Rank `k+1`, with `output.shape = input.shape`.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns a batched matrix tensor with new batched diagonal values."
+    }
+  },
+  {
+    "name": "MatrixSetDiagV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Given `input` and `diagonal`, this operation returns a tensor with the\nsame shape and values as `input`, except for the specified diagonals of the\ninnermost matrices. These will be overwritten by the values in `diagonal`.\n\n`input` has `r+1` dimensions `[I, J, ..., L, M, N]`. When `k` is scalar or\n`k[0] == k[1]`, `diagonal` has `r` dimensions `[I, J, ..., L, max_diag_len]`.\nOtherwise, it has `r+1` dimensions `[I, J, ..., L, num_diags, max_diag_len]`.\n`num_diags` is the number of diagonals, `num_diags = k[1] - k[0] + 1`.\n`max_diag_len` is the longest diagonal in the range `[k[0], k[1]]`,\n`max_diag_len = min(M + min(k[1], 0), N + min(-k[0], 0))`\n\nThe output is a tensor of rank `k+1` with dimensions `[I, J, ..., L, M, N]`.\nIf `k` is scalar or `k[0] == k[1]`:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, n-max(k[1], 0)] ; if n - m == k[1]\n    output[i, j, ..., l, m, n]             ; otherwise\n```\n\nOtherwise,\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, k[1]-d, n-max(d, 0)] ; if d_lower <= d <= d_upper\n    input[i, j, ..., l, m, n]                   ; otherwise\n```\nwhere `d = n - m`\n\nFor example:\n\n```\n# The main diagonal.\ninput = np.array([[[7, 7, 7, 7],              # Input shape: (2, 3, 4)\n                   [7, 7, 7, 7],\n                   [7, 7, 7, 7]],\n                  [[7, 7, 7, 7],\n                   [7, 7, 7, 7],\n                   [7, 7, 7, 7]]])\ndiagonal = np.array([[1, 2, 3],               # Diagonal shape: (2, 3)\n                     [4, 5, 6]])\ntf.matrix_diag(diagonal) ==> [[[1, 7, 7, 7],  # Output shape: (2, 3, 4)\n                               [7, 2, 7, 7],\n                               [7, 7, 3, 7]],\n                              [[4, 7, 7, 7],\n                               [7, 5, 7, 7],\n                               [7, 7, 6, 7]]]\n\n# A superdiagonal (per batch).\ntf.matrix_diag(diagonal, k = 1)\n  ==> [[[7, 1, 7, 7],  # Output shape: (2, 3, 4)\n        [7, 7, 2, 7],\n        [7, 7, 7, 3]],\n       [[7, 4, 7, 7],\n        [7, 7, 5, 7],\n        [7, 7, 7, 6]]]\n\n# A band of diagonals.\ndiagonals = np.array([[[1, 2, 3],  # Diagonal shape: (2, 2, 3)\n                       [4, 5, 0]],\n                      [[6, 1, 2],\n                       [3, 4, 0]]])\ntf.matrix_diag(diagonals, k = (-1, 0))\n  ==> [[[1, 7, 7, 7],  # Output shape: (2, 3, 4)\n        [4, 2, 7, 7],\n        [0, 5, 3, 7]],\n       [[6, 7, 7, 7],\n        [3, 1, 7, 7],\n        [7, 4, 2, 7]]]\n\n```",
+      "inputs": [
+        {
+          "description": "Rank `r+1`, where `r >= 1`.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Rank `r` when `k` is an integer or `k[0] == k[1]`. Otherwise, it has rank `r+1`.\n`k >= 1`.",
+          "name": "diagonal",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Diagonal offset(s). Positive value means superdiagonal, 0 refers to the main\ndiagonal, and negative value means subdiagonals. `k` can be a single integer\n(for a single diagonal) or a pair of integers specifying the low and high ends\nof a matrix band. `k[0]` must not be larger than `k[1]`.",
+          "name": "k",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Rank `r+1`, with `output.shape = input.shape`.",
           "name": "output",
           "typeAttr": "T"
         }
@@ -55887,6 +56008,16 @@
           "default": "",
           "name": "writer_path_prefix",
           "type": "string"
+        },
+        {
+          "default": 10737418240,
+          "name": "shard_size_bytes",
+          "type": "int64"
+        },
+        {
+          "default": 86400,
+          "name": "pending_snapshot_expiry_seconds",
+          "type": "int64"
         }
       ],
       "description": "This dataset attempts to determine whether a valid snapshot exists at the\n`snapshot_path`, and reads from the snapshot in lieu of using `input_dataset`.\nIf not, it will run the preprocessing pipeline as usual, and write out a\nsnapshot of the data processed for future use.",
