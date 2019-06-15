@@ -63,10 +63,10 @@
                 return message;
             };
     
-            ExternalDataProto.decodeText = function decodeText(reader, block) {
+            ExternalDataProto.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.ExternalDataProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "source_type":
@@ -234,10 +234,10 @@
                 return message;
             };
     
-            TensorProto.decodeText = function decodeText(reader, block) {
+            TensorProto.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.TensorProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "dims":
@@ -402,10 +402,10 @@
                     return message;
                 };
     
-                Segment.decodeText = function decodeText(reader, block) {
+                Segment.decodeText = function decodeText(reader) {
                     var message = new $root.caffe2.TensorProto.Segment();
-                    reader.start(block);
-                    while (!reader.end(block)) {
+                    reader.start();
+                    while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "begin":
@@ -545,10 +545,10 @@
                 return message;
             };
     
-            QTensorProto.decodeText = function decodeText(reader, block) {
+            QTensorProto.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.QTensorProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "dims":
@@ -670,10 +670,10 @@
                 return message;
             };
     
-            TensorProtos.decodeText = function decodeText(reader, block) {
+            TensorProtos.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.TensorProtos();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "protos":
@@ -753,10 +753,10 @@
                 return message;
             };
     
-            TensorShape.decodeText = function decodeText(reader, block) {
+            TensorShape.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.TensorShape();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "dims":
@@ -833,10 +833,10 @@
                 return message;
             };
     
-            TensorShapes.decodeText = function decodeText(reader, block) {
+            TensorShapes.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.TensorShapes();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "shapes":
@@ -978,10 +978,10 @@
                 return message;
             };
     
-            Argument.decodeText = function decodeText(reader, block) {
+            Argument.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.Argument();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
@@ -1130,10 +1130,10 @@
                 return message;
             };
     
-            DeviceOption.decodeText = function decodeText(reader, block) {
+            DeviceOption.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.DeviceOption();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "device_type":
@@ -1258,10 +1258,10 @@
                 return message;
             };
     
-            OperatorDef.decodeText = function decodeText(reader, block) {
+            OperatorDef.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.OperatorDef();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "input":
@@ -1406,10 +1406,10 @@
                 return message;
             };
     
-            NetDef.decodeText = function decodeText(reader, block) {
+            NetDef.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.NetDef();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
@@ -1550,10 +1550,10 @@
                 return message;
             };
     
-            ExecutionStep.decodeText = function decodeText(reader, block) {
+            ExecutionStep.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.ExecutionStep();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
@@ -1659,10 +1659,10 @@
                 return message;
             };
     
-            PlanDef.decodeText = function decodeText(reader, block) {
+            PlanDef.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.PlanDef();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
@@ -1742,10 +1742,10 @@
                 return message;
             };
     
-            BlobProto.decodeText = function decodeText(reader, block) {
+            BlobProto.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.BlobProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
@@ -1821,10 +1821,10 @@
                 return message;
             };
     
-            DBReaderProto.decodeText = function decodeText(reader, block) {
+            DBReaderProto.decodeText = function decodeText(reader) {
                 var message = new $root.caffe2.DBReaderProto();
-                reader.start(block);
-                while (!reader.end(block)) {
+                reader.start();
+                while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "name":
