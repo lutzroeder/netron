@@ -893,10 +893,10 @@
           "name": "beta"
         },
         {
-          "name": "mean"
+          "name": "moving_mean"
         },
         {
-          "name": "variance"
+          "name": "moving_variance"
         }
       ],
       "outputs": [
@@ -996,10 +996,10 @@
           "name": "beta"
         },
         {
-          "name": "mean"
+          "name": "running_mean"
         },
         {
-          "name": "variance"
+          "name": "running_std"
         }
       ],
       "outputs": [

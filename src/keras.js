@@ -254,8 +254,10 @@ keras.Graph = class {
             }
         }
         else if (weights) {
-            for (var layer in weights) {
-                this._nodes.push(new keras.Node(metadata, 'Weights', { name: layer }, [], [], false, weights))
+            for (var layer of Object.keys(weights)) {
+                if (weights[layer].length <= 6) {
+                    this._nodes.push(new keras.Node(metadata, 'Weights', { name: layer }, [], [], false, weights))
+                }
             }
         }
     }
@@ -597,7 +599,11 @@ keras.Node = class {
                 return new keras.Connection(id, null, initializers[id]);
             });
             if (!inputName && inputConnections.length == 1 && inputConnections[0].initializer && inputConnections[0].initializer.name) {
-                inputName = inputConnections[0].initializer.name.split('/').pop().split(':').shift().split('_').pop();
+                var parts = inputConnections[0].initializer.name.split('/').pop().split(':').shift().split('_');
+                var inputName1 = parts.pop();
+                var inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
+                var inputNames = { 'recurrent_kernel': true, 'running_mean': true, 'running_std': true, 'moving_mean': true, 'moving_variance': true };
+                inputName = inputNames[inputName2] ? inputName2 : inputName1;
             }
             inputName = inputName || inputIndex.toString();
             this._inputs.push(new keras.Argument(inputName, visible, inputConnections));
