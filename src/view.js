@@ -1271,10 +1271,10 @@ view.ModelFactoryService = class {
                 }
                 else {
                     if (matches.length == 0) {
-                        return Promise.reject(new ArchiveError('Root does not contain model file.'));
+                        return Promise.reject(new ArchiveError('Archive does not contain model file.'));
                     }
                     else if (matches.length > 1) {
-                        return Promise.reject(new ArchiveError('Root contains multiple model files.'));
+                        return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
                     }
                     var match = matches[0];
                     return Promise.resolve(new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
