@@ -1049,7 +1049,7 @@ class ArchiveContext {
                 if (entry.name.startsWith(rootFolder)) {
                     var name = entry.name.substring(rootFolder.length);
                     if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                        this._entries[name] = entry.substring(rootFolder.length);
+                        this._entries[name] = entry;
                     }
                 }
             }
@@ -1092,7 +1092,7 @@ view.ModelFactoryService = class {
         this._host = host;
         this._extensions = [];
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./mxnet', [ '.model', '.json', '.params' ]);
+        this.register('./mxnet', [ '.mar', '.model', '.json', '.params' ]);
         this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json', '.model' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt' ]);
@@ -1274,10 +1274,17 @@ view.ModelFactoryService = class {
                         return Promise.reject(new ArchiveError('Archive does not contain model file.'));
                     }
                     else if (matches.length > 1) {
-                        return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
+                        if (matches.length == 2 &&
+                            matches.some((e) => e.name.endsWith('.params')) &&
+                            matches.some((e) => e.name.endsWith('-symbol.json'))) {
+                            matches = matches.filter((e) => e.name.endsWith('.params'));
+                        }
+                        else {
+                            return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
+                        }
                     }
                     var match = matches[0];
-                    return Promise.resolve(new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
+                    return Promise.resolve(new ModelContext(new ArchiveContext(archive.entries, rootFolder, match.name, match.data)));
                 }
             };
             return nextEntry();

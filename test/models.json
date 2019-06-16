@@ -2102,6 +2102,19 @@
   },
   {
     "type":   "mxnet",
+    "target": "caffenet.model",
+    "source": "https://s3.amazonaws.com/model-server/models/caffenet/caffenet.model",
+    "format": "MXNet Model Server v0.1",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
+  },
+  {
+    "type":   "mxnet",
+    "target": "crepe.mar",
+    "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/crepe.mar",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
+  },
+  {
+    "type":   "mxnet",
     "target": "conv_weights_sharing.json",
     "source": "https://github.com/lutzroeder/netron/files/3016064/conv_weights_sharing.json.zip[conv_weights_sharing.json]",
     "format": "MXNet v1.3.0",
@@ -2259,26 +2272,15 @@
   },
   {
     "type":   "mxnet",
-    "target": "resnet101v1.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet101v1.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
     "target": "resnet101v2.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet101v2.model",
+    "format": "MXNet Model Server v0.2", "runtime": "MXNet v1.2.0",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
     "target": "resnet152v1.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet152v1.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet152v2.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet152v2.model",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
@@ -2332,6 +2334,20 @@
     "type":   "mxnet",
     "target": "squeezenet_v1.1.model",
     "source": "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model"
+  },
+  {
+    "type":   "mxnet",
+    "target": "squeezenet_v1.1.mar",
+    "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar",
+    "format": "MXNet Model Archive v1.0",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
+  },
+  {
+    "type":   "mxnet",
+    "target": "squeezenet_v1.1.zip",
+    "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar",
+    "format": "MXNet",
+    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",

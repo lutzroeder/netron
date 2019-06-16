@@ -18,6 +18,8 @@ fileAssociations:
     ext: mlmodel
   - name: "MXNet Model"
     ext: model
+  - name: "MXNet Model"
+    ext: mar
   - name: "CNTK Model"
     ext: model
   - name: "CNTK Model"

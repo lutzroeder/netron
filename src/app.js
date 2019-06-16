@@ -119,7 +119,7 @@ class Application {
                     'mlmodel',
                     'caffemodel',
                     'model', 'dnn', 'cmf',
-                    'params',
+                    'mar', 'params',
                     'meta',
                     'tflite', 'lite',
                     'pt', 'pth', 't7',
