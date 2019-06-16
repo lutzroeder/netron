@@ -16457,6 +16457,44 @@
     }
   },
   {
+    "name": "Einsum",
+    "schema": {
+      "attributes": [
+        {
+          "description": "String describing the Einstein Summation operation; in the format of np.einsum.",
+          "name": "equation",
+          "type": "string"
+        },
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int64"
+        },
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Implements generalized Tensor contraction and reduction. Each input Tensor must\nhave a corresponding input subscript appearing in the comma-separated left-hand\nside of the equation. The right-hand side of the equation consists of the\noutput subscript. The input subscripts and the output subscript should consist\nof zero or more named axis labels and at most one ellipsis (`...`).\n\nThe named axis labels may be any single character other than those having\nspecial meaning, namely `,.->`. The behavior of this Op is undefined if it\nreceives an ill-formatted equation; since the validation is done at\ngraph-building time, we omit format validation checks at runtime.\n\nNote: This Op is *not* intended to be called by the user; instead users should\ncall `tf.einsum` directly. It is a hidden Op used by `tf.einsum`.\n\nOperations are applied to the input(s) according to the following rules:\n\n (a) Generalized Diagonals: For input dimensions corresponding to axis labels\n     appearing more than once in the same input subscript, we take the\n     generalized (`k`-dimensional) diagonal.\n     For example, in the equation `iii->i` with input shape `[3, 3, 3]`, the\n     generalized diagonal would consist of `3` elements at indices `(0, 0, 0)`,\n     `(1, 1, 1)` and `(2, 2, 2)` to create a Tensor of shape `[3]`.\n\n (b) Reduction: Axes corresponding to labels appearing only in one input\n     subscript but not in the output subscript are summed over prior to Tensor\n     contraction.\n     For example, in the equation `ab,bc->b`, the axis labels `a` and `c` are\n     the reduction axis labels.\n\n (c) Batch Dimensions: Axes corresponding to labels appearing in each of the\n     input subscripts and also in the output subscript make up the batch\n     dimensions in Tensor contraction. Unnamed axis labels corresponding to\n     ellipsis (`...`) also correspond to batch dimensions.\n     For example, for the equation denoting batch matrix multiplication,\n     `bij,bjk->bik`, the axis label `b` corresponds to a batch dimension.\n\n (d) Contraction: In case of binary einsum, axes corresponding to labels\n     appearing in two different inputs (and not in the output) are contracted\n     against each other.\n     Considering the batch matrix multiplication equation again\n     (`bij,bjk->bik`), the contracted axis label is `j`.\n\n (e) Expand Diagonal: If the output subcripts contain repeated (explicit) axis\n     labels, the opposite operation of (a) is applied. For example, in the\n     equation `i->iii`, and input shape `[3]`, the output of shape `[3, 3, 3]`\n     are all zeros, except for the (generalized) diagonal which is populated\n     with values from the input.\n     Note: This operation is not supported by `np.einsum` or `tf.einsum`; it is\n     provided to enable computing the symbolic gradient of `tf.einsum`.\n\nThe output subcripts must contain only labels appearing in at least one of the\ninput subscripts. Furthermore, all dimensions mapping to the same axis label\nmust be equal.\n\nAny of the input and output subscripts may contain at most a single ellipsis\n(`...`). These ellipsis are mapped against dimensions not corresponding to any\nnamed axis label. If two inputs contain ellipsis, then they are broadcasted\naccording to standard NumPy broadcasting\n[rules](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html).\n\nThe broadcasted dimensions are placed in the corresponding location of the\nellipsis in the output subscript. If the broadcasted dimensions are non-empty\nand the output subcripts do not contain ellipsis, then an InvalidArgument error\nis raised.\n\n@compatibility(numpy)\nSimilar to [`numpy.einsum`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.einsum.html).\n\nComparison with `numpy.einsum`:\n\n * This Op only supports unary and binary forms of `numpy.einsum`.\n * This Op does not support implicit form. (i.e. equations without `->`).\n * This Op also supports repeated indices in the output subscript, which is not\n   supported by `numpy.einsum`.\n@end_compatibility\n",
+      "inputs": [
+        {
+          "description": "List of 1 or 2 Tensors.",
+          "name": "inputs",
+          "numberAttr": "N",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Output Tensor with shape depending upon `equation`.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Tensor contraction according to Einstein summation convention."
+    }
+  },
+  {
     "name": "Elu",
     "schema": {
       "attributes": [
