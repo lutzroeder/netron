@@ -3,7 +3,7 @@
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
-Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe2** (`predict_net.pb`, `predict_net.pbtxt`), **MXNet** (`.model`, `-symbol.json`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`, `.prototxt`), **PyTorch** (`.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).
+Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe2** (`predict_net.pb`, `predict_net.pbtxt`), **MXNet** (`.model`, `-symbol.json`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`, `.prototxt`), **PyTorch** (`.pt`, `.pth`), **TorchScript** (`.pt`, `.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 

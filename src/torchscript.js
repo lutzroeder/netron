@@ -50,7 +50,7 @@ torchscript.ModelFactory = class {
     static _openContainer(buffer) {
         if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
             var archive = new zip.Archive(buffer);
-            var container = { code: [], tensors: [] };
+            var container = { };
             container.version = archive.entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
             if (container.version) {
                 container.prefix = container.version.name.substring(0, container.version.name.length - 7);
@@ -103,20 +103,37 @@ torchscript.Graph = class {
         this._outputs = [];
         this._nodes = [];
 
-        var initializers = {};
-        for (var i = 0; i < tensors.length; i++) {
-            initializers[i.toString()] = new torchscript.Tensor(tensors[i], container);
+        container.tensors = tensors.map((tensor) => new torchscript.Tensor(tensor, container));
+
+        var context = new torchscript.GraphContext(container, mainModule);
+
+        for (var input of context.inputs) {
+            this._inputs.push(new torchscript.Argument(input, true, [
+                new torchscript.Connection(input, null, null)
+            ]));
+        }
+        for (var output of context.outputs) {
+            this._outputs.push(new torchscript.Argument(output, true, [
+                new torchscript.Connection(output, null, null)
+            ]));
         }
 
-        this._loadModule(metadata, '', mainModule, initializers);
+        for (var node of context.nodes) {
+            this._nodes.push(new torchscript.Node(metadata, container, '', null, node));
+        }
+
+        this._loadModule(metadata, container, '', mainModule);
     }
 
-    _loadModule(metadata, group, module, initializers) {
-        this._nodes.push(new torchscript.Node(metadata, group, module, initializers));
+    _loadModule(metadata, container, group, module) {
+        if (module.parameters && module.parameters.length > 0) {
+            var node = new torchscript.Node(metadata, container, group, module, null);
+            this._nodes.push(node);
+        }
         if (module.submodules) {
-            var subgroup = group ? [ group, module.name ].join('/') : module.name;
+            var subgroup = group ? [ group, module.name ].join('.') : module.name;
             for (var submodule of module.submodules) {
-                this._loadModule(metadata, subgroup, submodule, initializers);
+                this._loadModule(metadata, container, subgroup, submodule);
             }
         }
     }
@@ -193,19 +210,74 @@ torchscript.Connection = class {
 
 torchscript.Node = class {
 
-    constructor(metadata, group, module, initializers) {
-        this._operator = 'Node';
-        this._name = [ group, module.name ].join('/');
+    constructor(metadata, container, group, module, node) {
         this._metadata = metadata;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
 
-        if (module.parameters) {
-            for (var parameter of module.parameters) {
-                this._inputs.push(new torchscript.Argument(parameter.name, true, [
-                    new torchscript.Connection('', null, initializers[parameter.tensorId])
+        if (module) {
+            this._operator = 'Module';
+            this._name = group ? [ group, module.name ].join('.') : module.name;
+            if (module.parameters) {
+                for (var parameter of module.parameters) {
+                    var tensorId = parseInt(parameter.tensorId, 10);
+                    this._inputs.push(new torchscript.Argument(parameter.name, true, [
+                        new torchscript.Connection('', null, container.tensors[tensorId])
+                    ]));
+                    if (parameter.outputs) {
+                        this._outputs.push(new torchscript.Argument(parameter.name, true,
+                            parameter.outputs.map((id) => new torchscript.Connection(id, null, null))
+                        ));
+                    }
+                }
+            }
+        }
+
+        if (node) {
+            this._operator = node.name;
+            this._name = '';
+
+            var schema = metadata.getSchema(this._operator);
+
+            for (var inputIndex = 0; inputIndex < node.inputs.length; inputIndex++) {
+                var inputName = inputIndex.toString(); 
+                if (schema && schema.inputs && schema.inputs.length > inputIndex) {
+                    inputName = schema.inputs[inputIndex].name;
+                }
+                this._inputs.push(new torchscript.Argument(inputName, true,
+                    node.inputs[inputIndex].map((input) => new torchscript.Connection(input, null, null))
+                ));
+            }
+
+            for (var outputIndex = 0; outputIndex < node.outputs.length; outputIndex++) {
+                var outputName = outputIndex.toString(); 
+                if (schema && schema.outputs && schema.outputs.length > outputIndex) {
+                    outputName = schema.outputs[outputIndex].name;
+                }
+                this._outputs.push(new torchscript.Argument(outputName, true, [
+                    new torchscript.Connection(node.outputs[outputIndex], null, null)
                 ]));
+            }
+
+            for (var attributeIndex = 0; attributeIndex < node.attributes.length; attributeIndex++) {
+                var attributeSchema = null;
+                var attributeName = attributeIndex.toString();
+                var attributeValue = node.attributes[attributeIndex];
+                if (attributeValue && attributeValue.type === '=' && attributeValue.target.type == 'identifier') {
+                    attributeName = attributeValue.target.value;
+                    attributeValue = attributeValue.expression;
+                    if (schema && schema.attributes) {
+                        attributeSchema = schema.attributes.find((s) => s.name == attributeName);
+                    }
+                }
+                else {
+                    if (schema && schema.attributes && schema.attributes.length > attributeIndex) {
+                        attributeSchema = schema.attributes[attributeIndex];
+                        attributeName = attributeSchema.name;
+                    }
+                }
+                this._attributes.push(new torchscript.Attribute(this, attributeSchema, attributeName, attributeValue));
             }
         }
     }
@@ -280,26 +352,71 @@ torchscript.Node = class {
 
 torchscript.Attribute = class {
 
-    constructor(metadata, node, name, value) {
+    constructor(node, schema, name, value) {
         this._node = node;
         this._name = name;
         this._value = value;
 
-        var schema = metadata.getAttributeSchema(this._node.operator, this._name);
+        if (value && value.type) {
+            switch (value.type) {
+                case 'number':
+                    this._value = value.value;
+                    break;
+                case 'string':
+                    this._value = value.value;
+                    break;
+                case 'boolean':
+                    this._value = value.value;
+                    break;
+                case 'identifier':
+                    this._value = value.value;
+                    break;
+            }
+        }
+
         if (schema) {
+            if (schema.hasOwnProperty('type')) {
+                this._type = schema.type;
+            }
+
+            switch (this._type) {
+                case 'boolean':
+                    if (this._value == 'False') {
+                        this._value = false;
+                    }
+                    else if (this._value == 'True') {
+                        this._value = true;
+                    }
+                    break;
+                case 'int32':
+                case 'int64':
+                    this._value = parseInt(this._value, 10);
+                    break;
+                case 'float32':
+                case 'float64':
+                    this._value = parseFloat(this._value);
+                    break;
+                case 'int32[]':
+                case 'int64[]':
+                    if (this._value.type == 'list' && this._value.value.every((item) => item.type === 'number')) {
+                        this._value = this._value.value.map((item) => parseInt(item.value, 10));
+                    }
+                    break;
+            }
+
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
             else if (schema.hasOwnProperty('default')) {
-                if (JSON.stringify(schema.default) == JSON.stringify(value)) {
+                if (JSON.stringify(schema.default) == JSON.stringify(this._value)) {
                     this._visible = false;
                 }
             }
         }
+    }
 
-        if (Array.isArray(value) && value.every((obj) => obj.__type__ && obj.__type__.startsWith('torch.nn'))) {
-            this._value = '?';
-        }
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -540,7 +657,7 @@ torchscript.Metadata = class {
             return Promise.resolve(torchscript.Metadata._metadata);
         }
         else {
-            return host.request(null, 'pytorch-metadata.json', 'utf-8').then((data) => {
+            return host.request(null, 'torchscript-metadata.json', 'utf-8').then((data) => {
                 torchscript.Metadata._metadata = new torchscript.Metadata(data);
                 return torchscript.Metadata._metadata;
             }).catch(() => {
@@ -584,6 +701,782 @@ torchscript.Metadata = class {
         return map[name] || null;
     }
 };
+
+torchscript.GraphContext = class {
+
+    constructor(container, mainModule) {
+
+        this._mainModule = mainModule;
+
+        this._inputs = [];
+        this._outputs = [];
+        this._nodes = [];
+
+        this._moduleMap = {};
+        this._connectionMap = {};
+
+        if (mainModule.torchscriptArena && mainModule.torchscriptArena.key) {
+            var codeKey = container.prefix + mainModule.torchscriptArena.key;
+            var codeEntries = container.entries.filter((e) => e.name === codeKey);
+            if (codeEntries.length == 1) {
+                var codeEntry = codeEntries[0];
+                var textDecoder = new TextDecoder('utf-8');
+                var code = textDecoder.decode(codeEntry.data);
+                var reader = new torchscript.PythonReader(code);
+                var statements = reader.statements();
+                var method = statements.find((statement) => statement.type == 'def' && statement.name == 'forward');
+                if (method) {
+                    this._body = method.body;
+                    var methodParameters = method.parameters;
+                    if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
+                        methodParameters.shift();
+                    }
+                    for (var parameter of methodParameters) {
+                        this._parameter(parameter);
+                    }
+
+                    if (this._body.length >= 2) {
+                        var returnStatement = this._body[this._body.length - 1];
+                        var assignStatement = this._body[this._body.length - 2];
+                        if (returnStatement.type == 'return' && 
+                            returnStatement.expression.type == 'identifier' &&
+                            assignStatement.target.type == 'identifier' &&
+                            assignStatement.target.value == returnStatement.expression.value) {
+                            returnStatement.expression = assignStatement.expression;
+                            this._body.pop();
+                            this._body.pop();
+                            this._body.push(returnStatement);
+                        }
+                    }
+
+                    while (this._body.length > 0) {
+                        var statement = this._body.shift();
+                        if (this._moduleStatement(statement)) {
+                            continue;
+                        }
+                        if (this._connectionStatement(statement)) {
+                            continue;
+                        }
+                        if (this._nodeStatement(statement)) {
+                            continue;
+                        }
+                        if (this._returnStatement(statement)) {
+                            continue;
+                        }
+                        debugger;
+                    }
+                }
+            }
+        }
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+
+    _parameter(parameter) {
+        var type = parameter.parameterType; 
+        if (type.type == 'type' && type.value == 'Tuple' && type.arguments && type.arguments.length > 0) {
+            if (this._body.length > 0) {
+                var statement = this._body[0];
+                if (statement.expression.type == 'identifier' && statement.expression.value == parameter.name) {
+                    if (statement.type === '=' && statement.target.type === 'identifier_list') {
+                        for (var input of statement.target.value) {
+                            if (input) {
+                                this._inputs.push(input.value);
+                            }
+                        }
+                        this._body.shift();
+                    }
+                }
+            }
+        }
+        else {
+            this._inputs.push(parameter.name);
+        }
+    }
+
+    _returnStatement(statement) {
+        if (statement.type == 'return') {
+            var variable = this._variable();
+            if (this._nodeExpression(statement.expression, variable)) {
+                this._outputs.push(variable.value);
+                return true;
+            }
+            if (statement.expression.type == 'identifier') {
+                this._outputs.push(statement.expression.value);
+                return true;
+            }
+            if (statement.expression.type == 'tuple') {
+                var outputs = [];
+                for (var expression of statement.expression.value) {
+                    variable = this._variable();
+                    if (this._nodeExpression(expression, variable)) {
+                        outputs.push(variable.value);
+                        continue
+                    }
+                    if (expression.type == 'identifier') {
+                        outputs.push(expression.value);
+                        continue;
+                    }
+                    return false;
+                }
+                this._outputs = this._outputs.concat(outputs);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _nodeExpression(expression, target) {
+        if (expression.type == 'call' && (target.type == 'identifier' || target.type == 'identifier_list')) {
+            var name = this._name(expression.target);
+            var namespaces = [ 'torch.', 'ops.prim.' ];
+            var namespace = namespaces.find((n) => name.startsWith(n));
+            if (namespace) {
+                var node = {};
+                node.name = name.substring(namespace.length);
+                node.inputs = [];
+                node.outputs = [];
+                node.attributes = [];
+                var args = expression.arguments;
+                while (args.length > 0) {
+                    var argument = args[0];
+                    argument = this._moduleTensor(argument);
+                    if (argument.type == 'identifier' && this._connectionMap[argument.value]) {
+                        argument = this._connectionMap[argument.value];
+                        delete this._connectionMap[argument.value];
+                    }
+                    if (argument.type == 'identifier') {
+                        node.inputs.push([ argument.value ]);
+                        args.shift();
+                        continue;
+                    }
+                    if (argument.type == 'list') {
+                        var connections = [];
+                        for (var input of argument.value) {
+                            var variable = this._variable();
+                            if (this._nodeExpression(input, variable)) {
+                                connections.push(variable.value);
+                            }
+                            if (this._connectionExpression(input, variable)) {
+                                connections.push(variable.value);
+                            }
+                            else if (input.type == 'identifier') {
+                                connections.push(input.value);
+                            }
+                            else {
+                                connections = null;
+                                break;
+                            }
+                        }
+                        if (connections) {
+                            node.inputs.push(connections);
+                            args.shift();
+                            continue;
+                        }
+                    }
+                    if (argument.type == 'list') {
+                        break;
+                    }
+                    if (argument.type == 'number' || argument.type == 'string' || argument.type == 'boolean') {
+                        break;
+                    }
+                    if (argument.type == '=') {
+                        break;
+                    }
+                    var variable = this._variable();
+                    if (this._nodeExpression(argument, variable)) {
+                        node.inputs.push([ variable.value ]);
+                        args.shift();
+                        continue;
+                    }
+                    if (this._connectionExpression(argument, variable)) {
+                        node.inputs.push([ variable.value ]);
+                        args.shift();
+                        continue;
+                    }
+                    // TODO CONSTANTS.cx
+                    if (argument.type == '.' && argument.target.type == 'identifier' && argument.target.value == 'CONSTANTS') {
+                        node.inputs.push([ JSON.stringify(args[0]) ]);
+                        args.shift();
+                        continue;
+                    }
+                    throw new torchscript.Error('Unknown function argument.');
+                }
+                while (args.length > 0) {
+                    node.attributes.push(args[0]);
+                    args.shift();
+                }
+                if (target.type == 'identifier') {
+                    node.outputs.push(target.value);
+                }
+                if (target.type == 'identifier_list') {
+                    for (var identifier of target.value) {
+                        node.outputs.push(identifier.value);
+                    }
+                }
+                this._nodes.push(node);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _nodeStatement(statement) {
+        if (statement.type == '=') {
+            if (this._nodeExpression(statement.expression, statement.target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _module(expression) {
+        var module;
+        var submodule;
+        if (expression.type === '.') {
+            module = this._module(expression.target);
+            if (module && module.submodules) {
+                for (submodule of module.submodules) {
+                    if (submodule.name === expression.member.value) {
+                        return submodule;
+                    }
+                }
+            }
+        }
+        if (expression.type == 'call' && 
+            expression.target.type == 'identifier' && expression.target.value == 'getattr' && expression.arguments.length == 2) {
+            module = this._module(expression.arguments[0]);
+            if (!module) {
+                return null;
+            }
+            var name = null;
+            if (expression.arguments[1].type == 'string') {
+                name = expression.arguments[1].value.substring(1, expression.arguments[1].value.length - 1);
+            }
+            if (module) {
+                for (submodule of module.submodules) {
+                    if (submodule.name === name) {
+                        return submodule;
+                    }
+                }
+            }
+        }
+        if (expression.type == 'identifier') {
+            if (expression.value == 'self') {
+                return this._mainModule;
+            }
+            module = this._moduleMap[expression.value];
+            if (module) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    _moduleStatement(statement) {
+        if (statement.type == '=' && 
+            statement.target.type === 'identifier') {
+            var moduleName = statement.target.value;
+            var module = this._module(statement.expression);
+            if (module) {
+                this._moduleMap[moduleName] = module;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _connectionExpression(expression, target) {
+        expression = this._moduleTensor(expression);
+        if (expression.type === '.' && expression.member.type == 'identifier') {
+            var module = this._module(expression.target);
+            if (module && module.parameters) {
+                for (var parameter of module.parameters) {
+                    if (parameter.name === expression.member.value) {
+                        parameter.outputs = parameter.outputs || [];
+                        parameter.outputs.push(target.value);
+                        return true;
+                    }
+                }
+                module.unresolvedParameters = module.unresolvedParameters || [];
+                for (var unresolvedParameter of module.unresolvedParameters) {
+                    if (unresolvedParameter.name === expression.member.value) {
+                        unresolvedParameter.outputs = unresolvedParameter.outputs || [];
+                        unresolvedParameter.outputs.push(target.value);
+                        return true;
+                    }
+                }
+                module.unresolvedParameters.push({
+                    name: expression.member.value,
+                    outputs: [ target.value ]
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _connectionStatement(statement) {
+        if (statement.type === '=' && statement.target.type === 'identifier') {
+            if (this._connectionExpression(statement.expression, statement.target)) {
+                return true;
+            }
+            if (statement.target.type == 'identifier' &&
+                statement.expression.type == 'list') {
+                this._connectionMap[statement.target.value] = statement.expression;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _variable() {
+        var value = '_gen' + Math.random().toString(36).substring(7);
+        return { type: 'identifier', value: value };
+    }
+
+    _name(expression) {
+        if (expression.type == 'identifier') {
+            return expression.value;
+        }
+        if (expression.type == '.') {
+            return [ this._name(expression.target), this._name(expression.member) ].join('.');
+        }
+        throw new torchscript.Error('Failed to resolve name.');
+    }
+
+    _moduleTensor(expression) {
+        if (expression.type == 'call' && expression.arguments.length == 1) {
+            var name = this._name(expression.target);
+            if (name == 'torch.t') {
+                return expression.arguments[0];
+            }
+        }
+        return expression;
+    }
+}
+
+torchscript.PythonReader = class {
+
+    constructor(text) {
+        this._text = text;
+        this._position = 0;
+        this._lineEnd = -1;
+        this._lineStart = 0;
+        this._line = -1;
+        this._indentation = [];
+    }
+
+    whitespace() {
+        for (;;) {
+            while (this._position > this._lineEnd) {
+                this._lineStart = this._lineEnd + 1;
+                this._position = this._lineStart;
+                if (this._position >= this._text.length) {
+                    return false;
+                }
+                this._lineEnd = this._text.indexOf("\n", this._position);
+                if (this._lineEnd === -1) {
+                    this._lineEnd = this._text.length;
+                }
+                this._line++;
+            }
+            var c = this._text[this._position];
+            switch (c) {
+                case " ":
+                case "\r":
+                case "\t":
+                    this._position++;
+                    break;
+                case "#":
+                    this._position = this._lineEnd;
+                    break;
+                default:
+                    return true;
+            }
+        }
+    }
+    
+    tokenize() {
+        if (!this.whitespace()) {
+            this._token = { type: 'eof', value: "" };
+            return this._token;
+        }
+        var c = this._text[this._position];
+        if (c == '\n') {
+            this._token = { type: 'newline', value: c };
+            return this._token;
+        }
+        if (c === '=' || c === '(' || c === ')' || c === ":" || c === "," || c === '[' || c === ']') {
+            this._token = { type: 'separator', value: c };
+            return this._token;
+        }
+        var position = this._position + 1;
+        if (c >= "a" && c <= "z" || c >= "A" && c <= "Z" || c === "_") {
+            while (position < this._lineEnd) {
+                c = this._text[position];
+                if (c >= "a" && c <= "z" || c >= "A" && c <= "Z" || c >= "0" && c <= "9" || c === "_" || c === "+" || c === "-") {
+                    position++;
+                    continue;
+                }
+                break;
+            }
+            var identifier = this._text.substring(this._position, position);
+            if (identifier == 'True' || identifier == 'False') {
+                this._token = { type: 'boolean', value: identifier };
+            }
+            else {
+                this._token = { type: 'identifier', value: identifier };
+            }
+            return this._token;
+        }
+        if (c === "-") {
+            if (position < this._lineEnd) {
+                if (this._text[position] === '>') {
+                    position++;
+                    this._token = { type: 'arrow', value: '->' };
+                    return this._token;
+                }
+            }
+        }
+        if (c >= "0" && c <= "9" || c === "-" || c === "+") {
+            while (position < this._lineEnd) {
+                c = this._text[position];
+                if (c >= "a" && c <= "z" || c >= "A" && c <= "Z" || c >= "0" && c <= "9" || c === "_" || c === "+" || c === "-" || c === ".") {
+                    position++;
+                    continue;
+                }
+                break;
+            }
+            this._token = { type: 'number', value: this._text.substring(this._position, position) };
+            return this._token;
+        }
+        if (c === "\"" || c === "'") {
+            var quote = c;
+            while (position < this._lineEnd) {
+                c = this._text[position];
+                if (c === "\\" && position < this._lineEnd) {
+                    position += 2;
+                    continue;
+                }
+                position++;
+                if (c === quote) {
+                    break;
+                }
+            }
+            this._token = { type: 'string', value: this._text.substring(this._position, position) };
+            return this._token;
+        }
+        if (c === '.') {
+            this._token = { type: 'dot', value: c };
+            return this._token;
+        }
+        throw new torchscript.Error("Unexpected token '" + c + "'" + this.location());
+    }
+
+    peek() {
+        if (!this._cache) {
+            this._token = this.tokenize();
+            this._cache = true;
+        }
+        return this._token;
+    }
+    
+    read() {
+        if (!this._cache) {
+            this._token = this.tokenize();
+        }
+        this._position += this._token.value.length;
+        this._cache = false;
+        return this._token;
+    }
+
+    match(value) {
+        if (this.peek().value === value) {
+            this.read();
+            return true;
+        }
+        return false;
+    }
+
+    expect(value) {
+        var token = this.read();
+        if (token.value !== value) {
+            throw new torchscript.Error("Unexpected '" + token + "' instead of '" + value + "'" + this.location());
+        }
+    }
+
+    location() {
+        return " at " + (this._line + 1).toString() + ":" + (this._position - this._lineStart + 1).toString();
+    }
+
+    letter(c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+    }
+
+    number(c) {
+        return c >= '0' && c <= '9';
+    }
+
+    identifier() {
+        var token = this.peek();
+        if (token.type == 'identifier') {
+            this.read();
+            return token;
+        }
+        return null;
+    }
+
+    literal() {
+        var token = this.peek();
+        if (token.type == 'string' || token.type == 'number' || token.type == 'boolean') {
+            this.read();
+            return token;
+        }
+        return null;
+    }
+
+    typeArguments() {
+        var list = [];
+        this.expect('[');
+        while (!this.match(']')) {
+            var type = this.type();
+            if (type == null) {
+                throw new torchscript.Error('Expected type ' + this.location());
+            }
+            list.push(type);
+            if (!this.match(',')) {
+                this.expect(']');
+                break;
+            }
+        }
+        return list;
+    }
+
+    type() {
+        var identifier = this.identifier();
+        if (identifier) {
+            var type = { type: 'type', value: identifier.value };
+            if (this.peek().value === '[') {
+                type.arguments = this.typeArguments();
+            }
+            return type;
+        }
+        return null;
+    }
+
+    parameter() {
+        var identifier = this.identifier();
+        if (identifier != null) {
+            var parameterType = null
+            if (this.match(':')) {
+                parameterType = this.type();
+            }
+            return { type: 'parameter', name: identifier.value, parameterType: parameterType };
+        }
+        return null;
+    }
+
+    parameters() {
+        var list = [];
+        this.expect('(');
+        while (!this.match(')')) {
+            this.match('\n');
+            list.push(this.parameter());
+            this.match('\n');
+            if (!this.match(',')) {
+                this.expect(')');
+                break;
+            }
+        }
+        return list;
+    }
+
+    arguments() {
+        var list = [];
+        this.expect('(');
+        while (!this.match(')')) {
+            var expression = this.expression();
+            if (expression == null) {
+                throw new torchscript.Error('Expected expression ' + this.location());
+            }
+            list.push(expression);
+            if (!this.match(',')) {
+                this.expect(')');
+                break;
+            }
+        }
+        return list;
+    }
+
+    expression() {
+        var stack = [];
+        for (;;) {
+            var identifier = this.identifier();
+            if (identifier) {
+                stack.push(identifier);
+                continue;
+            }
+            var literal = this.literal();
+            if (literal) {
+                stack.push(literal);
+                continue;
+            }
+            if (this.match('.')) {
+                stack.push({
+                    type: '.',
+                    target: stack.pop(),
+                    member: this.identifier(),
+                });
+                continue;
+            }
+            if (this.peek().value === '(') {
+                if (stack.length == 0) {
+                    stack.push({ type: 'tuple', value: this.arguments() });
+                }
+                else {
+                    stack.push({ type: 'call', target: stack.pop(), arguments: this.arguments() });
+                }
+                continue;
+            }
+            if (this.peek().value === '[') {
+                stack.push({ type: 'list', value: this.expressions() });
+                continue;
+            }
+            if (this.match('=')) {
+                stack.push({ type: '=', target: stack.pop(), expression: this.expression() });
+                continue;
+            }
+            break;
+        }
+
+        if (stack.length == 1) {
+            return stack.pop();
+        }
+        if (stack.length != 0) {
+            throw new torchscript.Error('Unexpected expression ' + this.location());
+        }
+        return null;
+    }
+
+    expressions() {
+        var list = [];
+        this.expect('[');
+        while (!this.match(']')) {
+            var expression = this.expression();
+            if (expression == null) {
+                throw new torchscript.Error('Expected expression ' + this.location());
+            }
+            list.push(expression);
+            if (!this.match(',')) {
+                this.expect(']');
+                break;
+            }
+        }
+        return list;
+    }
+
+    statement() {
+        var stack = [];
+        while (this.peek().type !== 'eof') {
+
+            if (this.match('def')) {
+                var node = { type: 'def' };
+                node.name = this.identifier().value;
+                node.parameters = this.parameters();
+                if (this.match('->')) {
+                    node.returnType = this.type();
+                }
+                this.expect(':');
+                this.expect('\n');
+                var position = this._position;
+                while (this.match('\n')) {
+                    position = this._position;
+                }
+                this.peek();
+                this._indentation.push(this._text.substring(position, this._position));
+                this._position = position;
+                node.body = this.statements();
+                this._indentation.pop();
+                stack.push(node);
+                break;
+            }
+
+            if (this.match('return')) {
+                stack.push({ type: 'return', expression: this.expression() });
+                break; 
+            }
+
+            var expression = this.expression();
+            if (expression) {
+                if (expression.type == 'identifier') {
+                    if (this.peek().value === ',') {
+                        var list = [ expression ];
+                        while (this.match(',')) {
+                            var identifier = this.identifier();
+                            if (!identifier) {
+                                if (this.peek().value != '=') {
+                                    throw new torchscript.Error('Expected identifier' + this.location());
+                                }
+                            }
+                            list.push(identifier);
+                        }
+                        expression = { type: 'identifier_list', value: list };
+                        if (this.match('=')) {
+                            expression = { type: '=', target: expression, expression: this.expression() };
+                        }
+                    }
+                }
+                if (expression.type == '=') {
+                    stack.push(expression);
+                    this.match('\n');
+                    break;
+                }
+                throw new torchscript.Error('Unhandled expression ' + this.location);
+            }
+
+            if (this.match('\n')) {
+                break;
+            }
+        }
+
+        if (stack.length == 1) {
+            return stack.pop();
+        }
+        if (stack.length != 0) {
+            throw new torchscript.Error('Unexpected statement ' + this.location());
+        }
+        return null;
+    }
+
+    statements() {
+        var indentation = this._indentation.join('');
+        var stack = [];
+        while (this._position < this._text.length) {
+            if (this._text.substring(this._position, this._position + indentation.length) !== indentation) {
+                return stack;
+            }
+            this._position = this._position + indentation.length;
+
+            var statement = this.statement();
+            if (statement) { 
+                stack.push(statement);
+                continue;
+            }
+        }
+        return stack;
+    }
+}
 
 torchscript.Error = class extends Error {
     constructor(message) {
