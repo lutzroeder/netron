@@ -574,9 +574,13 @@ function next() {
         loadModel(folder + '/' + completed[0], item).then((model) => {
             if (item.render != 'skip') {
                 render(model).then(() => {
+                    if (item.error) {
+                       console.error('Expected error.');
+                       return;
+                    }
                     next();
                 }).catch((error) => {
-                    if (!item.error && item.error != error.message) {
+                    if (!item.error || item.error != error.message) {
                         console.error(err);
                     }
                     next();

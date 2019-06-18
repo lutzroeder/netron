@@ -4530,6 +4530,14 @@
   },
   {
     "type":   "torchscript",
+    "target": "densenet121.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "render": "skip",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "type":   "torchscript",
     "target": "mnist_linear_torchscript.pt",
     "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear_torchscript.pt]",
     "format": "TorchScript v1",
@@ -4604,5 +4612,40 @@
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "squeezenet1_1.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "type":   "torchscript",
+    "target": "traced_online_lane_enc.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_lane_enc.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "traced_online_obs_enc.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_obs_enc.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "traced_online_pred_layer.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_pred_layer.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "vgg16.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
   }
 ]

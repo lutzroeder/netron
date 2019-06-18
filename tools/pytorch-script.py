@@ -74,17 +74,20 @@ def zoo():
     download_pytorch_model('torchvision.models.densenet161', '${test}/data/pytorch/densenet161.pth')
     download_pytorch_model('torchvision.models.inception_v3', '${test}/data/pytorch/inception_v3.pth')
     download_pytorch_model('torchvision.models.mobilenet_v2', '${test}/data/pytorch/mobilenet_v2.pth')
-    download_pytorch_model('torchvision.models.resnet101', '${test}/data/pytorch/resnet101.pth')
     download_pytorch_model('torchvision.models.resnet18', '${test}/data/pytorch/resnet18.pth')
     download_pytorch_model('torchvision.models.resnet50', '${test}/data/pytorch/resnet50.pth')
+    download_pytorch_model('torchvision.models.resnet101', '${test}/data/pytorch/resnet101.pth')
     download_pytorch_model('torchvision.models.squeezenet1_0', '${test}/data/pytorch/squeezenet1_0.pth')
     download_pytorch_model('torchvision.models.vgg11_bn', '${test}/data/pytorch/vgg11_bn.pth')
     download_pytorch_model('torchvision.models.vgg16', '${test}/data/pytorch/vgg16.pth')
     download_torchscript_model('torchvision.models.alexnet', '${test}/data/torchscript/alexnet.pt', [ 1, 3, 299, 299 ])
+    download_torchscript_model('torchvision.models.densenet121', '${test}/data/torchscript/densenet121.pt', [ 1, 3, 224, 224 ])
     download_torchscript_model('torchvision.models.inception_v3', '${test}/data/torchscript/inception_v3.pt', [ 1, 3, 299, 299 ])
     download_torchscript_model('torchvision.models.mobilenet_v2', '${test}/data/torchscript/mobilenet_v2.pt', [ 1, 3, 224, 224 ])
     download_torchscript_model('torchvision.models.resnet18', '${test}/data/torchscript/resnet18.pt', [ 1, 3, 224, 224 ])
     download_torchscript_model('torchvision.models.resnet50', '${test}/data/torchscript/resnet50.pt', [ 1, 3, 224, 224 ])
+    download_torchscript_model('torchvision.models.squeezenet1_1', '${test}/data/torchscript/squeezenet1_1.pt', [ 1, 3, 224, 224 ])
+    download_torchscript_model('torchvision.models.vgg16', '${test}/data/torchscript/vgg16.pt', [ 1, 3, 224, 224 ])
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }

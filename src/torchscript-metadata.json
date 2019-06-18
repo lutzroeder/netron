@@ -33,7 +33,7 @@
       ],
       "attributes": [
         { "name": "kernel_size", "type": "int64[]" },
-        { "name": "stride", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]", "default": 2 },
         { "name": "padding", "type": "int64[]", "default": 0 },
         { "name": "dilation", "type": "int64[]", "default": 1 },
         { "name": "ceil_mode", "type": "boolean", "default": false }
@@ -93,7 +93,7 @@
         { "name": "input" }
       ],
       "attributes": [
-        { "name": "output_size", "type": "int64[]" }
+        { "name": "output_size", "type": "int64[]", "visible": false }
       ],
       "outputs": [
         { "name": "output" }
@@ -110,9 +110,9 @@
       "attributes": [
         { "name": "kernel_size", "type": "int64[]" },
         { "name": "stride", "type": "int64[]" },
-        { "name": "padding", "type": "int64[]" },
+        { "name": "padding", "type": "int64[]", "default": 0 },
         { "name": "ceil_mode", "type": "boolean", "default": false },
-        { "name": "count_include_pad", "type": "boolean" }
+        { "name": "count_include_pad", "type": "boolean", "default": true }
       ],
       "outputs": [
         { "name": "output" }
@@ -131,7 +131,7 @@
         { "name": "stride", "type": "int64[]" },
         { "name": "padding", "type": "int64[]" },
         { "name": "ceil_mode", "type": "boolean", "default": false },
-        { "name": "count_include_pad", "type": "boolean" }
+        { "name": "count_include_pad", "type": "boolean", "default": true }
       ],
       "outputs": [
         { "name": "output" }
@@ -150,10 +150,10 @@
         { "name": "running_var" }
       ],
       "attributes": [
-        { "name": "training", "type": "boolean", "visible": "false" },
+        { "name": "training", "type": "boolean", "visible": false },
         { "name": "momentum", "type": "float32", "default": 0.1 },
         { "name": "eps", "type": "float32", "default": 1e-05 },
-        { "name": "cudnn_enabled", "type": "bool", "visible": "false" }
+        { "name": "cudnn_enabled", "type": "boolean", "visible": false }
       ],
       "outputs": [
         { "name": "output" }
@@ -220,8 +220,8 @@
         { "name": "input" }
       ],
       "attributes": [
-        { "name": "threshold", "type": "float64" },
-        { "name": "value", "type": "float64" },
+        { "name": "threshold", "type": "float64", "default": 0 },
+        { "name": "value", "type": "float64", "default": 0 },
         { "name": "inplace", "type": "boolean", "default": false }
       ],
       "outputs": [
@@ -298,8 +298,9 @@
   {
     "name": "addmm",
     "schema": {
+      "category": "Layer",
       "inputs": [
-        { "name": "input" },
+        { "name": "mat" },
         { "name": "mat1" },
         { "name": "mat2" }
       ],
@@ -423,13 +424,27 @@
     }
   },
   {
+    "name": "view",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "size", "type": "int64[]", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "to",
     "schema": {
       "inputs": [
         { "name": "input" }
       ],
       "attributes": [
-        { "name": "dtype" },
+        { "name": "dtype", "visible": false },
         { "name": "non_blocking", "type": "boolean", "default": false },
         { "name": "copy", "type": "boolean", "default": false }
       ],
@@ -534,6 +549,17 @@
     }
   },
   {
+    "name": "contiguous",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "unsqueeze",
     "schema": {
       "category": "Transform",
@@ -549,11 +575,26 @@
     }
   },
   {
+    "name": "max",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim_or_y", "type": "int64" },
+        { "name": "dim", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "cat",
     "schema": {
       "category": "Tensor",
       "inputs": [
-        { "name": "input" }
+        { "name": "inputs" }
       ],
       "attributes": [
         { "name": "dim", "type": "int64" }
