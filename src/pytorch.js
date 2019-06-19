@@ -622,7 +622,7 @@ pytorch.ModelFactory = class {
     }
 
     static _findStateDict(root) {
-        var candidates = [ root, root.model, root.state, root.state_dict, root.model_state, root.params, root.generator, root.discriminator, root.network ];
+        var candidates = [ root, root.model, root.state, root.state_dict, root.model_state, root.params, root.generator, root.discriminator, root.network, root.netG ];
         for (var dict of candidates) {
             if (dict && Array.isArray(dict) && dict.__setitem__ &&
                 dict.every((item) => item.value.__type__ && item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) {
