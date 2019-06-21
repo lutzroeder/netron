@@ -45600,6 +45600,249 @@
     }
   },
   {
+    "name": "ResourceAccumulatorApplyGradient",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator.",
+          "name": "dtype",
+          "type": "type"
+        }
+      ],
+      "description": "Does not add if local_step is lesser than the accumulator's global_step.",
+      "inputs": [
+        {
+          "description": "The handle to a accumulator.",
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "The local_step value at which the gradient was computed.",
+          "name": "local_step",
+          "type": 9
+        },
+        {
+          "description": "A tensor of the gradient to be accumulated.",
+          "name": "gradient",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Applies a gradient to a given accumulator."
+    }
+  },
+  {
+    "name": "ResourceAccumulatorNumAccumulated",
+    "schema": {
+      "inputs": [
+        {
+          "description": "The handle to an accumulator.",
+          "name": "handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The number of gradients aggregated in the given accumulator.",
+          "name": "num_accumulated",
+          "type": 3
+        }
+      ],
+      "summary": "Returns the number of gradients aggregated in the given accumulators."
+    }
+  },
+  {
+    "name": "ResourceAccumulatorSetGlobalStep",
+    "schema": {
+      "description": "Logs warning if the accumulator's value is already higher than\nnew_global_step.",
+      "inputs": [
+        {
+          "description": "The handle to an accumulator.",
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "The new global_step value to set.",
+          "name": "new_global_step",
+          "type": 9
+        }
+      ],
+      "summary": "Updates the accumulator with a new value for global_step."
+    }
+  },
+  {
+    "name": "ResourceAccumulatorTakeGradient",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator.",
+          "name": "dtype",
+          "type": "type"
+        }
+      ],
+      "description": "The op blocks until sufficient (i.e., more than num_required)\ngradients have been accumulated.  If the accumulator has already\naggregated more than num_required gradients, it returns the average of\nthe accumulated gradients.  Also automatically increments the recorded\nglobal_step in the accumulator by 1, and resets the aggregate to 0.",
+      "inputs": [
+        {
+          "description": "The handle to an accumulator.",
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "Number of gradients required before we return an aggregate.",
+          "name": "num_required",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The average of the accumulated gradients.",
+          "name": "average",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Extracts the average gradient in the given ConditionalAccumulator."
+    }
+  },
+  {
     "name": "ResourceApplyAdaMax",
     "schema": {
       "attributes": [
@@ -47767,6 +48010,123 @@
         }
       ],
       "summary": "Update '*var' according to the RMSProp algorithm."
+    }
+  },
+  {
+    "name": "ResourceConditionalAccumulator",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "description": "The type of the value being accumulated.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "description": "The shape of the values, can be [], in which case shape is unknown.",
+          "name": "shape",
+          "type": "shape"
+        },
+        {
+          "default": "",
+          "description": "If non-empty, this accumulator is placed in the given container.\nOtherwise, a default container is used.",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "If non-empty, this accumulator will be shared under the\ngiven name across multiple sessions.",
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "allowedValues": [
+            "MEAN",
+            "SUM"
+          ],
+          "default": "MEAN",
+          "name": "reduction_type",
+          "type": "string"
+        }
+      ],
+      "description": "The accumulator accepts gradients marked with local_step greater or\nequal to the most recent global_step known to the accumulator. The\naverage can be extracted from the accumulator, provided sufficient\ngradients have been accumulated. Extracting the average automatically\nresets the aggregate to 0, and increments the global_step recorded by\nthe accumulator.\nThis is a resource version of ConditionalAccumulator that will work in TF2.0\nwith tf.cond version 2.",
+      "outputs": [
+        {
+          "description": "The handle to the accumulator.",
+          "name": "handle",
+          "type": 20
+        }
+      ],
+      "summary": "A conditional accumulator for aggregating gradients."
     }
   },
   {
