@@ -486,7 +486,8 @@ view.View = class {
                                 if (input.visible && input.connections.length == 1 && input.connections[0].initializer != null) {
                                     initializers.push(input);
                                 }
-                                if (!input.visible && input.connections.some((connection) => connection.initializer != null)) {
+                                if ((!input.visible || input.connections.length > 1) && 
+                                    input.connections.some((connection) => connection.initializer != null)) {
                                     hiddenInitializers = true;
                                 }
                             }
