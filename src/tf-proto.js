@@ -1864,6 +1864,7 @@
     
                 function ExperimentalDebugInfo(properties) {
                     this.original_node_names = [];
+                    this.original_func_names = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -1871,6 +1872,7 @@
                 }
     
                 ExperimentalDebugInfo.prototype.original_node_names = $util.emptyArray;
+                ExperimentalDebugInfo.prototype.original_func_names = $util.emptyArray;
     
                 ExperimentalDebugInfo.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -1883,6 +1885,11 @@
                             if (!(message.original_node_names && message.original_node_names.length))
                                 message.original_node_names = [];
                             message.original_node_names.push(reader.string());
+                            break;
+                        case 2:
+                            if (!(message.original_func_names && message.original_func_names.length))
+                                message.original_func_names = [];
+                            message.original_func_names.push(reader.string());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1908,6 +1915,17 @@
                                 }
                             else
                                 message.original_node_names.push(reader.string());
+                            break;
+                        case "original_func_names":
+                            if (!(message.original_func_names && message.original_func_names.length))
+                                message.original_func_names = [];
+                            if (reader.first())
+                                while (!reader.last()) {
+                                    message.original_func_names.push(reader.string());
+                                    reader.next();
+                                }
+                            else
+                                message.original_func_names.push(reader.string());
                             break;
                         default:
                             reader.field(tag, message);
@@ -3357,6 +3375,7 @@
         tensorflow.ResourceHandleProto = (function() {
     
             function ResourceHandleProto(properties) {
+                this.dtypes_and_shapes = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -3368,6 +3387,7 @@
             ResourceHandleProto.prototype.name = "";
             ResourceHandleProto.prototype.hash_code = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
             ResourceHandleProto.prototype.maybe_type_name = "";
+            ResourceHandleProto.prototype.dtypes_and_shapes = $util.emptyArray;
     
             ResourceHandleProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -3390,6 +3410,11 @@
                         break;
                     case 5:
                         message.maybe_type_name = reader.string();
+                        break;
+                    case 6:
+                        if (!(message.dtypes_and_shapes && message.dtypes_and_shapes.length))
+                            message.dtypes_and_shapes = [];
+                        message.dtypes_and_shapes.push($root.tensorflow.ResourceHandleProto.DtypeAndShape.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3420,6 +3445,11 @@
                     case "maybe_type_name":
                         message.maybe_type_name = reader.string();
                         break;
+                    case "dtypes_and_shapes":
+                        if (!(message.dtypes_and_shapes && message.dtypes_and_shapes.length))
+                            message.dtypes_and_shapes = [];
+                        message.dtypes_and_shapes.push($root.tensorflow.ResourceHandleProto.DtypeAndShape.decodeText(reader, true));
+                        break;
                     default:
                         reader.field(tag, message);
                         break;
@@ -3427,6 +3457,62 @@
                 }
                 return message;
             };
+    
+            ResourceHandleProto.DtypeAndShape = (function() {
+    
+                function DtypeAndShape(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                DtypeAndShape.prototype.dtype = 0;
+                DtypeAndShape.prototype.shape = null;
+    
+                DtypeAndShape.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.ResourceHandleProto.DtypeAndShape();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.dtype = reader.int32();
+                            break;
+                        case 2:
+                            message.shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                DtypeAndShape.decodeText = function decodeText(reader) {
+                    var message = new $root.tensorflow.ResourceHandleProto.DtypeAndShape();
+                    reader.start();
+                    while (!reader.end()) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "dtype":
+                            message.dtype = reader.enum($root.tensorflow.DataType);
+                            break;
+                        case "shape":
+                            message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.field(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return DtypeAndShape;
+            })();
     
             return ResourceHandleProto;
         })();
