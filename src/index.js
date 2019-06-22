@@ -3,7 +3,7 @@
 /* eslint "no-global-assign": ["error", {"exceptions": [ "TextDecoder", "TextEncoder" ] } ] */
 /* global view */
 
-var host = host || {};
+var host = {};
 
 host.BrowserHost = class {
 

@@ -621,7 +621,7 @@ class View {
             }
         });
         var location = url.format({
-            pathname: path.join(__dirname, 'view-electron.html'),
+            pathname: path.join(__dirname, 'electron.html'),
             protocol: 'file:',
             slashes: true
         });
@@ -646,7 +646,7 @@ class View {
                 this._window.webContents.send("open", { file: file });
             });
             var location = url.format({
-                pathname: path.join(__dirname, 'view-electron.html'),
+                pathname: path.join(__dirname, 'electron.html'),
                 protocol: 'file:',
                 slashes: true
             });

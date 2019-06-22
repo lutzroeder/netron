@@ -75,10 +75,7 @@ publish_github_pages:
 	git clone git@github.com:lutzroeder/netron.git ./build/gh-pages --branch gh-pages
 	rm -rf ./build/gh-pages/*
 	cp -R ./build/lib/netron/* ./build/gh-pages/
-	rm -rf ./build/gh-pages/*.py
-	rm -rf ./build/gh-pages/*.pyc
-	rm -rf ./build/gh-pages/netron
-	mv ./build/gh-pages/view-browser.html ./build/gh-pages/index.html
+	rm -rf ./build/gh-pages/*.py*
 	@export PACKAGE_VERSION=`node -pe "require('./package.json').version"`; \
 	sed -i -e "s/<!-- meta -->/<meta name='version' content='$$PACKAGE_VERSION' \/>/g" ./build/gh-pages/index.html
 	git -C ./build/gh-pages add --all
