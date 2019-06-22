@@ -531,7 +531,7 @@ if (typeof TextEncoder === "undefined") {
     try {
         Object.defineProperty(TextEncoder.prototype,"encoding", {
             get:function() {
-                if (TextEncoder.prototype.isPrototypeOf(this)) {
+                if (Object.prototype.isPrototypeOf.call(TextEncoder.prototype, this)) {
                     return"utf-8";
                 }
                 else {

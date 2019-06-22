@@ -403,7 +403,7 @@ cntk.Node = class {
                     }
                 }
                 else {
-                    if (!obj.hasOwnProperty('op')) {
+                    if (!Object.prototype.hasOwnProperty.call(obj, 'op')) {
                         this._operator = obj.type;
                         if (obj.user_defined_state) {
                             for (attributeName of Object.keys(obj.user_defined_state)) {
@@ -542,10 +542,10 @@ cntk.Attribute = class {
                     this._value = type[this._value];
                 }
             }
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 var defaultValue = schema.default;
                 value = this._value;
                 if (typeof value == 'function') {
@@ -811,7 +811,7 @@ cntk.Metadata = class {
                         var name = item.name;
                         var schema = item.schema;
                         this._map[name] = schema;
-                        if (schema.hasOwnProperty('operator')) {
+                        if (Object.prototype.hasOwnProperty.call(schema, 'operator')) {
                             this._operatorMap[schema.operator.toString()] = name;
                         }
                     }

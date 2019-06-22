@@ -747,7 +747,7 @@ coreml.Node = class {
         var connection = new coreml.Connection('', null, null, initializer);
         var visible = true;
         var schema = this._metadata.getInputSchema(this._operator, name);
-        if (schema && schema.hasOwnProperty('visible') && !schema.visible) {
+        if (schema && Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
             visible = false;
         }
         this._initializers.push(new coreml.Argument(name, visible, [ connection ]));
@@ -775,10 +775,10 @@ coreml.Attribute = class {
                 }
             }
 
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (Array.isArray(value)) {
                     value = value.map((item) => {
                         if (item && long.Long.isLong(item)) {

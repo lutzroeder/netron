@@ -575,8 +575,8 @@ function next() {
             if (item.render != 'skip') {
                 render(model).then(() => {
                     if (item.error) {
-                       console.error('Expected error.');
-                       return;
+                        console.error('Expected error.');
+                        return;
                     }
                     next();
                 }).catch((error) => {

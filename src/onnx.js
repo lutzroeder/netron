@@ -30,9 +30,9 @@ onnx.ModelFactory = class {
             }
             // ignore input_0.pb, output_0.pb
             if (Object.keys(tags).length > 0 &&
-                tags.hasOwnProperty(1) && tags[1] == 0 && 
-                tags.hasOwnProperty(2) && tags[2] == 0 && 
-                tags.hasOwnProperty(9) && tags[9] == 2) {
+                Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] == 0 && 
+                Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] == 0 && 
+                Object.prototype.hasOwnProperty.call(tags, 9) && tags[9] == 2) {
                 return false;
             }
             if (Object.keys(tags).length > 0 &&
@@ -40,15 +40,15 @@ onnx.ModelFactory = class {
                 return false;
             }
             // check ir_version and graph present
-            if ( tags.hasOwnProperty(1) && tags[1] != 0 ||
-                 tags.hasOwnProperty(2) && tags[2] != 2 ||
-                 tags.hasOwnProperty(3) && tags[3] != 2 ||
-                 tags.hasOwnProperty(4) && tags[4] != 2 ||
-                 tags.hasOwnProperty(5) && tags[5] != 0 ||
-                 tags.hasOwnProperty(6) && tags[6] != 2 ||
-                 tags.hasOwnProperty(8) && tags[8] != 2 ||
-                 tags.hasOwnProperty(14) && tags[14] != 2 ||
-                (!tags.hasOwnProperty(7) || tags[7] != 2)) {
+            if ( Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] != 0 ||
+                 Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] != 2 ||
+                 Object.prototype.hasOwnProperty.call(tags, 3) && tags[3] != 2 ||
+                 Object.prototype.hasOwnProperty.call(tags, 4) && tags[4] != 2 ||
+                 Object.prototype.hasOwnProperty.call(tags, 5) && tags[5] != 0 ||
+                 Object.prototype.hasOwnProperty.call(tags, 6) && tags[6] != 2 ||
+                 Object.prototype.hasOwnProperty.call(tags, 8) && tags[8] != 2 ||
+                 Object.prototype.hasOwnProperty.call(tags, 14) && tags[14] != 2 ||
+                (!Object.prototype.hasOwnProperty.call(tags, 7) || tags[7] != 2)) {
                 return false;
             }
             return true;
@@ -624,17 +624,17 @@ onnx.Attribute = class {
                 this._value = attribute.s;
             }
         }
-        else if (attribute.hasOwnProperty('f')) {
+        else if (Object.prototype.hasOwnProperty.call(attribute, 'f')) {
             this._value = attribute.f;
         }
-        else if (attribute.hasOwnProperty('i')) {
+        else if (Object.prototype.hasOwnProperty.call(attribute, 'i')) {
             this._value = attribute.i;
         }
-        else if (attribute.hasOwnProperty('t')) {
+        else if (Object.prototype.hasOwnProperty.call(attribute, 't')) {
             this._type = 'tensor';
             this._value = new onnx.Tensor(attribute.t).value;
         }
-        else if (attribute.hasOwnProperty('g')) {
+        else if (Object.prototype.hasOwnProperty.call(attribute, 'g')) {
             this._type = 'graph';
             this._value = new onnx.Graph(metadata, imageFormat, attribute.g);
         }
@@ -642,7 +642,7 @@ onnx.Attribute = class {
         var attributeSchema = metadata.getAttributeSchema(operator, attribute.name);
 
         if (!this._type) {
-            if (attribute.hasOwnProperty('type')) {
+            if (Object.prototype.hasOwnProperty.call(attribute, 'type')) {
                 if (!onnx.Attribute._attributeTypeMap) {
                     var map = {};
                     map[onnx.proto.AttributeProto.AttributeType.UNDEFINED] = 'undefined';
@@ -666,7 +666,7 @@ onnx.Attribute = class {
             }
         }
 
-        if (attributeSchema && attributeSchema.hasOwnProperty('default') && attributeSchema.default) {
+        if (attributeSchema && Object.prototype.hasOwnProperty.call(attributeSchema, 'default') && attributeSchema.default) {
             if (this._value == attributeSchema.default) {
                 this._visible = false;
             }

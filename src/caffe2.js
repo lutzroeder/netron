@@ -19,9 +19,9 @@ caffe2.ModelFactory = class {
             tags = context.tags('pb');
             // ignore input_0.pb, output_0.pb
             if (Object.keys(tags).length > 0 &&
-                tags.hasOwnProperty(1) && tags[1] == 0 && 
-                tags.hasOwnProperty(2) && tags[2] == 0 && 
-                tags.hasOwnProperty(9) && tags[9] == 2) {
+                Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] == 0 && 
+                Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] == 0 && 
+                Object.prototype.hasOwnProperty.call(tags, 9) && tags[9] == 2) {
                 return false;
             }
             if (Object.keys(tags).length > 0 &&
@@ -29,10 +29,10 @@ caffe2.ModelFactory = class {
                 return false;
             }
             if (Object.keys(tags).length > 0 &&
-                (!tags.hasOwnProperty(1) || tags[1] == 2) &&
-                (!tags.hasOwnProperty(2) || tags[2] == 2) &&
-                (!tags.hasOwnProperty(7) || tags[7] == 2) &&
-                (!tags.hasOwnProperty(8) || tags[8] == 2)) {
+                (!Object.prototype.hasOwnProperty.call(tags, 1) || tags[1] == 2) &&
+                (!Object.prototype.hasOwnProperty.call(tags, 2) || tags[2] == 2) &&
+                (!Object.prototype.hasOwnProperty.call(tags, 7) || tags[7] == 2) &&
+                (!Object.prototype.hasOwnProperty.call(tags, 8) || tags[8] == 2)) {
                 var buffer = context.buffer;
                 if (buffer.length > 3 && buffer[0] == 0x0A) {
                     var size = buffer[1];
@@ -494,7 +494,7 @@ caffe2.Attribute = class {
 
         var schema = metadata.getAttributeSchema(this._node.operator, this._name);
         if (schema) {
-            if (schema.hasOwnProperty('type')) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 this._type = schema.type;
                 if (this._type == 'boolean') {
                     switch (this._value) {
@@ -506,10 +506,10 @@ caffe2.Attribute = class {
         }
 
         if (schema) {
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (this._value == schema.default || (this._value && this._value.toString() == schema.default.toString())) {
                     this._visible = false;
                 }
@@ -553,8 +553,8 @@ caffe2.Tensor = class {
         if (args.values) {
             this._values = args.values;
         }
-        this._scale = args.hasOwnProperty('Y_scale') ? args.Y_scale.f : 0;
-        this._zeroPoint = args.hasOwnProperty('Y_zero_point') ? args.Y_zero_point.i : 0;
+        this._scale = Object.prototype.hasOwnProperty.call(args, 'Y_scale') ? args.Y_scale.f : 0;
+        this._zeroPoint = Object.prototype.hasOwnProperty.call(args, 'Y_zero_point') ? args.Y_zero_point.i : 0;
         this._type = new caffe2.TensorType(tensor.dataType, new caffe2.TensorShape(shape));
     }
 

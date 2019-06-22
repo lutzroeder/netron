@@ -649,13 +649,13 @@ sklearn.Attribute = class {
 
         var schema = metadata.getAttributeSchema(node.operator, this._name);
         if (schema) {
-            if (schema.hasOwnProperty('option') && schema.option == 'optional' && this._value == null) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'option') && schema.option == 'optional' && this._value == null) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('visible') && !schema.visible) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (sklearn.Attribute._isEquivalent(schema.default, this._value)) {
                     this._visible = false;
                 }
@@ -725,7 +725,7 @@ sklearn.Attribute = class {
         } 
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && sklearn.Attribute._isEquivalent(a[key], b[key]))) {
+            if (!(Object.prototype.hasOwnProperty.call(b, key) && sklearn.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }

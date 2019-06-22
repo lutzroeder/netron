@@ -351,7 +351,7 @@ paddle.Attribute = class {
 
         var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
-            if (schema.hasOwnProperty('default')) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 var defaultValue = schema.default;
                 var value = this._value;
                 if (defaultValue == value) {

@@ -446,7 +446,7 @@ torchscript.Attribute = class {
         }
 
         if (schema) {
-            if (schema.hasOwnProperty('type')) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 this._type = schema.type;
             }
 
@@ -481,10 +481,10 @@ torchscript.Attribute = class {
                     break;
             }
 
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (JSON.stringify(schema.default) == JSON.stringify(this._value)) {
                     this._visible = false;
                 }
@@ -1073,7 +1073,7 @@ torchscript.GraphContext = class {
                     this._name(size.target) == 'torch.size' &&
                     size.arguments[0].type == 'identifier' &&
                     size.arguments[1].type == 'number') {
-                    this._numToTensorMap[statement.target.value] = this._name(size.target) + '(' + size.arguments.map((a) => a.value.toString()).join(',') + ')';;
+                    this._numToTensorMap[statement.target.value] = this._name(size.target) + '(' + size.arguments.map((a) => a.value.toString()).join(',') + ')';
                     return true;
                 }
                 if (size.type == 'identifier') {
@@ -1089,7 +1089,7 @@ torchscript.GraphContext = class {
                 this._name(statement.expression.target) == 'torch.size' &&
                 statement.expression.arguments[0].type == 'identifier' &&
                 statement.expression.arguments[1].type == 'number') {
-                this._numToTensorMap[statement.target.value] = this._name(statement.expression.target) + '(' + statement.expression.arguments.map((a) => a.value.toString()).join(',') + ')';;
+                this._numToTensorMap[statement.target.value] = this._name(statement.expression.target) + '(' + statement.expression.arguments.map((a) => a.value.toString()).join(',') + ')';
                 return true;
             }
             if (statement.expression.type == 'call' &&

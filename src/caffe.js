@@ -180,7 +180,7 @@ caffe.Model = class {
     constructor(metadata, netParameter) {
         this._name = netParameter.name;
         if (netParameter.layers && netParameter.layers.length > 0) {
-            if (netParameter.layers.every((layer) => layer.hasOwnProperty('layer'))) {
+            if (netParameter.layers.every((layer) => Object.prototype.hasOwnProperty.call(layer, 'layer'))) {
                 this._version = 0;
             }
             else {
@@ -195,7 +195,7 @@ caffe.Model = class {
     }
 
     get format() {
-        return 'Caffe' + (this.hasOwnProperty('_version') ? ' v' + this._version.toString() : '');
+        return 'Caffe' + (Object.prototype.hasOwnProperty.call(this, '_version') ? ' v' + this._version.toString() : '');
     }
 
     get graphs() {
@@ -595,10 +595,10 @@ caffe.Attribute = class {
 
         var schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 var defaultValue = schema.default;
                 if (this._value == defaultValue) {
                     this._visible = false;
@@ -632,8 +632,10 @@ caffe.Tensor = class {
         this._blob = blob;
 
         var shape = [];
-        if (blob.hasOwnProperty('num') && blob.hasOwnProperty('channels') &&
-            blob.hasOwnProperty('width') && blob.hasOwnProperty('height')) {
+        if (Object.prototype.hasOwnProperty.call(blob, 'num') && 
+            Object.prototype.hasOwnProperty.call(blob, 'channels') &&
+            Object.prototype.hasOwnProperty.call(blob, 'width') &&
+            Object.prototype.hasOwnProperty.call(blob, 'height')) {
             if (blob.num != 1) {
                 shape.push(blob.num);
             }
@@ -647,7 +649,7 @@ caffe.Tensor = class {
                 shape.push(blob.height);
             }
         }
-        else if (blob.hasOwnProperty('shape')) {
+        else if (Object.prototype.hasOwnProperty.call(blob, 'shape')) {
             shape = blob.shape.dim;
         }
 

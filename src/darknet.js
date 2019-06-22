@@ -57,7 +57,10 @@ darknet.Graph = class {
         var net = cfg.shift();
 
         var inputType = null;
-        if (net && net.hasOwnProperty('width') && net.hasOwnProperty('height') && net.hasOwnProperty('channels')) {
+        if (net && 
+            Object.prototype.hasOwnProperty.call(net, 'width') &&
+            Object.prototype.hasOwnProperty.call(net, 'height') &&
+            Object.prototype.hasOwnProperty.call(net, 'channels')) {
             var width = Number.parseInt(net.width);
             var height = Number.parseInt(net.height);
             var channels = Number.parseInt(net.channels);
@@ -326,10 +329,10 @@ darknet.Attribute = class {
                 }
             }
 
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default'))
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default'))
             {
                 if (this._value == schema.default) {
                     this._visible = false;

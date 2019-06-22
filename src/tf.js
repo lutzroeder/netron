@@ -38,9 +38,9 @@ tf.ModelFactory = class {
             }
             // ignore input_0.pb, output_0.pb
             if (Object.keys(tags).length > 0 &&
-                tags.hasOwnProperty(1) && tags[1] == 0 && 
-                tags.hasOwnProperty(2) && tags[2] == 0 && 
-                tags.hasOwnProperty(9) && tags[9] == 2) {
+                Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] == 0 && 
+                Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] == 0 && 
+                Object.prototype.hasOwnProperty.call(tags, 9) && tags[9] == 2) {
                 return false;
             }
             if (Object.keys(tags).length > 0 &&
@@ -276,7 +276,7 @@ tf.Graph = class {
                 for (node of this._metaGraph.graph_def.node) {
                     if (node.op == 'Const' && node.input.length == 0 && node.controlDependencies.length == 0 && this._checkSingleOutput(node)) {
                         var value = node.attr.value;
-                        if (value && value.hasOwnProperty('tensor')) {
+                        if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
                             var output = node.output[0];
                             if (output) {
                                 initializers[output] = new tf.Tensor(value.tensor, node.name, 'Constant');
@@ -421,7 +421,7 @@ tf.Node = class {
         this._graph = graph;
         this._operator = node.op;
         this._name = node.name;
-        if (node.hasOwnProperty('device')) {
+        if (Object.prototype.hasOwnProperty.call(node, 'device')) {
             this._device = node.device;
         }
         var metadata = graph.metadata;
@@ -626,31 +626,31 @@ tf.Attribute = class {
         this._value = null;
         this._type = null;
         var schema = metadata.getAttributeSchema(operator, name);
-        if (value.hasOwnProperty('tensor')) {
+        if (Object.prototype.hasOwnProperty.call(value, 'tensor')) {
             this._type = 'tensor';
             this._value = new tf.Tensor(value.tensor);
         }
         else if (schema && schema.type) {
             this._type = schema.type;
         }
-        if (value.hasOwnProperty('type')) {
+        if (Object.prototype.hasOwnProperty.call(value, 'type')) {
             this._type = 'type';
             this._value = () => tf.Tensor.formatDataType(value.type);
         }
-        else if (value.hasOwnProperty('i')) {
+        else if (Object.prototype.hasOwnProperty.call(value, 'i')) {
             this._value = value.i;
         }
-        else if (value.hasOwnProperty('f')) {
+        else if (Object.prototype.hasOwnProperty.call(value, 'f')) {
             this._value = value.f;
         }
-        else if (value.hasOwnProperty('b')) {
+        else if (Object.prototype.hasOwnProperty.call(value, 'b')) {
             this._value = value.b;
         }
-        else if (value.hasOwnProperty('shape')) {
+        else if (Object.prototype.hasOwnProperty.call(value, 'shape')) {
             this._type = 'shape';
             this._value = new tf.TensorShape(value.shape);
         }
-        else if (value.hasOwnProperty('s')) {
+        else if (Object.prototype.hasOwnProperty.call(value, 's')) {
             if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
                 this._value = tf.Metadata.textDecoder.decode(value.s);
             }
@@ -658,7 +658,7 @@ tf.Attribute = class {
                 this._value = value.s;
             }
         }
-        else if (value.hasOwnProperty('list')) {
+        else if (Object.prototype.hasOwnProperty.call(value, 'list')) {
             var list = value.list;
             this._value = [];
             if (list.s && list.s.length > 0) {
@@ -711,10 +711,10 @@ tf.Attribute = class {
         }
 
         if (schema) {
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 var valueText = tf.GraphMetadata._formatAttributeValue(this._value);
                 var defaultValueText = tf.GraphMetadata._formatAttributeValue(schema.default);
                 if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {

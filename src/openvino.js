@@ -523,7 +523,7 @@ openvino.Attribute = class {
 
         var schema = metadata.getAttributeSchema(node.operator, name);
         if (schema) {
-            if (schema.hasOwnProperty('type')) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 switch (schema.type) {
                     case 'boolean':
                         switch (value) {
@@ -584,10 +584,10 @@ openvino.Attribute = class {
                         break;
                 }
             }
-            if (schema.hasOwnProperty('visible') && schema.visible == false) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && schema.visible == false) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 var defaultValue = schema.default;
                 if (this._value == defaultValue) {
                     this._visible = false;

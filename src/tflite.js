@@ -174,7 +174,7 @@ tflite.Node = class {
                     if (input.option == 'variadic') {
                         count = inputs.length - inputIndex;
                     }
-                    if (input.hasOwnProperty('visible') && !input.visible) {
+                    if (Object.prototype.hasOwnProperty.call(input, 'visible') && !input.visible) {
                         inputVisible = false;
                     }
                 }
@@ -354,7 +354,7 @@ tflite.Attribute = class {
                         }
                         tflite.Attribute._reverseMap[this._type] = reverse;
                     }
-                    if (reverse.hasOwnProperty(this._value)) {
+                    if (Object.prototype.hasOwnProperty.call(reverse, this._value)) {
                         this._value = reverse[this._value];
                     }
                 }
@@ -365,10 +365,10 @@ tflite.Attribute = class {
             this._visible = false;
         }
         else if (schema) {
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 value = this._value;
                 if (typeof value == 'function') {
                     value = value();

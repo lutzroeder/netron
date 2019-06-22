@@ -276,13 +276,13 @@ mxnet.Model = class {
             throw new mxnet.Error('JSON symbol data not available.');
         }
         if (symbol) {
-            if (!symbol.hasOwnProperty('nodes')) {
+            if (!Object.prototype.hasOwnProperty.call(symbol, 'nodes')) {
                 throw new mxnet.Error('JSON file does not contain an MXNet \'nodes\' property.');
             }
-            if (!symbol.hasOwnProperty('arg_nodes')) {
+            if (!Object.prototype.hasOwnProperty.call(symbol, 'arg_nodes')) {
                 throw new mxnet.Error('JSON file does not contain an MXNet \'arg_nodes\' property.');
             }
-            if (!symbol.hasOwnProperty('heads')) {
+            if (!Object.prototype.hasOwnProperty.call(symbol, 'heads')) {
                 throw new mxnet.Error('JSON file does not contain an MXNet \'heads\' property.');
             }
         }
@@ -860,10 +860,10 @@ mxnet.Attribute = class {
         }
 
         if (schema) {
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 var defaultValue = schema.default;
                 if (this._value == defaultValue) {
                     this._visible = false;

@@ -974,10 +974,10 @@ pytorch.Attribute = class {
 
         var schema = metadata.getAttributeSchema(this._node.operator, this._name);
         if (schema) {
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (JSON.stringify(schema.default) == JSON.stringify(value)) {
                     this._visible = false;
                 }

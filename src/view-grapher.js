@@ -43,7 +43,7 @@ grapher.Renderer = class {
                 if (node.id) {
                     element.setAttribute('id', node.id);
                 }
-                element.setAttribute('class', node.hasOwnProperty('class') ? ('node ' + node.class) : 'node');
+                element.setAttribute('class', Object.prototype.hasOwnProperty.call(node, 'class') ? ('node ' + node.class) : 'node');
                 element.style.opacity = 0;
                 var container = this.createElement('g');
                 container.appendChild(node.label);
@@ -130,7 +130,7 @@ grapher.Renderer = class {
             edge = graph.edge(edgeId);
             var edgePath = grapher.Renderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
             var edgeElement = this.createElement('path');
-            edgeElement.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
+            edgeElement.setAttribute('class', Object.prototype.hasOwnProperty.call(edge, 'class') ? ('edge-path ' + edge.class) : 'edge-path');
             edgeElement.setAttribute('d', edgePath);
             edgeElement.setAttribute('marker-end', 'url(#arrowhead-vee)');
             if (edge.id) {

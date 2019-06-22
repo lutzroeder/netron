@@ -161,7 +161,7 @@ hdf5.Group = class {
             else {
                 this.decodeDataObject();
                 for (var link of this._dataObjectHeader.links) {
-                    if (link.hasOwnProperty('objectHeaderAddress')) {
+                    if (Object.prototype.hasOwnProperty.call(link, 'objectHeaderAddress')) {
                         var objectHeader = new hdf5.DataObjectHeader(this._reader.move(link.objectHeaderAddress));
                         var linkGroup = new hdf5.Group(this._reader, null, objectHeader, this._globalHeap, this._path, link.name);
                         this._groups.push(linkGroup);

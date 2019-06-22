@@ -830,7 +830,7 @@ class ConfigurationService {
     }
 
     has(name) {
-        return this._data && this._data.hasOwnProperty(name);
+        return this._data && Object.prototype.hasOwnProperty.call(this._data, name);
     }
 
     set(name, value) {

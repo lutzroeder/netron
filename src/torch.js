@@ -67,7 +67,7 @@ torch.Graph = class {
         this._nodes = [];
         this._groups = 'false';
 
-        if (root.hasOwnProperty('model')) {
+        if (Object.prototype.hasOwnProperty.call(root, 'model')) {
             root = root.model;
         }
 
@@ -420,7 +420,8 @@ torch.Node = class {
     }
 
     _updateSize(module, name) {
-        if (module.hasOwnProperty(name + 'W') && module.hasOwnProperty(name + 'H')) {
+        if (Object.prototype.hasOwnProperty.call(module, name + 'W') &&
+            Object.prototype.hasOwnProperty.call(module, name + 'H')) {
             module[name] = [ module[name + 'W'], module[name + 'H'] ];
             delete module[name + 'W'];
             delete module[name + 'H'];
@@ -428,8 +429,10 @@ torch.Node = class {
     }
 
     _updateBox(module, name) {
-        if (module.hasOwnProperty(name + '_t') && module.hasOwnProperty(name + '_r') &&
-            module.hasOwnProperty(name + '_b') && module.hasOwnProperty(name + '_l')) {
+        if (Object.prototype.hasOwnProperty.call(module, name + '_t') &&
+            Object.prototype.hasOwnProperty.call(module, name + '_r') &&
+            Object.prototype.hasOwnProperty.call(module, name + '_b') &&
+            Object.prototype.hasOwnProperty.call(module, name + '_l')) {
             module[name] = [ module[name + '_t'], module[name + '_r'], module[name + '_b'], module[name + '_l'] ];
             delete module[name + '_t'];
             delete module[name + '_r'];
@@ -449,10 +452,10 @@ torch.Attribute = class {
         }
         var schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
-            if (schema.hasOwnProperty('visible')) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible')) {
                 this._visible = schema.visible;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (JSON.stringify(schema.default) == JSON.stringify(this._value)) {
                     this._visible = false;
                 }

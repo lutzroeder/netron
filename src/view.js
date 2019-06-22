@@ -506,7 +506,10 @@ view.View = class {
                                 var type = connection.type;
                                 var shape = '';
                                 var separator = '';
-                                if (type && type.shape && type.shape.dimensions && type.shape.dimensions.hasOwnProperty('length')) {
+                                if (type &&
+                                    type.shape && 
+                                    type.shape.dimensions && 
+                                    Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
                                     shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
                                     if (type.shape.dimensions.length == 0 && connection.initializer && !connection.initializer.state) {
                                         shape = connection.initializer.toString();
@@ -627,11 +630,11 @@ view.View = class {
                     if (groups) {
                         var groupName = node.group;
                         if (groupName && groupName.length > 0) {
-                            if (!clusterParentMap.hasOwnProperty(groupName)) {
+                            if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
                                 var lastIndex = groupName.lastIndexOf('/');
                                 if (lastIndex != -1) {
                                     groupName = groupName.substring(0, lastIndex);
-                                    if (!clusterParentMap.hasOwnProperty(groupName)) {
+                                    if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
                                         groupName = null;
                                     }
                                 }

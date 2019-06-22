@@ -714,10 +714,10 @@ keras.Attribute = class {
         else {
             var schema = metadata.getAttributeSchema(operator, this._name);
             if (schema) {
-                if (schema.hasOwnProperty('visible') && !schema.visible) {
+                if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                     this._visible = false;
                 }
-                else if (schema.hasOwnProperty('default')) {
+                else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                     if (keras.Attribute._isEquivalent(schema.default, value)) {
                         this._visible = false;
                     }
@@ -788,7 +788,7 @@ keras.Attribute = class {
         } 
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && keras.Attribute._isEquivalent(a[key], b[key]))) {
+            if (!(Object.prototype.hasOwnProperty.call(b, key) && keras.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }
