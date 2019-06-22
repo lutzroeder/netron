@@ -7469,7 +7469,7 @@
           "type": "type"
         }
       ],
-      "description": "The result will have those bits set, that are set in both `x` and `y`. The\ncomputation is performed on the underlying representations of `x` and `y`.",
+      "description": "The result will have those bits set, that are set in both `x` and `y`. The\ncomputation is performed on the underlying representations of `x` and `y`.\n\nFor example:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64,\n              tf.uint8, tf.uint16, tf.uint32, tf.uint64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([0, 5, 3, 14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  exp = tf.constant([0, 0, 3, 10], dtype=tf.float32)\n\n  res = bitwise_ops.bitwise_and(lhs, rhs)\n  tf.assert_equal(tf.cast(res, tf.float32), exp) # TRUE\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -7532,7 +7532,7 @@
           "type": "type"
         }
       ],
-      "description": "The result will have those bits set, that are set in `x`, `y` or both. The\ncomputation is performed on the underlying representations of `x` and `y`.",
+      "description": "The result will have those bits set, that are set in `x`, `y` or both. The\ncomputation is performed on the underlying representations of `x` and `y`.\n\nFor example:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64,\n              tf.uint8, tf.uint16, tf.uint32, tf.uint64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([0, 5, 3, 14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  exp = tf.constant([5, 5, 7, 15], dtype=tf.float32)\n\n  res = bitwise_ops.bitwise_or(lhs, rhs)\n  tf.assert_equal(tf.cast(res,  tf.float32), exp)  # TRUE\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -7595,7 +7595,7 @@
           "type": "type"
         }
       ],
-      "description": "The result will have those bits set, that are different in `x` and `y`. The\ncomputation is performed on the underlying representations of `x` and `y`.",
+      "description": "The result will have those bits set, that are different in `x` and `y`. The\ncomputation is performed on the underlying representations of `x` and `y`.\n\nFor example:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64,\n              tf.uint8, tf.uint16, tf.uint32, tf.uint64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([0, 5, 3, 14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  exp = tf.constant([5, 5, 4, 5],  dtype=tf.float32)\n\n  res = bitwise_ops.bitwise_xor(lhs, rhs)\n  tf.assert_equal(tf.cast(res, tf.float32), exp) # TRUE\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -8747,6 +8747,109 @@
         }
       ],
       "summary": "Aggregates the summary of accumulated stats for the batch."
+    }
+  },
+  {
+    "name": "BoostedTreesSparseCalculateBestFeatureSplit",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The dimension of logit, i.e., number of classes.",
+          "minimum": 1,
+          "name": "logits_dimension",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            "inequality"
+          ],
+          "default": "inequality",
+          "description": "A string indicating if this Op should perform inequality split or equality split.",
+          "name": "split_type",
+          "type": "string"
+        }
+      ],
+      "description": "The split information is the best threshold (bucket id), gains and left/right node contributions per node for each feature.\n\nIt is possible that not all nodes can be split on each feature. Hence, the list of possible nodes can differ between the features. Therefore, we return `node_ids_list` for each feature, containing the list of nodes that this feature can be used to split.\n\nIn this manner, the output is the best split per features and per node, so that it needs to be combined later to produce the best split for each node (among all possible features).\n\nThe output shapes are compatible in a way that the first dimension of all tensors are the same and equal to the number of possible split nodes for each feature.",
+      "inputs": [
+        {
+          "description": "A Rank 1 tensor (shape=[2]) to specify the range [first, last) of node ids to process within `stats_summary_list`. The nodes are iterated between the two nodes specified by the tensor, as like `for node_id in range(node_id_range[0], node_id_range[1])` (Note that the last index node_id_range[1] is exclusive).",
+          "name": "node_id_range",
+          "type": 3
+        },
+        {
+          "description": "A Rank 2 int64 tensor of dense shape [N, 4] (N specifies the number of non-zero values) for accumulated stats summary (gradient/hessian) per node per bucket for each feature. The second dimension contains node id, feature dimension, bucket id, and stats dim.\nstats dim is the sum of logits dimension and hessian dimension, hessian dimension can either be logits dimension if diagonal hessian is used, or logits dimension^2 if full hessian is used.",
+          "name": "stats_summary_indices",
+          "type": 3
+        },
+        {
+          "description": "A Rank 1 float tensor of dense shape [N] (N specifies the number of non-zero values), which supplies the values for each element in summary_indices.",
+          "name": "stats_summary_values",
+          "type": 1
+        },
+        {
+          "description": "A Rank 1 float tensor of dense shape [4], which specifies the dense shape of the sparse tensor, which is [num tree nodes, feature dimensions, num buckets, stats dim].",
+          "name": "stats_summary_shape",
+          "type": 3
+        },
+        {
+          "description": "l1 regularization factor on leaf weights, per instance based.",
+          "name": "l1",
+          "type": 1
+        },
+        {
+          "description": "l2 regularization factor on leaf weights, per instance based.",
+          "name": "l2",
+          "type": 1
+        },
+        {
+          "description": "adjustment to the gain, per leaf based.",
+          "name": "tree_complexity",
+          "type": 1
+        },
+        {
+          "description": "mininum avg of hessians in a node before required for the node to be considered for splitting.",
+          "name": "min_node_weight",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A Rank 1 tensor indicating possible node ids that can be split.",
+          "name": "node_ids",
+          "type": 3
+        },
+        {
+          "description": "A Rank 1 tensor indicating the best gains to split each node.",
+          "name": "gains",
+          "type": 1
+        },
+        {
+          "description": "A Rank 1 tensor indicating the best feature dimension for each feature to split for each node.",
+          "name": "feature_dimensions",
+          "type": 3
+        },
+        {
+          "description": "A Rank 1 tensor indicating the bucket id to compare with (as a threshold) for split in each node.",
+          "name": "thresholds",
+          "type": 3
+        },
+        {
+          "description": "A Rank 2 tensor indicating the contribution of the left nodes when branching from parent nodes to the left direction by the given threshold for each feature.\nThis value will be used to make the left node value by adding to the parent node value. Second dimension size is logits dimension.",
+          "name": "left_node_contribs",
+          "type": 1
+        },
+        {
+          "description": "A Rank 2 tensor, with the same shape/conditions as left_node_contribs_list, but just that the value is for the right node.",
+          "name": "right_node_contribs",
+          "type": 1
+        },
+        {
+          "description": "A Rank 1 tensor indicating which direction to go if data is missing.",
+          "name": "split_with_default_directions",
+          "type": 7
+        }
+      ],
+      "summary": "Calculates gains for each feature and returns the best possible split information for the feature."
     }
   },
   {
@@ -11691,6 +11794,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes cosine of every\n  element in the tensor. Input range is `(-inf, inf)` and\n  output range is `[-1,1]`. If input lies outside the boundary, `nan`\n  is returned.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -9, -0.5, 1, 1.2, 200, 10000, float(\"inf\")])\n  tf.math.cos(x) ==> [nan -0.91113025 0.87758255 0.5403023 0.36235774 0.48718765 -0.95215535 nan]\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -11741,6 +11845,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes hyperbolic cosine of every\n  element in the tensor. Input range is `[-inf, inf]` and output range\n  is `[1, inf]`.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -9, -0.5, 1, 1.2, 2, 10, float(\"inf\")])\n  tf.math.cosh(x) ==> [inf 4.0515420e+03 1.1276259e+00 1.5430807e+00 1.8106556e+00 3.7621956e+00 1.1013233e+04 inf]\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -24554,7 +24659,7 @@
           "type": "type"
         }
       ],
-      "description": "Flip each bit of supported types.  For example, type `int8` (decimal 2) binary 00000010 becomes (decimal -3) binary 11111101.\nThis operation is performed on each element of the tensor argument `x`.",
+      "description": "Flip each bit of supported types.  For example, type `int8` (decimal 2) binary 00000010 becomes (decimal -3) binary 11111101.\nThis operation is performed on each element of the tensor argument `x`.\n\nExample:\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\n\n# flip 2 (00000010) to -3 (11111101)\ntf.assert_equal(-3, bitwise_ops.invert(2))\n\ndtype_list = [dtypes.int8, dtypes.int16, dtypes.int32, dtypes.int64,\n              dtypes.uint8, dtypes.uint16, dtypes.uint32, dtypes.uint64]\n\ninputs = [0, 5, 3, 14]\nfor dtype in dtype_list:\n  # Because of issues with negative numbers, let's test this indirectly.\n  # 1. invert(a) and a = 0\n  # 2. invert(a) or a = invert(0)\n  input_tensor = tf.constant([0, 5, 3, 14], dtype=dtype)\n  not_a_and_a, not_a_or_a, not_0 = [bitwise_ops.bitwise_and(\n                                      input_tensor, bitwise_ops.invert(input_tensor)),\n                                    bitwise_ops.bitwise_or(\n                                      input_tensor, bitwise_ops.invert(input_tensor)),\n                                    bitwise_ops.invert(\n                                      tf.constant(0, dtype=dtype))]\n  \n  expected = tf.constant([0, 0, 0, 0], dtype=tf.float32)\n  tf.assert_equal(tf.cast(not_a_and_a, tf.float32), expected)\n  \n  expected = tf.cast([not_0] * 4, tf.float32)\n  tf.assert_equal(tf.cast(not_a_or_a, tf.float32), expected)\n\n  # For unsigned dtypes let's also check the result directly.\n  if dtype.is_unsigned:\n    inverted = bitwise_ops.invert(input_tensor)\n    expected = tf.constant([dtype.max - x for x in inputs], dtype=tf.float32)\n    tf.assert_equal(tf.cast(inverted, tf.float32), tf.cast(expected, tf.float32))\n```",
       "inputs": [
         {
           "name": "x",
@@ -25810,7 +25915,7 @@
           "type": "type"
         }
       ],
-      "description": "If `y` is negative, or greater than or equal to the width of `x` in bits the\nresult is implementation defined.",
+      "description": "If `y` is negative, or greater than or equal to the width of `x` in bits the\nresult is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  left_shift_result = bitwise_ops.left_shift(lhs, rhs)\n  \n  print(left_shift_result)\n\n# This will print:\n# tf.Tensor([ -32   -5 -128    0], shape=(4,), dtype=int8)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int16)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int32)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.left_shift(lhs, rhs)\n# <tf.Tensor: id=139, shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -51997,7 +52102,7 @@
           "type": "type"
         }
       ],
-      "description": "Performs a logical shift for unsigned integer types, and an arithmetic shift\nfor signed integer types.\n\nIf `y` is negative, or greater than or equal to than the width of `x` in bits\nthe result is implementation defined.",
+      "description": "Performs a logical shift for unsigned integer types, and an arithmetic shift\nfor signed integer types.\n\nIf `y` is negative, or greater than or equal to than the width of `x` in bits\nthe result is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  right_shift_result = bitwise_ops.right_shift(lhs, rhs)\n  \n  print(right_shift_result)\n  \n# This will print:\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int8)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int16)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int32)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.right_shift(lhs, rhs)\n# <tf.Tensor: id=151, shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -56089,6 +56194,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes sine of every\n  element in the tensor. Input range is `(-inf, inf)` and\n  output range is `[-1,1]`.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -9, -0.5, 1, 1.2, 200, 10, float(\"inf\")])\n  tf.math.sin(x) ==> [nan -0.4121185 -0.47942555 0.84147096 0.9320391 -0.87329733 -0.54402107 nan]\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -56101,7 +56207,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes sin of x element-wise."
+      "summary": "Computes sine of x element-wise."
     }
   },
   {
@@ -56139,6 +56245,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes hyperbolic sine of every\n  element in the tensor. Input range is `[-inf,inf]` and output range\n  is `[-inf,inf]`.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -9, -0.5, 1, 1.2, 2, 10, float(\"inf\")])\n  tf.math.sinh(x) ==> [-inf -4.0515420e+03 -5.2109528e-01 1.1752012e+00 1.5094614e+00 3.6268604e+00 1.1013232e+04 inf]\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -65402,6 +65509,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes tangent of every\n  element in the tensor. Input range is `(-inf, inf)` and\n  output range is `(-inf, inf)`. If input lies outside the boundary, `nan`\n  is returned.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -9, -0.5, 1, 1.2, 200, 10000, float(\"inf\")])\n  tf.math.tan(x) ==> [nan 0.45231566 -0.5463025 1.5574077 2.572152 -1.7925274 0.32097113 nan]\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -65452,6 +65560,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes hyperbolic tangent of every\n  element in the tensor. Input range is `[-inf, inf]` and\n  output range is `[-1,1]`.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -5, -0.5, 1, 1.2, 2, 3, float(\"inf\")])\n  tf.math.tanh(x) ==> [-1. -0.99990916 -0.46211717 0.7615942 0.8336547 0.9640276 0.9950547 1.]\n  ```",
       "inputs": [
         {
           "name": "x",
