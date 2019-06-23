@@ -921,21 +921,21 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            var view = new sidebar.ModelSidebar(this._model, this._host);
-            view.on('update-active-graph', (sender, name) => {
+            var modelSidebar = new sidebar.ModelSidebar(this._model, this._host);
+            modelSidebar.on('update-active-graph', (sender, name) => {
                 this._updateActiveGraph(name);
             });
-            this._sidebar.open(view.render(), 'Model Properties');
+            this._sidebar.open(modelSidebar.render(), 'Model Properties');
         }
     }
     
     showNodeProperties(node, input) {
         if (node) {
-            var view = new sidebar.NodeSidebar(node, this._host);
-            view.on('show-documentation', (/* sender, e */) => {
+            var nodeSidebar = new sidebar.NodeSidebar(node, this._host);
+            nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showOperatorDocumentation(node);
             });
-            view.on('export-tensor', (sender, tensor) => {
+            nodeSidebar.on('export-tensor', (sender, tensor) => {
                 this._host.require('./numpy').then((numpy) => {
                     var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
@@ -952,20 +952,20 @@ view.View = class {
                 });
             });
             if (input) {
-                view.toggleInput(input.name);
+                nodeSidebar.toggleInput(input.name);
             }
-            this._sidebar.open(view.render(), 'Node Properties');
+            this._sidebar.open(nodeSidebar.render(), 'Node Properties');
         }
     }
 
     showOperatorDocumentation(node) {
         var documentation = node.documentation;
         if (documentation) {
-            var view = new sidebar.OperatorDocumentationSidebar(documentation);
-            view.on('navigate', (sender, e) => {
+            var documentationSidebar = new sidebar.OperatorDocumentationSidebar(documentation);
+            documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
-            this._sidebar.open(view.render(), 'Documentation');
+            this._sidebar.push(documentationSidebar.render(), 'Documentation');
         }
     }
 };

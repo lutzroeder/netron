@@ -9,13 +9,14 @@ sidebar.Sidebar = class {
 
     constructor(host) {
         this._host = host;
+        this._stack = [];
         this._closeSidebarHandler = () => {
-            this.close();
+            this._pop();
         };
         this._closeSidebarKeyDownHandler = (e) => {
             if (e.keyCode == 27) {
                 e.preventDefault();
-                this.close();
+                this._pop();
             }
         };
         this._resizeSidebarHandler = () => {
@@ -27,51 +28,104 @@ sidebar.Sidebar = class {
     }
 
     open(content, title, width) {
+        this.close();
+        this.push(content, title, width);
+    }
+
+    close() {
+        this._deactivate();
+        this._stack = [];
+        this._hide();
+    }
+
+    push(content, title, width) {
+        var item = { title: title, content: content, width: width };
+        this._stack.push(item);
+        this._activate(item);
+    }
+
+    _pop() {
+        this._deactivate();
+        if (this._stack.length > 0) {
+            this._stack.pop();
+        }
+        if (this._stack.length > 0) {
+            this._activate(this._stack[this._stack.length - 1]);
+        }
+        else {
+            this._hide();
+        }
+    }
+
+    _hide() {
         var sidebarElement = this._host.document.getElementById('sidebar');
-        var titleElement = this._host.document.getElementById('sidebar-title');
-        var contentElement = this._host.document.getElementById('sidebar-content');
-        var closeButtonElement = this._host.document.getElementById('sidebar-closebutton');
-        if (sidebarElement && contentElement && closeButtonElement && titleElement) {
-            titleElement.innerHTML = title ? title.toUpperCase() : '';
-            window.addEventListener('resize', this._resizeSidebarHandler);
-            this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
-            closeButtonElement.addEventListener('click', this._closeSidebarHandler);
-            closeButtonElement.style.color = '#818181';
+        if (sidebarElement) {
+            sidebarElement.style.width = '0';
+        }
+    }
+
+    _deactivate() {
+        var sidebarElement = this._host.document.getElementById('sidebar');
+        if (sidebarElement) {
+            var closeButton = this._host.document.getElementById('sidebar-closebutton');
+            if (closeButton) {
+                closeButton.removeEventListener('click', this._closeSidebarHandler);
+                closeButton.style.color = '#f8f8f8';
+            }
+
+            this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
+            sidebarElement.removeEventListener('resize', this._resizeSidebarHandler);
+        }
+    }
+
+    _activate(item) {
+        var sidebarElement = this._host.document.getElementById('sidebar');
+        if (sidebarElement) {
+            sidebarElement.innerHTML = '';
+
+            var titleElement = this._host.document.createElement('h1');
+            titleElement.setAttribute('class', 'sidebar-title');
+            titleElement.innerHTML = item.title ? item.title.toUpperCase() : '';
+            sidebarElement.appendChild(titleElement);
+
+            var closeButton = this._host.document.createElement('a');
+            closeButton.setAttribute('class', 'sidebar-closebutton');
+            closeButton.setAttribute('id', 'sidebar-closebutton');
+            closeButton.setAttribute('href', 'javascript:void(0)');
+            closeButton.innerHTML = '&times;'
+            closeButton.addEventListener('click', this._closeSidebarHandler);
+            closeButton.style.color = '#818181';
+            sidebarElement.appendChild(closeButton);
+
+            var contentElement = this._host.document.createElement('div');
+            contentElement.setAttribute('class', 'sidebar-content');
+            contentElement.setAttribute('id', 'sidebar-content');
+            sidebarElement.appendChild(contentElement);
+
             contentElement.style.height = window.innerHeight - 60;
-            while (contentElement.firstChild) {
-                contentElement.removeChild(contentElement.firstChild);
-            }
+
             if (typeof content == 'string') {
-                contentElement.innerHTML = content;
+                contentElement.innerHTML = item.content;
             }
-            else if (content instanceof Array) {
-                for (var element of content) {
+            else if (item.content instanceof Array) {
+                for (var element of item.content) {
                     contentElement.appendChild(element);
                 }
             }
             else {
-                contentElement.appendChild(content);
+                contentElement.appendChild(item.content);
             }
-            sidebarElement.style.width = width ? width : '500px';
-            if (width && width.endsWith('%')) {
+
+            sidebarElement.style.width = item.width ? item.width : '500px';
+            if (item.width && item.width.endsWith('%')) {
                 contentElement.style.width = '100%';
             }
             else {
                 contentElement.style.width = 'calc(' + sidebarElement.style.width + ' - 40px)';
             }
-        }
-    }
-    
-    close() {
-        var sidebarElement = this._host.document.getElementById('sidebar');
-        var contentElement = this._host.document.getElementById('sidebar-content');
-        var closeButtonElement = this._host.document.getElementById('sidebar-closebutton');
-        if (sidebarElement && contentElement && closeButtonElement) {
-            this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
-            sidebarElement.removeEventListener('resize', this._resizeSidebarHandler);
-            closeButtonElement.removeEventListener('click', this._closeSidebarHandler);
-            closeButtonElement.style.color = '#f8f8f8';
-            sidebarElement.style.width = '0';
+
+            window.addEventListener('resize', this._resizeSidebarHandler);
+            this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
         }
     }
 };
