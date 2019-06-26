@@ -19622,13 +19622,13 @@
           "type": "int64[]"
         },
         {
-          "description": "1-D of length 4. How far the centers of two consecutive patches are in\nthe images. Must be: `[1, stride_rows, stride_cols, 1]`.",
+          "description": "How far the centers of two consecutive patches are in\nthe images. Must be: `[1, stride_rows, stride_cols, 1]`.",
           "minimum": 4,
           "name": "strides",
           "type": "int64[]"
         },
         {
-          "description": "1-D of length 4. Must be: `[1, rate_rows, rate_cols, 1]`. This is the\ninput stride, specifying how far two consecutive patch samples are in the\ninput. Equivalent to extracting patches with\n`patch_sizes_eff = patch_sizes + (patch_sizes - 1) * (rates - 1)`, followed by\nsubsampling them spatially by a factor of `rates`. This is equivalent to\n`rate` in dilated (a.k.a. Atrous) convolutions.",
+          "description": "Must be: `[1, rate_rows, rate_cols, 1]`. This is the\ninput stride, specifying how far two consecutive patch samples are in the\ninput. Equivalent to extracting patches with\n`patch_sizes_eff = patch_sizes + (patch_sizes - 1) * (rates - 1)`, followed by\nsubsampling them spatially by a factor of `rates`. This is equivalent to\n`rate` in dilated (a.k.a. Atrous) convolutions.",
           "minimum": 4,
           "name": "rates",
           "type": "int64[]"
@@ -19692,7 +19692,7 @@
             "SAME",
             "VALID"
           ],
-          "description": "The type of padding algorithm to use.\n\nWe specify the size-related attributes as:\n\n```python\n      ksizes = [1, ksize_rows, ksize_cols, 1]\n      strides = [1, strides_rows, strides_cols, 1]\n      rates = [1, rates_rows, rates_cols, 1]\n```",
+          "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
         }
@@ -31341,6 +31341,11 @@
     "name": "ModelDataset",
     "schema": {
       "attributes": [
+        {
+          "default": 0,
+          "name": "algorithm",
+          "type": "int64"
+        },
         {
           "default": 0,
           "name": "cpu_budget",
