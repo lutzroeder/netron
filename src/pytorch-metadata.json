@@ -755,12 +755,21 @@
   {
     "name": "CrossMapLRN2d",
     "schema": {
-      "category": "Normalization",
       "attributes": [
-        { "name": "alpha", "default": 1e-4 },
-        { "name": "beta", "default": 0.75 },
-        { "name": "k", "default": 1 }
-      ]
+        {
+          "default": 0.0001,
+          "name": "alpha"
+        },
+        {
+          "default": 0.75,
+          "name": "beta"
+        },
+        {
+          "default": 1,
+          "name": "k"
+        }
+      ],
+      "category": "Normalization"
     }
   }
 ]
