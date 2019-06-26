@@ -95,6 +95,7 @@ pytorch.ModelFactory = class {
                 constructorTable['torch.nn.modules.loss.BCEWithLogitsLoss'] = function() {}; 
                 constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function() {};
                 constructorTable['torch.nn.modules.loss.MSELoss'] = function() {};
+                constructorTable['torch.nn.modules.normalization.CrossMapLRN2d'] = function() {};
                 constructorTable['torch.nn.modules.normalization.GroupNorm'] = function() {};
                 constructorTable['torch.nn.modules.normalization.LayerNorm'] = function() {};
                 constructorTable['torch.nn.modules.normalization.LocalResponseNorm'] = function() {};

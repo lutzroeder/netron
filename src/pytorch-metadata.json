@@ -751,5 +751,16 @@
     "schema": {
       "package": "torch.nn.modules.instancenorm"
     }
+  },
+  {
+    "name": "CrossMapLRN2d",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "alpha", "default": 1e-4 },
+        { "name": "beta", "default": 0.75 },
+        { "name": "k", "default": 1 }
+      ]
+    }
   }
 ]
