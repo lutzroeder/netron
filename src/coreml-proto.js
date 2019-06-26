@@ -10943,6 +10943,8 @@
                 NetworkUpdateParameters.prototype.lossLayers = $util.emptyArray;
                 NetworkUpdateParameters.prototype.optimizer = null;
                 NetworkUpdateParameters.prototype.epochs = null;
+                NetworkUpdateParameters.prototype.shuffle = null;
+                NetworkUpdateParameters.prototype.seed = null;
     
                 NetworkUpdateParameters.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -10961,6 +10963,12 @@
                             break;
                         case 3:
                             message.epochs = $root.CoreML.Specification.Int64Parameter.decode(reader, reader.uint32());
+                            break;
+                        case 10:
+                            message.shuffle = $root.CoreML.Specification.BoolParameter.decode(reader, reader.uint32());
+                            break;
+                        case 20:
+                            message.seed = $root.CoreML.Specification.Int64Parameter.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -11343,6 +11351,38 @@
                 };
     
                 return StringParameter;
+            })();
+    
+            Specification.BoolParameter = (function() {
+    
+                function BoolParameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                BoolParameter.prototype.defaultValue = false;
+    
+                BoolParameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BoolParameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return BoolParameter;
             })();
     
             Specification.Normalizer = (function() {
