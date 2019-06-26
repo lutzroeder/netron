@@ -242,7 +242,7 @@ sklearn.ModelFactory = class {
                 };
                 functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
                     var data = rawData;
-                    if (rawData.constructor !== Uint8Array) {
+                    if (typeof rawData === 'string' || rawData instanceof String) {
                         data = new Uint8Array(rawData.length);
                         for (var i = 0; i < rawData.length; i++) {
                             data[i] = rawData.charCodeAt(i);
