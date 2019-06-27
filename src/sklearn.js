@@ -162,7 +162,9 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.calibration._SigmoidCalibration'] = function() {};
                 constructorTable['sklearn.calibration.CalibratedClassifierCV​'] = function() {};
                 constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
+                constructorTable['sklearn.compose._target.TransformedTargetRegressor'] = function() {};
                 constructorTable['sklearn.decomposition.PCA'] = function() {};
+                constructorTable['sklearn.decomposition.pca.PCA'] = function() {};
                 constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
                 constructorTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
                 constructorTable['sklearn.ensemble.forest.RandomForestRegressor'] = function() {};
@@ -200,6 +202,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.MaxAbsScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.data.MinMaxScaler'] = function() {};
+                constructorTable['sklearn.preprocessing.data.PowerTransformer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.RobustScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.imputation.Imputer'] = function() {};
@@ -225,6 +228,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
                 constructorTable['xgboost.core.Booster'] = function() {};
                 constructorTable['xgboost.sklearn.XGBClassifier'] = function() {};
+                constructorTable['xgboost.sklearn.XGBRegressor'] = function() {};
                 constructorTable['gensim.models.word2vec.Vocab'] = function() {};
                 constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
                 constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
@@ -250,6 +254,8 @@ sklearn.ModelFactory = class {
                     }
                     var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.name) {
+                        case 'uint8':
+                            return dataView.getUint8(0);
                         case 'float32':
                             return dataView.getFloat32(0, true);
                         case 'float64':

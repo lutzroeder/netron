@@ -3572,6 +3572,13 @@
   },
   {
     "type":   "sklearn",
+    "source": "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
+    "target": "best_boston.pkl",
+    "format": "scikit-learn 0.20.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":   "sklearn",
     "target": "forest_iris_ExtraTreesClassifier.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_ExtraTreesClassifier.pkl]",
     "format": "scikit-learn 0.19.2",
