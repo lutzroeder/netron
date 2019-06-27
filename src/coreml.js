@@ -393,7 +393,7 @@ coreml.Graph = class {
                 [ model.description.output[0].name ]);
             return 'Vision Feature Print';
         }
-        throw new coreml.Error("Unknown model type '" + Object.keys(model).filter(k => k != 'specificationVersion' && k != 'description').join(',') + "'.");
+        throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 
     _createNode(scope, group, operator, name, data, inputs, outputs) {
