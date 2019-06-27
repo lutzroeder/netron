@@ -305,6 +305,9 @@ pytorch.ModelFactory = class {
                     };
                 };
 
+                functionTable['collections.Counter'] = function(/* iterable */) {
+                    return {};
+                };
                 functionTable['collections.OrderedDict'] = function(args) {
                     var obj = [];
                     obj.__setitem__ = function(key, value) {
@@ -707,7 +710,7 @@ pytorch.Graph = class {
                         new pytorch.Connection(state.key, null, tensor)
                     ]);
                 });
-                return new pytorch.Node(this._metadata, '', state_group.id, { __type__: 'torch.nn.modules._.Weights' }, inputs, []);
+                return new pytorch.Node(this._metadata, '', state_group.id, { __type__: 'torch.nn.modules._.Module' }, inputs, []);
             }));
         }
     }
