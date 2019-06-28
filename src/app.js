@@ -230,24 +230,12 @@ class Application {
             return;
         }
         var autoUpdater = updater.autoUpdater;
-        /* autoUpdater.autoDownload = false;
-        autoUpdater.on('update-available', () => {
-            var owner = electron.BrowserWindow.getFocusedWindow();
-            var messageBoxOptions = {
-                icon: path.join(__dirname, 'icon.png'),
-                title: ' ',
-                message: 'A new version of ' + electron.app.getName() + ' is available.',
-                detail: 'Click \'Download and Install\' to download the update and automatically install it on exit.',
-                buttons: ['Download and Install', 'Remind Me Later'],
-                defaultId: 0,
-                cancelId: 1
-            };
-            if (electron.dialog.showMessageBox(owner, messageBoxOptions) == 0) {
-                autoUpdater.autoDownload = true;
-                autoUpdater.checkForUpdatesAndNotify();
-            }
-        }); */
-        autoUpdater.checkForUpdates();
+        var promise = autoUpdater.checkForUpdates();
+        if (promise) {
+            promise.catch((error) => {
+                console.log(error.message);
+            });
+        }
     }
 
     get package() { 
