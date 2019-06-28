@@ -799,20 +799,21 @@ class ViewCollection {
 class ConfigurationService {
 
     load() {
+        this._data = { 'recents': [] };
         var dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
             var file = path.join(dir, 'configuration.json'); 
             if (fs.existsSync(file)) {
                 var data = fs.readFileSync(file);
                 if (data) {
-                    this._data = JSON.parse(data);
+                    try {
+                        this._data = JSON.parse(data);
+                    }
+                    catch (error) {
+                        // continue regardless of error
+                    }
                 }
             }
-        }
-        if (!this._data) {
-            this._data = {
-                'recents': []
-            };
         }
     }
 
