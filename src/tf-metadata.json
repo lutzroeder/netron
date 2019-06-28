@@ -7982,6 +7982,7 @@
         {
           "description": "int; List of Rank 1 Tensors each containing the bucketized values for a single feature.",
           "name": "buckets",
+          "numberAttr": "num_features",
           "type": 3
         }
       ],
@@ -8136,26 +8137,31 @@
         {
           "description": "An output list of Rank 1 tensors indicating possible split node ids for each feature. The length of the list is num_features, but each tensor has different size as each feature provides different possible nodes. See above for details like shapes and sizes.",
           "name": "node_ids_list",
+          "numberAttr": "num_features",
           "type": 3
         },
         {
           "description": "An output list of Rank 1 tensors indicating the best gains for each feature to split for certain nodes. See above for details like shapes and sizes.",
           "name": "gains_list",
+          "numberAttr": "num_features",
           "type": 1
         },
         {
           "description": "An output list of Rank 1 tensors indicating the bucket id to compare with (as a threshold) for split in each node. See above for details like shapes and sizes.",
           "name": "thresholds_list",
+          "numberAttr": "num_features",
           "type": 3
         },
         {
           "description": "A list of Rank 2 tensors indicating the contribution of the left nodes when branching from parent nodes (given by the tensor element in the output node_ids_list) to the left direction by the given threshold for each feature. This value will be used to make the left node value by adding to the parent node value. Second dimension size is 1 for 1-dimensional logits, but would be larger for multi-class problems. See above for details like shapes and sizes.",
           "name": "left_node_contribs_list",
+          "numberAttr": "num_features",
           "type": 1
         },
         {
           "description": "A list of Rank 2 tensors, with the same shape/conditions as left_node_contribs_list, but just that the value is for the right node.",
           "name": "right_node_contribs_list",
+          "numberAttr": "num_features",
           "type": 1
         }
       ],
@@ -8417,6 +8423,7 @@
         {
           "description": "float; List of Rank 2 Tensors each containing the quantile summary\n(value, weight, min_rank, max_rank) of a single feature.",
           "name": "summaries",
+          "numberAttr": "num_features",
           "type": 1
         }
       ],
@@ -8624,6 +8631,7 @@
         {
           "description": "float; List of Rank 1 Tensors each containing the bucket boundaries for a feature.",
           "name": "bucket_boundaries",
+          "numberAttr": "num_features",
           "type": 1
         }
       ],
@@ -9214,16 +9222,19 @@
         {
           "description": "A list (length: top_paths) of indices matrices.  Matrix j,\nsize `(total_decoded_outputs[j] x 2)`, has indices of a\n`SparseTensor<int64, 2>`.  The rows store: [batch, time].",
           "name": "decoded_indices",
+          "numberAttr": "top_paths",
           "type": 9
         },
         {
           "description": "A list (length: top_paths) of values vectors.  Vector j,\nsize `(length total_decoded_outputs[j])`, has the values of a\n`SparseTensor<int64, 2>`.  The vector stores the decoded classes for beam j.",
           "name": "decoded_values",
+          "numberAttr": "top_paths",
           "type": 9
         },
         {
           "description": "A list (length: top_paths) of shape vector.  Vector j,\nsize `(2)`, stores the shape of the decoded `SparseTensor[j]`.\nIts values are: `[batch_size, max_decoded_length[j]]`.",
           "name": "decoded_shape",
+          "numberAttr": "top_paths",
           "type": 9
         },
         {
@@ -10577,6 +10588,7 @@
         {
           "description": "The `N` int32 vectors representing the starting offset\nof input tensors within the concatenated output.",
           "name": "offset",
+          "numberAttr": "N",
           "type": 3
         }
       ],
@@ -13312,10 +13324,12 @@
       "outputs": [
         {
           "name": "weights",
+          "numberAttr": "num_params",
           "typeAttr": "T"
         },
         {
           "name": "biases",
+          "numberAttr": "num_params",
           "typeAttr": "T"
         }
       ],
@@ -13427,10 +13441,12 @@
       "outputs": [
         {
           "name": "weights",
+          "numberAttr": "num_params_weights",
           "typeAttr": "T"
         },
         {
           "name": "biases",
+          "numberAttr": "num_params_biases",
           "typeAttr": "T"
         }
       ],
@@ -16426,6 +16442,7 @@
       "outputs": [
         {
           "name": "outputs",
+          "numberAttr": "num_partitions",
           "typeAttr": "T"
         }
       ],
@@ -34681,6 +34698,7 @@
       "outputs": [
         {
           "name": "sparse_indices",
+          "numberAttr": "Nsparse",
           "type": 9
         },
         {
@@ -34689,6 +34707,7 @@
         },
         {
           "name": "sparse_shapes",
+          "numberAttr": "Nsparse",
           "type": 9
         },
         {
@@ -34874,6 +34893,7 @@
       "outputs": [
         {
           "name": "context_sparse_indices",
+          "numberAttr": "Ncontext_sparse",
           "type": 9
         },
         {
@@ -34882,6 +34902,7 @@
         },
         {
           "name": "context_sparse_shapes",
+          "numberAttr": "Ncontext_sparse",
           "type": 9
         },
         {
@@ -34890,6 +34911,7 @@
         },
         {
           "name": "feature_list_sparse_indices",
+          "numberAttr": "Nfeature_list_sparse",
           "type": 9
         },
         {
@@ -34898,6 +34920,7 @@
         },
         {
           "name": "feature_list_sparse_shapes",
+          "numberAttr": "Nfeature_list_sparse",
           "type": 9
         },
         {
@@ -34906,6 +34929,7 @@
         },
         {
           "name": "feature_list_dense_lengths",
+          "numberAttr": "Nfeature_list_dense",
           "type": 9
         }
       ],
@@ -34996,6 +35020,7 @@
       "outputs": [
         {
           "name": "sparse_indices",
+          "numberAttr": "num_sparse",
           "type": 9
         },
         {
@@ -35004,6 +35029,7 @@
         },
         {
           "name": "sparse_shapes",
+          "numberAttr": "num_sparse",
           "type": 9
         },
         {
@@ -35188,6 +35214,7 @@
       "outputs": [
         {
           "name": "context_sparse_indices",
+          "numberAttr": "Ncontext_sparse",
           "type": 9
         },
         {
@@ -35196,6 +35223,7 @@
         },
         {
           "name": "context_sparse_shapes",
+          "numberAttr": "Ncontext_sparse",
           "type": 9
         },
         {
@@ -35204,6 +35232,7 @@
         },
         {
           "name": "feature_list_sparse_indices",
+          "numberAttr": "Nfeature_list_sparse",
           "type": 9
         },
         {
@@ -35212,6 +35241,7 @@
         },
         {
           "name": "feature_list_sparse_shapes",
+          "numberAttr": "Nfeature_list_sparse",
           "type": 9
         },
         {
@@ -42096,6 +42126,7 @@
         {
           "description": "The `nested_row_splits` tensors that define the row-partitioning for the\nreturned RaggedTensor.",
           "name": "output_nested_splits",
+          "numberAttr": "OUTPUT_RAGGED_RANK",
           "typeAttr": "Tsplits"
         },
         {
@@ -42240,6 +42271,7 @@
         {
           "description": "A list of one or more Tensors representing the splits of the output\n`RaggedTensor`.",
           "name": "output_nested_splits",
+          "numberAttr": "output_ragged_rank",
           "typeAttr": "Tsplits"
         },
         {
@@ -43950,6 +43982,7 @@
         {
           "description": "A TensorList of embedding activations containing one Tensor per\nembedding table in the model.",
           "name": "outputs",
+          "numberAttr": "num_outputs",
           "type": 1
         }
       ],
@@ -54455,11 +54488,13 @@
         {
           "description": "a list of vectors where each value is the delta\nweights associated with a sparse feature group.",
           "name": "out_delta_sparse_weights",
+          "numberAttr": "num_sparse_features",
           "type": 1
         },
         {
           "description": "a list of vectors where the values are the delta\nweights associated with a dense feature group.",
           "name": "out_delta_dense_weights",
+          "numberAttr": "num_dense_features",
           "type": 1
         }
       ],
@@ -54598,11 +54633,13 @@
         {
           "description": "a list of vectors where each value is the delta\nweights associated with a sparse feature group.",
           "name": "out_delta_sparse_weights",
+          "numberAttr": "num_sparse_features",
           "type": 1
         },
         {
           "description": "a list of vectors where the values are the delta\nweights associated with a dense feature group.",
           "name": "out_delta_dense_weights",
+          "numberAttr": "num_dense_features",
           "type": 1
         }
       ],
@@ -55789,6 +55826,7 @@
       "outputs": [
         {
           "name": "output",
+          "numberAttr": "N",
           "typeAttr": "out_type"
         }
       ],
@@ -61669,16 +61707,19 @@
       "outputs": [
         {
           "name": "output_indices",
+          "numberAttr": "num_split",
           "type": 9
         },
         {
           "description": "A list of 1-D tensors represents the values of the output sparse\ntensors.",
           "name": "output_values",
+          "numberAttr": "num_split",
           "typeAttr": "T"
         },
         {
           "description": "A list of 1-D tensors represents the shape of the output sparse\ntensors.",
           "name": "output_shape",
+          "numberAttr": "num_split",
           "type": 9
         }
       ],
@@ -62108,6 +62149,7 @@
         {
           "description": "They are identically shaped tensors, whose shape matches that of `value`\nexcept along `split_dim`, where their sizes are\n`values.shape[split_dim] / num_split`.",
           "name": "output",
+          "numberAttr": "num_split",
           "typeAttr": "T"
         }
       ],
@@ -62167,6 +62209,7 @@
         {
           "description": "Tensors whose shape matches that of `value`\nexcept along `split_dim`, where their sizes are\n`size_splits[i]`.",
           "name": "output",
+          "numberAttr": "num_split",
           "typeAttr": "T"
         }
       ],
@@ -65380,6 +65423,7 @@
       "outputs": [
         {
           "name": "outputs",
+          "numberAttr": "num_replicas",
           "typeAttr": "T"
         }
       ],
@@ -69662,6 +69706,7 @@
         {
           "description": "The list of tensors unpacked from `value`.",
           "name": "output",
+          "numberAttr": "num",
           "typeAttr": "T"
         }
       ],

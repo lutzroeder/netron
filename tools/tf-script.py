@@ -273,6 +273,8 @@ for op in ops_list.op:
             api_def_out_arg = api_def_out_arg_map[output_arg.name]
             if api_def_out_arg.description:
                 json_output['description'] = api_def_out_arg.description
+        if output_arg.number_attr:
+            json_output['numberAttr'] = output_arg.number_attr
         if output_arg.type:
             json_output['type'] = output_arg.type
         elif output_arg.type_attr:

@@ -446,8 +446,12 @@ tf.Node = class {
                         inputCount = inputNumber.i;
                     }
                 }
-                var result = {};
-                result.name = input.name;
+                else if (input.typeListAttr) {
+                    var inputTypeListAttr = node.attr[input.typeListAttr];
+                    if (inputTypeListAttr && inputTypeListAttr.list && inputTypeListAttr.list.type) {
+                        inputCount = inputTypeListAttr.list.type.length;
+                    }
+                }
                 var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
                     return new tf.Connection(id, null, initializers[id]);
                 });
@@ -455,13 +459,11 @@ tf.Node = class {
                 inputIndex += inputCount;
             }
         }
-        else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
-                return new tf.Argument((inputIndex + index).toString(), [ 
-                    new tf.Connection(input, null, initializers[input])
-                ]);
-            }));
-        }
+        this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+            return new tf.Argument((inputIndex + index).toString(), [ 
+                new tf.Connection(input, null, initializers[input])
+            ]);
+        }));
 
         this._outputs = [];
         var outputIndex = 0;
@@ -475,6 +477,12 @@ tf.Node = class {
                         outputCount = outputNumber.i;
                     }
                 }
+                else if (output.typeListAttr) {
+                    var outputTypeListAttr = node.attr[output.typeListAttr];
+                    if (outputTypeListAttr && outputTypeListAttr.list && outputTypeListAttr.list.type) {
+                        outputCount = outputTypeListAttr.list.type.length;
+                    }
+                }
                 var outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
                     return new tf.Connection(id, null, null);
                 });
@@ -482,13 +490,11 @@ tf.Node = class {
                 outputIndex += outputCount;
             }
         }
-        else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
-                return new tf.Argument((outputIndex + index).toString(), [
-                    new tf.Connection(output, null, null)
-                ]);
-            }));
-        }
+        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+            return new tf.Argument((outputIndex + index).toString(), [
+                new tf.Connection(output, null, null)
+            ]);
+        }));
 
         this._controlDependencies = node.controlDependencies;
     }
