@@ -34,6 +34,10 @@ tf.ModelFactory = class {
             }
             tags = context.tags('pb');
             if (Object.keys(tags).length == 0) {
+                tags = context.tags('pbtxt');
+                if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
+                    return true;
+                }
                 return false;
             }
             // ignore input_0.pb, output_0.pb
@@ -71,8 +75,8 @@ tf.ModelFactory = class {
             var format = null;
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop().toLowerCase();
-            if (extension == 'pbtxt' || extension == 'prototxt') {
-                var tags = context.tags('pbtxt');
+            var tags = context.tags('pbtxt');
+            if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
                 if (tags.saved_model_schema_version || tags.meta_graphs) {
                     try {
                         if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {

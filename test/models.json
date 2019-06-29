@@ -3769,6 +3769,11 @@
   },
   {
     "type":   "tf",
+    "target": "frozen_squeezenet.pb",
+    "source": "http://ftp.openailab.net.cn/Tengine_models/squeeznet/tensorflow/frozen_squeezenet.pb"
+  },
+  {
+    "type":   "tf",
     "target": "graphdef_saved_model.pb",
     "source": "https://github.com/lutzroeder/netron/files/2528688/saved_model.zip[saved_model.pb]",
     "format": "TensorFlow Graph",
@@ -4035,6 +4040,7 @@
     "target": "ssd_mobilenet_v1_android_export.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_android_export.zip[ssd_mobilenet_v1_android_export.pb]",
     "format": "TensorFlow Graph",
+    "render": "skip",
     "link":   "https://www.tensorflow.org/lite/models"
   },
   {
