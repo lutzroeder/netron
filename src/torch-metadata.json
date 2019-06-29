@@ -6,6 +6,12 @@
     }
   },
   {
+    "name": "LinearNoBias",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
     "name": "SpatialConvolution",
     "schema": {
       "category": "Layer",
