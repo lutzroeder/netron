@@ -139,7 +139,7 @@ body {
     -moz-user-select: none;
 }
 
-.toolbar button {
+.toolbar-button {
     background: None;
     border-radius: 6px;
     border: 0;
@@ -154,10 +154,6 @@ body {
 
 .toolbar button:focus {
     outline: 0;
-}
-
-.icon {
-    pointer-events: none;
 }
 
 .icon .border { 
@@ -175,14 +171,15 @@ body {
 .dropdown {
     display: none;
     position: absolute;
-    background-color: #fff;
-    width: 225px;
+    min-width: 225px;
     z-index: 1;
-    border-radius: 5px;
+    border-radius: 4px;
+    background-color: #f2f2f2;
     border: 1px solid rgba(0,0,0,.15);
     padding-top: 2px;
     padding-bottom: 2px;
     margin-left: 2px;
+    overflow: hidden;
 }
 
 .dropdown button {
@@ -191,16 +188,16 @@ body {
     border-radius: 0;
     background-color: transparent;
     color: black;
-    width: 225px;
-    clear: both;
+    width: 100%;
     text-align: left;
-    padding: 5px 12px 5px 12px;
+    padding: 4px 12px 5px 12px;
     white-space: no-wrap;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .dropdown button:hover {
-    background-color: #ddd;
+    color: #ffffff;
+    background-color: #2e6bd2;
 }
 
 .dropdown .separator {
@@ -209,11 +206,11 @@ body {
     border-top: 1px;
     border-bottom: 0;
     border-style: solid;
-    border-color: rgba(0,0,0,.15);
+    border-color: #e3e3e3;
 }
 
 @media only screen and (max-device-width: 1024px) {
-    .toolbar button {
+    .toolbar-button {
         width: 32px;
         height: 32px;
     }
@@ -231,10 +228,10 @@ body {
 .icon .border { stroke: #1d1d1d; }
 .icon .stroke { stroke: #aaaaaa; }
 .icon:hover .stroke { stroke: #dfdfdf; }
-.dropdown { background-color: #404040; border-color: #aaaaaa; }
-.dropdown button { color: #aaaaaa; }
-.dropdown button:hover { color: #1e1e1e; background-color: #aaaaaa; }
-.dropdown .separator { border-color: #aaaaaa; }
+.dropdown { background-color: #2d2d2d; border-color: #000000; }
+.dropdown button { color: #ffffff; }
+.dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
+.dropdown .separator { border-color: #424242; }
 }
 
 .dark-mode .background { background-color: #1e1e1e; }

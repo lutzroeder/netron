@@ -592,7 +592,7 @@ host.Dropdown = class {
             }
         });
         document.body.addEventListener('click', (e) => {
-            if (e.target !== this._button) {
+            if (!this._button.contains(e.target)) {
                 this.close();
             }
         });
