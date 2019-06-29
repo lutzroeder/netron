@@ -749,9 +749,9 @@
           "type": "type"
         }
       ],
+      "description": "  Inputs must be of same size and shape.\n\n  ```python\n  x = [9, 7, 10]\n  tf.math.add_n(x) ==> 26\n  ```",
       "inputs": [
         {
-          "description": "Must all be the same size and shape.",
           "name": "inputs",
           "numberAttr": "N",
           "typeAttr": "T"
@@ -4005,7 +4005,7 @@
           "type": "string"
         }
       ],
-      "description": "types and boolean.",
+      "description": "Supports many numeric types and boolean.\n\nFor Unicode, see the\n[https://www.tensorflow.org/tutorials/representation/unicode](Working with Unicode text)\ntutorial.",
       "inputs": [
         {
           "name": "input",
@@ -4018,7 +4018,7 @@
           "type": 7
         }
       ],
-      "summary": "Converts each entry in the given tensor to strings.  Supports many numeric"
+      "summary": "Converts each entry in the given tensor to strings."
     }
   },
   {
@@ -4115,6 +4115,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes inverse hyperbolic sine\n  for every element in the tensor. Both input and output has a range of\n  `[-inf, inf]`.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -2, -0.5, 1, 1.2, 200, 10000, float(\"inf\")])\n  tf.math.asinh(x) ==> [-inf -1.4436355 -0.4812118 0.8813736 1.0159732 5.991471 9.903487 inf]\n  ```",
       "inputs": [
         {
           "name": "x",
@@ -4648,6 +4649,7 @@
           "type": "type"
         }
       ],
+      "description": "  Given an input tensor, this function computes inverse hyperbolic tangent\n  for every element in the tensor. Input range is `[-1,1]` and output range is\n  `[-inf, inf]`. If input is `-1`, output will be `-inf` and if the\n  input is `1`, output will be `inf`. Values outside the range will have\n  `nan` as output.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -1, -0.5, 1, 0, 0.5, 10, float(\"inf\")])\n  tf.math.atanh(x) ==> [nan -inf -0.54930615 inf  0. 0.54930615 nan nan]\n  ```",
       "inputs": [
         {
           "name": "x",
