@@ -9868,10 +9868,35 @@ tflite_schema.Operator.prototype.mutatingVariableInputsArray = function() {
 };
 
 /**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite_schema.Operator.prototype.intermediates = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.Operator.prototype.intermediatesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+tflite_schema.Operator.prototype.intermediatesArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_schema.Operator.startOperator = function(builder) {
-  builder.startObject(8);
+  builder.startObject(9);
 };
 
 /**
@@ -10024,6 +10049,35 @@ tflite_schema.Operator.startMutatingVariableInputsVector = function(builder, num
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} intermediatesOffset
+ */
+tflite_schema.Operator.addIntermediates = function(builder, intermediatesOffset) {
+  builder.addFieldOffset(8, intermediatesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.Operator.createIntermediatesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_schema.Operator.startIntermediatesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 tflite_schema.Operator.endOperator = function(builder) {
@@ -10041,9 +10095,10 @@ tflite_schema.Operator.endOperator = function(builder) {
  * @param {flatbuffers.Offset} customOptionsOffset
  * @param {tflite_schema.CustomOptionsFormat} customOptionsFormat
  * @param {flatbuffers.Offset} mutatingVariableInputsOffset
+ * @param {flatbuffers.Offset} intermediatesOffset
  * @returns {flatbuffers.Offset}
  */
-tflite_schema.Operator.createOperator = function(builder, opcodeIndex, inputsOffset, outputsOffset, builtinOptionsType, builtinOptionsOffset, customOptionsOffset, customOptionsFormat, mutatingVariableInputsOffset) {
+tflite_schema.Operator.createOperator = function(builder, opcodeIndex, inputsOffset, outputsOffset, builtinOptionsType, builtinOptionsOffset, customOptionsOffset, customOptionsFormat, mutatingVariableInputsOffset, intermediatesOffset) {
   tflite_schema.Operator.startOperator(builder);
   tflite_schema.Operator.addOpcodeIndex(builder, opcodeIndex);
   tflite_schema.Operator.addInputs(builder, inputsOffset);
@@ -10053,6 +10108,7 @@ tflite_schema.Operator.createOperator = function(builder, opcodeIndex, inputsOff
   tflite_schema.Operator.addCustomOptions(builder, customOptionsOffset);
   tflite_schema.Operator.addCustomOptionsFormat(builder, customOptionsFormat);
   tflite_schema.Operator.addMutatingVariableInputs(builder, mutatingVariableInputsOffset);
+  tflite_schema.Operator.addIntermediates(builder, intermediatesOffset);
   return tflite_schema.Operator.endOperator(builder);
 }
 
