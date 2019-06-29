@@ -18,7 +18,7 @@
     "dependencies": {
         "d3": "5.9.7",
         "dagre": "0.8.4",
-        "electron-updater": "4.0.6",
+        "electron-updater": "4.0.14",
         "flatbuffers": "1.11.0",
         "handlebars": "4.1.2",
         "long": "4.0.0",
