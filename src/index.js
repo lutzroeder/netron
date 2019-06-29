@@ -41,10 +41,6 @@ host.BrowserHost = class {
     initialize(view) {
         this._view = view;
 
-        window.addEventListener('keydown', (e) => {
-            this._keyHandler(e);
-        });
-
         var meta = {};
         for (var element of Array.from(document.getElementsByTagName('meta'))) {
             if (element.content) {
@@ -57,6 +53,66 @@ host.BrowserHost = class {
         this._type = meta.type ? meta.type[0] : 'Browser';
 
         this._zoom = this._getQueryParameter('zoom') || 'd3';
+
+        this._menu = new host.Dropdown(this.document, 'menu-button', 'menu-dropdown');
+        this._menu.add({
+            label: 'Properties...',
+            accelerator: 'CmdOrCtrl+Enter',
+            click: () => this._view.showModelProperties()
+        });
+        this._menu.add({});
+        this._menu.add({
+            label: 'Find...',
+            accelerator: 'CmdOrCtrl+F',
+            click: () => this._view.find()
+        });
+        this._menu.add({});
+        this._menu.add({
+            label: () => this._view.showAttributes ? 'Hide Attributes' : 'Show Attributes',
+            accelerator: 'CmdOrCtrl+D',
+            click: () => this._view.toggleAttributes()
+        });
+        this._menu.add({
+            label: () => this._view.showInitializers ? 'Hide Initializers' : 'Show Initializers',
+            accelerator: 'CmdOrCtrl+I',
+            click: () => this._view.toggleInitializers()
+        });
+        this._menu.add({
+            label: () => this._view.showNames ? 'Hide Names' : 'Show Names',
+            accelerator: 'CmdOrCtrl+U',
+            click: () => this._view.toggleNames()
+        });
+        this._menu.add({});
+        this._menu.add({
+            label: 'Zoom In',
+            accelerator: 'CmdOrCtrl+Up',
+            click: () => this.document.getElementById('zoom-in-button').click()
+        });
+        this._menu.add({
+            label: 'Zoom Out',
+            accelerator: 'CmdOrCtrl+Down',
+            click: () => this.document.getElementById('zoom-out-button').click()
+        });
+        this._menu.add({
+            label: 'Actual Size',
+            accelerator: 'CmdOrCtrl+Backspace',
+            click: () => this._view.resetZoom()
+        });
+        this._menu.add({});
+        this._menu.add({
+            label: 'Export as PNG',
+            accelerator: 'CmdOrCtrl+Shift+E',
+            click: () => this._view.export(document.title + '.png')
+        });
+        this._menu.add({
+            label: 'Export as SVG',
+            accelerator: 'CmdOrCtrl+Alt+E',
+            click: () => this._view.export(document.title + '.svg')
+        });
+        this.document.getElementById('menu-button').addEventListener('click', (e) => {
+            this._menu.toggle();
+            e.preventDefault();
+        });
 
         if (meta.file) {
             this._openModel(meta.file[0], null);
@@ -193,7 +249,7 @@ host.BrowserHost = class {
     }
 
     exception(err, fatal) {
-        if (window.ga && this.version) {
+        if (window.ga && this.version && this.version !== '0.0.0') {
             var description = [];
             description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
             if (err.stack) {
@@ -215,7 +271,7 @@ host.BrowserHost = class {
     }
 
     screen(name) {
-        if (window.ga && this.version) {
+        if (window.ga && this.version && this.version !== '0.0.0') {
             window.ga('send', 'screenview', {
                 screenName: name,
                 appName: this.type,
@@ -225,7 +281,7 @@ host.BrowserHost = class {
     }
 
     event(category, action, label, value) {
-        if (window.ga && this.version) {
+        if (window.ga && this.version && this.version !== '0.0.0') {
             window.ga('send', 'event', {
                 eventCategory: category,
                 eventAction: action,
@@ -383,58 +439,6 @@ host.BrowserHost = class {
             })
         }));
     }
-
-    _keyHandler(e) {
-        if (!e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
-            switch (e.keyCode) {
-                case 70: // F
-                    this._view.find();
-                    e.preventDefault();
-                    break;
-                case 68: // D
-                    this._view.toggleAttributes();
-                    e.preventDefault();
-                    break;
-                case 73: // I
-                    this._view.toggleInitializers();
-                    e.preventDefault();
-                    break;
-                case 85: // U
-                    this._view.toggleNames();
-                    e.preventDefault();
-                    break;
-                case 13: // Return
-                    document.getElementById('model-properties-button').click();
-                    e.preventDefault();
-                    break;
-                case 8: // Backspace
-                    this._view.resetZoom();
-                    e.preventDefault();
-                    break;
-                case 38: // Up
-                    document.getElementById('zoom-in-button').click();
-                    e.preventDefault();
-                    break;
-                case 40: // Down
-                    document.getElementById('zoom-out-button').click();
-                    e.preventDefault();
-                    break;
-            }
-        }
-        if (e.shiftKey && (e.ctrlKey || e.metaKey)) {
-            switch (e.keyCode) {
-                case 69: // E
-                    if (e.altKey) {
-                        this._view.export(document.title + '.svg');
-                    }
-                    else {
-                        this._view.export(document.title + '.png');
-                    }
-                    e.preventDefault();
-                    break;
-            }
-        }
-    }
 };
 
 if (typeof TextDecoder === "undefined") {
@@ -561,6 +565,133 @@ if (!HTMLCanvasElement.prototype.toBlob) {
             callback(new Blob([ buffer ], { type: type || 'image/png' }));
         });
     };
+}
+
+host.Dropdown = class {
+
+    constructor(document, button, dropdown) {
+        this._document = document;
+        this._dropdown = document.getElementById(dropdown);
+        this._button = document.getElementById(button);
+        this._items = [];
+        this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+        this._acceleratorMap = {}; 
+        window.addEventListener('keydown', (e) => {
+            var code = e.keyCode;
+            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0; 
+            code |= e.altKey ? 0x0200 : 0;
+            code |= e.shiftKey ? 0x0100 : 0;
+            if (code == 0x001b) { // Escape
+                this.close();
+                return;
+            }
+            var item = this._acceleratorMap[code.toString()];
+            if (item) {
+                item.click();
+                e.preventDefault();
+            }
+        });
+        document.body.addEventListener('click', (e) => {
+            if (e.target !== this._button) {
+                this.close();
+            }
+        });
+    }
+
+    add(item) {
+        var accelerator = item.accelerator;
+        if (accelerator) {
+            var cmdOrCtrl = false;
+            var alt = false;
+            var shift = false;
+            var key = '';
+            for (var part of item.accelerator.split('+')) {
+                switch (part) {
+                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
+                    case 'Alt': alt = true; break;
+                    case 'Shift': shift = true; break;
+                    default: key = part; break;
+                }
+            }
+            if (key !== '') {
+                item.accelerator = {};
+                item.accelerator.text = '';
+                if (this._apple) {
+                    item.accelerator.text += alt ? '&#x2325;' : '';
+                    item.accelerator.text += shift ? '&#x21e7;' : '';
+                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
+                    var keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
+                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
+                }
+                else {
+                    var list = [];
+                    if (cmdOrCtrl) {
+                        list.push('Ctrl');
+                    }
+                    if (alt) {
+                        list.push('Alt');
+                    }
+                    if (shift) {
+                        list.push('Shift');
+                    }
+                    list.push(key);
+                    item.accelerator.text = list.join('+');
+                }
+                var code = 0;
+                switch (key) {
+                    case 'Backspace': code = 0x08; break;
+                    case 'Enter': code = 0x0D; break;
+                    case 'Up': code = 0x26; break;
+                    case 'Down': code = 0x28; break;
+                    default: code = key.charCodeAt(0); break;
+                }
+                code |= cmdOrCtrl ? 0x0400 : 0;
+                code |= alt ? 0x0200 : 0;
+                code |= shift ? 0x0100 : 0;
+                this._acceleratorMap[code.toString()] = item;
+            }
+        }
+        this._items.push(item);
+    }
+
+    toggle() {
+
+        if (this._dropdown.style.display === 'block') {
+            this.close();
+            return;
+        }
+
+        while (this._dropdown.lastChild) {
+            this._dropdown.removeChild(this._dropdown.lastChild);
+        }
+
+        for (var item of this._items) {
+            if (Object.keys(item).length > 0) {
+                var button = this._document.createElement('button');
+                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
+                button.addEventListener('click', item.click);
+                button.addEventListener('click', () => this.close());
+                this._dropdown.appendChild(button);
+                if (item.accelerator) {
+                    var accelerator = this._document.createElement('span');
+                    accelerator.style.float = 'right';
+                    accelerator.innerHTML = item.accelerator.text;
+                    button.appendChild(accelerator);
+                }
+            }
+            else {
+                var separator = this._document.createElement('div');
+                separator.setAttribute('class', 'separator');
+                this._dropdown.appendChild(separator);
+            }
+        }
+
+        this._dropdown.style.display = 'block';
+    }
+
+    close() {
+        this._dropdown.style.display = 'none';
+    }
 }
 
 class BrowserContext {

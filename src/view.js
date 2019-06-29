@@ -30,9 +30,6 @@ view.View = class {
         this._modelFactoryService = new view.ModelFactoryService(this._host);
         this._host.document.documentElement.style.overflow = 'hidden';
         this._host.document.body.scroll = 'no';
-        this._host.document.getElementById('model-properties-button').addEventListener('click', () => {
-            this.showModelProperties();
-        });
         this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
             this.zoomIn();
         });

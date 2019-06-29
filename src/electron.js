@@ -91,19 +91,22 @@ host.ElectronHost = class {
             this._update('show-names', this._view.showNames);
         });
         electron.ipcRenderer.on('zoom-in', () => {
-            document.getElementById('zoom-in-button').click();
+            this.document.getElementById('zoom-in-button').click();
         });
         electron.ipcRenderer.on('zoom-out', () => {
-            document.getElementById('zoom-out-button').click();
+            this.document.getElementById('zoom-out-button').click();
         });
         electron.ipcRenderer.on('reset-zoom', () => {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {
-            document.getElementById('model-properties-button').click();
+            this.document.getElementById('menu-button').click();
         });
         electron.ipcRenderer.on('find', () => {
             this._view.find();
+        });
+        this.document.getElementById('menu-button').addEventListener('click', () => {
+            this._view.showModelProperties();
         });
 
         var openFileButton = document.getElementById('open-file-button');

@@ -156,6 +156,10 @@ body {
     outline: 0;
 }
 
+.icon {
+    pointer-events: none;
+}
+
 .icon .border { 
     stroke: #fff;
 }
@@ -168,6 +172,46 @@ body {
     stroke: #000000;
 }
 
+.dropdown {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    width: 225px;
+    z-index: 1;
+    border-radius: 5px;
+    border: 1px solid rgba(0,0,0,.15);
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-left: 2px;
+}
+
+.dropdown button {
+    display: block;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: black;
+    width: 225px;
+    clear: both;
+    text-align: left;
+    padding: 5px 12px 5px 12px;
+    white-space: no-wrap;
+    font-size: 13px;
+}
+
+.dropdown button:hover {
+    background-color: #ddd;
+}
+
+.dropdown .separator {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-top: 1px;
+    border-bottom: 0;
+    border-style: solid;
+    border-color: rgba(0,0,0,.15);
+}
+
 @media only screen and (max-device-width: 1024px) {
     .toolbar button {
         width: 32px;
@@ -176,7 +220,7 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-.background { background-color: #1e1e1e; }    
+.background { background-color: #1e1e1e; }
 .logo .stroke { stroke: #666666; }
 .logo .fill { fill: #666666; }
 .logo .border { stroke: #000000; }
@@ -184,12 +228,16 @@ body {
 .graph { background-color: #404040; }
 .background button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
 .background button:hover { color: #1e1e1e; background-color: #aaaaaa; }
-.icon .border { stroke: #1d1d1d; }    
+.icon .border { stroke: #1d1d1d; }
 .icon .stroke { stroke: #aaaaaa; }
 .icon:hover .stroke { stroke: #dfdfdf; }
+.dropdown { background-color: #404040; border-color: #aaaaaa; }
+.dropdown button { color: #aaaaaa; }
+.dropdown button:hover { color: #1e1e1e; background-color: #aaaaaa; }
+.dropdown .separator { border-color: #aaaaaa; }
 }
 
-.dark-mode .background { background-color: #1e1e1e; }    
+.dark-mode .background { background-color: #1e1e1e; }
 .dark-mode .logo .stroke { stroke: #666666; }
 .dark-mode .logo .fill { fill: #666666; }
 .dark-mode .logo .border { stroke: #000000; }
@@ -197,6 +245,7 @@ body {
 .dark-mode .graph { background-color: #404040; }
 .dark-mode .background button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
 .dark-mode .background button:hover { color: #1e1e1e; background-color: #aaaaaa; }
-.dark-mode .icon .border { stroke: #1d1d1d; }    
+.dark-mode .icon .border { stroke: #1d1d1d; }
 .dark-mode .icon .stroke { stroke: #aaaaaa; }
 .dark-mode .icon:hover .stroke { stroke: #dfdfdf; }
+
