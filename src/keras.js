@@ -701,11 +701,7 @@ keras.Attribute = class {
         this._value = value;
 
         if (typeof value == 'object' && value.class_name && value.config) {
-            this._value = () => {
-                return value.class_name + '(' + Object.keys(value.config).map(key => {
-                    return key + '=' + JSON.stringify(value.config[key]);
-                }).join(', ') + ')';
-            };
+            this._value = keras.Attribute._convert(value);
         }
 
         if (name == 'trainable') {
@@ -736,6 +732,20 @@ keras.Attribute = class {
 
     get visible() {
         return this._visible == false ? false : true;
+    }
+
+    static _convert(value) {
+        if (Array.isArray(value) || value !== Object(value)) {
+            return value;
+        }
+        var obj = {};
+        if (value.class_name) {
+            obj.__type__ = value.class_name;
+        }
+        for (var key of Object.keys(value.config)) {
+            obj[key] = keras.Attribute._convert(value.config[key]);
+        }
+        return obj;
     }
 
     static _isEquivalent(a, b) {

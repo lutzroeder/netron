@@ -514,7 +514,7 @@ view.View = class {
                                     if (type.shape.dimensions.length == 0 && connection.initializer && !connection.initializer.state) {
                                         shape = connection.initializer.toString();
                                         if (shape && shape.length > 10) {
-                                            shape = shape.substring(0, 10) + '...';
+                                            shape = shape.substring(0, 10) + '\u2026';
                                         }
                                         separator = ' = ';
                                     }
@@ -522,14 +522,14 @@ view.View = class {
                                 block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', separator);
                             }
                             if (hiddenInitializers) {
-                                block.add(null, '\u3008' + '...' + '\u3009', '', null, '');
+                                block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
                             }
 
                             for (var attribute of attributes) {
                                 if (attribute.visible) {
                                     var attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
-                                        attributeValue = attributeValue.substring(0, 25) + '...';
+                                        attributeValue = attributeValue.substring(0, 25) + '\u2026';
                                     }
                                     block.add(null, attribute.name, attributeValue, attribute.type, ' = ');
                                 }

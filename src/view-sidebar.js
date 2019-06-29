@@ -261,12 +261,9 @@ sidebar.NodeSidebar = class {
         }
     }
 
-    static formatAttributeValue(value, type) {
+    static formatAttributeValue(value, type, quote) {
         if (typeof value === 'function') {
             return value();
-        }
-        if (typeof value === 'string' && type && type != 'string') {
-            return value;
         }
         if (value && long.Long.isLong(value)) {
             return value.toString();
@@ -277,36 +274,74 @@ sidebar.NodeSidebar = class {
         if (Number.isNaN(value)) {
             return 'NaN';
         }
-        if (type == 'shape') {
-            return value.toString();
-        }
-        if (type == 'shape[]') {
-            return value.map((item) => item.toString()).join(', ');
-        }
-        if (type == 'graph') {
-            return value.toString();
-        }
-        if (type == 'graph[]') {
-            return value.map((item) => item.toString()).join(', ');
-        }
-        if (type == 'tensor') {
-            if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+        switch (type) {
+            case 'shape': 
                 return value.toString();
-            }
-            return '[...]';
+            case 'shape[]': 
+                return value.map((item) => item.toString()).join(', ');
+            case 'graph': 
+                return value.toString();
+            case 'graph[]':
+                return value.map((item) => item.toString()).join(', ');
+            case 'tensor':
+                if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+                    return value.toString();
+                }
+                return '[...]';
+        }
+        if (typeof value === 'string' && (!type || type != 'string')) {
+            return quote ? '"' + value + '"' : value;
         }
         if (Array.isArray(value)) {
-            return value.map((item) => {
+            if (value.length == 0) {
+                return quote ? '[]' : '';
+            }
+            var ellipsis = false;
+            if (value.length > 1000) {
+                value = value.slice(0, 1000);
+                ellipsis = true;
+            }
+            var array = value.map((item) => {
                 if (item && long.Long.isLong(item)) {
                     return item.toString();
                 }
                 if (Number.isNaN(item)) {
                     return 'NaN';
                 }
-                return JSON.stringify(item);
-            }).join(', ');
+                return sidebar.NodeSidebar.formatAttributeValue(item, null);
+            });
+            if (ellipsis) {
+                array.push('\u2026')
+            }
+            return quote ? [ '[', array.join(', '), ']' ].join(' ') : array.join(', ');
         }
-        return JSON.stringify(value);
+        if (value === null) {
+            return quote ? 'null' : '';
+        }
+        if (value === undefined) {
+            return 'undefined';
+        }
+        if (value !== Object(value)) {
+            return value.toString();
+        }
+        var list = [];
+        var keys = Object.keys(value).filter((key) => !key.startsWith('__') && !key.endsWith('__'));
+        if (keys.length == 1) {
+            list.push(sidebar.NodeSidebar.formatAttributeValue(value[Object.keys(value)[0]], null, true))
+        }
+        else {
+            for (var key of keys) {
+                list.push(key + ': ' + sidebar.NodeSidebar.formatAttributeValue(value[key], null, true));
+            }
+        }
+        var objectType = value.__type__;
+        if (!objectType && value.constructor.name && value.constructor.name && value.constructor.name !== 'Object') {
+            objectType = value.constructor.name;
+        }
+        if (objectType) {
+            return objectType + (list.length == 0 ? '()' : [ '(', list.join(', '), ')' ].join(''));
+        }
+        return list.length == 0 ? (quote ? '()' : '') : (quote ? [ '(', list.join(', '), ')' ].join(' ') : list.join(', '));
     }
 };
 
@@ -401,7 +436,7 @@ class NodeAttributeView {
         }
         var value = sidebar.NodeSidebar.formatAttributeValue(this._attribute.value, this._attribute.type);
         if (value && value.length > 1000) {
-            value = value.substring(0, 1000) + '...';
+            value = value.substring(0, 1000) + '\u2026';
         }
         if (value && typeof value === 'string') {
             value = value.split('<').join('&lt;').split('>').join('&gt;');

@@ -582,35 +582,20 @@ onnx.Attribute = class {
         this._value = null;
 
         if (attribute.ints && attribute.ints.length > 0) {
-            if (attribute.ints.length > 65536) {
-                this._value = () => '[...]';
-            }
-            else {
-                this._value = attribute.ints; 
-            }
+            this._value = attribute.ints; 
         }
         else if (attribute.floats && attribute.floats.length > 0) {
-            if (attribute.floats.length > 65536) {
-                this._value = () => '[...]';
-            }
-            else {
-                this._value = attribute.floats;
-            }
+            this._value = attribute.floats;
         }
         else if (attribute.strings && attribute.strings.length > 0) {
-            if (attribute.strings.length > 65536) {
-                this._value = () => '[...]';
-            }
-            else {
-                this._value = attribute.strings.map((s) => {
-                    if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                        return String.fromCharCode.apply(null, s);
-                    }
-                    else {
-                        return s.map(v => v.toString()).join(', ');
-                    }
-                });
-            }
+            this._value = attribute.strings.map((s) => {
+                if (s.filter(c => c <= 32 && c >= 128).length == 0) {
+                    return String.fromCharCode.apply(null, s);
+                }
+                else {
+                    return s.map(v => v.toString()).join(', ');
+                }
+            });
         }
         else if (attribute.graphs && attribute.graphs.length > 0) {
             this._value = attribute.graphs.map((graph) => new onnx.Graph(metadata, imageFormat, graph));

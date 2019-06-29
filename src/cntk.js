@@ -530,7 +530,11 @@ cntk.Attribute = class {
             this._type = 'shape';
         }
         if (cntk_v2 && this._value instanceof cntk_v2.Axis) {
-            this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
+            var axis = { __type__: 'Axis' };
+            for (var key of Object.keys(value).filter((key) => key !== 'name')) {
+                axis[key] = value[key];
+            }
+            this._value = axis;
         }
 
         var schema = metadata.getAttributeSchema(operator, name);

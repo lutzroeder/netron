@@ -588,9 +588,7 @@ caffe.Attribute = class {
         this._value = value;
 
         if (value instanceof caffe.proto.BlobShape) {
-            this._value = () => {
-                return JSON.stringify(value.dim);
-            };
+            this._value = new caffe.TensorShape(value.dim);
         }
 
         var schema = metadata.getAttributeSchema(operator, this._name);

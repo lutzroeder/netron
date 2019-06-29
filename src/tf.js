@@ -645,7 +645,7 @@ tf.Attribute = class {
         }
         if (Object.prototype.hasOwnProperty.call(value, 'type')) {
             this._type = 'type';
-            this._value = () => tf.Tensor.formatDataType(value.type);
+            this._value = tf.Tensor.formatDataType(value.type);
         }
         else if (Object.prototype.hasOwnProperty.call(value, 'i')) {
             this._value = value.i;
@@ -672,51 +672,26 @@ tf.Attribute = class {
             var list = value.list;
             this._value = [];
             if (list.s && list.s.length > 0) {
-                if (list.s.length > 65536) {
-                    this._value = () => '[...]';
-                }
-                else {
-                    this._value = list.s.map((s) => {
-                        if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                            return tf.Metadata.textDecoder.decode(value.s);
-                        }
-                        return s.map(v => v.toString()).join(', ');
-                    });
-                }
+                this._value = list.s.map((s) => {
+                    if (s.filter(c => c <= 32 && c >= 128).length == 0) {
+                        return tf.Metadata.textDecoder.decode(value.s);
+                    }
+                    return s.map(v => v.toString()).join(', ');
+                });
             }
             else if (list.i && list.i.length > 0) {
-                if (list.i.length > 65536) {
-                    this._value = () => '[...]';
-                }
-                else {
-                    this._value = list.i;
-                }
+                this._value = list.i;
             }
             else if (list.f && list.f.length > 0) {
-                if (list.f.length > 65536) {
-                    this._value = () => '[...]';
-                }
-                else {
-                    this._value = list.f;
-                }
+                this._value = list.f;
             }
             else if (list.type && list.type.length > 0) {
-                if (list.type.length > 65536) {
-                    this._value = () => '[...]';
-                }
-                else {
-                    this._type = 'type[]';
-                    this._value = list.type.map((type) => tf.Tensor.formatDataType(type)); 
-                }
+                this._type = 'type[]';
+                this._value = list.type.map((type) => tf.Tensor.formatDataType(type)); 
             }
             else if (list.shape && list.shape.length > 0) {
-                if (list.shape.length > 65536) {
-                    this._value = () => '[...]';
-                }
-                else {
-                    this._type = 'shape[]';
-                    this._value = list.shape.map((shape) => new tf.TensorShape(shape));
-                }
+                this._type = 'shape[]';
+                this._value = list.shape.map((shape) => new tf.TensorShape(shape));
             }
         }
 
@@ -725,10 +700,12 @@ tf.Attribute = class {
                 this._visible = false;
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                var valueText = tf.GraphMetadata._formatAttributeValue(this._value);
-                var defaultValueText = tf.GraphMetadata._formatAttributeValue(schema.default);
-                if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {
-                    this._visible = false;
+                if (!Array.isArray(this._value) || Array.isArray(schema.default) || this._value.length === schema.default.length) {
+                    var valueText = tf.GraphMetadata._formatAttributeValue(this._value);
+                    var defaultValueText = tf.GraphMetadata._formatAttributeValue(schema.default);
+                    if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {
+                        this._visible = false;
+                    }
                 }
             }
         }
