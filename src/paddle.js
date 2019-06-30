@@ -103,13 +103,13 @@ paddle.Graph = class {
             if (op.type == 'feed') {
                 var inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => {
-                    return new paddle.Connection(id, types[id], null, null);
+                    return new paddle.Argument(id, types[id], null, null);
                 })));
             }
             else if (op.type == 'fetch') {
                 var outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._outputs.push(new paddle.Parameter(outputName, op.inputs[0].arguments.map((id) => {
-                    return new paddle.Connection(id, types[id], null, null);
+                    return new paddle.Argument(id, types[id], null, null);
                 })));
             }
             else {
@@ -180,7 +180,7 @@ paddle.Parameter = class {
     }
 };
 
-paddle.Connection = class {
+paddle.Argument = class {
 
     constructor(id, type, description, initializer) {
         this._id = id;
@@ -226,13 +226,13 @@ paddle.Node = class {
         }
         for (var input of op.inputs) {
             if (input.arguments.length > 0) {
-                var inputConnections = input.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, initializers[argument]));
+                var inputConnections = input.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, initializers[argument]));
                 this._inputs.push(new paddle.Parameter(input.parameter, inputConnections));
             }
         }
         for (var output of op.outputs) {
             if (output.arguments.length > 0) {
-                var outputConnections = output.arguments.map((argument) => new paddle.Connection(argument, types[argument.split('\n').shift()], null, null));
+                var outputConnections = output.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, null));
                 this._outputs.push(new paddle.Parameter(output.parameter, outputConnections));
             }
         }

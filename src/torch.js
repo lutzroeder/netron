@@ -155,7 +155,7 @@ torch.Graph = class {
             case 'nn.ConcatTable':
                 var prefix = key;
                 if (inputs.length == 0) {
-                    inputs.push(new torch.Connection(groups.join('/') + ':' + key + ':in', null, null));
+                    inputs.push(new torch.Argument(groups.join('/') + ':' + key + ':in', null, null));
                 }
                 var concatInputs = [];
                 index = 0;
@@ -209,7 +209,7 @@ torch.Parameter = class {
     }
 };
 
-torch.Connection = class {
+torch.Argument = class {
 
     constructor(id, type, initializer) {
         this._id = id;
@@ -351,7 +351,7 @@ torch.Node = class {
                 }
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
                     initializers.push(new torch.Parameter(key, true, [ 
-                        new torch.Connection(key, null, new torch.Tensor(obj))
+                        new torch.Argument(key, null, new torch.Tensor(obj))
                     ]));
                     continue;
                 }
@@ -363,12 +363,12 @@ torch.Node = class {
         }
         this._inputs = [];
         if (inputs.length == 0) {
-            inputs.push(new torch.Connection(this._name + ':in', null, null));
+            inputs.push(new torch.Argument(this._name + ':in', null, null));
         }
         this._inputs.push(new torch.Parameter('input', true, inputs));
         this._outputs = [];
         if (outputs.length == 0) {
-            outputs.push(new torch.Connection(this._name, null, null));
+            outputs.push(new torch.Argument(this._name, null, null));
         }
         this._outputs.push(new torch.Parameter('output', true, outputs));
         initializers = initializers.filter((argument) => {

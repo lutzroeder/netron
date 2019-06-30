@@ -233,13 +233,13 @@ caffe2.Graph = class {
         var inputs = Object.keys(initializers);
         for (var input of inputs) {
             if (inputs.length == 1 || !input.startsWith('caffe.')) {
-                this._inputs.push(new caffe2.Parameter(input, [ new caffe2.Connection(input, null, null) ]));
+                this._inputs.push(new caffe2.Parameter(input, [ new caffe2.Argument(input, null, null) ]));
             }
         }
 
         this._outputs = [];
         for (var output of netDef.external_output) {
-            this._outputs.push(new caffe2.Parameter(output, [ new caffe2.Connection(output, null, null) ]));
+            this._outputs.push(new caffe2.Parameter(output, [ new caffe2.Argument(output, null, null) ]));
         }
     }
 
@@ -287,7 +287,7 @@ caffe2.Parameter = class {
     }
 };
 
-caffe2.Connection = class {
+caffe2.Argument = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -350,7 +350,7 @@ caffe2.Node = class {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => {
-                        return new caffe2.Connection(id, null, tensors[id]);
+                        return new caffe2.Argument(id, null, tensors[id]);
                     });
                     this._inputs.push(new caffe2.Parameter(inputDef.name, inputConnections));
                     inputIndex += inputCount;
@@ -361,7 +361,7 @@ caffe2.Node = class {
             this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
                 var inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new caffe2.Parameter(inputName, [
-                    new caffe2.Connection(input, null, tensors[input])
+                    new caffe2.Argument(input, null, tensors[input])
                 ]);
             }));
         }
@@ -385,7 +385,7 @@ caffe2.Node = class {
             this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
                 var outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new caffe2.Parameter(outputName, [
-                    new caffe2.Connection(output, null, null)
+                    new caffe2.Argument(output, null, null)
                 ]);
             }));
         }

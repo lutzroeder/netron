@@ -407,7 +407,7 @@ onnx.Graph = class {
     _connection(id, type, doc_string, initializer) {
         var connection = this._connections[id];
         if (!connection) {
-            connection = new onnx.Connection(id, type ? onnx.Tensor._formatType(type, this._imageFormat) : null, doc_string, initializer);
+            connection = new onnx.Argument(id, type ? onnx.Tensor._formatType(type, this._imageFormat) : null, doc_string, initializer);
             this._connections[id] = connection;
         }
         return connection;
@@ -434,7 +434,7 @@ onnx.Parameter = class {
     }
 };
 
-onnx.Connection = class {
+onnx.Argument = class {
 
     constructor(id, type, description, initializer) {
         this._id = id;

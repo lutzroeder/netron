@@ -451,7 +451,7 @@ sklearn.Graph = class {
             this._nodes = this._nodes.concat(groups.map((group) => {
                 var inputs = group.arrays.map((array) => {
                     return new sklearn.Parameter(array.name, [ 
-                        new sklearn.Connection(array.key, null, new sklearn.Tensor(array.key, array.value))
+                        new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
                     ]);
                 });
                 return new sklearn.Node(this._metadata, '', group.id, { __type__: 'sklearn._.Weights' }, inputs, []);
@@ -469,13 +469,13 @@ sklearn.Graph = class {
             }
         }
         inputs = inputs.map((input) => {
-            return new sklearn.Parameter(input, [ new sklearn.Connection(input, null, null) ]);
+            return new sklearn.Parameter(input, [ new sklearn.Argument(input, null, null) ]);
         });
         inputs = inputs.concat(initializers.map((initializer) => {
-            return new sklearn.Parameter(initializer.name, [ new sklearn.Connection('', null, initializer) ]);
+            return new sklearn.Parameter(initializer.name, [ new sklearn.Argument('', null, initializer) ]);
         }));
         outputs = outputs.map((output) => {
-            return new sklearn.Parameter(output, [ new sklearn.Connection(output, null, null) ]);
+            return new sklearn.Parameter(output, [ new sklearn.Argument(output, null, null) ]);
         });
         var node = new sklearn.Node(this._metadata, group, name, obj, inputs, outputs);
         this._nodes.push(node);
@@ -517,7 +517,7 @@ sklearn.Parameter = class {
     }
 };
 
-sklearn.Connection = class {
+sklearn.Argument = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;

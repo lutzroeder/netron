@@ -132,12 +132,12 @@ torchscript.Graph = class {
 
         for (var input of context.inputs) {
             this._inputs.push(new torchscript.Parameter(input, true, [
-                new torchscript.Connection(input, null, null)
+                new torchscript.Argument(input, null, null)
             ]));
         }
         for (var output of context.outputs) {
             this._outputs.push(new torchscript.Parameter(output, true, [
-                new torchscript.Connection(output, null, null)
+                new torchscript.Argument(output, null, null)
             ]));
         }
 
@@ -206,7 +206,7 @@ torchscript.Parameter = class {
     }
 };
 
-torchscript.Connection = class {
+torchscript.Argument = class {
 
     constructor(id, type, initializer) {
         this._id = id;
@@ -247,11 +247,11 @@ torchscript.Node = class {
             if (module.parameters) {
                 for (parameter of module.parameters) {
                     this._inputs.push(new torchscript.Parameter(parameter.name, true, [
-                        new torchscript.Connection('', null, parameter.initializer || null)
+                        new torchscript.Argument('', null, parameter.initializer || null)
                     ]));
                     if (parameter.outputs) {
                         this._outputs.push(new torchscript.Parameter(parameter.name, true,
-                            parameter.outputs.map((id) => new torchscript.Connection(id, null, null))
+                            parameter.outputs.map((id) => new torchscript.Argument(id, null, null))
                         ));
                     }
                 }
@@ -306,7 +306,7 @@ torchscript.Node = class {
                     inputName = schema.inputs[inputIndex].name;
                 }
                 this._inputs.push(new torchscript.Parameter(inputName, true,
-                    node.inputs[inputIndex].map((input) => new torchscript.Connection(input.id, null, input.initializer || null))
+                    node.inputs[inputIndex].map((input) => new torchscript.Argument(input.id, null, input.initializer || null))
                 ));
             }
 
@@ -316,7 +316,7 @@ torchscript.Node = class {
                     outputName = schema.outputs[outputIndex].name;
                 }
                 this._outputs.push(new torchscript.Parameter(outputName, true, [
-                    new torchscript.Connection(node.outputs[outputIndex], null, null)
+                    new torchscript.Argument(node.outputs[outputIndex], null, null)
                 ]));
             }
 

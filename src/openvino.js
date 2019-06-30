@@ -160,7 +160,7 @@ openvino.Graph = class {
                 dimensions.push(parseInt(dimElement.textContent.trim()));
             }
             var shape = (dimensions.length == 0) ? null : new openvino.TensorShape(dimensions);
-            connection = new openvino.Connection(id, new openvino.TensorType(precision, shape), null);
+            connection = new openvino.Argument(id, new openvino.TensorType(precision, shape), null);
         }
         return connection;
     }
@@ -242,7 +242,7 @@ openvino.Graph = class {
                     } else {
                         // TODO: no tensor information in the new connection - passed as null for now
                         nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length+1).toString(), [
-                            new openvino.Connection(newId, null, null)
+                            new openvino.Argument(newId, null, null)
                         ]));
                     }
                 }
@@ -376,7 +376,7 @@ openvino.Node = class {
                     var offset = parseInt(blob.getAttribute('offset'));
                     var size = parseInt(blob.getAttribute('size'));
                     this._initializers.push(new openvino.Parameter(name, [
-                        new openvino.Connection('', null, new openvino.Tensor(precision, null, offset, size))
+                        new openvino.Argument('', null, new openvino.Tensor(precision, null, offset, size))
                     ]));
                 }
             }
@@ -490,7 +490,7 @@ openvino.Parameter = class {
     }
 };
 
-openvino.Connection = class {
+openvino.Argument = class {
 
     constructor(id, type, initializer) {
         this._id = id;

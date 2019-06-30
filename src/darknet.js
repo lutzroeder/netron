@@ -69,7 +69,7 @@ darknet.Graph = class {
 
         var input = 'input';
         this._inputs.push(new darknet.Parameter(input, true, [
-            new darknet.Connection(input, inputType, null)
+            new darknet.Argument(input, inputType, null)
         ]));
 
         var i;
@@ -110,7 +110,7 @@ darknet.Graph = class {
             var lastLayer = cfg[cfg.length - 1];
             for (i = 0; i < lastLayer._outputs.length; i++) {
                 this._outputs.push(new darknet.Parameter('output' + (i > 1 ? i.toString() : ''), true, [
-                    new darknet.Connection(lastLayer._outputs[i], null, null)
+                    new darknet.Argument(lastLayer._outputs[i], null, null)
                 ]));
             }
         }
@@ -150,7 +150,7 @@ darknet.Parameter = class {
     }
 };
 
-darknet.Connection = class {
+darknet.Argument = class {
 
     constructor(id, type, initializer) {
         this._id = id;
@@ -186,12 +186,12 @@ darknet.Node = class {
         this._chain = [];
         if (layer._inputs && layer._inputs.length > 0) {
             this._inputs.push(new darknet.Parameter(layer._inputs.length <= 1 ? 'input' : 'inputs', true, layer._inputs.map((input) => {
-                return new darknet.Connection(input, null, null);
+                return new darknet.Argument(input, null, null);
             })));
         }
         if (layer._outputs && layer._outputs.length > 0) {
             this._outputs.push(new darknet.Parameter(layer._outputs.length <= 1 ? 'output' : 'outputs', true, layer._outputs.map((output) => {
-                return new darknet.Connection(output, null, null);
+                return new darknet.Argument(output, null, null);
             })));
         }
         switch (layer.__type__) {
@@ -283,7 +283,7 @@ darknet.Node = class {
     _initializer(name) {
         var id = this._name.toString() + '_' + name;
         this._inputs.push(new darknet.Parameter(name, true, [
-            new darknet.Connection(id, null, new darknet.Tensor(id))
+            new darknet.Argument(id, null, new darknet.Tensor(id))
         ]));
     }
 

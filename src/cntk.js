@@ -159,11 +159,11 @@ cntk.Graph = class {
                     switch (node.__type__) {
                         case 'InputValue':
                             this._inputs.push(new cntk.Parameter(node.name, [ 
-                                new cntk.Connection(version, node)
+                                new cntk.Argument(version, node)
                             ]));
                             break;
                         case 'LearnableParameter':
-                            connections[node.name] = new cntk.Connection(version, node);
+                            connections[node.name] = new cntk.Argument(version, node);
                             break;
                     }
                 }
@@ -176,7 +176,7 @@ cntk.Graph = class {
                 if (obj.output) {
                     for (var output of obj.output) {
                         this._outputs.push(new cntk.Parameter(output, [ 
-                            new cntk.Connection(version, output)
+                            new cntk.Argument(version, output)
                         ]));
                     }
                 }
@@ -188,7 +188,7 @@ cntk.Graph = class {
                 }
                 var argumentNames = {};
                 for (var input of obj.inputs) {
-                    var connection = new cntk.Connection(version, input);
+                    var connection = new cntk.Argument(version, input);
                     connections[input.uid] = connection;
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
@@ -300,7 +300,7 @@ cntk.Parameter = class {
     }
 };
 
-cntk.Connection = class {
+cntk.Argument = class {
 
     constructor(version, obj) {
         if (typeof obj === 'string') {
@@ -388,9 +388,9 @@ cntk.Node = class {
                     if (connections[input]) {
                         return connections[input];
                     }
-                    return new cntk.Connection(version, input);
+                    return new cntk.Argument(version, input);
                 });
-                outputs = [ new cntk.Connection(version, this._name) ];
+                outputs = [ new cntk.Argument(version, this._name) ];
                 break;
             case 2:
                 this._name = obj.name || obj.uid || null;
@@ -434,10 +434,10 @@ cntk.Node = class {
                         }
                     }
                     else {
-                        inputs.push(new cntk.Connection(version, input));
+                        inputs.push(new cntk.Argument(version, input));
                     }
                 }
-                outputs.push(new cntk.Connection(version, output + '_Output_0'));
+                outputs.push(new cntk.Argument(version, output + '_Output_0'));
                 inputs = inputs.concat(initializers);
         }
 

@@ -279,7 +279,7 @@ caffe.Graph = class {
                 if (inputType == null && netParameter.input.length == 1 && netParameter.input_dim && netParameter.input_dim.length > 0) {
                     inputType = new caffe.TensorType(null, new caffe.TensorShape(netParameter.input_dim));
                 }
-                this._inputs.push(new caffe.Parameter(input, [ new caffe.Connection(input, inputType, null) ]));
+                this._inputs.push(new caffe.Parameter(input, [ new caffe.Argument(input, inputType, null) ]));
                 index++;
             }
         }
@@ -313,11 +313,11 @@ caffe.Graph = class {
             }
             var keys = Object.keys(nodeMap);
             if (keys.length == 1) {
-                this._outputs.push(new caffe.Parameter(keys[0], [ new caffe.Connection(keys[0], null) ]));
+                this._outputs.push(new caffe.Parameter(keys[0], [ new caffe.Argument(keys[0], null) ]));
             }
             else if (outputs.length == 1) {
                 outputs[0]._outputs = [ 'output' ];
-                this._outputs.push(new caffe.Parameter('output', [ new caffe.Connection('output', null) ]));
+                this._outputs.push(new caffe.Parameter('output', [ new caffe.Argument('output', null) ]));
             }
         }
     }
@@ -352,7 +352,7 @@ caffe.Graph = class {
                         if (attribute._value.length == 1 && attribute._value[0].dim) {
                             var input = node._outputs[0];
                             var type = new caffe.TensorType(null, new caffe.TensorShape(attribute._value[0].dim));
-                            this._inputs.push(new caffe.Parameter(input, [ new caffe.Connection(input, type) ]));
+                            this._inputs.push(new caffe.Parameter(input, [ new caffe.Argument(input, type) ]));
                             return true;
                         }
                     }
@@ -383,7 +383,7 @@ caffe.Parameter = class {
     }
 };
 
-caffe.Connection = class {
+caffe.Argument = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -521,10 +521,10 @@ caffe.Node = class {
                     for (var input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (input != '' || inputDef.option != 'optional') {
                             if (input instanceof caffe.Tensor) {
-                                inputConnections.push(new caffe.Connection('', null, input));
+                                inputConnections.push(new caffe.Argument('', null, input));
                             }
                             else {
-                                inputConnections.push(new caffe.Connection(input, null, null));
+                                inputConnections.push(new caffe.Argument(input, null, null));
                             }
                         }
                     }
@@ -537,8 +537,8 @@ caffe.Node = class {
             args = args.concat(inputs.slice(inputIndex).map((input) => {
                 return new caffe.Parameter(inputIndex.toString(), [ 
                     (input instanceof caffe.Tensor) ?
-                        new caffe.Connection('', null, input) :
-                        new caffe.Connection(input, null, null)
+                        new caffe.Argument('', null, input) :
+                        new caffe.Argument(input, null, null)
                 ]);
             }));
         }
@@ -555,7 +555,7 @@ caffe.Node = class {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     var connections = outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
-                        return new caffe.Connection(output, null, null);
+                        return new caffe.Argument(output, null, null);
                     });
                     args.push(new caffe.Parameter(outputDef.name, connections));
                     outputIndex += outputCount;
@@ -565,7 +565,7 @@ caffe.Node = class {
         else {
             args = args.concat(outputs.slice(outputIndex).map((output) => {
                 return new caffe.Parameter(outputIndex.toString(), [
-                    new caffe.Connection(output, null, null)
+                    new caffe.Argument(output, null, null)
                 ]);
             }));
         }

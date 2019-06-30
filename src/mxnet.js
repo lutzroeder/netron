@@ -467,7 +467,7 @@ mxnet.Graph = class {
                 if (outputSignature && outputSignature.data_shape) {
                     outputType = new mxnet.TensorType(-1, new mxnet.TensorShape(outputSignature.data_shape));
                 }
-                this._outputs.push(new mxnet.Parameter(outputName, [ new mxnet.Connection('[' + outputId.join(',') + ']', outputType, null) ]));
+                this._outputs.push(new mxnet.Parameter(outputName, [ new mxnet.Argument('[' + outputId.join(',') + ']', outputType, null) ]));
             }
     
             var initializerMap = {};
@@ -485,7 +485,7 @@ mxnet.Graph = class {
                     if (inputSignature && inputSignature.data_shape) {
                         inputType = new mxnet.TensorType(-1, new mxnet.TensorShape(inputSignature.data_shape));
                     }
-                    this._inputs.push(new mxnet.Parameter(inputName, [ new mxnet.Connection('[' + inputId.join(',') + ']', inputType) ]));
+                    this._inputs.push(new mxnet.Parameter(inputName, [ new mxnet.Argument('[' + inputId.join(',') + ']', inputType) ]));
                 }
             }
         }
@@ -572,7 +572,7 @@ mxnet.Parameter = class {
     }
 };
 
-mxnet.Connection = class {
+mxnet.Argument = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -695,7 +695,7 @@ mxnet.Node = class {
                         for (input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                             var inputId = '[' + input.join(',') + ']';
                             if (inputId != '' || inputDef.option != 'optional') {
-                                inputConnections.push(new mxnet.Connection(inputId, inputDef.type, initializers[inputId]));
+                                inputConnections.push(new mxnet.Argument(inputId, inputDef.type, initializers[inputId]));
                             }
                         }
                         this._inputs.push(new mxnet.Parameter(inputDef.name, inputConnections));
@@ -707,7 +707,7 @@ mxnet.Node = class {
                 this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
                     var inputId = '[' + input.join(',') + ']';
                     return new mxnet.Parameter((inputIndex + index).toString(), [ 
-                        new mxnet.Connection(inputId, null, initializers[inputId])
+                        new mxnet.Argument(inputId, null, initializers[inputId])
                     ]);
                 }));
             }
@@ -722,7 +722,7 @@ mxnet.Node = class {
                         var outputConnections = [];
                         var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                         for (var output of outputs.slice(outputIndex, outputIndex + outputCount)) {
-                            outputConnections.push(new mxnet.Connection('[' + output.join(',') + ']', null, null));
+                            outputConnections.push(new mxnet.Argument('[' + output.join(',') + ']', null, null));
                         }
                         this._outputs.push(new mxnet.Parameter(outputDef.name, outputConnections));
                         outputIndex += outputCount;
@@ -732,7 +732,7 @@ mxnet.Node = class {
             if (outputIndex < outputs.length) {
                 this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
                     return new mxnet.Parameter((outputIndex + index).toString(), [ 
-                        new mxnet.Connection('[' + output.join(',') + ']', null, null)
+                        new mxnet.Argument('[' + output.join(',') + ']', null, null)
                     ]);
                 }));
             }
@@ -741,7 +741,7 @@ mxnet.Node = class {
         if (node.params) {
             for (var param of node.params) {
                 this._inputs.push(new mxnet.Parameter(param.name, [
-                    new mxnet.Connection(param.id, null, params[param.id] || null)
+                    new mxnet.Argument(param.id, null, params[param.id] || null)
                 ]));
             }
         }

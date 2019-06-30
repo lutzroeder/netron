@@ -346,7 +346,7 @@ keras.Graph = class {
                     }
                 }
                 else {
-                    this._inputs.push(new keras.Parameter(name, true, [ new keras.Connection(name, type, null) ])); 
+                    this._inputs.push(new keras.Parameter(name, true, [ new keras.Argument(name, type, null) ])); 
                 }
             }
         }
@@ -372,7 +372,7 @@ keras.Graph = class {
                     outputNode._outputs[outputIndex] = outputName;
                 }
                 if (addGraphOutput) {
-                    this._outputs.push(new keras.Parameter(outputName, true, [ new keras.Connection(outputName, null, null) ]));
+                    this._outputs.push(new keras.Parameter(outputName, true, [ new keras.Argument(outputName, null, null) ]));
                 }
             }
         }
@@ -423,10 +423,10 @@ keras.Graph = class {
             this._loadNode(layer, nodeInputs, nodeOutputs, weights, group);
         }
         if (!inputs) {
-            this._inputs.push(new keras.Parameter(inputName, true, [ new keras.Connection(inputName, inputType, null) ]));
+            this._inputs.push(new keras.Parameter(inputName, true, [ new keras.Argument(inputName, inputType, null) ]));
         }
         if (connection) {
-            this._outputs.push(new keras.Parameter(connection, true, [ new keras.Connection(connection, null, null) ]));
+            this._outputs.push(new keras.Parameter(connection, true, [ new keras.Argument(connection, null, null) ]));
         }
     }
 
@@ -485,7 +485,7 @@ keras.Parameter = class {
     }
 };
 
-keras.Connection = class {
+keras.Argument = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -596,7 +596,7 @@ keras.Node = class {
                 }
             }
             var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
-                return new keras.Connection(id, null, initializers[id]);
+                return new keras.Argument(id, null, initializers[id]);
             });
             if (!inputName && inputConnections.length == 1 && inputConnections[0].initializer && inputConnections[0].initializer.name) {
                 var parts = inputConnections[0].initializer.name.split('/').pop().split(':').shift().split('_');
@@ -615,7 +615,7 @@ keras.Node = class {
                 (schema && schema.outputs && outputIndex < schema.outputs.length && schema.outputs[outputIndex] && schema.outputs[outputIndex].name) ?
                     schema.outputs[outputIndex].name :
                     outputIndex.toString();
-            return new keras.Parameter(outputName, true, [ new keras.Connection(output, null, null) ]);
+            return new keras.Parameter(outputName, true, [ new keras.Argument(output, null, null) ]);
         });
     }
 

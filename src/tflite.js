@@ -107,7 +107,7 @@ tflite.Graph = class {
             if (buffer.dataLength() > 0) {
                 initializer = new tflite.Tensor(tensor, buffer);
             }
-            connections.push(new tflite.Connection(tensor, i, initializer));
+            connections.push(new tflite.Argument(tensor, i, initializer));
             names.push(tensor.name());
         }
         for (var j = 0; j < this._graph.operatorsLength(); j++) {
@@ -418,7 +418,7 @@ tflite.Parameter = class {
     }
 };
 
-tflite.Connection = class {
+tflite.Argument = class {
 
     constructor(tensor, index, initializer) {
         this._id = tensor.name() || index.toString();

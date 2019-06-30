@@ -103,12 +103,12 @@ coreml.Graph = class {
 
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
-                var connection = new coreml.Connection(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
+                var connection = new coreml.Argument(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
                 return new coreml.Parameter(input.name, true, [ connection ]);
             });
 
             this._outputs = this._description.output.map((output) => {
-                var connection = new coreml.Connection(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
+                var connection = new coreml.Argument(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
                 return new coreml.Parameter(output.name, true, [ connection ]);
             });
         }
@@ -488,7 +488,7 @@ coreml.Parameter = class {
     }
 };
 
-coreml.Connection = class {
+coreml.Argument = class {
     constructor(id, type, description, initializer) {
         this._id = id;
         this._type = type;
@@ -600,7 +600,7 @@ coreml.Node = class {
     get inputs() {
         var inputs = this._metadata.getInputs(this._operator, this._inputs).map((input) => {
             return new coreml.Parameter(input.name, true, input.connections.map((connection) => {
-                return new coreml.Connection(connection.id, connection.type, null, null);
+                return new coreml.Argument(connection.id, connection.type, null, null);
             }));
         });
         return inputs.concat(this._initializers);
@@ -609,7 +609,7 @@ coreml.Node = class {
     get outputs() {
         return this._outputs.map((output, index) => {
             var name = this._metadata.getOutputName(this._operator, index);
-            return new coreml.Parameter(name, true, [ new coreml.Connection(output, null, null, null) ]);
+            return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);
         });
     }
 
@@ -744,7 +744,7 @@ coreml.Node = class {
 
     _initializer(kind, name, shape, data) {
         var initializer = new coreml.Tensor(kind, name, shape, data);
-        var connection = new coreml.Connection('', null, null, initializer);
+        var connection = new coreml.Argument('', null, null, initializer);
         var visible = true;
         var schema = this._metadata.getInputSchema(this._operator, name);
         if (schema && Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
