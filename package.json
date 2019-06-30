@@ -22,7 +22,7 @@
         "flatbuffers": "1.11.0",
         "handlebars": "4.1.2",
         "long": "4.0.0",
-        "marked": "0.6.2",
+        "marked": "0.6.3",
         "pako": "1.0.10",
         "protobufjs": "github:lutzroeder/protobuf.js#pbtxt",
         "universal-analytics": "0.4.20"
