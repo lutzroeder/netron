@@ -119,11 +119,11 @@ tflite.Graph = class {
         }
         for (var k = 0; k < graph.inputsLength(); k++) {
             var inputIndex = graph.inputs(k);
-            this._inputs.push(new tflite.Argument(names[inputIndex], true, [ connections[inputIndex] ]));
+            this._inputs.push(new tflite.Parameter(names[inputIndex], true, [ connections[inputIndex] ]));
         }
         for (var l = 0; l < graph.outputsLength(); l++) {
             var outputIndex = graph.outputs(l);
-            this._outputs.push(new tflite.Argument(names[outputIndex], true, [ connections[outputIndex] ]));
+            this._outputs.push(new tflite.Parameter(names[outputIndex], true, [ connections[outputIndex] ]));
         }
     }
 
@@ -186,7 +186,7 @@ tflite.Node = class {
                 }
                 inputIndex += count;
                 inputName = inputName ? inputName : inputIndex.toString();
-                this._inputs.push(new tflite.Argument(inputName, inputVisible, inputConnections));
+                this._inputs.push(new tflite.Parameter(inputName, inputVisible, inputConnections));
             }
             this._outputs = [];
             for (var k = 0; k < node.outputsLength(); k++) {
@@ -199,7 +199,7 @@ tflite.Node = class {
                         outputName = output.name;
                     }
                 }
-                this._outputs.push(new tflite.Argument(outputName, true, [ connection ]));
+                this._outputs.push(new tflite.Parameter(outputName, true, [ connection ]));
             }
             this._attributes = [];
             var optionsTypeName = this._operator + 'Options';
@@ -397,7 +397,7 @@ tflite.Attribute = class {
     }
 };
 
-tflite.Argument = class {
+tflite.Parameter = class {
 
     constructor(name, visible, connections) {
         this._name = name;

@@ -307,7 +307,7 @@ tf.Graph = class {
                         if (dtype && dtype.type && shape && shape.shape) {
                             var type = new tf.TensorType(dtype.type, shape.shape);
                             var connection = new tf.Connection(node.output[0], type, null); 
-                            inputMap[node.output[0]] = new tf.Argument(node.name, [ connection ]);
+                            inputMap[node.output[0]] = new tf.Parameter(node.name, [ connection ]);
                         }
                     }
                 }
@@ -377,7 +377,7 @@ tf.Graph = class {
     }
 };
 
-tf.Argument = class {
+tf.Parameter = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -459,12 +459,12 @@ tf.Node = class {
                 var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
                     return new tf.Connection(id, null, initializers[id]);
                 });
-                this._inputs.push(new tf.Argument(input.name, inputConnections));
+                this._inputs.push(new tf.Parameter(input.name, inputConnections));
                 inputIndex += inputCount;
             }
         }
         this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
-            return new tf.Argument((inputIndex + index).toString(), [ 
+            return new tf.Parameter((inputIndex + index).toString(), [ 
                 new tf.Connection(input, null, initializers[input])
             ]);
         }));
@@ -490,12 +490,12 @@ tf.Node = class {
                 var outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
                     return new tf.Connection(id, null, null);
                 });
-                this._outputs.push(new tf.Argument(output.name, outputConnections));
+                this._outputs.push(new tf.Parameter(output.name, outputConnections));
                 outputIndex += outputCount;
             }
         }
         this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
-            return new tf.Argument((outputIndex + index).toString(), [
+            return new tf.Parameter((outputIndex + index).toString(), [
                 new tf.Connection(output, null, null)
             ]);
         }));

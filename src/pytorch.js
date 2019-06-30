@@ -684,10 +684,10 @@ pytorch.Graph = class {
 
         if (!state_dict) {
             var input = 'data';
-            this._inputs.push(new pytorch.Argument(input, true, [ new pytorch.Connection(input, null, null) ]));
+            this._inputs.push(new pytorch.Parameter(input, true, [ new pytorch.Connection(input, null, null) ]));
             var outputs = this._loadModule(root, module_source_map, [], [ input ]);
             for (var output of outputs) {
-                this._outputs.push(new pytorch.Argument(output, true, [ new pytorch.Connection(output, null, null) ]));
+                this._outputs.push(new pytorch.Parameter(output, true, [ new pytorch.Connection(output, null, null) ]));
             }
         } else {
             var state_group_map = {};
@@ -708,7 +708,7 @@ pytorch.Graph = class {
                 var inputs = state_group.states.map((state) => {
                     var tensor = new pytorch.Tensor(state.key, state.value, sysInfo.little_endian);
                     var visible = state_group.states.length == 0 || tensor.type.toString() != 'int64' || tensor.value < 1000;
-                    return new pytorch.Argument(state.name, visible, [
+                    return new pytorch.Parameter(state.name, visible, [
                         new pytorch.Connection(state.key, null, tensor)
                     ]);
                 });
@@ -775,7 +775,7 @@ pytorch.Graph = class {
         }
 
         var inputs = [];
-        inputs.push(new pytorch.Argument(inputSchema.shift().name, true, connections.map((connection) => {
+        inputs.push(new pytorch.Parameter(inputSchema.shift().name, true, connections.map((connection) => {
             return new pytorch.Connection(connection, null, null);
         })));
 
@@ -803,14 +803,14 @@ pytorch.Graph = class {
                 else if (parameter.value.storage) {
                     initializer = new pytorch.Tensor('', parameter.value, this._littleEndian);
                 }
-                inputs.push(new pytorch.Argument(inputName || parameter.key, visible, [ new pytorch.Connection('', null, initializer) ]));
+                inputs.push(new pytorch.Parameter(inputName || parameter.key, visible, [ new pytorch.Connection('', null, initializer) ]));
             }
         }
 
         var group = groups.join('/');
         var name = group ? (group + '/' + key) : key;
 
-        var outputs = [ new pytorch.Argument('output', true, [ new pytorch.Connection(name, null, null) ]) ];
+        var outputs = [ new pytorch.Parameter('output', true, [ new pytorch.Connection(name, null, null) ]) ];
 
         var node = new pytorch.Node(this._metadata, group, name, obj, inputs, outputs);
         this._nodes.push(node);
@@ -838,7 +838,7 @@ pytorch.Graph = class {
     }
 };
 
-pytorch.Argument = class {
+pytorch.Parameter = class {
 
     constructor(name, visible, connections) {
         this._name = name;

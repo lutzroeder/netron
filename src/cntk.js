@@ -158,7 +158,7 @@ cntk.Graph = class {
                     node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue':
-                            this._inputs.push(new cntk.Argument(node.name, [ 
+                            this._inputs.push(new cntk.Parameter(node.name, [ 
                                 new cntk.Connection(version, node)
                             ]));
                             break;
@@ -175,7 +175,7 @@ cntk.Graph = class {
                 }
                 if (obj.output) {
                     for (var output of obj.output) {
-                        this._outputs.push(new cntk.Argument(output, [ 
+                        this._outputs.push(new cntk.Parameter(output, [ 
                             new cntk.Connection(version, output)
                         ]));
                     }
@@ -193,7 +193,7 @@ cntk.Graph = class {
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
                         var inputName = input.name || input.uid;
-                        this._inputs.push(new cntk.Argument(inputName, [ connection ]));
+                        this._inputs.push(new cntk.Parameter(inputName, [ connection ]));
                     }
                     argumentNames[input.uid] = input;
                 }
@@ -281,7 +281,7 @@ cntk.Function = class {
     }
 };
 
-cntk.Argument = class {
+cntk.Parameter = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -453,14 +453,14 @@ cntk.Node = class {
                             inputConnections.push(inputConnection);
                         }
                     }
-                    this._inputs.push(new cntk.Argument(inputSchema.name, inputConnections));
+                    this._inputs.push(new cntk.Parameter(inputSchema.name, inputConnections));
                     inputIndex += inputCount;
                 }
             }
         }
         else {
             this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((connection) => {
-                return new cntk.Argument(inputIndex.toString(), [ connection ]);
+                return new cntk.Parameter(inputIndex.toString(), [ connection ]);
             }));
         }
 
@@ -469,14 +469,14 @@ cntk.Node = class {
             for (var outputSchema of schema.outputs) {
                 if (outputIndex < outputs.length || outputSchema.option != 'optional') {
                     var outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    this._outputs.push(new cntk.Argument(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
+                    this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
                     outputIndex += outputCount;
                 }
             }
         }
         else {
             this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((connection) => {
-                return new cntk.Argument(outputIndex.toString(), [ connection ]);
+                return new cntk.Parameter(outputIndex.toString(), [ connection ]);
             }));
         }
     }

@@ -68,7 +68,7 @@ darknet.Graph = class {
         }
 
         var input = 'input';
-        this._inputs.push(new darknet.Argument(input, true, [
+        this._inputs.push(new darknet.Parameter(input, true, [
             new darknet.Connection(input, inputType, null)
         ]));
 
@@ -109,7 +109,7 @@ darknet.Graph = class {
         if (cfg.length > 0) {
             var lastLayer = cfg[cfg.length - 1];
             for (i = 0; i < lastLayer._outputs.length; i++) {
-                this._outputs.push(new darknet.Argument('output' + (i > 1 ? i.toString() : ''), true, [
+                this._outputs.push(new darknet.Parameter('output' + (i > 1 ? i.toString() : ''), true, [
                     new darknet.Connection(lastLayer._outputs[i], null, null)
                 ]));
             }
@@ -129,7 +129,7 @@ darknet.Graph = class {
     }
 };
 
-darknet.Argument = class {
+darknet.Parameter = class {
 
     constructor(name, visible, connections) {
         this._name = name;
@@ -185,12 +185,12 @@ darknet.Node = class {
         this._outputs = [];
         this._chain = [];
         if (layer._inputs && layer._inputs.length > 0) {
-            this._inputs.push(new darknet.Argument(layer._inputs.length <= 1 ? 'input' : 'inputs', true, layer._inputs.map((input) => {
+            this._inputs.push(new darknet.Parameter(layer._inputs.length <= 1 ? 'input' : 'inputs', true, layer._inputs.map((input) => {
                 return new darknet.Connection(input, null, null);
             })));
         }
         if (layer._outputs && layer._outputs.length > 0) {
-            this._outputs.push(new darknet.Argument(layer._outputs.length <= 1 ? 'output' : 'outputs', true, layer._outputs.map((output) => {
+            this._outputs.push(new darknet.Parameter(layer._outputs.length <= 1 ? 'output' : 'outputs', true, layer._outputs.map((output) => {
                 return new darknet.Connection(output, null, null);
             })));
         }
@@ -282,7 +282,7 @@ darknet.Node = class {
 
     _initializer(name) {
         var id = this._name.toString() + '_' + name;
-        this._inputs.push(new darknet.Argument(name, true, [
+        this._inputs.push(new darknet.Parameter(name, true, [
             new darknet.Connection(id, null, new darknet.Tensor(id))
         ]));
     }

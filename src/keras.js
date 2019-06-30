@@ -346,7 +346,7 @@ keras.Graph = class {
                     }
                 }
                 else {
-                    this._inputs.push(new keras.Argument(name, true, [ new keras.Connection(name, type, null) ])); 
+                    this._inputs.push(new keras.Parameter(name, true, [ new keras.Connection(name, type, null) ])); 
                 }
             }
         }
@@ -372,7 +372,7 @@ keras.Graph = class {
                     outputNode._outputs[outputIndex] = outputName;
                 }
                 if (addGraphOutput) {
-                    this._outputs.push(new keras.Argument(outputName, true, [ new keras.Connection(outputName, null, null) ]));
+                    this._outputs.push(new keras.Parameter(outputName, true, [ new keras.Connection(outputName, null, null) ]));
                 }
             }
         }
@@ -423,10 +423,10 @@ keras.Graph = class {
             this._loadNode(layer, nodeInputs, nodeOutputs, weights, group);
         }
         if (!inputs) {
-            this._inputs.push(new keras.Argument(inputName, true, [ new keras.Connection(inputName, inputType, null) ]));
+            this._inputs.push(new keras.Parameter(inputName, true, [ new keras.Connection(inputName, inputType, null) ]));
         }
         if (connection) {
-            this._outputs.push(new keras.Argument(connection, true, [ new keras.Connection(connection, null, null) ]));
+            this._outputs.push(new keras.Parameter(connection, true, [ new keras.Connection(connection, null, null) ]));
         }
     }
 
@@ -465,7 +465,7 @@ keras.Graph = class {
     }
 };
 
-keras.Argument = class {
+keras.Parameter = class {
     constructor(name, visible, connections) {
         this._name = name;
         this._visible = visible;
@@ -606,7 +606,7 @@ keras.Node = class {
                 inputName = inputNames[inputName2] ? inputName2 : inputName1;
             }
             inputName = inputName || inputIndex.toString();
-            this._inputs.push(new keras.Argument(inputName, visible, inputConnections));
+            this._inputs.push(new keras.Parameter(inputName, visible, inputConnections));
             inputIndex += inputCount;
         }
 
@@ -615,7 +615,7 @@ keras.Node = class {
                 (schema && schema.outputs && outputIndex < schema.outputs.length && schema.outputs[outputIndex] && schema.outputs[outputIndex].name) ?
                     schema.outputs[outputIndex].name :
                     outputIndex.toString();
-            return new keras.Argument(outputName, true, [ new keras.Connection(output, null, null) ]);
+            return new keras.Parameter(outputName, true, [ new keras.Connection(output, null, null) ]);
         });
     }
 

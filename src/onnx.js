@@ -313,12 +313,12 @@ onnx.Graph = class {
             for (valueInfo of graph.input) {
                 connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
                 if (!initializers[valueInfo.name]) {
-                    this._inputs.push(new onnx.Argument(valueInfo.name, [ connection ]));
+                    this._inputs.push(new onnx.Parameter(valueInfo.name, [ connection ]));
                 }
             }
             for (valueInfo of graph.output) {
                 connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
-                this._outputs.push(new onnx.Argument(valueInfo.name, [ connection ]));
+                this._outputs.push(new onnx.Parameter(valueInfo.name, [ connection ]));
             }
             for (node of nodes) {
                 var inputs = [];
@@ -333,13 +333,13 @@ onnx.Graph = class {
                                     return this._connection(id, null, null, initializers[id]);
                                 });
                                 inputIndex += inputCount;
-                                inputs.push(new onnx.Argument(inputSchema.name, inputConnections));
+                                inputs.push(new onnx.Parameter(inputSchema.name, inputConnections));
                             }
                         }
                     }
                     else {
                         inputs = inputs.concat(node.input.slice(inputIndex).map((id, index) => {
-                            return new onnx.Argument((inputIndex + index).toString(), [
+                            return new onnx.Parameter((inputIndex + index).toString(), [
                                 this._connection(id, null, null)
                             ])
                         }));
@@ -356,13 +356,13 @@ onnx.Graph = class {
                                     return this._connection(id, null, null, null);
                                 });
                                 outputIndex += outputCount;
-                                outputs.push(new onnx.Argument(outputSchema.name, outputConnections));
+                                outputs.push(new onnx.Parameter(outputSchema.name, outputConnections));
                             }
                         }
                     }
                     else {
                         outputs = outputs.concat(node.output.slice(outputIndex).map((id, index) => {
-                            return new onnx.Argument((outputIndex + index).toString(), [
+                            return new onnx.Parameter((outputIndex + index).toString(), [
                                 this._connection(id, null, null)
                             ]);
                         }));
@@ -414,7 +414,7 @@ onnx.Graph = class {
     }
 };
 
-onnx.Argument = class {
+onnx.Parameter = class {
 
     constructor(name, connections) {
         this._name = name;

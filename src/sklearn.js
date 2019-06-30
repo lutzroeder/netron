@@ -450,7 +450,7 @@ sklearn.Graph = class {
             }
             this._nodes = this._nodes.concat(groups.map((group) => {
                 var inputs = group.arrays.map((array) => {
-                    return new sklearn.Argument(array.name, [ 
+                    return new sklearn.Parameter(array.name, [ 
                         new sklearn.Connection(array.key, null, new sklearn.Tensor(array.key, array.value))
                     ]);
                 });
@@ -469,13 +469,13 @@ sklearn.Graph = class {
             }
         }
         inputs = inputs.map((input) => {
-            return new sklearn.Argument(input, [ new sklearn.Connection(input, null, null) ]);
+            return new sklearn.Parameter(input, [ new sklearn.Connection(input, null, null) ]);
         });
         inputs = inputs.concat(initializers.map((initializer) => {
-            return new sklearn.Argument(initializer.name, [ new sklearn.Connection('', null, initializer) ]);
+            return new sklearn.Parameter(initializer.name, [ new sklearn.Connection('', null, initializer) ]);
         }));
         outputs = outputs.map((output) => {
-            return new sklearn.Argument(output, [ new sklearn.Connection(output, null, null) ]);
+            return new sklearn.Parameter(output, [ new sklearn.Connection(output, null, null) ]);
         });
         var node = new sklearn.Node(this._metadata, group, name, obj, inputs, outputs);
         this._nodes.push(node);
@@ -498,7 +498,7 @@ sklearn.Graph = class {
     }
 };
 
-sklearn.Argument = class {
+sklearn.Parameter = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;

@@ -104,12 +104,12 @@ coreml.Graph = class {
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
                 var connection = new coreml.Connection(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
-                return new coreml.Argument(input.name, true, [ connection ]);
+                return new coreml.Parameter(input.name, true, [ connection ]);
             });
 
             this._outputs = this._description.output.map((output) => {
                 var connection = new coreml.Connection(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
-                return new coreml.Argument(output.name, true, [ connection ]);
+                return new coreml.Parameter(output.name, true, [ connection ]);
             });
         }
 
@@ -468,7 +468,7 @@ coreml.Graph = class {
     }
 };
 
-coreml.Argument = class {
+coreml.Parameter = class {
     constructor(name, visible, connections) {
         this._name = name;
         this._visible = visible;
@@ -599,7 +599,7 @@ coreml.Node = class {
 
     get inputs() {
         var inputs = this._metadata.getInputs(this._operator, this._inputs).map((input) => {
-            return new coreml.Argument(input.name, true, input.connections.map((connection) => {
+            return new coreml.Parameter(input.name, true, input.connections.map((connection) => {
                 return new coreml.Connection(connection.id, connection.type, null, null);
             }));
         });
@@ -609,7 +609,7 @@ coreml.Node = class {
     get outputs() {
         return this._outputs.map((output, index) => {
             var name = this._metadata.getOutputName(this._operator, index);
-            return new coreml.Argument(name, true, [ new coreml.Connection(output, null, null, null) ]);
+            return new coreml.Parameter(name, true, [ new coreml.Connection(output, null, null, null) ]);
         });
     }
 
@@ -750,7 +750,7 @@ coreml.Node = class {
         if (schema && Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
             visible = false;
         }
-        this._initializers.push(new coreml.Argument(name, visible, [ connection ]));
+        this._initializers.push(new coreml.Parameter(name, visible, [ connection ]));
     }
 };
 

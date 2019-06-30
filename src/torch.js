@@ -77,10 +77,10 @@ torch.Graph = class {
         this._loadModule(metadata, root, [], '', inputs, outputs);
 
         this._inputs = this._inputs.concat(inputs.map((input, index) => {
-            return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
+            return new torch.Parameter('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
         }));
         this._outputs = this._outputs.concat(outputs.map((output, index) => {
-            return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
+            return new torch.Parameter('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
         }));
     }
 
@@ -188,7 +188,7 @@ torch.Graph = class {
     }
 };
 
-torch.Argument = class {
+torch.Parameter = class {
 
     constructor(name, visible, connections) {
         this._name = name;
@@ -350,7 +350,7 @@ torch.Node = class {
                     continue;
                 }
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
-                    initializers.push(new torch.Argument(key, true, [ 
+                    initializers.push(new torch.Parameter(key, true, [ 
                         new torch.Connection(key, null, new torch.Tensor(obj))
                     ]));
                     continue;
@@ -365,12 +365,12 @@ torch.Node = class {
         if (inputs.length == 0) {
             inputs.push(new torch.Connection(this._name + ':in', null, null));
         }
-        this._inputs.push(new torch.Argument('input', true, inputs));
+        this._inputs.push(new torch.Parameter('input', true, inputs));
         this._outputs = [];
         if (outputs.length == 0) {
             outputs.push(new torch.Connection(this._name, null, null));
         }
-        this._outputs.push(new torch.Argument('output', true, outputs));
+        this._outputs.push(new torch.Parameter('output', true, outputs));
         initializers = initializers.filter((argument) => {
             if (argument.name == 'weight') {
                 this._inputs.push(argument);

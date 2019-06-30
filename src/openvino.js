@@ -96,7 +96,7 @@ openvino.Graph = class {
                             connections.push(this._connection(id, precision, portElement, null));
                         }
                     }
-                    this._inputs.push(new openvino.Argument(name, connections));
+                    this._inputs.push(new openvino.Parameter(name, connections));
                     break;
                 default:
                     this._nodes.push(new openvino.Node(this, this._metadata, layer, edgeMap));
@@ -241,7 +241,7 @@ openvino.Graph = class {
                         } 
                     } else {
                         // TODO: no tensor information in the new connection - passed as null for now
-                        nestedNode._inputs.push(new openvino.Argument((nestedNode._inputs.length+1).toString(), [
+                        nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length+1).toString(), [
                             new openvino.Connection(newId, null, null)
                         ]));
                     }
@@ -342,7 +342,7 @@ openvino.Node = class {
         if (input) {
             for (var port of openvino.Node.children(input, 'port')) {
                 var inputName = (inputIndex == 0) ? 'input' : inputIndex.toString(); 
-                this._inputs.push(new openvino.Argument(inputName, [
+                this._inputs.push(new openvino.Parameter(inputName, [
                     graph._connection(this._id, precision, port, edgeMap)
                 ]));
                 inputIndex++;
@@ -354,7 +354,7 @@ openvino.Node = class {
         if (output) {
             for (var portElement of openvino.Node.children(output, 'port')) {
                 var outputName = (outputIndex == 0) ? 'output' : outputIndex.toString(); 
-                this._outputs.push(new openvino.Argument(outputName, [
+                this._outputs.push(new openvino.Parameter(outputName, [
                     graph._connection(this._id, precision, portElement, null)
                 ]));
                 outputIndex++;
@@ -375,7 +375,7 @@ openvino.Node = class {
                     var name = blob.nodeName;
                     var offset = parseInt(blob.getAttribute('offset'));
                     var size = parseInt(blob.getAttribute('size'));
-                    this._initializers.push(new openvino.Argument(name, [
+                    this._initializers.push(new openvino.Parameter(name, [
                         new openvino.Connection('', null, new openvino.Tensor(precision, null, offset, size))
                     ]));
                 }
@@ -470,7 +470,7 @@ openvino.Node = class {
     }
 };
 
-openvino.Argument = class {
+openvino.Parameter = class {
 
     constructor(name, connections) {
         this._name = name;
