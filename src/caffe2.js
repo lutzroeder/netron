@@ -197,7 +197,7 @@ caffe2.Graph = class {
             op.input = op.input.map((input) => scope[input] ? scope[input] : input);
             op.output = op.output.map((output) => {
                 if (scope[output]) {
-                    var next = output + '\n' + index.toString(); // custom connection id
+                    var next = output + '\n' + index.toString(); // custom argument id
                     scope[output] = next;
                     return next;
                 }
@@ -269,9 +269,9 @@ caffe2.Graph = class {
 };
 
 caffe2.Parameter = class {
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -282,8 +282,8 @@ caffe2.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
@@ -349,10 +349,10 @@ caffe2.Node = class {
             for (var inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => {
+                    var inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => {
                         return new caffe2.Argument(id, null, tensors[id]);
                     });
-                    this._inputs.push(new caffe2.Parameter(inputDef.name, inputConnections));
+                    this._inputs.push(new caffe2.Parameter(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
@@ -373,10 +373,10 @@ caffe2.Node = class {
             for (var outputDef of schema.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    var outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
+                    var outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
                         return { id: id };
                     });
-                    this._outputs.push(new caffe2.Parameter(outputDef.name, outputConnections));
+                    this._outputs.push(new caffe2.Parameter(outputDef.name, outputArguments));
                     outputIndex += outputCount;
                 }
             }

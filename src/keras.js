@@ -392,13 +392,13 @@ keras.Graph = class {
         }
         var inputName = 'input';
         var inputType = null;
-        var connection = inputName;
+        var argument = inputName;
         var index = 0;
         var layers = config.layers ? config.layers : config;
 
         for (var layer of layers) {
             var name = index.toString();
-            var nodeInputs = [ connection ];
+            var nodeInputs = [ argument ];
             if (index == 0) {
                 if (inputs && inputs.length > 0) {
                     nodeInputs = [ inputs[0] ];
@@ -411,12 +411,12 @@ keras.Graph = class {
             if (layer.config && layer.config.name) {
                 name = layer.config.name;
             }
-            connection = name;
-            var nodeOutputs = [ connection ];
+            argument = name;
+            var nodeOutputs = [ argument ];
             if (index == config.length) {
                 if (outputs && outputs.length > 0) {
                     nodeOutputs = [ outputs[0] ];
-                    connection = null;
+                    argument = null;
                 }
             }
 
@@ -425,8 +425,8 @@ keras.Graph = class {
         if (!inputs) {
             this._inputs.push(new keras.Parameter(inputName, true, [ new keras.Argument(inputName, inputType, null) ]));
         }
-        if (connection) {
-            this._outputs.push(new keras.Parameter(connection, true, [ new keras.Argument(connection, null, null) ]));
+        if (argument) {
+            this._outputs.push(new keras.Parameter(argument, true, [ new keras.Argument(argument, null, null) ]));
         }
     }
 
@@ -466,10 +466,10 @@ keras.Graph = class {
 };
 
 keras.Parameter = class {
-    constructor(name, visible, connections) {
+    constructor(name, visible, args) {
         this._name = name;
         this._visible = visible;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -480,8 +480,8 @@ keras.Parameter = class {
         return this._visible;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
@@ -595,18 +595,18 @@ keras.Node = class {
                         break;
                 }
             }
-            var inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+            var inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
                 return new keras.Argument(id, null, initializers[id]);
             });
-            if (!inputName && inputConnections.length == 1 && inputConnections[0].initializer && inputConnections[0].initializer.name) {
-                var parts = inputConnections[0].initializer.name.split('/').pop().split(':').shift().split('_');
+            if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
+                var parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
                 var inputName1 = parts.pop();
                 var inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
                 var inputNames = { 'recurrent_kernel': true, 'running_mean': true, 'running_std': true, 'moving_mean': true, 'moving_variance': true };
                 inputName = inputNames[inputName2] ? inputName2 : inputName1;
             }
             inputName = inputName || inputIndex.toString();
-            this._inputs.push(new keras.Parameter(inputName, visible, inputConnections));
+            this._inputs.push(new keras.Parameter(inputName, visible, inputArguments));
             inputIndex += inputCount;
         }
 

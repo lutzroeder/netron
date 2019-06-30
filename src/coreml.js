@@ -103,13 +103,13 @@ coreml.Graph = class {
 
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
-                var connection = new coreml.Argument(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
-                return new coreml.Parameter(input.name, true, [ connection ]);
+                var argument = new coreml.Argument(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
+                return new coreml.Parameter(input.name, true, [ argument ]);
             });
 
             this._outputs = this._description.output.map((output) => {
-                var connection = new coreml.Argument(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
-                return new coreml.Parameter(output.name, true, [ connection ]);
+                var argument = new coreml.Argument(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
+                return new coreml.Parameter(output.name, true, [ argument ]);
             });
         }
 
@@ -397,16 +397,16 @@ coreml.Graph = class {
     }
 
     _createNode(scope, group, operator, name, data, inputs, outputs) {
-        inputs = inputs.map((input) => scope[input] ? scope[input].connection : input);
+        inputs = inputs.map((input) => scope[input] ? scope[input].argument : input);
         outputs = outputs.map((output) => {
             if (scope[output]) {
                 scope[output].counter++;
-                var next = output + '\n' + scope[output].counter.toString(); // custom connection id
-                scope[output].connection = next;
+                var next = output + '\n' + scope[output].counter.toString(); // custom argument id
+                scope[output].argument = next;
                 return next;
             }
             scope[output] = {
-                connection: output,
+                argument: output,
                 counter: 0
             };
             return output;
@@ -469,10 +469,10 @@ coreml.Graph = class {
 };
 
 coreml.Parameter = class {
-    constructor(name, visible, connections) {
+    constructor(name, visible, args) {
         this._name = name;
         this._visible = visible;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -483,8 +483,8 @@ coreml.Parameter = class {
         return this._visible;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
@@ -599,8 +599,8 @@ coreml.Node = class {
 
     get inputs() {
         var inputs = this._metadata.getInputs(this._operator, this._inputs).map((input) => {
-            return new coreml.Parameter(input.name, true, input.connections.map((connection) => {
-                return new coreml.Argument(connection.id, connection.type, null, null);
+            return new coreml.Parameter(input.name, true, input.arguments.map((argument) => {
+                return new coreml.Argument(argument.id, argument.type, null, null);
             }));
         });
         return inputs.concat(this._initializers);
@@ -744,13 +744,13 @@ coreml.Node = class {
 
     _initializer(kind, name, shape, data) {
         var initializer = new coreml.Tensor(kind, name, shape, data);
-        var connection = new coreml.Argument('', null, null, initializer);
+        var argument = new coreml.Argument('', null, null, initializer);
         var visible = true;
         var schema = this._metadata.getInputSchema(this._operator, name);
         if (schema && Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
             visible = false;
         }
-        this._initializers.push(new coreml.Parameter(name, visible, [ connection ]));
+        this._initializers.push(new coreml.Parameter(name, visible, [ argument ]));
     }
 };
 
@@ -1131,7 +1131,7 @@ coreml.Metadata = class {
         var schema = this._map[operator];
         var index = 0;
         while (index < inputs.length) {
-            var result = { connections: [] };
+            var result = { arguments: [] };
             var count = 1;
             var name = null;
             if (schema && schema.inputs) {
@@ -1151,7 +1151,7 @@ coreml.Metadata = class {
             result.name = name ? name : '(' + index.toString() + ')';
             var array = inputs.slice(index, index + count);
             for (var j = 0; j < array.length; j++) {
-                result.connections.push({ id: array[j] });
+                result.arguments.push({ id: array[j] });
             }
             index += count;
             results.push(result);

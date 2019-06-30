@@ -151,7 +151,7 @@ cntk.Graph = class {
 
         var name;
         var node;
-        var connections = {};
+        var args = {};
         switch (version) {
             case 1:
                 for (name of Object.keys(obj.nodes)) {
@@ -163,14 +163,14 @@ cntk.Graph = class {
                             ]));
                             break;
                         case 'LearnableParameter':
-                            connections[node.name] = new cntk.Argument(version, node);
+                            args[node.name] = new cntk.Argument(version, node);
                             break;
                     }
                 }
                 for (name of Object.keys(obj.nodes)) {
                     node = obj.nodes[name];
                     if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
-                        this._nodes.push(new cntk.Node(metadata, version, node, connections));
+                        this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
                 }
                 if (obj.output) {
@@ -188,12 +188,12 @@ cntk.Graph = class {
                 }
                 var argumentNames = {};
                 for (var input of obj.inputs) {
-                    var connection = new cntk.Argument(version, input);
-                    connections[input.uid] = connection;
+                    var argument = new cntk.Argument(version, input);
+                    args[input.uid] = argument;
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
                         var inputName = input.name || input.uid;
-                        this._inputs.push(new cntk.Parameter(inputName, [ connection ]));
+                        this._inputs.push(new cntk.Parameter(inputName, [ argument ]));
                     }
                     argumentNames[input.uid] = input;
                 }
@@ -205,7 +205,7 @@ cntk.Graph = class {
                             name = list.shift();
                             node = nodeMap[name];
                             if (node) {
-                                nodes.push(new cntk.Node(metadata, version, node, connections));
+                                nodes.push(new cntk.Node(metadata, version, node, args));
                                 nodeMap[name] = null;
                                 for (var i = 0; i < node.inputs.length; i++) {
                                     var parts = node.inputs[i].split('_');
@@ -225,7 +225,7 @@ cntk.Graph = class {
                 }
                 for (node of obj.primitive_functions) {
                     if (nodeMap[node.uid]) {
-                        this._nodes.push(new cntk.Node(metadata, version, node, connections));
+                        this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
                 }
                 break;
@@ -282,9 +282,9 @@ cntk.Function = class {
 };
 
 cntk.Parameter = class {
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -295,8 +295,8 @@ cntk.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
@@ -362,7 +362,7 @@ cntk.Argument = class {
 
 cntk.Node = class { 
 
-    constructor(metadata, version, obj, connections) {
+    constructor(metadata, version, obj, args) {
 
         this._metadata = metadata;
         this._attributes = [];
@@ -385,8 +385,8 @@ cntk.Node = class {
                     }
                 }
                 inputs = obj.inputs.map((input) => { 
-                    if (connections[input]) {
-                        return connections[input];
+                    if (args[input]) {
+                        return args[input];
                     }
                     return new cntk.Argument(version, input);
                 });
@@ -424,13 +424,13 @@ cntk.Node = class {
                     }
                 }
                 for (var input of obj.inputs) {
-                    var connection = connections[input];
-                    if (connection) {
-                        if (connection.initializer) {
-                            initializers.push(connection);
+                    var argument = args[input];
+                    if (argument) {
+                        if (argument.initializer) {
+                            initializers.push(argument);
                         }
                         else {
-                            inputs.push(connection);
+                            inputs.push(argument);
                         }
                     }
                     else {
@@ -447,20 +447,20 @@ cntk.Node = class {
             for (var inputSchema of schema.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
                     var inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputConnections = [];
-                    for (var inputConnection of inputs.slice(inputIndex, inputIndex + inputCount)) {
-                        if (inputConnection.id != '' || inputSchema.option != 'optional') {
-                            inputConnections.push(inputConnection);
+                    var inputArguments = [];
+                    for (var inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                        if (inputArgument.id != '' || inputSchema.option != 'optional') {
+                            inputArguments.push(inputArgument);
                         }
                     }
-                    this._inputs.push(new cntk.Parameter(inputSchema.name, inputConnections));
+                    this._inputs.push(new cntk.Parameter(inputSchema.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         }
         else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((connection) => {
-                return new cntk.Parameter(inputIndex.toString(), [ connection ]);
+            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((argument) => {
+                return new cntk.Parameter(inputIndex.toString(), [ argument ]);
             }));
         }
 
@@ -475,8 +475,8 @@ cntk.Node = class {
             }
         }
         else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((connection) => {
-                return new cntk.Parameter(outputIndex.toString(), [ connection ]);
+            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((argument) => {
+                return new cntk.Parameter(outputIndex.toString(), [ argument ]);
             }));
         }
     }

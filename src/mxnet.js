@@ -554,9 +554,9 @@ mxnet.Graph = class {
 };
 
 mxnet.Parameter = class {
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -567,8 +567,8 @@ mxnet.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
@@ -691,14 +691,14 @@ mxnet.Node = class {
                 for (var inputDef of schema.inputs) {
                     if (inputIndex < inputs.length || inputDef.option != 'optional') {
                         var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                        var inputConnections = [];
+                        var inputArguments = [];
                         for (input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                             var inputId = '[' + input.join(',') + ']';
                             if (inputId != '' || inputDef.option != 'optional') {
-                                inputConnections.push(new mxnet.Argument(inputId, inputDef.type, initializers[inputId]));
+                                inputArguments.push(new mxnet.Argument(inputId, inputDef.type, initializers[inputId]));
                             }
                         }
-                        this._inputs.push(new mxnet.Parameter(inputDef.name, inputConnections));
+                        this._inputs.push(new mxnet.Parameter(inputDef.name, inputArguments));
                         inputIndex += inputCount;
                     }
                 }
@@ -719,12 +719,12 @@ mxnet.Node = class {
             if (schema && schema.outputs) {
                 for (var outputDef of schema.outputs) {
                     if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                        var outputConnections = [];
+                        var outputArguments = [];
                         var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                         for (var output of outputs.slice(outputIndex, outputIndex + outputCount)) {
-                            outputConnections.push(new mxnet.Argument('[' + output.join(',') + ']', null, null));
+                            outputArguments.push(new mxnet.Argument('[' + output.join(',') + ']', null, null));
                         }
-                        this._outputs.push(new mxnet.Parameter(outputDef.name, outputConnections));
+                        this._outputs.push(new mxnet.Parameter(outputDef.name, outputArguments));
                         outputIndex += outputCount;
                     }
                 }

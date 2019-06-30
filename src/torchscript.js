@@ -187,10 +187,10 @@ torchscript.Graph = class {
 
 torchscript.Parameter = class {
 
-    constructor(name, visible, connections) {
+    constructor(name, visible, args) {
         this._name = name;
         this._visible = visible;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -201,8 +201,8 @@ torchscript.Parameter = class {
         return this._visible;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
@@ -239,7 +239,7 @@ torchscript.Node = class {
         this._outputs = [];
 
         var input = null;
-        var connection = null;
+        var argument = null;
         var parameter = null;
 
         if (module) {
@@ -268,8 +268,8 @@ torchscript.Node = class {
             var match = true;
             var count = 0;
             for (input of node.inputs) {
-                for (connection of input) {
-                    parameter = container.parameters[connection.id];
+                for (argument of input) {
+                    parameter = container.parameters[argument.id];
                     if (parameter) {
                         if (parameter.module && (module == null || module == parameter.module)) {
                             module = parameter.module;
@@ -288,10 +288,10 @@ torchscript.Node = class {
             if (module && module.parameters.length == count && match) {
                 module.hide = true;
                 for (input of node.inputs) {
-                    for (connection of input) {
-                        parameter = container.parameters[connection.id];
+                    for (argument of input) {
+                        parameter = container.parameters[argument.id];
                         if (parameter && parameter.initializer) {
-                            connection.initializer = parameter.initializer;
+                            argument.initializer = parameter.initializer;
                         }
                     }
                 }
@@ -797,7 +797,7 @@ torchscript.GraphContext = class {
         this._nodes = [];
 
         this._moduleMap = {};
-        this._connectionMap = {};
+        this._argumentMap = {};
         this._numToTensorMap = {};
 
         if (mainModule.torchscriptArena && mainModule.torchscriptArena.key) {
@@ -842,7 +842,7 @@ torchscript.GraphContext = class {
                         if (this._moduleStatement(statement)) {
                             continue;
                         }
-                        if (this._connectionStatement(statement)) {
+                        if (this._argumentStatement(statement)) {
                             continue;
                         }
                         if (this._nodeStatement(statement)) {
@@ -938,9 +938,9 @@ torchscript.GraphContext = class {
                 while (args.length > 0) {
                     var argument = args[0];
                     argument = this._moduleTensor(argument);
-                    if (argument.type == 'identifier' && this._connectionMap[argument.value]) {
-                        argument = this._connectionMap[argument.value];
-                        delete this._connectionMap[argument.value];
+                    if (argument.type == 'identifier' && this._argumentMap[argument.value]) {
+                        argument = this._argumentMap[argument.value];
+                        delete this._argumentMap[argument.value];
                     }
                     if (argument.type == 'identifier') {
                         node.inputs.push([ { id: argument.value } ]);
@@ -948,25 +948,25 @@ torchscript.GraphContext = class {
                         continue;
                     }
                     if (argument.type == 'list') {
-                        var connections = [];
+                        var list = [];
                         for (var input of argument.value) {
                             var variable = this._variable();
                             if (this._nodeExpression(input, variable)) {
-                                connections.push({ id: variable.value });
+                                list.push({ id: variable.value });
                             }
-                            else if (this._connectionExpression(input, variable)) {
-                                connections.push({ id: variable.value });
+                            else if (this._argumentExpression(input, variable)) {
+                                list.push({ id: variable.value });
                             }
                             else if (input.type == 'identifier') {
-                                connections.push({ id: input.value });
+                                list.push({ id: input.value });
                             }
                             else {
-                                connections = null;
+                                list = null;
                                 break;
                             }
                         }
-                        if (connections) {
-                            node.inputs.push(connections);
+                        if (list) {
+                            node.inputs.push(list);
                             args.shift();
                             continue;
                         }
@@ -986,7 +986,7 @@ torchscript.GraphContext = class {
                         args.shift();
                         continue;
                     }
-                    if (this._connectionExpression(argument, variable)) {
+                    if (this._argumentExpression(argument, variable)) {
                         node.inputs.push([ { id: variable.value } ]);
                         args.shift();
                         continue;
@@ -1163,7 +1163,7 @@ torchscript.GraphContext = class {
         return false;
     }
 
-    _connectionExpression(expression, target) {
+    _argumentExpression(expression, target) {
         expression = this._moduleTensor(expression);
         if (expression.type === '.' && expression.member.type == 'identifier') {
             var targetModule = this._module(expression.target);
@@ -1196,14 +1196,14 @@ torchscript.GraphContext = class {
         return false;
     }
 
-    _connectionStatement(statement) {
+    _argumentStatement(statement) {
         if (statement.type === '=' && statement.target.type === 'identifier') {
-            if (this._connectionExpression(statement.expression, statement.target)) {
+            if (this._argumentExpression(statement.expression, statement.target)) {
                 return true;
             }
             if (statement.target.type == 'identifier' &&
                 statement.expression.type == 'list') {
-                this._connectionMap[statement.target.value] = statement.expression;
+                this._argumentMap[statement.target.value] = statement.expression;
                 return true;
             }
         }

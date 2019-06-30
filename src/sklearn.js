@@ -499,9 +499,9 @@ sklearn.Graph = class {
 };
 
 sklearn.Parameter = class {
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -512,8 +512,8 @@ sklearn.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 

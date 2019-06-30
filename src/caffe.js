@@ -234,7 +234,7 @@ caffe.Graph = class {
             layer.bottom = layer.bottom.map((input) => scope[input] ? scope[input] : input);
             layer.top = layer.top.map((output) => {
                 if (scope[output]) {
-                    var next = output + '\n' + index.toString(); // custom connection id
+                    var next = output + '\n' + index.toString(); // custom argument id
                     scope[output] = next;
                     return next;
                 }
@@ -365,9 +365,9 @@ caffe.Graph = class {
 
 caffe.Parameter = class {
 
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -378,8 +378,8 @@ caffe.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
@@ -517,18 +517,18 @@ caffe.Node = class {
             for (var inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputConnections = [];
+                    var inputArguments = [];
                     for (var input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (input != '' || inputDef.option != 'optional') {
                             if (input instanceof caffe.Tensor) {
-                                inputConnections.push(new caffe.Argument('', null, input));
+                                inputArguments.push(new caffe.Argument('', null, input));
                             }
                             else {
-                                inputConnections.push(new caffe.Argument(input, null, null));
+                                inputArguments.push(new caffe.Argument(input, null, null));
                             }
                         }
                     }
-                    args.push(new caffe.Parameter(inputDef.name, inputConnections));
+                    args.push(new caffe.Parameter(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
@@ -554,10 +554,9 @@ caffe.Node = class {
             for (var outputDef of schema.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    var connections = outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
+                    args.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
                         return new caffe.Argument(output, null, null);
-                    });
-                    args.push(new caffe.Parameter(outputDef.name, connections));
+                    })));
                     outputIndex += outputCount;
                 }
             }

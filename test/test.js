@@ -436,15 +436,15 @@ function loadModel(target, item) {
         }
         for (var graph of model.graphs) {
             var input;
-            var connection;
+            var argument;
             for (input of graph.inputs) {
                 input.name.toString();
                 input.name.length;
-                for (connection of input.connections) {
-                    connection.id.toString();
-                    connection.id.length;
-                    if (connection.type) {
-                        connection.type.toString();
+                for (argument of input.arguments) {
+                    argument.id.toString();
+                    argument.id.length;
+                    if (argument.type) {
+                        argument.type.toString();
                     }
                 }
             }
@@ -452,10 +452,10 @@ function loadModel(target, item) {
             for (output of graph.outputs) {
                 output.name.toString();
                 output.name.length;
-                for (connection of output.connections) {
-                    connection.id.toString();
-                    if (connection.type) {
-                        connection.type.toString();
+                for (argument of output.arguments) {
+                    argument.id.toString();
+                    if (argument.type) {
+                        argument.type.toString();
                     }
                 }
             }
@@ -476,25 +476,25 @@ function loadModel(target, item) {
                 for (input of node.inputs) {
                     input.name.toString();
                     input.name.length;
-                    for (connection of input.connections) {
-                        connection.id.toString();
-                        connection.id.length;
-                        if (connection.type) {
-                            connection.type.toString();
+                    for (argument of input.arguments) {
+                        argument.id.toString();
+                        argument.id.length;
+                        if (argument.type) {
+                            argument.type.toString();
                         }
-                        if (connection.initializer) {
-                            connection.initializer.toString();
+                        if (argument.initializer) {
+                            argument.initializer.toString();
                         }
                     }
                 }
                 for (output of node.outputs) {
                     output.name.toString();
                     output.name.length;
-                    for (connection of output.connections) {
-                        connection.id.toString();
-                        connection.id.length;
-                        if (connection.type) {
-                            connection.type.toString();
+                    for (argument of output.arguments) {
+                        argument.id.toString();
+                        argument.id.length;
+                        if (argument.type) {
+                            argument.type.toString();
                         }
                     }
                 }

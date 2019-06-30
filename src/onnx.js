@@ -304,21 +304,21 @@ onnx.Graph = class {
                 }
             }
 
-            this._connections = {};
+            this._arguments = {};
             var valueInfo;
             for (valueInfo of graph.value_info) {
-                this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
             }
-            var connection;
+            var argument;
             for (valueInfo of graph.input) {
-                connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
                 if (!initializers[valueInfo.name]) {
-                    this._inputs.push(new onnx.Parameter(valueInfo.name, [ connection ]));
+                    this._inputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
                 }
             }
             for (valueInfo of graph.output) {
-                connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
-                this._outputs.push(new onnx.Parameter(valueInfo.name, [ connection ]));
+                argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
             for (node of nodes) {
                 var inputs = [];
@@ -329,18 +329,18 @@ onnx.Graph = class {
                         for (var inputSchema of schema.inputs) {
                             if (inputIndex < node.input.length || inputSchema.option != 'optional') {
                                 var inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
-                                var inputConnections = node.input.slice(inputIndex, inputIndex + inputCount).map((id) => {
-                                    return this._connection(id, null, null, initializers[id]);
+                                var inputArguments = node.input.slice(inputIndex, inputIndex + inputCount).map((id) => {
+                                    return this._argument(id, null, null, initializers[id]);
                                 });
                                 inputIndex += inputCount;
-                                inputs.push(new onnx.Parameter(inputSchema.name, inputConnections));
+                                inputs.push(new onnx.Parameter(inputSchema.name, inputArguments));
                             }
                         }
                     }
                     else {
                         inputs = inputs.concat(node.input.slice(inputIndex).map((id, index) => {
                             return new onnx.Parameter((inputIndex + index).toString(), [
-                                this._connection(id, null, null)
+                                this._argument(id, null, null)
                             ])
                         }));
                     }
@@ -352,18 +352,18 @@ onnx.Graph = class {
                         for (var outputSchema of schema.outputs) {
                             if (outputIndex < node.output.length || outputSchema.option != 'optional') {
                                 var outputCount = (outputSchema.option == 'variadic') ? (node.output.length - outputIndex) : 1;
-                                var outputConnections = node.output.slice(outputIndex, outputIndex + outputCount).map((id) => {
-                                    return this._connection(id, null, null, null);
+                                var outputArguments = node.output.slice(outputIndex, outputIndex + outputCount).map((id) => {
+                                    return this._argument(id, null, null, null);
                                 });
                                 outputIndex += outputCount;
-                                outputs.push(new onnx.Parameter(outputSchema.name, outputConnections));
+                                outputs.push(new onnx.Parameter(outputSchema.name, outputArguments));
                             }
                         }
                     }
                     else {
                         outputs = outputs.concat(node.output.slice(outputIndex).map((id, index) => {
                             return new onnx.Parameter((outputIndex + index).toString(), [
-                                this._connection(id, null, null)
+                                this._argument(id, null, null)
                             ]);
                         }));
                     }
@@ -372,7 +372,7 @@ onnx.Graph = class {
             }
         }
 
-        delete this._connections;
+        delete this._arguments;
         delete this._imageFormat;
     }
 
@@ -404,21 +404,21 @@ onnx.Graph = class {
         return 'graph(' + this.name + ')';
     }
 
-    _connection(id, type, doc_string, initializer) {
-        var connection = this._connections[id];
-        if (!connection) {
-            connection = new onnx.Argument(id, type ? onnx.Tensor._formatType(type, this._imageFormat) : null, doc_string, initializer);
-            this._connections[id] = connection;
+    _argument(id, type, doc_string, initializer) {
+        var argument = this._arguments[id];
+        if (!argument) {
+            argument = new onnx.Argument(id, type ? onnx.Tensor._formatType(type, this._imageFormat) : null, doc_string, initializer);
+            this._arguments[id] = argument;
         }
-        return connection;
+        return argument;
     }
 };
 
 onnx.Parameter = class {
 
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -429,8 +429,8 @@ onnx.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 

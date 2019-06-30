@@ -87,7 +87,7 @@ paddle.Graph = class {
             for (var output of block.ops[i].outputs) {
                 output.arguments = output.arguments.map((argument) => {
                     if (scope[argument]) {
-                        var next = argument + '\n' + i.toString(); // custom connection id
+                        var next = argument + '\n' + i.toString(); // custom argument id
                         scope[argument] = next;
                         return next;
                     }
@@ -162,9 +162,9 @@ paddle.Graph = class {
 
 
 paddle.Parameter = class {
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -175,8 +175,8 @@ paddle.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 

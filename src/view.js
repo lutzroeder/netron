@@ -448,7 +448,7 @@ view.View = class {
 
                 var input;
                 var output;
-                var connection;
+                var argument;
                 var tuple;
 
                 var self = this;
@@ -480,11 +480,11 @@ view.View = class {
                         var hiddenInitializers = false;
                         if (self._showInitializers) {
                             for (var input of node.inputs) {
-                                if (input.visible && input.connections.length == 1 && input.connections[0].initializer != null) {
+                                if (input.visible && input.arguments.length == 1 && input.arguments[0].initializer != null) {
                                     initializers.push(input);
                                 }
-                                if ((!input.visible || input.connections.length > 1) && 
-                                    input.connections.some((connection) => connection.initializer != null)) {
+                                if ((!input.visible || input.arguments.length > 1) && 
+                                    input.arguments.some((argument) => argument.initializer != null)) {
                                     hiddenInitializers = true;
                                 }
                             }
@@ -499,8 +499,8 @@ view.View = class {
                                 self.showNodeProperties(node);
                             };
                             for (var initializer of initializers) {
-                                var connection = initializer.connections[0];
-                                var type = connection.type;
+                                var argument = initializer.arguments[0];
+                                var type = argument.type;
                                 var shape = '';
                                 var separator = '';
                                 if (type &&
@@ -508,15 +508,15 @@ view.View = class {
                                     type.shape.dimensions && 
                                     Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
                                     shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
-                                    if (type.shape.dimensions.length == 0 && connection.initializer && !connection.initializer.state) {
-                                        shape = connection.initializer.toString();
+                                    if (type.shape.dimensions.length == 0 && argument.initializer && !argument.initializer.state) {
+                                        shape = argument.initializer.toString();
                                         if (shape && shape.length > 10) {
                                             shape = shape.substring(0, 10) + '\u2026';
                                         }
                                         separator = ' = ';
                                     }
                                 }
-                                block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', separator);
+                                block.add('initializer-' + argument.id, initializer.name, shape, type ? type.toString() : '', separator);
                             }
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
@@ -536,12 +536,12 @@ view.View = class {
                         if (edges) {
                             var inputs = node.inputs;
                             for (input of inputs) {
-                                for (connection of input.connections) {
-                                    if (connection.id != '' && !connection.initializer) {
-                                        var tuple = edgeMap[connection.id];
+                                for (argument of input.arguments) {
+                                    if (argument.id != '' && !argument.initializer) {
+                                        var tuple = edgeMap[argument.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
-                                            edgeMap[connection.id] = tuple;
+                                            edgeMap[argument.id] = tuple;
                                         }
                                         tuple.to.push({ 
                                             node: nodeId, 
@@ -558,17 +558,17 @@ view.View = class {
                                 }
                             }
                             for (output of outputs) {
-                                for (connection of output.connections) {
-                                    if (connection.id != '') {
-                                        tuple = edgeMap[connection.id];
+                                for (argument of output.arguments) {
+                                    if (argument.id != '') {
+                                        tuple = edgeMap[argument.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
-                                            edgeMap[connection.id] = tuple;
+                                            edgeMap[argument.id] = tuple;
                                         }
                                         tuple.from = { 
                                             node: nodeId,
                                             name: output.name,
-                                            type: connection.type
+                                            type: argument.type
                                         };
                                     }
                                 }
@@ -650,18 +650,18 @@ view.View = class {
                 }
 
                 for (input of graph.inputs) {
-                    for (connection of input.connections) {
-                        tuple = edgeMap[connection.id];
+                    for (argument of input.arguments) {
+                        tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[connection.id] = tuple;
+                            edgeMap[argument.id] = tuple;
                         }
                         tuple.from = { 
                             node: nodeId,
-                            type: connection.type
+                            type: argument.type
                         };
                     }
-                    var types = input.connections.map(connection => connection.type || '').join('\n');
+                    var types = input.arguments.map((argument) => argument.type || '').join('\n');
                     var inputName = input.name || '';
                     if (inputName.length > 16) {
                         inputName = inputName.split('/').pop();
@@ -676,15 +676,15 @@ view.View = class {
                 }
             
                 for (output of graph.outputs) {
-                    for (connection of output.connections) {
-                        tuple = edgeMap[connection.id];
+                    for (argument of output.arguments) {
+                        tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[connection.id] = tuple;
+                            edgeMap[argument.id] = tuple;
                         }
                         tuple.to.push({ node: nodeId });
                     }
-                    var outputTypes = output.connections.map(connection => connection.type || '').join('\n');
+                    var outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
                     var outputName = output.name || '';
                     if (outputName.length > 16) {
                         outputName = outputName.split('/').pop();
@@ -709,7 +709,7 @@ view.View = class {
                             }
             
                             if (this._showNames) {
-                                text = edge.split('\n').shift(); // custom connection id
+                                text = edge.split('\n').shift(); // custom argument id
                             }
     
                             if (to.controlDependency) {

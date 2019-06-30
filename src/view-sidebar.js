@@ -220,8 +220,8 @@ sidebar.NodeSidebar = class {
     }
 
     addInput(name, input) {
-        if (input.connections.length > 0) {
-            var view = new sidebar.ArgumentView(input, this._host);
+        if (input.arguments.length > 0) {
+            var view = new sidebar.ParameterView(input, this._host);
             view.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
@@ -232,8 +232,8 @@ sidebar.NodeSidebar = class {
     }
 
     addOutput(name, output) {
-        if (output.connections.length > 0) {
-            var item = new sidebar.NameValueView(name, new sidebar.ArgumentView(output));
+        if (output.arguments.length > 0) {
+            var item = new sidebar.NameValueView(name, new sidebar.ParameterView(output));
             this._outputs.push(item);
             this._elements.push(item.render());
         }
@@ -495,14 +495,14 @@ class NodeAttributeView {
     }
 }
 
-sidebar.ArgumentView = class {
+sidebar.ParameterView = class {
 
     constructor(list, host) {
         this._list = list;
         this._elements = [];
         this._items = [];
-        for (var connection of list.connections) {
-            var item = new sidebar.ConnectionView(connection, host);
+        for (var argument of list.arguments) {
+            var item = new sidebar.ArgumentView(argument, host);
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
@@ -536,22 +536,22 @@ sidebar.ArgumentView = class {
     }
 };
 
-sidebar.ConnectionView = class {
+sidebar.ArgumentView = class {
 
-    constructor(connection, host) {
-        this._connection = connection;
+    constructor(argument, host) {
+        this._argument = argument;
         this._host = host;
 
         this._element = document.createElement('div');
         this._element.className = 'sidebar-view-item-value';
 
-        var initializer = connection.initializer;
+        var initializer = argument.initializer;
         if (initializer) {
             this._element.classList.add('sidebar-view-item-value-dark');
         }
 
-        var quantization = connection.quantization;
-        var type = connection.type;
+        var quantization = argument.quantization;
+        var type = argument.type;
         if (type || initializer || quantization) {
             this._expander = document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
@@ -562,7 +562,7 @@ sidebar.ConnectionView = class {
             this._element.appendChild(this._expander);
         }
 
-        var id = this._connection.id || '';
+        var id = this._argument.id || '';
         this._hasId = id ? true : false;
         if (initializer && !this._hasId) {
             var kindLine = document.createElement('div');
@@ -573,7 +573,7 @@ sidebar.ConnectionView = class {
         else {
             var idLine = document.createElement('div');
             idLine.className = 'sidebar-view-item-value-line';
-            id = id.split('\n').shift(); // custom connection id
+            id = id.split('\n').shift(); // custom argument id
             id = id || ' ';
             idLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>id: <b>' + id + '</b></span>';
             this._element.appendChild(idLine);
@@ -589,7 +589,7 @@ sidebar.ConnectionView = class {
             if (this._expander.innerText == '+') {
                 this._expander.innerText = '-';
     
-                var initializer = this._connection.initializer;
+                var initializer = this._argument.initializer;
                 if (initializer && this._hasId) {
                     var kind = initializer.kind;
                     if (kind) {
@@ -602,9 +602,9 @@ sidebar.ConnectionView = class {
     
                 var type = '?';
                 var denotation = null;
-                if (this._connection.type) {
-                    type = this._connection.type.toString();
-                    denotation = this._connection.type.denotation || null;
+                if (this._argument.type) {
+                    type = this._argument.type.toString();
+                    denotation = this._argument.type.denotation || null;
                 }
                 
                 if (type) {
@@ -620,7 +620,7 @@ sidebar.ConnectionView = class {
                     this._element.appendChild(denotationLine);
                 }
 
-                var description = this._connection.description;
+                var description = this._argument.description;
                 if (description) {
                     var descriptionLine = document.createElement('div');
                     descriptionLine.className = 'sidebar-view-item-value-line-border';
@@ -628,7 +628,7 @@ sidebar.ConnectionView = class {
                     this._element.appendChild(descriptionLine);
                 }
 
-                var quantization = this._connection.quantization;
+                var quantization = this._argument.quantization;
                 if (quantization) {
                     var quantizationLine = document.createElement('div');
                     quantizationLine.className = 'sidebar-view-item-value-line-border';
@@ -813,7 +813,7 @@ sidebar.ModelSidebar = class {
     }
 
     addArgument(name, argument) {
-        var view = new sidebar.ArgumentView(argument, this._host);
+        var view = new sidebar.ParameterView(argument, this._host);
         view.toggle();
         var item = new sidebar.NameValueView(name, view);
         this._elements.push(item.render());
@@ -1048,24 +1048,24 @@ sidebar.FindSidebar = class {
         var edgeMatches = {};
 
         var node;
-        var connection;
+        var argument;
 
         for (node of this._graph.nodes) {
 
             var initializers = [];
 
             for (var input of node.inputs) {
-                for (connection of input.connections) {
-                    if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
-                        if (!connection.initializer) {
+                for (argument of input.arguments) {
+                    if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.id]) {
+                        if (!argument.initializer) {
                             var inputItem = document.createElement('li');
-                            inputItem.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
-                            inputItem.id = 'edge-' + connection.id;
+                            inputItem.innerText = '\u2192 ' + argument.id.split('\n').shift(); // custom argument id
+                            inputItem.id = 'edge-' + argument.id;
                             this._resultElement.appendChild(inputItem);
-                            edgeMatches[connection.id] = true;
+                            edgeMatches[argument.id] = true;
                         }
                         else {
-                            initializers.push(connection.initializer);
+                            initializers.push(argument.initializer);
                         }
                     }    
                 }
@@ -1090,13 +1090,13 @@ sidebar.FindSidebar = class {
 
         for (node of this._graph.nodes) {
             for (var output of node.outputs) {
-                for (connection of output.connections) {
-                    if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
+                for (argument of output.arguments) {
+                    if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.id]) {
                         var outputItem = document.createElement('li');
-                        outputItem.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
-                        outputItem.id = 'edge-' + connection.id;
+                        outputItem.innerText = '\u2192 ' + argument.id.split('\n').shift(); // custom argument id
+                        outputItem.id = 'edge-' + argument.id;
                         this._resultElement.appendChild(outputItem);
-                        edgeMatches[connection.id] = true;
+                        edgeMatches[argument.id] = true;
                     }    
                 }
             }

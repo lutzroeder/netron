@@ -306,8 +306,8 @@ tf.Graph = class {
                         var shape = node.attr.shape;
                         if (dtype && dtype.type && shape && shape.shape) {
                             var type = new tf.TensorType(dtype.type, shape.shape);
-                            var connection = new tf.Argument(node.output[0], type, null); 
-                            inputMap[node.output[0]] = new tf.Parameter(node.name, [ connection ]);
+                            var argument = new tf.Argument(node.output[0], type, null); 
+                            inputMap[node.output[0]] = new tf.Parameter(node.name, [ argument ]);
                         }
                     }
                 }
@@ -378,9 +378,9 @@ tf.Graph = class {
 };
 
 tf.Parameter = class {
-    constructor(name, connections) {
+    constructor(name, args) {
         this._name = name;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -391,8 +391,8 @@ tf.Parameter = class {
         return true;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 

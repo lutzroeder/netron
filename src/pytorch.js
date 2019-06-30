@@ -764,7 +764,7 @@ pytorch.Graph = class {
         return inputs;
     }
 
-    _createNode(groups, key, obj, connections) {
+    _createNode(groups, key, obj, args) {
 
         var operator = obj.__type__.split('.').pop();
         var schema = this._metadata.getSchema(operator);
@@ -775,8 +775,8 @@ pytorch.Graph = class {
         }
 
         var inputs = [];
-        inputs.push(new pytorch.Parameter(inputSchema.shift().name, true, connections.map((connection) => {
-            return new pytorch.Argument(connection, null, null);
+        inputs.push(new pytorch.Parameter(inputSchema.shift().name, true, args.map((argument) => {
+            return new pytorch.Argument(argument, null, null);
         })));
 
         var parameters = [];
@@ -840,10 +840,10 @@ pytorch.Graph = class {
 
 pytorch.Parameter = class {
 
-    constructor(name, visible, connections) {
+    constructor(name, visible, args) {
         this._name = name;
         this._visible = visible;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -854,8 +854,8 @@ pytorch.Parameter = class {
         return this._visible;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 

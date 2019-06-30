@@ -98,7 +98,7 @@ tflite.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        var connections = [];
+        var args = [];
         var names = [];
         for (var i = 0; i < graph.tensorsLength(); i++) {
             var tensor = graph.tensors(i);
@@ -107,23 +107,23 @@ tflite.Graph = class {
             if (buffer.dataLength() > 0) {
                 initializer = new tflite.Tensor(tensor, buffer);
             }
-            connections.push(new tflite.Argument(tensor, i, initializer));
+            args.push(new tflite.Argument(tensor, i, initializer));
             names.push(tensor.name());
         }
         for (var j = 0; j < this._graph.operatorsLength(); j++) {
             var operator = this._graph.operators(j);
             var opcodeIndex = operator.opcodeIndex();
             var operatorName = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : ('(' + opcodeIndex.toString() + ')');
-            var node = new tflite.Node(metadata, operator, operatorName, j.toString(), connections);
+            var node = new tflite.Node(metadata, operator, operatorName, j.toString(), args);
             this._nodes.push(node);
         }
         for (var k = 0; k < graph.inputsLength(); k++) {
             var inputIndex = graph.inputs(k);
-            this._inputs.push(new tflite.Parameter(names[inputIndex], true, [ connections[inputIndex] ]));
+            this._inputs.push(new tflite.Parameter(names[inputIndex], true, [ args[inputIndex] ]));
         }
         for (var l = 0; l < graph.outputsLength(); l++) {
             var outputIndex = graph.outputs(l);
-            this._outputs.push(new tflite.Parameter(names[outputIndex], true, [ connections[outputIndex] ]));
+            this._outputs.push(new tflite.Parameter(names[outputIndex], true, [ args[outputIndex] ]));
         }
     }
 
@@ -150,7 +150,7 @@ tflite.Graph = class {
 
 tflite.Node = class {
 
-    constructor(metadata, node, operator, name, connections) {
+    constructor(metadata, node, operator, name, args) {
         this._metadata = metadata;
         this._operator = operator;
         this._name = name;
@@ -181,7 +181,7 @@ tflite.Node = class {
                 var inputArray = inputs.slice(inputIndex, inputIndex + count);
                 for (var j = 0; j < inputArray.length; j++) {
                     if (inputArray[j] != -1) {
-                        inputConnections.push(connections[inputArray[j]]);
+                        inputConnections.push(args[inputArray[j]]);
                     }
                 }
                 inputIndex += count;
@@ -191,7 +191,7 @@ tflite.Node = class {
             this._outputs = [];
             for (var k = 0; k < node.outputsLength(); k++) {
                 var outputIndex = node.outputs(k);
-                var connection = connections[outputIndex];
+                var argument = args[outputIndex];
                 var outputName = i.toString();
                 if (schema && schema.outputs && k < schema.outputs.length) {
                     var output = schema.outputs[k];
@@ -199,7 +199,7 @@ tflite.Node = class {
                         outputName = output.name;
                     }
                 }
-                this._outputs.push(new tflite.Parameter(outputName, true, [ connection ]));
+                this._outputs.push(new tflite.Parameter(outputName, true, [ argument ]));
             }
             this._attributes = [];
             var optionsTypeName = this._operator + 'Options';
@@ -399,10 +399,10 @@ tflite.Attribute = class {
 
 tflite.Parameter = class {
 
-    constructor(name, visible, connections) {
+    constructor(name, visible, args) {
         this._name = name;
         this._visible = visible;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -413,8 +413,8 @@ tflite.Parameter = class {
         return this._visible;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
