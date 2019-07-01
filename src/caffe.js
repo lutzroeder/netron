@@ -211,61 +211,98 @@ caffe.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        var layers = [];
+        var allLayers = [];
         switch (version) {
             case 0:
             case 1:
-                layers = netParameter.layers;
+                allLayers = netParameter.layers;
                 break;
             case 2:
-                layers = netParameter.layer;
+                allLayers = netParameter.layer;
                 break;
         }
 
         var scope = {};
 
-        var node;
         var layer;
-        var input;
-        var output;
 
         var index = 0;
-        for (layer of layers) {
+        for (layer of allLayers) {
             layer.bottom = layer.bottom.map((input) => scope[input] ? scope[input] : input);
             layer.top = layer.top.map((output) => {
-                if (scope[output]) {
-                    var next = output + '\n' + index.toString(); // custom argument id
-                    scope[output] = next;
-                    return next;
-                }
-                scope[output] = output;
-                return output;
+                scope[output] = scope[output] ? output + '\n' + index.toString() : output; // custom argument id
+                return scope[output];
             });
             index++;
         }
 
-        var lastNode = null;
+        var layerMap = {};
+        var countMap = {};
+        var outputs = [];
+        var output = null;
+        for (layer of allLayers) {
+            if (layer.top.length == 0) {
+                outputs.push(layer);
+            }
+            else {
+                for (output of layer.top) {
+                    layerMap[output] = layer;
+                }
+            }
+            for (input of layer.bottom) {
+                countMap[input] = (countMap[input] || 0) + 1;
+            }
+        }
+        for (output of Object.keys(layerMap)) {
+            if (countMap[output]) {
+                delete layerMap[output];
+            }
+        }
+        var keys = Object.keys(layerMap);
+        if (keys.length == 1) {
+            this._outputs.push(new caffe.Parameter(keys[0], [ new caffe.Argument(keys[0], null) ]));
+        }
+        else if (outputs.length == 1) {
+            outputs[0].top = [ 'output' ];
+            this._outputs.push(new caffe.Parameter('output', [ new caffe.Argument('output', null) ]));
+        }
+
+        var layers = [];
+        var lastLayer = null;
         var lastTop = null;
-        for (layer of layers) {
-            node = new caffe.Node(metadata, layer, version);
+        while (allLayers.length > 0) {
+            layer = allLayers.shift();
             if (layer.top.length == 1 && 
                 layer.bottom.length >= 1 && 
                 layer.top[0].split('\n').shift() == layer.bottom[0].split('\n').shift() &&
-                lastNode &&
+                lastLayer &&
                 lastTop == layer.top[0].split('\n').shift()) {
-                lastNode.chain.push(node);
+                lastLayer.chain = lastLayer.chain || [];
+                lastLayer.chain.push(layer);
             }
-            else if (!this.translateInput(node)) {
-                this._nodes.push(node);
-                lastNode = null;
-                lastTop = null;
-                if (layer.top.length == 1) {
-                    lastNode = node;
-                    lastTop = layer.top[0].split('\n').shift();
+            else {
+                if (layer.type == 'Input' || layer.type == 'Data') {
+                    if (layer.bottom.length == 0 && layer.top.length == 1 &&
+                        layer.input_param && layer.input_param.shape &&
+                        layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
+                        var type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
+                        this._inputs.push(new caffe.Parameter(layer.top[0], [ new caffe.Argument(layer.top[0], type) ]));
+                        layer = null;
+                    }
+                }
+                if (layer) {
+                    layers.push(layer);
+                    lastLayer = null;
+                    lastTop = null;
+                    if (layer.top.length == 1) {
+                        lastLayer = layer;
+                        lastTop = layer.top[0].split('\n').shift();
+                    }
                 }
             }
         }
 
+        var input;
         if (netParameter.input && netParameter.input.length > 0) {
             index = 0;
             for (input of netParameter.input) {
@@ -284,41 +321,14 @@ caffe.Graph = class {
             }
         }
 
-        if (this._outputs.length == 0) {
-            var nodeMap = {};
-            var countMap = {};
-            var outputs = [];
-            for (node of this._nodes) {
-                if (node._outputs.length == 0) {
-                    outputs.push(node);
-                }
-                else {
-                    for (output of node._outputs) {
-                        nodeMap[output] = node;
-                    }
-                }
-                for (input of node._inputs) {
-                    if (countMap[input]) {
-                        countMap[input]++;
-                    }
-                    else {
-                        countMap[input] = 1;
-                    }
+        for (layer of layers) {
+            var node = new caffe.Node(metadata, layer, version);
+            if (layer.chain && layer.chain.length > 0) {
+                for (var chain of layer.chain) {
+                    node.chain.push(new caffe.Node(metadata, chain, version));
                 }
             }
-            for (output of Object.keys(nodeMap)) {
-                if (countMap[output]) {
-                    delete nodeMap[output];
-                }
-            }
-            var keys = Object.keys(nodeMap);
-            if (keys.length == 1) {
-                this._outputs.push(new caffe.Parameter(keys[0], [ new caffe.Argument(keys[0], null) ]));
-            }
-            else if (outputs.length == 1) {
-                outputs[0]._outputs = [ 'output' ];
-                this._outputs.push(new caffe.Parameter('output', [ new caffe.Argument('output', null) ]));
-            }
+            this._nodes.push(node);
         }
     }
 
@@ -340,26 +350,6 @@ caffe.Graph = class {
 
     get nodes() {
         return this._nodes;
-    }
-
-    translateInput(node) {
-        if (node.operator == 'Input' || node.operator == 'Data') {
-            if (node._inputs.length == 0 && node._outputs.length == 1) {
-                var attributes = node.attributes;
-                if (attributes.length == 1) {
-                    var attribute = attributes[0];
-                    if (attribute.name == 'shape') {
-                        if (attribute._value.length == 1 && attribute._value[0].dim) {
-                            var input = node._outputs[0];
-                            var type = new caffe.TensorType(null, new caffe.TensorShape(attribute._value[0].dim));
-                            this._inputs.push(new caffe.Parameter(input, [ new caffe.Argument(input, type) ]));
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 };
 
@@ -444,8 +434,6 @@ caffe.Node = class {
                 break;
         }
 
-        this._inputs = layer.bottom;
-        this._outputs = layer.top;
         this._initializers = [];
         this._attributes = [];
 
@@ -486,8 +474,65 @@ caffe.Node = class {
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
                     this._attributes.push(new caffe.Attribute(this._metadata, this.operator, 'shape', layer.input_param.shape));
                 }
-                this._initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
+                var initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
+        }
+
+        var schema = this._metadata.getSchema(this.operator);
+
+        this._inputs = [];
+        var inputs = layer.bottom.concat(initializers);
+        var inputIndex = 0;
+        if (schema && schema.inputs) {
+            for (var inputDef of schema.inputs) {
+                if (inputIndex < inputs.length || inputDef.option != 'optional') {
+                    var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    var inputArguments = [];
+                    for (var input of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                        if (input != '' || inputDef.option != 'optional') {
+                            if (input instanceof caffe.Tensor) {
+                                inputArguments.push(new caffe.Argument('', null, input));
+                            }
+                            else {
+                                inputArguments.push(new caffe.Argument(input, null, null));
+                            }
+                        }
+                    }
+                    this._inputs.push(new caffe.Parameter(inputDef.name, inputArguments));
+                    inputIndex += inputCount;
+                }
+            }
+        }
+        else {
+            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input) => {
+                return new caffe.Parameter(inputIndex.toString(), [ 
+                    (input instanceof caffe.Tensor) ?
+                        new caffe.Argument('', null, input) :
+                        new caffe.Argument(input, null, null)
+                ]);
+            }));
+        }
+
+        this._outputs = [];
+        var outputs = layer.top;
+        var outputIndex = 0;
+        if (schema && schema.outputs) {
+            for (var outputDef of schema.outputs) {
+                if (outputIndex < outputs.length || outputDef.option != 'optional') {
+                    var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
+                        return new caffe.Argument(output, null, null);
+                    })));
+                    outputIndex += outputCount;
+                }
+            }
+        }
+        else {
+            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output) => {
+                return new caffe.Parameter(outputIndex.toString(), [
+                    new caffe.Argument(output, null, null)
+                ]);
+            }));
         }
     }
 
@@ -509,66 +554,11 @@ caffe.Node = class {
     }
 
     get inputs() {
-        var inputs = this._inputs.concat(this._initializers);
-        var args = [];
-        var inputIndex = 0;
-        var schema = this._metadata.getSchema(this.operator);
-        if (schema && schema.inputs) {
-            for (var inputDef of schema.inputs) {
-                if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputArguments = [];
-                    for (var input of inputs.slice(inputIndex, inputIndex + inputCount)) {
-                        if (input != '' || inputDef.option != 'optional') {
-                            if (input instanceof caffe.Tensor) {
-                                inputArguments.push(new caffe.Argument('', null, input));
-                            }
-                            else {
-                                inputArguments.push(new caffe.Argument(input, null, null));
-                            }
-                        }
-                    }
-                    args.push(new caffe.Parameter(inputDef.name, inputArguments));
-                    inputIndex += inputCount;
-                }
-            }
-        }
-        else {
-            args = args.concat(inputs.slice(inputIndex).map((input) => {
-                return new caffe.Parameter(inputIndex.toString(), [ 
-                    (input instanceof caffe.Tensor) ?
-                        new caffe.Argument('', null, input) :
-                        new caffe.Argument(input, null, null)
-                ]);
-            }));
-        }
-        return args;
+        return this._inputs;
     }
 
     get outputs() {
-        var args = [];
-        var outputIndex = 0;
-        var outputs = this._outputs;
-        var schema = this._metadata.getSchema(this.operator);
-        if (schema && schema.outputs) {
-            for (var outputDef of schema.outputs) {
-                if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                    var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    args.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
-                        return new caffe.Argument(output, null, null);
-                    })));
-                    outputIndex += outputCount;
-                }
-            }
-        }
-        else {
-            args = args.concat(outputs.slice(outputIndex).map((output) => {
-                return new caffe.Parameter(outputIndex.toString(), [
-                    new caffe.Argument(output, null, null)
-                ]);
-            }));
-        }
-        return args;
+        return this._outputs;
     }
 
     get attributes() {
