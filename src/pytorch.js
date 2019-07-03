@@ -144,6 +144,7 @@ pytorch.ModelFactory = class {
                 constructorTable['torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook'] = function() {};
                 constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function() {};
                 constructorTable['torch.optim.adam.Adam'] = function() {};
+                constructorTable['torch.optim.adagrad.Adagrad'] = function() {};
                 constructorTable['torch.optim.lr_scheduler.StepLR'] = function() {};
                 constructorTable['torch.optim.rmsprop.RMSprop'] = function() {};
                 constructorTable['torch.optim.sgd.SGD'] = function() {};
