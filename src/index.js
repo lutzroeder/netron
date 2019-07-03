@@ -132,8 +132,8 @@ host.BrowserHost = class {
         }
 
         this._view.show('Welcome');
-        var openFileButton = document.getElementById('open-file-button');
-        var openFileDialog = document.getElementById('open-file-dialog');
+        var openFileButton = this.document.getElementById('open-file-button');
+        var openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
             openFileButton.addEventListener('click', () => {
                 openFileDialog.value = '';
@@ -145,13 +145,13 @@ host.BrowserHost = class {
                 }
             });
         }
-        document.addEventListener('dragover', (e) => {
+        this.document.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
-        document.addEventListener('drop', (e) => {
+        this.document.addEventListener('drop', (e) => {
             e.preventDefault();
         });
-        document.body.addEventListener('drop', (e) => { 
+        this.document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
                 var file = e.dataTransfer.files[0];
@@ -199,7 +199,7 @@ host.BrowserHost = class {
                 delete window.module;
                 reject(new Error('The script \'' + e.target.src + '\' failed to load.'));
             };
-            document.head.appendChild(script);
+            this.document.head.appendChild(script);
         });
     }
 
@@ -208,12 +208,12 @@ host.BrowserHost = class {
     }
 
     export(file, blob) {
-        var element = document.createElement('a');
+        var element = this.document.createElement('a');
         element.download = file;
         element.href = URL.createObjectURL(blob);
-        document.body.appendChild(element);
+        this.document.body.appendChild(element);
         element.click();
-        document.body.removeChild(element);
+        this.document.body.removeChild(element);
     }
 
     request(base, file, encoding) {
@@ -331,7 +331,7 @@ host.BrowserHost = class {
                 var buffer = new Uint8Array(request.response);
                 var context = new BrowserContext(this, url, identifier, buffer);
                 this._view.open(context).then(() => {
-                    document.title = identifier || url.split('/').pop();
+                    this.document.title = identifier || url.split('/').pop();
                 }).catch((error) => {
                     if (error) {
                         this.exception(error, false);
@@ -354,7 +354,7 @@ host.BrowserHost = class {
         this._view.show('Spinner');
         this._openBuffer(file).then(() => {
             this._view.show(null);
-            document.title = file.name;
+            this.document.title = file.name;
         }).catch((error) => {
             this._view.show(null);
             this.exception(error, false);
@@ -391,7 +391,7 @@ host.BrowserHost = class {
             }
             var context = new BrowserContext(this, '', identifier, buffer);
             this._view.open(context).then(() => {
-                document.title = identifier;
+                this.document.title = identifier;
             }).catch((error) => {
                 if (error) {
                     this.exception(error, false);
@@ -591,7 +591,7 @@ host.Dropdown = class {
                 e.preventDefault();
             }
         });
-        document.body.addEventListener('click', (e) => {
+        this.document.body.addEventListener('click', (e) => {
             if (!this._button.contains(e.target)) {
                 this.close();
             }

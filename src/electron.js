@@ -31,7 +31,7 @@ host.ElectronHost = class {
         if (electron.remote.systemPreferences.subscribeNotification) {
             electron.remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => this._updateTheme());
         }
-        document.body.style.opacity = 1;
+        this.document.body.style.opacity = 1;
     }
 
     get document() {
@@ -41,10 +41,10 @@ host.ElectronHost = class {
     _updateTheme() {
         if (electron.remote.systemPreferences.isDarkMode &&
             electron.remote.systemPreferences.isDarkMode()) {
-            document.body.classList.add('dark-mode');
+            this.document.body.classList.add('dark-mode');
         }
         else {
-            document.body.classList.remove('dark-mode');
+            this.document.body.classList.remove('dark-mode');
         }
     }
 
@@ -109,7 +109,7 @@ host.ElectronHost = class {
             this._view.showModelProperties();
         });
 
-        var openFileButton = document.getElementById('open-file-button');
+        var openFileButton = this.document.getElementById('open-file-button');
         if (openFileButton) {
             openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', () => {
@@ -117,13 +117,13 @@ host.ElectronHost = class {
             });
         }
 
-        document.addEventListener('dragover', (e) => {
+        this.document.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
-        document.addEventListener('drop', (e) => {
+        this.document.addEventListener('drop', (e) => {
             e.preventDefault();
         });
-        document.body.addEventListener('drop', (e) => { 
+        this.document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
             var files = [];
             for (var i = 0; i < e.dataTransfer.files.length; i++) {
