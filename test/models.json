@@ -3572,10 +3572,17 @@
   },
   {
     "type":   "sklearn",
-    "source": "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
     "target": "best_boston.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
     "format": "scikit-learn 0.20.2",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":   "sklearn",
+    "target": "phoenix_ml_classifier.pkl",
+    "source": "https://github.com/imeraj/Phoenix_Playground/blob/master/1.4/phoenix_ml/lib/phoenix_ml/model/classifier.pkl?raw=true",
+    "format": "scikit-learn 0.19.1",
+    "link":   "https://github.com/imeraj/Phoenix_Playground/tree/master/1.4/phoenix_ml/lib/phoenix_ml/model"
   },
   {
     "type":   "sklearn",

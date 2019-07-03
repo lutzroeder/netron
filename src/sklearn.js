@@ -107,10 +107,11 @@ sklearn.ModelFactory = class {
                         array.__type__ = this.subtype;
                         array.dtype = this.typecode;
                         array.shape = this.shape;
-                        var size = array.dtype.itemsize;
+                        var dims = 1;
                         for (var i = 0; i < array.shape.length; i++) {
-                            size = size * array.shape[i];
+                            dims = dims * array.shape[i];
                         }
+                        var size = array.dtype.itemsize * dims;
                         if (typeof this.rawdata == 'string') {
                             array.data = unpickler.unescape(this.rawdata, size);
                             if (array.data.length != size) {
@@ -119,7 +120,7 @@ sklearn.ModelFactory = class {
                         }
                         else {
                             array.data = this.rawdata;
-                            if (array.data.length != size) {
+                            if ((array.dtype.name != 'object' || array.data.length != dims) && (array.data.length != size)) {
                                 throw new sklearn.Error('Invalid array data size.');
                             }
                         }
@@ -171,6 +172,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
                 constructorTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
                 constructorTable['sklearn.feature_extraction.text.CountVectorizer​'] = function() {};
+                constructorTable['sklearn.feature_extraction.text.HashingVectorizer'] = function() {};
                 constructorTable['sklearn.feature_extraction.text.TfidfVectorizer​'] = function() {};
                 constructorTable['sklearn.feature_extraction.text.TfidfTransformer​'] = function() {};
                 constructorTable['sklearn.feature_selection.variance_threshold.VarianceThreshold'] = function() {};
@@ -181,6 +183,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.linear_model.LassoLars​'] = function() {};
                 constructorTable['sklearn.linear_model.ridge.Ridge'] = function() {};
                 constructorTable['sklearn.linear_model.sgd_fast.Log'] = function() {};
+                constructorTable['sklearn.linear_model.stochastic_gradient.SGDClassifier'] = function() {};
                 constructorTable['sklearn.model_selection._search.GridSearchCV'] = function() {};
                 constructorTable['sklearn.naive_bayes.BernoulliNB'] = function() {};
                 constructorTable['sklearn.naive_bayes.ComplementNB'] = function() {};
