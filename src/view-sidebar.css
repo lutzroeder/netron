@@ -23,6 +23,16 @@
 .sidebar-view-item-value-line-content { white-space: pre; word-wrap: normal; overflow: auto; display: block; }
 .sidebar-view-item-value-expander { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; float: right; color: #aaa; cursor: hand; user-select: none; -webkit-user-select: none; -moz-user-select: none; padding: 4px 6px 4px 6px; }
 .sidebar-view-item-value-expander:hover { color: #000; }
+.sidebar-view-item-select {
+    background-color: #fcfcfc; border: #fcfcfc; color: #333;
+    border-radius: 2px; width: 100%; height: 23px; padding: 3px 12px 3px 7px;
+    margin-top: 3px; margin-bottom: 3px; box-sizing: border-box; outline: none;
+    -moz-box-sizing: border-box; -webkit-appearance: none; -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #333 50%), linear-gradient(135deg, #333 50%, transparent 50%);
+    background-position: calc(100% - 12px) calc(10px), calc(100% - 7px) calc(10px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
 
 .sidebar-view-find input[type=text] { font-family: inherit; font-size: 13px; padding: 4px 6px 4px 6px; background: #fff; border-radius: 4px; border: 1px solid #ccc; outline: 0; }
 .sidebar-view-find ol { list-style-type: none; overflow-y: auto; margin: 8px 0 20px 0; padding: 0; }
@@ -51,6 +61,7 @@
     .sidebar-view-item-value { background-color: #383838; border-color: #383838; }
     .sidebar-view-item-value-dark { background-color: #3e3e3e; border-color: #3e3e3e; }
     .sidebar-view-item-value-line-border { border-color: rgba(0, 0, 0, 0.09); }
+    .sidebar-view-item-select { background-color: #383838; border: #383838; color: #dfdfdf; background-image: linear-gradient(45deg, transparent 50%, #aaa 50%), linear-gradient(135deg, #aaa 50%, transparent 50%); }
 
     .sidebar-view-title { border-bottom-color: #2d2d2d; color: #dfdfdf; }
     .sidebar-view-title-button { color: #888888; border-color: #888888; }
@@ -76,6 +87,7 @@
 .dark-mode .sidebar-view-item-value { background-color: #383838; border-color: #383838; }
 .dark-mode .sidebar-view-item-value-dark { background-color: #3e3e3e; border-color: #3e3e3e; }
 .dark-mode .sidebar-view-item-value-line-border { border-color: rgba(0, 0, 0, 0.09); }
+.dark-mode .sidebar-view-item-select { background-color: #383838; border: #383838; color: #dfdfdf; background-image: linear-gradient(45deg, transparent 50%, #aaa 50%), linear-gradient(135deg, #aaa 50%, transparent 50%); }
 
 .dark-mode .sidebar-view-title { border-bottom-color: #2d2d2d; color: #dfdfdf; }
 .dark-mode .sidebar-view-title-button { color: #888888; border-color: #888888; }

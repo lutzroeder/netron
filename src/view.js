@@ -124,7 +124,7 @@ view.View = class {
         if (this._activeGraph) {
             this.clearSelection();
             var graphElement = document.getElementById('graph');
-            var view = new sidebar.FindSidebar(graphElement, this._activeGraph);
+            var view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -918,7 +918,7 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            var modelSidebar = new sidebar.ModelSidebar(this._model, this._host);
+            var modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._activeGraph);
             modelSidebar.on('update-active-graph', (sender, name) => {
                 this._updateActiveGraph(name);
             });
@@ -928,7 +928,7 @@ view.View = class {
     
     showNodeProperties(node, input) {
         if (node) {
-            var nodeSidebar = new sidebar.NodeSidebar(node, this._host);
+            var nodeSidebar = new sidebar.NodeSidebar(this._host, node);
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showOperatorDocumentation(node);
             });

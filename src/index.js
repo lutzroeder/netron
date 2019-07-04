@@ -591,7 +591,7 @@ host.Dropdown = class {
                 e.preventDefault();
             }
         });
-        this.document.body.addEventListener('click', (e) => {
+        this._document.body.addEventListener('click', (e) => {
             if (!this._button.contains(e.target)) {
                 this.close();
             }
