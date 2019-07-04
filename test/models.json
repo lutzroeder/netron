@@ -4278,37 +4278,51 @@
   {
     "type":   "tflite",
     "target": "smartreply.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/smartreply_1.0_2017_11_01.zip[smartreply.tflite]"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/smartreply_1.0_2017_11_01.zip[smartreply.tflite]",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
     "target": "smartreply_1.0_2017_11_01.zip",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/smartreply_1.0_2017_11_01.zip"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/smartreply_1.0_2017_11_01.zip",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
     "target": "squeezenet.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.tflite]"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.tflite]",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
     "target": "speech_hotword_model_rank1_2017_11_14.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_hotword_model_rank1_2017_11_14.tflite"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_hotword_model_rank1_2017_11_14.tflite",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
     "target": "speech_hotword_model_rank2_2017_11_14.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_hotword_model_rank2_2017_11_14.tflite"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_hotword_model_rank2_2017_11_14.tflite",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
     "target": "speech_speakerid_model_2017_11_14.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_speakerid_model_2017_11_14.tflite"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_speakerid_model_2017_11_14.tflite",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
     "target": "speech_tts_model_2017_11_14.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_tts_model_2017_11_14.tflite"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_tts_model_2017_11_14.tflite",
+    "format": "TensorFlow Lite v3"
+  },
+  {
+    "type":   "tflite",
+    "target": "two_subgraphs.bin",
+    "source": "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/testdata/two_subgraphs.bin?raw=true",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/tensorflow/tensorflow"
   },
   {
     "type":   "tflite",

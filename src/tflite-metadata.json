@@ -473,5 +473,20 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "Gather",
+    "schema": {
+      "attributes": [
+        { "name": "axis", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "positions" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]

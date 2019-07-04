@@ -10,7 +10,17 @@ tflite.ModelFactory = class {
 
     match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
-        return extension == 'tflite' || extension == 'lite';
+        if (extension == 'tflite' || extension == 'lite') {
+            return true;
+        }
+        if (extension == 'bin') {
+            var buffer = context.buffer;
+            var torch = [ 0x54, 0x46, 0x4c, 0x33 ];
+            if (buffer && buffer.length > 8 && torch.every((v, i) => v == buffer[i + 4])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     open(context, host) {
@@ -72,7 +82,7 @@ tflite.Model = class {
         }
         var subgraphsLength = model.subgraphsLength();
         for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
-            var name = (subgraphsLength > 1) ? ('(' + subgraph.toString() + ')') : '';
+            var name = (subgraphsLength > 1) ? subgraph.toString() : '';
             this._graphs.push(new tflite.Graph(metadata, model.subgraphs(subgraph), name, operatorCodeList, model));
         }
     }

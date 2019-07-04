@@ -1101,7 +1101,7 @@ view.ModelFactoryService = class {
         this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.t7', '.model', '.dms', '.pth.tar', '.ckpt' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./torchscript', [ '.pt', '.pth' ]);
-        this.register('./tflite', [ '.tflite', '.lite' ]);
+        this.register('./tflite', [ '.tflite', '.lite', '.bin' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
         this.register('./sklearn', [ '.pkl', '.joblib' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
@@ -1300,7 +1300,7 @@ view.ModelFactoryService = class {
         var excludes = [
             'blockmap', 'checkpoint', 'dat', 'test', 'bytes', 'desktop', 'graph',
             'index', 'data-00000-of-00001',
-            'exe', 'dll', 'bin', 'raw', 'msg',
+            'exe', 'dll', 'raw', 'msg',
             'html', 'pdf', 'rtf', 'txt', 'md', 'svg', 'csv',
             'xls', 'doc', 'ppt', 'xlsx', 'docx', 'pptx',
             'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
