@@ -311,7 +311,7 @@ tf.Graph = class {
                     }
                 }
                 var initializers = {};
-                for (node of this._metaGraph.graph_def.node) {
+                for (node of nodes) {
                     if (node.op == 'Const' && node.input.length == 0 && node.controlDependencies.length == 0 && this._checkSingleOutput(node)) {
                         var value = node.attr.value;
                         if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
@@ -322,7 +322,7 @@ tf.Graph = class {
                         }
                     }
                 }
-                for (node of this._metaGraph.graph_def.node) {
+                for (node of nodes) {
                     if (node.op == 'Identity' && node.input.length == 1 && node.controlDependencies.length == 0 && this._checkSingleOutput(node)) {
                         var initializer_name = node.input[0];
                         var initializer = initializers[initializer_name];
@@ -334,7 +334,7 @@ tf.Graph = class {
                     }
                 }
                 var inputMap = {};
-                for (node of this._metaGraph.graph_def.node) {
+                for (node of nodes) {
                     if (node.op == 'Placeholder' && node.input.length == 0 && node.controlDependencies.length == 0 && node.output.length == 1) {
                         var dtype = node.attr.dtype;
                         var shape = node.attr.shape;
@@ -348,13 +348,10 @@ tf.Graph = class {
                 this._inputs = Object.keys(inputMap).map((key) => {
                     return inputMap[key];
                 });
-                for (node of this._metaGraph.graph_def.node) {
-                    if (node.output.filter(output => !output.startsWith('^')) != 0 ||
-                        node.input.filter(input => !input.startsWith('^')).length > 0) {
-                        var id = node.name;
-                        if (!initializers[id] && !inputMap[id] /* && node.op != 'NoOp' */) {
-                            this._nodes.push(new tf.Node(this, node, initializers));
-                        }
+                for (node of nodes) {
+                    var id = node.name;
+                    if (!initializers[id] && !inputMap[id] /* && node.op != 'NoOp' */) {
+                        this._nodes.push(new tf.Node(this, node, initializers));
                     }
                 }
             }

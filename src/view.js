@@ -1008,6 +1008,18 @@ class ModelContext {
                 var reader = null;
                 switch (extension) {
                     case 'pbtxt':
+                        var b = this.buffer;
+                        var length = b.length;
+                        var signature = 
+                            (length >= 3 && b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) ||
+                            (length >= 4 && b[0] === 0x00 && b[1] === 0x00 && b[2] === 0xfe && b[3] === 0xff) ||
+                            (length >= 4 && b[0] === 0xff && b[1] === 0xfe && b[2] === 0x00 && b[3] === 0x00) ||
+                            (length >= 4 && b[0] === 0x84 && b[1] === 0x31 && b[2] === 0x95 && b[3] === 0x33) ||
+                            (length >= 2 && b[0] === 0xfe && b[1] === 0xff) ||
+                            (length >= 2 && b[0] === 0xff && b[1] === 0xfe);
+                        if (!signature && b.subarray(0, Math.min(1024, length)).some((c) => c < 7 || (c > 14 && c < 32))) {
+                            break;
+                        }
                         reader = prototxt.TextReader.create(this.text);
                         reader.start(false);
                         while (!reader.end(false)) {
