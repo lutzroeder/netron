@@ -3628,6 +3628,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "robinhood-portfolio_data_user.pkl.pkl",
+    "source": "https://github.com/omdv/robinhood-portfolio/blob/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl?raw=true",
+    "error":  "Root object has no type in 'robinhood-portfolio_data_user.pkl.pkl'.",
+    "link":   "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
+  },
+  {
+    "type":   "sklearn",
     "target": "svc.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.joblib.pkl]",
     "format": "scikit-learn 0.19.1",

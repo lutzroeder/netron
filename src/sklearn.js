@@ -361,7 +361,7 @@ sklearn.ModelFactory = class {
                 if (weights) {
                     obj = null;
                 }
-                if (!weights && !obj && !obj.__type__) {
+                if (!weights && (!obj || !obj.__type__)) {
                     throw new sklearn.Error('Root object has no type.');
                 }
             }
