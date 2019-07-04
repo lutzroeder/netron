@@ -4117,6 +4117,13 @@
   },
   {
     "type":   "tfjs",
+    "target": "posenet_mobilenet_float_075/model-stride16.json,posenet_mobilenet_float_075/group1-shard1of2.bin,posenet_mobilenet_float_075/group1-shard2of2.bin",
+    "source": "https://github.com/lutzroeder/netron/files/3357629/posenet_mobilenet_float_075.zip[model-stride16.json,group1-shard1of2.bin,group1-shard2of2.bin]",
+    "format": "TensorFlow.js graph-model",
+    "link":   "https://github.com/intel/webml-polyfill/issues/880"
+  },
+  {
+    "type":   "tfjs",
     "target": "sentiment_cnn_v1/model.json",
     "source": "https://storage.googleapis.com/tfjs-models/tfjs/sentiment_cnn_v1/model.json",
     "format": "TensorFlow.js Keras v2.1.4",

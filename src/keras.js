@@ -94,7 +94,7 @@ keras.ModelFactory = class {
                             version = model_config.modelTopology.keras_version;
                             format = format + (version ? (' v' + version) : '');
                             format = 'TensorFlow.js ' + (model_config.format ? model_config.format : format);
-                            producer = model_config.generatedBy ? model_config.generatedBy : '';
+                            producer = model_config.convertedBy || model_config.generatedBy || '';
                             model_config = model_config.modelTopology;
                         }
                         if (model_config.model_config) {

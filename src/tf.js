@@ -63,6 +63,17 @@ tf.ModelFactory = class {
                 return true;
             }
         }
+        if (extension == 'json') {
+            try {
+                var root = JSON.parse(context.text);
+                if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
+                    return true;
+                }
+            }
+            catch (err) {
+                // continue regardless of error
+            }
+        }
         return false;
     }
 
@@ -73,90 +84,108 @@ tf.ModelFactory = class {
             var metaGraph = null;
             var savedModel = null;
             var format = null;
+            var producer = null;
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop().toLowerCase();
-            var tags = context.tags('pbtxt');
-            if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
-                if (tags.saved_model_schema_version || tags.meta_graphs) {
+            if (extension !== 'json') {
+                var tags = context.tags('pbtxt');
+                if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
+                    if (tags.saved_model_schema_version || tags.meta_graphs) {
+                        try {
+                            if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
+                                savedModel = tf.proto.SavedModel.decodeText(prototxt.TextReader.create(context.text));
+                                format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
+                            }
+                        }
+                        catch (error) {
+                            throw new tf.Error("File text format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
+                        }
+                    }
+                    else if (tags.graph_def) {
+                        try {
+                            if (!savedModel) {
+                                metaGraph = tf.proto.MetaGraphDef.decodeText(prototxt.TextReader.create(context.text));
+                                savedModel = new tf.proto.SavedModel();
+                                savedModel.meta_graphs.push(metaGraph);
+                                format = 'TensorFlow MetaGraph';
+                            }
+                        }
+                        catch (error) {
+                            throw new tf.Error("File text format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
+                        }
+                    }
+                    else if (tags.node) {
+                        try {
+                            graph = tf.proto.GraphDef.decodeText(prototxt.TextReader.create(context.text));
+                            metaGraph = new tf.proto.MetaGraphDef();
+                            metaGraph.graph_def = graph;
+                            savedModel = new tf.proto.SavedModel();
+                            savedModel.meta_graphs.push(metaGraph);
+                            format = 'TensorFlow Graph';
+                        }
+                        catch (error) {
+                            throw new tf.Error("File text format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
+                        }
+                    }
+                }
+                else {
                     try {
-                        if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                            savedModel = tf.proto.SavedModel.decodeText(prototxt.TextReader.create(context.text));
+                        if (identifier.endsWith('saved_model.pb')) {
+                            savedModel = tf.proto.SavedModel.decode(context.buffer);
                             format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
                         }
                     }
                     catch (error) {
-                        throw new tf.Error("File text format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
+                        var buffer = context.buffer;
+                        if (buffer.length > 3 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x12) {
+                            throw new tf.Error("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
+                        }
                     }
-                }
-                else if (tags.graph_def) {
                     try {
-                        if (!savedModel) {
-                            metaGraph = tf.proto.MetaGraphDef.decodeText(prototxt.TextReader.create(context.text));
+                        if (!savedModel && extension == 'meta') {
+                            metaGraph = tf.proto.MetaGraphDef.decode(context.buffer);
                             savedModel = new tf.proto.SavedModel();
                             savedModel.meta_graphs.push(metaGraph);
                             format = 'TensorFlow MetaGraph';
                         }
                     }
                     catch (error) {
-                        throw new tf.Error("File text format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
+                        throw new tf.Error("File format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
                     }
-                }
-                else if (tags.node) {
                     try {
-                        graph = tf.proto.GraphDef.decodeText(prototxt.TextReader.create(context.text));
-                        metaGraph = new tf.proto.MetaGraphDef();
-                        metaGraph.graph_def = graph;
-                        savedModel = new tf.proto.SavedModel();
-                        savedModel.meta_graphs.push(metaGraph);
-                        format = 'TensorFlow Graph';
+                        if (!savedModel) {
+                            graph = tf.proto.GraphDef.decode(context.buffer);
+                            metaGraph = new tf.proto.MetaGraphDef();
+                            metaGraph.graph_def = graph;
+                            savedModel = new tf.proto.SavedModel();
+                            savedModel.meta_graphs.push(metaGraph);
+                            format = 'TensorFlow Graph';
+                        }
                     }
                     catch (error) {
-                        throw new tf.Error("File text format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
+                        throw new tf.Error("File format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
                     }
                 }
             }
             else {
-                try {
-                    if (identifier.endsWith('saved_model.pb')) {
-                        savedModel = tf.proto.SavedModel.decode(context.buffer);
-                        format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
-                    }
-                }
-                catch (error) {
-                    var buffer = context.buffer;
-                    if (buffer.length > 3 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x12) {
-                        throw new tf.Error("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
-                    }
-                }
-                try {
-                    if (!savedModel && extension == 'meta') {
-                        metaGraph = tf.proto.MetaGraphDef.decode(context.buffer);
-                        savedModel = new tf.proto.SavedModel();
-                        savedModel.meta_graphs.push(metaGraph);
-                        format = 'TensorFlow MetaGraph';
-                    }
-                }
-                catch (error) {
-                    throw new tf.Error("File format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
-                }
-                try {
-                    if (!savedModel) {
-                        graph = tf.proto.GraphDef.decode(context.buffer);
-                        metaGraph = new tf.proto.MetaGraphDef();
-                        metaGraph.graph_def = graph;
-                        savedModel = new tf.proto.SavedModel();
-                        savedModel.meta_graphs.push(metaGraph);
-                        format = 'TensorFlow Graph';
-                    }
-                }
-                catch (error) {
-                    throw new tf.Error("File format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
+                var root = JSON.parse(context.text);
+                format = 'TensorFlow.js ' + root.format;
+                producer = root.convertedBy || root.generatedBy || '';
+                var graph_def = new tf.proto.GraphDef();
+                metaGraph = new tf.proto.MetaGraphDef();
+                metaGraph.graph_def = graph_def;
+                savedModel = new tf.proto.SavedModel();
+                savedModel.meta_graphs.push(metaGraph);
+
+                for (var node of root.modelTopology.node) {
+                    graph_def.node.push(node);
+                    node.input = node.input || [];
                 }
             }
 
             return tf.Metadata.open(host).then((metadata) => {
                 try {
-                    return new tf.Model(metadata, savedModel, format);
+                    return new tf.Model(metadata, savedModel, format, producer);
                 }
                 catch (error) {
                     host.exception(error, false);
@@ -169,9 +198,10 @@ tf.ModelFactory = class {
 
 tf.Model = class {
 
-    constructor(metadata, model, format) {
+    constructor(metadata, model, format, producer) {
         this._model = model;
         this._format = format;
+        this._producer = producer || '';
         this._graphs = [];
         for (var i = 0; i < model.meta_graphs.length; i++) {
             var metaGraph = model.meta_graphs[i];
@@ -180,7 +210,7 @@ tf.Model = class {
                 name = metaGraph.any_info.toString();
             }
             else if (model.meta_graphs.length > 1) {
-                name = '(' + i.toString() + ')';
+                name = i.toString();
             }
             this._graphs.push(new tf.Graph(metadata, metaGraph, name));
         }
@@ -189,6 +219,10 @@ tf.Model = class {
 
     get format() {
         return this._format;
+    }
+
+    get producer() {
+        return this._producer;
     }
 
     get description() {
@@ -661,7 +695,10 @@ tf.Attribute = class {
             this._value = new tf.TensorShape(value.shape);
         }
         else if (Object.prototype.hasOwnProperty.call(value, 's')) {
-            if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
+            if (typeof value.s === 'string'){
+                this._value = value.s;
+            }
+            else if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
                 this._value = tf.Metadata.textDecoder.decode(value.s);
             }
             else {
@@ -747,7 +784,7 @@ tf.Tensor = class {
         if (kind) {
             this._kind = kind;
         }
-        this._type = new tf.TensorType(this._tensor.dtype, this._tensor.tensor_shape);
+        this._type = new tf.TensorType(this._tensor.dtype, this._tensor.tensor_shape || this._tensor.tensorShape);
     }
 
     get name() {
@@ -800,16 +837,18 @@ tf.Tensor = class {
             context.state = 'Tensor has no data type.';
             return context;
         }
-        if (!this._tensor.tensor_shape || !this._tensor.tensor_shape.dim) {
+        var shape = this._tensor.tensor_shape || this._tensor.tensorShape; 
+        if (!shape || !shape.dim) {
             context.state = 'Tensor has no dimensions.';
             return context;
         }
 
-        for (var dim of this._tensor.tensor_shape.dim) {
+        for (var dim of shape.dim) {
             context.size = context.size * (dim.size ? dim.size : 0);
         }
 
         switch (this._tensor.dtype) {
+            case 'DT_FLOAT':
             case tf.proto.DataType.DT_FLOAT:
                 if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
                     context.rawData = new DataView(this._tensor.tensor_content.buffer, this._tensor.tensor_content.byteOffset, this._tensor.tensor_content.byteLength);
@@ -857,11 +896,11 @@ tf.Tensor = class {
                 context.state = "Tensor data type 'bool' is not implemented.";
                 break;
             default:
-                context.state = "Tensor data type '" + this._tensor.dtype + "'is not implemented.";
+                context.state = "Tensor data type '" + this._tensor.dtype + "' is not implemented.";
                 break;
         }
 
-        context.shape = this._tensor.tensor_shape.dim.map((dim) => dim.size);
+        context.shape = shape.dim.map((dim) => dim.size);
         return context;
     }
 
@@ -951,6 +990,7 @@ tf.Tensor = class {
             tf.Tensor.dataType[tf.proto.DataType.DT_HALF] = 'float16';
             tf.Tensor.dataType[tf.proto.DataType.DT_FLOAT] = 'float32';
             tf.Tensor.dataType[tf.proto.DataType.DT_DOUBLE] = 'float64';
+            tf.Tensor.dataType['DT_FLOAT'] = 'float32';
         }
         var text = tf.Tensor.dataType[type];
         if (text) { 
