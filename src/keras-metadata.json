@@ -1700,7 +1700,7 @@
           "name": "dilation_rate"
         },
         {
-          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).",
           "name": "activation"
         },
         {
@@ -2131,7 +2131,7 @@
           "name": "unroll"
         },
         {
-          "description": "A RNN cell instance. A RNN cell is a class that has:\n    - a `call(input_at_t, states_at_t)` method, returning\n        `(output_at_t, states_at_t_plus_1)`. The call method of the\n        cell can also take the optional argument `constants`, see\n        section \"Note on passing external constants\" below.\n    - a `state_size` attribute. This can be a single integer\n        (single state) in which case it is\n        the size of the recurrent state\n        (which should be the same as the size of the cell output).\n        This can also be a list/tuple of integers\n        (one size per state).\n    - a `output_size` attribute. This can be a single integer or a\n        TensorShape, which represent the shape of the output. For\n        backward compatible reason, if this attribute is not available\n        for the cell, the value will be inferred by the first element\n        of the `state_size`.\n\n    It is also possible for `cell` to be a list of RNN cell instances,\n    in which cases the cells get stacked on after the other in the RNN,\n    implementing an efficient stacked RNN.\n",
+          "description": "A RNN cell instance. A RNN cell is a class that has:\n    - a `call(input_at_t, states_at_t)` method, returning\n        `(output_at_t, states_at_t_plus_1)`. The call method of the\n        cell can also take the optional argument `constants`, see\n        section \"Note on passing external constants\" below.\n    - a `state_size` attribute. This can be a single integer\n        (single state) in which case it is\n        the size of the recurrent state\n        (which should be the same as the size of the cell output).\n        This can also be a list/tuple of integers\n        (one size per state).\n    - a `output_size` attribute. This can be a single integer or a\n        TensorShape, which represent the shape of the output. For\n        backward compatible reason, if this attribute is not available\n        for the cell, the value will be inferred by the first element\n        of the `state_size`.\n\n    It is also possible for `cell` to be a list of RNN cell instances,\n    in which cases the cells get stacked one after the other in the RNN,\n    implementing an efficient stacked RNN.\n",
           "name": "cell"
         },
         {
