@@ -405,6 +405,13 @@
           "name": "n_iter_no_change",
           "option": "optional",
           "type": "int32"
+        },
+        {
+          "default": 15000,
+          "description": "Only used when solver='lbfgs'. Maximum number of function calls.\nThe solver iterates until convergence (determined by 'tol'), number\nof iterations reaches max_iter, or this number of function calls.\nNote that number of function calls will be greater than or equal to\nthe number of iterations for the MLPRegressor.\n\n.. versionadded:: 0.22\n",
+          "name": "max_fun",
+          "option": "optional",
+          "type": "int32"
         }
       ],
       "description": "Multi-layer Perceptron regressor.\n\nThis model optimizes the squared-loss using LBFGS or stochastic gradient\ndescent.\n\n.. versionadded:: 0.18\n",
@@ -1587,7 +1594,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be the sequence strings or\nbytes items are expected to be analyzed directly.\n",
+          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
           "name": "input",
           "type": "string"
         },
@@ -1677,7 +1684,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be the sequence strings or\nbytes items are expected to be analyzed directly.\n",
+          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
           "name": "input",
           "type": "string"
         },
