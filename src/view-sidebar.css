@@ -24,6 +24,7 @@
 .sidebar-view-item-value-expander { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; float: right; color: #aaa; cursor: hand; user-select: none; -webkit-user-select: none; -moz-user-select: none; padding: 4px 6px 4px 6px; }
 .sidebar-view-item-value-expander:hover { color: #000; }
 .sidebar-view-item-select {
+    font-family: inherit; font-size: 12px;
     background-color: #fcfcfc; border: #fcfcfc; color: #333;
     border-radius: 2px; width: 100%; height: 23px; padding: 3px 12px 3px 7px;
     margin-top: 3px; margin-bottom: 3px; box-sizing: border-box; outline: none;
