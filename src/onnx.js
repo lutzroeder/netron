@@ -788,6 +788,7 @@ onnx.Tensor = class {
                     context.state = 'Tensor data is empty.';
                 }
                 break;
+            case onnx.proto.TensorProto.DataType.BOOL:
             case onnx.proto.TensorProto.DataType.INT8:
             case onnx.proto.TensorProto.DataType.UINT8:
             case onnx.proto.TensorProto.DataType.INT16:
@@ -837,7 +838,6 @@ onnx.Tensor = class {
                 }
                 break;
             default:
-                // debugger;
                 context.state = 'Tensor data type is not implemented.';
                 break;
         }
@@ -858,7 +858,14 @@ onnx.Tensor = class {
                     return results;
                 }
                 if (context.data) {
-                    results.push(context.data[context.index++]);
+                    var value = context.data[context.index++];
+                    switch (this._tensor.data_type)
+                    {   
+                        case onnx.proto.TensorProto.DataType.BOOL:
+                            value = value === 0 ? false : true;
+                            break;
+                    }
+                    results.push(value);
                     context.count++;
                 }
                 else if (context.rawData) {
@@ -917,6 +924,11 @@ onnx.Tensor = class {
                         case onnx.proto.TensorProto.DataType.UINT64:
                             results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                             context.index += 8;
+                            context.count++;
+                            break;
+                        case onnx.proto.TensorProto.DataType.BOOL:
+                            results.push(context.rawData.getInt8(context.index, true) === 0 ? false : true);
+                            context.index += 1;
                             context.count++;
                             break;
                     }
