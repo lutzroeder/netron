@@ -89,6 +89,10 @@ class Application {
 
     _ready() {
         this._configuration.load();
+        if (!this._configuration.has('userId')) {
+            this._configuration.set('userId', require('uuid').v4());
+        }
+        global.userId = this._configuration.get('userId');
         if (this._openFileQueue) {
             var openFileQueue = this._openFileQueue;
             this._openFileQueue = null;

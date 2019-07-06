@@ -15,7 +15,7 @@ host.ElectronHost = class {
 
     constructor() {
         if (electron.remote.app.isPackaged) {
-            this._telemetry = require('universal-analytics')('UA-54146-13');
+            this._telemetry = require('universal-analytics')('UA-54146-13', electron.remote.getGlobal('global').userId);
         }
 
         this._version = electron.remote.app.getVersion();
