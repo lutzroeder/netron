@@ -1366,6 +1366,7 @@ cntk_v1.Reader = class {
 };
 
 cntk_v1.TensorShape = class {
+
     constructor(reader, acceptLegacyFormat = false) {
         if (reader && Array.isArray(reader)) {
             this.dims = reader;
@@ -1393,6 +1394,7 @@ cntk_v1.TensorShape = class {
 };
 
 cntk_v1.Matrix = class {
+
     constructor(reader) {
         var type = reader.byte();
         switch (type) {
@@ -1426,6 +1428,7 @@ cntk_v1.PoolKind = {
 };
 
 cntk_v1.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading CNTK v1 model.';
