@@ -54,7 +54,7 @@ global.TextDecoder = class {
 
 var type = process.argv.length > 2 ? process.argv[2] : null;
 
-var models = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
+var items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 var dataFolder = __dirname + '/data';
 
 class TestHost {
@@ -263,73 +263,82 @@ function decompress(buffer, identifier) {
     return archive;
 }
 
-function request(location, cookie, callback) {
-    var data = [];
-    var position = 0;
-    var protocol = url.parse(location).protocol;
-    var httpModules = { 'http:': http, 'https:': https };
-    var httpModule = httpModules[protocol];
-    var httpRequest = httpModule.request(location, {
-        rejectUnauthorized: false
-    });
-    if (cookie.length > 0) {
+function request(location, cookie) {
+    var options = { rejectUnauthorized: false };
+    var httpRequest = null;
+    switch (url.parse(location).protocol) {
+        case 'http:': 
+            httpRequest = http.request(location, options);
+            break;
+        case 'https:':
+            httpRequest = https.request(location, options);
+            break;
+    }
+    if (cookie && cookie.length > 0) {
         httpRequest.setHeader('Cookie', cookie);
     }
-    httpRequest.on('response', (response) => {
-        if (response.statusCode == 200 && url.parse(location).hostname == 'drive.google.com' && 
+    return new Promise((resolve, reject) => {
+        httpRequest.on('response', (response) => {
+            resolve(response);
+        });
+        httpRequest.on('error', (error) => {
+            reject(error);
+        });
+        httpRequest.end();
+    });
+}
+
+function downloadFile(location, cookie) {
+    var data = [];
+    var position = 0;
+    return request(location, cookie).then((response) => {
+        if (response.statusCode == 200 &&
+            url.parse(location).hostname == 'drive.google.com' && 
             response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
             cookie = response.headers['set-cookie'];
             var download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
             var confirm = download.split(';').shift().split('=').pop();
             location = location + '&confirm=' + confirm;
-            request(location, cookie, callback);
-            return;
+            return downloadFile(location, cookie);
         }
         if (response.statusCode == 301 || response.statusCode == 302) {
             location = url.parse(response.headers.location).hostname ?
                 response.headers.location : 
                 url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
-            request(location, cookie, callback);
-            return;
+            return downloadFile(location, cookie);
         }
         if (response.statusCode != 200) {
-            callback(new Error(response.statusCode.toString() + ' ' + location), null);
-            return;
+            throw new Error(response.statusCode.toString() + ' ' + location);
         }
-        var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
-        response.on("data", (chunk) => {
-            position += chunk.length;
-            if (length >= 0) {
-                var label = location.length > 70 ? location.substring(0, 66) + '...' : location; 
-                process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
-            }
-            else {
-                process.stdout.write('  ' + position + ' bytes\r');
-            }
-            data.push(chunk);
-        });
-        response.on("end", () => {
-            callback(null, Buffer.concat(data));
-        });
-        response.on("error", (err) => {
-            callback(err, null);
+        return new Promise((resolve, reject) => {
+            var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
+            response.on('data', (chunk) => {
+                position += chunk.length;
+                if (length >= 0) {
+                    var label = location.length > 70 ? location.substring(0, 66) + '...' : location; 
+                    process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
+                }
+                else {
+                    process.stdout.write('  ' + position + ' bytes\r');
+                }
+                data.push(chunk);
+            });
+            response.on('end', () => {
+                resolve(Buffer.concat(data));
+            });
+            response.on('error', (error) => {
+                reject(error);
+            });
         });
     });
-    httpRequest.on('error', (err) => {
-        callback(err, null);
-    });
-    httpRequest.end();
 }
 
-function download(folder, targets, sources, completed, callback) {
+function download(folder, targets, sources) {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
-        completed = completed.concat(targets);
-        callback(null, completed);
-        return;
+        return Promise.resolve();
     }
     if (!sources) {
-        callback(new Error('Download source not specified.'), null);
-        return;
+        return Promise.reject(new Error('Download source not specified.'));
     }
     var source = '';
     var sourceFiles = [];
@@ -358,18 +367,13 @@ function download(folder, targets, sources, completed, callback) {
     for (target of targets) {
         makeDir(path.dirname(folder + '/' + target));
     }
-    request(source, [], (err, data) => {
-        if (err) {
-            callback(err, null);
-            return;
-        }
+    return downloadFile(source).then((data) => {
         if (sourceFiles.length > 0) {
             if (process.stdout.clearLine) {
                 process.stdout.clearLine();
             }
             process.stdout.write('  decompress...\r');
             var archive = decompress(data, source.split('/').pop());
-            // console.log(archive);
             for (var file of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
@@ -377,11 +381,10 @@ function download(folder, targets, sources, completed, callback) {
                 process.stdout.write('  write ' + file + '\n');
                 var entry = archive.entries.filter((entry) => entry.name == file)[0];
                 if (!entry) {
-                    callback(new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " ."), null);
+                    throw new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
                 }
                 var target = targets.shift();
                 fs.writeFileSync(folder + '/' + target, entry.data, null);
-                completed.push(target);
             }
         }
         else {
@@ -391,16 +394,30 @@ function download(folder, targets, sources, completed, callback) {
             }
             process.stdout.write('  write ' + target + '\r');
             fs.writeFileSync(folder + '/' + target, data, null);
-            completed.push(target);
         }
         if (process.stdout.clearLine) {
             process.stdout.clearLine();
         }
         if (sources.length > 0) {
-            download(folder, targets, sources, completed, callback);
-            return;
+            return download(folder, targets, sources);
         }
-        callback(null, completed);
+        return;
+    });
+}
+
+function script(folder, targets, command, args) {
+    if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
+        return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+        try {
+            console.log('  ' + command + ' ' + args);
+            child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
+            resolve();
+        }
+        catch (error) {
+            reject(error);
+        }
     });
 }
 
@@ -434,6 +451,10 @@ function loadModel(target, item) {
         if (item.runtime && model.runtime != item.runtime) {
             throw new Error("Invalid runtime '" + model.runtime + "'.");
         }
+        model.version;
+        model.description;
+        model.author;
+        model.license;
         for (var graph of model.graphs) {
             var input;
             var argument;
@@ -462,6 +483,7 @@ function loadModel(target, item) {
             for (var node of graph.nodes) {
                 node.name.toString();
                 node.name.length;
+                node.description;
                 node.documentation.toString();
                 node.category.toString();
                 for (var attribute of node.attributes) {
@@ -479,11 +501,13 @@ function loadModel(target, item) {
                     for (argument of input.arguments) {
                         argument.id.toString();
                         argument.id.length;
+                        argument.description;
                         if (argument.type) {
                             argument.type.toString();
                         }
                         if (argument.initializer) {
                             argument.initializer.toString();
+                            argument.initializer.type.toString();
                         }
                     }
                 }
@@ -531,10 +555,10 @@ function render(model) {
 }
 
 function next() {
-    if (models.length == 0) {
+    if (items.length == 0) {
         return;
     }
-    var item = models.shift();
+    var item = items.shift();
     if (!item.type) {
         console.error("Property 'type' is required for item '" + JSON.stringify(item) + "'.");
         return;
@@ -543,59 +567,50 @@ function next() {
         next();
         return;
     }
-    var targets = item.target.split(',');
     if (process.stdout.clearLine) {
         process.stdout.clearLine();
     }
+    var targets = item.target.split(',');
+    var target = targets[0];
     var folder = dataFolder + '/' + item.type;
-    process.stdout.write(item.type + '/' + targets[0] + '\n');
-    var sources = item.source;
-    download(folder, targets, sources, [], (err, completed) => {
-        if (err) {
-            if (item.script) {
-                try {
-                    var root = path.dirname(__dirname);
-                    var command = item.script[0].replace('${root}', root);
-                    var args = item.script[1].replace('${root}', root);
-                    console.log('  ' + command + ' ' + args);
-                    child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
-                    completed = targets;
-                }
-                catch (err) {
-                    console.error(err);
-                    return;
-                }
+    process.stdout.write(item.type + '/' + target + '\n');
+
+    var promise = null;
+    if (item.script) {
+        var root = path.dirname(__dirname);
+        var command = item.script[0].replace('${root}', root);
+        var args = item.script[1].replace('${root}', root);
+        promise = script(folder, targets, command, args);
+    }
+    else {
+        var sources = item.source;
+        promise = download(folder, targets, sources);
+    }
+    return promise.then(() => {
+        return loadModel(folder + '/' + target, item).then((model) => {
+            var promise = null;
+            if (item.render == 'skip') {
+                promise = Promise.resolve();
             }
             else {
-                console.error(err);
-                return;
+                promise = render(model);
             }
-        }
-        loadModel(folder + '/' + completed[0], item).then((model) => {
-            if (item.render != 'skip') {
-                render(model).then(() => {
-                    if (item.error) {
-                        console.error('Expected error.');
-                        return;
-                    }
-                    next();
-                }).catch((error) => {
-                    if (!item.error || item.error != error.message) {
-                        console.error(err);
-                    }
-                    next();
-                });
-            }
-            else {
-                next();
-            }
-        }).catch((error) => {
-            if (!item.error || item.error != error.message) {
-                console.error(error);
-                return;
-            }
-            next();
+            return promise.then(() => {
+                if (item.error) {
+                    console.error('Expected error.');
+                }
+                else {
+                    return next();
+                }
+            });
         });
+    }).catch((error) => {
+        if (!item.error || item.error != error.message) {
+            console.error(error);
+        }
+        else {
+            return next();
+        }
     });
 }
 
