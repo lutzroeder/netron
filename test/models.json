@@ -3252,10 +3252,24 @@
   },
   {
     "type":   "paddle",
+    "target": "PyramidBox_WiderFace.tar.gz",
+    "source": "http://paddlemodels.bj.bcebos.com/PyramidBox_WiderFace.tar.gz",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/face_detection"
+  },
+  {
+    "type":   "paddle",
     "target": "resnet50_int8_model.tar.gz",
     "source": "http://paddle-inference-dist.bj.bcebos.com/int8/resnet50_int8_model.tar.gz",
     "format": "PaddlePaddle",
     "link":   "https://github.com/lutzroeder/netron/issues/198"
+  },
+  {
+    "type":   "paddle",
+    "target": "vgg_ilsvrc_16_fc_reduced.tar.gz",
+    "source": "http://paddlemodels.bj.bcebos.com/vgg_ilsvrc_16_fc_reduced.tar.gz",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/face_detection"
   },
   {
     "type":   "paddle",
