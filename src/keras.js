@@ -704,21 +704,24 @@ keras.Attribute = class {
             this._value = keras.Attribute._convert(value);
         }
 
-        if (name == 'trainable') {
-            this._visible = false;
-        }
-        else {
-            var schema = metadata.getAttributeSchema(operator, this._name);
-            if (schema) {
-                if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
-                    this._visible = false;
-                }
-                else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                    if (keras.Attribute._isEquivalent(schema.default, value)) {
+        switch (name) {
+            case 'trainable':
+            case 'dtype':
+                this._visible = false;
+                break;
+            default:
+                var schema = metadata.getAttributeSchema(operator, this._name);
+                if (schema) {
+                    if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                         this._visible = false;
                     }
+                    else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
+                        if (keras.Attribute._isEquivalent(schema.default, value)) {
+                            this._visible = false;
+                        }
+                    }
                 }
-            }
+                break;
         }
     }
 
