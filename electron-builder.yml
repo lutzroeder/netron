@@ -10,6 +10,10 @@ fileAssociations:
     ext: onnx
   - name: "TensorFlow Lite Model"
     ext: tflite
+  - name: "TensorFlow Lite Model"
+    ext: lite
+  - name: "TensorFlow Lite Model"
+    ext: tfl
   - name: "Keras Model"
     ext: h5
   - name: "Keras Model"
@@ -61,6 +65,10 @@ fileAssociations:
   - name: "PyTorch Model"
     ext: pth
   - name: "PyTorch Model"
+    ext: pt
+  - name: "TorchScript Model"
+    ext: pth
+  - name: "TorchScript Model"
     ext: pt
   - name: "Torch Model"
     ext: t7

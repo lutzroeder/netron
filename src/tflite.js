@@ -13,10 +13,10 @@ tflite.ModelFactory = class {
         if (extension == 'tflite' || extension == 'lite') {
             return true;
         }
-        if (extension == 'bin') {
+        if (extension == 'tfl' || extension == 'bin') {
             var buffer = context.buffer;
-            var torch = [ 0x54, 0x46, 0x4c, 0x33 ];
-            if (buffer && buffer.length > 8 && torch.every((v, i) => v == buffer[i + 4])) {
+            var signature = [ 0x54, 0x46, 0x4c, 0x33 ]; // TFL3
+            if (buffer && buffer.length > 8 && signature.every((x, i) => x == buffer[i + 4])) {
                 return true;
             }
         }
@@ -64,8 +64,7 @@ tflite.Model = class {
     constructor(metadata, model) {
         this._graphs = [];
         this._format = 'TensorFlow Lite v' + model.version().toString();
-        var description = model.description();
-        this._description = (description && description.length > 0) ? description : null;
+        this._description = model.description() || '';
         var operatorCodeList = [];
         var builtinOperatorMap = {};
         for (var key of Object.keys(tflite.schema.BuiltinOperator)) {

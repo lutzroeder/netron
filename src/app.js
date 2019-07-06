@@ -125,7 +125,7 @@ class Application {
                     'model', 'dnn', 'cmf',
                     'mar', 'params',
                     'meta',
-                    'tflite', 'lite', 'bin',
+                    'tflite', 'lite', 'tfl', 'bin',
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
