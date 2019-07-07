@@ -140,8 +140,9 @@ host.BrowserHost = class {
                 openFileDialog.click();
             });
             openFileDialog.addEventListener('change', (e) => {
-                if (e.target && e.target.files && e.target.files.length == 1) {
-                    this._openFile(e.target.files[0]);
+                if (e.target && e.target.files && e.target.files.length > 0) {
+                    var files = Array.from(e.target.files);
+                    this._open(files);
                 }
             });
         }
@@ -153,10 +154,10 @@ host.BrowserHost = class {
         });
         this.document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
-            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
-                var file = e.dataTransfer.files[0];
-                if (file.name.split('.').length > 1 && this._view.accept(file.name)) {
-                    this._openFile(file);
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                var files = Array.from(e.dataTransfer.files);
+                if (files.some((file) => this._view.accept(file.name))) {
+                    this._open(files);
                 }
             }
         });
@@ -350,11 +351,16 @@ host.BrowserHost = class {
         request.send();
     }
 
-    _openFile(file) {
+    _open(files) {
         this._view.show('Spinner');
-        this._openBuffer(file).then(() => {
-            this._view.show(null);
-            this.document.title = file.name;
+        var file = files.find((file) => this._view.accept(file.name));
+        var context = new BrowserFileContext(file, files);
+        context.open().then(() => {
+            return this._view.open(context).then((model) => {
+                this._view.show(null);
+                this.document.title = files[0].name;
+                return model;
+            });
         }).catch((error) => {
             this._view.show(null);
             this.exception(error, false);
@@ -404,40 +410,6 @@ host.BrowserHost = class {
         };
         request.open('GET', url, true);
         request.send();
-    }
-
-    _openBuffer(file) {
-        return new Promise((resolve, reject) => {
-            var reader = new FileReader();
-            reader.onload = (e) => {
-                resolve(new Uint8Array(e.target.result));
-            };
-            reader.onerror = (e) => {
-                e = e || window.event;
-                var message = '';
-                switch(e.target.error.code) {
-                    case e.target.error.NOT_FOUND_ERR:
-                        message = 'File not found.';
-                        break;
-                    case e.target.error.NOT_READABLE_ERR:
-                        message = 'File not readable.';
-                        break;
-                    case e.target.error.SECURITY_ERR:
-                        message = 'File access denied.';
-                        break;
-                    default:
-                        message = "File read error '" + e.target.error.code.toString() + "'.";
-                        break;
-                }
-                reject(new Error(message));
-            };
-            reader.readAsArrayBuffer(file);
-        }).then((buffer => {
-            var context = new BrowserContext(this, '', file.name, buffer);
-            return this._view.open(context).then((model) => {
-                return model;
-            })
-        }));
     }
 };
 
@@ -691,6 +663,70 @@ host.Dropdown = class {
 
     close() {
         this._dropdown.style.display = 'none';
+    }
+}
+
+
+class BrowserFileContext {
+
+    constructor(file, blobs) {
+        this._file = file;
+        this._blobs = {};
+        for (var blob of blobs) {
+            this._blobs[blob.name] = blob;
+        }
+    }
+
+    get identifier() {
+        return this._file.name;
+    }
+
+    get buffer() {
+        return this._buffer;
+    }
+
+    open() {
+        return this.request(this._file.name, null).then((data) => {
+            this._buffer = data;
+        });
+    }
+
+    request(file, encoding) {
+        var blob = this._blobs[file];
+        if (!blob) {
+            return Promise.reject(new Error("File not found '" + file + "'."));
+        }
+        return new Promise((resolve, reject) => {
+            var reader = new FileReader();
+            reader.onload = (e) => {
+                resolve(encoding ? e.target.result : new Uint8Array(e.target.result));
+            };
+            reader.onerror = (e) => {
+                e = e || window.event;
+                var message = '';
+                switch(e.target.error.code) {
+                    case e.target.error.NOT_FOUND_ERR:
+                        message = 'File not found.';
+                        break;
+                    case e.target.error.NOT_READABLE_ERR:
+                        message = 'File not readable.';
+                        break;
+                    case e.target.error.SECURITY_ERR:
+                        message = 'File access denied.';
+                        break;
+                    default:
+                        message = "File read error '" + e.target.error.code.toString() + "'.";
+                        break;
+                }
+                reject(new Error(message));
+            };
+            if (encoding === 'utf-8') {
+                reader.readAsText(blob, encoding);
+            }
+            else {
+                reader.readAsArrayBuffer(blob);
+            }
+        });
     }
 }
 

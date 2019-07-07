@@ -1309,27 +1309,19 @@ view.ModelFactoryService = class {
     }
 
     accept(identifier) {
-        var extension = identifier.toLowerCase().split('.').pop();
-        var excludes = [
-            'blockmap', 'checkpoint', 'dat', 'test', 'bytes', 'desktop', 'graph',
-            'index', 'data-00000-of-00001',
-            'exe', 'dll', 'raw', 'msg',
-            'html', 'pdf', 'rtf', 'txt', 'md', 'svg', 'csv',
-            'xls', 'doc', 'ppt', 'xlsx', 'docx', 'pptx',
-            'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
-            'js', 'py', 'pyc', 'ipynb',
-            'weights',
-            'mp3', 'mp4', 'mov',
-            'npy', 'npz',
-            'tmp'
-        ];
-        if (excludes.some((exclude) => exclude == extension)) {
-            return false;
+        identifier = identifier.toLowerCase();
+        for (var extension of this._extensions) {
+            if (identifier.endsWith(extension.extension)) {
+                return true;
+            }
         }
-        if (extension.startsWith('data-')) {
-            return false;
+        if (identifier.endsWith('.zip') ||
+            identifier.endsWith('.tar') ||
+            identifier.endsWith('.tar.gz') ||
+            identifier.endsWith('.tgz')) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     _filter(context) {
