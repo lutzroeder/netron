@@ -674,6 +674,9 @@ mxnet.Node = class {
                                 if (dataType !== -1 || shape.length > 0) {
                                     argumentType = new mxnet.TensorType(dataType, new mxnet.TensorShape(shape));
                                 }
+                                else {
+                                    argumentType = new mxnet.TensorType(-1, new mxnet.TensorShape(null));
+                                }
                                 initializer = new mxnet.Tensor('Initializer', argument.name, argumentType, null);
                                 delete argumentMap[argumentNodeIndex];
                             }
@@ -906,8 +909,8 @@ mxnet.Tensor = class {
     constructor(kind, name, type, data) {
         this._kind = kind;
         this._name = name;
-        this._data = data;
         this._type = type;
+        this._data = data;
     }
 
     get kind() {
