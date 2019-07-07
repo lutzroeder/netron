@@ -59,59 +59,103 @@ caffe2.ModelFactory = class {
 
     open(context, host) {
         return host.require('./caffe2-proto').then(() => {
-            var netDef = null;
-            var identifier = context.identifier; 
-            var extension = identifier.split('.').pop().toLowerCase();
-            if (extension == 'pbtxt' || extension == 'prototxt') {
-                try {
-                    caffe2.proto = protobuf.roots.caffe2.caffe2;
-                    var reader = prototxt.TextReader.create(context.text);
-                    reader.field = function(tag, message) {
-                        if (message instanceof caffe2.proto.DeviceOption) {
-                            message[tag] = this.skip();
-                            return;
-                        }
-                        throw new Error("Unknown field '" + tag + "'" + this.location());
-                    };
-                    netDef = caffe2.proto.NetDef.decodeText(reader);
-                }
-                catch (error) {
-                    throw new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
-                }
-            }
-            else {
-                try {
-                    caffe2.proto = protobuf.roots.caffe2.caffe2;
-                    netDef = caffe2.proto.NetDef.decode(context.buffer);
-                }
-                catch (error) {
-                    throw new caffe2.Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
-                }
-            }
             return caffe2.Metadata.open(host).then((metadata) => {
-                var init = null;
-                var next = () => {
-                    try {
-                        return new caffe2.Model(metadata, netDef, init);
-                    }
-                    catch (error) {
-                        host.exception(error, false);
-                        throw new caffe2.Error(error.message);
-                    }
-                };
-                return context.request('init_net.pb', null).then((data) => {
-                    if (data) {
+                var identifier = context.identifier; 
+                var extension = identifier.split('.').pop().toLowerCase();
+                if (extension == 'pbtxt' || extension == 'prototxt') {
+                    var open_text = (predict, init) => {
+                        var predict_net = null;
+                        var init_net = null;
                         try {
-                            init = caffe2.proto.NetDef.decode(data);
+                            caffe2.proto = protobuf.roots.caffe2.caffe2;
+                            var reader = prototxt.TextReader.create(predict);
+                            reader.field = function(tag, message) {
+                                if (message instanceof caffe2.proto.DeviceOption) {
+                                    message[tag] = this.skip();
+                                    return;
+                                }
+                                throw new Error("Unknown field '" + tag + "'" + this.location());
+                            };
+                            predict_net = caffe2.proto.NetDef.decodeText(reader);
+                        }
+                        catch (error) {
+                            throw new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
+                        }
+                        try {
+                            caffe2.proto = protobuf.roots.caffe2.caffe2;
+                            init_net = caffe2.proto.NetDef.decodeText(prototxt.TextReader.create(init));
                         }
                         catch (error) {
                             // continue regardless of error
                         }
+                        try {
+                            return new caffe2.Model(metadata, predict_net, init_net);
+                        }
+                        catch (error) {
+                            host.exception(error, false);
+                            var message = error && error.message ? error.message : error.toString();
+                            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                            throw new caffe2.Error(message + " in '" + identifier + "'.");
+                        }
+                    };
+                    if (identifier.toLowerCase().startsWith('init_net.')) {
+                        return context.request('predict_net.' + extension, 'utf-8').then((text) => {
+                            return open_text(text, context.text);
+                        }).catch(() => {
+                            return open_text(context.text, null);
+                        });
                     }
-                    return next();
-                }).catch(() => {
-                    return next();
-                }); 
+                    else {
+                        return context.request('init_net.' + extension, 'utf-8').then((text) => {
+                            return open_text(context.text, text);
+                        }).catch(() => {
+                            return open_text(context.text, null);
+                        });
+                    }
+                }
+                else {
+                    var open_binary = (predict, init) => {
+                        var predict_net = null;
+                        var init_net = null;
+                        try {
+                            caffe2.proto = protobuf.roots.caffe2.caffe2;
+                            predict_net = caffe2.proto.NetDef.decode(predict);
+                        }
+                        catch (error) {
+                            throw new caffe2.Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
+                        }
+                        try {
+                            caffe2.proto = protobuf.roots.caffe2.caffe2;
+                            init_net = caffe2.proto.NetDef.decode(init);
+                        }
+                        catch (error) {
+                            // continue regardless of error
+                        }
+                        try {
+                            return new caffe2.Model(metadata, predict_net, init_net);
+                        }
+                        catch (error) {
+                            host.exception(error, false);
+                            var message = error && error.message ? error.message : error.toString();
+                            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                            throw new caffe2.Error(message + " in '" + identifier + "'.");
+                        }
+                    };
+                    if (identifier.toLowerCase().startsWith('init_net.')) {
+                        return context.request('predict_net.' + extension, null).then((buffer) => {
+                            return open_binary(buffer, context.buffer);
+                        }).catch(() => {
+                            return open_binary(context.buffer, null);
+                        });
+                    }
+                    else {
+                        return context.request('init_net.' + extension, null).then((buffer) => {
+                            return open_binary(context.buffer, buffer);
+                        }).catch(() => {
+                            return open_binary(context.buffer, null);
+                        });
+                    }
+                }
             });
         });
     }
@@ -119,9 +163,9 @@ caffe2.ModelFactory = class {
 
 caffe2.Model = class {
 
-    constructor(metadata, netDef, init) {
-        this._domain = netDef.domain || null;
-        var graph = new caffe2.Graph(metadata, netDef, init);
+    constructor(metadata, predict_net, init_net) {
+        this._domain = predict_net.domain || null;
+        var graph = new caffe2.Graph(metadata, predict_net, init_net);
         this._graphs = [ graph ];
     }
 
