@@ -30,8 +30,6 @@ fileAssociations:
     ext: cmf
   - name: "CNTK Model"
     ext: dnn
-  - name: "Caffe Model"
-    ext: caffemodel
   - name: "TensorFlow Meta Graph"
     ext: meta
   - name: "TensorFlow Graph"
@@ -52,6 +50,8 @@ fileAssociations:
     ext: pbtxt
   - name: "Caffe Model"
     ext: pbtxt
+  - name: "Caffe Model"
+    ext: caffemodel
   - name: "TensorFlow Graph"
     ext: prototxt
   - name: "TensorFlow Saved Model"
@@ -62,6 +62,8 @@ fileAssociations:
     ext: prototxt
   - name: "Caffe Model"
     ext: prototxt
+  - name: "NCNN Model"
+    ext: param
   - name: "PyTorch Model"
     ext: pth
   - name: "PyTorch Model"

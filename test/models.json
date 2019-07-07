@@ -2377,6 +2377,97 @@
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
   },
   {
+    "type":   "ncnn",
+    "target": "darknet_yolov2/darknet_yolov2.cfg.ncnn,darknet_yolov2/darknet_yolov2.weights.ncnn",
+    "source": "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.weights.ncnn",
+    "format": "NCNN",
+    "link":   "https://github.com/00liujj/gen-ncnn-models"
+  },
+  {
+    "type":   "ncnn",
+    "target": "frozen_pb/frozen.pb.weights.ncnn,frozen_pb/frozen.pb.cfg.ncnn",
+    "source": "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.weights.ncnn",
+    "format": "NCNN",
+    "link":   "https://github.com/00liujj/gen-ncnn-models"
+  },
+  {
+    "type":   "ncnn",
+    "target": "googlenet/googlenet.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/googlenet.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "mobilefacenet/mobilefacenet.bin,mobilefacenet/mobilefacenet.param",
+    "source": "https://github.com/GRAYKEY/mobilefacenet_ncnn/blob/master/models/mobilefacenet.bin?raw=true,https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.param",
+    "format": "NCNN",
+    "link":   "https://github.com/GRAYKEY/mobilefacenet_ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "mobilenet_yolov3/mobilenet_yolov3.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenet_yolov3.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "mobilenet_yolov3/mobilenet_yolov3.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenet_yolov3.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "ncnn_yolo2/ncnn_yolo2_det3.bin,ncnn_yolo2/ncnn_yolo2_det3.param",
+    "source": "https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.bin,https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.param",
+    "format": "NCNN",
+    "link":   "https://github.com/kyo055/ncnn_yolo2"
+  },
+  {
+    "type":   "ncnn",
+    "target": "resnet18_int8/resnet18_int8.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/resnet18_int8.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "shufflenet/shufflenet.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/shufflenet.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "squeezenet/squeezenet.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/squeezenet.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "squeezenet_ssd_faces_ncnn/faces_wider_squeezenet.param,squeezenet_ssd_faces_ncnn/faces_wider_squeezenet.bin",
+    "source": "https://deepdetect.com/models/init/embedded/images/detection/squeezenet_ssd_faces_ncnn.tar.gz[faces_wider_squeezenet.param,faces_wider_squeezenet.bin]",
+    "format": "NCNN",
+    "link":   "https://www.deepdetect.com/models/faces_embedded_ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "squeezenet_v1.1/squeezenet_v1.1.bin",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/examples/squeezenet_v1.1.bin",
+    "error":  "Failed to load 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "vgg16/vgg16.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/vgg16.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
     "type":   "onnx",
     "target": "arcface-resnet100.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",

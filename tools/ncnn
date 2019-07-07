@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+src=${root}/src
+third_party=${root}/third_party
+tools=${root}/tools
+
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    python="python3"
+    pip="pip3"
+else
+    python="python"
+    pip="pip"
+fi
+
+identifier=ncnn
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch --quiet -p
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
+    fi
+    git -C "${third_party}" submodule update --quiet --init
+}
+
+clean() {
+    bold "ncnn clean"
+    rm -rf ${third_party}/${identifier}
+}
+
+sync() {
+    bold "ncnn sync"
+    git_sync ncnn https://github.com/Tencent/ncnn.git
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "metadata") metadata;;
+    esac
+done

@@ -126,6 +126,7 @@ class Application {
                     'mar', 'params',
                     'meta',
                     'tflite', 'lite', 'tfl', 'bin',
+                    'param',
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',

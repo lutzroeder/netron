@@ -507,7 +507,7 @@ view.View = class {
                                     type.shape && 
                                     type.shape.dimensions && 
                                     Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
-                                    shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
+                                    shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
                                     if (type.shape.dimensions.length == 0 && argument.initializer && !argument.initializer.state) {
                                         shape = argument.initializer.toString();
                                         if (shape && shape.length > 10) {
@@ -1120,6 +1120,7 @@ view.ModelFactoryService = class {
         this.register('./openvino', [ '.xml' ]);
         this.register('./darknet', [ '.cfg' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
+        this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
     }
 
     register(id, extensions) {
