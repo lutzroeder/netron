@@ -3658,7 +3658,7 @@
       "type":   "tf",
       "target": "bert_uncased_L-12_H-768_A-12.meta",
       "source": "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip[uncased_L-12_H-768_A-12/bert_model.ckpt.meta]",
-      "format": "TensorFlow MetaGraph",
+      "format": "TensorFlow MetaGraph", "producer": "TensorFlow v1.11.0-rc1",
       "render": "skip",
       "link":   "https://github.com/google-research/bert#pre-trained-models"
   },
