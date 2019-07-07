@@ -358,6 +358,7 @@ darknet.Tensor = class {
 
     constructor(id) {
         this._id = id;
+        this._type = new darknet.TensorType('?', new darknet.TensorShape(null));
     }
 
     get name() {
@@ -365,7 +366,7 @@ darknet.Tensor = class {
     }
 
     get type() {
-        return null;
+        return this._type;
     }
 
     get state() {
