@@ -2455,7 +2455,14 @@
   },
   {
     "type":   "ncnn",
-    "target": "squeezenet_v1.1/squeezenet_v1.1.bin",
+    "target": "squeezenet_v1.1/squeezenet_v1.1.param.bin,squeezenet_v1.1/squeezenet_v1.1.bin",
+    "source": "https://github.com/Tencent/ncnn/blob/master/examples/squeezencnn/assets/squeezenet_v1.1.param.bin?raw=true,https://github.com/Tencent/ncnn/blob/master/examples/squeezenet_v1.1.bin?raw=true",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "squeezenet_v1.1_no_param/squeezenet_v1.1.bin",
     "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/examples/squeezenet_v1.1.bin",
     "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
