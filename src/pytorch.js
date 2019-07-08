@@ -16,8 +16,9 @@ pytorch.ModelFactory = class {
         var identifier = context.identifier; 
         var extension = identifier.split('.').pop().toLowerCase();
         var buffer = null;
-        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 't7' ||
-            extension == 'dms' || extension == 'model' || extension == 'ckpt' || identifier.endsWith('.pth.tar')) {
+        if (extension === 'pth' || extension === 'pkl' || extension === 'pt' || extension === 'bin' ||
+            extension === 'h5' || extension === 't7' || extension === 'dms' || extension === 'model' ||
+            extension === 'ckpt' || identifier.endsWith('.pth.tar')) {
             buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
