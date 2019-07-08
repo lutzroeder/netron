@@ -230,6 +230,20 @@
     }
   },
   {
+    "name": "Softmax2d",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "Softplus",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "Tanh",
     "schema": {
       "category": "Activation",
@@ -282,6 +296,14 @@
   },
   {
     "name": "ELU",
+    "schema": {
+      "attributes": [],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "GLU",
     "schema": {
       "attributes": [],
       "category": "Activation",
