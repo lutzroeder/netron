@@ -142,7 +142,10 @@ host.BrowserHost = class {
             openFileDialog.addEventListener('change', (e) => {
                 if (e.target && e.target.files && e.target.files.length > 0) {
                     var files = Array.from(e.target.files);
-                    this._open(files);
+                    var file = files.find((file) => this._view.accept(file.name));
+                    if (file) {
+                        this._open(file, files);
+                    }
                 }
             });
         }
@@ -156,8 +159,9 @@ host.BrowserHost = class {
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 var files = Array.from(e.dataTransfer.files);
-                if (files.some((file) => this._view.accept(file.name))) {
-                    this._open(files);
+                var file = files.find((file) => this._view.accept(file.name));
+                if (file) {
+                    this._open(file, files);
                 }
             }
         });
@@ -351,9 +355,8 @@ host.BrowserHost = class {
         request.send();
     }
 
-    _open(files) {
+    _open(file, files) {
         this._view.show('Spinner');
-        var file = files.find((file) => this._view.accept(file.name));
         var context = new BrowserFileContext(file, files);
         context.open().then(() => {
             return this._view.open(context).then((model) => {
