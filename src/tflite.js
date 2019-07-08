@@ -33,8 +33,8 @@ tflite.ModelFactory = class {
                 tflite.schema = tflite_schema;
                 if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
                 {
-                    var signature = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
-                    throw new tflite.Error("Invalid FlatBuffers signature '" + signature + "' in '" + identifier + "'.");
+                    var signature = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new tflite.Error("File format is not tflite.Model (" + signature + ").");
                 }
                 model = tflite.schema.Model.getRootAsModel(byteBuffer);
             }
