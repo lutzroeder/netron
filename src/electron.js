@@ -229,7 +229,7 @@ host.ElectronHost = class {
             var pathname = path.join(base || __dirname, file);
             fs.exists(pathname, (exists) => {
                 if (!exists) {
-                    reject(new Error('File not found.'));
+                    reject(new Error("File not found '" + file + "'."));
                 }
                 else {
                     fs.readFile(pathname, encoding, (err, data) => {

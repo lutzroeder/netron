@@ -706,16 +706,16 @@ class BrowserFileContext {
                 var message = '';
                 switch(e.target.error.code) {
                     case e.target.error.NOT_FOUND_ERR:
-                        message = 'File not found.';
+                        message = "File not found '" + file + "'.";
                         break;
                     case e.target.error.NOT_READABLE_ERR:
-                        message = 'File not readable.';
+                        message = "File not readable '" + file + "'.";
                         break;
                     case e.target.error.SECURITY_ERR:
-                        message = 'File access denied.';
+                        message = "File access denied '" + file + "'.";
                         break;
                     default:
-                        message = "File read error '" + e.target.error.code.toString() + "'.";
+                        message = "File read '" + e.target.error.code.toString() + "' error '" + file + "'.";
                         break;
                 }
                 reject(new Error(message));

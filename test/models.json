@@ -2457,7 +2457,7 @@
     "type":   "ncnn",
     "target": "squeezenet_v1.1/squeezenet_v1.1.bin",
     "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/examples/squeezenet_v1.1.bin",
-    "error":  "Failed to load 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
+    "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {

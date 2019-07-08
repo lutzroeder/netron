@@ -93,7 +93,7 @@ class TestHost {
     request(base, file, encoding) {
         var pathname = path.join(base || path.join(__dirname, '../src'), file);
         if (!fs.existsSync(pathname)) {
-            return Promise.reject(new Error('File not found.'));
+            return Promise.reject(new Error("File not found '" + file + "'."));
         }
         return Promise.resolve(fs.readFileSync(pathname, encoding));
     }

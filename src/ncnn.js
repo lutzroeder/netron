@@ -68,8 +68,10 @@ ncnn.ModelFactory = class {
                 }
                 return context.request(text, 'utf-8').then((text) => {
                     return param(text, context.buffer);
-                }).catch(() => {
-                    throw new ncnn.Error("Failed to load '" + text + "' in '" + identifier + "'.");
+                }).catch((error) => {
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    throw new ncnn.Error(message + " in '" + identifier + "'.");
                 });
             }
         });

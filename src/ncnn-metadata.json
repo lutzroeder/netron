@@ -25,6 +25,7 @@
         { "name": "pad_w", "default": 0 },
         { "name": "bias_term", "default": 0, "visible": false },
         { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "group", "default": 0 },
         { "name": "int8_scale_term", "default": 0 },
         { "name": "activation_type", "default": 0 },
         { "name": "activation_params", "default": [] },
@@ -47,6 +48,30 @@
         { "name": "pad_w", "default": 0 },
         { "name": "bias_term", "default": 0, "visible": false },
         { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "group", "default": 0 },
+        { "name": "int8_scale_term", "default": 0 },
+        { "name": "activation_type", "default": 0 },
+        { "name": "activation_params", "default": [] },
+        { "name": "kernel_h", "default": 0 },
+        { "name": "dilation_h", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "pad_h", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Deconvolution",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "kernel_w", "default": 0 },
+        { "name": "dilation_w", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "bias_term", "default": 0, "visible": false },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "group", "default": 0 },
         { "name": "int8_scale_term", "default": 0 },
         { "name": "activation_type", "default": 0 },
         { "name": "activation_params", "default": [] },
@@ -69,6 +94,7 @@
         { "name": "pad_w", "default": 0 },
         { "name": "bias_term", "default": 0, "visible": false },
         { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "group", "default": 0 },
         { "name": "int8_scale_term", "default": 0 },
         { "name": "activation_type", "default": 0 },
         { "name": "activation_params", "default": [] },
@@ -82,7 +108,10 @@
   {
     "name": "ReLU",
     "schema": {
-      "category": "Activation"
+      "category": "Activation",
+      "attributes": [
+        { "name": "slope", "type": "float32", "default": 0 }
+      ]
     }
   },
   {
@@ -195,7 +224,8 @@
     "schema": {
       "category": "Activation",
       "attributes": [
-        { "name": "axis", "default": 0 }
+        { "name": "axis", "type": "int32", "default": 0 },
+        { "name": "fixbug0", "type": "int32", "default": 0 }
       ]
     }
   },
@@ -234,10 +264,10 @@
         { "name": "min_sizes", "default": [] },
         { "name": "max_sizes", "default": [] },
         { "name": "aspect_ratios", "default": [] },
-        { "name": "varainces0", "default": 0 },
-        { "name": "varainces1", "default": 0 },
-        { "name": "varainces2", "default": 0 },
-        { "name": "varainces3", "default": 0 },
+        { "name": "varainces0", "type": "float32", "default": 0 },
+        { "name": "varainces1", "type": "float32", "default": 0 },
+        { "name": "varainces2", "type": "float32", "default": 0 },
+        { "name": "varainces3", "type": "float32", "default": 0 },
         { "name": "flip", "default": 1 },
         { "name": "clip", "default": 0 },
         { "name": "image_width", "default": 0 },
@@ -316,6 +346,40 @@
         { "name": "op_type", "type": "int32", "default": 0 },
         { "name": "with_scalar", "type": "int32", "default": 0 },
         { "name": "b", "type": "float32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "YoloDetectionOutput",
+    "schema": {
+      "attributes": [
+        { "name": "num_class", "type": "int32", "default": 20 },
+        { "name": "num_box", "type": "int32", "default": 5 },
+        { "name": "confidence_threshold", "type": "float32", "default": 0.01 },
+        { "name": "nms_threshold", "type": "float32", "default": 0.45 },
+        { "name": "biases" }
+      ],
+      "inputs": [
+        { "name": "rects" },
+        { "name": "scores" }
+      ]
+    }
+  },
+  {
+    "name": "Yolov3DetectionOutput",
+    "schema": {
+      "attributes": [
+        { "name": "num_class", "type": "int32", "default": 20 },
+        { "name": "num_box", "type": "int32", "default": 5 },
+        { "name": "confidence_threshold", "type": "float32", "default": 0.01 },
+        { "name": "nms_threshold", "type": "float32", "default": 0.45 },
+        { "name": "biases" },
+        { "name": "mask" },
+        { "name": "anchors_scale" }
+      ],
+      "inputs": [
+        { "name": "rects" },
+        { "name": "scores" }
       ]
     }
   }
