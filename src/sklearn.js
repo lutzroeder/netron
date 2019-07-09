@@ -120,9 +120,6 @@ sklearn.ModelFactory = class {
                         }
                         else {
                             array.data = this.rawdata;
-                            if ((array.dtype.name != 'object' || array.data.length != dims) && (array.data.length != size)) {
-                                throw new sklearn.Error('Invalid array data size.');
-                            }
                         }
                         return array;
                     };
