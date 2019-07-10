@@ -420,8 +420,11 @@
       "attributes": [
         { "name": "axis", "default": 1 }
       ],
+      "inputs": [
+        { "name": "input" }
+      ],
       "outputs": [
-        { "name": "outputs", "option": "variadic" }
+        { "name": "output", "option": "variadic" }
       ]
     }
   },
@@ -476,6 +479,17 @@
       ],
       "outputs": [
         { "name": "reshaped" }
+      ]
+    }
+  },
+  {
+    "name": "ColorConv",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
