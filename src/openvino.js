@@ -24,13 +24,13 @@ openvino.ModelFactory = class {
                 const parser = new DOMParser({ errorHandler: () => { errors = true; } });
                 const xml = parser.parseFromString(context.text, 'text/xml');
                 if (errors || xml.documentElement == null || xml.getElementsByTagName('parsererror').length > 0) {
-                    throw new openvino.Error("File format is not OpenVINO XML in '" + identifier + "'.");
+                    throw new openvino.Error("File format is not OpenVINO.");
                 }
                 const net = xml.documentElement;
                 if (!net || net.nodeName != 'net' ||
                     openvino.Node.children(net, 'layers').length != 1 ||
                     openvino.Node.children(net, 'edges').length != 1) {
-                    throw new openvino.Error("File format is not OpenVINO IR in '" + identifier + "'.");
+                    throw new openvino.Error("File format is not OpenVINO IR.");
                 }
                 return new openvino.Model(metadata, net);
             } catch (error) {
