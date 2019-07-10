@@ -323,12 +323,13 @@ cntk.Argument = class {
                     }
                     break;
                 case 2:
-                    this._id = obj.uid;
                     if (obj.value) {
+                        this._id = obj.name || obj.uid;
                         this._type = null;
                         this._initializer = new cntk.Tensor(version, obj);
                     }
                     else {
+                        this._id = obj.uid;
                         this._type = new cntk.TensorType(version, obj.data_type, obj.shape);
                         this._initializer = null;
                     }    
@@ -458,11 +459,9 @@ cntk.Node = class {
                 }
             }
         }
-        else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((argument) => {
-                return new cntk.Parameter(inputIndex.toString(), [ argument ]);
-            }));
-        }
+        this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((argument, index) => {
+            return new cntk.Parameter((inputIndex + index).toString(), [ argument ]);
+        }));
 
         var outputIndex = 0;
         if (schema && schema.outputs) {
@@ -474,11 +473,9 @@ cntk.Node = class {
                 }
             }
         }
-        else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((argument) => {
-                return new cntk.Parameter(outputIndex.toString(), [ argument ]);
-            }));
-        }
+        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((argument) => {
+            return new cntk.Parameter(outputIndex.toString(), [ argument ]);
+        }));
     }
 
     get name() {
@@ -605,7 +602,7 @@ cntk.Tensor = class {
                 }
                 break;
             case 2:
-                this._name = tensor.uid || null;
+                this._name = tensor.name || tensor.uid || null;
                 this._type = new cntk.TensorType(version, tensor.data_type, tensor.shape);
                 this._value = tensor.value;
                 break;

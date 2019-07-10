@@ -995,9 +995,19 @@
     "schema": {
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "W" },
-        { "name": "b" }
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:ConvolutionTranspose",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
       ],
       "outputs": [
         { "name": "output" }
@@ -1022,7 +1032,7 @@
       "category": "Layer",
       "inputs": [
         { "name": "input" },
-        { "name": "W" },
+        { "name": "scale" },
         { "name": "b" }
       ],
       "outputs": [
@@ -1030,6 +1040,31 @@
       ]
     }
   },
+  {
+    "name": "Function:lrn",
+    "schema": {
+      "category": "Normalization",
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:PReLU",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "x" },
+        { "name": "axis" },
+        { "name": "slope" }
+      ],
+      "outputs": [
+        { "name": "y" }
+      ]
+    }
+  },
+
+  
   { 
     "name": "Function:ElementDivide",
     "schema": {

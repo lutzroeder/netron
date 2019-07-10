@@ -489,6 +489,7 @@ coreml.Parameter = class {
 };
 
 coreml.Argument = class {
+
     constructor(id, type, description, initializer) {
         this._id = id;
         this._type = type;
