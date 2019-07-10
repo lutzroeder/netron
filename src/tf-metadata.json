@@ -14324,6 +14324,27 @@
     }
   },
   {
+    "name": "DatasetFromGraph",
+    "schema": {
+      "description": "Creates a dataset from the provided `graph_def`.",
+      "inputs": [
+        {
+          "description": "The graph representation of the dataset (as serialized GraphDef).",
+          "name": "graph_def",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A variant tensor representing the dataset.",
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset from the given `graph_def`."
+    }
+  },
+  {
     "name": "DatasetToGraph",
     "schema": {
       "description": "Returns a graph representation for `input_dataset`.",
@@ -29014,7 +29035,7 @@
   {
     "name": "MatchingFiles",
     "schema": {
-      "description": "Note that this routine only supports wildcard characters in the\nbasename portion of the pattern, not in the directory portion.\nNote also that the order of filenames returned can be non-deterministic.",
+      "description": "Note that this routine only supports wildcard characters in the\nbasename portion of the pattern, not in the directory portion.\nNote also that the order of filenames returned is deterministic.",
       "inputs": [
         {
           "description": "Shell wildcard pattern(s). Scalar or vector of type string.",
