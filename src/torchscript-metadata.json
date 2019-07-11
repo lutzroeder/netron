@@ -329,6 +329,18 @@
     }
   },
   {
+    "name": "mul_",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "add",
     "schema": {
       "inputs": [
@@ -560,14 +572,29 @@
     }
   },
   {
-    "name": "unsqueeze",
+    "name": "squeeze",
     "schema": {
       "category": "Transform",
+      "attributes": [
+        { "name": "dim", "type": "int64" }
+      ],
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "unsqueeze",
+    "schema": {
+      "category": "Transform",
       "attributes": [
         { "name": "dim", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "input" }
       ],
       "outputs": [
         { "name": "output" }
