@@ -11,7 +11,7 @@ keras.ModelFactory = class {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
         var buffer = null;
-        if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
+        if (extension == 'keras' || extension == 'h5' || extension == 'hd5' || extension == 'hdf5') {
             // Reject PyTorch models with .h5 file extension.
             buffer = context.buffer;
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
@@ -65,6 +65,7 @@ keras.ModelFactory = class {
                 switch (identifier.split('.').pop().toLowerCase()) {
                     case 'keras':
                     case 'h5':
+                    case 'hd5':
                     case 'hdf5':
                     case 'model':
                         var file = new hdf5.File(context.buffer);

@@ -17,6 +17,10 @@ fileAssociations:
   - name: "Keras Model"
     ext: h5
   - name: "Keras Model"
+    ext: hd5
+  - name: "Keras Model"
+    ext: hdf5
+  - name: "Keras Model"
     ext: keras
   - name: "Core ML Model"
     ext: mlmodel

@@ -119,7 +119,7 @@ class Application {
             filters: [
                 { name: 'All Model Files',  extensions: [ 
                     'onnx', 'pb',
-                    'h5', 'hdf5', 'json', 'keras',
+                    'h5', 'hd5', 'hdf5', 'json', 'keras',
                     'mlmodel',
                     'caffemodel',
                     'model', 'dnn', 'cmf',
