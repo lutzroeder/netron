@@ -472,7 +472,7 @@ pytorch.ModelFactory = class {
                     if (!root_module) {
                         state_dict = pytorch.ModelFactory._findStateDict(root);
                         if (!state_dict) {
-                            throw new pytorch.Error("File does not contain root module or state dictionary in '" + identifier + "'.");
+                            throw new pytorch.Error('File does not contain root module or state dictionary.');
                         }
                     }
                 }
@@ -634,7 +634,20 @@ pytorch.ModelFactory = class {
     }
 
     static _findStateDict(root) {
-        var candidates = [ root, root.model, root.state, root.state_dict, root.model_state, root.params, root.generator, root.discriminator, root.network, root.net, root.netG, root.model_state_dict ];
+        if (root) {
+            if (root.encoder && Array.isArray(root.encoder) && 
+                root.decoder && Array.isArray(root.decoder) && !root.state_dict) {
+                root = root.encoder.concat(root.decoder);
+            }
+            if (Array.isArray(root) && root.every((item) => item.key && item.value)) {
+                var obj = {};
+                for (var item of root) {
+                    obj[item.key] = item.value;
+                }
+                root = obj;
+            }
+        }
+        var candidates = [ root, root.state_dict, root.state, root.model_state, root.model, root.params, root.generator, root.discriminator, root.network, root.net, root.netG, root.model_state_dict ];
         for (var dict of candidates) {
             if (dict && Array.isArray(dict) && dict.__setitem__ &&
                 dict.every((item) => item.value.__type__ && item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) {
