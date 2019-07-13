@@ -318,11 +318,13 @@
                 Model.prototype.wordTagger = null;
                 Model.prototype.visionFeaturePrint = null;
                 Model.prototype.soundAnalysisPreprocessing = null;
+                Model.prototype.gazetteer = null;
+                Model.prototype.wordEmbedding = null;
     
                 var $oneOfFields;
     
                 Object.defineProperty(Model.prototype, "Type", {
-                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "customModel", "linkedModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing"]),
+                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "customModel", "linkedModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing", "gazetteer", "wordEmbedding"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -434,6 +436,12 @@
                             break;
                         case 2003:
                             message.soundAnalysisPreprocessing = $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.decode(reader, reader.uint32());
+                            break;
+                        case 2004:
+                            message.gazetteer = $root.CoreML.Specification.CoreMLModels.Gazetteer.decode(reader, reader.uint32());
+                            break;
+                        case 2005:
+                            message.wordEmbedding = $root.CoreML.Specification.CoreMLModels.WordEmbedding.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -644,6 +652,97 @@
                     };
     
                     return WordTagger;
+                })();
+    
+                CoreMLModels.Gazetteer = (function() {
+    
+                    function Gazetteer(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    Gazetteer.prototype.revision = 0;
+                    Gazetteer.prototype.language = "";
+                    Gazetteer.prototype.modelParameterData = $util.newBuffer([]);
+                    Gazetteer.prototype.stringClassLabels = null;
+    
+                    var $oneOfFields;
+    
+                    Object.defineProperty(Gazetteer.prototype, "ClassLabels", {
+                        get: $util.oneOfGetter($oneOfFields = ["stringClassLabels"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+    
+                    Gazetteer.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.Gazetteer();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.revision = reader.uint32();
+                                break;
+                            case 10:
+                                message.language = reader.string();
+                                break;
+                            case 100:
+                                message.modelParameterData = reader.bytes();
+                                break;
+                            case 200:
+                                message.stringClassLabels = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    return Gazetteer;
+                })();
+    
+                CoreMLModels.WordEmbedding = (function() {
+    
+                    function WordEmbedding(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    WordEmbedding.prototype.revision = 0;
+                    WordEmbedding.prototype.language = "";
+                    WordEmbedding.prototype.modelParameterData = $util.newBuffer([]);
+    
+                    WordEmbedding.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.WordEmbedding();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.revision = reader.uint32();
+                                break;
+                            case 10:
+                                message.language = reader.string();
+                                break;
+                            case 100:
+                                message.modelParameterData = reader.bytes();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    return WordEmbedding;
                 })();
     
                 CoreMLModels.SoundAnalysisPreprocessing = (function() {
@@ -3750,6 +3849,7 @@
                 NeuralNetworkLayer.prototype.reshapeStatic = null;
                 NeuralNetworkLayer.prototype.reshapeDynamic = null;
                 NeuralNetworkLayer.prototype.rankPreservingReshape = null;
+                NeuralNetworkLayer.prototype.constantPad = null;
                 NeuralNetworkLayer.prototype.randomNormalLike = null;
                 NeuralNetworkLayer.prototype.randomNormalStatic = null;
                 NeuralNetworkLayer.prototype.randomNormalDynamic = null;
@@ -3776,11 +3876,12 @@
                 NeuralNetworkLayer.prototype.upperTriangular = null;
                 NeuralNetworkLayer.prototype.whereBroadcastable = null;
                 NeuralNetworkLayer.prototype.layerNormalization = null;
+                NeuralNetworkLayer.prototype.NonMaximumSuppression = null;
     
                 var $oneOfFields;
     
                 Object.defineProperty(NeuralNetworkLayer.prototype, "layer", {
-                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom", "copy", "branch", "loop", "loopBreak", "loopContinue", "rangeStatic", "rangeDynamic", "clip", "ceil", "floor", "sign", "round", "exp2", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "erf", "gelu", "equal", "notEqual", "lessThan", "lessEqual", "greaterThan", "greaterEqual", "logicalOr", "logicalXor", "logicalNot", "logicalAnd", "modBroadcastable", "minBroadcastable", "maxBroadcastable", "addBroadcastable", "powBroadcastable", "divideBroadcastable", "floorDivBroadcastable", "multiplyBroadcastable", "subtractBroadcastable", "tile", "stack", "gather", "scatter", "gatherND", "scatterND", "softmaxND", "gatherAlongAxis", "scatterAlongAxis", "reverse", "reverseSeq", "splitND", "concatND", "transpose", "sliceStatic", "sliceDynamic", "slidingWindows", "topK", "argMin", "argMax", "embeddingND", "batchedMatmul", "getShape", "loadConstantND", "fillLike", "fillStatic", "fillDynamic", "broadcastToLike", "broadcastToStatic", "broadcastToDynamic", "squeeze", "expandDims", "flattenTo2D", "reshapeLike", "reshapeStatic", "reshapeDynamic", "rankPreservingReshape", "randomNormalLike", "randomNormalStatic", "randomNormalDynamic", "randomUniformLike", "randomUniformStatic", "randomUniformDynamic", "randomBernoulliLike", "randomBernoulliStatic", "randomBernoulliDynamic", "categoricalDistribution", "reduceL1", "reduceL2", "reduceMax", "reduceMin", "reduceSum", "reduceProd", "reduceMean", "reduceLogSum", "reduceSumSquare", "reduceLogSumExp", "whereNonZero", "matrixBandPart", "lowerTriangular", "upperTriangular", "whereBroadcastable", "layerNormalization"]),
+                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom", "copy", "branch", "loop", "loopBreak", "loopContinue", "rangeStatic", "rangeDynamic", "clip", "ceil", "floor", "sign", "round", "exp2", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "erf", "gelu", "equal", "notEqual", "lessThan", "lessEqual", "greaterThan", "greaterEqual", "logicalOr", "logicalXor", "logicalNot", "logicalAnd", "modBroadcastable", "minBroadcastable", "maxBroadcastable", "addBroadcastable", "powBroadcastable", "divideBroadcastable", "floorDivBroadcastable", "multiplyBroadcastable", "subtractBroadcastable", "tile", "stack", "gather", "scatter", "gatherND", "scatterND", "softmaxND", "gatherAlongAxis", "scatterAlongAxis", "reverse", "reverseSeq", "splitND", "concatND", "transpose", "sliceStatic", "sliceDynamic", "slidingWindows", "topK", "argMin", "argMax", "embeddingND", "batchedMatmul", "getShape", "loadConstantND", "fillLike", "fillStatic", "fillDynamic", "broadcastToLike", "broadcastToStatic", "broadcastToDynamic", "squeeze", "expandDims", "flattenTo2D", "reshapeLike", "reshapeStatic", "reshapeDynamic", "rankPreservingReshape", "constantPad", "randomNormalLike", "randomNormalStatic", "randomNormalDynamic", "randomUniformLike", "randomUniformStatic", "randomUniformDynamic", "randomBernoulliLike", "randomBernoulliStatic", "randomBernoulliDynamic", "categoricalDistribution", "reduceL1", "reduceL2", "reduceMax", "reduceMin", "reduceSum", "reduceProd", "reduceMean", "reduceLogSum", "reduceSumSquare", "reduceLogSumExp", "whereNonZero", "matrixBandPart", "lowerTriangular", "upperTriangular", "whereBroadcastable", "layerNormalization", "NonMaximumSuppression"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -4183,6 +4284,9 @@
                         case 1150:
                             message.rankPreservingReshape = $root.CoreML.Specification.RankPreservingReshapeLayerParams.decode(reader, reader.uint32());
                             break;
+                        case 1155:
+                            message.constantPad = $root.CoreML.Specification.ConstantPaddingLayerParams.decode(reader, reader.uint32());
+                            break;
                         case 1170:
                             message.randomNormalLike = $root.CoreML.Specification.RandomNormalLikeLayerParams.decode(reader, reader.uint32());
                             break;
@@ -4260,6 +4364,9 @@
                             break;
                         case 1350:
                             message.layerNormalization = $root.CoreML.Specification.LayerNormalizationLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1400:
+                            message.NonMaximumSuppression = $root.CoreML.Specification.NonMaximumSuppressionLayerParams.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -8911,6 +9018,54 @@
                 return RankPreservingReshapeLayerParams;
             })();
     
+            Specification.ConstantPaddingLayerParams = (function() {
+    
+                function ConstantPaddingLayerParams(properties) {
+                    this.padAmounts = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ConstantPaddingLayerParams.prototype.value = 0;
+                ConstantPaddingLayerParams.prototype.padAmounts = $util.emptyArray;
+                ConstantPaddingLayerParams.prototype.padToGivenOutputSizeMode = false;
+    
+                ConstantPaddingLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ConstantPaddingLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.value = reader.float();
+                            break;
+                        case 2:
+                            if (!(message.padAmounts && message.padAmounts.length))
+                                message.padAmounts = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.padAmounts.push(reader.uint64());
+                            } else
+                                message.padAmounts.push(reader.uint64());
+                            break;
+                        case 3:
+                            message.padToGivenOutputSizeMode = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ConstantPaddingLayerParams;
+            })();
+    
             Specification.RandomNormalLikeLayerParams = (function() {
     
                 function RandomNormalLikeLayerParams(properties) {
@@ -10801,6 +10956,50 @@
                 };
     
                 return LayerNormalizationLayerParams;
+            })();
+    
+            Specification.NonMaximumSuppressionLayerParams = (function() {
+    
+                function NonMaximumSuppressionLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                NonMaximumSuppressionLayerParams.prototype.iouThreshold = 0;
+                NonMaximumSuppressionLayerParams.prototype.scoreThreshold = 0;
+                NonMaximumSuppressionLayerParams.prototype.maxBoxes = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                NonMaximumSuppressionLayerParams.prototype.perClassSuppression = false;
+    
+                NonMaximumSuppressionLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.NonMaximumSuppressionLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.iouThreshold = reader.float();
+                            break;
+                        case 2:
+                            message.scoreThreshold = reader.float();
+                            break;
+                        case 3:
+                            message.maxBoxes = reader.uint64();
+                            break;
+                        case 4:
+                            message.perClassSuppression = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return NonMaximumSuppressionLayerParams;
             })();
     
             Specification.NeuralNetworkClassifier = (function() {
