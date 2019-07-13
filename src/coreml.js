@@ -393,6 +393,13 @@ coreml.Graph = class {
                 [ model.description.output[0].name ]);
             return 'Vision Feature Print';
         }
+        else if (model.soundAnalysisPreprocessing) {
+            this._createNode(scope, group, 'soundAnalysisPreprocessing', null,
+                model.soundAnalysisPreprocessing,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            return 'Sound Analysis Preprocessing';
+        }
         throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 

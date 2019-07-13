@@ -1623,6 +1623,13 @@
   },
   {
     "type":   "coreml",
+    "target": "ReadTheRoom.mlmodel",
+    "source": "https://github.com/CapTechMobile/blogfest-coreml/blob/d8e8c15d33e9591c9e81cb18e5ea4b2fb6972503/ReadTheRoom/ReadTheRoom.mlmodel?raw=true",
+    "format": "Core ML v4",
+    "link":   "https://github.com/CapTechMobile/blogfest-coreml"
+  },
+  {
+    "type":   "coreml",
     "target": "Resnet50.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/Resnet50.mlmodel"
   },
