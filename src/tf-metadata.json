@@ -26305,7 +26305,7 @@
       ],
       "outputs": [
         {
-          "description": "`gradients * (features > 0) + alpha * gradients * (featurs <= 0)`.",
+          "description": "`gradients * (features > 0) + alpha * gradients * (features <= 0)`.",
           "name": "backprops",
           "typeAttr": "T"
         }
