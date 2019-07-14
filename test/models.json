@@ -3684,6 +3684,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "LDA_model.pkl",
+    "source": "https://github.com/rainer85ah/DCS/blob/master/Output/LDA_model.pkl?raw=true",
+    "format": "scikit-learn",
+    "link":   "https://github.com/rainer85ah/DCS"
+  },
+  {
+    "type":   "sklearn",
     "target": "phoenix_ml_classifier.pkl",
     "source": "https://github.com/imeraj/Phoenix_Playground/blob/master/1.4/phoenix_ml/lib/phoenix_ml/model/classifier.pkl?raw=true",
     "format": "scikit-learn 0.19.1",

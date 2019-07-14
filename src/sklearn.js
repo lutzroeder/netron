@@ -163,7 +163,9 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.compose._target.TransformedTargetRegressor'] = function() {};
                 constructorTable['sklearn.decomposition.PCA'] = function() {};
                 constructorTable['sklearn.decomposition.pca.PCA'] = function() {};
+                constructorTable['sklearn.discriminant_analysis.LinearDiscriminantAnalysis'] = function() {};
                 constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
+                constructorTable['sklearn.externals.joblib.numpy_pickle.NDArrayWrapper'] = function() {};
                 constructorTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
                 constructorTable['sklearn.ensemble.forest.RandomForestRegressor'] = function() {};
                 constructorTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
@@ -178,6 +180,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.feature_selection.variance_threshold.VarianceThreshold'] = function() {};
                 constructorTable['sklearn.impute.SimpleImputer'] = function() {};
                 constructorTable['sklearn.linear_model.base.LinearRegression'] = function() {};
+                constructorTable['sklearn.linear_model.sgd_fast.Hinge'] = function() {};
                 constructorTable['sklearn.linear_model.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.LassoLars​'] = function() {};
@@ -310,6 +313,9 @@ sklearn.ModelFactory = class {
                 functionTable['__builtin__.bytearray'] = function(data, encoding) {
                     return { data: data, encoding: encoding };
                 };
+                functionTable['builtins.bytearray'] = function(data) {
+                    return { data: data };
+                };
 
                 var function_call = (name, args) => {
                     var func = functionTable[name];
@@ -323,7 +329,8 @@ sklearn.ModelFactory = class {
                     }
                     else if (name) {
                         var map =  {
-                            'sklearn': true, 'collections': true, '__builtin__': true, 'copy_reg': true, 'joblib': true,
+                            'sklearn': true, 'collections': true, '__builtin__': true, 'builtins': true,
+                            'copy_reg': true, 'joblib': true,
                             'xgboost': true, 'lightgbm': true, 'gensim': true, 'numpy': true };
                         if (map[name.split('.').shift()]) {
                             host.exception(new sklearn.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
