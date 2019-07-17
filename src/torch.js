@@ -3,6 +3,7 @@
 
 var torch = torch || {};
 var base = base || require('./base');
+var long = long || { Long: require('long') };
 
 torch.ModelFactory = class {
 
@@ -1057,18 +1058,10 @@ torch.BinaryReader = class {
     }
 
     int64() {
-        var lo = this._dataView.getInt32(this._position, true);
-        var hi = this._dataView.getInt32(this._position, true);
+        var lo = this._dataView.getUint32(this._position, true);
+        var hi = this._dataView.getUint32(this._position + 4, true);
         this._position += 8;
-        if (hi == 0 || hi == -1) {
-            return lo;
-        }
-        lo = this._dataView.getUint32(this._position - 8, true);
-        hi = this._dataView.getInt32(this._position - 4, true);
-        if (hi < 32677) {
-            return hi << 32 || lo;
-        }
-        throw new torch.Error('Invalid int64 value.');
+        return new long.Long(lo, hi, false).toNumber();
     }
 
     int64s(size) {

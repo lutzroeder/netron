@@ -376,7 +376,7 @@ pytorch.ModelFactory = class {
                         case 'int32':
                             return dataView.getInt32(0, true);
                         case 'int64':
-                            return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), true);
+                            return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), false);
                     }
                     throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
                 };
@@ -1133,7 +1133,7 @@ pytorch.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.dataView.getUint32(context.index, true), context.dataView.getUint32(context.index + 4, true), true));
+                        results.push(new long.Long(context.dataView.getUint32(context.index, true), context.dataView.getUint32(context.index + 4, true), false));
                         context.index += 8;
                         context.count++;
                         break;

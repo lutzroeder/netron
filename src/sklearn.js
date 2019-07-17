@@ -277,7 +277,7 @@ sklearn.ModelFactory = class {
                         case 'int32':
                             return dataView.getInt32(0, true);
                         case 'int64':
-                            return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), true);
+                            return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), false);
                     }
                     throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
                 };
@@ -875,12 +875,12 @@ sklearn.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
+                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), false));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'uint64':
-                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), false));
+                        results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
                         context.index += 8;
                         context.count++;
                         break;

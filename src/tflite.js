@@ -587,7 +587,7 @@ tflite.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), true));
+                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), false));
                         context.index += 8;
                         context.count++;
                         break;
