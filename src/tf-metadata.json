@@ -57659,6 +57659,16 @@
           "default": 86400,
           "name": "pending_snapshot_expiry_seconds",
           "type": "int64"
+        },
+        {
+          "default": 1,
+          "name": "num_reader_threads",
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "name": "reader_buffer_size",
+          "type": "int64"
         }
       ],
       "description": "This dataset attempts to determine whether a valid snapshot exists at the\n`snapshot_path`, and reads from the snapshot in lieu of using `input_dataset`.\nIf not, it will run the preprocessing pipeline as usual, and write out a\nsnapshot of the data processed for future use.",
