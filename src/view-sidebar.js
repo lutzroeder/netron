@@ -278,11 +278,11 @@ sidebar.NodeSidebar = class {
             case 'shape': 
                 return value.toString();
             case 'shape[]': 
-                return value.map((item) => item.toString()).join(', ');
+                return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'graph': 
                 return value.toString();
             case 'graph[]':
-                return value.map((item) => item.toString()).join(', ');
+                return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'tensor':
                 if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
                     return value.toString();
