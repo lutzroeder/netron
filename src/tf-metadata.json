@@ -1443,6 +1443,41 @@
     }
   },
   {
+    "name": "AnonymousMultiDeviceIterator",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "devices",
+          "type": "string[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A handle to a multi device iterator that can be passed to a\n\"MultiDeviceIteratorGetNextFromShard\" op. In contrast to MultiDeviceIterator,\nAnonymousIterator prevents resource sharing by name, and does not keep a\nreference to the resource container.",
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "A variant deleter that should be passed into the op that deletes the iterator.",
+          "name": "deleter",
+          "type": 21
+        }
+      ],
+      "summary": "A container for a multi device iterator resource."
+    }
+  },
+  {
     "name": "Any",
     "schema": {
       "attributes": [
@@ -15276,6 +15311,37 @@
         {
           "description": "A handle to the iterator to delete.",
           "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "A variant deleter.",
+          "name": "deleter",
+          "type": 21
+        }
+      ],
+      "summary": "A container for an iterator resource."
+    }
+  },
+  {
+    "name": "DeleteMultiDeviceIterator",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "N",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A handle to the multi device iterator to delete.",
+          "name": "multi_device_iterator",
+          "type": 20
+        },
+        {
+          "description": "A list of iterator handles (unused). This is added so that automatic control dependencies get added during function tracing that ensure this op runs after all the dependent iterators are deleted.",
+          "name": "iterators",
+          "numberAttr": "N",
           "type": 20
         },
         {
@@ -57668,6 +57734,16 @@
         {
           "default": 1,
           "name": "reader_buffer_size",
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "name": "num_writer_threads",
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "name": "writer_buffer_size",
           "type": "int64"
         }
       ],
