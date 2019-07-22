@@ -175,7 +175,9 @@ tflite_schema.BuiltinOperator = {
   QUANTIZE: 114,
   MATRIX_SET_DIAG: 115,
   ROUND: 116,
-  HARD_SWISH: 117
+  HARD_SWISH: 117,
+  IF: 118,
+  WHILE: 119
 };
 
 /**
@@ -298,7 +300,9 @@ tflite_schema.BuiltinOperatorName = {
   114: 'QUANTIZE',
   115: 'MATRIX_SET_DIAG',
   116: 'ROUND',
-  117: 'HARD_SWISH'
+  117: 'HARD_SWISH',
+  118: 'IF',
+  119: 'WHILE'
 };
 
 /**
@@ -396,7 +400,9 @@ tflite_schema.BuiltinOptions = {
   MatrixDiagOptions: 88,
   QuantizeOptions: 89,
   MatrixSetDiagOptions: 90,
-  HardSwishOptions: 91
+  HardSwishOptions: 91,
+  IfOptions: 92,
+  WhileOptions: 93
 };
 
 /**
@@ -494,7 +500,9 @@ tflite_schema.BuiltinOptionsName = {
   88: 'MatrixDiagOptions',
   89: 'QuantizeOptions',
   90: 'MatrixSetDiagOptions',
-  91: 'HardSwishOptions'
+  91: 'HardSwishOptions',
+  92: 'IfOptions',
+  93: 'WhileOptions'
 };
 
 /**
@@ -9564,6 +9572,216 @@ tflite_schema.MatrixSetDiagOptions.endMatrixSetDiagOptions = function(builder) {
 tflite_schema.MatrixSetDiagOptions.createMatrixSetDiagOptions = function(builder) {
   tflite_schema.MatrixSetDiagOptions.startMatrixSetDiagOptions(builder);
   return tflite_schema.MatrixSetDiagOptions.endMatrixSetDiagOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.IfOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.IfOptions}
+ */
+tflite_schema.IfOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.IfOptions=} obj
+ * @returns {tflite_schema.IfOptions}
+ */
+tflite_schema.IfOptions.getRootAsIfOptions = function(bb, obj) {
+  return (obj || new tflite_schema.IfOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.IfOptions=} obj
+ * @returns {tflite_schema.IfOptions}
+ */
+tflite_schema.IfOptions.getSizePrefixedRootAsIfOptions = function(bb, obj) {
+  return (obj || new tflite_schema.IfOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.IfOptions.prototype.thenSubgraphIndex = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.IfOptions.prototype.elseSubgraphIndex = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.IfOptions.startIfOptions = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} thenSubgraphIndex
+ */
+tflite_schema.IfOptions.addThenSubgraphIndex = function(builder, thenSubgraphIndex) {
+  builder.addFieldInt32(0, thenSubgraphIndex, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} elseSubgraphIndex
+ */
+tflite_schema.IfOptions.addElseSubgraphIndex = function(builder, elseSubgraphIndex) {
+  builder.addFieldInt32(1, elseSubgraphIndex, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.IfOptions.endIfOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} thenSubgraphIndex
+ * @param {number} elseSubgraphIndex
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.IfOptions.createIfOptions = function(builder, thenSubgraphIndex, elseSubgraphIndex) {
+  tflite_schema.IfOptions.startIfOptions(builder);
+  tflite_schema.IfOptions.addThenSubgraphIndex(builder, thenSubgraphIndex);
+  tflite_schema.IfOptions.addElseSubgraphIndex(builder, elseSubgraphIndex);
+  return tflite_schema.IfOptions.endIfOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.WhileOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.WhileOptions}
+ */
+tflite_schema.WhileOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.WhileOptions=} obj
+ * @returns {tflite_schema.WhileOptions}
+ */
+tflite_schema.WhileOptions.getRootAsWhileOptions = function(bb, obj) {
+  return (obj || new tflite_schema.WhileOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.WhileOptions=} obj
+ * @returns {tflite_schema.WhileOptions}
+ */
+tflite_schema.WhileOptions.getSizePrefixedRootAsWhileOptions = function(bb, obj) {
+  return (obj || new tflite_schema.WhileOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.WhileOptions.prototype.condSubgraphIndex = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.WhileOptions.prototype.bodySubgraphIndex = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.WhileOptions.startWhileOptions = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} condSubgraphIndex
+ */
+tflite_schema.WhileOptions.addCondSubgraphIndex = function(builder, condSubgraphIndex) {
+  builder.addFieldInt32(0, condSubgraphIndex, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} bodySubgraphIndex
+ */
+tflite_schema.WhileOptions.addBodySubgraphIndex = function(builder, bodySubgraphIndex) {
+  builder.addFieldInt32(1, bodySubgraphIndex, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.WhileOptions.endWhileOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} condSubgraphIndex
+ * @param {number} bodySubgraphIndex
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.WhileOptions.createWhileOptions = function(builder, condSubgraphIndex, bodySubgraphIndex) {
+  tflite_schema.WhileOptions.startWhileOptions(builder);
+  tflite_schema.WhileOptions.addCondSubgraphIndex(builder, condSubgraphIndex);
+  tflite_schema.WhileOptions.addBodySubgraphIndex(builder, bodySubgraphIndex);
+  return tflite_schema.WhileOptions.endWhileOptions(builder);
 }
 
 /**
