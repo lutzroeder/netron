@@ -707,6 +707,9 @@ keras.Attribute = class {
 
         switch (name) {
             case 'trainable':
+                this._type = 'boolean';
+                this._visible = false;
+                break;
             case 'dtype':
                 this._visible = false;
                 break;
@@ -728,6 +731,10 @@ keras.Attribute = class {
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get value() {
