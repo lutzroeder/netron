@@ -81,7 +81,16 @@
   {
     "name": "Crop",
     "schema": {
-      "operator": 7
+      "operator": 7,
+      "category": "Shape",
+      "attributes": [
+        { "name": "woffset", "default": 0 },
+        { "name": "hoffset", "default": 0 },
+        { "name": "coffset", "default": 0 },
+        { "name": "outw", "default": 0 },
+        { "name": "outh", "default": 0 },
+        { "name": "outc", "default": 0 }
+      ]
     }
   },
   {
