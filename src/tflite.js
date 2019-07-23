@@ -77,7 +77,9 @@ tflite.Model = class {
         for (var operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {
             var operatorCode = model.operatorCodes(operatorIndex);
             var builtinCode = operatorCode.builtinCode();
-            operatorCodeList.push((builtinCode == tflite.schema.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
+            operatorCodeList.push(builtinCode === tflite.schema.BuiltinOperator.CUSTOM ?
+                { name: operatorCode.customCode(), custom: true } :
+                { name: builtinOperatorMap[builtinCode] });
         }
         var subgraphsLength = model.subgraphsLength();
         for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
@@ -120,11 +122,10 @@ tflite.Graph = class {
             names.push(tensor.name());
         }
         for (var j = 0; j < this._graph.operatorsLength(); j++) {
-            var operator = this._graph.operators(j);
-            var opcodeIndex = operator.opcodeIndex();
-            var operatorName = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : ('(' + opcodeIndex.toString() + ')');
-            var node = new tflite.Node(metadata, operator, operatorName, j.toString(), args);
-            this._nodes.push(node);
+            var node = this._graph.operators(j);
+            var opcodeIndex = node.opcodeIndex();
+            var operator = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : { name: '(' + opcodeIndex.toString() + ')' };
+            this._nodes.push(new tflite.Node(metadata, node, operator, j.toString(), args));
         }
         for (var k = 0; k < graph.inputsLength(); k++) {
             var inputIndex = graph.inputs(k);
@@ -211,8 +212,15 @@ tflite.Node = class {
                 this._outputs.push(new tflite.Parameter(outputName, true, [ argument ]));
             }
             this._attributes = [];
-            var optionsTypeName = this._operator + 'Options';
-            switch (this._operator) {
+            if (operator.custom) {
+                var custom = [];
+                for (var m = 0; m < node.customOptionsLength(); m++) {
+                    custom.push(node.customOptions(m));
+                }
+                this._attributes.push(new tflite.Attribute(this._metadata, this.operator, 'custom', custom));
+            }
+            var optionsTypeName = this.operator + 'Options';
+            switch (this.operator) {
                 case 'MaxPool2D':
                 case 'AveragePool2D':
                     optionsTypeName = 'Pool2DOptions';
@@ -254,7 +262,7 @@ tflite.Node = class {
                             else {
                                 value = options[attributeName]();
                             }
-                            var attribute = new tflite.Attribute(this._metadata, operator, attributeName, value);
+                            var attribute = new tflite.Attribute(this._metadata, this.operator, attributeName, value);
                             if (attribute.name == 'fused_activation_function') {
                                 value = attribute.value;
                                 if (attribute.value != 'NONE') {
@@ -263,7 +271,7 @@ tflite.Node = class {
                                         value = activationFunctionMap[value];
                                     }
                                     this._chain = [];
-                                    this._chain.push(new tflite.Node(metadata, null, value, '', []));
+                                    this._chain.push(new tflite.Node(metadata, null, { name: value }, '', []));
                                 }
                             }
                             this._attributes.push(attribute);
@@ -275,7 +283,7 @@ tflite.Node = class {
     }
 
     get operator() {
-        return this._operator;
+        return this._operator.name;
     }
 
     get name() {
@@ -295,6 +303,9 @@ tflite.Node = class {
     }
 
     get category() {
+        if (this._operator.custom) {
+            return 'custom';
+        }
         var schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }

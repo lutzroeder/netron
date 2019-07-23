@@ -4259,29 +4259,41 @@
     "type":   "tflite",
     "target": "deeplab_mobilenetv2_513.tflite",
     "source": "https://raw.githubusercontent.com/pinzhenx/webml-demo/master/examples/deeplab/model/deeplab_mobilenetv2_513.tflite",
+    "format": "TensorFlow Lite v3",
     "link":   "https://github.com/pinzhenx/webml-demo"
   },
   {
     "type":   "tflite",
     "target": "deeplab_mobilenetv2_513_dilated.tflite",
     "source": "https://raw.githubusercontent.com/pinzhenx/webml-demo/master/examples/deeplab/model/deeplab_mobilenetv2_513_dilated.tflite",
+    "format": "TensorFlow Lite v3",
     "link":   "https://github.com/pinzhenx/webml-demo"
   },
   {
     "type":   "tflite",
     "target": "densenet.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
+    "format": "TensorFlow Lite v3",
     "link":   "https://git.geekyants.com/nitishsahani/Flutter_MLkit"
   },
   {
     "type":   "tflite",
     "target": "fssd_100_8bit_v1.tflite",
-    "source": "https://git.geekyants.com/nitishsahani/Flutter_MLkit/raw/8b09aaf140ab7eab6a22cb0fe352749d584bcfd1/ios/Pods/GoogleMobileVision/FaceDetector/Resources/GoogleMVFaceDetectorResources/fssd_100_8bit_v1.tflite"
+    "source": "https://git.geekyants.com/nitishsahani/Flutter_MLkit/raw/8b09aaf140ab7eab6a22cb0fe352749d584bcfd1/ios/Pods/GoogleMobileVision/FaceDetector/Resources/GoogleMVFaceDetectorResources/fssd_100_8bit_v1.tflite",
+    "format": "TensorFlow Lite v3"
+  },
+  {
+    "type":   "tflite",
+    "target": "hair_segmentation.tflite",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/models/hair_segmentation.tflite?raw=true",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "tflite",
     "target": "inception_resnet_v2.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_resnet_v2_2018_04_27.tgz[./inception_resnet_v2.tflite]"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_resnet_v2_2018_04_27.tgz[./inception_resnet_v2.tflite]",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
@@ -4338,12 +4350,14 @@
   {
     "type":   "tflite",
     "target": "mobilenet_v2_0.4_224.tflite",
-    "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz[./mobilenet_v2_1.0_224.tflite]"
+    "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz[./mobilenet_v2_1.0_224.tflite]",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
     "target": "mobilenet_v2_1.4_224.tflite",
-    "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.tflite]"
+    "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.tflite]",
+    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",

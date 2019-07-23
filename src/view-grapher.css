@@ -35,6 +35,7 @@
 .node-item-operator-tensor path { fill: rgb(89, 66, 59); }
 .node-item-operator-transform path { fill: rgb(51, 85, 68); }
 .node-item-operator-data path { fill: rgb(85, 85, 85); }
+.node-item-operator-custom path { fill: rgb(128, 128, 128); }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }
@@ -127,6 +128,7 @@
     .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.7); }
     .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.7); }
     .node-item-operator-data path { fill: rgba(85, 85, 85, 0.7); }
+    .node-item-operator-custom path { fill: rgb(64, 64, 64, 0.7); }
 }
 
 .dark-mode .edge-label text { fill: #b2b2b2; }
@@ -181,3 +183,4 @@
 .dark-mode .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.7); }
 .dark-mode .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.7); }
 .dark-mode .node-item-operator-data path { fill: rgba(85, 85, 85, 0.7); }
+.dark-mode .node-item-operator-custom path { fill: rgb(64, 64, 64, 0.7); }
