@@ -2,6 +2,7 @@
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var ncnn = ncnn || {};
+var base = base || require('./base');
 
 // https://github.com/Tencent/ncnn/wiki/param-and-model-file-structure
 // https://github.com/Tencent/ncnn/wiki/operation-param-weight-table
@@ -616,6 +617,7 @@ ncnn.Tensor = class {
         }
 
         switch (this._type.dataType) {
+            case 'float16':
             case 'float32':
                 context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 break;
@@ -647,6 +649,11 @@ ncnn.Tensor = class {
                     case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
+                        context.count++;
+                        break;
+                    case 'float16':
+                        results.push(context.data.getFloat16(context.index, true));
+                        context.index += 2;
                         context.count++;
                         break;
                 }
