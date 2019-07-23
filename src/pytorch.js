@@ -647,7 +647,13 @@ pytorch.ModelFactory = class {
                 root = obj;
             }
         }
-        var candidates = [ root, root.state_dict, root.state, root.model_state, root.model, root.params, root.generator, root.discriminator, root.network, root.net, root.netG, root.model_state_dict ];
+        var candidates = [ 
+            root, root.state_dict, root.state, 
+            root.model_state, root.model, root.model_state_dict,
+            root.params, root.generator, root.discriminator,
+            root.network, root.net, root.netG,
+            root.state_dict_stylepredictor, root.state_dict_ghiasi
+        ];
         for (var dict of candidates) {
             if (dict && Array.isArray(dict) && dict.__setitem__ &&
                 dict.every((item) => item.value.__type__ && item.value.__type__.startsWith('torch.') && item.value.__type__.endsWith('Tensor'))) {
