@@ -400,6 +400,14 @@ coreml.Graph = class {
                 [ model.description.output[0].name ]);
             return 'Sound Analysis Preprocessing';
         }
+        else if (model.kNearestNeighborsClassifier) {
+            this._createNode(scope, group, 'kNearestNeighborsClassifier', null,
+                model.kNearestNeighborsClassifier,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            this._updateClassifierOutput(group, model.kNearestNeighborsClassifier);
+            return 'kNearestNeighborsClassifier';
+        }
         throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 

@@ -1771,6 +1771,20 @@
   },
   {
     "type":   "coreml",
+    "target": "UpdatableKNN.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/3424578/UpdatableKNN.zip[UpdatableKNN.mlmodel]",
+    "format": "Core ML v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":   "coreml",
+    "target": "UpdatableMNISTDigitClassifier.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/3424579/UpdatableMNISTDigitClassifier.zip[UpdatableMNISTDigitClassifier.mlmodel]",
+    "format": "Core ML v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":   "coreml",
     "target": "VGG16.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/VGG16.mlmodel"
   },
