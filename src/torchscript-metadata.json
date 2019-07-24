@@ -329,6 +329,20 @@
     }
   },
   {
+    "name": "pow",
+    "schema": {
+      "attributes": [
+        { "name": "exponent", "type": "float64" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "mul_",
     "schema": {
       "inputs": [
@@ -625,6 +639,51 @@
       ],
       "attributes": [
         { "name": "dim", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "expand_as",
+    "schema": {
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "permute",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "dims", "type": "int64[]" }
+      ],
+      "inputs": [
+        { "name": "inputs" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "embedding",
+    "schema": {
+      "category": "Transform",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" }
+      ],
+      "attributes": [
+        { "name": "padding_idx", "type": "int64" },
+        { "name": "scale_grad_by_freq", "type": "boolean", "default": false },
+        { "name": "sparse", "type": "boolean", "default": false }
       ],
       "outputs": [
         { "name": "output" }
