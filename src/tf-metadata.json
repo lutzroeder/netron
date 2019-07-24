@@ -8462,6 +8462,34 @@
     }
   },
   {
+    "name": "BoostedTreesFlushQuantileSummaries",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "num_features",
+          "type": "int64"
+        }
+      ],
+      "description": "An op that outputs a list of quantile summaries of a quantile stream resource.\nEach summary Tensor is rank 2, containing summaries (value, weight, min_rank, \nmax_rank) for a single feature.",
+      "inputs": [
+        {
+          "description": "resource handle referring to a QuantileStreamResource.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "summaries",
+          "numberAttr": "num_features",
+          "type": 1
+        }
+      ],
+      "summary": "Flush the quantile summaries from each quantile stream resource."
+    }
+  },
+  {
     "name": "BoostedTreesGetEnsembleStates",
     "schema": {
       "inputs": [
@@ -14232,6 +14260,81 @@
     }
   },
   {
+    "name": "CumulativeLogsumexp",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "description": "If `True`, perform exclusive cumulative log-sum-exp.",
+          "name": "exclusive",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "A `bool` (default: False).",
+          "name": "reverse",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "Tidx",
+          "type": "type"
+        }
+      ],
+      "description": "By default, this op performs an inclusive cumulative log-sum-exp,\nwhich means that the first\nelement of the input is identical to the first element of the output:\n```python\ntf.math.cumulative_logsumexp([a, b, c])  # => [a, log(exp(a) + exp(b)), log(exp(a) + exp(b) + exp(c))]\n```\n\nBy setting the `exclusive` kwarg to `True`, an exclusive cumulative log-sum-exp is\nperformed instead:\n```python\ntf.cumulative_logsumexp([a, b, c], exclusive=True)  # => [-inf, a, log(exp(a) * exp(b))]\n```\nNote that the neutral element of the log-sum-exp operation is `-inf`,\nhowever, for performance reasons, the minimal value representable by the\nfloating point type is used instead.\n\nBy setting the `reverse` kwarg to `True`, the cumulative log-sum-exp is performed in the\nopposite direction.",
+      "inputs": [
+        {
+          "description": "A `Tensor`. Must be one of the following types: `float16`, `float32`, `float64`.",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A `Tensor` of type `int32` (default: 0). Must be in the range\n`[-rank(x), rank(x))`.",
+          "name": "axis",
+          "typeAttr": "Tidx"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Compute the cumulative product of the tensor `x` along `axis`."
+    }
+  },
+  {
     "name": "DataFormatDimMap",
     "schema": {
       "attributes": [
@@ -19339,6 +19442,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "shape[]"
+        },
+        {
+          "default": true,
+          "name": "use_fallback",
+          "type": "boolean"
         }
       ],
       "description": "Creates a dataset that changes the batch size of the dataset to current batch\nsize // num_workers.",
@@ -44750,6 +44858,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "shape[]"
+        },
+        {
+          "default": true,
+          "name": "use_fallback",
+          "type": "boolean"
         }
       ],
       "description": "Creates a dataset that changes the batch size of the dataset to current batch\nsize // num_workers.",
@@ -66632,6 +66745,11 @@
           "default": "STEP_MARK_AT_ENTRY",
           "name": "step_marker_location",
           "type": "string"
+        },
+        {
+          "default": false,
+          "name": "allow_soft_placement",
+          "type": "boolean"
         }
       ],
       "summary": "Metadata indicaitng how the TPU computation should be replicated."
