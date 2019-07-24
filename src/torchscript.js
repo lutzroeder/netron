@@ -25,27 +25,34 @@ torchscript.ModelFactory = class {
 
     open(context, host) {
         return host.require('./python').then((python) => {
-            var identifier = context.identifier;
-            try {
-                var container = torchscript.ModelFactory._openContainer(context.buffer);
-                return torchscript.Metadata.open(host).then((metadata) => {
-                    try {
-                        return new torchscript.Model(metadata, python, container);
+            return host.require('./pickle').then((pickle) => {
+                var identifier = context.identifier;
+                try {
+                    var container = torchscript.ModelFactory._openContainer(context.buffer);
+                    if (container.attributes) {
+                        container.attributes = new pickle.Unpickler(container.attributes.data).load((name, args) => {
+                            return { type: name, args: args[0] };
+                        });
                     }
-                    catch (error) {
-                        host.exception(error, false);
-                        var message = error && error.message ? error.message : error.toString();
-                        message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                        throw new torchscript.Error(message + " in '" + identifier + "'.");
-                    }
-                });
-            }
-            catch (error) {
-                host.exception(error, false);
-                var message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                return Promise.reject(new torchscript.Error(message + " in '" + identifier + "'."));
-            }
+                    return torchscript.Metadata.open(host).then((metadata) => {
+                        try {
+                            return new torchscript.Model(metadata, python, container);
+                        }
+                        catch (error) {
+                            host.exception(error, false);
+                            var message = error && error.message ? error.message : error.toString();
+                            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                            throw new torchscript.Error(message + " in '" + identifier + "'.");
+                        }
+                    });
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    return Promise.reject(new torchscript.Error(message + " in '" + identifier + "'."));
+                }
+            });
         });
     }
 
@@ -56,6 +63,7 @@ torchscript.ModelFactory = class {
             container.version = archive.entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
             if (container.version) {
                 container.prefix = container.version.name.substring(0, container.version.name.length - 7);
+                container.attributes = archive.entries.find((entry) => entry.name == container.prefix + 'attributes.pkl');
                 container.model = archive.entries.find((entry) => entry.name == container.prefix + 'model.json');
                 container.entries = archive.entries;
                 if (container.version && container.model) {
