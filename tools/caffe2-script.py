@@ -20,8 +20,10 @@ def get_support_level(dir):
     return 'default'
 
 def update_argument_type(type):
-    if type == 'int':
+    if type == 'int' or type == 'int64_t':
         return 'int64'
+    if type == 'int32_t':
+        return 'int32'
     elif type == '[int]' or type == 'int[]':
         return 'int64[]'
     elif type == 'float':
@@ -169,7 +171,9 @@ def metadata():
                 schema = schema_map[operator_name]
             else:
                 schema = {}
-                schema_map[operator_name] = { 'name': operator_name, 'schema': schema }
+                entry = { 'name': operator_name, 'schema': schema }
+                schema_map[operator_name] = entry
+                json_root.append(entry)
             schema['description'] = op_schema.doc
             for arg in op_schema.args:
                 update_argument(schema, arg)
