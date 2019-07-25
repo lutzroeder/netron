@@ -78,16 +78,18 @@ fileAssociations:
     ext: pt
   - name: "Torch Model"
     ext: t7
+afterSign: "setup/notarize.js"
 publish:
   - provider: github
     releaseType: release
 mac:
   category: public.app-category.developer-tools
+  darkModeSupport: true
+  hardenedRuntime: true
+  gatekeeperAssess: false
   target: 
   - dmg
   - zip
-  extendInfo:
-    NSRequiresAquaSystemAppearance: false
 linux:
   target:
   - AppImage
