@@ -11,17 +11,16 @@ pickle.Unpickler = class {
 
     load(function_call, persistent_load) {
         var i;
-        var start;
         var obj;
         var type;
-        var args;
+        var items;
         var reader = this._reader;
-        var stack = [];
         var marker = [];
-        var table = {};
+        var stack = [];
+        var memo = [];
         while (reader.position < reader.length) {
             var opcode = reader.byte();
-            // console.log(reader.position.toString() + ': ' + opcode + ' ' + String.fromCharCode(opcode));
+            // console.log(reader.position.toString() + ': ' + opcode.toString());
             switch (opcode) {
                 case pickle.OpCode.PROTO:
                     var version = reader.byte();
@@ -36,24 +35,26 @@ pickle.Unpickler = class {
                     stack.push([ stack.pop(), stack.pop() ].reverse().join('.'));
                     break;
                 case pickle.OpCode.PUT:
-                    table[reader.line()] = stack[stack.length - 1];
+                    i = parseInt(reader.line(), 10);
+                    memo[i] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.OBJ:
-                    args = stack.splice(marker.pop());
-                    stack.push(function_call(args.pop(), args));
+                    items = stack;
+                    stack = marker.pop();
+                    stack.push(function_call(items.pop(), items));
                     break;
                 case pickle.OpCode.GET:
-                    stack.push(table[reader.line()]);
+                    i = parseInt(reader.line(), 10);
+                    stack.push(memo[i]);
                     break;
                 case pickle.OpCode.POP:
                     stack.pop();
                     break;
                 case pickle.OpCode.POP_MARK:
-                    stack = stack.slice(0, marker.pop());
+                    stack = marker.pop();
                     break;
                 case pickle.OpCode.DUP:
-                    var value = stack[stack.length-1];
-                    stack.push(value);
+                    stack.push(stack[stack.length-1]);
                     break;
                 case pickle.OpCode.PERSID:
                     stack.push(persistent_load(reader.line()));
@@ -62,26 +63,26 @@ pickle.Unpickler = class {
                     stack.push(persistent_load(stack.pop()));
                     break;
                 case pickle.OpCode.REDUCE:
-                    args = stack.pop();
+                    items = stack.pop();
                     type = stack.pop();
-                    stack.push(function_call(type, args));
+                    stack.push(function_call(type, items));
                     break;
                 case pickle.OpCode.NEWOBJ:
-                    args = stack.pop();
+                    items = stack.pop();
                     type = stack.pop();
-                    stack.push(function_call(type, args));
+                    stack.push(function_call(type, items));
                     break;
                 case pickle.OpCode.BINGET:
-                    stack.push(table[reader.byte()]);
+                    stack.push(memo[reader.byte()]);
                     break;
                 case pickle.OpCode.LONG_BINGET:
-                    stack.push(table[reader.uint32()]);
+                    stack.push(memo[reader.uint32()]);
                     break;
                 case pickle.OpCode.BINPUT:
-                    table[reader.byte()] = stack[stack.length - 1];
+                    memo[reader.byte()] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.LONG_BINPUT:
-                    table[reader.uint32()] = stack[stack.length - 1];
+                    memo[reader.uint32()] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.BININT:
                     stack.push(reader.int32());
@@ -90,7 +91,7 @@ pickle.Unpickler = class {
                     stack.push(reader.byte());
                     break;
                 case pickle.OpCode.LONG:
-                    stack.push(parseInt(reader.line()));
+                    stack.push(parseInt(reader.line(), 10));
                     break;
                 case pickle.OpCode.BININT2:
                     stack.push(reader.uint16());
@@ -116,7 +117,7 @@ pickle.Unpickler = class {
                         stack.push(false);
                     }
                     else {
-                        stack.push(parseInt(intValue));
+                        stack.push(parseInt(intValue, 10));
                     }
                     break;
                 case pickle.OpCode.EMPTY_LIST:
@@ -129,51 +130,55 @@ pickle.Unpickler = class {
                     stack.push([]);
                     break;
                 case pickle.OpCode.ADDITEMS:
-                    start = marker.pop();
-                    obj = stack[start - 1];
-                    for (i = start; i < stack.length; i++) {
-                        obj.push(stack[i]);
+                    items = stack;
+                    stack = marker.pop();
+                    obj = stack[stack.length - 1];
+                    for (i = 0; i < items.length; i++) {
+                        obj.push(items[i]);
                     }
-                    stack = stack.slice(0, start);
                     break;
                 case pickle.OpCode.DICT:
-                    start = marker.pop();
+                    items = stack;
+                    stack = marker.pop();
                     var dict = {};
-                    for (i = start; i < stack.length; i += 2) {
-                        dict[stack[i]] = stack[i + 1];
+                    for (i = 0; i < items.length; i += 2) {
+                        dict[items[i]] = items[i + 1];
                     }
-                    stack = stack.slice(0, start);
                     stack.push(dict);
                     break;
                 case pickle.OpCode.LIST:
-                    stack.push(stack.splice(marker.pop()));
+                    items = stack;
+                    stack = marker.pop();
+                    stack.push(items);
                     break;
                 case pickle.OpCode.TUPLE:
-                    stack.push(stack.splice(marker.pop()));
+                    items = stack;
+                    stack = marker .pop();
+                    stack.push(items);
                     break;
                 case pickle.OpCode.SETITEM:
-                    var item = stack.pop();
+                    var value = stack.pop();
                     var key = stack.pop();
                     var setItemObj = stack[stack.length - 1];
                     if (setItemObj.__setitem__) {
-                        setItemObj.__setitem__(key, item);
+                        setItemObj.__setitem__(key, value);
                     }
                     else {
-                        setItemObj[key] = item;
+                        setItemObj[key] = value;
                     }
                     break;
                 case pickle.OpCode.SETITEMS:
-                    start = marker.pop();
-                    obj = stack[start - 1];
-                    for (i = start; i < stack.length; i += 2) {
+                    items = stack;
+                    stack = marker.pop();
+                    obj = stack[stack.length - 1];
+                    for (i = 0; i < items.length; i += 2) {
                         if (obj.__setitem__) {
-                            obj.__setitem__(stack[i], stack[i + 1]);
+                            obj.__setitem__(items[i], items[i + 1]);
                         }
                         else {
-                            obj[stack[i]] = stack[i + 1];
+                            obj[items[i]] = items[i + 1];
                         }
                     }
-                    stack = stack.slice(0, start);
                     break;
                 case pickle.OpCode.EMPTY_DICT:
                     stack.push({});
@@ -183,7 +188,8 @@ pickle.Unpickler = class {
                     stack[stack.length-1].push(append);
                     break;
                 case pickle.OpCode.APPENDS:
-                    var appends = stack.splice(marker.pop());
+                    var appends = stack;
+                    stack = marker.pop();
                     var list = stack[stack.length - 1];
                     list.push.apply(list, appends);
                     break;
@@ -223,7 +229,8 @@ pickle.Unpickler = class {
                     stack.push(obj);
                     break;
                 case pickle.OpCode.MARK:
-                    marker.push(stack.length);
+                    marker.push(stack);
+                    stack = [];
                     break;
                 case pickle.OpCode.NEWTRUE:
                     stack.push(true);
@@ -263,7 +270,7 @@ pickle.Unpickler = class {
                     stack.push([ t3a, t3b, t3c ]);
                     break;
                 case pickle.OpCode.MEMOIZE:
-                    table[Object.keys(table).length] = stack[stack.length - 1];
+                    memo[memo.length] = stack[stack.length - 1];
                     break;
                 case pickle.OpCode.FRAME:
                     reader.bytes(8);

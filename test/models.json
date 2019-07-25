@@ -3740,6 +3740,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "net2.pkl",
+    "source": "https://github.com/Aabglov/LasaganeTest/blob/master/results/net2.pkl?raw=true",
+    "format": "scikit-learn",
+    "link":   "https://github.com/Aabglov/LasaganeTest"
+  },
+  {
+    "type":   "sklearn",
     "target": "pima.xgboost.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2656501/pima.xgboost.joblib.pkl.zip[pima.xgboost.joblib.pkl]",
     "format": "scikit-learn",
