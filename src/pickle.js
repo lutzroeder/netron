@@ -125,6 +125,17 @@ pickle.Unpickler = class {
                 case pickle.OpCode.EMPTY_TUPLE:
                     stack.push([]);
                     break;
+                case pickle.OpCode.EMPTY_SET:
+                    stack.push([]);
+                    break;
+                case pickle.OpCode.ADDITEMS:
+                    start = marker.pop();
+                    obj = stack[start - 1];
+                    for (i = start; i < stack.length; i++) {
+                        obj.push(stack[i]);
+                    }
+                    stack = stack.slice(0, start);
+                    break;
                 case pickle.OpCode.DICT:
                     start = marker.pop();
                     var dict = {};
@@ -266,7 +277,6 @@ pickle.Unpickler = class {
                     throw new pickle.Error("Unknown opcode '" + opcode + "'.");
             }
         }
-
         throw new pickle.Error('Unexpected end of file.');
     }
 
