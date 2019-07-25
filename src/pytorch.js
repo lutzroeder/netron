@@ -172,14 +172,21 @@ pytorch.ModelFactory = class {
                 constructorTable['torchvision.models.mobilenet.InvertedResidual'] = function() {};
                 constructorTable['torchvision.models.resnet.Bottleneck'] = function() {};
                 constructorTable['torchvision.models.resnet.BasicBlock'] = function() {};
+                constructorTable['torchvision.models.segmentation.deeplabv3.ASPP'] = function() {};
+                constructorTable['torchvision.models.segmentation.deeplabv3.ASPPConv'] = function() {}; 
+                constructorTable['torchvision.models.segmentation.deeplabv3.ASPPPooling'] = function() {};
+                constructorTable['torchvision.models.segmentation.deeplabv3.DeepLabHead'] = function() {};
+                constructorTable['torchvision.models.segmentation.deeplabv3.DeepLabV3'] = function() {};
                 constructorTable['torchvision.models.squeezenet.Fire'] = function() {};
                 constructorTable['torchvision.models.squeezenet.SqueezeNet'] = function() {};
                 constructorTable['torchvision.models.resnet.ResNet'] = function() {};
                 constructorTable['torchvision.models.vgg.VGG'] = function() {};
+                constructorTable['torchvision.models._utils.IntermediateLayerGetter'] = function() {};
                 constructorTable['torchvision.transforms.transforms.Compose'] = function() {};
                 constructorTable['torchvision.transforms.transforms.Normalize'] = function() {};
                 constructorTable['torchvision.transforms.transforms.Resize'] = function() {};
                 constructorTable['torchvision.transforms.transforms.ToTensor'] = function() {};
+
                 constructorTable['torch.ByteStorage'] = function (size) { 
                     this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
                 };
