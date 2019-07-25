@@ -46,6 +46,7 @@ sklearn.ModelFactory = class {
                         case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
                         case 'f4': this.name = 'float32'; this.itemsize = 4; break;
                         case 'f8': this.name = 'float64'; this.itemsize = 8; break;
+                        case 'b1': this.name = 'int8'; this.itemsize = 1; break;
                         default:
                             if (obj.startsWith('V')) {
                                 this.itemsize = Number(obj.substring(1));
@@ -316,6 +317,9 @@ sklearn.ModelFactory = class {
                 functionTable['builtins.bytearray'] = function(data) {
                     return { data: data };
                 };
+                functionTable['builtins.slice'] = function(start, stop, step) {
+                    return { start: start, stop: stop, step: step };
+                }
 
                 var unknownNameMap = {};
                 var knownPackageMap = {
