@@ -387,6 +387,12 @@ pytorch.ModelFactory = class {
                     return {};
                 };
 
+                var unknownNameMap = {};
+                var knownPackageMap = {
+                    'torch': true, 'torchvision': true, 'collections': true, 
+                    '__builtin__': true, '_codecs': true, 'argparse': true, 'numpy': true
+                };
+
                 var function_call = (name, args) => {
                     var func = functionTable[name];
                     if (func) {
@@ -397,11 +403,9 @@ pytorch.ModelFactory = class {
                     if (constructor) {
                         constructor.apply(obj, args);
                     }
-                    else if (name) {
-                        var map =  {
-                            'torch': true, 'torchvision': true, 'collections': true, 
-                            '__builtin__': true, '_codecs': true, 'argparse': true, 'numpy': true };
-                        if (map[name.split('.').shift()]) {
+                    else if (name && unknownNameMap[name]) {
+                        unknownNameMap[name] = true;
+                        if (knownPackageMap[name.split('.').shift()]) {
                             host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                         }
                     }

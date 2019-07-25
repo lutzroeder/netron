@@ -317,6 +317,13 @@ sklearn.ModelFactory = class {
                     return { data: data };
                 };
 
+                var unknownNameMap = {};
+                var knownPackageMap = {
+                    'sklearn': true, 'collections': true, '__builtin__': true, 'builtins': true,
+                    'copy_reg': true, 'joblib': true,
+                    'xgboost': true, 'lightgbm': true, 'gensim': true, 'numpy': true
+                };
+
                 var function_call = (name, args) => {
                     var func = functionTable[name];
                     if (func) {
@@ -327,12 +334,9 @@ sklearn.ModelFactory = class {
                     if (constructor) {
                         constructor.apply(obj, args);
                     }
-                    else if (name) {
-                        var map =  {
-                            'sklearn': true, 'collections': true, '__builtin__': true, 'builtins': true,
-                            'copy_reg': true, 'joblib': true,
-                            'xgboost': true, 'lightgbm': true, 'gensim': true, 'numpy': true };
-                        if (map[name.split('.').shift()]) {
+                    else if (name && !unknownNameMap[name]) {
+                        unknownNameMap[name] = true;
+                        if (knownPackageMap[name.split('.').shift()]) {
                             host.exception(new sklearn.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                         }
                     }
