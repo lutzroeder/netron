@@ -65788,6 +65788,87 @@
     }
   },
   {
+    "name": "StringNGrams",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The string to append between elements of the token. Use \"\" for no separator.",
+          "name": "separator",
+          "type": "string"
+        },
+        {
+          "description": "The sizes of the ngrams to create.",
+          "minimum": 0,
+          "name": "ngram_widths",
+          "type": "int64[]"
+        },
+        {
+          "description": "The string to use to pad the left side of the ngram sequence. Only used if\npad_width != 0.",
+          "name": "left_pad",
+          "type": "string"
+        },
+        {
+          "description": "The string to use to pad the right side of the ngram sequence. Only used if\npad_width != 0.",
+          "name": "right_pad",
+          "type": "string"
+        },
+        {
+          "description": "The number of padding elements to add to each side of each\nsequence. Note that padding will never be greater than 'ngram_widths'-1\nregardless of this value. If `pad_width=-1`, then add `max(ngram_widths)-1`\nelements.",
+          "name": "pad_width",
+          "type": "int64"
+        },
+        {
+          "name": "preserve_short_sequences",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tsplits",
+          "type": "type"
+        }
+      ],
+      "description": "This op accepts a ragged tensor with 1 ragged dimension containing only\nstrings and outputs a ragged tensor with 1 ragged dimension containing ngrams\nof that string, joined along the innermost axis.",
+      "inputs": [
+        {
+          "description": "The values tensor of the ragged string tensor to make ngrams out of. Must be a\n1D string tensor.",
+          "name": "data",
+          "type": 7
+        },
+        {
+          "description": "The splits tensor of the ragged string tensor to make ngrams out of.",
+          "name": "data_splits",
+          "typeAttr": "Tsplits"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The values tensor of the output ngrams ragged tensor.",
+          "name": "ngrams",
+          "type": 7
+        },
+        {
+          "description": "The splits tensor of the output ngrams ragged tensor.",
+          "name": "ngrams_splits",
+          "typeAttr": "Tsplits"
+        }
+      ],
+      "summary": "Creates ngrams from ragged string data."
+    }
+  },
+  {
     "name": "StringSplit",
     "schema": {
       "attributes": [
