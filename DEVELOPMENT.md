@@ -31,5 +31,5 @@ cd netron
 npm install
 python3 setup.py build
 export PYTHONPATH=build/lib:${PYTHONPATH}
-python3 -c "import netron; netron.main()"
+python3 -c "import netron; netron.start(None)"
 ```
