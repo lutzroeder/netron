@@ -4628,6 +4628,7 @@
             StructuredValue.prototype.tensor_shape_value = null;
             StructuredValue.prototype.tensor_dtype_value = 0;
             StructuredValue.prototype.tensor_spec_value = null;
+            StructuredValue.prototype.type_spec_value = null;
             StructuredValue.prototype.list_value = null;
             StructuredValue.prototype.tuple_value = null;
             StructuredValue.prototype.dict_value = null;
@@ -4636,7 +4637,7 @@
             var $oneOfFields;
     
             Object.defineProperty(StructuredValue.prototype, "kind", {
-                get: $util.oneOfGetter($oneOfFields = ["none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value"]),
+                get: $util.oneOfGetter($oneOfFields = ["none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "type_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -4670,6 +4671,9 @@
                         break;
                     case 33:
                         message.tensor_spec_value = $root.tensorflow.TensorSpecProto.decode(reader, reader.uint32());
+                        break;
+                    case 34:
+                        message.type_spec_value = $root.tensorflow.TypeSpecProto.decode(reader, reader.uint32());
                         break;
                     case 51:
                         message.list_value = $root.tensorflow.ListValue.decode(reader, reader.uint32());
@@ -4720,6 +4724,9 @@
                         break;
                     case "tensor_spec_value":
                         message.tensor_spec_value = $root.tensorflow.TensorSpecProto.decodeText(reader, true);
+                        break;
+                    case "type_spec_value":
+                        message.type_spec_value = $root.tensorflow.TypeSpecProto.decodeText(reader, true);
                         break;
                     case "list_value":
                         message.list_value = $root.tensorflow.ListValue.decodeText(reader, true);
@@ -5133,6 +5140,76 @@
             };
     
             return TensorSpecProto;
+        })();
+    
+        tensorflow.TypeSpecProto = (function() {
+    
+            function TypeSpecProto(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TypeSpecProto.prototype.type_spec_class = 0;
+            TypeSpecProto.prototype.type_state = null;
+    
+            TypeSpecProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TypeSpecProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.type_spec_class = reader.int32();
+                        break;
+                    case 2:
+                        message.type_state = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TypeSpecProto.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.TypeSpecProto();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "type_spec_class":
+                        message.type_spec_class = reader.enum($root.tensorflow.TypeSpecProto.TypeSpecClass);
+                        break;
+                    case "type_state":
+                        message.type_state = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TypeSpecProto.TypeSpecClass = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "UNKNOWN"] = 0;
+                values[valuesById[1] = "SPARSE_TENSOR_SPEC"] = 1;
+                values[valuesById[2] = "INDEXED_SLICES_SPEC"] = 2;
+                values[valuesById[3] = "RAGGED_TENSOR_SPEC"] = 3;
+                values[valuesById[4] = "TENSOR_ARRAY_SPEC"] = 4;
+                values[valuesById[5] = "DATA_DATASET_SPEC"] = 5;
+                values[valuesById[6] = "DATA_ITERATOR_SPEC"] = 6;
+                values[valuesById[7] = "OPTIONAL_SPEC"] = 7;
+                values[valuesById[8] = "PER_REPLICA_SPEC"] = 8;
+                return values;
+            })();
+    
+            return TypeSpecProto;
         })();
     
         return tensorflow;
