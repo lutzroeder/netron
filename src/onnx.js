@@ -40,14 +40,14 @@ onnx.ModelFactory = class {
                 return false;
             }
             // check ir_version and graph present
-            if ( Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] != 0 ||
-                 Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] != 2 ||
-                 Object.prototype.hasOwnProperty.call(tags, 3) && tags[3] != 2 ||
-                 Object.prototype.hasOwnProperty.call(tags, 4) && tags[4] != 2 ||
-                 Object.prototype.hasOwnProperty.call(tags, 5) && tags[5] != 0 ||
-                 Object.prototype.hasOwnProperty.call(tags, 6) && tags[6] != 2 ||
-                 Object.prototype.hasOwnProperty.call(tags, 8) && tags[8] != 2 ||
-                 Object.prototype.hasOwnProperty.call(tags, 14) && tags[14] != 2 ||
+            if (Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] != 0 ||
+                Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] != 2 ||
+                Object.prototype.hasOwnProperty.call(tags, 3) && tags[3] != 2 ||
+                Object.prototype.hasOwnProperty.call(tags, 4) && tags[4] != 2 ||
+                Object.prototype.hasOwnProperty.call(tags, 5) && tags[5] != 0 ||
+                Object.prototype.hasOwnProperty.call(tags, 6) && tags[6] != 2 ||
+                Object.prototype.hasOwnProperty.call(tags, 8) && tags[8] != 2 ||
+                Object.prototype.hasOwnProperty.call(tags, 14) && tags[14] != 2 ||
                 (!Object.prototype.hasOwnProperty.call(tags, 7) || tags[7] != 2)) {
                 return false;
             }
