@@ -76,6 +76,7 @@ pytorch.ModelFactory = class {
                 constructorTable['torch.nn.modules.batchnorm.BatchNorm1d'] = function() {};
                 constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function() {};
                 constructorTable['torch.nn.modules.batchnorm.BatchNorm3d'] = function() {};
+                constructorTable['torch.nn.modules.batchnorm.SyncBatchNorm'] = function() {};
                 constructorTable['torch.nn.modules.container.ModuleDict'] = function() {};
                 constructorTable['torch.nn.modules.container.ModuleList'] = function() {};
                 constructorTable['torch.nn.modules.container.ParameterList'] = function() {};
