@@ -487,52 +487,52 @@ class Application {
             submenu: helpSubmenu
         });
 
-        var commandTable = {};
-        commandTable['file.export'] = {
+        var commandTable = new Map();
+        commandTable.set('file.export', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['edit.cut'] = {
+        });
+        commandTable.set('edit.cut', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['edit.copy'] = {
+        });
+        commandTable.set('edit.copy', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['edit.paste'] = {
+        });
+        commandTable.set('edit.paste', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['edit.select-all'] = {
+        });
+        commandTable.set('edit.select-all', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['edit.find'] = {
+        });
+        commandTable.set('edit.find', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['view.show-attributes'] = {
+        });
+        commandTable.set('view.show-attributes', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
             label: (context) => { return !context.view || !context.view.get('show-attributes') ? 'Show &Attributes' : 'Hide &Attributes'; }
-        };
-        commandTable['view.show-initializers'] = {
+        });
+        commandTable.set('view.show-initializers', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
             label: (context) => { return !context.view || !context.view.get('show-initializers') ? 'Show &Initializers' : 'Hide &Initializers'; }
-        };
-        commandTable['view.show-names'] = {
+        });
+        commandTable.set('view.show-names', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
             label: (context) => { return !context.view || !context.view.get('show-names') ? 'Show &Names' : 'Hide &Names'; }
-        };
-        commandTable['view.reload'] = {
+        });
+        commandTable.set('view.reload', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['view.reset-zoom'] = {
+        });
+        commandTable.set('view.reset-zoom', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['view.zoom-in'] = {
+        });
+        commandTable.set('view.zoom-in', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['view.zoom-out'] = {
+        });
+        commandTable.set('view.zoom-out', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
-        commandTable['view.show-properties'] = {
+        });
+        commandTable.set('view.show-properties', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
-        };
+        });
 
         this._menu.build(menuTemplate, commandTable);
         this._updateMenu();
@@ -842,14 +842,14 @@ class MenuService {
     build(menuTemplate, commandTable) {
         this._menuTemplate = menuTemplate;
         this._commandTable = commandTable;
-        this._itemTable = {};
+        this._itemTable = new Map();
         for (var menu of menuTemplate) {
             for (var item of menu.submenu) {
                 if (item.id) {
                     if (!item.label) {
                         item.label = '';
                     }
-                    this._itemTable[item.id] = item;
+                    this._itemTable.set(item.id, item);
                 }
             }
         }
@@ -873,15 +873,14 @@ class MenuService {
 
     _updateLabel(context) {
         var rebuild = false;
-        for (var id of Object.keys(this._commandTable)) {
-            var menuItem = this._menu.getMenuItemById(id);
-            var command = this._commandTable[id];
+        for (var entry of this._commandTable.entries()) {
+            var menuItem = this._menu.getMenuItemById(entry[0]);
+            var command = entry[1];
             if (command && command.label) {
                 var label = command.label(context);
                 if (label != menuItem.label) {
-                    var menuTemplateItem = this._itemTable[id];
-                    if (menuTemplateItem) {
-                        menuTemplateItem.label = label;
+                    if (this._itemTable.has(entry[0])) {
+                        this._itemTable.get(entry[0]).label = label;
                         rebuild = true;
                     }
                 }
@@ -891,10 +890,10 @@ class MenuService {
     }
 
     _updateEnabled(context) {
-        for (var id of Object.keys(this._commandTable)) {
-            var menuItem = this._menu.getMenuItemById(id);
-            var command = this._commandTable[id];
-            if (command) {
+        for (var entry of this._commandTable.entries()) {
+            var menuItem = this._menu.getMenuItemById(entry[0]);
+            if (menuItem) {
+                var command = entry[1];
                 if (command.enabled) {
                     menuItem.enabled = command.enabled(context);
                 }

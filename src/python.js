@@ -98,12 +98,12 @@ python.Parser = class {
         }
         node = this._eat('identifier', 'return');
         if (node) {
-            node.expression = this._parseExpression(-1, {}, true);
+            node.expression = this._parseExpression(-1, [], true);
             return node;
         }
         node = this._eat('identifier', 'raise');
         if (node) {
-            node.exception = this._parseExpression(-1, { 'from': true });
+            node.exception = this._parseExpression(-1, [ 'from' ]);
             if (this._tokenizer.eat('identifier', 'from')) {
                 node.from = this._parseExpression();
             }
@@ -127,11 +127,11 @@ python.Parser = class {
         }
         node = this._eat('identifier', 'exec');
         if (node) {
-            node.variable = this._parseExpression(-1, { 'in': true });
+            node.variable = this._parseExpression(-1, [ 'in' ]);
             if (this._tokenizer.eat('in')) {
                 do {
                     node.target = node.target || [];
-                    node.target.push(this._parseExpression(-1, { 'in': true }, false))
+                    node.target.push(this._parseExpression(-1, [ 'in' ], false))
                 }
                 while (this._tokenizer.eat(','));
             }
@@ -162,9 +162,9 @@ python.Parser = class {
             node.symbol = [];
             do {
                 symbol = this._node('symbol');
-                symbol.symbol = this._parseExpression(-1, {}, false);
+                symbol.symbol = this._parseExpression(-1, [], false);
                 if (this._tokenizer.eat('identifier', 'as')) {
-                    symbol.as = this._parseExpression(-1, {}, false); 
+                    symbol.as = this._parseExpression(-1, [], false); 
                 }
                 node.symbol.push(symbol);
             }
@@ -186,9 +186,9 @@ python.Parser = class {
             var close = this._tokenizer.eat('(');
             do {
                 symbol = this._node();
-                symbol.symbol = this._parseExpression(-1, {}, false);
+                symbol.symbol = this._parseExpression(-1, [], false);
                 if (this._tokenizer.eat('identifier', 'as')) {
-                    symbol.as = this._parseExpression(-1, {}, false); 
+                    symbol.as = this._parseExpression(-1, [], false); 
                 }
                 node.import.push(symbol);
             }
@@ -234,12 +234,12 @@ python.Parser = class {
         }
         node = this._eat('identifier', 'del');
         if (node) {
-            node.expression = this._parseExpression(-1, {}, true);
+            node.expression = this._parseExpression(-1, [], true);
             return node;
         }
         node = this._eat('identifier', 'print');
         if (node) {
-            node.expression = this._parseExpression(-1, {}, true);
+            node.expression = this._parseExpression(-1, [], true);
             return node;
         }
         node = this._eat('identifier', 'if');
@@ -281,13 +281,13 @@ python.Parser = class {
         node = this._eat('identifier', 'for');
         if (node) {
             node.variable = [];
-            node.variable.push(this._parseExpression(-1, { 'in': true }));
+            node.variable.push(this._parseExpression(-1, [ 'in' ]));
             while (this._tokenizer.eat(',')) {
                 if (this._tokenizer.match('identifier', 'in')) {
                     node.variable.push({});
                     break;
                 }
-                node.variable.push(this._parseExpression(-1, { 'in': true }));
+                node.variable.push(this._parseExpression(-1, [ 'in' ]));
             }
             this._tokenizer.expect('identifier', 'in');
             node.target = [];
@@ -297,7 +297,7 @@ python.Parser = class {
                     node.target.push({});
                     break;
                 }
-                node.target.push(this._parseExpression(-1, { 'in': true }));
+                node.target.push(this._parseExpression(-1, [ 'in' ]));
             }
             this._tokenizer.expect(':');
             node.body = this._parseSuite();
@@ -376,12 +376,12 @@ python.Parser = class {
             return node;
         }
 
-        var expression = this._parseExpression(-1, {}, true);
+        var expression = this._parseExpression(-1, [], true);
         if (expression) {
             if (this._tokenizer.eat(':')) {
                 node = this._node('var');
                 node.location = expression.location;
-                node.variableType = this._parseExpression(-1, { '=': true });
+                node.variableType = this._parseExpression(-1, [ '=' ]);
                 if (this._tokenizer.eat('=')) {
                     node.initializer = this._parseExpression();
                 }
@@ -459,12 +459,12 @@ python.Parser = class {
 
     _parseExpression(minPrecedence, terminal, tuple) {
         minPrecedence = minPrecedence || -1;
-        terminal = terminal || {};
+        var terminalSet = new Set(terminal);
         var stack = [];
         for (;;) {
             var node = this._node();
             var token = this._tokenizer.peek();
-            if (stack.length == 1 && terminal[token.value]) {
+            if (stack.length == 1 && terminalSet.has(token.value)) {
                 break;
             }
             var precedence = python.Parser._precedence[token.value];
@@ -558,12 +558,12 @@ python.Parser = class {
                         node.async = async;
                     }
                     node.expression = stack.pop();
-                    node.variable = this._parseExpression(-1, { 'in': true }, true);
+                    node.variable = this._parseExpression(-1, [ 'in' ], true);
                     this._tokenizer.expect('identifier', 'in');
-                    node.target = this._parseExpression(-1, { 'for': true, 'if': true }, true);
+                    node.target = this._parseExpression(-1, [ 'for', 'if' ], true);
                     while (this._tokenizer.eat('identifier', 'if')) {
                         node.condition = node.condition || [];
-                        node.condition.push(this._parseExpression(-1, { 'for': true, 'if': true }));
+                        node.condition.push(this._parseExpression(-1, [ 'for', 'if' ]));
                     }
                     stack.push(node);
                 }
@@ -578,12 +578,12 @@ python.Parser = class {
             node = this._eat('identifier', 'yield');
             if (node) {
                 if (this._tokenizer.eat('identifier', 'from')) {
-                    node.from = this._parseExpression(-1, {}, true);
+                    node.from = this._parseExpression(-1, [], true);
                 }
                 else {
                     node.expression = [];
                     do {
-                        node.expression.push(this._parseExpression(-1, {}, false))
+                        node.expression.push(this._parseExpression(-1, [], false))
                     }
                     while (this._tokenizer.eat(','));
                 }
@@ -683,8 +683,8 @@ python.Parser = class {
                     node.location = node.value.location;
                     stack.push(node);
                 }
-                if (!this._tokenizer.match('=') && !terminal[this._tokenizer.peek().value]) {
-                    var nextTerminal = Object.assign(Object.assign({}, terminal), { ',': true, '=': true });
+                if (!this._tokenizer.match('=') && !terminalSet.has(this._tokenizer.peek().value)) {
+                    var nextTerminal = terminal.slice(0).concat([ ',', '=' ]);
                     var expression = this._parseExpression(minPrecedence, nextTerminal, tuple);
                     if (expression) {
                         node.value.push(expression);
@@ -710,7 +710,7 @@ python.Parser = class {
         this._tokenizer.expect('{');
         var dict = true;
         while (!this._tokenizer.eat('}')) {
-            var item = this._parseExpression(-1, {}, false);
+            var item = this._parseExpression(-1, [], false);
             if (item == null) {
                 throw new python.Error('Expected expression' + this._tokenizer.location());
             }
@@ -718,7 +718,7 @@ python.Parser = class {
                 dict = false;
             }
             if (dict) {
-                var value = this._parseExpression(-1, {}, false);
+                var value = this._parseExpression(-1, [], false);
                 if (value == null) {
                     throw new python.Error('Expected expression' + this._tokenizer.location());
                 }
@@ -832,7 +832,7 @@ python.Parser = class {
     _parseType() {
         var type = this._node();
         type.type = 'type';
-        type.name = this._parseExpression(-1, { '[': true, '=': true });
+        type.name = this._parseExpression(-1, [ '[', '=' ]);
         if (type.name) {
             if (this._tokenizer.peek().value === '[') {
                 type.arguments = this._parseTypeArguments();
@@ -894,7 +894,7 @@ python.Parser = class {
             if (this._tokenizer.eat('\n')) {
                 continue;
             }
-            var expression = this._parseExpression(-1, {}, false);
+            var expression = this._parseExpression(-1, [], false);
             if (expression == null) {
                 throw new python.Error('Expected expression ' + this._tokenizer.location());
             }

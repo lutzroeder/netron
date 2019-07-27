@@ -28,7 +28,7 @@ cntk.ModelFactory = class {
             }
             // CNTK v2
             var tags = context.tags('pb');
-            if (tags[1] == 0 && tags[2] == 2) {
+            if (tags.get(1) === 0 && tags.get(2) === 2) {
                 return true;
             }
             return false;

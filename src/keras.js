@@ -603,8 +603,8 @@ keras.Node = class {
                 var parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
                 var inputName1 = parts.pop();
                 var inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
-                var inputNames = { 'recurrent_kernel': true, 'running_mean': true, 'running_std': true, 'moving_mean': true, 'moving_variance': true };
-                inputName = inputNames[inputName2] ? inputName2 : inputName1;
+                var inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
+                inputName = inputNames.has(inputName2) ? inputName2 : inputName1;
             }
             inputName = inputName || inputIndex.toString();
             this._inputs.push(new keras.Parameter(inputName, visible, inputArguments));

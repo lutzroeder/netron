@@ -98,6 +98,7 @@ pytorch.ModelFactory = class {
                 constructorTable['torch.nn.modules.loss.BCELoss'] = function() {};
                 constructorTable['torch.nn.modules.loss.BCEWithLogitsLoss'] = function() {}; 
                 constructorTable['torch.nn.modules.loss.CrossEntropyLoss'] = function() {};
+                constructorTable['torch.nn.modules.loss.L1Loss'] = function() {};
                 constructorTable['torch.nn.modules.loss.MSELoss'] = function() {};
                 constructorTable['torch.nn.modules.loss.NLLLoss'] = function() {};
                 constructorTable['torch.nn.modules.normalization.CrossMapLRN2d'] = function() {};
@@ -151,6 +152,7 @@ pytorch.ModelFactory = class {
                 constructorTable['torch.nn.utils.weight_norm.WeightNorm'] = function() {};
                 constructorTable['torch.optim.adam.Adam'] = function() {};
                 constructorTable['torch.optim.adagrad.Adagrad'] = function() {};
+                constructorTable['torch.optim.lr_scheduler.MultiStepLR'] = function() {};
                 constructorTable['torch.optim.lr_scheduler.StepLR'] = function() {};
                 constructorTable['torch.optim.rmsprop.RMSprop'] = function() {};
                 constructorTable['torch.optim.sgd.SGD'] = function() {};
@@ -395,11 +397,8 @@ pytorch.ModelFactory = class {
                     return {};
                 };
 
-                var unknownNameMap = {};
-                var knownPackageMap = {
-                    'torch': true, 'torchvision': true, 'collections': true, 
-                    '__builtin__': true, '_codecs': true, 'argparse': true, 'numpy': true
-                };
+                var unknownNameMap = new Set();
+                var knownPackageMap = new Set([ 'torch', 'torchvision', 'collections', '__builtin__', '_codecs', 'argparse', 'numpy' ]);
 
                 var function_call = (name, args) => {
                     var func = functionTable[name];
@@ -411,9 +410,9 @@ pytorch.ModelFactory = class {
                     if (constructor) {
                         constructor.apply(obj, args);
                     }
-                    else if (name && unknownNameMap[name]) {
-                        unknownNameMap[name] = true;
-                        if (knownPackageMap[name.split('.').shift()]) {
+                    else if (name && unknownNameMap.has(name)) {
+                        unknownNameMap.add(name);
+                        if (knownPackageMap.has(name.split('.').shift())) {
                             host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                         }
                     }

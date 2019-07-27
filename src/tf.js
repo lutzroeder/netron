@@ -17,7 +17,7 @@ tf.ModelFactory = class {
         var tags = null;
         if (extension == 'meta') {
             tags = context.tags('pb');
-            if (Object.keys(tags).length == 0) {
+            if (tags.size === 0) {
                 return false;
             }
             return true;
@@ -33,22 +33,22 @@ tf.ModelFactory = class {
                 }
             }
             tags = context.tags('pb');
-            if (Object.keys(tags).length == 0) {
+            if (tags.size === 0) {
                 tags = context.tags('pbtxt');
-                if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
+                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
                     return true;
                 }
                 return false;
             }
             // ignore input_0.pb, output_0.pb
-            if (Object.keys(tags).length > 0 &&
-                Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] == 0 && 
-                Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] == 0 && 
-                Object.prototype.hasOwnProperty.call(tags, 9) && tags[9] == 2) {
+            if (tags.size > 0 &&
+                tags.has(1) && tags.get(1) === 0 && 
+                tags.has(2) && tags.get(2) === 0 && 
+                tags.has(9) && tags.get(9) === 2) {
                 return false;
             }
-            if (Object.keys(tags).length > 0 &&
-                Object.keys(tags).some((tag) => tags[tag] == 5)) {
+            if (tags.size > 0 &&
+                Array.from(tags.values()).some((v) => v === 5)) {
                 return false;
             }
             return true;
@@ -59,7 +59,7 @@ tf.ModelFactory = class {
                 return false;
             }
             tags = context.tags('pbtxt');
-            if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
+            if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
                 return true;
             }
         }
@@ -89,8 +89,8 @@ tf.ModelFactory = class {
             var extension = identifier.split('.').pop().toLowerCase();
             if (extension !== 'json') {
                 var tags = context.tags('pbtxt');
-                if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
-                    if (tags.saved_model_schema_version || tags.meta_graphs) {
+                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
+                    if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
                         try {
                             if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
                                 saved_model = tf.proto.SavedModel.decodeText(prototxt.TextReader.create(context.text));
@@ -104,7 +104,7 @@ tf.ModelFactory = class {
                             throw new tf.Error("File text format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
                         }
                     }
-                    else if (tags.graph_def) {
+                    else if (tags.has('graph_def')) {
                         try {
                             if (!saved_model) {
                                 meta_graph = tf.proto.MetaGraphDef.decodeText(prototxt.TextReader.create(context.text));
@@ -117,7 +117,7 @@ tf.ModelFactory = class {
                             throw new tf.Error("File text format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
                         }
                     }
-                    else if (tags.node) {
+                    else if (tags.has('node')) {
                         try {
                             graph_def = tf.proto.GraphDef.decodeText(prototxt.TextReader.create(context.text));
                             meta_graph = new tf.proto.MetaGraphDef();

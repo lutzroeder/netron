@@ -25,30 +25,30 @@ onnx.ModelFactory = class {
                 return false;
             }
             tags = context.tags('pb');
-            if (Object.keys(tags).length == 0) {
+            if (tags.size === 0) {
                 return false;
             }
             // ignore input_0.pb, output_0.pb
-            if (Object.keys(tags).length > 0 &&
-                Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] == 0 && 
-                Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] == 0 && 
-                Object.prototype.hasOwnProperty.call(tags, 9) && tags[9] == 2) {
+            if (tags.size > 0 &&
+                tags.has(1) && tags.get(1) === 0 && 
+                tags.has(2) && tags.get(2) === 0 && 
+                tags.has(9) && tags.get(9) === 2) {
                 return false;
             }
-            if (Object.keys(tags).length > 0 &&
-                Object.keys(tags).some((tag) => tags[tag] == 5)) {
+            if (tags.size > 0 &&
+                Array.from(tags.values()).some((v) => v === 5)) {
                 return false;
             }
             // check ir_version and graph present
-            if (Object.prototype.hasOwnProperty.call(tags, 1) && tags[1] != 0 ||
-                Object.prototype.hasOwnProperty.call(tags, 2) && tags[2] != 2 ||
-                Object.prototype.hasOwnProperty.call(tags, 3) && tags[3] != 2 ||
-                Object.prototype.hasOwnProperty.call(tags, 4) && tags[4] != 2 ||
-                Object.prototype.hasOwnProperty.call(tags, 5) && tags[5] != 0 ||
-                Object.prototype.hasOwnProperty.call(tags, 6) && tags[6] != 2 ||
-                Object.prototype.hasOwnProperty.call(tags, 8) && tags[8] != 2 ||
-                Object.prototype.hasOwnProperty.call(tags, 14) && tags[14] != 2 ||
-                (!Object.prototype.hasOwnProperty.call(tags, 7) || tags[7] != 2)) {
+            if (tags.has(1) && tags.get(1) != 0 ||
+                tags.has(2) && tags.get(2) != 2 ||
+                tags.has(3) && tags.get(3) != 2 ||
+                tags.has(4) && tags.get(4) != 2 ||
+                tags.has(5) && tags.get(5) != 0 ||
+                tags.has(6) && tags.get(6) != 2 ||
+                tags.has(8) && tags.get(8) != 2 ||
+                tags.has(14) && tags.get(14) != 2 ||
+                (!tags.has(7) || tags.get(7) != 2)) {
                 return false;
             }
             return true;
@@ -59,7 +59,7 @@ onnx.ModelFactory = class {
                 return false;
             }
             tags = context.tags('pbtxt');
-            if (tags.ir_version || tags.graph) {
+            if (tags.has('ir_version') || tags.get('graph')) {
                 return true;
             }
         }

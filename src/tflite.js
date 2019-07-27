@@ -68,10 +68,10 @@ tflite.Model = class {
         var operatorCodeList = [];
         var builtinOperatorMap = {};
         for (var key of Object.keys(tflite.schema.BuiltinOperator)) {
-            var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
+            var upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
             var builtinOperatorIndex = tflite.schema.BuiltinOperator[key]; 
             builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
-                return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
+                return (s.length < 1 || upperCase.has(s)) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
             }).join('');
         }
         for (var operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {

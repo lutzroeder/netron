@@ -17,7 +17,7 @@ pickle.Unpickler = class {
         var reader = this._reader;
         var marker = [];
         var stack = [];
-        var memo = [];
+        var memo = new Map();
         while (reader.position < reader.length) {
             var opcode = reader.byte();
             // console.log(reader.position.toString() + ': ' + opcode.toString());
@@ -36,7 +36,7 @@ pickle.Unpickler = class {
                     break;
                 case pickle.OpCode.PUT:
                     i = parseInt(reader.line(), 10);
-                    memo[i] = stack[stack.length - 1];
+                    memo.set(i, stack[stack.length - 1]);
                     break;
                 case pickle.OpCode.OBJ:
                     items = stack;
@@ -45,7 +45,7 @@ pickle.Unpickler = class {
                     break;
                 case pickle.OpCode.GET:
                     i = parseInt(reader.line(), 10);
-                    stack.push(memo[i]);
+                    stack.push(memo.get(i));
                     break;
                 case pickle.OpCode.POP:
                     stack.pop();
@@ -73,16 +73,16 @@ pickle.Unpickler = class {
                     stack.push(function_call(type, items));
                     break;
                 case pickle.OpCode.BINGET:
-                    stack.push(memo[reader.byte()]);
+                    stack.push(memo.get(reader.byte()));
                     break;
                 case pickle.OpCode.LONG_BINGET:
-                    stack.push(memo[reader.uint32()]);
+                    stack.push(memo.get(reader.uint32()));
                     break;
                 case pickle.OpCode.BINPUT:
-                    memo[reader.byte()] = stack[stack.length - 1];
+                    memo.set(reader.byte(), stack[stack.length - 1]);
                     break;
                 case pickle.OpCode.LONG_BINPUT:
-                    memo[reader.uint32()] = stack[stack.length - 1];
+                    memo.set(reader.uint32(), stack[stack.length - 1]);
                     break;
                 case pickle.OpCode.BININT:
                     stack.push(reader.int32());
@@ -270,7 +270,7 @@ pickle.Unpickler = class {
                     stack.push([ t3a, t3b, t3c ]);
                     break;
                 case pickle.OpCode.MEMOIZE:
-                    memo[memo.length] = stack[stack.length - 1];
+                    memo.set(memo.size, stack[stack.length - 1]);
                     break;
                 case pickle.OpCode.FRAME:
                     reader.bytes(8);

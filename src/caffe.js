@@ -23,7 +23,7 @@ caffe.ModelFactory = class {
                 return false;
             }
             tags = context.tags('pbtxt');
-            if (tags.layer || tags.layers || tags.net || tags.train_net || tags.net_param) {
+            if (tags.has('layer') || tags.has('layers') || tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                 return true;
             }
         }
@@ -39,7 +39,7 @@ caffe.ModelFactory = class {
                 return false;
             }
             tags = context.tags('pbtxt');
-            if (tags.layer || tags.layers || tags.net || tags.train_net || tags.net_param) {
+            if (tags.has('layer') || tags.has('layers') || tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                 return true;
             }
         }
@@ -53,7 +53,7 @@ caffe.ModelFactory = class {
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt' || extension == 'pt') {
                     var tags = context.tags('pbtxt');
-                    if (tags.net || tags.train_net || tags.net_param) {
+                    if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                         try {
                             var reader = prototxt.TextReader.create(context.text);
                             reader.field = function(tag, message) {
@@ -236,7 +236,7 @@ caffe.Graph = class {
             index++;
         }
 
-        var layerMap = {};
+        var layerMap = new Map();
         var countMap = {};
         var outputs = [];
         var output = null;
@@ -246,21 +246,21 @@ caffe.Graph = class {
             }
             else {
                 for (output of layer.top) {
-                    layerMap[output] = layer;
+                    layerMap.set(output, layer);
                 }
             }
             for (input of layer.bottom) {
                 countMap[input] = (countMap[input] || 0) + 1;
             }
         }
-        for (output of Object.keys(layerMap)) {
+        for (output of layerMap.keys()) {
             if (countMap[output]) {
-                delete layerMap[output];
+                layerMap.delete(output);
             }
         }
-        var keys = Object.keys(layerMap);
-        if (keys.length == 1) {
-            this._outputs.push(new caffe.Parameter(keys[0], [ new caffe.Argument(keys[0], null) ]));
+        if (layerMap.size === 1) {
+            var key = layerMap.keys().next().value;
+            this._outputs.push(new caffe.Parameter(key, [ new caffe.Argument(key, null) ]));
         }
         else if (outputs.length == 1) {
             outputs[0].top = [ 'output' ];

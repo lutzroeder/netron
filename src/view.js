@@ -978,7 +978,7 @@ class ModelContext {
 
     constructor(context) {
         this._context = context;
-        this._tags = {};
+        this._tags = new Map();
     }
 
     request(file, encoding) {
@@ -1001,9 +1001,9 @@ class ModelContext {
     }
 
     tags(extension) {
-        var tags = this._tags[extension];
+        var tags = this._tags.get(extension);
         if (!tags) {
-            tags = {};
+            tags = new Map();
             try {
                 var reader = null;
                 switch (extension) {
@@ -1024,7 +1024,7 @@ class ModelContext {
                         reader.start(false);
                         while (!reader.end(false)) {
                             var tag = reader.tag();
-                            tags[tag] = true;
+                            tags.set(tag, true);
                             reader.skip();
                         }
                         break;
@@ -1032,12 +1032,12 @@ class ModelContext {
                         reader = new protobuf.Reader.create(this.buffer);
                         while (reader.pos < reader.len) {
                             var tagType = reader.uint32();
-                            tags[tagType >>> 3] = tagType & 7;
+                            tags.set(tagType >>> 3, tagType & 7);
                             try {
                                 reader.skipType(tagType & 7);
                             }
                             catch (err) {
-                                tags = {};
+                                tags = new Map();
                                 break;
                             }
                         }
@@ -1045,9 +1045,9 @@ class ModelContext {
                 }
             }
             catch (error) {
-                tags = {};
+                tags = new Map();
             }
-            this._tags[extension] = tags;
+            this._tags.set(extension, tags);
         }
         return tags;
     }
