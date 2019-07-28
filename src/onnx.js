@@ -59,7 +59,7 @@ onnx.ModelFactory = class {
                 return false;
             }
             tags = context.tags('pbtxt');
-            if (tags.has('ir_version') || tags.get('graph')) {
+            if (tags.has('ir_version') || tags.has('graph')) {
                 return true;
             }
         }
