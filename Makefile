@@ -25,6 +25,7 @@ update:
 	@./tools/coreml sync install schema
 	@./tools/cntk sync schema
 	@./tools/darknet sync
+	@./tools/dl4j sync
 	@./tools/keras sync install metadata
 	@./tools/mxnet sync metadata
 	@./tools/ncnn sync

@@ -1879,6 +1879,76 @@
     "link":   "https://pjreddie.com/darknet/yolo"
   },
   {
+    "type":   "dl4j",
+    "target": "darknet19_dl4j_inference.v2.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/darknet19_dl4j_inference.v2.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "lenet_dl4j_mnist_inference.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/lenet_dl4j_mnist_inference.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "nasnetmobile_dl4j_inference.v1.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/nasnetmobile_dl4j_inference.v1.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "resnet50_dl4j_inference.v3.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/resnet50_dl4j_inference.v3.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "squeezenet_dl4j_inference.v2.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/squeezenet_dl4j_inference.v2.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "tiny-yolo-voc_dl4j_inference.v2.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/tiny-yolo-voc_dl4j_inference.v2.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "unet_dl4j_segment_inference.v1.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/unet_dl4j_segment_inference.v1.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "vgg19_dl4j_inference.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/vgg19_dl4j_inference.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "xception_dl4j_inference.v2.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/xception_dl4j_inference.v2.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dl4j",
+    "target": "yolo2_dl4j_inference.v3.zip",
+    "source": "https://deeplearning4jblob.blob.core.windows.net/models/yolo2_dl4j_inference.v3.zip",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
     "type":   "keras",
     "target": "babi_rnn.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[babi_rnn.h5]",

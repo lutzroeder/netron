@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+node_modules=${root}/node_modules
+src=${root}/src
+third_party=${root}/third_party
+tools=${root}/tools
+
+identifier=dl4j
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch --quiet -p
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
+    fi
+    git -C "${third_party}" submodule update --quiet --init
+}
+
+clean() {
+    bold "deeplearning4j clean"
+    rm -rf ${third_party}/${identifier}
+}
+
+sync() {
+    bold "deeplearning4j sync"
+    git_sync dl4j git@github.com:eclipse/deeplearning4j.git
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+    esac
+done

@@ -1077,7 +1077,7 @@ class ArchiveContext {
             return Promise.reject(new Error('File not found.'));
         }
         var data = entry.data;
-        if (data != null) {
+        if (encoding != null) {
             data = new TextDecoder(encoding).decode(data);
         }
         return Promise.resolve(data);
@@ -1121,6 +1121,7 @@ view.ModelFactoryService = class {
         this.register('./darknet', [ '.cfg' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
+        this.register('./dl4j', [ 'configuration.json' ]);
     }
 
     register(id, extensions) {
