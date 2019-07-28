@@ -5411,7 +5411,7 @@
           "type": "T"
         },
         {
-          "description": "Tensor of int32/int64 indices, of any rank q.",
+          "description": "Tensor of int32/int64 indices, of any rank q. All index values are expected to be within bounds. It is an error if any of the index values are out of bounds.",
           "name": "indices",
           "type": "Tind"
         }
