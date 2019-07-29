@@ -503,15 +503,13 @@ caffe.Node = class {
                 }
             }
         }
-        else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input) => {
-                return new caffe.Parameter(inputIndex.toString(), [ 
-                    (input instanceof caffe.Tensor) ?
-                        new caffe.Argument('', null, input) :
-                        new caffe.Argument(input, null, null)
-                ]);
-            }));
-        }
+        this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input) => {
+            return new caffe.Parameter(inputIndex.toString(), [ 
+                (input instanceof caffe.Tensor) ?
+                    new caffe.Argument('', null, input) :
+                    new caffe.Argument(input, null, null)
+            ]);
+        }));
 
         this._outputs = [];
         var outputs = layer.top;
@@ -527,13 +525,11 @@ caffe.Node = class {
                 }
             }
         }
-        else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output) => {
-                return new caffe.Parameter(outputIndex.toString(), [
-                    new caffe.Argument(output, null, null)
-                ]);
-            }));
-        }
+        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output) => {
+            return new caffe.Parameter(outputIndex.toString(), [
+                new caffe.Argument(output, null, null)
+            ]);
+        }));
     }
 
     get operator() {

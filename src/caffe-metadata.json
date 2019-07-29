@@ -457,11 +457,15 @@
     "schema": {
       "category": "Layer",
       "inputs": [
-        { "name": "data" },
-        { "name": "clip" }
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "h_0" },
+        { "name": "c_0" }
       ],
       "outputs": [
-        { "name": "output" }
+        { "name": "output" },
+        { "name": "h_T" },
+        { "name": "c_T" }
       ],
       "attributes": [
         { "name": "weight_filler", "visible": false },
@@ -488,6 +492,26 @@
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Permute",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Parameter",
+    "schema": {
       "outputs": [
         { "name": "output" }
       ]

@@ -433,6 +433,13 @@
   },
   {
     "type":   "caffe",
+    "target": "netron_issue_306.prototxt",
+    "source": "https://github.com/lutzroeder/netron/files/3440457/netron_issue_306.zip[netron_issue_306.pbtxt]",
+    "format": "Caffe v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/306"
+  },
+  {
+    "type":   "caffe",
     "target": "nin.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/nin.prototxt",
     "format": "Caffe v1",
