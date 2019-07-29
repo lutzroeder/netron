@@ -22,7 +22,7 @@ git_sync() {
     else
         git -C "${third_party}" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule update --quiet --init
 }
 
 clean() {
@@ -32,7 +32,7 @@ clean() {
 
 sync() {
     bold "deeplearning4j sync"
-    git_sync dl4j git@github.com:eclipse/deeplearning4j.git
+    git_sync dl4j https://github.com/eclipse/deeplearning4j.git
 }
 
 while [ "$#" != 0 ]; do

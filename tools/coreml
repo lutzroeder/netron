@@ -11,12 +11,6 @@ tools=${root}/tools
 identifier=coremltools
 virtualenv=${third_party}/virtualenv/${identifier}
 
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
-
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
@@ -43,10 +37,10 @@ sync() {
 
 install() {
     bold "coreml install"
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || ${python} -m virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || python3 -m virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet ${third_party}/${identifier}
+    python3 -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }
 
@@ -59,9 +53,9 @@ schema() {
 convert() {
     bold "coreml convert"
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet onnx
-    ${python} -m pip install --quiet sklearn
-    ${python} ${tools}/coreml-script.py convert ${1}
+    python3 -m pip install --quiet onnx
+    python3 -m pip install --quiet sklearn
+    python3 ${tools}/coreml-script.py convert ${1}
     deactivate
 }
 

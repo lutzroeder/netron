@@ -9,12 +9,6 @@ tools=${root}/tools
 identifier=scikit-learn
 virtualenv=${third_party}/virtualenv/${identifier}
 
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
-
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
@@ -27,7 +21,7 @@ git_sync() {
     else
         git -C "${third_party}" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule update --quiet --init
 }
 
 sync() {
@@ -52,13 +46,13 @@ install() {
             export DYLD_LIBRARY_PATH=/usr/local/opt/libomp/lib
             ;;
     esac
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet Cython
-    ${python} -m pip install --quiet numpy
-    ${python} -m pip install --quiet scipy
-    ${python} -m pip install --quiet ${third_party}/scikit-learn
+    python3 -m pip install --quiet Cython
+    python3 -m pip install --quiet numpy
+    python3 -m pip install --quiet scipy
+    python3 -m pip install --quiet ${third_party}/scikit-learn
     deactivate
 }
 
@@ -66,7 +60,7 @@ metadata() {
     bold "sklearn metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} sklearn-script.py
+    python3 sklearn-script.py
     popd > /dev/null
     deactivate
 }

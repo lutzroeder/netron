@@ -11,12 +11,6 @@ tools=${root}/tools
 identifier=tflite
 virtualenv=${third_party}/virtualenv/${identifier}
 
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
-
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
@@ -57,8 +51,8 @@ install() {
     cmake -G "Unix Makefiles" .
     make
     popd > /dev/null
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
 }
 
 schema() {
@@ -82,8 +76,8 @@ EOT
 visualize() {
     bold "tflite visualize"
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet tensorflow
-    ${python} ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
+    python3 -m pip install --quiet tensorflow
+    python3 ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
     deactivate
 }
 

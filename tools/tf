@@ -12,12 +12,6 @@ tools=${root}/tools
 identifier=tensorflow
 virtualenv=${third_party}/virtualenv/${identifier}
 
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
-
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
@@ -53,10 +47,10 @@ install() {
             brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
             ;;
     esac
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet protobuf
+    python3 -m pip install --quiet protobuf
     deactivate
 }
 
@@ -96,7 +90,7 @@ metadata() {
     touch ${tools}/tensorflow/__init__.py
     touch ${tools}/tensorflow/core/__init__.py
     touch ${tools}/tensorflow/core/framework/__init__.py
-    ${python} tf-script.py
+    python3 tf-script.py
     rm -rf ${tools}/tensorflow
     popd > /dev/null
     deactivate

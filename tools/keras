@@ -8,12 +8,6 @@ test=${root}/test
 third_party=${root}/third_party
 tools=${root}/tools
 
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
-
 identifier=keras
 virtualenv=${third_party}/virtualenv/${identifier}
 
@@ -29,7 +23,7 @@ git_sync() {
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule update --quiet --init
 }
 
 clean() {
@@ -45,11 +39,11 @@ sync() {
 
 install() {
     bold "keras install"
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet tensorflow
-    ${python} -m pip install --quiet ${third_party}/${identifier}
+    python3 -m pip install --quiet tensorflow
+    python3 -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }
 
@@ -57,7 +51,7 @@ metadata() {
     bold "keras metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} keras-script.py metadata
+    python3 keras-script.py metadata
     popd > /dev/null
     deactivate
 }
@@ -66,7 +60,7 @@ zoo() {
     bold "keras zoo"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} keras-script.py zoo
+    python3 keras-script.py zoo
     popd > /dev/null
     deactivate
 }

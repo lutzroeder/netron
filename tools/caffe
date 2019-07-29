@@ -22,7 +22,7 @@ git_sync() {
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule update --quiet --init
 }
 
 clean() {
