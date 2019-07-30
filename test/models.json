@@ -2993,8 +2993,8 @@
   },
   {
     "type":   "openvino",
-    "target": "2018_R3_age-gender-recognition-retail-0013.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml",
+    "target": "2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml,https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.bin",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
