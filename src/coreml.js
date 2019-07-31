@@ -408,6 +408,13 @@ coreml.Graph = class {
             this._updateClassifierOutput(group, model.kNearestNeighborsClassifier);
             return 'kNearestNeighborsClassifier';
         }
+        else if (model.customModel) {
+            this._createNode(scope, group, 'customModel', null,
+                { className: model.customModel.className, parameters: model.customModel.parameters },
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            return 'customModel';
+        }
         throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 

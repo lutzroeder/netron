@@ -1213,6 +1213,13 @@
   },
   {
     "type":   "coreml",
+    "target": "EnvSceneClassification.mlmodel",
+    "source": "https://github.com/anujdutt9/iOS-Audio-Classification/blob/cdf5b72dc351a83168369d0afbd0eeba9ecae448/RealTimeSoundClassifier/RealTimeSoundClassifier/EnvSceneClassification.mlmodel?raw=true",
+    "format": "Core ML v3",
+    "link":   "https://github.com/anujdutt9/iOS-Audio-Classification"
+  },
+  {
+    "type":   "coreml",
     "target": "coreml_invalid_file.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
     "error":  "File format is not coreml.Model (invalid wire type 7 at offset 13) in 'coreml_invalid_file.mlmodel'.",
