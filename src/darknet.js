@@ -54,18 +54,20 @@ darknet.Graph = class {
         this._outputs = [];
         this._nodes = [];
 
-        var net = cfg.shift();
-
-        var inputType = null;
-        if (net && 
-            Object.prototype.hasOwnProperty.call(net, 'width') &&
-            Object.prototype.hasOwnProperty.call(net, 'height') &&
-            Object.prototype.hasOwnProperty.call(net, 'channels')) {
-            var width = Number.parseInt(net.width);
-            var height = Number.parseInt(net.height);
-            var channels = Number.parseInt(net.channels);
-            inputType = new darknet.TensorType('float32', new darknet.TensorShape([ width, height, channels ]));
+        if (cfg.length === 0) {
+            throw new darknet.Error('Config file has no sections.');
         }
+
+        var net = cfg.shift();
+        if (net.__type__ !== 'net' && net.__type__ !== 'network') {
+            throw new darknet.Error('First section must be [net] or [network].');
+        }
+
+        net.width = net.width ? Number.parseInt(net.width, 10) : 0;
+        net.height = net.height ? Number.parseInt(net.height, 10) : 0;
+        net.channels = net.channels ? Number.parseInt(net.channels, 10) : 0;
+
+        var inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.width, net.height, net.channels ]));
 
         var input = 'input';
         this._inputs.push(new darknet.Parameter(input, true, [
@@ -103,7 +105,7 @@ darknet.Graph = class {
             }
         }
         for (i = 0; i < cfg.length; i++) {
-            this._nodes.push(new darknet.Node(metadata, cfg[i], i.toString()));
+            this._nodes.push(new darknet.Node(metadata, net, cfg[i], i.toString()));
         }
 
         if (cfg.length > 0) {
@@ -176,7 +178,7 @@ darknet.Argument = class {
 
 darknet.Node = class {
 
-    constructor(metadata, layer, name) {
+    constructor(metadata, net, layer, name) {
         this._name = name;
         this._metadata = metadata;
         this._operator = layer.__type__;
@@ -197,38 +199,42 @@ darknet.Node = class {
         switch (layer.__type__) {
             case 'convolutional':
             case 'deconvolutional':
-                this._initializer('biases');
-                this._initializer('weights');
-                this._batch_normalize(metadata, layer);
+                layer.filters = layer.filters ? Number.parseInt(layer.filters, 10) : 1;
+                layer.size = layer.size ? Number.parseInt(layer.size, 10) : 1;
+                this._initializer('biases', [ layer.filters ]);
+                this._initializer('weights', [ net.channels, layer.size, layer.size, layer.filters ]);
+                this._batch_normalize(metadata, net, layer, layer.filters);
                 this._activation(metadata, layer, 'logistic');
                 break;
             case 'connected':
-                this._initializer('biases');
+                layer.output = layer.output ? Number.parseInt(layer.output, 10) : 1; 
+                this._initializer('biases', [ layer.output ]);
                 this._initializer('weights');
-                this._batch_normalize(metadata, layer);
+                this._batch_normalize(metadata, net, layer, layer.output);
                 this._activation(metadata, layer, 'logistic');
                 break;
             case 'crnn':
-                this._batch_normalize(metadata, layer);
+                this._batch_normalize(metadata, net, layer);
                 this._activation(metadata, layer, "logistic");
                 break;
             case 'rnn':
-                this._batch_normalize(metadata, layer);
+                layer.output = layer.output ? Number.parseInt(layer.output, 10) : 1; 
+                this._batch_normalize(metadata, net, layer, layer.output);
                 this._activation(metadata, layer, "logistic");
                 break;
             case 'gru':
-                this._batch_normalize(metadata, layer);
+                this._batch_normalize(metadata, net, layer);
                 break;
             case 'lstm':
-                this._batch_normalize(metadata, layer);
+                this._batch_normalize(metadata, net, layer);
                 break;
             case 'shortcut':
-                this._activation(metadata, layer, "linear");
+                this._activation(metadata, net, layer, "linear");
                 break;
             case 'batch_normalize':
-                this._initializer('scale');
-                this._initializer('mean');
-                this._initializer('variance');
+                this._initializer('scale', [ layer.size ]);
+                this._initializer('mean', [ layer.size ]);
+                this._initializer('variance', [ layer.size ]);
                 break;
         }
 
@@ -280,24 +286,24 @@ darknet.Node = class {
         return this._chain;
     }
 
-    _initializer(name) {
+    _initializer(name, shape) {
         var id = this._name.toString() + '_' + name;
         this._inputs.push(new darknet.Parameter(name, true, [
-            new darknet.Argument(id, null, new darknet.Tensor(id))
+            new darknet.Argument(id, null, new darknet.Tensor(id, shape))
         ]));
     }
 
-    _batch_normalize(metadata, layer) {
+    _batch_normalize(metadata, net, layer, size) {
         if (layer.batch_normalize == "1") {
-            var batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [] };
-            this._chain.push(new darknet.Node(metadata, batch_normalize_layer, this._name + ':batch_normalize'));
+            var batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [], size: size || 0 };
+            this._chain.push(new darknet.Node(metadata, net, batch_normalize_layer, this._name + ':batch_normalize'));
             delete layer.batch_normalize;
         }
     }
 
-    _activation(metadata, layer, defaultValue) {
+    _activation(metadata, net, layer, defaultValue) {
         if (layer.activation && layer.activation != defaultValue) {
-            this._chain.push(new darknet.Node(metadata, { __type__: layer.activation, _inputs: [], _outputs: [] }, this._name + ':activation'));
+            this._chain.push(new darknet.Node(metadata, net, { __type__: layer.activation, _inputs: [], _outputs: [] }, this._name + ':activation'));
             delete layer.activation;
         }
     }
@@ -356,9 +362,10 @@ darknet.Attribute = class {
 
 darknet.Tensor = class {
 
-    constructor(id) {
+    constructor(id, shape) {
+        shape = shape || null;
         this._id = id;
-        this._type = new darknet.TensorType('?', new darknet.TensorShape(null));
+        this._type = new darknet.TensorType('?', new darknet.TensorShape(shape));
     }
 
     get name() {
@@ -481,37 +488,37 @@ darknet.CfgReader = class {
     }
 
     read() {
-        var array = [];
-        var item = {};
+        var options = [];
+        var section = null;
         while (this._line < this._lines.length) {
             var line = this._lines[this._line];
-            line = line.split('#')[0].trim();
+            line = line.replace(/\s/g, '');
             if (line.length > 0) {
-                if (line.length > 3 && line[0] == '[' && line[line.length - 1] == ']') {
-                    if (item.__type__) {
-                        array.push(item);
-                        item = {};
-                    }
-                    item.__type__ = line.substring(1, line.length - 1);
-                }
-                else {
-                    var property = line.split('=');
-                    if (property.length == 2) {
-                        var key = property[0].trim();
-                        var value = property[1].trim();
-                        item[key] = value;
-                    }
-                    else {
-                        throw new darknet.Error("Invalid cfg '" + line + "' at line " + (this._line + 1).toString() + ".");
-                    }
+                switch (line[0]) {
+                    case '#':
+                    case ';':
+                        break;
+                    case '[':
+                        section = {};
+                        section.__type__ = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
+                        options.push(section);
+                        break;
+                    default:
+                        if (section) {
+                            var property = line.split('=');
+                            if (property.length != 2) {
+                                throw new darknet.Error("Invalid cfg '" + line + "' at line " + (this._line + 1).toString() + ".");
+                            }
+                            var key = property[0].trim();
+                            var value = property[1].trim();
+                            section[key] = value;
+                        }
+                        break;
                 }
             }
             this._line++;
         }
-        if (item.__type__) {
-            array.push(item);
-        }
-        return array;
+        return options;
     }
 };
 
