@@ -1443,6 +1443,21 @@
     }
   },
   {
+    "name": "AnonymousMemoryCache",
+    "schema": {
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "name": "deleter",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "AnonymousMultiDeviceIterator",
     "schema": {
       "attributes": [
@@ -1475,6 +1490,31 @@
         }
       ],
       "summary": "A container for a multi device iterator resource."
+    }
+  },
+  {
+    "name": "AnonymousRandomSeedGenerator",
+    "schema": {
+      "inputs": [
+        {
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "name": "seed2",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "name": "deleter",
+          "type": 21
+        }
+      ]
     }
   },
   {
@@ -2078,6 +2118,137 @@
         }
       ],
       "summary": "Update '*var' according to the proximal adagrad scheme."
+    }
+  },
+  {
+    "name": "ApplyAdagradV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
+          "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "update_slots",
+          "type": "boolean"
+        }
+      ],
+      "description": "accum += grad * grad\nvar -= lr * grad * (1 / sqrt(accum))",
+      "inputs": [
+        {
+          "description": "Should be from a Variable().",
+          "isRef": true,
+          "name": "var",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Should be from a Variable().",
+          "isRef": true,
+          "name": "accum",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Scaling factor. Must be a scalar.",
+          "name": "lr",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Constant factor. Must be a scalar.",
+          "name": "epsilon",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient.",
+          "name": "grad",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Same as \"var\".",
+          "isRef": true,
+          "name": "out",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Update '*var' according to the adagrad scheme."
     }
   },
   {
@@ -3806,7 +3977,7 @@
           "type": "type"
         }
       ],
-      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmax(input = a)\n  c = tf.keras.backend.eval(b)  \n  # c = 4\n  # here a[4] = 166.32 which is the largest element of a across axis 0\n  ```",
+      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmax(input = a)\n  c = tf.keras.backend.eval(b)\n  # c = 4\n  # here a[4] = 166.32 which is the largest element of a across axis 0\n  ```",
       "inputs": [
         {
           "name": "input",
@@ -3942,7 +4113,7 @@
           "type": "type"
         }
       ],
-      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmin(input = a)\n  c = tf.keras.backend.eval(b)  \n  # c = 0\n  # here a[0] = 1 which is the smallest element of a across axis 0\n  ```",
+      "description": "Note that in case of ties the identity of the return value is not guaranteed.\n\nUsage:\n  ```python\n  import tensorflow as tf\n  a = [1, 10, 26.9, 2.8, 166.32, 62.3]\n  b = tf.math.argmin(input = a)\n  c = tf.keras.backend.eval(b)\n  # c = 0\n  # here a[0] = 1 which is the smallest element of a across axis 0\n  ```",
       "inputs": [
         {
           "name": "input",
@@ -8113,7 +8284,8 @@
         },
         {
           "allowedValues": [
-            "inequality"
+            "inequality",
+            "equality"
           ],
           "default": "inequality",
           "description": "A string indicating if this Op should perform inequality split or equality split.",
@@ -9650,6 +9822,43 @@
     }
   },
   {
+    "name": "CacheDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "filename",
+          "type": 7
+        },
+        {
+          "name": "cache",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "Case",
     "schema": {
       "attributes": [
@@ -11130,6 +11339,19 @@
         }
       ],
       "summary": "Sets up the centralized structures for a distributed TPU system."
+    }
+  },
+  {
+    "name": "ConfigureTPUEmbedding",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Serialized tensorflow.tpu.TPUEmbeddingConfiguration that\ndescribes the embedding lookups of the program.",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "summary": "Sets up TPUEmbedding in a distributed TPU system."
     }
   },
   {
@@ -15426,6 +15648,21 @@
     }
   },
   {
+    "name": "DeleteMemoryCache",
+    "schema": {
+      "inputs": [
+        {
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "name": "deleter",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "DeleteMultiDeviceIterator",
     "schema": {
       "attributes": [
@@ -15454,6 +15691,21 @@
         }
       ],
       "summary": "A container for an iterator resource."
+    }
+  },
+  {
+    "name": "DeleteRandomSeedGenerator",
+    "schema": {
+      "inputs": [
+        {
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "name": "deleter",
+          "type": 21
+        }
+      ]
     }
   },
   {
@@ -22890,7 +23142,7 @@
           "type": "type"
         }
       ],
-      "description": "`indices` is an K-dimensional integer tensor, best thought of as a\n(K-1)-dimensional tensor of indices into `params`, where each element defines a\nslice of `params`:\n\n    output[\\\\(i_0, ..., i_{K-2}\\\\)] = params[indices[\\\\(i_0, ..., i_{K-2}\\\\)]]\n\nWhereas in `tf.gather` `indices` defines slices into the first\ndimension of `params`, in `tf.gather_nd`, `indices` defines slices into the\nfirst `N` dimensions of `params`, where `N = indices.shape[-1]`.\n\nThe last dimension of `indices` can be at most the rank of\n`params`:\n\n    indices.shape[-1] <= params.rank\n\nThe last dimension of `indices` corresponds to elements\n(if `indices.shape[-1] == params.rank`) or slices\n(if `indices.shape[-1] < params.rank`) along dimension `indices.shape[-1]`\nof `params`.  The output tensor has shape\n\n    indices.shape[:-1] + params.shape[indices.shape[-1]:]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSome examples below.\n\nSimple indexing into a matrix:\n\n```python\n    indices = [[0, 0], [1, 1]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = ['a', 'd']\n```\n\nSlice indexing into a matrix:\n\n```python\n    indices = [[1], [0]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['c', 'd'], ['a', 'b']]\n```\n\nIndexing into a 3-tensor:\n\n```python\n    indices = [[1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['a1', 'b1'], ['c1', 'd1']]]\n\n\n    indices = [[0, 1], [1, 0]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['c0', 'd0'], ['a1', 'b1']]\n\n\n    indices = [[0, 0, 1], [1, 0, 1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = ['b0', 'b1']\n```\n\nBatched indexing into a matrix:\n\n```python\n    indices = [[[0, 0]], [[0, 1]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['a'], ['b']]\n```\n\nBatched slice indexing into a matrix:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [[['c', 'd']], [['a', 'b']]]\n```\n\nBatched indexing into a 3-tensor:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[[['a1', 'b1'], ['c1', 'd1']]],\n              [[['a0', 'b0'], ['c0', 'd0']]]]\n\n    indices = [[[0, 1], [1, 0]], [[0, 0], [1, 1]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['c0', 'd0'], ['a1', 'b1']],\n              [['a0', 'b0'], ['c1', 'd1']]]\n\n\n    indices = [[[0, 0, 1], [1, 0, 1]], [[0, 1, 1], [1, 1, 0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['b0', 'b1'], ['d0', 'c1']]\n```\n\nSee also `tf.gather` and `tf.batch_gather`.",
+      "description": "`indices` is a K-dimensional integer tensor, best thought of as a\n(K-1)-dimensional tensor of indices into `params`, where each element defines a\nslice of `params`:\n\n    output[\\\\(i_0, ..., i_{K-2}\\\\)] = params[indices[\\\\(i_0, ..., i_{K-2}\\\\)]]\n\nWhereas in `tf.gather` `indices` defines slices into the first\ndimension of `params`, in `tf.gather_nd`, `indices` defines slices into the\nfirst `N` dimensions of `params`, where `N = indices.shape[-1]`.\n\nThe last dimension of `indices` can be at most the rank of\n`params`:\n\n    indices.shape[-1] <= params.rank\n\nThe last dimension of `indices` corresponds to elements\n(if `indices.shape[-1] == params.rank`) or slices\n(if `indices.shape[-1] < params.rank`) along dimension `indices.shape[-1]`\nof `params`.  The output tensor has shape\n\n    indices.shape[:-1] + params.shape[indices.shape[-1]:]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSome examples below.\n\nSimple indexing into a matrix:\n\n```python\n    indices = [[0, 0], [1, 1]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = ['a', 'd']\n```\n\nSlice indexing into a matrix:\n\n```python\n    indices = [[1], [0]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['c', 'd'], ['a', 'b']]\n```\n\nIndexing into a 3-tensor:\n\n```python\n    indices = [[1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['a1', 'b1'], ['c1', 'd1']]]\n\n\n    indices = [[0, 1], [1, 0]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['c0', 'd0'], ['a1', 'b1']]\n\n\n    indices = [[0, 0, 1], [1, 0, 1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = ['b0', 'b1']\n```\n\nBatched indexing into a matrix:\n\n```python\n    indices = [[[0, 0]], [[0, 1]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['a'], ['b']]\n```\n\nBatched slice indexing into a matrix:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [[['c', 'd']], [['a', 'b']]]\n```\n\nBatched indexing into a 3-tensor:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[[['a1', 'b1'], ['c1', 'd1']]],\n              [[['a0', 'b0'], ['c0', 'd0']]]]\n\n    indices = [[[0, 1], [1, 0]], [[0, 0], [1, 1]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['c0', 'd0'], ['a1', 'b1']],\n              [['a0', 'b0'], ['c1', 'd1']]]\n\n\n    indices = [[[0, 0, 1], [1, 0, 1]], [[0, 1, 1], [1, 1, 0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['b0', 'b1'], ['d0', 'c1']]\n```\n\nSee also `tf.gather` and `tf.batch_gather`.",
       "inputs": [
         {
           "description": "The tensor from which to gather values.",
@@ -25261,7 +25513,7 @@
           "type": "type"
         }
       ],
-      "description": "Flip each bit of supported types.  For example, type `int8` (decimal 2) binary 00000010 becomes (decimal -3) binary 11111101.\nThis operation is performed on each element of the tensor argument `x`.\n\nExample:\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\n\n# flip 2 (00000010) to -3 (11111101)\ntf.assert_equal(-3, bitwise_ops.invert(2))\n\ndtype_list = [dtypes.int8, dtypes.int16, dtypes.int32, dtypes.int64,\n              dtypes.uint8, dtypes.uint16, dtypes.uint32, dtypes.uint64]\n\ninputs = [0, 5, 3, 14]\nfor dtype in dtype_list:\n  # Because of issues with negative numbers, let's test this indirectly.\n  # 1. invert(a) and a = 0\n  # 2. invert(a) or a = invert(0)\n  input_tensor = tf.constant([0, 5, 3, 14], dtype=dtype)\n  not_a_and_a, not_a_or_a, not_0 = [bitwise_ops.bitwise_and(\n                                      input_tensor, bitwise_ops.invert(input_tensor)),\n                                    bitwise_ops.bitwise_or(\n                                      input_tensor, bitwise_ops.invert(input_tensor)),\n                                    bitwise_ops.invert(\n                                      tf.constant(0, dtype=dtype))]\n  \n  expected = tf.constant([0, 0, 0, 0], dtype=tf.float32)\n  tf.assert_equal(tf.cast(not_a_and_a, tf.float32), expected)\n  \n  expected = tf.cast([not_0] * 4, tf.float32)\n  tf.assert_equal(tf.cast(not_a_or_a, tf.float32), expected)\n\n  # For unsigned dtypes let's also check the result directly.\n  if dtype.is_unsigned:\n    inverted = bitwise_ops.invert(input_tensor)\n    expected = tf.constant([dtype.max - x for x in inputs], dtype=tf.float32)\n    tf.assert_equal(tf.cast(inverted, tf.float32), tf.cast(expected, tf.float32))\n```",
+      "description": "Flip each bit of supported types.  For example, type `int8` (decimal 2) binary 00000010 becomes (decimal -3) binary 11111101.\nThis operation is performed on each element of the tensor argument `x`.\n\nExample:\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\n\n# flip 2 (00000010) to -3 (11111101)\ntf.assert_equal(-3, bitwise_ops.invert(2))\n\ndtype_list = [dtypes.int8, dtypes.int16, dtypes.int32, dtypes.int64,\n              dtypes.uint8, dtypes.uint16, dtypes.uint32, dtypes.uint64]\n\ninputs = [0, 5, 3, 14]\nfor dtype in dtype_list:\n  # Because of issues with negative numbers, let's test this indirectly.\n  # 1. invert(a) and a = 0\n  # 2. invert(a) or a = invert(0)\n  input_tensor = tf.constant([0, 5, 3, 14], dtype=dtype)\n  not_a_and_a, not_a_or_a, not_0 = [bitwise_ops.bitwise_and(\n                                      input_tensor, bitwise_ops.invert(input_tensor)),\n                                    bitwise_ops.bitwise_or(\n                                      input_tensor, bitwise_ops.invert(input_tensor)),\n                                    bitwise_ops.invert(\n                                      tf.constant(0, dtype=dtype))]\n\n  expected = tf.constant([0, 0, 0, 0], dtype=tf.float32)\n  tf.assert_equal(tf.cast(not_a_and_a, tf.float32), expected)\n\n  expected = tf.cast([not_0] * 4, tf.float32)\n  tf.assert_equal(tf.cast(not_a_or_a, tf.float32), expected)\n\n  # For unsigned dtypes let's also check the result directly.\n  if dtype.is_unsigned:\n    inverted = bitwise_ops.invert(input_tensor)\n    expected = tf.constant([dtype.max - x for x in inputs], dtype=tf.float32)\n    tf.assert_equal(tf.cast(inverted, tf.float32), tf.cast(expected, tf.float32))\n```",
       "inputs": [
         {
           "name": "x",
@@ -47590,6 +47842,127 @@
     }
   },
   {
+    "name": "ResourceApplyAdagradV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
+          "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "update_slots",
+          "type": "boolean"
+        }
+      ],
+      "description": "accum += grad * grad\nvar -= lr * grad * (1 / sqrt(accum))",
+      "inputs": [
+        {
+          "description": "Should be from a Variable().",
+          "name": "var",
+          "type": 20
+        },
+        {
+          "description": "Should be from a Variable().",
+          "name": "accum",
+          "type": 20
+        },
+        {
+          "description": "Scaling factor. Must be a scalar.",
+          "name": "lr",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Constant factor. Must be a scalar.",
+          "name": "epsilon",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient.",
+          "name": "grad",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Update '*var' according to the adagrad scheme."
+    }
+  },
+  {
     "name": "ResourceApplyAdam",
     "schema": {
       "attributes": [
@@ -50806,6 +51179,146 @@
         }
       ],
       "summary": "Update entries in '*var' and '*accum' according to the proximal adagrad scheme."
+    }
+  },
+  {
+    "name": "ResourceSparseApplyAdagradV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
+          "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "update_slots",
+          "type": "boolean"
+        }
+      ],
+      "description": "That is for rows we have grad for, we update var and accum as follows:\naccum += grad * grad\nvar -= lr * grad * (1 / sqrt(accum))",
+      "inputs": [
+        {
+          "description": "Should be from a Variable().",
+          "name": "var",
+          "type": 20
+        },
+        {
+          "description": "Should be from a Variable().",
+          "name": "accum",
+          "type": 20
+        },
+        {
+          "description": "Learning rate. Must be a scalar.",
+          "name": "lr",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Constant factor. Must be a scalar.",
+          "name": "epsilon",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient.",
+          "name": "grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A vector of indices into the first dimension of var and accum.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        }
+      ],
+      "summary": "Update relevant entries in '*var' and '*accum' according to the adagrad scheme."
     }
   },
   {
@@ -57224,6 +57737,43 @@
     }
   },
   {
+    "name": "ShuffleDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "buffer_size",
+          "type": 9
+        },
+        {
+          "name": "seed_generator",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ShutdownDistributedTPU",
     "schema": {
       "description": "The op returns an error if no system is running.",
@@ -59325,6 +59875,156 @@
         }
       ],
       "summary": "Update entries in '*var' and '*accum' according to the proximal adagrad scheme."
+    }
+  },
+  {
+    "name": "SparseApplyAdagradV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
+          "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "update_slots",
+          "type": "boolean"
+        }
+      ],
+      "description": "That is for rows we have grad for, we update var and accum as follows:\n$$accum += grad * grad$$\n$$var -= lr * grad * (1 / sqrt(accum))$$",
+      "inputs": [
+        {
+          "description": "Should be from a Variable().",
+          "isRef": true,
+          "name": "var",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Should be from a Variable().",
+          "isRef": true,
+          "name": "accum",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Learning rate. Must be a scalar.",
+          "name": "lr",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Constant factor. Must be a scalar.",
+          "name": "epsilon",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient.",
+          "name": "grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A vector of indices into the first dimension of var and accum.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Same as \"var\".",
+          "isRef": true,
+          "name": "out",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Update relevant entries in '*var' and '*accum' according to the adagrad scheme."
     }
   },
   {
@@ -65212,6 +65912,16 @@
           "description": "      A function that takes a list of tensors and returns another\n      list of tensors. Both lists have the same types as specified\n      by T.",
           "name": "body",
           "type": "function"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": 10,
+          "name": "parallel_iterations",
+          "type": "int64"
         }
       ],
       "inputs": [
@@ -68905,7 +69615,7 @@
           "type": 21
         }
       ],
-      "summary": "Returns a list list which has the passed-in `Tensor` as last element and the other elements of the given list in `input_handle`."
+      "summary": "Returns a list which has the passed-in `Tensor` as last element and the other elements of the given list in `input_handle`."
     }
   },
   {
