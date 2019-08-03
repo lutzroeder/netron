@@ -5153,6 +5153,7 @@
     
             TypeSpecProto.prototype.type_spec_class = 0;
             TypeSpecProto.prototype.type_state = null;
+            TypeSpecProto.prototype.type_spec_class_name = "";
     
             TypeSpecProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -5166,6 +5167,9 @@
                         break;
                     case 2:
                         message.type_state = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.type_spec_class_name = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -5186,6 +5190,9 @@
                         break;
                     case "type_state":
                         message.type_state = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                        break;
+                    case "type_spec_class_name":
+                        message.type_spec_class_name = reader.string();
                         break;
                     default:
                         reader.field(tag, message);
