@@ -51,6 +51,7 @@ sklearn.ModelFactory = class {
                         case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
                         case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
                         case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
+                        case 'f2': this.name = 'float16'; this.itemsize = 2; break;
                         case 'f4': this.name = 'float32'; this.itemsize = 4; break;
                         case 'f8': this.name = 'float64'; this.itemsize = 8; break;
                         case 'b1': this.name = 'int8'; this.itemsize = 1; break;
@@ -327,6 +328,9 @@ sklearn.ModelFactory = class {
                 functionTable['builtins.slice'] = function(start, stop, step) {
                     return { start: start, stop: stop, step: step };
                 }
+                functionTable['cloudpickle.cloudpickle._builtin_type'] = function(name) {
+                    return name;
+                }
 
                 var unknownNameMap = new Set();
                 var knownPackageMap = new Set([ 
@@ -382,7 +386,7 @@ sklearn.ModelFactory = class {
                     return null;
                 }
 
-                weights = find_weight_dict([ obj, obj.blobs ]);
+                weights = find_weight_dict([ obj, obj.blobs,  ]);
                 if (weights) {
                     obj = null;
                 }
