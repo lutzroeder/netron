@@ -247,7 +247,8 @@ dl4j.Node = class {
                             default:
                                 throw new dl4j.Error("Unknown '" + this._operator + "' variable '" + variable + "'.");
                         }
-                        break;    
+                        break;
+                    case 'Output':
                     case 'Dense':
                         switch (variable) {
                             case 'W':

@@ -1936,6 +1936,20 @@
   },
   {
     "type":   "dl4j",
+    "target": "trained_mnist_model.zip",
+    "source": "https://github.com/deeplearning4j/dl4j-examples/blob/master/android/DL4JImageRecognitionDemo/app/src/main/res/raw/trained_mnist_model.zip?raw=true",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/deeplearning4j/dl4j-examples"
+  },
+  {
+    "type":   "dl4j",
+    "target": "trained_iris_model.zip",
+    "source": "https://github.com/deeplearning4j/dl4j-examples/blob/master/android/DL4JIrisClassifierDemo/app/src/main/res/raw/trained_iris_model.zip?raw=true",
+    "format": "Deeplearning4j",
+    "link":   "https://github.com/deeplearning4j/dl4j-examples"
+  },
+  {
+    "type":   "dl4j",
     "target": "unet_dl4j_segment_inference.v1.zip",
     "source": "https://deeplearning4jblob.blob.core.windows.net/models/unet_dl4j_segment_inference.v1.zip",
     "format": "Deeplearning4j",

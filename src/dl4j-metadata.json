@@ -8,6 +8,14 @@
     }
   },
   {
+    "name": "Output",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+      ]
+    }
+  },
+  {
     "name": "Convolution",
     "schema": {
       "category": "Layer",
@@ -55,6 +63,14 @@
   },
   {
     "name": "ReLU",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "TanH",
     "schema": {
       "category": "Activation",
       "attributes": [
