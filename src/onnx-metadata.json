@@ -3394,12 +3394,12 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "b, c, h, w = shape = (2, 8, 3, 3)\nblocksize = 2\nnode = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=blocksize,\n)\nx = np.random.random_sample(shape).astype(np.float32)\ntmp = np.reshape(x, [b, blocksize, blocksize, c // (blocksize**2), h, w])\ntmp = np.transpose(tmp, [0, 3, 4, 1, 5, 2])\ny = np.reshape(tmp, [b, c // (blocksize**2), h * blocksize, w * blocksize])\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace')",
-          "summary": "depthtospace"
+          "code": "node = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n    mode='CRD'\n)\n\n# (1, 8, 2, 3) input tensor\nx = np.array([[[[0., 1., 2.],\n                [3., 4., 5.]],\n               [[9., 10., 11.],\n                [12., 13., 14.]],\n               [[18., 19., 20.],\n                [21., 22., 23.]],\n               [[27., 28., 29.],\n                [30., 31., 32.]],\n               [[36., 37., 38.],\n                [39., 40., 41.]],\n               [[45., 46., 47.],\n                [48., 49., 50.]],\n               [[54., 55., 56.],\n                [57., 58., 59.]],\n               [[63., 64., 65.],\n                [66., 67., 68.]]]]).astype(np.float32)\n\n# (1, 2, 4, 6) output tensor\ny = np.array([[[[0., 9., 1., 10., 2., 11.],\n                [18., 27., 19., 28., 20., 29.],\n                [3., 12., 4., 13., 5., 14.],\n                [21., 30., 22., 31., 23., 32.]],\n               [[36., 45., 37., 46., 38., 47.],\n                [54., 63., 55., 64., 56., 65.],\n                [39., 48., 40., 49., 41., 50.],\n                [57., 66., 58., 67., 59., 68.]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace_crd_mode_example')",
+          "summary": "crd_mode_example"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n)\n\n# (1, 4, 2, 3) input tensor\nx = np.array([[[[0, 1, 2],\n                [3, 4, 5]],\n               [[6, 7, 8],\n                [9, 10, 11]],\n               [[12, 13, 14],\n                [15, 16, 17]],\n               [[18, 19, 20],\n                [21, 22, 23]]]]).astype(np.float32)\n\n# (1, 1, 4, 6) output tensor\ny = np.array([[[[0, 6, 1, 7, 2, 8],\n                [12, 18, 13, 19, 14, 20],\n                [3, 9, 4, 10, 5, 11],\n                [15, 21, 16, 22, 17, 23]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace_example')",
-          "summary": "example"
+          "code": "node = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n    mode='DCR'\n)\n\n# (1, 8, 2, 3) input tensor\nx = np.array([[[[0., 1., 2.],\n                [3., 4., 5.]],\n               [[9., 10., 11.],\n                [12., 13., 14.]],\n               [[18., 19., 20.],\n                [21., 22., 23.]],\n               [[27., 28., 29.],\n                [30., 31., 32.]],\n               [[36., 37., 38.],\n                [39., 40., 41.]],\n               [[45., 46., 47.],\n                [48., 49., 50.]],\n               [[54., 55., 56.],\n                [57., 58., 59.]],\n               [[63., 64., 65.],\n                [66., 67., 68.]]]]).astype(np.float32)\n\n# (1, 2, 4, 6) output tensor\ny = np.array([[[[0., 18., 1., 19., 2., 20.],\n                [36., 54., 37., 55., 38., 56.],\n                [3., 21., 4., 22., 5., 23.],\n                [39., 57., 40., 58., 41., 59.]],\n               [[9., 27., 10., 28., 11., 29.],\n                [45., 63., 46., 64., 47., 65.],\n                [12., 30., 13., 31., 14., 32.],\n                [48., 66., 49., 67., 50., 68.]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace_example')",
+          "summary": "default_mode_example"
         }
       ],
       "inputs": [
@@ -3421,6 +3421,81 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "DepthToSpace",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Blocks of [blocksize, blocksize] are moved.",
+          "name": "blocksize",
+          "required": true,
+          "type": "int64"
+        },
+        {
+          "default": "DCR",
+          "description": "DCR (default) for depth-column-row order re-arrangement. Use CRD for column-row-depth order.",
+          "name": "mode",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "description": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions. By default, `mode` = `DCR`.\nIn the DCR mode, elements along the depth dimension from the input tensor are rearranged in the\nfollowing order: depth, column, and then row. The output y is computed from the input x as below:\n\nb, c, h, w = x.shape\n\ntmp = np.reshape(x, [b, blocksize, blocksize, c // (blocksize**2), h, w])\n\ntmp = np.transpose(tmp, [0, 3, 4, 1, 5, 2])\n\ny = np.reshape(tmp, [b, c // (blocksize**2), h * blocksize, w * blocksize])\n\n\nIn the CRD mode, elements along the depth dimension from the input tensor are rearranged in the\nfollowing order: column, row, and the depth. The output y is computed from the input x as below:\n\nb, c, h, w = x.shape\n\ntmp = np.reshape(x, [b, c // (blocksize ** 2), blocksize, blocksize, h, w])\n\ntmp = np.transpose(tmp, [0, 1, 4, 2, 5, 3])\n\ny = np.reshape(tmp, [b, c // (blocksize ** 2), h * blocksize, w * blocksize])\n\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n    mode='CRD'\n)\n\n# (1, 8, 2, 3) input tensor\nx = np.array([[[[0., 1., 2.],\n                [3., 4., 5.]],\n               [[9., 10., 11.],\n                [12., 13., 14.]],\n               [[18., 19., 20.],\n                [21., 22., 23.]],\n               [[27., 28., 29.],\n                [30., 31., 32.]],\n               [[36., 37., 38.],\n                [39., 40., 41.]],\n               [[45., 46., 47.],\n                [48., 49., 50.]],\n               [[54., 55., 56.],\n                [57., 58., 59.]],\n               [[63., 64., 65.],\n                [66., 67., 68.]]]]).astype(np.float32)\n\n# (1, 2, 4, 6) output tensor\ny = np.array([[[[0., 9., 1., 10., 2., 11.],\n                [18., 27., 19., 28., 20., 29.],\n                [3., 12., 4., 13., 5., 14.],\n                [21., 30., 22., 31., 23., 32.]],\n               [[36., 45., 37., 46., 38., 47.],\n                [54., 63., 55., 64., 56., 65.],\n                [39., 48., 40., 49., 41., 50.],\n                [57., 66., 58., 67., 59., 68.]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace_crd_mode_example')",
+          "summary": "crd_mode_example"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n    mode='DCR'\n)\n\n# (1, 8, 2, 3) input tensor\nx = np.array([[[[0., 1., 2.],\n                [3., 4., 5.]],\n               [[9., 10., 11.],\n                [12., 13., 14.]],\n               [[18., 19., 20.],\n                [21., 22., 23.]],\n               [[27., 28., 29.],\n                [30., 31., 32.]],\n               [[36., 37., 38.],\n                [39., 40., 41.]],\n               [[45., 46., 47.],\n                [48., 49., 50.]],\n               [[54., 55., 56.],\n                [57., 58., 59.]],\n               [[63., 64., 65.],\n                [66., 67., 68.]]]]).astype(np.float32)\n\n# (1, 2, 4, 6) output tensor\ny = np.array([[[[0., 18., 1., 19., 2., 20.],\n                [36., 54., 37., 55., 38., 56.],\n                [3., 21., 4., 22., 5., 23.],\n                [39., 57., 40., 58., 41., 59.]],\n               [[9., 27., 10., 28., 11., 29.],\n                [45., 63., 46., 64., 47., 65.],\n                [12., 30., 13., 31., 14., 32.],\n                [48., 66., 49., 67., 50., 68.]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace_example')",
+          "summary": "default_mode_example"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width.",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor of [N, C/(blocksize * blocksize), H * blocksize, W * blocksize].",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
       "support_level": "common",
       "type_constraints": [
         {
@@ -5392,7 +5467,7 @@
         }
       ],
       "category": "Transform",
-      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [\n      [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
+      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\nExample 1:\n```\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n```\nExample 2:\n```\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [\n      [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n```\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -5428,6 +5503,87 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to any tensor type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain indices to integer types",
+          "type_param_str": "Tind"
+        }
+      ]
+    }
+  },
+  {
+    "name": "GatherElements",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "GatherElements takes two inputs `data` and `indices` of the same rank r >= 1\nand an optional attribute `axis` that identifies an axis of `data`\n(by default, the outer-most axis, that is axis 0). It is an indexing operation\nthat produces its output by indexing into the input data tensor at index\npositions determined by elements of the `indices` tensor.\nIts output shape is the same as the shape of `indices` and consists of one value\n(gathered from the `data`) for each element in `indices`.\n\nFor instance, in the 3-D case (r = 3), the output produced is determined\nby the following equations: \n```\n  out[i][j][k] = input[index[i][j][k]][j][k] if axis = 0,\n  out[i][j][k] = input[i][index[i][j][k]][k] if axis = 1,\n  out[i][j][k] = input[i][j][index[i][j][k]] if axis = 2,\n```\n\nThis operator is also the inverse of ScatterElements. It is similar to Torch's gather operation.\n\nExample 1:\n```\n  data = [\n      [1, 2],\n      [3, 4],\n  ]\n  indices = [\n      [0, 0],\n      [1, 0],\n  ]\n  axis = 1\n  output = [\n      [\n        [1, 1],\n        [4, 3],\n      ],\n  ]\n```\nExample 2:\n```\n  data = [\n      [1, 2, 3],\n      [4, 5, 6],\n      [7, 8, 9],\n  ]\n  indices = [\n      [1, 2, 0],\n      [2, 0, 0],\n  ]\n  axis = 0\n  output = [\n      [\n        [4, 8, 3],\n        [7, 2, 3],\n      ],\n  ]\n```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "axis = 1\nnode = onnx.helper.make_node(\n    'GatherElements',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1, 2],\n                 [3, 4]], dtype=np.float32)\nindices = np.array([[0, 0],\n                    [1, 0]], dtype=np.int32)\n\ny = gather_elements(data, indices, axis)\n# print(y) produces\n# [[1, 1],\n#  [4, 3]]\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_elements_0')",
+          "summary": "gather_elements_0"
+        },
+        {
+          "code": "axis = 0\nnode = onnx.helper.make_node(\n    'GatherElements',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1, 2, 3],\n                 [4, 5, 6],\n                 [7, 8, 9]], dtype=np.float32)\nindices = np.array([[1, 2, 0],\n                    [2, 0, 0]], dtype=np.int32)\n\ny = gather_elements(data, indices, axis)\n# print(y) produces\n# [[4, 8, 3],\n#  [7, 2, 3]]\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_elements_1')",
+          "summary": "gather_elements_1"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of int32/int64 indices, with the same rank r as the input.",
+          "name": "indices",
+          "type": "Tind"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of the same shape as indices.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
       "support_level": "common",
       "type_constraints": [
         {
@@ -10166,13 +10322,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer indicate the format of the box data. The default is 0.0 - the box data is supplied as [y1, x1, y2, x2] where (y1, x1) and (y2, x2) are the coordinates of any diagonal pair of box cornersand the coordinates can be provided as normalized (i.e., lying in the interval [0, 1]) or absolute. Mostly used for TF models.1 - the box data is supplied as [x_center, y_center, width, height]. Mostly used for Pytoch models.",
+          "description": "Integer indicate the format of the box data. The default is 0. 0 - the box data is supplied as [y1, x1, y2, x2] where (y1, x1) and (y2, x2) are the coordinates of any diagonal pair of box corners and the coordinates can be provided as normalized (i.e., lying in the interval [0, 1]) or absolute. Mostly used for TF models. 1 - the box data is supplied as [x_center, y_center, width, height]. Mostly used for Pytorch models.",
           "name": "center_point_box",
           "required": false,
           "type": "int64"
         }
       ],
-      "description": "Filter out boxes that have high intersection-over-union (IOU) overlap with previously selected boxes.\nBounding boxes with score less than score_threshold are removed. Bounding box format is indicated by attribute center_point_box.\nNote that this algorithm is agnostic to where the origin is in the coordinate system and more generally is invariant to\northogonal transformations and translations of the coordinate system; thus translating or reflections of the coordinate system\nresult in the same boxes being selected by the algorithm.\nThe selected_indices output is a set of integers indexing into the input collection of bounding boxes representing the selected boxes.\nThe bounding box coordinates corresponding to the selected indices can then be obtained using the Gather or GatherND operation.\nNote: The boxes doesn't has class dimension which means it alwasy has scores calculated for different classes on same box.\n",
+      "description": "Filter out boxes that have high intersection-over-union (IOU) overlap with previously selected boxes.\nBounding boxes with score less than score_threshold are removed. Bounding box format is indicated by attribute center_point_box.\nNote that this algorithm is agnostic to where the origin is in the coordinate system and more generally is invariant to\northogonal transformations and translations of the coordinate system; thus translating or reflections of the coordinate system\nresult in the same boxes being selected by the algorithm.\nThe selected_indices output is a set of integers indexing into the input collection of bounding boxes representing the selected boxes.\nThe bounding box coordinates corresponding to the selected indices can then be obtained using the Gather or GatherND operation.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -10224,19 +10380,19 @@
           "type": "tensor(float)"
         },
         {
-          "description": "Integer representing the maximum number of boxes to be selected per batch per class. It is a scalar.",
+          "description": "Integer representing the maximum number of boxes to be selected per batch per class. It is a scalar. Default to 0, which means no output.",
           "name": "max_output_boxes_per_class",
           "option": "optional",
           "type": "tensor(int64)"
         },
         {
-          "description": "Float representing the threshold for deciding whether boxes overlap too much with respect to IOU. It is scalar. Value range [0, 1].",
+          "description": "Float representing the threshold for deciding whether boxes overlap too much with respect to IOU. It is scalar. Value range [0, 1]. Default to 0.",
           "name": "iou_threshold",
           "option": "optional",
           "type": "tensor(float)"
         },
         {
-          "description": "Float representing the threshold for deciding when to remove boxes based on score. It is a scalar",
+          "description": "Float representing the threshold for deciding when to remove boxes based on score. It is a scalar.",
           "name": "score_threshold",
           "option": "optional",
           "type": "tensor(float)"
@@ -13884,11 +14040,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = np.array([[1.0, 1.1, 3.0, 2.1, 5.0]], dtype=np.float32)\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_with_axis')",
+          "code": "axis = 1\nnode = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter(data, indices, updates, axis=axis)\n# print(y) produces\n# [[1.0, 1.1, 3.0, 2.1, 5.0]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_with_axis', opset_imports=[helper.make_opsetid(\"\", 10)])",
           "summary": "scatter_with_axis"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = np.array([\n    [2.0, 1.1, 0.0],\n    [1.0, 0.0, 2.2],\n    [0.0, 2.1, 1.2]\n], dtype=np.float32)\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_without_axis')",
+          "code": "node = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_without_axis', opset_imports=[helper.make_opsetid(\"\", 10)])",
           "summary": "scatter_without_axis"
         }
       ],
@@ -13921,6 +14077,178 @@
         }
       ],
       "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Input and output types can be of any tensor type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain indices to integer types",
+          "type_param_str": "Tind"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Scatter",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "This operator is deprecated. Please use ScatterElements, which provides the same functionality.\n\nScatter takes three inputs `data`, `updates`, and `indices` of the same\nrank r >= 1 and an optional attribute axis that identifies an axis of `data`\n(by default, the outer-most axis, that is axis 0). The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value\nto values specified by `updates` at specific index positions specified by\n`indices`. Its output shape is the same as the shape of `data`.\n\nFor each entry in `updates`, the target index in `data` is obtained by combining\nthe corresponding entry in `indices` with the index of the entry itself: the\nindex-value for dimension = axis is obtained from the value of the corresponding\nentry in `indices` and the index-value for dimension != axis is obtained from the\nindex of the entry itself.\n\nFor instance, in a 2-D tensor case, the update corresponding to the [i][j] entry\nis performed as below:\n```\n  output[indices[i][j]][j] = updates[i][j] if axis = 0, \n  output[i][indices[i][j]] = updates[i][j] if axis = 1,\n```\n\nThis operator is the inverse of GatherElements. It is similar to Torch's Scatter operation.\n\nExample 1:\n```\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n```\nExample 2:\n```\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "axis = 1\nnode = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter(data, indices, updates, axis=axis)\n# print(y) produces\n# [[1.0, 1.1, 3.0, 2.1, 5.0]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_with_axis', opset_imports=[helper.make_opsetid(\"\", 10)])",
+          "summary": "scatter_with_axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_without_axis', opset_imports=[helper.make_opsetid(\"\", 10)])",
+          "summary": "scatter_without_axis"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input).",
+          "name": "indices",
+          "type": "Tind"
+        },
+        {
+          "description": "Tensor of rank r >=1 (same rank and shape as indices)",
+          "name": "updates",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank r >= 1 (same rank as input).",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Input and output types can be of any tensor type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain indices to integer types",
+          "type_param_str": "Tind"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScatterElements",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "ScatterElements takes three inputs `data`, `updates`, and `indices` of the same\nrank r >= 1 and an optional attribute axis that identifies an axis of `data`\n(by default, the outer-most axis, that is axis 0). The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value\nto values specified by `updates` at specific index positions specified by\n`indices`. Its output shape is the same as the shape of `data`.\n\nFor each entry in `updates`, the target index in `data` is obtained by combining\nthe corresponding entry in `indices` with the index of the entry itself: the\nindex-value for dimension = axis is obtained from the value of the corresponding\nentry in `indices` and the index-value for dimension != axis is obtained from the\nindex of the entry itself.\n\nFor instance, in a 2-D tensor case, the update corresponding to the [i][j] entry\nis performed as below:\n```\n  output[indices[i][j]][j] = updates[i][j] if axis = 0, \n  output[i][indices[i][j]] = updates[i][j] if axis = 1,\n```\n\nThis operator is the inverse of GatherElements. It is similar to Torch's Scatter operation.\n\nExample 1:\n```\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n```\nExample 2:\n```\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "axis = 1\nnode = onnx.helper.make_node(\n    'ScatterElements',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis)\n# print(y) produces\n# [[1.0, 1.1, 3.0, 2.1, 5.0]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_elements_with_axis')",
+          "summary": "scatter_elements_with_axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'ScatterElements',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_elements_without_axis')",
+          "summary": "scatter_elements_without_axis"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input).",
+          "name": "indices",
+          "type": "Tind"
+        },
+        {
+          "description": "Tensor of rank r >=1 (same rank and shape as indices)",
+          "name": "updates",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank r >= 1 (same rank as input).",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
       "support_level": "common",
       "type_constraints": [
         {
@@ -15023,7 +15351,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to split on.",
+          "description": "Which axis to split on. A negative value means counting dimensions from the back. Accepted range is [-rank, rank-1].",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -16175,8 +16503,12 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nK = np.array([3], dtype=np.int64)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n], dtype=np.float32)\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int64)\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
+          "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n    axis=axis\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n#print(values_ref)\n#[[ 3.  2.  1.]\n# [ 7.  6.  5.]\n# [11. 10.  9.]]\n#print(indices_ref)\n#[[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
           "summary": "top_k"
+        },
+        {
+          "code": "axis = 1\nlargest = 0\nsorted = 1\nk = 3\n\nnode = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n    axis=axis,\n    largest=largest,\n    sorted=sorted\n)\n\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [11, 10, 9, 8],\n], dtype=np.float32)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n#print(values_ref)\n#[[ 0.  1.  2.]\n# [ 4.  5.  6.]\n# [ 8.  9. 10.]]\n#print(indices_ref)\n#[[0 1 2]\n# [0 1 2]\n# [3 2 1]]\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k_smallest')",
+          "summary": "top_k_smallest"
         }
       ],
       "inputs": [
@@ -16240,8 +16572,12 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nK = np.array([3], dtype=np.int64)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n], dtype=np.float32)\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int64)\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
+          "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n    axis=axis\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n#print(values_ref)\n#[[ 3.  2.  1.]\n# [ 7.  6.  5.]\n# [11. 10.  9.]]\n#print(indices_ref)\n#[[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
           "summary": "top_k"
+        },
+        {
+          "code": "axis = 1\nlargest = 0\nsorted = 1\nk = 3\n\nnode = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n    axis=axis,\n    largest=largest,\n    sorted=sorted\n)\n\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [11, 10, 9, 8],\n], dtype=np.float32)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n#print(values_ref)\n#[[ 0.  1.  2.]\n# [ 4.  5.  6.]\n# [ 8.  9. 10.]]\n#print(indices_ref)\n#[[0 1 2]\n# [0 1 2]\n# [3 2 1]]\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k_smallest')",
+          "summary": "top_k_smallest"
         }
       ],
       "inputs": [
@@ -16282,6 +16618,102 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain index tensor to int64",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
+    "name": "TopK",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "description": "Dimension on which to do the sort.",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "Whether to return the top-K largest or smallest elements.",
+          "name": "largest",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "Whether to return the elements in sorted order.",
+          "name": "sorted",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Retrieve the top-K largest or smallest elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\n\nIf \"largest\" is 1 (the default value) then the k largest elements are returned.\nIf \"sorted\" is 1 (the default value) then the resulting k elements will be sorted.\nIf \"sorted\" is 0, order of returned 'Values' and 'Indices' are undefined.\n\nGiven two equivalent values, this operator uses the indices along the axis as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n    axis=axis\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n#print(values_ref)\n#[[ 3.  2.  1.]\n# [ 7.  6.  5.]\n# [11. 10.  9.]]\n#print(indices_ref)\n#[[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
+          "summary": "top_k"
+        },
+        {
+          "code": "axis = 1\nlargest = 0\nsorted = 1\nk = 3\n\nnode = onnx.helper.make_node(\n    'TopK',\n    inputs=['x', 'k'],\n    outputs=['values', 'indices'],\n    axis=axis,\n    largest=largest,\n    sorted=sorted\n)\n\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [11, 10, 9, 8],\n], dtype=np.float32)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n#print(values_ref)\n#[[ 0.  1.  2.]\n# [ 4.  5.  6.]\n# [ 8.  9. 10.]]\n#print(indices_ref)\n#[[0 1 2]\n# [0 1 2]\n# [3 2 1]]\n\nexpect(node, inputs=[X, K], outputs=[values_ref, indices_ref],\n       name='test_top_k_smallest')",
+          "summary": "top_k_smallest"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of shape [a_1, a_2, ..., a_n, r]",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "A 1-D tensor containing a single positive value corresponding to the number of top elements to retrieve",
+          "name": "K",
+          "type": "tensor(int64)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 2,
+      "min_input": 2,
+      "min_output": 2,
+      "outputs": [
+        {
+          "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing top K values from the input tensor",
+          "name": "Values",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing the corresponding input tensor indices for the top K values.",
+          "name": "Indices",
+          "type": "I"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to numeric tensors.",
           "type_param_str": "T"
         },
         {
@@ -16660,6 +17092,107 @@
             "tensor(int32)"
           ],
           "description": "The input type must be a tensor of a numeric type.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Unique",
+    "schema": {
+      "attributes": [
+        {
+          "description": "(Optional) The dimension to apply unique. If not specified, the unique elements of the flattened input are returned.",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "(Optional) Whether to sort the unique elements in ascending order before returning as output. Must be one of 0, or 1 (default).",
+          "name": "sorted",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Find the unique elements of a tensor. When an optional attribute 'axis' is provided, unique subtensors sliced along the 'axis' are returned. \nOtherwise the input tensor is flattened and unique values of the flattened tensor are returned. \n\nThis operator returns the unique values or sliced unique subtensors of the input tensor and three optional outputs. \nThe first output tensor 'Y' contains all unique values or subtensors of the input. \nThe second optional output tensor 'indices' contains indices of 'Y' elements' first occurance in 'X'.. \nThe third optional output tensor 'inverse_indices' contains, for elements of 'X', its corresponding indices in 'Y'. \". \nThe fourth optional output tensor 'counts' contains the count of each element of 'Y' in the input. \n\nOutputs are either sorted in ascending order or optionally in the order of the first occurrence of the values in the input. \n\nhttps://docs.scipy.org/doc/numpy/reference/generated/numpy.unique.html\n\nExample 1:\n  input_X = [2, 1, 1, 3, 4, 3]\n  attribute_sorted = 0\n  attribute_axis = None\n  output_Y = [2, 1, 3, 4]\n  output_indices = [0, 1, 3, 4]\n  output_inverse_indices = [0, 1, 1, 2, 3, 2]\n  output_counts = [1, 2, 2, 1]\n\nExample 2:\n  input_X = [[1, 3], [2, 3]]\n  attribute_sorted = 1\n  attribute_axis = None\n  output_Y = [1, 2, 3]\n  output_indices = [0, 2, 1]\n  output_inverse_indices = [0, 2, 1, 2]\n  output_counts = [1, 1, 2]\n\nExample 3:\n  input_X = [[1, 0, 0], [1, 0, 0], [2, 3, 4]]\n  attribute_sorted = 1\n  attribute_axis = 0\n  output_Y = [[1, 0, 0], [2, 3, 4]]\n  output_indices = [0, 2]\n  output_inverse_indices = [0, 0, 1]\n  output_counts = [2, 1]\n\nExample 4:\n  input_x = [[[1., 1.], [0., 1.], [2., 1.], [0., 1.]], \n             [[1., 1.], [0., 1.], [2., 1.], [0., 1.]]]\n  attribute_sorted = 1\n  attribute_axis = 1\n\n  intermediate data are presented below for better understanding: \n  \n  there are 4 subtensors sliced along axis 1 of input_x (shape = (2, 4, 2)):\n  A: [[1, 1], [1, 1]], \n     [[0, 1], [0, 1]], \n     [[2, 1], [2, 1]], \n     [[0, 1], [0, 1]].\n  \n  there are 3 unique subtensors: \n  [[1, 1], [1, 1]], \n  [[0, 1], [0, 1]], \n  [[2, 1], [2, 1]].\n  \n  sorted unique subtensors:\n  B: [[0, 1], [0, 1]], \n     [[1, 1], [1, 1]], \n     [[2, 1], [2, 1]].\n  \n  output_Y is constructed from B:\n  [[[0. 1.], [1. 1.], [2. 1.]], \n   [[0. 1.], [1. 1.], [2. 1.]]]\n\n  output_indices is to map from B to A:\n  [1, 0, 2]\n  \n  output_inverse_indices is to map from A to B:\n  [1, 0, 2, 0]\n\n  output_counts = [2 1 1]\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node_not_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=0\n)\n# numpy unique does not retain original order (it sorts the output unique values)\n# https://github.com/numpy/numpy/issues/8621\n# we need to recover unsorted output and indices\nx = np.array([2.0, 1.0, 1.0, 3.0, 4.0, 3.0], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\n\n# prepare index mapping from sorted to unsorted\nargsorted_indices = np.argsort(indices)\ninverse_indices_map = {i: si for i, si in zip(argsorted_indices, np.arange(len(argsorted_indices)))}\n\ny = np.take(x, indices, axis=0)\nindices = indices[argsorted_indices]\ninverse_indices = np.asarray([inverse_indices_map[i] for i in inverse_indices], dtype=np.int64)\ncounts = counts[argsorted_indices]\n# print(y)\n# [2.0, 1.0, 3.0, 4.0]\n# print(indices)\n# [0 1 3 4]\n# print(inverse_indices)\n# [0, 1, 1, 2, 3, 2]\n# print(counts)\n# [1, 2, 2, 1]\n\nexpect(node_not_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_not_sorted_without_axis')",
+          "summary": "not_sorted_without_axis"
+        },
+        {
+          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=0\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 4]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=0)\n# print(y)\n# [[1. 0. 0.]\n#  [2. 3. 4.]]\n# print(indices)\n# [0 2]\n# print(inverse_indices)\n# [0 0 1]\n# print(counts)\n# [2 1]\n\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_axis')",
+          "summary": "sorted_with_axis"
+        },
+        {
+          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=1\n)\n\nx = np.array([[[1., 1.], [0., 1.], [2., 1.], [0., 1.]],\n              [[1., 1.], [0., 1.], [2., 1.], [0., 1.]]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=1)\n# print(y)\n# [[[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]\n# [[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]]\n# print(indices)\n# [1 0 2]\n# print(inverse_indices)\n# [1 0 2 0]\n# print(counts)\n# [2 1 1]\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_axis_3d')",
+          "summary": "sorted_with_axis_3d"
+        },
+        {
+          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts']\n)\n\nx = np.array([2.0, 1.0, 1.0, 3.0, 4.0, 3.0], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_without_axis')",
+          "summary": "sorted_without_axis"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A N-D input tensor that is to be processed.",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 4,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "A tensor of the same type as 'X' containing all the unique values or subtensors sliced along a provided 'axis' in 'X', either sorted or maintained in the same order they occur in input 'X'",
+          "name": "Y",
+          "type": "T"
+        },
+        {
+          "description": "A 1-D INT64 tensor containing indices of 'Y' elements' first occurance in 'X'. When 'axis' is provided, it contains indices to subtensors in input 'X' on the 'axis'. When 'axis' is not provided, it contains indices to values in the flattened input tensor. ",
+          "name": "indices",
+          "option": "optional",
+          "type": "tensor(int64)"
+        },
+        {
+          "description": "A 1-D INT64 tensor containing, for elements of 'X', its corresponding indices in 'Y'. When 'axis' is provided, it contains indices to subtensors in output 'Y' on the 'axis'. When 'axis' is not provided, it contains indices to values in output 'Y'. ",
+          "name": "inverse_indices",
+          "option": "optional",
+          "type": "tensor(int64)"
+        },
+        {
+          "description": "A 1-D INT64 tensor containing the count of each element of 'Y' in input 'X'",
+          "name": "counts",
+          "option": "optional",
+          "type": "tensor(int64)"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Input can be of any tensor type.",
           "type_param_str": "T"
         }
       ]
