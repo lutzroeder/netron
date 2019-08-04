@@ -177,25 +177,45 @@ caffe.ModelFactory = class {
 
 caffe.Model = class {
 
-    constructor(metadata, netParameter) {
-        this._name = netParameter.name;
-        if (netParameter.layers && netParameter.layers.length > 0) {
-            if (netParameter.layers.every((layer) => Object.prototype.hasOwnProperty.call(layer, 'layer'))) {
+    constructor(metadata, net) {
+
+        this._name = net.name;
+
+        if (net.layers && net.layers.length > 0) {
+            if (net.layers.every((layer) => Object.prototype.hasOwnProperty.call(layer, 'layer'))) {
                 this._version = 0;
+                net.layer = net.layers;
             }
             else {
                 this._version = 1;
+                net.layer = net.layers;
             }
         }
-        else if (netParameter.layer && netParameter.layer.length > 0) {
+        else if (net.layer && net.layer.length > 0) {
             this._version = 2;
         }
-        var graph = new caffe.Graph(metadata, netParameter, this._version);
-        this._graphs = [ graph ];
+
+        this._graphs = [];
+
+        var phases = new Set();
+        for (var layer of net.layer) {
+            for (var include of layer.include) {
+                if (include.phase !== undefined) {
+                    phases.add(include.phase);
+                }
+            }
+        }
+        if (phases.size === 0) {
+            phases.add(-1);
+        }
+
+        for (var phase of phases) {
+            this._graphs.push(new caffe.Graph(metadata, phase, net, this._version));
+        }
     }
 
     get format() {
-        return 'Caffe' + (Object.prototype.hasOwnProperty.call(this, '_version') ? ' v' + this._version.toString() : '');
+        return 'Caffe' + (this._version ? ' v' + this._version.toString() : '');
     }
 
     get graphs() {
@@ -205,123 +225,119 @@ caffe.Model = class {
 
 caffe.Graph = class {
 
-    constructor(metadata, netParameter, version)
-    {
+    constructor(metadata, phase, net, version) {
+
+        switch (phase) {
+            case 0: this._phase = 'TRAIN'; break;
+            case 1: this._phase = 'TEST'; break;
+            case -1: this._phase = ''; break;
+            default: this._phase = phase.toString(); break;
+        }
+
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
 
-        var allLayers = [];
-        switch (version) {
-            case 0:
-            case 1:
-                allLayers = netParameter.layers;
-                break;
-            case 2:
-                allLayers = netParameter.layer;
-                break;
+        var layer;
+        for (layer of net.layer) {
+            layer.input = layer.bottom.slice(0);
+            layer.output = layer.top.slice(0);
+            layer.chain = [];
+        }
+
+        var layers = [];
+        for (layer of net.layer) {
+            if (phase === -1 || layer.include.every((include) => include.phase === phase)) {
+                layers.push(layer);
+            }
         }
 
         var scope = {};
-
-        var layer;
-
         var index = 0;
-        for (layer of allLayers) {
-            layer.bottom = layer.bottom.map((input) => scope[input] ? scope[input] : input);
-            layer.top = layer.top.map((output) => {
+        for (layer of layers) {
+            layer.input = layer.input.map((input) => scope[input] ? scope[input] : input);
+            layer.output = layer.output.map((output) => {
                 scope[output] = scope[output] ? output + '\n' + index.toString() : output; // custom argument id
                 return scope[output];
             });
             index++;
         }
 
-        var layerMap = new Map();
-        var countMap = {};
-        var outputs = [];
-        var output = null;
-        for (layer of allLayers) {
-            if (layer.top.length == 0) {
-                outputs.push(layer);
+        // Graph Outputs
+        var used = new Set();
+        for (layer of layers) {
+            for (input of layer.input) {
+                used.add(input);
             }
-            else {
-                for (output of layer.top) {
-                    layerMap.set(output, layer);
+        }
+        var outputTops = [];
+        for (layer of layers) {
+            if (layer.input.length > 0) {
+                for (var output of layer.output) {
+                    if (!used.has(output)) {
+                        outputTops.push(output);
+                    }
                 }
             }
-            for (input of layer.bottom) {
-                countMap[input] = (countMap[input] || 0) + 1;
-            }
         }
-        for (output of layerMap.keys()) {
-            if (countMap[output]) {
-                layerMap.delete(output);
-            }
-        }
-        if (layerMap.size === 1) {
-            var key = layerMap.keys().next().value;
-            this._outputs.push(new caffe.Parameter(key, [ new caffe.Argument(key, null) ]));
-        }
-        else if (outputs.length == 1) {
-            outputs[0].top = [ 'output' ];
-            this._outputs.push(new caffe.Parameter('output', [ new caffe.Argument('output', null) ]));
+        for (var outputTop of outputTops) {
+            this._outputs.push(new caffe.Parameter(outputTop, [ new caffe.Argument(outputTop, null) ]));
         }
 
-        var layers = [];
+        var nodes = [];
         var lastLayer = null;
         var lastTop = null;
-        while (allLayers.length > 0) {
-            layer = allLayers.shift();
-            if (layer.top.length == 1 && 
-                layer.bottom.length >= 1 && 
-                layer.top[0].split('\n').shift() == layer.bottom[0].split('\n').shift() &&
+        while (layers.length > 0) {
+            layer = layers.shift();
+            if (layer.output.length == 1 && layer.input.length == 1 && 
+                layer.output[0].split('\n').shift() == layer.input[0].split('\n').shift() &&
                 lastLayer &&
-                lastTop == layer.top[0].split('\n').shift()) {
+                lastTop == layer.output[0].split('\n').shift()) {
                 lastLayer.chain = lastLayer.chain || [];
                 lastLayer.chain.push(layer);
             }
             else {
                 if (layer.type == 'Input' || layer.type == 'Data') {
-                    if (layer.bottom.length == 0 && layer.top.length == 1 &&
+                    if (layer.input.length == 0 && layer.output.length == 1 &&
                         layer.input_param && layer.input_param.shape &&
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
                         var type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
-                        this._inputs.push(new caffe.Parameter(layer.top[0], [ new caffe.Argument(layer.top[0], type) ]));
+                        this._inputs.push(new caffe.Parameter(layer.output[0], [ new caffe.Argument(layer.output[0], type) ]));
                         layer = null;
                     }
                 }
                 if (layer) {
-                    layers.push(layer);
+                    nodes.push(layer);
                     lastLayer = null;
                     lastTop = null;
-                    if (layer.top.length == 1) {
+                    if (layer.output.length == 1) {
                         lastLayer = layer;
-                        lastTop = layer.top[0].split('\n').shift();
+                        lastTop = layer.output[0].split('\n').shift();
                     }
                 }
             }
         }
 
         var input;
-        if (netParameter.input && netParameter.input.length > 0) {
+        if (net.input && net.input.length > 0) {
             index = 0;
-            for (input of netParameter.input) {
+            for (input of net.input) {
                 var inputType = null;
-                if (netParameter.input_shape && index < netParameter.input_shape.length) {
-                    var blobShape = netParameter.input_shape[index];
+                if (net.input_shape && index < net.input_shape.length) {
+                    var blobShape = net.input_shape[index];
                     if (blobShape && blobShape.dim) {
                         inputType = new caffe.TensorType(null, new caffe.TensorShape(blobShape.dim));
                     }
                 }
-                if (inputType == null && netParameter.input.length == 1 && netParameter.input_dim && netParameter.input_dim.length > 0) {
-                    inputType = new caffe.TensorType(null, new caffe.TensorShape(netParameter.input_dim));
+                if (inputType == null && net.input.length == 1 && net.input_dim && net.input_dim.length > 0) {
+                    inputType = new caffe.TensorType(null, new caffe.TensorShape(net.input_dim));
                 }
                 this._inputs.push(new caffe.Parameter(input, [ new caffe.Argument(input, inputType, null) ]));
                 index++;
             }
         }
 
-        for (layer of layers) {
+        for (layer of nodes) {
             var node = new caffe.Node(metadata, layer, version);
             if (layer.chain && layer.chain.length > 0) {
                 for (var chain of layer.chain) {
@@ -333,7 +349,7 @@ caffe.Graph = class {
     }
 
     get name() {
-        return this._name;
+        return this._phase;
     }
 
     get type() {
@@ -399,7 +415,6 @@ caffe.Argument = class {
 caffe.Node = class {
 
     constructor(metadata, layer, version) {
-
         this._metadata = metadata;
         this._chain = [];
 
@@ -481,7 +496,7 @@ caffe.Node = class {
         var schema = this._metadata.getSchema(this.operator);
 
         this._inputs = [];
-        var inputs = layer.bottom.concat(initializers);
+        var inputs = layer.input.concat(initializers);
         var inputIndex = 0;
         if (schema && schema.inputs) {
             for (var inputDef of schema.inputs) {
@@ -512,11 +527,11 @@ caffe.Node = class {
         }));
 
         this._outputs = [];
-        var outputs = layer.top;
+        var outputs = layer.output;
         var outputIndex = 0;
         if (schema && schema.outputs) {
             for (var outputDef of schema.outputs) {
-                if (outputIndex < outputs.length || outputDef.option != 'optional') {
+                if (outputIndex < outputs.length) {
                     var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
                         return new caffe.Argument(output, null, null);
