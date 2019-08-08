@@ -2590,7 +2590,7 @@
                 }
     
                 KNearestNeighborsClassifier.prototype.nearestNeighborsIndex = null;
-                KNearestNeighborsClassifier.prototype.k = 0;
+                KNearestNeighborsClassifier.prototype.numberOfNeighbors = null;
                 KNearestNeighborsClassifier.prototype.stringClassLabels = null;
                 KNearestNeighborsClassifier.prototype.int64ClassLabels = null;
                 KNearestNeighborsClassifier.prototype.defaultStringLabel = "";
@@ -2625,8 +2625,8 @@
                         case 1:
                             message.nearestNeighborsIndex = $root.CoreML.Specification.NearestNeighborsIndex.decode(reader, reader.uint32());
                             break;
-                        case 2:
-                            message.k = reader.int32();
+                        case 3:
+                            message.numberOfNeighbors = $root.CoreML.Specification.Int64Parameter.decode(reader, reader.uint32());
                             break;
                         case 100:
                             message.stringClassLabels = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
@@ -2858,6 +2858,160 @@
                 };
     
                 return SquaredEuclideanDistance;
+            })();
+    
+            Specification.Int64Parameter = (function() {
+    
+                function Int64Parameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Int64Parameter.prototype.defaultValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                Int64Parameter.prototype.range = null;
+                Int64Parameter.prototype.set = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(Int64Parameter.prototype, "AllowedValues", {
+                    get: $util.oneOfGetter($oneOfFields = ["range", "set"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Int64Parameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Int64Parameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.int64();
+                            break;
+                        case 10:
+                            message.range = $root.CoreML.Specification.Int64Range.decode(reader, reader.uint32());
+                            break;
+                        case 11:
+                            message.set = $root.CoreML.Specification.Int64Set.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Int64Parameter;
+            })();
+    
+            Specification.DoubleParameter = (function() {
+    
+                function DoubleParameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                DoubleParameter.prototype.defaultValue = 0;
+                DoubleParameter.prototype.range = null;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(DoubleParameter.prototype, "AllowedValues", {
+                    get: $util.oneOfGetter($oneOfFields = ["range"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                DoubleParameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.DoubleParameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.double();
+                            break;
+                        case 10:
+                            message.range = $root.CoreML.Specification.DoubleRange.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return DoubleParameter;
+            })();
+    
+            Specification.StringParameter = (function() {
+    
+                function StringParameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                StringParameter.prototype.defaultValue = "";
+    
+                StringParameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.StringParameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return StringParameter;
+            })();
+    
+            Specification.BoolParameter = (function() {
+    
+                function BoolParameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                BoolParameter.prototype.defaultValue = false;
+    
+                BoolParameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BoolParameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.defaultValue = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return BoolParameter;
             })();
     
             Specification.Identity = (function() {
@@ -11428,160 +11582,6 @@
                 };
     
                 return AdamOptimizer;
-            })();
-    
-            Specification.Int64Parameter = (function() {
-    
-                function Int64Parameter(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                Int64Parameter.prototype.defaultValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-                Int64Parameter.prototype.range = null;
-                Int64Parameter.prototype.set = null;
-    
-                var $oneOfFields;
-    
-                Object.defineProperty(Int64Parameter.prototype, "AllowedValues", {
-                    get: $util.oneOfGetter($oneOfFields = ["range", "set"]),
-                    set: $util.oneOfSetter($oneOfFields)
-                });
-    
-                Int64Parameter.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Int64Parameter();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.defaultValue = reader.int64();
-                            break;
-                        case 10:
-                            message.range = $root.CoreML.Specification.Int64Range.decode(reader, reader.uint32());
-                            break;
-                        case 11:
-                            message.set = $root.CoreML.Specification.Int64Set.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                return Int64Parameter;
-            })();
-    
-            Specification.DoubleParameter = (function() {
-    
-                function DoubleParameter(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                DoubleParameter.prototype.defaultValue = 0;
-                DoubleParameter.prototype.range = null;
-    
-                var $oneOfFields;
-    
-                Object.defineProperty(DoubleParameter.prototype, "AllowedValues", {
-                    get: $util.oneOfGetter($oneOfFields = ["range"]),
-                    set: $util.oneOfSetter($oneOfFields)
-                });
-    
-                DoubleParameter.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.DoubleParameter();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.defaultValue = reader.double();
-                            break;
-                        case 10:
-                            message.range = $root.CoreML.Specification.DoubleRange.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                return DoubleParameter;
-            })();
-    
-            Specification.StringParameter = (function() {
-    
-                function StringParameter(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                StringParameter.prototype.defaultValue = "";
-    
-                StringParameter.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.StringParameter();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.defaultValue = reader.string();
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                return StringParameter;
-            })();
-    
-            Specification.BoolParameter = (function() {
-    
-                function BoolParameter(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                BoolParameter.prototype.defaultValue = false;
-    
-                BoolParameter.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BoolParameter();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.defaultValue = reader.bool();
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                return BoolParameter;
             })();
     
             Specification.Normalizer = (function() {
