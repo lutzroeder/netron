@@ -34,9 +34,10 @@ torchscript.ModelFactory = class {
                             return { type: name, args: args[0] };
                         });
                     }
+                    container.identifier = identifier;
                     return torchscript.Metadata.open(host).then((metadata) => {
                         try {
-                            return new torchscript.Model(metadata, python, container);
+                            return new torchscript.Model(metadata, host, python, container);
                         }
                         catch (error) {
                             host.exception(error, false);
@@ -77,7 +78,7 @@ torchscript.ModelFactory = class {
 
 torchscript.Model = class { 
 
-    constructor(metadata, python, container) {
+    constructor(metadata, host, python, container) {
         var textDecoder = new TextDecoder('utf-8');
         var model = JSON.parse(textDecoder.decode(container.model.data));
         var version = JSON.parse(textDecoder.decode(container.version.data));
@@ -89,7 +90,7 @@ torchscript.Model = class {
             }
         }
         this._graphs = [];
-        this._graphs.push(new torchscript.Graph(metadata, python, container, model.mainModule, model.tensors));
+        this._graphs.push(new torchscript.Graph(metadata, host, python, container, model.mainModule, model.tensors));
     }
 
     get format() {
@@ -107,7 +108,7 @@ torchscript.Model = class {
 
 torchscript.Graph = class {
 
-    constructor(metadata, python, container, mainModule, tensors) {
+    constructor(metadata, host, python, container, mainModule, tensors) {
         this._name = mainModule.name;
         this._inputs = [];
         this._outputs = [];
@@ -115,7 +116,15 @@ torchscript.Graph = class {
 
         container.tensors = tensors.map((tensor) => new torchscript.Tensor(tensor, container));
 
-        var context = new torchscript.GraphContext(container, python, mainModule);
+        var context = null;
+        try {
+            context = new torchscript.GraphContext(container, python, mainModule);
+        }
+        catch (error) {
+            var message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            host.exception(new torchscript.Error(message + " in '" + container.identifier + "'."), false);
+        }
 
         container.parameters = {};
         var queue = [ mainModule ];
@@ -140,19 +149,20 @@ torchscript.Graph = class {
             }
         }
 
-        for (var input of context.inputs) {
-            this._inputs.push(new torchscript.Parameter(input, true, [
-                new torchscript.Argument(input, null, null)
-            ]));
-        }
-        for (var output of context.outputs) {
-            this._outputs.push(new torchscript.Parameter(output, true, [
-                new torchscript.Argument(output, null, null)
-            ]));
-        }
-
-        for (var node of context.nodes) {
-            this._nodes.push(new torchscript.Node(metadata, container, null, node));
+        if (context) {
+            for (var input of context.inputs) {
+                this._inputs.push(new torchscript.Parameter(input, true, [
+                    new torchscript.Argument(input, null, null)
+                ]));
+            }
+            for (var output of context.outputs) {
+                this._outputs.push(new torchscript.Parameter(output, true, [
+                    new torchscript.Argument(output, null, null)
+                ]));
+            }
+            for (var node of context.nodes) {
+                this._nodes.push(new torchscript.Node(metadata, container, null, node));
+            }
         }
 
         this._loadModule(metadata, container, mainModule);
