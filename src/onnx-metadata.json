@@ -2369,11 +2369,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-5.0,\n    max=5.0,\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_inbounds')\n\nx = np.array([-6, 0, 6]).astype(np.float32)\ny = np.array([-5, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_outbounds')\n\nx = np.array([-1, 0, 6]).astype(np.float32)\ny = np.array([-1, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_splitbounds')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min', 'max'],\n    outputs=['y'],\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\nmin_val = np.float32(-1)\nmax_val = np.float32(1)\ny = np.clip(x, min_val, max_val)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, min_val, max_val)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min', 'max'],\n    outputs=['y'],\n)\n\nmin_val = np.float32(-5)\nmax_val = np.float32(5)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_inbounds')\n\nx = np.array([-6, 0, 6]).astype(np.float32)\ny = np.array([-5, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_outbounds')\n\nx = np.array([-1, 0, 6]).astype(np.float32)\ny = np.array([-1, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_splitbounds')",
           "summary": "clip"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_inbounds')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.float32(0)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, min_val, np.inf)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.float32(0)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_inbounds')",
           "summary": "clip_default"
         }
       ],
@@ -2433,11 +2433,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-5.0,\n    max=5.0,\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_inbounds')\n\nx = np.array([-6, 0, 6]).astype(np.float32)\ny = np.array([-5, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_outbounds')\n\nx = np.array([-1, 0, 6]).astype(np.float32)\ny = np.array([-1, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_splitbounds')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min', 'max'],\n    outputs=['y'],\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\nmin_val = np.float32(-1)\nmax_val = np.float32(1)\ny = np.clip(x, min_val, max_val)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, min_val, max_val)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min', 'max'],\n    outputs=['y'],\n)\n\nmin_val = np.float32(-5)\nmax_val = np.float32(5)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_inbounds')\n\nx = np.array([-6, 0, 6]).astype(np.float32)\ny = np.array([-5, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_outbounds')\n\nx = np.array([-1, 0, 6]).astype(np.float32)\ny = np.array([-1, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_splitbounds')",
           "summary": "clip"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_inbounds')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.float32(0)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, min_val, np.inf)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.float32(0)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_inbounds')",
           "summary": "clip_default"
         }
       ],
@@ -2460,6 +2460,66 @@
         }
       ],
       "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Clip",
+    "schema": {
+      "description": "Clip operator limits the given input within an interval. The interval is\nspecified by the inputs 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max(), respectively.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min', 'max'],\n    outputs=['y'],\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\nmin_val = np.float32(-1)\nmax_val = np.float32(1)\ny = np.clip(x, min_val, max_val)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, min_val, max_val)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min', 'max'],\n    outputs=['y'],\n)\n\nmin_val = np.float32(-5)\nmax_val = np.float32(5)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_inbounds')\n\nx = np.array([-6, 0, 6]).astype(np.float32)\ny = np.array([-5, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_outbounds')\n\nx = np.array([-1, 0, 6]).astype(np.float32)\ny = np.array([-1, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x, min_val, max_val], outputs=[y],\n       name='test_clip_splitbounds')",
+          "summary": "clip"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.float32(0)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, min_val, np.inf)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.float32(0)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_inbounds')",
+          "summary": "clip_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor whose elements to be clipped",
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "description": "Minimum value, under which element is replaced by min. It must be a scalar(tensor of empty shape).",
+          "name": "min",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Maximum value, above which element is replaced by max. It must be a scalar(tensor of empty shape).",
+          "name": "max",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor with clipped input elements",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
       "support_level": "common",
       "type_constraints": [
         {
@@ -10580,7 +10640,7 @@
           "summary": "with_axis"
         },
         {
-          "code": "on_value = 5\noff_value = 2\noutput_type = np.int32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y']\n)\nindices = np.array([0, 7, 8], dtype=np.int64)\ndepth = np.array([12], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_without_axis')",
+          "code": "on_value = 5\noff_value = 2\noutput_type = np.int32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y']\n)\nindices = np.array([0, 7, 8], dtype=np.int64)\ndepth = np.float32(12)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_without_axis')",
           "summary": "without_axis"
         }
       ],
@@ -10591,7 +10651,7 @@
           "type": "T1"
         },
         {
-          "description": "Scalar specifying the number of classes in one-hot tensor. This is also the size of the one-hot dimension (specified by 'axis' attribute) added on in the output tensor and the values in the 'indices' input tensor are expected to be in the range [0, depth). TheIn case 'depth' is of non-integer type, it will be casted to int64 before use.",
+          "description": "Scalar specifying the number of classes in one-hot tensor. This is also the size of the one-hot dimension (specified by 'axis' attribute) added on in the output tensor. The values in the 'indices' input tensor are expected to be in the range [0, depth). In case 'depth' is of non-integer type, it will be casted to int64 before use.",
           "name": "depth",
           "type": "T2"
         },
