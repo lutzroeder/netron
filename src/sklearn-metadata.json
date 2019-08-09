@@ -1465,7 +1465,7 @@
           "type": "float32"
         },
         {
-          "description": "whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(e.g. data is expected to be already centered).\n",
+          "description": "whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
           "name": "fit_intercept",
           "type": "boolean"
         },
@@ -1998,7 +1998,7 @@
       "attributes": [
         {
           "default": true,
-          "description": "whether to calculate the intercept for this model. If set\nto False, no intercept will be used in calculations\n(e.g. data is expected to be already centered).\n",
+          "description": "whether to calculate the intercept for this model. If set\nto False, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
           "name": "fit_intercept",
           "option": "optional",
           "type": "boolean"
