@@ -43626,6 +43626,86 @@
     }
   },
   {
+    "name": "RaggedTensorToTensor",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 3
+            }
+          ],
+          "name": "Tindex",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 3
+            }
+          ],
+          "name": "Tshape",
+          "type": "type"
+        },
+        {
+          "minimum": 1,
+          "name": "num_row_partition_tensors",
+          "type": "int64"
+        },
+        {
+          "description": "The types of the row partition tensors. At present, these can be:\n* \"ROW_SPLITS\": the row_splits tensor from the ragged tensor.\n* \"VALUE_ROWIDS\": the value_rowids tensor from the ragged tensor.\n* \"FIRST_DIM_SIZE\": if value_rowids is used for the first dimension, then it\n  is preceeded by \"FIRST_DIM_SIZE\".\nThe tensors are in the order of the dimensions.",
+          "name": "row_partition_types",
+          "type": "string[]"
+        }
+      ],
+      "description": "The `ragged_to_dense` op creates a dense tensor from a list of row partition\ntensors, a value vector, and default values. If the shape is unspecified, the\nminimal shape required to contain all the elements in the ragged tensor (the\nnatural shape) will be used. If some dimensions are left unspecified, then the\nsize of the natural shape is used in that dimension.\n\nThe default_value will be broadcast to the output shape. After that, the values\nfrom the ragged tensor overwrite the default values. Note that the default_value\nmust have less dimensions than the value.\n\nThe row partition tensors are in the order of the dimensions.\nAt present, the types can be:\n* \"ROW_SPLITS\": the row_splits tensor from the ragged tensor.\n* \"VALUE_ROWIDS\": the value_rowids tensor from the ragged tensor.\n* \"FIRST_DIM_SIZE\": if value_rowids is used for the first dimension, then it\n  is preceded by \"FIRST_DIM_SIZE\".",
+      "inputs": [
+        {
+          "description": "The desired shape of the the output tensor. If left unspecified (empty),\nthe minimal shape required to contain all the elements in the ragged tensor\n(the natural shape) will be used. If some dimensions are left unspecified, then\nthe size of the natural shape is used in that dimension.\n\nNote that dense dimensions cannot be modified by the shape argument. Trying to\nchange the size of a dense dimension will cause the op to fail.\nExamples:\nnatural shape: [4, 5, 6]\nshape: -1\noutput shape: [4, 5, 6]\n\nnatural shape: [4, 5, 6]\nshape: [3, -1, 2]\noutput shape: [3, 5, 2]\n\nnatural shape: [4, 5, 6]\nshape: [3, 7, 2]\noutput shape: [3, 7, 2]\n",
+          "name": "shape",
+          "typeAttr": "Tshape"
+        },
+        {
+          "description": "A 1D tensor representing the values of the ragged tensor.",
+          "name": "values",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The default_value when the shape is larger than the ragged tensor. The\ndefault_value is broadcast until it is the shape of the output tensor, and\nthen overwritten by values in the ragged tensor. The default value must be\ncompatible with this broadcast operation, and must have fewer dimensions than\nthe value tensor.",
+          "name": "default_value",
+          "typeAttr": "T"
+        },
+        {
+          "name": "row_partition_tensors",
+          "numberAttr": "num_row_partition_tensors",
+          "typeAttr": "Tindex"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The resulting dense tensor.",
+          "name": "result",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Create a dense tensor from a ragged tensor, possibly altering its shape."
+    }
+  },
+  {
     "name": "RaggedTensorToVariant",
     "schema": {
       "attributes": [
