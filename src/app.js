@@ -270,7 +270,7 @@ class Application {
             message: electron.app.getName(),
             detail: details.join('\n')
         };
-        electron.dialog.showMessageBox(owner, aboutDialogOptions);
+        electron.dialog.showMessageBoxSync(owner, aboutDialogOptions);
     }
 
     _updateMenu() {

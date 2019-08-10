@@ -153,7 +153,7 @@ host.ElectronHost = class {
             message: message,
             detail: detail,
         };
-        electron.remote.dialog.showMessageBox(owner, options);
+        electron.remote.dialog.showMessageBoxSync(owner, options);
     }
 
     confirm(message, detail) {
@@ -166,7 +166,7 @@ host.ElectronHost = class {
             defaultId: 0,
             cancelId: 1
         };
-        var result = electron.remote.dialog.showMessageBox(owner, options);
+        var result = electron.remote.dialog.showMessageBoxSync(owner, options);
         return result == 0;
     }
 
