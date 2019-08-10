@@ -3583,6 +3583,12 @@
   },
   {
     "type":   "pytorch",
+    "target": "mask_r_cnn.pth",
+    "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/mask_r_cnn.pth?raw=true",
+    "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
+  },
+  {
+    "type":   "pytorch",
     "target": "mnist_linear.ckpt",
     "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear.ckpt]",
     "format": "PyTorch",
@@ -3612,6 +3618,12 @@
     "type":   "pytorch",
     "target": "resnet18-5c106cde.pth",
     "source": "https://download.pytorch.org/models/resnet18-5c106cde.pth"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet18_large_blocks.pth",
+    "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/resnet18_large_blocks.pth?raw=true",
+    "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
   },
   {
     "type":   "pytorch",
