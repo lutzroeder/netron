@@ -37,10 +37,10 @@ view.View = class {
             this.zoomOut();
         });
         this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
-            this.preventZoom(e);
+            this._preventZoom(e);
         });
         this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
-            this.preventZoom(e);
+            this._preventZoom(e);
         });
         this._host.document.addEventListener('keydown', () => {
             this.clearSelection();
@@ -189,7 +189,7 @@ view.View = class {
                     if (this._zoom > 2) {
                         this._zoom = 2;
                     }
-                    this.applyZoom();
+                    this._applyZoom();
                 }
                 break;
             case 'd3':
@@ -208,7 +208,7 @@ view.View = class {
                     if (this._zoom < 0.1) {
                         this._zoom = 0.1;
                     }
-                    this.applyZoom();
+                    this._applyZoom();
                 }
                 break;
             case 'd3':
@@ -222,10 +222,8 @@ view.View = class {
     resetZoom() { 
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                if (this._zoom) {
-                    this._zoom = 1;
-                    this.applyZoom();
-                }
+                this._zoom = 1;
+                this._applyZoom();
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -235,18 +233,16 @@ view.View = class {
         }
     }
 
-    preventZoom(e) {
+    _preventZoom(e) {
         if (e.shiftKey || e.ctrlKey) {
             e.preventDefault();
         }
     }
 
-    applyZoom() {
+    _applyZoom() {
         var svgElement = this._host.document.getElementById('graph');
-        svgElement.setAttribute('style', 'zoom: ' + this._zoom + ';');
-        // svgElement.setAttribute('style', 'transform: scale(' + this._zoom + ',' + this._zoom + ')');
-        // svgElement.setAttribute('width', this._width * this._zoom);
-        // svgElement.setAttribute('height', this._height * this._zoom);
+        // svgElement.style.zoom = this._zoom;
+        svgElement.style.transform = 'scale(' + this._zoom + ',' + this._zoom + ')';
     }
 
     _mouseWheelHandler(e) {
@@ -255,9 +251,9 @@ view.View = class {
                 // var oldWidth = this._width * this._zoom;
                 // var oldHeight = this._height * this._zoom;
                 this._zoom = this._zoom + (e.wheelDelta * 1.0 / 6000.0);
-                if (this._zoom < 0.1) { this._zoom = 0.1; }
-                if (this._zoom > 2) { this._zoom = 2; }
-                this.applyZoom();
+                this._zoom = Math.min(this._zoom, 2.0);
+                this._zoom = Math.max(0.1, this._zoom);
+                this._applyZoom();
 
                 /* var svgElement = document.getElementById('graph');
                 va r newWidth = this._width * this._zoom;
