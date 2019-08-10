@@ -694,13 +694,14 @@
     
             TensorInfo.prototype.name = "";
             TensorInfo.prototype.coo_sparse = null;
+            TensorInfo.prototype.composite_tensor = null;
             TensorInfo.prototype.dtype = 0;
             TensorInfo.prototype.tensor_shape = null;
     
             var $oneOfFields;
     
             Object.defineProperty(TensorInfo.prototype, "encoding", {
-                get: $util.oneOfGetter($oneOfFields = ["name", "coo_sparse"]),
+                get: $util.oneOfGetter($oneOfFields = ["name", "coo_sparse", "composite_tensor"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -716,6 +717,9 @@
                         break;
                     case 4:
                         message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.decode(reader, reader.uint32());
+                        break;
+                    case 5:
+                        message.composite_tensor = $root.tensorflow.TensorInfo.CompositeTensor.decode(reader, reader.uint32());
                         break;
                     case 2:
                         message.dtype = reader.int32();
@@ -742,6 +746,9 @@
                         break;
                     case "coo_sparse":
                         message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.decodeText(reader, true);
+                        break;
+                    case "composite_tensor":
+                        message.composite_tensor = $root.tensorflow.TensorInfo.CompositeTensor.decodeText(reader, true);
                         break;
                     case "dtype":
                         message.dtype = reader.enum($root.tensorflow.DataType);
@@ -818,6 +825,67 @@
                 };
     
                 return CooSparse;
+            })();
+    
+            TensorInfo.CompositeTensor = (function() {
+    
+                function CompositeTensor(properties) {
+                    this.components = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CompositeTensor.prototype.type_spec = null;
+                CompositeTensor.prototype.components = $util.emptyArray;
+    
+                CompositeTensor.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TensorInfo.CompositeTensor();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.type_spec = $root.tensorflow.TypeSpecProto.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            if (!(message.components && message.components.length))
+                                message.components = [];
+                            message.components.push($root.tensorflow.TensorInfo.decode(reader, reader.uint32()));
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                CompositeTensor.decodeText = function decodeText(reader) {
+                    var message = new $root.tensorflow.TensorInfo.CompositeTensor();
+                    reader.start();
+                    while (!reader.end()) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "type_spec":
+                            message.type_spec = $root.tensorflow.TypeSpecProto.decodeText(reader, true);
+                            break;
+                        case "components":
+                            if (!(message.components && message.components.length))
+                                message.components = [];
+                            message.components.push($root.tensorflow.TensorInfo.decodeText(reader, true));
+                            break;
+                        default:
+                            reader.field(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CompositeTensor;
             })();
     
             return TensorInfo;
