@@ -19701,7 +19701,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Creates a dataset that changes the batch size of the dataset to current batch\nsize // num_workers.",
+      "description": "Creates a dataset that changes the batch size of the dataset to current batch\nsize // num_replicas.",
       "inputs": [
         {
           "description": "A variant tensor representing the input dataset.",
@@ -19709,8 +19709,8 @@
           "type": 21
         },
         {
-          "description": "A scalar representing the number of workers to distribute this batch across. As\na result of this transformation the current batch size would end up being\ndivided  by this parameter.",
-          "name": "num_workers",
+          "description": "A scalar representing the number of replicas to distribute this batch across. As\na result of this transformation the current batch size would end up being\ndivided  by this parameter.",
+          "name": "num_replicas",
           "type": 9
         }
       ],
@@ -23142,7 +23142,7 @@
           "type": "type"
         }
       ],
-      "description": "`indices` is a K-dimensional integer tensor, best thought of as a\n(K-1)-dimensional tensor of indices into `params`, where each element defines a\nslice of `params`:\n\n    output[\\\\(i_0, ..., i_{K-2}\\\\)] = params[indices[\\\\(i_0, ..., i_{K-2}\\\\)]]\n\nWhereas in `tf.gather` `indices` defines slices into the first\ndimension of `params`, in `tf.gather_nd`, `indices` defines slices into the\nfirst `N` dimensions of `params`, where `N = indices.shape[-1]`.\n\nThe last dimension of `indices` can be at most the rank of\n`params`:\n\n    indices.shape[-1] <= params.rank\n\nThe last dimension of `indices` corresponds to elements\n(if `indices.shape[-1] == params.rank`) or slices\n(if `indices.shape[-1] < params.rank`) along dimension `indices.shape[-1]`\nof `params`.  The output tensor has shape\n\n    indices.shape[:-1] + params.shape[indices.shape[-1]:]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSome examples below.\n\nSimple indexing into a matrix:\n\n```python\n    indices = [[0, 0], [1, 1]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = ['a', 'd']\n```\n\nSlice indexing into a matrix:\n\n```python\n    indices = [[1], [0]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['c', 'd'], ['a', 'b']]\n```\n\nIndexing into a 3-tensor:\n\n```python\n    indices = [[1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['a1', 'b1'], ['c1', 'd1']]]\n\n\n    indices = [[0, 1], [1, 0]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['c0', 'd0'], ['a1', 'b1']]\n\n\n    indices = [[0, 0, 1], [1, 0, 1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = ['b0', 'b1']\n```\n\nBatched indexing into a matrix:\n\n```python\n    indices = [[[0, 0]], [[0, 1]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['a'], ['b']]\n```\n\nBatched slice indexing into a matrix:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [[['c', 'd']], [['a', 'b']]]\n```\n\nBatched indexing into a 3-tensor:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[[['a1', 'b1'], ['c1', 'd1']]],\n              [[['a0', 'b0'], ['c0', 'd0']]]]\n\n    indices = [[[0, 1], [1, 0]], [[0, 0], [1, 1]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['c0', 'd0'], ['a1', 'b1']],\n              [['a0', 'b0'], ['c1', 'd1']]]\n\n\n    indices = [[[0, 0, 1], [1, 0, 1]], [[0, 1, 1], [1, 1, 0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['b0', 'b1'], ['d0', 'c1']]\n```\n\nSee also `tf.gather` and `tf.batch_gather`.",
+      "description": "`indices` is a K-dimensional integer tensor, best thought of as a\n(K-1)-dimensional tensor of indices into `params`, where each element defines a\nslice of `params`:\n\n    output[\\\\(i_0, ..., i_{K-2}\\\\)] = params[indices[\\\\(i_0, ..., i_{K-2}\\\\)]]\n\nWhereas in `tf.gather` `indices` defines slices into the `axis`\ndimension of `params`, in `tf.gather_nd`, `indices` defines slices into the\nfirst `N` dimensions of `params`, where `N = indices.shape[-1]`.\n\nThe last dimension of `indices` can be at most the rank of\n`params`:\n\n    indices.shape[-1] <= params.rank\n\nThe last dimension of `indices` corresponds to elements\n(if `indices.shape[-1] == params.rank`) or slices\n(if `indices.shape[-1] < params.rank`) along dimension `indices.shape[-1]`\nof `params`.  The output tensor has shape\n\n    indices.shape[:-1] + params.shape[indices.shape[-1]:]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSome examples below.\n\nSimple indexing into a matrix:\n\n```python\n    indices = [[0, 0], [1, 1]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = ['a', 'd']\n```\n\nSlice indexing into a matrix:\n\n```python\n    indices = [[1], [0]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['c', 'd'], ['a', 'b']]\n```\n\nIndexing into a 3-tensor:\n\n```python\n    indices = [[1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['a1', 'b1'], ['c1', 'd1']]]\n\n\n    indices = [[0, 1], [1, 0]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['c0', 'd0'], ['a1', 'b1']]\n\n\n    indices = [[0, 0, 1], [1, 0, 1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = ['b0', 'b1']\n```\n\nBatched indexing into a matrix:\n\n```python\n    indices = [[[0, 0]], [[0, 1]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['a'], ['b']]\n```\n\nBatched slice indexing into a matrix:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [[['c', 'd']], [['a', 'b']]]\n```\n\nBatched indexing into a 3-tensor:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[[['a1', 'b1'], ['c1', 'd1']]],\n              [[['a0', 'b0'], ['c0', 'd0']]]]\n\n    indices = [[[0, 1], [1, 0]], [[0, 0], [1, 1]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['c0', 'd0'], ['a1', 'b1']],\n              [['a0', 'b0'], ['c1', 'd1']]]\n\n\n    indices = [[[0, 0, 1], [1, 0, 1]], [[0, 1, 1], [1, 1, 0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['b0', 'b1'], ['d0', 'c1']]\n```\n\nSee also `tf.gather` and `tf.batch_gather`.",
       "inputs": [
         {
           "description": "The tensor from which to gather values.",
@@ -36835,6 +36835,11 @@
           "default": 0,
           "name": "slack_period",
           "type": "int64"
+        },
+        {
+          "default": true,
+          "name": "legacy_autotune",
+          "type": "boolean"
         }
       ],
       "inputs": [
@@ -45125,8 +45130,8 @@
           "type": 21
         },
         {
-          "description": "A scalar representing the number of workers to distribute this batch across. As\na result of this transformation the current batch size would end up being\ndivided  by this parameter.",
-          "name": "num_workers",
+          "description": "A scalar representing the number of replicas to distribute this batch across. As\na result of this transformation the current batch size would end up being\ndivided  by this parameter.",
+          "name": "num_replicas",
           "type": 9
         }
       ],
@@ -54354,13 +54359,14 @@
           "type": "shape[]"
         }
       ],
+      "description": "There is no transformation in the `tf.data` Python API for creating this dataset.\nInstead, it is created as a result of the `filter_with_random_uniform_fusion`\nstatic optimization. Whether this optimization is performed is determined by the\n`experimental_optimization.filter_with_random_uniform_fusion` option of\n`tf.data.Options`.",
       "inputs": [
         {
           "name": "input_dataset",
           "type": 21
         },
         {
-          "description": "A scalar representing the sample rate of elements from the `input_dataset`\nthat should be taken.",
+          "description": "A scalar representing the sample rate. Each element of `input_dataset` is \nretained with this probability, independent of all other elements.",
           "name": "rate",
           "type": 1
         },
@@ -54381,7 +54387,7 @@
           "type": 21
         }
       ],
-      "summary": "Creates a dataset that contains `rate` elements from the `input_dataset`."
+      "summary": "Creates a dataset that takes a Bernoulli sample of the contents of another dataset."
     }
   },
   {
