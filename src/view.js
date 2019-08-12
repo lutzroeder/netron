@@ -49,9 +49,21 @@ view.View = class {
             this._host.document.getElementById('graph-container').addEventListener('mousewheel', (e) => {
                 this._mouseWheelHandler(e);
             });
-            this._host.document.getElementById('graph').addEventListener('mousewheel', (e) => {
-                this._mouseWheelHandler(e);
+            this._host.document.getElementById('graph-container').addEventListener('scroll', (e) => {
+                this._scrollHandler(e);
             });
+            this._host.document.getElementById('graph-container').addEventListener('gesturestart', (e) => {
+                e.preventDefault();
+                this._gestureStartZoom = this._zoom;
+            }, false);
+            this._host.document.getElementById('graph-container').addEventListener('gesturechange', (e) => {
+                e.preventDefault();
+                this._updateZoom(this._gestureStartZoom * e.scale, e);
+            }, false);
+            this._host.document.getElementById('graph-container').addEventListener('gestureend', (e) => {
+                e.preventDefault();
+                this._updateZoom(this._gestureStartZoom * e.scale, e);
+            }, false);
         }
     }
     
@@ -184,13 +196,7 @@ view.View = class {
     zoomIn() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                if (this._zoom) {
-                    this._zoom = this._zoom * 1.05;
-                    if (this._zoom > 2) {
-                        this._zoom = 2;
-                    }
-                    this._applyZoom();
-                }
+                this._updateZoom(this._zoom * 1.05);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -203,13 +209,7 @@ view.View = class {
     zoomOut() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                if (this._zoom) {
-                    this._zoom = this._zoom * 0.95;
-                    if (this._zoom < 0.1) {
-                        this._zoom = 0.1;
-                    }
-                    this._applyZoom();
-                }
+                this._updateZoom(this._zoom * 0.95);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -222,8 +222,7 @@ view.View = class {
     resetZoom() { 
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                this._zoom = 1;
-                this._applyZoom();
+                this._updateZoom(1);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -239,37 +238,55 @@ view.View = class {
         }
     }
 
-    _applyZoom() {
-        var svgElement = this._host.document.getElementById('graph');
-        // svgElement.style.zoom = this._zoom;
-        svgElement.style.transform = 'scale(' + this._zoom + ',' + this._zoom + ')';
+    _updateZoom(zoom, e) {
+
+        var container = this._host.document.getElementById('graph-container');
+
+        var min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
+
+        zoom = Math.min(zoom, 2);
+        zoom = Math.max(min, zoom);
+
+        var scrollLeft = this._scrollLeft || container.scrollLeft;
+        var scrollTop = this._scrollTop || container.scrollTop;
+
+        var x = e ? e.pageX : (container.clientWidth / 2);
+        var y = e ? e.pageY : (container.clientHeight / 2);
+
+        x += scrollLeft;
+        y += scrollTop;
+
+        var graph = this._host.document.getElementById('graph');
+        graph.style.width = zoom * this._width;
+        graph.style.height = zoom * this._height
+
+        this._scrollLeft = ((x * zoom) / this._zoom) - (x - scrollLeft);
+        this._scrollTop = ((y * zoom) / this._zoom) - (y - scrollTop);
+        this._scrollLeft = Math.max(0, this._scrollLeft);
+        this._scrollTop = Math.max(0, this._scrollTop);
+        container.scrollLeft = this._scrollLeft;
+        container.scrollTop = this._scrollTop;
+
+        this._zoom = zoom;
     }
 
     _mouseWheelHandler(e) {
         if (e.shiftKey || e.ctrlKey) {
-            if (this._zoom) {
-                // var oldWidth = this._width * this._zoom;
-                // var oldHeight = this._height * this._zoom;
-                this._zoom = this._zoom + (e.wheelDelta * 1.0 / 6000.0);
-                this._zoom = Math.min(this._zoom, 2.0);
-                this._zoom = Math.max(0.1, this._zoom);
-                this._applyZoom();
-
-                /* var svgElement = document.getElementById('graph');
-                va r newWidth = this._width * this._zoom;
-                var newHeight = this._height * this._zoom;
-                svgElement.setAttribute('width', newWidth);
-                svgElement.setAttribute('height', newHeight); */
-
-                // var dx = (oldWidth - newWidth) / 2;
-                // var dy = (oldHeight - newHeight) / 2;
-                // window.scrollBy(dx, dy);
-
-                e.preventDefault();
-            }
+            this._updateZoom(this._zoom + (e.wheelDelta * 1.0 / 4000.0), e);
+            e.preventDefault();
         }
     }
-    
+
+    _scrollHandler(e) {
+
+        if (this._scrollLeft && e.target.scrollLeft !== Math.floor(this._scrollLeft)) {
+            delete this._scrollLeft;
+        }
+        if (this._scrollTop && e.target.scrollTop !== Math.floor(this._scrollTop)) {
+            delete this._scrollTop;
+        }
+    }
+
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
@@ -735,7 +752,6 @@ view.View = class {
                 graphElement.appendChild(originElement);
             
                 if (this._host.environment('zoom') == 'd3') {
-                    // Set up zoom support
                     var svg = d3.select(graphElement);
                     this._zoom = d3.zoom();
                     this._zoom(svg);
@@ -747,6 +763,7 @@ view.View = class {
                 }
 
                 return this._timeout(20).then(() => {
+
                     var graphRenderer = new grapher.Renderer(this._host.document, originElement);
                     graphRenderer.render(g);
 
@@ -755,20 +772,20 @@ view.View = class {
                     switch (this._host.environment('zoom')) {
                         case 'scroll':
                             var size = graphElement.getBBox();
-                            var graphMin = Math.min(size.width, size.height);
-                            var windowMin = Math.min(window.innerWidth, window.innerHeight);
-                            var delta = (Math.max(graphMin, windowMin) / 2.0) * 0.2;
-                            var width = Math.ceil(delta + size.width + delta);
-                            var height = Math.ceil(delta + size.height + delta);
-                            originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
+                            var margin = 100;
+                            var width = Math.ceil(margin + size.width + margin);
+                            var height = Math.ceil(margin + size.height + margin);
+                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
                             backgroundElement.setAttribute('width', width);
                             backgroundElement.setAttribute('height', height);
                             this._width = width;
                             this._height = height;
                             this._zoom = 1;
+                            delete this._scrollLeft;
+                            delete this._scrollRight;
                             graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                            graphElement.setAttribute('width', width / this._zoom);
-                            graphElement.setAttribute('height', height / this._zoom);
+                            graphElement.setAttribute('width', width);
+                            graphElement.setAttribute('height', height);
                             if (inputElements && inputElements.length > 0) {
                                 // Center view based on input elements
                                 for (var j = 0; j < inputElements.length; j++) {
