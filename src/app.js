@@ -421,19 +421,19 @@ class Application {
                 {
                     id: 'view.reset-zoom',
                     label: 'Actual &Size',
-                    accelerator: 'CmdOrCtrl+Backspace',
+                    accelerator: 'Shift+Backspace',
                     click: () => this.execute('reset-zoom', null),
                 },
                 {
                     id: 'view.zoom-in',
                     label: 'Zoom &In',
-                    accelerator: 'CmdOrCtrl+Up',
+                    accelerator: 'Shift+Up',
                     click: () => this.execute('zoom-in', null),
                 },
                 {
                     id: 'view.zoom-out',
                     label: 'Zoom &Out',
-                    accelerator: 'CmdOrCtrl+Down',
+                    accelerator: 'Shift+Down',
                     click: () => this.execute('zoom-out', null),
                 },
                 { type: 'separator' },

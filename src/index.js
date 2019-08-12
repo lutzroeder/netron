@@ -85,17 +85,17 @@ host.BrowserHost = class {
         this._menu.add({});
         this._menu.add({
             label: 'Zoom In',
-            accelerator: 'CmdOrCtrl+Up',
+            accelerator: 'Shift+Up',
             click: () => this.document.getElementById('zoom-in-button').click()
         });
         this._menu.add({
             label: 'Zoom Out',
-            accelerator: 'CmdOrCtrl+Down',
+            accelerator: 'Shift+Down',
             click: () => this.document.getElementById('zoom-out-button').click()
         });
         this._menu.add({
             label: 'Actual Size',
-            accelerator: 'CmdOrCtrl+Backspace',
+            accelerator: 'Shift+Backspace',
             click: () => this._view.resetZoom()
         });
         this._menu.add({});
