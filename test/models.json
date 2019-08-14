@@ -4233,6 +4233,21 @@
   },
   {
     "type":   "tf",
+    "target": "netron_issue_320.pb",
+    "source": "https://github.com/lutzroeder/netron/files/3499707/netron_issue_320.zip[netron_issue_320.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/320"
+  },
+  {
+    "type":   "tf",
+    "target": "netron_issue_320.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/3499707/netron_issue_320.zip[netron_issue_320.pbtxt]",
+    "error":  "File text format is not tensorflow.GraphDef (Unexpected 'value' instead of 'key' at 446:13) in 'netron_issue_320.pbtxt'.",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/320"
+  },
+  {
+    "type":   "tf",
     "target": "pose_estimation_for_mobile.pb",
     "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.pb?raw=true",
     "format": "TensorFlow Graph",

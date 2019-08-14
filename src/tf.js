@@ -228,8 +228,23 @@ tf.Model = class {
             else if (model.meta_graphs.length > 1) {
                 name = i.toString();
             }
+            else {
+                name = '-';
+            }
             this._graphs.push(new tf.Graph(metadata, metaGraph, name));
         }
+
+        // Recursively add all subgraphs.
+        let visited_graph = [];
+        let pending_graphs = [...this._graphs];
+        while (pending_graphs.length > 0) {
+            let g = pending_graphs.shift();
+            visited_graph.push(g);
+            for (let f of g.functions)
+                pending_graphs.push(f);
+        }
+        this._graphs = visited_graph;
+
         this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
     }
 
@@ -260,6 +275,8 @@ tf.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
+        this._functions = [];
+
         if (metaGraph.graph_def) {
             var graph = metaGraph.graph_def;
             if (graph.versions) {
@@ -356,7 +373,7 @@ tf.Graph = class {
                         var shape = node.attr.shape;
                         if (dtype && dtype.type && shape && shape.shape) {
                             var type = new tf.TensorType(dtype.type, shape.shape);
-                            var argument = new tf.Argument(node.output[0], type, null); 
+                            var argument = new tf.Argument(node.output[0], type, null);
                             inputMap[node.output[0]] = new tf.Parameter(node.name, [ argument ]);
                         }
                     }
@@ -369,6 +386,13 @@ tf.Graph = class {
                     if (!initializers[id] && !inputMap[id] /* && node.op != 'NoOp' */) {
                         this._nodes.push(new tf.Node(this, node, initializers));
                     }
+                }
+            }
+
+            if (graph.library) {
+                var funcs = graph.library.function;
+                for (var func of funcs) {
+                    this._functions.push(new tf.Function(this, func, this._metadata));
                 }
             }
         }
@@ -409,6 +433,10 @@ tf.Graph = class {
 
     get namespaces() {
         return this._namespaces;
+    }
+
+    get functions() {
+        return this._functions;
     }
 
     _checkSingleOutput(node) { 
@@ -465,6 +493,186 @@ tf.Argument = class {
         return this._initializer;
     }
 };
+
+tf.Function = class {
+
+    constructor(graph, func, metadata) {
+        this._name = func.signature.name;
+        this._version = null;
+        this._tags = null;
+        this._inputs = [];
+        this._outputs = [];
+        this._nodes = [];
+        this._metadata = metadata;
+        this._namespaces = {};
+        this._functions = [];
+
+        var inputs = func.signature.input_arg;
+        if (inputs) {
+            for (let input of inputs) {
+                var inputArgument = new tf.Argument(input.name, new tf.TensorType(input.type, null), null);
+                this._inputs.push(new tf.Parameter(input.name, [ inputArgument ]));
+            }
+        }
+
+        var ret_map = {};
+        for (let key of Object.keys(func.ret)) {
+            let v = func.ret[key].split(':', 2);
+            ret_map[key] = v[0];
+        }
+
+        var out_args_reverse_map = {};
+        var outputs = func.signature.output_arg;
+        if (outputs) {
+            for (let output of outputs) {
+                let name = ret_map[output.name];
+                this._outputs.push(new tf.Parameter(output.name, [ 
+                    new tf.Argument(name, new tf.TensorType(output.type, null), null)
+                ]));
+                out_args_reverse_map[name] = output.name;
+            }
+        }
+
+        var nodes = func.node_def;
+        if (nodes) {
+            var nodeMap = {};
+
+            for (let node of nodes) {
+                let nodeName = node.name;
+                nodeMap[nodeName] = node;
+                if (node.op != 'Const') {
+                    let lastIndex = nodeName.lastIndexOf('/');
+                    if (lastIndex != -1) {
+                        let namespace = nodeName.substring(0, lastIndex);
+                        this._namespaces[namespace] = true;
+                    }
+                }
+                node.output = [];
+            }
+            for (let node of nodes) {
+                let inputs = node.input;
+                node.input = [];
+                node.controlDependencies = [];
+                for (let input of inputs) {
+                    var split = input.split(':', 3);
+                    var inputName = split[0];
+                    var outputIndex = split.length == 1 ? 0 : parseInt(split[split.length - 1]);
+                    var outputName = inputName.startsWith('^') ? inputName.substring(1) : inputName;
+                    var outputNode = nodeMap[outputName];
+                    outputName = outputIndex == 0 ? outputName : outputName + ':' + outputIndex.toString();
+                    if (inputName.startsWith('^')) {
+                        node.controlDependencies.push(outputName);
+                    }
+                    else {
+                        node.input.push(outputName);
+                    }
+                    if (outputNode) {
+                        for (var j = outputNode.output.length; j <= outputIndex; j++) {
+                            outputNode.output.push('');
+                        }
+                        outputNode.output[outputIndex] = outputName;
+                    }
+                }
+
+                if (out_args_reverse_map[node.name]) {
+                    node.output.push(node.name);
+                }
+            }
+
+            let nodeOutputCountMap = {};
+            for (let node of nodes) {
+                for (let input of node.input) {
+                    nodeOutputCountMap[input] = (nodeOutputCountMap[input] || 0) + 1;
+                }
+                for (let controlDependency of node.controlDependencies) {
+                    nodeOutputCountMap[controlDependency] = (nodeOutputCountMap[controlDependency] || 0) + 1;
+                }
+            }
+
+            var initializers = {};
+            for (let node of nodes) {
+                if (node.op == 'Const' && node.input.length == 0 && node.controlDependencies.length == 0 && tf.Function._checkSingleOutput(node, nodeOutputCountMap)) {
+                    var value = node.attr.value;
+                    if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
+                        var output = node.output[0];
+                        if (output) {
+                            initializers[output] = new tf.Tensor(value.tensor, node.name, 'Constant');
+                        }
+                    }
+                }
+            }
+            for (let node of nodes) {
+                if (node.op == 'Identity' && node.input.length == 1 && node.controlDependencies.length == 0 && tf.Function._checkSingleOutput(node, nodeOutputCountMap)) {
+                    var initializer_name = node.input[0];
+                    var initializer = initializers[initializer_name];
+                    if (initializer) {
+                        initializers[initializer_name] = "-";
+                        initializer.kind = 'Identity Constant';
+                        initializers[node.output[0]] = initializer;
+                    }
+                }
+            }
+
+            for (let node of nodes) {
+                if (!initializers[node.name])
+                    this._nodes.push(new tf.Node(this, node, initializers));
+            }
+        }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get version() {
+        return this._version;
+    }
+
+    get tags() {
+        return this._tags;
+    }
+
+    get groups() {
+        return false;
+        // TODO return true;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+
+    get metadata() {
+        return this._metadata;
+    }
+
+    get namespaces() {
+        return this._namespaces;
+    }
+
+    get functions() {
+        return this._functions;
+    }
+
+    static _checkSingleOutput(node, nodeOutputCountMap) {
+        if (node.output.length != 1) {
+            return false;
+        }
+        var output = node.output[0];
+        var count = nodeOutputCountMap[output];
+        if (count != 1) {
+            return false;
+        }
+        return true;
+    }
+}
 
 tf.Node = class {
 
@@ -743,6 +951,11 @@ tf.Attribute = class {
                 this._type = 'shape[]';
                 this._value = list.shape.map((shape) => new tf.TensorShape(shape));
             }
+        }
+        else if (Object.prototype.hasOwnProperty.call(value, 'func')) {
+            var func = value.func;
+            this._type = 'function';
+            this._value = func.name;
         }
 
         if (schema) {
