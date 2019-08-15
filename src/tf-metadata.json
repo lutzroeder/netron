@@ -4384,12 +4384,15 @@
           "type": "shape[]"
         }
       ],
+      "description": "This transformation checks whether the camel-case names (i.e. \"FlatMap\", not\n\"flat_map\") of the transformations following this transformation match the list\nof names in the `transformations` argument. If there is a mismatch, the\ntransformation raises an exception.\n\nThe check occurs when iterating over the contents of the dataset, which\nmeans that the check happens *after* any static optimizations are applied\nto the dataset graph.",
       "inputs": [
         {
+          "description": "A variant tensor representing the input dataset.\n`AssertNextDataset` passes through the outputs of its input dataset.",
           "name": "input_dataset",
           "type": 21
         },
         {
+          "description": "A `tf.string` vector `tf.Tensor` identifying the transformations that are\nexpected to happen next.",
           "name": "transformations",
           "type": 7
         }
@@ -4399,7 +4402,8 @@
           "name": "handle",
           "type": 21
         }
-      ]
+      ],
+      "summary": "A transformation that asserts which transformations happen next."
     }
   },
   {
@@ -8186,6 +8190,287 @@
     }
   },
   {
+    "name": "BlockLSTMGradV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Whether to use peephole weights.",
+          "name": "use_peephole",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This implementation is to be used in conjunction of BlockLSTMV2.",
+      "inputs": [
+        {
+          "description": "Maximum time length actually used by this input. Outputs are padded\nwith zeros beyond this length.",
+          "name": "seq_len_max",
+          "type": 9
+        },
+        {
+          "description": "The sequence input to the LSTM, shape (timelen, batch_size, num_inputs).",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Value of the initial cell state.",
+          "name": "cs_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Initial output of cell (to be used for peephole).",
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix.",
+          "name": "w",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for input gate peephole connection.",
+          "name": "wci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for forget gate peephole connection.",
+          "name": "wcf",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for output gate peephole connection.",
+          "name": "wco",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The bias vector.",
+          "name": "b",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The input gate over the whole time sequence.",
+          "name": "i",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell state before the tanh over the whole time sequence.",
+          "name": "cs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The forget gate over the whole time sequence.",
+          "name": "f",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output gate over the whole time sequence.",
+          "name": "o",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell input over the whole time sequence.",
+          "name": "ci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell after the tanh over the whole time sequence.",
+          "name": "co",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output h vector over the whole time sequence.",
+          "name": "h",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The current gradient of cs.",
+          "name": "cs_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient of h vector.",
+          "name": "h_grad",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The gradient of x to be back-propped.",
+          "name": "x_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient of cs_prev to be back-propped.",
+          "name": "cs_prev_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient of h_prev to be back-propped.",
+          "name": "h_prev_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for w to be back-propped.",
+          "name": "w_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wci to be back-propped.",
+          "name": "wci_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wcf to be back-propped.",
+          "name": "wcf_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for wco to be back-propped.",
+          "name": "wco_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The gradient for w to be back-propped.",
+          "name": "b_grad",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the LSTM cell backward propagation for the entire time sequence."
+    }
+  },
+  {
+    "name": "BlockLSTMV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.0,
+          "description": "Value to clip the 'cs' value to.",
+          "name": "cell_clip",
+          "type": "float32"
+        },
+        {
+          "default": false,
+          "description": "Whether to use peephole weights.",
+          "name": "use_peephole",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This is equivalent to applying LSTMBlockCell in a loop, like so:\n\n```python\nfor x1 in unpack(x):\n  i1, cs1, f1, o1, ci1, co1, h1 = LSTMBlock(\n    x1, cs_prev, h_prev, w, wci, wcf, wco, b)\n  cs_prev = cs1\n  h_prev = h1\n  i.append(i1)\n  cs.append(cs1)\n  f.append(f1)\n  o.append(o1)\n  ci.append(ci1)\n  co.append(co1)\n  h.append(h1)\nreturn pack(i), pack(cs), pack(f), pack(o), pack(ci), pack(ch), pack(h)\n\nNote that unlike LSTMBlockCell (and BlockLSTM) which uses ICFO gate layout, \nthis op uses IFCO. So in order for the following snippet to be equivalent\nall gate-related outputs should be reordered.\n```",
+      "inputs": [
+        {
+          "description": "Maximum time length actually used by this input. Outputs are padded\nwith zeros beyond this length.",
+          "name": "seq_len_max",
+          "type": 9
+        },
+        {
+          "description": "The sequence input to the LSTM, shape (timelen, batch_size, num_inputs).",
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Value of the initial cell state.",
+          "name": "cs_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Initial output of cell (to be used for peephole).",
+          "name": "h_prev",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix.",
+          "name": "w",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for input gate peephole connection.",
+          "name": "wci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for forget gate peephole connection.",
+          "name": "wcf",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The weight matrix for output gate peephole connection.",
+          "name": "wco",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The bias vector.",
+          "name": "b",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The input gate over the whole time sequence.",
+          "name": "i",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell state before the tanh over the whole time sequence.",
+          "name": "cs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The forget gate over the whole time sequence.",
+          "name": "f",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output gate over the whole time sequence.",
+          "name": "o",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell input over the whole time sequence.",
+          "name": "ci",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The cell after the tanh over the whole time sequence.",
+          "name": "co",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The output h vector over the whole time sequence.",
+          "name": "h",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the LSTM cell forward propagation for all the time steps."
+    }
+  },
+  {
     "name": "BoostedTreesAggregateStats",
     "schema": {
       "attributes": [
@@ -8358,7 +8643,7 @@
           "type": 1
         },
         {
-          "description": "A Rank 1 tensors indicating the which direction to go if data is missing. See above for details like shapes and sizes.",
+          "description": "A Rank 1 tensors indicating the which direction to go if data is missing. See above for details like shapes and sizes.\nInequality with default left returns 0, inequality with default right returns 1, equality with default right returns 2.",
           "name": "split_with_default_directions",
           "type": 7
         }
@@ -9164,7 +9449,7 @@
           "type": 1
         },
         {
-          "description": "A Rank 1 tensor indicating which direction to go if data is missing.",
+          "description": "A Rank 1 tensor indicating which direction to go if data is missing.\nInequality with default left returns 0, inequality with default right returns 1, equality with default right returns 2.",
           "name": "split_with_default_directions",
           "type": 7
         }
@@ -9302,6 +9587,90 @@
         }
       ],
       "summary": "Updates the tree ensemble by either adding a layer to the last tree being grown"
+    }
+  },
+  {
+    "name": "BoostedTreesUpdateEnsembleV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Number of features that have best splits returned. INFERRED.",
+          "minimum": 0,
+          "name": "num_features",
+          "type": "int64"
+        }
+      ],
+      "description": "or by starting a new tree.",
+      "inputs": [
+        {
+          "description": "Handle to the ensemble variable.",
+          "name": "tree_ensemble_handle",
+          "type": 20
+        },
+        {
+          "description": "Rank 1 tensor with ids for each feature. This is the real id of\nthe feature that will be used in the split.",
+          "name": "feature_ids",
+          "type": 3
+        },
+        {
+          "description": "List of rank 1 tensors representing the dimension in each feature.",
+          "name": "dimension_ids",
+          "numberAttr": "num_features",
+          "type": 3
+        },
+        {
+          "description": "List of rank 1 tensors representing the nodes for which this feature\nhas a split.",
+          "name": "node_ids",
+          "numberAttr": "num_features",
+          "type": 3
+        },
+        {
+          "description": "List of rank 1 tensors representing the gains for each of the feature's\nsplit.",
+          "name": "gains",
+          "numberAttr": "num_features",
+          "type": 1
+        },
+        {
+          "description": "List of rank 1 tensors representing the thesholds for each of the\nfeature's split.",
+          "name": "thresholds",
+          "numberAttr": "num_features",
+          "type": 3
+        },
+        {
+          "description": "List of rank 2 tensors with left leaf contribs for each of\nthe feature's splits. Will be added to the previous node values to constitute\nthe values of the left nodes.",
+          "name": "left_node_contribs",
+          "numberAttr": "num_features",
+          "type": 1
+        },
+        {
+          "description": "List of rank 2 tensors with right leaf contribs for each\nof the feature's splits. Will be added to the previous node values to constitute\nthe values of the right nodes.",
+          "name": "right_node_contribs",
+          "numberAttr": "num_features",
+          "type": 1
+        },
+        {
+          "description": "List of rank 1 tensors representing the split type for each feature.",
+          "name": "split_types",
+          "numberAttr": "num_features",
+          "type": 7
+        },
+        {
+          "description": "Max depth of the tree to build.",
+          "name": "max_depth",
+          "type": 3
+        },
+        {
+          "description": "shrinkage const for each new tree.",
+          "name": "learning_rate",
+          "type": 1
+        },
+        {
+          "description": "0-No pruning, 1-Pre-pruning, 2-Post-pruning.",
+          "name": "pruning_mode",
+          "type": 3
+        }
+      ],
+      "summary": "Updates the tree ensemble by adding a layer to the last tree being grown"
     }
   },
   {
@@ -10390,6 +10759,11 @@
         {
           "name": "shape",
           "type": "shape"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
         }
       ],
       "outputs": [
@@ -10446,6 +10820,11 @@
         {
           "name": "shape",
           "type": "shape"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
         }
       ],
       "inputs": [
@@ -10508,6 +10887,11 @@
         {
           "name": "shape",
           "type": "shape"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
         }
       ],
       "inputs": [
@@ -10696,6 +11080,11 @@
           "default": [],
           "name": "wait_for",
           "type": "int64[]"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
         }
       ],
       "inputs": [
@@ -14707,6 +15096,14 @@
   {
     "name": "DatasetToGraph",
     "schema": {
+      "attributes": [
+        {
+          "default": [],
+          "minimum": 0,
+          "name": "stateful_whitelist",
+          "type": "string[]"
+        }
+      ],
       "description": "Returns a graph representation for `input_dataset`.",
       "inputs": [
         {
@@ -17294,6 +17691,11 @@
         {
           "name": "token",
           "type": "string"
+        },
+        {
+          "default": false,
+          "name": "is_async",
+          "type": "boolean"
         },
         {
           "minimum": 0,
@@ -67261,7 +67663,7 @@
           "type": "type"
         }
       ],
-      "description": "Computes the SVD of each inner matrix in `input` such that\n`input[..., :, :] = u[..., :, :] * diag(s[..., :, :]) * transpose(v[..., :, :])`\n\n```python\n# a is a tensor containing a batch of matrices.\n# s is a tensor of singular values for each matrix.\n# u is the tensor containing of left singular vectors for each matrix.\n# v is the tensor containing of right singular vectors for each matrix.\ns, u, v = svd(a)\ns, _, _ = svd(a, compute_uv=False)\n```",
+      "description": "Computes the SVD of each inner matrix in `input` such that\n`input[..., :, :] = u[..., :, :] * diag(s[..., :, :]) * transpose(v[..., :, :])`\n\n```python\n# a is a tensor containing a batch of matrices.\n# s is a tensor of singular values for each matrix.\n# u is the tensor containing the left singular vectors for each matrix.\n# v is the tensor containing the right singular vectors for each matrix.\ns, u, v = svd(a)\ns, _, _ = svd(a, compute_uv=False)\n```",
       "inputs": [
         {
           "description": "A tensor of shape `[..., M, N]` whose inner-most 2 dimensions\nform matrices of size `[M, N]`. Let `P` be the minimum of `M` and `N`.",
@@ -72180,7 +72582,7 @@
           "type": "type"
         }
       ],
-      "description": "coordinate arrays.\n\n@compatibility(numpy)\nEquivalent to np.unravel_index\n@end_compatibility",
+      "description": "\nExample:\n\n```\ny = tf.unravel_index(indices=[2, 5, 7], dims=[3, 3])\n# 'dims' represent a hypothetical (3, 3) tensor of indices:\n# [[0, 1, *2*],\n#  [3, 4, *5*],\n#  [6, *7*, 8]]\n# For each entry from 'indices', this operation returns\n# its coordinates (marked with '*'), such as\n# 2 ==> (0, 2)\n# 5 ==> (1, 2)\n# 7 ==> (2, 1)\ny ==> [[0, 1, 2], [2, 2, 1]]\n```\n\n@compatibility(numpy)\nEquivalent to np.unravel_index\n@end_compatibility",
       "inputs": [
         {
           "description": "An 0-D or 1-D `int` Tensor whose elements are indices into the\nflattened version of an array of dimensions dims.",
@@ -72200,7 +72602,7 @@
           "typeAttr": "Tidx"
         }
       ],
-      "summary": "Converts a flat index or array of flat indices into a tuple of"
+      "summary": "Converts an array of flat indices into a tuple of coordinate arrays."
     }
   },
   {
