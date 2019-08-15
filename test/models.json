@@ -4836,6 +4836,13 @@
   },
   {
     "type":   "torch",
+    "target": "uni_image_np_50.t7",
+    "source": "https://polybox.ethz.ch/index.php/s/0SEdZqkn433dbEh/download",
+    "format": "Torch v7",
+    "link":   "https://github.com/simonwsw/deep-soli"
+  },
+  {
+    "type":   "torch",
     "target": "vgg.t7",
     "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/vgg.t7",
     "format": "Torch v7",
