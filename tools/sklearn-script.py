@@ -73,6 +73,8 @@ def update_attribute(schema, name, description, type, option, default):
                 attribute['default'] = True
             elif default == 'False':
                 attribute['default'] = False
+            elif default == "'auto'":
+                attribute['default'] = default.strip("'").strip('"')
             else:
                 raise Exception("Unknown boolean default value '" + str(default) + "'.")
         else:
@@ -116,7 +118,8 @@ def update_attributes(schema, lines):
             "float in range [0.0, 1.0] or int (default=1.0)",
             "float in range [0.0, 1.0] or int (default=1)",
             "'l1', 'l2' or None, optional (default='l2')",
-            "{'scale', 'auto'} or float, optional (default='scale')"
+            "{'scale', 'auto'} or float, optional (default='scale')",
+            "bool default=True"
         }
         if line in skip_map:
             line = ''

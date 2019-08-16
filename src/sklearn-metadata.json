@@ -43,7 +43,7 @@
   {
     "name": "LabelEncoder",
     "schema": {
-      "description": "Encode labels with value between 0 and n_classes-1.\n\nRead more in the :ref:`User Guide <preprocessing_targets>`.\n",
+      "description": "Encode target labels with value between 0 and n_classes-1.\n\nThis transformer should be used to encode target values, *i.e.* `y`, and\nnot the input `X`.\n\nRead more in the :ref:`User Guide <preprocessing_targets>`.\n",
       "package": "sklearn.preprocessing.label"
     }
   },
@@ -88,7 +88,7 @@
         },
         {
           "default": false,
-          "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, and will slow down that method.\n",
+          "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, will slow down that method as it internally uses\n5-fold cross-validation, and `predict_proba` may be inconsistent with\n`predict`. Read more in the :ref:`User Guide <scores_probabilities>`.\n",
           "name": "probability",
           "option": "optional",
           "type": "boolean"
@@ -203,7 +203,7 @@
         },
         {
           "default": false,
-          "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, and will slow down that method.\n",
+          "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, will slow down that method as it internally uses\n5-fold cross-validation, and `predict_proba` may be inconsistent with\n`predict`. Read more in the :ref:`User Guide <scores_probabilities>`.\n",
           "name": "probability",
           "option": "optional",
           "type": "boolean"
@@ -689,7 +689,7 @@
         },
         {
           "default": null,
-          "description": "The number of jobs to run in parallel for both `fit` and `predict`.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "description": "The number of jobs to run in parallel.\n`fit`, `predict`, `decision_path` and `apply` are all\nparallelized over the trees.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
           "name": "n_jobs",
           "option": "optional"
         },
@@ -899,7 +899,7 @@
         },
         {
           "default": null,
-          "description": "The number of jobs to run in parallel for both `fit` and `predict`.\n`None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "description": "The number of jobs to run in parallel.\n`fit`, `predict`, `decision_path` and `apply` are all\nparallelized over the trees.\n`None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
           "name": "n_jobs",
           "option": "optional"
         },
@@ -1014,7 +1014,7 @@
         },
         {
           "default": null,
-          "description": "The number of jobs to run in parallel for both `fit` and `predict`.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "description": "The number of jobs to run in parallel.\n`fit`, `predict`, `decision_path` and `apply` are all\nparallelized over the trees.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
           "name": "n_jobs",
           "option": "optional"
         },
@@ -1460,16 +1460,19 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Constant that multiplies the penalty term. Defaults to 1.0.\n``alpha = 0`` is equivalent to an ordinary least square, solved\nby :class:`LinearRegression`. For numerical reasons, using\n``alpha = 0`` with the LassoLars object is not advised and you\nshould prefer the LinearRegression object.\n",
           "name": "alpha",
           "type": "float32"
         },
         {
+          "default": true,
           "description": "whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
           "name": "fit_intercept",
           "type": "boolean"
         },
         {
+          "default": "False",
           "description": "Sets the verbosity amount\n",
           "name": "verbose",
           "option": "optional"
@@ -1482,16 +1485,20 @@
           "type": "boolean"
         },
         {
+          "default": "auto",
           "description": "Whether to use a precomputed Gram matrix to speed up\ncalculations. If set to ``'auto'`` let us decide. The Gram\nmatrix can also be passed as argument.\n",
-          "name": "precompute"
+          "name": "precompute",
+          "type": "boolean"
         },
         {
+          "default": 500,
           "description": "Maximum number of iterations to perform.\n",
           "name": "max_iter",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         },
         {
-          "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\n",
+          "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\nBy default, ``np.finfo(np.float).eps`` is used.\n",
           "name": "eps",
           "option": "optional",
           "type": "float32"
@@ -1504,6 +1511,7 @@
           "type": "boolean"
         },
         {
+          "default": true,
           "description": "If ``True`` the full path is stored in the ``coef_path_`` attribute.\nIf you compute the solution for a large problem or many targets,\nsetting ``fit_path`` to ``False`` will lead to a speedup, especially\nwith a small alpha.\n",
           "name": "fit_path",
           "type": "boolean"
