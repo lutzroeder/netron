@@ -140,7 +140,7 @@
             };
     
             MetaGraphDef.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.MetaGraphDef(), key;
+                var message = new $root.tensorflow.MetaGraphDef(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
@@ -155,24 +155,38 @@
                         message.saver_def = $root.tensorflow.SaverDef.decodeText(reader, true);
                         break;
                     case "collection_def":
-                        reader.start();
                         if (message.collection_def === $util.emptyObject)
                             message.collection_def = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.collection_def[key] = $root.tensorflow.CollectionDef.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.CollectionDef.decodeText(reader, true);
+                                break;
+                            }
+                        message.collection_def[key] = value;
                         break;
                     case "signature_def":
-                        reader.start();
                         if (message.signature_def === $util.emptyObject)
                             message.signature_def = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.signature_def[key] = $root.tensorflow.SignatureDef.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.SignatureDef.decodeText(reader, true);
+                                break;
+                            }
+                        message.signature_def[key] = value;
                         break;
                     case "asset_file_def":
                         if (!(message.asset_file_def && message.asset_file_def.length))
@@ -941,30 +955,44 @@
             };
     
             SignatureDef.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.SignatureDef(), key;
+                var message = new $root.tensorflow.SignatureDef(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "inputs":
-                        reader.start();
                         if (message.inputs === $util.emptyObject)
                             message.inputs = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.inputs[key] = $root.tensorflow.TensorInfo.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.TensorInfo.decodeText(reader, true);
+                                break;
+                            }
+                        message.inputs[key] = value;
                         break;
                     case "outputs":
-                        reader.start();
                         if (message.outputs === $util.emptyObject)
                             message.outputs = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.outputs[key] = $root.tensorflow.TensorInfo.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.TensorInfo.decodeText(reader, true);
+                                break;
+                            }
+                        message.outputs[key] = value;
                         break;
                     case "method_name":
                         message.method_name = reader.string();
@@ -1882,7 +1910,7 @@
             };
     
             NodeDef.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.NodeDef(), key;
+                var message = new $root.tensorflow.NodeDef(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
@@ -1908,14 +1936,21 @@
                         message.device = reader.string();
                         break;
                     case "attr":
-                        reader.start();
                         if (message.attr === $util.emptyObject)
                             message.attr = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.AttrValue.decodeText(reader, true);
+                                break;
+                            }
+                        message.attr[key] = value;
                         break;
                     case "experimental_debug_info":
                         message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decodeText(reader, true);
@@ -2231,7 +2266,7 @@
             };
     
             FunctionDef.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.FunctionDef(), key;
+                var message = new $root.tensorflow.FunctionDef(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
@@ -2240,24 +2275,38 @@
                         message.signature = $root.tensorflow.OpDef.decodeText(reader, true);
                         break;
                     case "attr":
-                        reader.start();
                         if (message.attr === $util.emptyObject)
                             message.attr = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.AttrValue.decodeText(reader, true);
+                                break;
+                            }
+                        message.attr[key] = value;
                         break;
                     case "arg_attr":
-                        reader.start();
                         if (message.arg_attr === $util.emptyObject)
                             message.arg_attr = {};
-                        reader.assert("key");
-                        key = reader.uint32();
-                        reader.assert("value");
-                        message.arg_attr[key] = $root.tensorflow.FunctionDef.ArgAttrs.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = 0;
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.uint32();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.FunctionDef.ArgAttrs.decodeText(reader, true);
+                                break;
+                            }
+                        message.arg_attr[key] = value;
                         break;
                     case "node_def":
                         if (!(message.node_def && message.node_def.length))
@@ -2265,24 +2314,38 @@
                         message.node_def.push($root.tensorflow.NodeDef.decodeText(reader, true));
                         break;
                     case "ret":
-                        reader.start();
                         if (message.ret === $util.emptyObject)
                             message.ret = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.ret[key] = reader.string();
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = "";
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = reader.string();
+                                break;
+                            }
+                        message.ret[key] = value;
                         break;
                     case "control_ret":
-                        reader.start();
                         if (message.control_ret === $util.emptyObject)
                             message.control_ret = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.control_ret[key] = reader.string();
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = "";
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = reader.string();
+                                break;
+                            }
+                        message.control_ret[key] = value;
                         break;
                     default:
                         reader.field(tag, message);
@@ -2328,20 +2391,27 @@
                 };
     
                 ArgAttrs.decodeText = function decodeText(reader) {
-                    var message = new $root.tensorflow.FunctionDef.ArgAttrs(), key;
+                    var message = new $root.tensorflow.FunctionDef.ArgAttrs(), key, value;
                     reader.start();
                     while (!reader.end()) {
                         var tag = reader.tag();
                         switch (tag) {
                         case "attr":
-                            reader.start();
                             if (message.attr === $util.emptyObject)
                                 message.attr = {};
-                            reader.assert("key");
-                            key = reader.string();
-                            reader.assert("value");
-                            message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
-                            reader.end();
+                            reader.start();
+                            key = "";
+                            value = null;
+                            while (!reader.end())
+                                switch (reader.tag()) {
+                                case "key":
+                                    key = reader.string();
+                                    break;
+                                case "value":
+                                    value = $root.tensorflow.AttrValue.decodeText(reader, true);
+                                    break;
+                                }
+                            message.attr[key] = value;
                             break;
                         default:
                             reader.field(tag, message);
@@ -2760,7 +2830,7 @@
             };
     
             NameAttrList.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.NameAttrList(), key;
+                var message = new $root.tensorflow.NameAttrList(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
@@ -2769,14 +2839,21 @@
                         message.name = reader.string();
                         break;
                     case "attr":
-                        reader.start();
                         if (message.attr === $util.emptyObject)
                             message.attr = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.AttrValue.decodeText(reader, true);
+                                break;
+                            }
+                        message.attr[key] = value;
                         break;
                     default:
                         reader.field(tag, message);
@@ -3628,7 +3705,7 @@
             };
     
             SavedObjectGraph.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.SavedObjectGraph(), key;
+                var message = new $root.tensorflow.SavedObjectGraph(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
@@ -3639,14 +3716,21 @@
                         message.nodes.push($root.tensorflow.SavedObject.decodeText(reader, true));
                         break;
                     case "concrete_functions":
-                        reader.start();
                         if (message.concrete_functions === $util.emptyObject)
                             message.concrete_functions = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.concrete_functions[key] = $root.tensorflow.SavedConcreteFunction.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.SavedConcreteFunction.decodeText(reader, true);
+                                break;
+                            }
+                        message.concrete_functions[key] = value;
                         break;
                     default:
                         reader.field(tag, message);
@@ -5004,20 +5088,27 @@
             };
     
             DictValue.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.DictValue(), key;
+                var message = new $root.tensorflow.DictValue(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
                     switch (tag) {
                     case "fields":
-                        reader.start();
                         if (message.fields === $util.emptyObject)
                             message.fields = {};
-                        reader.assert("key");
-                        key = reader.string();
-                        reader.assert("value");
-                        message.fields[key] = $root.tensorflow.StructuredValue.decodeText(reader, true);
-                        reader.end();
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.StructuredValue.decodeText(reader, true);
+                                break;
+                            }
+                        message.fields[key] = value;
                         break;
                     default:
                         reader.field(tag, message);
