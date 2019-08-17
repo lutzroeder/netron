@@ -118,8 +118,7 @@ def update_attributes(schema, lines):
             "float in range [0.0, 1.0] or int (default=1.0)",
             "float in range [0.0, 1.0] or int (default=1)",
             "'l1', 'l2' or None, optional (default='l2')",
-            "{'scale', 'auto'} or float, optional (default='scale')",
-            "bool default=True"
+            "{'scale', 'auto'} or float, optional (default='scale')"
         }
         if line in skip_map:
             line = ''
