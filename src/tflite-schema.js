@@ -64,6 +64,7 @@ tflite_schema.BuiltinOperator = {
   CONCATENATION: 2,
   CONV_2D: 3,
   DEPTHWISE_CONV_2D: 4,
+  DEPTH_TO_SPACE: 5,
   DEQUANTIZE: 6,
   EMBEDDING_LOOKUP: 7,
   FLOOR: 8,
@@ -189,6 +190,7 @@ tflite_schema.BuiltinOperatorName = {
   2: 'CONCATENATION',
   3: 'CONV_2D',
   4: 'DEPTHWISE_CONV_2D',
+  5: 'DEPTH_TO_SPACE',
   6: 'DEQUANTIZE',
   7: 'EMBEDDING_LOOKUP',
   8: 'FLOOR',
@@ -402,7 +404,8 @@ tflite_schema.BuiltinOptions = {
   MatrixSetDiagOptions: 90,
   HardSwishOptions: 91,
   IfOptions: 92,
-  WhileOptions: 93
+  WhileOptions: 93,
+  DepthToSpaceOptions: 94
 };
 
 /**
@@ -502,7 +505,8 @@ tflite_schema.BuiltinOptionsName = {
   90: 'MatrixSetDiagOptions',
   91: 'HardSwishOptions',
   92: 'IfOptions',
-  93: 'WhileOptions'
+  93: 'WhileOptions',
+  94: 'DepthToSpaceOptions'
 };
 
 /**
@@ -4608,6 +4612,93 @@ tflite_schema.SpaceToDepthOptions.createSpaceToDepthOptions = function(builder, 
   tflite_schema.SpaceToDepthOptions.startSpaceToDepthOptions(builder);
   tflite_schema.SpaceToDepthOptions.addBlockSize(builder, blockSize);
   return tflite_schema.SpaceToDepthOptions.endSpaceToDepthOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.DepthToSpaceOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.DepthToSpaceOptions}
+ */
+tflite_schema.DepthToSpaceOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.DepthToSpaceOptions=} obj
+ * @returns {tflite_schema.DepthToSpaceOptions}
+ */
+tflite_schema.DepthToSpaceOptions.getRootAsDepthToSpaceOptions = function(bb, obj) {
+  return (obj || new tflite_schema.DepthToSpaceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.DepthToSpaceOptions=} obj
+ * @returns {tflite_schema.DepthToSpaceOptions}
+ */
+tflite_schema.DepthToSpaceOptions.getSizePrefixedRootAsDepthToSpaceOptions = function(bb, obj) {
+  return (obj || new tflite_schema.DepthToSpaceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite_schema.DepthToSpaceOptions.prototype.blockSize = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.DepthToSpaceOptions.startDepthToSpaceOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} blockSize
+ */
+tflite_schema.DepthToSpaceOptions.addBlockSize = function(builder, blockSize) {
+  builder.addFieldInt32(0, blockSize, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.DepthToSpaceOptions.endDepthToSpaceOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} blockSize
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.DepthToSpaceOptions.createDepthToSpaceOptions = function(builder, blockSize) {
+  tflite_schema.DepthToSpaceOptions.startDepthToSpaceOptions(builder);
+  tflite_schema.DepthToSpaceOptions.addBlockSize(builder, blockSize);
+  return tflite_schema.DepthToSpaceOptions.endDepthToSpaceOptions(builder);
 }
 
 /**
