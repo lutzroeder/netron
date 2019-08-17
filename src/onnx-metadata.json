@@ -2843,6 +2843,69 @@
     }
   },
   {
+    "name": "Constant",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The value for the elements of the output tensor in sparse format.",
+          "name": "sparse_value",
+          "required": false
+        },
+        {
+          "description": "The value for the elements of the output tensor.",
+          "name": "value",
+          "required": false,
+          "type": "tensor"
+        }
+      ],
+      "category": "Constant",
+      "description": "A constant tensor. Exactly one of the two attributes, either value or sparse_value,\nmust be specified.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "values = np.random.randn(5, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['values'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=values.shape,\n        vals=values.flatten().astype(float),\n    ),\n)\n\nexpect(node, inputs=[], outputs=[values],\n       name='test_constant')",
+          "summary": "constant"
+        }
+      ],
+      "max_input": 0,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor containing the same value of the provided tensor.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "ConstantOfShape",
     "schema": {
       "attributes": [

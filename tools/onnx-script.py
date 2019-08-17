@@ -166,7 +166,7 @@ def generate_json(schemas, json_file):
                 attribute_type = generate_json_attr_type(attribute.type)
                 if attribute_type:
                     json_attribute['type'] = attribute_type
-                else:
+                elif 'type' in json_attribute:
                     del json_attribute['type']
                 json_attribute['required'] = attribute.required
                 default_value = generate_json_attr_default_value(attribute.default_value)
