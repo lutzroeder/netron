@@ -44253,6 +44253,7 @@
           "type": "shape[]"
         }
       ],
+      "description": "Creates a Dataset that returns a stream of uniformly distributed\npseudorandom 64-bit signed integers.\n\nIn the TensorFlow Python API, you can instantiate this dataset via the \nclass `tf.data.experimental.RandomDataset`.\n\nInstances of this dataset are also created as a result of the\n`hoist_random_uniform` static optimization. Whether this optimization is\nperformed is determined by the `experimental_optimization.hoist_random_uniform`\noption of `tf.data.Options`.",
       "inputs": [
         {
           "description": "A scalar seed for the random number generator. If either seed or\nseed2 is set to be non-zero, the random number generator is seeded\nby the given seed.  Otherwise, a random seed is used.",
