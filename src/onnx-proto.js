@@ -17,7 +17,8 @@
             values[valuesById[2] = "IR_VERSION_2017_10_30"] = 2;
             values[valuesById[3] = "IR_VERSION_2017_11_3"] = 3;
             values[valuesById[4] = "IR_VERSION_2019_1_22"] = 4;
-            values[valuesById[5] = "IR_VERSION"] = 5;
+            values[valuesById[5] = "IR_VERSION_2019_3_18"] = 5;
+            values[valuesById[6] = "IR_VERSION"] = 6;
             return values;
         })();
     
@@ -29,6 +30,7 @@
                 this.strings = [];
                 this.tensors = [];
                 this.graphs = [];
+                this.sparse_tensors = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -44,11 +46,13 @@
             AttributeProto.prototype.s = $util.newBuffer([]);
             AttributeProto.prototype.t = null;
             AttributeProto.prototype.g = null;
+            AttributeProto.prototype.sparse_tensor = null;
             AttributeProto.prototype.floats = $util.emptyArray;
             AttributeProto.prototype.ints = $util.emptyArray;
             AttributeProto.prototype.strings = $util.emptyArray;
             AttributeProto.prototype.tensors = $util.emptyArray;
             AttributeProto.prototype.graphs = $util.emptyArray;
+            AttributeProto.prototype.sparse_tensors = $util.emptyArray;
     
             AttributeProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -84,6 +88,9 @@
                     case 6:
                         message.g = $root.onnx.GraphProto.decode(reader, reader.uint32());
                         break;
+                    case 22:
+                        message.sparse_tensor = $root.onnx.SparseTensorProto.decode(reader, reader.uint32());
+                        break;
                     case 7:
                         if (!(message.floats && message.floats.length))
                             message.floats = [];
@@ -118,6 +125,11 @@
                         if (!(message.graphs && message.graphs.length))
                             message.graphs = [];
                         message.graphs.push($root.onnx.GraphProto.decode(reader, reader.uint32()));
+                        break;
+                    case 23:
+                        if (!(message.sparse_tensors && message.sparse_tensors.length))
+                            message.sparse_tensors = [];
+                        message.sparse_tensors.push($root.onnx.SparseTensorProto.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -159,6 +171,9 @@
                         break;
                     case "g":
                         message.g = $root.onnx.GraphProto.decodeText(reader, true);
+                        break;
+                    case "sparse_tensor":
+                        message.sparse_tensor = $root.onnx.SparseTensorProto.decodeText(reader, true);
                         break;
                     case "floats":
                         if (!(message.floats && message.floats.length))
@@ -203,6 +218,11 @@
                             message.graphs = [];
                         message.graphs.push($root.onnx.GraphProto.decodeText(reader, true));
                         break;
+                    case "sparse_tensors":
+                        if (!(message.sparse_tensors && message.sparse_tensors.length))
+                            message.sparse_tensors = [];
+                        message.sparse_tensors.push($root.onnx.SparseTensorProto.decodeText(reader, true));
+                        break;
                     default:
                         reader.field(tag, message);
                         break;
@@ -219,11 +239,13 @@
                 values[valuesById[3] = "STRING"] = 3;
                 values[valuesById[4] = "TENSOR"] = 4;
                 values[valuesById[5] = "GRAPH"] = 5;
+                values[valuesById[11] = "SPARSE_TENSOR"] = 11;
                 values[valuesById[6] = "FLOATS"] = 6;
                 values[valuesById[7] = "INTS"] = 7;
                 values[valuesById[8] = "STRINGS"] = 8;
                 values[valuesById[9] = "TENSORS"] = 9;
                 values[valuesById[10] = "GRAPHS"] = 10;
+                values[valuesById[12] = "SPARSE_TENSORS"] = 12;
                 return values;
             })();
     
@@ -648,6 +670,7 @@
             function GraphProto(properties) {
                 this.node = [];
                 this.initializer = [];
+                this.sparse_initializer = [];
                 this.input = [];
                 this.output = [];
                 this.value_info = [];
@@ -661,6 +684,7 @@
             GraphProto.prototype.node = $util.emptyArray;
             GraphProto.prototype.name = "";
             GraphProto.prototype.initializer = $util.emptyArray;
+            GraphProto.prototype.sparse_initializer = $util.emptyArray;
             GraphProto.prototype.doc_string = "";
             GraphProto.prototype.input = $util.emptyArray;
             GraphProto.prototype.output = $util.emptyArray;
@@ -686,6 +710,11 @@
                         if (!(message.initializer && message.initializer.length))
                             message.initializer = [];
                         message.initializer.push($root.onnx.TensorProto.decode(reader, reader.uint32()));
+                        break;
+                    case 15:
+                        if (!(message.sparse_initializer && message.sparse_initializer.length))
+                            message.sparse_initializer = [];
+                        message.sparse_initializer.push($root.onnx.SparseTensorProto.decode(reader, reader.uint32()));
                         break;
                     case 10:
                         message.doc_string = reader.string();
@@ -736,6 +765,11 @@
                         if (!(message.initializer && message.initializer.length))
                             message.initializer = [];
                         message.initializer.push($root.onnx.TensorProto.decodeText(reader, true));
+                        break;
+                    case "sparse_initializer":
+                        if (!(message.sparse_initializer && message.sparse_initializer.length))
+                            message.sparse_initializer = [];
+                        message.sparse_initializer.push($root.onnx.SparseTensorProto.decodeText(reader, true));
                         break;
                     case "doc_string":
                         message.doc_string = reader.string();
@@ -1134,6 +1168,85 @@
             return TensorProto;
         })();
     
+        onnx.SparseTensorProto = (function() {
+    
+            function SparseTensorProto(properties) {
+                this.dims = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SparseTensorProto.prototype.values = null;
+            SparseTensorProto.prototype.indices = null;
+            SparseTensorProto.prototype.dims = $util.emptyArray;
+    
+            SparseTensorProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.SparseTensorProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.values = $root.onnx.TensorProto.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        message.indices = $root.onnx.TensorProto.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        if (!(message.dims && message.dims.length))
+                            message.dims = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.dims.push(reader.int64());
+                        } else
+                            message.dims.push(reader.int64());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SparseTensorProto.decodeText = function decodeText(reader) {
+                var message = new $root.onnx.SparseTensorProto();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "values":
+                        message.values = $root.onnx.TensorProto.decodeText(reader, true);
+                        break;
+                    case "indices":
+                        message.indices = $root.onnx.TensorProto.decodeText(reader, true);
+                        break;
+                    case "dims":
+                        if (!(message.dims && message.dims.length))
+                            message.dims = [];
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.dims.push(reader.int64());
+                                reader.next();
+                            }
+                        else
+                            message.dims.push(reader.int64());
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return SparseTensorProto;
+        })();
+    
         onnx.TensorShapeProto = (function() {
     
             function TensorShapeProto(properties) {
@@ -1402,6 +1515,62 @@
                 return Tensor;
             })();
     
+            TypeProto.SparseTensor = (function() {
+    
+                function SparseTensor(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SparseTensor.prototype.elem_type = 0;
+                SparseTensor.prototype.shape = null;
+    
+                SparseTensor.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TypeProto.SparseTensor();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.elem_type = reader.int32();
+                            break;
+                        case 2:
+                            message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                SparseTensor.decodeText = function decodeText(reader) {
+                    var message = new $root.onnx.TypeProto.SparseTensor();
+                    reader.start();
+                    while (!reader.end()) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "elem_type":
+                            message.elem_type = reader.int32();
+                            break;
+                        case "shape":
+                            message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.field(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SparseTensor;
+            })();
+    
             TypeProto.Sequence = (function() {
     
                 function Sequence(properties) {
@@ -1561,62 +1730,6 @@
                 };
     
                 return Opaque;
-            })();
-    
-            TypeProto.SparseTensor = (function() {
-    
-                function SparseTensor(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                SparseTensor.prototype.elem_type = 0;
-                SparseTensor.prototype.shape = null;
-    
-                SparseTensor.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TypeProto.SparseTensor();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.elem_type = reader.int32();
-                            break;
-                        case 2:
-                            message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                SparseTensor.decodeText = function decodeText(reader) {
-                    var message = new $root.onnx.TypeProto.SparseTensor();
-                    reader.start();
-                    while (!reader.end()) {
-                        var tag = reader.tag();
-                        switch (tag) {
-                        case "elem_type":
-                            message.elem_type = reader.int32();
-                            break;
-                        case "shape":
-                            message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
-                            break;
-                        default:
-                            reader.field(tag, message);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                return SparseTensor;
             })();
     
             return TypeProto;
@@ -1903,7 +2016,7 @@
             }
     
             OperatorSetProto.prototype.magic = "";
-            OperatorSetProto.prototype.ir_version = 0;
+            OperatorSetProto.prototype.ir_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
             OperatorSetProto.prototype.ir_version_prerelease = "";
             OperatorSetProto.prototype.ir_build_metadata = "";
             OperatorSetProto.prototype.domain = "";
@@ -1923,7 +2036,7 @@
                         message.magic = reader.string();
                         break;
                     case 2:
-                        message.ir_version = reader.int32();
+                        message.ir_version = reader.int64();
                         break;
                     case 3:
                         message.ir_version_prerelease = reader.string();
@@ -1968,7 +2081,7 @@
                         message.magic = reader.string();
                         break;
                     case "ir_version":
-                        message.ir_version = reader.int32();
+                        message.ir_version = reader.int64();
                         break;
                     case "ir_version_prerelease":
                         message.ir_version_prerelease = reader.string();
