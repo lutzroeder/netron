@@ -2207,6 +2207,68 @@
     "status": "script"
   },
   {
+    "type":   "mlnet",
+    "target": "BinaryClassification_AutoML_SentimentModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "GitHubLabelerModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/MulticlassClassification-GitHubLabeler/GitHubLabeler/MLModels/GitHubLabelerModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ImageClassification.Train.imageClassifier.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Train/assets/outputs/imageClassifier.zip?raw=true",
+    "format": "ML.NET v1.3.28006.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ImageClassification.Predict.imageClassifier.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Predict/assets/inputs/imageClassifier.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ProductSalesChangePointModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesChangePointModel.zip?raw=true",
+    "format": "ML.NET v1.2.27902.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ProductSalesSpikeModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesSpikeModel.zip?raw=true",
+    "format": "ML.NET v1.2.27902.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "randomizedPca.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/AnomalyDetection_CreditCardFraudDetection/CreditCardFraudDetection.Predictor/assets/input/randomizedPca.zip?raw=true",
+    "format": "ML.NET v1.2.27902.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "TaxiFareModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_AutoML/TaxiFarePrediction/MLModels/TaxiFareModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "TinyYoloModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/61b428c746f39069a9d1d92f9e0f819e6beb30f3/samples/csharp/end-to-end-apps/DeepLearning_ObjectDetection_Onnx/OnnxObjectDetectionE2EAPP/ML/MLNETModel/TinyYoloModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1"
+  },
+  {
     "type":   "mxnet",
     "target": "arcface-resnet100.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-arcface/arcface-resnet100.model",

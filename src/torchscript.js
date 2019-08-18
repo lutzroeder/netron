@@ -16,7 +16,7 @@ torchscript.ModelFactory = class {
         var extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 't7' ||
             extension == 'dms' || extension == 'model' || extension == 'ckpt' || identifier.endsWith('.pth.tar')) {
-            if (torchscript.ModelFactory._openContainer(context.buffer)) {
+            if (torchscript.ModelFactory._openContainer(context)) {
                 return true;
             }
         }
@@ -28,7 +28,7 @@ torchscript.ModelFactory = class {
             return host.require('./pickle').then((pickle) => {
                 var identifier = context.identifier;
                 try {
-                    var container = torchscript.ModelFactory._openContainer(context.buffer);
+                    var container = torchscript.ModelFactory._openContainer(context);
                     if (container.attributes) {
                         container.attributes = new pickle.Unpickler(container.attributes.data).load((name, args) => {
                             return { type: name, args: args[0] };
@@ -57,16 +57,16 @@ torchscript.ModelFactory = class {
         });
     }
 
-    static _openContainer(buffer) {
-        if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
-            var archive = new zip.Archive(buffer);
+    static _openContainer(context) {
+        let entries = context.entries;
+        if (entries && entries.length > 0) {
             var container = { };
-            container.version = archive.entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
+            container.version = entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
             if (container.version) {
                 container.prefix = container.version.name.substring(0, container.version.name.length - 7);
-                container.attributes = archive.entries.find((entry) => entry.name == container.prefix + 'attributes.pkl');
-                container.model = archive.entries.find((entry) => entry.name == container.prefix + 'model.json');
-                container.entries = archive.entries;
+                container.attributes = entries.find((entry) => entry.name == container.prefix + 'attributes.pkl');
+                container.model = entries.find((entry) => entry.name == container.prefix + 'model.json');
+                container.entries = entries;
                 if (container.version && container.model) {
                     return container;
                 }

@@ -66,9 +66,9 @@ setuptools.setup(
     version=package_version(),
     description="Viewer for neural network, deep learning and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning and machine learning models.\n\n' +
-                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), **TorchScript** (`.pt`, `.pth`), NCNN (`.param`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), Deeplearning4j (`.zip`, `configuration.json`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
+                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), **TorchScript** (`.pt`, `.pth`), NCNN (`.param`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), Deeplearning4j (`.zip`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
     keywords=[
-        'onnx', 'keras', 'tensorflow', 'coreml', 'mxnet', 'caffe', 'caffe2',
+        'onnx', 'keras', 'tensorflow', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'openvino', 'darknet',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',
         'visualizer', 'viewer'
     ],
@@ -95,6 +95,7 @@ setuptools.setup(
             'darknet.js', 'darknet-metadata.json',
             'dl4j.js', 'dl4j-metadata.json',
             'keras.js', 'keras-metadata.json', 'hdf5.js',
+            'mlnet.js', 'mlnet-metadata.json',
             'mxnet.js', 'mxnet-metadata.json',
             'ncnn.js', 'ncnn-metadata.json',
             'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',

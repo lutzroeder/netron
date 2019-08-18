@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+node_modules=${root}/node_modules
+src=${root}/src
+third_party=${root}/third_party
+tools=${root}/tools
+
+identifier=mlnet
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch --quiet -p
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
+    fi
+    git -C "${third_party}/${1}" submodule update --quiet --init
+}
+
+clean() {
+    bold "mlnet clean"
+    rm -rf ${third_party}/mlnet
+}
+
+sync() {
+    bold "mlnet sync"
+    git_sync mlnet https://github.com/dotnet/machinelearning.git
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+    esac
+done

@@ -11,10 +11,8 @@ mxnet.ModelFactory = class {
     match(context) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop().toLowerCase();
-        var buffer = null;
         if (extension == 'model' || extension == 'mar') {
-            buffer = context.buffer;
-            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+            if (context.entries.length > 0) {
                 return true;
             }
         }
@@ -33,7 +31,7 @@ mxnet.ModelFactory = class {
             }
         }
         else if (extension == 'params') {
-            buffer = context.buffer;
+            var buffer = context.buffer;
             var signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
             if (buffer && buffer.length > signature.length && signature.every((v, i) => v == buffer[i])) {
                 return true;
@@ -89,26 +87,25 @@ mxnet.ModelFactory = class {
                 }
             case 'mar':
             case 'model':
-                var entries = {};
+                var entries = new Map();
                 try {
-                    var archive = new zip.Archive(context.buffer, host.inflateRaw);
-                    for (var entry of archive.entries) {
-                        entries[entry.name] = entry;
+                    for (var entry of context.entries) {
+                        entries.set(entry.name, entry);
                     }
                 }
                 catch (err) {
                     throw new mxnet.Error('Failed to decompress ZIP archive. ' + err.message);
                 }
 
-                var manifestEntry = entries['MANIFEST.json'] || entries['MAR-INF/MANIFEST.json'];
+                var manifestEntry = entries.get(entries.has('MANIFEST.json') ? 'MANIFEST.json' : 'MAR-INF/MANIFEST.json');
                 var rootFolder = '';
                 if (!manifestEntry) {
-                    var folders = Object.keys(entries).filter((name) => name.endsWith('/')).filter((name) => entries[name + 'MANIFEST.json']);
+                    var folders = Array.from(entries.keys()).filter((name) => name.endsWith('/')).filter((name) => entries.get(name + 'MANIFEST.json'));
                     if (folders.length != 1) {
                         throw new mxnet.Error("Manifest not found in '" + context.identifier + "'.");
                     }
                     rootFolder = folders[0];
-                    manifestEntry = entries[rootFolder + 'MANIFEST.json'];
+                    manifestEntry = entries.get(rootFolder + 'MANIFEST.json');
                 }
 
                 var decoder = new TextDecoder('utf-8');
@@ -136,12 +133,12 @@ mxnet.ModelFactory = class {
                     if (!manifest.Model.Symbol) {
                         throw new mxnet.Error('Manifest does not contain symbol entry.');
                     }
-                    symbolEntry = entries[rootFolder + manifest.Model.Symbol];
+                    symbolEntry = entries.get(rootFolder + manifest.Model.Symbol);
                     if (manifest.Model.Signature) {
-                        signatureEntry = entries[rootFolder + manifest.Model.Signature];
+                        signatureEntry = entries.get(rootFolder + manifest.Model.Signature);
                     }
                     if (manifest.Model.Parameters) {
-                        paramsEntry = entries[rootFolder + manifest.Model.Parameters];
+                        paramsEntry = entries.get(rootFolder + manifest.Model.Parameters);
                     }
                 }
                 else if (manifest.model) {
@@ -150,12 +147,12 @@ mxnet.ModelFactory = class {
                         format += ' v' + manifest.specificationVersion.toString();
                     }
                     if (manifest.model.modelName) {
-                        symbolEntry = entries[rootFolder + manifest.model.modelName + '-symbol.json']
+                        symbolEntry = entries.get(rootFolder + manifest.model.modelName + '-symbol.json');
                         var key = null;
-                        for (key of Object.keys(entries)) {
+                        for (key of Array.from(entries.keys())) {
                             key = key.substring(rootFolder.length);
                             if (key.endsWith('.params') && key.startsWith(manifest.model.modelName)) {
-                                paramsEntry = entries[key];
+                                paramsEntry = entries.get(key);
                                 break;
                             }
                         }
@@ -163,7 +160,7 @@ mxnet.ModelFactory = class {
                             for (key of Object.keys(entries)) {
                                 key = key.substring(rootFolder.length);
                                 if (key.endsWith('.params')) {
-                                    paramsEntry = entries[key];
+                                    paramsEntry = entries.get(key);
                                     break;
                                 }
                             }

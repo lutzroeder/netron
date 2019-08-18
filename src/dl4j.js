@@ -10,9 +10,9 @@ dl4j.ModelFactory = class {
 
     match(context) {
         var identifier = context.identifier.toLowerCase();
-        if (identifier == 'configuration.json') {
-            var text = context.text;
-            if (text && (text.indexOf('"vertices"') !== -1 || text.indexOf('"confs"') !== -1)) {
+        var extension = identifier.split('.').pop().toLowerCase();
+        if (extension === 'zip' && context.entries.length > 0) {
+            if (dl4j.ModelFactory._openContainer(context)) {
                 return true;
             }
         }
@@ -20,15 +20,20 @@ dl4j.ModelFactory = class {
     }
 
     open(context, host) {
-        var identifier = context.identifier;
+        let identifier = context.identifier;
         try {
-            var configuration = JSON.parse(context.text);
+            let container = dl4j.ModelFactory._openContainer(context); 
+            let configuration = JSON.parse(container.configuration);
             return dl4j.Metadata.open(host).then((metadata) => {
-                return context.request('coefficients.bin', null).then((coefficients) => {
-                    return this._openModel(context, host, metadata, configuration, coefficients);
-                }).catch(() => {
-                    return this._openModel(context, host, metadata, configuration, null);
-                });
+                try {
+                    return new dl4j.Model(metadata, configuration, container.coefficients);
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    var message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    throw new dl4j.Error(message + " in '" + identifier + "'.");
+                }
             });
         }
         catch (error) {
@@ -39,17 +44,30 @@ dl4j.ModelFactory = class {
         }
     }
 
-    _openModel(context, host, metadata, configuration, coefficients) {
-        var identifier = context.identifier;
+    static _openContainer(context) {
+        let configurationEntries = context.entries.filter((entry) => entry.name === 'configuration.json');
+        if (configurationEntries.length != 1) {
+            return null;
+        }
+        var configuration = null;
         try {
-            return new dl4j.Model(metadata, configuration, coefficients);
+            configuration = new TextDecoder('utf-8').decode(configurationEntries[0].data);
         }
         catch (error) {
-            host.exception(error, false);
-            var message = error && error.message ? error.message : error.toString();
-            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            throw new dl4j.Error(message + " in '" + identifier + "'.");
+            return null;
         }
+        if (configuration.indexOf('"vertices"') === -1 && configuration.indexOf('"confs"') === -1) {
+            return null;
+        }
+        let coefficientsEntries = context.entries.filter((entry) => entry.name === 'coefficients.bin');
+        if (coefficientsEntries.length > 1) {
+            return null;
+        }
+        let coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : 0;
+        var container = {};
+        container.configuration = configuration;
+        container.coefficients = coefficients;
+        return container;
     }
 }
 

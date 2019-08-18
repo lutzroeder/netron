@@ -1013,6 +1013,22 @@ class ModelContext {
         return this._text;
     }
 
+    get entries() {
+        if (!this._entries) {
+            var buffer = this.buffer;
+            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+                try {
+                    var archive = new zip.Archive(buffer);
+                    this._entries = archive.entries;
+                }
+                catch (error) {
+                    this._entries = [];
+                }
+            }
+        }
+        return this._entries;
+    }
+
     tags(extension) {
         var tags = this._tags.get(extension);
         if (!tags) {
@@ -1134,7 +1150,8 @@ view.ModelFactoryService = class {
         this.register('./darknet', [ '.cfg' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
-        this.register('./dl4j', [ 'configuration.json' ]);
+        this.register('./dl4j', [ '.zip' ]);
+        this.register('./mlnet', [ '.zip' ]);
     }
 
     register(id, extensions) {
@@ -1265,6 +1282,7 @@ view.ModelFactoryService = class {
             rootFolder = rootFolder == '/' ? '' : rootFolder;
             var matches = [];
             var entries = archive.entries.slice();
+            var sourceContext = context;
             var nextEntry = () => {
                 if (entries.length > 0) {
                     var entry = entries.shift();
@@ -1299,7 +1317,8 @@ view.ModelFactoryService = class {
                 }
                 else {
                     if (matches.length == 0) {
-                        return Promise.reject(new ArchiveError('Archive does not contain model file.'));
+                        return Promise.resolve(sourceContext);
+                        // return Promise.reject(new ArchiveError('Archive does not contain model file.'));
                     }
                     else if (matches.length > 1) {
                         if (matches.length == 2 &&
