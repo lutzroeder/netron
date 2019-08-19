@@ -17,6 +17,7 @@ categories = {
     'DepthwiseConv2dNative': 'Layer',
     'Relu': 'Activation',
     'Relu6': 'Activation',
+    'Elu': 'Activation',
     'Softmax': 'Activation',
     'Sigmoid': 'Activation',
     'LRN': 'Normalization',

@@ -17847,6 +17847,7 @@
           "type": "type"
         }
       ],
+      "category": "Activation",
       "description": "See [Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)\n](http://arxiv.org/abs/1511.07289)",
       "inputs": [
         {
