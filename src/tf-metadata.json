@@ -10001,6 +10001,24 @@
           "description": "If true, merge repeated classes in output.",
           "name": "merge_repeated",
           "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
         }
       ],
       "description": "A note about the attribute merge_repeated: For the beam search decoder,\nthis means that if consecutive entries in a beam are the same, only\nthe first of these is emitted.  That is, when the top path is \"A B B B B\",\n\"A B\" is returned if merge_repeated = True but \"A B B B B\" is\nreturned if merge_repeated = False.",
@@ -10008,7 +10026,7 @@
         {
           "description": "3-D, shape: `(max_time x batch_size x num_classes)`, the logits.",
           "name": "inputs",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A vector containing sequence lengths, size `(batch)`.",
@@ -10038,7 +10056,7 @@
         {
           "description": "A matrix, shaped: `(batch_size x top_paths)`.  The\nsequence log-probabilities.",
           "name": "log_probability",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Performs beam search decoding on the logits given in input."
@@ -10053,6 +10071,24 @@
           "description": "If True, merge repeated classes in output.",
           "name": "merge_repeated",
           "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
         }
       ],
       "description": "A note about the attribute merge_repeated: if enabled, when\nconsecutive logits' maximum indices are the same, only the first of\nthese is emitted.  Labeling the blank '*', the sequence \"A B B * B B\"\nbecomes \"A B B\" if merge_repeated = True and \"A B B B B\" if\nmerge_repeated = False.\n\nRegardless of the value of merge_repeated, if the maximum index of a given\ntime and batch corresponds to the blank, index `(num_classes - 1)`, no new\nelement is emitted.",
@@ -10060,7 +10096,7 @@
         {
           "description": "3-D, shape: `(max_time x batch_size x num_classes)`, the logits.",
           "name": "inputs",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "A vector containing sequence lengths, size `(batch_size)`.",
@@ -10087,7 +10123,7 @@
         {
           "description": "Matrix, size `(batch_size x 1)`, containing sequence\nlog-probabilities.",
           "name": "log_probability",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Performs greedy decoding on the logits given in inputs."
@@ -10114,6 +10150,24 @@
           "description": "Scalar. If set to true, during CTC\ncalculation, items that have longer output sequences than input sequences\nare skipped: they don't contribute to the loss term and have zero-gradient.",
           "name": "ignore_longer_outputs_than_inputs",
           "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "T",
+          "type": "type"
         }
       ],
       "description": "the gradient.  This class performs the softmax operation for you, so inputs\nshould be e.g. linear projections of outputs by an LSTM.",
@@ -10121,7 +10175,7 @@
         {
           "description": "3-D, shape: `(max_time x batch_size x num_classes)`, the logits.",
           "name": "inputs",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "The indices of a `SparseTensor<int32, 2>`.\n`labels_indices(i, :) == [b, t]` means `labels_values(i)` stores the id for\n`(batch b, time t)`.",
@@ -10143,12 +10197,12 @@
         {
           "description": "A vector (batch) containing log-probabilities.",
           "name": "loss",
-          "type": 1
+          "typeAttr": "T"
         },
         {
           "description": "The gradient of `loss`.  3-D, shape:\n`(max_time x batch_size x num_classes)`.",
           "name": "gradient",
-          "type": 1
+          "typeAttr": "T"
         }
       ],
       "summary": "Calculates the CTC Loss (log probability) for each batch entry.  Also calculates"
