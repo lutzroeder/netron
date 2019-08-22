@@ -551,6 +551,7 @@ mxnet.Graph = class {
 };
 
 mxnet.Parameter = class {
+
     constructor(name, args) {
         this._name = name;
         this._arguments = args;
@@ -570,6 +571,7 @@ mxnet.Parameter = class {
 };
 
 mxnet.Argument = class {
+
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;

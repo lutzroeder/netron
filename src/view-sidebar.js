@@ -308,7 +308,7 @@ sidebar.NodeSidebar = class {
                 if (Number.isNaN(item)) {
                     return 'NaN';
                 }
-                return sidebar.NodeSidebar.formatAttributeValue(item, null);
+                return sidebar.NodeSidebar.formatAttributeValue(item, null, true);
             });
             if (ellipsis) {
                 array.push('\u2026')
