@@ -502,6 +502,12 @@
           "name": "presort",
           "option": "optional",
           "type": "boolean"
+        },
+        {
+          "default": "0.0",
+          "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
+          "name": "ccp_alpha",
+          "option": "optional"
         }
       ],
       "description": "A decision tree regressor.\n\nRead more in the :ref:`User Guide <tree>`.\n",
@@ -597,6 +603,12 @@
           "name": "presort",
           "option": "optional",
           "type": "boolean"
+        },
+        {
+          "default": "0.0",
+          "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
+          "name": "ccp_alpha",
+          "option": "optional"
         }
       ],
       "description": "A decision tree classifier.\n\nRead more in the :ref:`User Guide <tree>`.\n",
@@ -719,6 +731,12 @@
           "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one. For\nmulti-output problems, a list of dicts can be provided in the same\norder as the columns of y.\n\nNote that for multioutput (including multilabel) weights should be\ndefined for each class of every column in its own dict. For example,\nfor four-class multilabel classification weights should be\n[{0: 1, 1: 1}, {0: 1, 1: 5}, {0: 1, 1: 1}, {0: 1, 1: 1}] instead of\n[{1:1}, {2:5}, {3:1}, {4:1}].\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n\nThe \"balanced_subsample\" mode is the same as \"balanced\" except that weights are\ncomputed based on the bootstrap sample for every tree grown.\n\nFor multi-output, the weights of each column of y will be multiplied.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n",
           "name": "class_weight",
           "option": "optional"
+        },
+        {
+          "default": "0.0",
+          "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
+          "name": "ccp_alpha",
+          "option": "optional"
         }
       ],
       "description": "An extra-trees classifier.\n\nThis class implements a meta estimator that fits a number of\nrandomized decision trees (a.k.a. extra-trees) on various sub-samples\nof the dataset and uses averaging to improve the predictive accuracy\nand control over-fitting.\n\nRead more in the :ref:`User Guide <forest>`.\n",
@@ -807,6 +825,12 @@
           "default": null,
           "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one. For\nmulti-output problems, a list of dicts can be provided in the same\norder as the columns of y.\n\nNote that for multioutput (including multilabel) weights should be\ndefined for each class of every column in its own dict. For example,\nfor four-class multilabel classification weights should be\n[{0: 1, 1: 1}, {0: 1, 1: 5}, {0: 1, 1: 1}, {0: 1, 1: 1}] instead of\n[{1:1}, {2:5}, {3:1}, {4:1}].\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n\nFor multi-output, the weights of each column of y will be multiplied.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n",
           "name": "class_weight"
+        },
+        {
+          "default": "0.0",
+          "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
+          "name": "ccp_alpha",
+          "option": "optional"
         }
       ],
       "description": "An extremely randomized tree classifier.\n\nExtra-trees differ from classic decision trees in the way they are built.\nWhen looking for the best split to separate the samples of a node into two\ngroups, random splits are drawn for each of the `max_features` randomly\nselected features and the best split among those is chosen. When\n`max_features` is set 1, this amounts to building a totally random\ndecision tree.\n\nWarning: Extra-trees should only be used within ensemble methods.\n\nRead more in the :ref:`User Guide <tree>`.\n",
@@ -923,6 +947,12 @@
           "name": "warm_start",
           "option": "optional",
           "type": "boolean"
+        },
+        {
+          "default": "0.0",
+          "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
+          "name": "ccp_alpha",
+          "option": "optional"
         }
       ],
       "description": "A random forest regressor.\n\nA random forest is a meta estimator that fits a number of classifying\ndecision trees on various sub-samples of the dataset and uses averaging\nto improve the predictive accuracy and control over-fitting.\nThe sub-sample size is always the same as the original\ninput sample size but the samples are drawn with replacement if\n`bootstrap=True` (default).\n\nRead more in the :ref:`User Guide <forest>`.\n",
@@ -1043,6 +1073,12 @@
           "default": null,
           "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one. For\nmulti-output problems, a list of dicts can be provided in the same\norder as the columns of y.\n\nNote that for multioutput (including multilabel) weights should be\ndefined for each class of every column in its own dict. For example,\nfor four-class multilabel classification weights should be\n[{0: 1, 1: 1}, {0: 1, 1: 5}, {0: 1, 1: 1}, {0: 1, 1: 1}] instead of\n[{1:1}, {2:5}, {3:1}, {4:1}].\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n\nThe \"balanced_subsample\" mode is the same as \"balanced\" except that\nweights are computed based on the bootstrap sample for every tree\ngrown.\n\nFor multi-output, the weights of each column of y will be multiplied.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n",
           "name": "class_weight",
+          "option": "optional"
+        },
+        {
+          "default": "0.0",
+          "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
+          "name": "ccp_alpha",
           "option": "optional"
         }
       ],
