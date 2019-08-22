@@ -9598,6 +9598,12 @@
           "minimum": 0,
           "name": "num_features",
           "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "scalar, dimension of the logits",
+          "name": "logits_dimension",
+          "type": "int64"
         }
       ],
       "description": "or by starting a new tree.",
@@ -15156,6 +15162,11 @@
           "minimum": 0,
           "name": "stateful_whitelist",
           "type": "string[]"
+        },
+        {
+          "default": false,
+          "name": "allow_stateful",
+          "type": "boolean"
         }
       ],
       "description": "Returns a graph representation for `input_dataset`.",
