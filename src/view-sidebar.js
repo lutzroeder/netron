@@ -341,7 +341,14 @@ sidebar.NodeSidebar = class {
         if (objectType) {
             return objectType + (list.length == 0 ? '()' : [ '(', list.join(', '), ')' ].join(''));
         }
-        return list.length == 0 ? (quote ? '()' : '') : (quote ? [ '(', list.join(', '), ')' ].join(' ') : list.join(', '));
+        switch (list.length) {
+            case 0:
+                return quote ? '()' : '';
+            case 1:
+                return list[0];
+            default:
+                return quote ? [ '(', list.join(', '), ')' ].join(' ') : list.join(', ');
+        }
     }
 };
 
