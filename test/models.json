@@ -4990,6 +4990,14 @@
   },
   {
     "type":   "torchscript",
+    "target": "netron_issue_313.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3540511/netron_issue_313.zip[netron_issue_313.pt]",
+    "format": "TorchScript v1",
+    "error":  "Cannot read property 'type' of undefined in 'netron_issue_313.pt'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/313"
+  },
+  {
+    "type":   "torchscript",
     "target": "pedestrian_interaction_position_embedding.pt",
     "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt?raw=true",
     "format": "TorchScript v1",
