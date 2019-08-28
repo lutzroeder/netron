@@ -1015,6 +1015,7 @@ class ModelContext {
 
     get entries() {
         if (!this._entries) {
+            this._entries = [];
             var buffer = this.buffer;
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
                 try {
