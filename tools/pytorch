@@ -72,11 +72,6 @@ schema() {
 metadata() {
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    case "$(uname)" in
-        "Linux")
-            export LD_LIBRARY_PATH=$(dirname $(locate libiomp5.so)):${LD_LIBRARY_PATH}
-            ;;
-    esac
     bold "pytorch metadata"
     python3 pytorch-script.py metadata
     bold "caffe2 metadata"
@@ -89,11 +84,6 @@ zoo() {
     bold "pytorch zoo"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    case "$(uname)" in
-        "Linux")
-            export LD_LIBRARY_PATH=$(dirname $(locate libiomp5.so)):${LD_LIBRARY_PATH}
-            ;;
-    esac
     python3 pytorch-script.py zoo
     popd > /dev/null
     deactivate
