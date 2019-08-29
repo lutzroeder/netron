@@ -2671,6 +2671,14 @@
   },
   {
     "type":   "onnx",
+    "target": "bertsquad10.onnx.tar.gz",
+    "source": "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/model/bertsquad10.onnx.tar.gz?raw=true",
+    "format": "ONNX v5", "producer": "tf2onnx 1.5.2",
+    "render": "skip",
+    "link":   "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/README.md"
+  },
+  {
+    "type":   "onnx",
     "target": "bvlc_alexnet_opset_3.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
     "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
@@ -2980,6 +2988,13 @@
     "source": "https://onnxzoo.blob.core.windows.net/models/opset_10/ssd/ssd.onnx",
     "format": "ONNX v4",
     "link":   "https://github.com/onnx/models/tree/master/ssd"
+  },
+  {
+    "type":   "onnx",
+    "target": "super_resolution.onnx",
+    "source": "https://github.com/onnx/models/blob/master/vision/super_resolution/sub_pixel_cnn_2016/super_resolution.onnx?raw=true",
+    "format": "ONNX v4", "producer": "pytorch 1.1",
+    "link":   "https://github.com/onnx/models/tree/master/vision/super_resolution"
   },
   {
     "type":   "onnx",

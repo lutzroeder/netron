@@ -248,7 +248,6 @@ function decompress(buffer, identifier) {
                 }
             }
             buffer = entry.data;
-            archive = null;
         }
     }
 
@@ -373,7 +372,7 @@ function download(folder, targets, sources) {
                 process.stdout.clearLine();
             }
             process.stdout.write('  decompress...\r');
-            var archive = decompress(data, source.split('/').pop());
+            var archive = decompress(data, source.split('?').shift().split('/').pop());
             for (var file of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();

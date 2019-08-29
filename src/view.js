@@ -1221,7 +1221,6 @@ view.ModelFactoryService = class {
                 if (archive.entries.length == 1) {
                     entry = archive.entries[0];
                     if (entry.name) {
-                            
                         identifier = entry.name;
                     }
                     else {
@@ -1231,7 +1230,6 @@ view.ModelFactoryService = class {
                         }
                     }
                     buffer = entry.data;
-                    archive = null;
                 }
             }
         }
