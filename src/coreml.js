@@ -683,7 +683,7 @@ coreml.Node = class {
                 }
                 return { 'scale': true, 'bias': data.hasBias };
             case 'bias':
-                this._initializer('Weights', 'bias', data.shapeBias, data.bias);
+                this._initializer('Weights', 'bias', data.shape, data.bias);
                 return { 'bias': true };
             case 'simpleRecurrent':
                 this._initializer('Weights', 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix);

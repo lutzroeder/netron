@@ -1172,12 +1172,6 @@
   },
   {
     "type":   "coreml",
-    "target": "AgeNet.mlmodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mT1J3T1BEeWx4TWc",
-    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
-  },
-  {
-    "type":   "coreml",
     "target": "BERTSQUADFP16.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/Text/QuestionAnswering/BERT_SQUAD/BERTSQUADFP16.mlmodel",
     "format": "Core ML v4",
@@ -1189,13 +1183,6 @@
     "source": "https://github.com/PZ1Sharer05/CreateMLmodels/blob/master/CarClassifier.mlmodel?raw=true",
     "format": "Core ML v1",
     "link":   "https://github.com/PZ1Sharer05/CreateMLmodels"
-  },
-  {
-    "type":   "coreml",
-    "target": "CNNEmotions.mlmodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mTlYtRGdXNFlpWDQ",
-    "format": "Core ML v1",
-    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1259,12 +1246,6 @@
     "source": "https://github.com/lutzroeder/netron/files/2382815/model.zip[model.mlmodel]",
     "format": "Core ML v2",
     "link":   "https://github.com/lutzroeder/netron/issues/149"
-  },
-  {
-    "type":   "coreml",
-    "target": "FlickrStyle.mlmodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6maFFWR3drLUFNQ1E",
-    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1506,18 +1487,6 @@
   },
   {
     "type":   "coreml",
-    "target": "GenderNet.mlmodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mYkNsZHlyc2ZuaFk",
-    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
-  },
-  {
-    "type":   "coreml",
-    "target": "GestureAI.mlmodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6mYkNsZHlyc2ZuaFk",
-    "link":   "https://github.com/akimach/GestureAI-CoreML-iOS"
-  },
-  {
-    "type":   "coreml",
     "target": "GoogLeNetPlaces.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel"
   },
@@ -1607,12 +1576,6 @@
     "target": "onehot_simple.mlmodel",
     "source": "https://raw.githubusercontent.com/onnx/onnxmltools/master/tests/data/onehot_simple.mlmodel",
     "link":   "https://github.com/onnx/onnxmltools/tree/master/tests/data"
-  },
-  {
-    "type":   "coreml",
-    "target": "Oxford102.mlmodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B1ghKa_MYL6meDBHT2NaZGxkNzQ",
-    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1801,12 +1764,6 @@
     "type":   "coreml",
     "target": "VGG16.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/VGG16.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "VisualSentimentCNN.mlmodel",
-    "source": "https://drive.google.com//uc?export=download&id=0B1ghKa_MYL6mZ0dITW5uZlgyNTg",
-    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
