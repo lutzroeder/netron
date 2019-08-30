@@ -38040,6 +38040,12 @@
           "description": "If True, then the absolute value of the quantized minimum value is the same as\nthe quantized maximum value, instead of 1 greater.\ni.e. for 8 bit quantization, the minimum value is -127 instead of -128.",
           "name": "narrow_range",
           "type": "boolean"
+        },
+        {
+          "default": -1,
+          "description": "If specified, this axis is treated as a channel or slice axis, and a separate\nquantization range is used for each channel or slice along this axis.",
+          "name": "axis",
+          "type": "int64"
         }
       ],
       "description": "This op simulates the precision loss from the quantized forward pass by:\n\n1. Quantizing the tensor to fixed point numbers, which should match the target\n   quantization method when it is used in inference.\n2. Dequantizing it back to floating point numbers for the following ops, most\n   likely matmul.\n\nThere are different ways to quantize. This version uses only scaling, so 0.0\nmaps to 0.\n\nFrom the specified 'num_bits' in the quantized output type, it determines\nminimum and maximum representable quantized values.\n\ne.g.\n\n*   [-128, 127] for signed, num_bits = 8, or\n*   [0, 255] for unsigned, num_bits = 8.\n\nIf range_given == False, the initial input_min, input_max will be determined\nautomatically as the minimum and maximum values in the input tensor, otherwise\nthe specified values of input_min, input_max are used.\n\nNote: If the input_min, input_max are specified, they do not need to equal the\nactual minimum and maximum values in the tensor. e.g. in some cases it may be\nbeneficial to specify these values such that the low probability extremes of the\ninput distribution are clipped.\n\nThis op determines the maximum scale_factor that would map the initial\n[input_min, input_max] range to a range that lies within the representable\nquantized range.\n\nIt determines the scale from one of input_min and input_max, then updates the\nother one to maximize the respresentable range.\n\ne.g.\n\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    5.0]: it would use a scale_factor of -128 / -10.0 = 12.8 In this case, it\n    would update input_max to be 127 / 12.8 = 9.921875\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    10.0]: it would use a scale_factor of 127 / 10.0 = 12.7 In this case, it\n    would update input_min to be 128.0 / 12.7 = -10.07874\n*   if the output is unsigned, input_min is forced to be 0, and only the\n    specified input_max is used.\n\nAfter determining the scale_factor and updating the input range, it applies the\nfollowing to each value in the 'input' tensor.\n\noutput = round(clamp(value, input_min, input_max) * scale_factor) / scale_factor.\n\nThe above round function rounds the value based on the given round_mode.\n",
@@ -38109,6 +38115,11 @@
           "default": false,
           "name": "narrow_range",
           "type": "boolean"
+        },
+        {
+          "default": -1,
+          "name": "axis",
+          "type": "int64"
         }
       ],
       "description": "This is almost identical to QuantizeAndDequantizeV2, except that num_bits is a\ntensor, so its value can change during training.",
@@ -58963,6 +58974,21 @@
           "default": 1,
           "name": "writer_buffer_size",
           "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "shuffle_on_read",
+          "type": "boolean"
+        },
+        {
+          "default": 0,
+          "name": "seed",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "seed2",
+          "type": "int64"
         }
       ],
       "description": "This dataset attempts to determine whether a valid snapshot exists at the\n`snapshot_path`, and reads from the snapshot in lieu of using `input_dataset`.\nIf not, it will run the preprocessing pipeline as usual, and write out a\nsnapshot of the data processed for future use.",
@@ -68098,7 +68124,8 @@
           "type": "boolean"
         }
       ],
-      "summary": "Metadata indicaitng how the TPU computation should be replicated."
+      "description": "This operation holds the metadata common to operations of a `tpu.replicate()` computation subgraph.",
+      "summary": "Metadata indicating how the TPU computation should be replicated."
     }
   },
   {
@@ -68113,6 +68140,16 @@
         {
           "name": "T",
           "type": "type"
+        },
+        {
+          "default": false,
+          "name": "is_mirrored_variable",
+          "type": "boolean"
+        },
+        {
+          "default": -1,
+          "name": "index",
+          "type": "int64"
         }
       ],
       "inputs": [
