@@ -5849,6 +5849,71 @@
     }
   },
   {
+    "name": "GatherND",
+    "schema": {
+      "description": "Given `data` tensor of rank `r` >= 1, and `indices` tensor of rank `q` >= 1, this operator gathers \nslices of `data` into an output tensor of rank `q + r - indices_shape[-1] - 1`.\n\n`indices` is an q-dimensional integer tensor, best thought of as a `(q-1)`-dimensional tensor of index-tuples into `data`, \nwhere each element defines a slice of `data`\n\nSome salient points about the inputs' rank and shape:\n \n1) r >= 1 and q >= 1 are to be honored. There is no dependency condition to be met between ranks `r` and `q`\n\n2) The `indices_shape[-1]` should have a value between 1 (inclusive) and rank `r` (inclusive) \n\n3) All values in `indices` are expected to be within bounds [-s, s-1] along axis of size `s` (i.e.) `-data_shape[i] <= indices[...,i] <= data_shape[i] - 1`.\n   It is an error if any of the index values are out of bounds.\n\nThe output is computed as follows:\n\nThe output tensor is obtained by mapping each index-tuple in the `indices` tensor to the corresponding slice of the input `data`.\n \n1) If `indices_shape[-1] > r` => error condition\n\n2) If `indices_shape[-1] == r`, since the rank of `indices` is `q`, `indices` can be thought of as a `(q-1)`-dimensional tensor\n   containing 1-D tensors of dimension `r`. Let us think of each such `r` ranked tensor as `indices_slice`. \n   Each *scalar value* corresponding to `data[indices_slice]` is filled into the corresponding location of the `(q-1)`-dimensional tensor \n   to form the `output` tensor (Example 1 below)\n\n3) If `indices_shape[-1] < r`, since the rank of `indices` is `q`, `indices` can be thought of as a `(q-1)`-dimensional tensor\n   containing 1-D tensors of dimension `< r`. Let us think of each such tensors as `indices_slice`. \n   Each *tensor slice* corresponding to `data[indices_slice , :]` is filled into the corresponding location of the `(q-1)`-dimensional tensor \n   to form the `output` tensor (Examples 2, 3, and 4 below)\n\nThis operator is the inverse of `ScatterND`.\n\n`Example 1`\n\n  data    = [[0,1],[2,3]]   # data_shape = [2, 2]\n\n  indices = [[0,0],[1,1]]   # indices_shape = [2, 2]\n\n  output  = [0,3]           # output_shape = [2]\n\n`Example 2`\n\n  data    = [[0,1],[2,3]]  # data_shape = [2, 2]\n\n  indices = [[1],[0]]      # indices_shape = [2, 1]\n\n  output  = [[2,3],[0,1]]  # output_shape = [2, 2]\n\n`Example 3`\n\n  data    = [[[0,1],[2,3]],[[4,5],[6,7]]] # data_shape = [2, 2, 2]\n\n  indices = [[0,1],[1,0]]                 # indices_shape = [2, 2]\n\n  output  = [[2,3],[4,5]]                 # output_shape = [2, 2]   \n\n`Example 4`\n\n  data    = [[[0,1],[2,3]],[[4,5],[6,7]]] # data_shape = [2, 2, 2]\n\n  indices = [[[0,1]],[[1,0]]]             # indices_shape = [2, 1, 2]\n\n  output  = [[[2,3]],[[4,5]]]             # output_shape = [2, 1, 2] \n\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.float32)\nindices = np.array([[[0, 1]], [[1, 0]]], dtype=np.int64)\noutput = gather_nd_impl(data, indices)\nexpected_output = np.array([[[2, 3]], [[4, 5]]], dtype=np.float32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_float32')",
+          "summary": "float32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[0, 1], [2, 3]], dtype=np.int32)\nindices = np.array([[0, 0], [1, 1]], dtype=np.int64)\noutput = gather_nd_impl(data, indices)\nexpected_output = np.array([0, 3], dtype=np.int32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_int32')",
+          "summary": "int32"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of rank q >= 1.",
+          "name": "indices",
+          "type": "tensor(int64)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank q + r - indices_shape[-1] - 1.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to any tensor type.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Gemm",
     "schema": {
       "attributes": [
@@ -14864,6 +14929,72 @@
           ],
           "description": "Constrain indices to integer types",
           "type_param_str": "Tind"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScatterND",
+    "schema": {
+      "description": "ScatterND takes three inputs `data` tensor of rank r >= 1, `indices` tensor of rank q >= 1,\nand `updates` tensor of rank q + r - indices.shape[-1] - 1. The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value to values\nspecified by `updates` at specific index positions specified by `indices`. Its output shape\nis the same as the shape of `data`. Note that `indices` should not have duplicate entries.\nThat is, two or more `updates` for the same index-location is not supported.\n\n`indices` is an integer tensor. Let k denote indices.shape[-1], the last dimension in the shape of `indices`.\n `indices` is treated as a (q-1)-dimensional tensor of k-tuples, where each k-tuple is a partial-index into `data`.\nHence, k can be a value at most the rank of `data`. When k equals rank(data), each update entry specifies an\nupdate to a single element of the tensor. When k is less than rank(data) each update entry specifies an\nupdate to a slice of the tensor.\n\n`updates` is treated as a (q-1)-dimensional tensor of replacement-slice-values. Thus, the\nfirst (q-1) dimensions of updates.shape must match the first (q-1) dimensions of indices.shape.\nThe remaining dimensions of `updates` correspond to the dimensions of the\nreplacement-slice-values. Each replacement-slice-value is a (r-k) dimensional tensor,\ncorresponding to the trailing (r-k) dimensions of `data`.  Thus, the shape of `updates`\nmust equal indices.shape[0:q-1] ++ data.shape[k:r-1], where ++ denotes the concatenation\nof shapes.\n\nThe `output` is calculated via the following equation:\n\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] = updates[idx]\n\nThe order of iteration in the above loop is not specified.\nIn particular, indices should not have duplicate entries: that is, if idx1 != idx2, then indices[idx1] != indices[idx2].\nThis ensures that the output value does not depend on the iteration order.\n\nThis operator is the inverse of GatherND.\n\nExample 1:\n```\n  data    = [1, 2, 3, 4, 5, 6, 7, 8]\n  indices = [[4], [3], [1], [7]]\n  updates = [9, 10, 11, 12]\n  output  = [1, 11, 3, 10, 9, 6, 7, 12]\n```\n\nExample 2:\n```\n  data    = [[[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n  indices = [[0], [2]]\n  updates = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]]]\n  output  = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'ScatterND',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n)\ndata = np.array(\n    [[[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\nindices = np.array([[0], [2]], dtype=np.int64)\nupdates = np.array(\n    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]]], dtype=np.float32)\n# Expecting output as np.array(\n#    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates)\nexpect(node, inputs=[data, indices, updates], outputs=[output],\n       name='test_scatternd')",
+          "summary": "scatternd"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of rank q >= 1.",
+          "name": "indices",
+          "type": "tensor(int64)"
+        },
+        {
+          "description": "Tensor of rank q + r - indices_shape[-1] - 1.",
+          "name": "updates",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to any tensor type.",
+          "type_param_str": "T"
         }
       ]
     }
