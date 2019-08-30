@@ -4014,9 +4014,14 @@
           "description": "",
           "name": "m3",
           "option": "optional"
+        },
+        {
+          "description": "(float, default 0.005) max learning rate",
+          "name": "max_lr",
+          "option": "optional"
         }
       ],
-      "description": "\nLearning rate is a decreasing function of time. With low learning rates the\nimprovements will be linear. With high learning rates they will start to look\nmore exponential. Learning rate is controlled by the following arguments:\n\n\nRequired:\n `iterations`\n `base_lr`: base learning rate\n `policy`: this controls how the learning rate is applied, options are:\n   `fixed`\n   `step`: uses `stepsize`, `gamma`\n   `exp`: uses `gamma`\n   `gate`: uses 'multiplier_1', 'multiplier_2', `num_iter``\n   `inv`: uses `gamma`, `power`\n   `linearWarmup`: uses `start_multiplier`, `num_iter`\n   `constantWarmup`: uses `multiplier`, `num_iter`\n   `alter`: uses  `active_first`, `active_period`, `inactive_period`\n   `hill`: uses those in both `linearWarmup` and `inv`, plus `end_multiplier`\n   `composite`: uses `sub_policy_num_iters` and additional args with format\n   sub_policy_{sub_policy_index}_{sub_policy_arg}, for example:\n   sub_policy_0_policy: \"exp\", sub_policy_0_gamma: 0.99,\n   sub_policy_0_lr_scale: 1.2\n   sub_policy_0_policy: \"fixed\", sub_policy_0_lr_scale: 1.0\n   sub_policy_num_iters: [1000, 1000]\n\nOptional:\n  `stepsize`: defaults to 0\n  `gamma`: defaults to 0\n  `power`: defaults to 0\n  `num_iter`: defaults to 0\n  `start_multiplier`: defaults to 0\n  `multiplier`: defaults to 0.5\n  `multiplier_1`: defaults to 1\n  `multiplier_2`: defaults to 1\n  `m1`: defaults to 0.5, the first piece lr of piece warmup\n  `n1`: defaults to 0, iter threshold of the first piece lr\n  `m2`: defaults to 0.5, the second piece lr of piece warmup\n  `n2`: defaults to 0, iter threshold of the second piece lr\n  `m3`: defaults to 0.5, the third piece lr of piece warmup\n\n\nUsage:\n  train_net.LearningRate(*iterations*, \"*label*\", base_lr=*float*,\n                         policy=\"policy_name\", stepsize=*int*, gamma=*float*)\n\n\nExample usage:\n  train_net.LearningRate(200, \"LR\", base_lr=-0.1,\n                         policy=\"step\", stepsize=20, gamma=0.9)\n",
+      "description": "\nLearning rate is a decreasing function of time. With low learning rates the\nimprovements will be linear. With high learning rates they will start to look\nmore exponential. Learning rate is controlled by the following arguments:\n\n\nRequired:\n `iterations`\n `base_lr`: base learning rate\n `policy`: this controls how the learning rate is applied, options are:\n   `fixed`\n   `step`: uses `stepsize`, `gamma`\n   `exp`: uses `gamma`\n   `gate`: uses 'multiplier_1', 'multiplier_2', `num_iter``\n   `inv`: uses `gamma`, `power`\n   `linearWarmup`: uses `start_multiplier`, `num_iter`\n   `constantWarmup`: uses `multiplier`, `num_iter`\n   `alter`: uses  `active_first`, `active_period`, `inactive_period`\n   `hill`: uses those in both `linearWarmup` and `inv`, plus `end_multiplier`\n   `composite`: uses `sub_policy_num_iters` and additional args with format\n   `cyclic`: uses `max_lr`, `stepsize`\n   sub_policy_{sub_policy_index}_{sub_policy_arg}, for example:\n   sub_policy_0_policy: \"exp\", sub_policy_0_gamma: 0.99,\n   sub_policy_0_lr_scale: 1.2\n   sub_policy_0_policy: \"fixed\", sub_policy_0_lr_scale: 1.0\n   sub_policy_num_iters: [1000, 1000]\n\nOptional:\n  `stepsize`: defaults to 0\n  `max_lr`: defaults to 0.005\n  `gamma`: defaults to 0\n  `power`: defaults to 0\n  `num_iter`: defaults to 0\n  `start_multiplier`: defaults to 0\n  `multiplier`: defaults to 0.5\n  `multiplier_1`: defaults to 1\n  `multiplier_2`: defaults to 1\n  `m1`: defaults to 0.5, the first piece lr of piece warmup\n  `n1`: defaults to 0, iter threshold of the first piece lr\n  `m2`: defaults to 0.5, the second piece lr of piece warmup\n  `n2`: defaults to 0, iter threshold of the second piece lr\n  `m3`: defaults to 0.5, the third piece lr of piece warmup\n\n\nUsage:\n  train_net.LearningRate(*iterations*, \"*label*\", base_lr=*float*,\n                         policy=\"policy_name\", stepsize=*int*, gamma=*float*)\n\n\nExample usage:\n  train_net.LearningRate(200, \"LR\", base_lr=-0.1,\n                         policy=\"step\", stepsize=20, gamma=0.9)\n",
       "inputs": [
         {
           "description": "description needed",
@@ -16802,6 +16807,42 @@
         {
           "description": "Input tensor with masking applied",
           "name": "masked_tensor"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8Transpose",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Order to permute axes of input tensor. Reverses the dimensions by default.",
+          "name": "axes",
+          "option": "optional"
+        },
+        {
+          "description": "Output tensor quantization scale",
+          "name": "Y_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Output tensor quantization offset",
+          "name": "Y_zero_point",
+          "option": "optional"
+        }
+      ],
+      "description": "\nTranspose the input tensor by permuting the axes of the input according\nto the `axes` argument. Similar to numpy's\n[transpose](https://docs.scipy.org/doc/numpy/reference/generated/numpy.transpose.html)\nfunction.\n\nFor example, when axes=(1, 0, 2), given an input tensor of shape\n(1, 2, 3), the output shape will be (2, 1, 3).\n",
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Transposed output",
+          "name": "Y"
         }
       ],
       "support_level": "default"
