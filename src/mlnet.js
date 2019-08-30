@@ -400,10 +400,12 @@ mlnet.ModelReader = class {
         catalog.register('ConcatTransform', mlnet.ColumnConcatenatingTransformer);
         catalog.register('CopyTransform', mlnet.ColumnCopyingTransformer);
         catalog.register('ConvertTransform', mlnet.TypeConvertingTransformer);
+        catalog.register('FAFMPredXfer', mlnet.FieldAwareFactorizationMachinePredictionTransformer);
         catalog.register('FastForestBinaryExec', mlnet.FastForestClassificationPredictor);
         catalog.register('FastTreeTweedieExec', mlnet.FastTreeTweedieModelParameters);
         catalog.register('FastTreeRegressionExec', mlnet.FastTreeRegressionModelParameters);
         catalog.register('FeatWCaliPredExec', mlnet.FeatureWeightsCalibratedModelParameters);
+        catalog.register('FieldAwareFactMacPredict', mlnet.FieldAwareFactorizationMachineModelParameters);
         catalog.register('GcnTransform', mlnet.LpNormNormalizingTransformer);
         catalog.register('IidChangePointDetector', mlnet.IidChangePointDetector);
         catalog.register('IidSpikeDetector', mlnet.IidSpikeDetector);
@@ -628,14 +630,14 @@ mlnet.Reader = class {
         }
     }
 
-    bool() {
+    boolean() {
         return this.byte() != 0 ? true : false;
     }
 
-    bools(count) {
+    booleans(count) {
         let values = [];
         for (let i = 0; i < count; i++) {
-            values.push(this.bool());
+            values.push(this.boolean());
         }
         return values;
     }
@@ -716,6 +718,15 @@ mlnet.Reader = class {
         let value = this._dataView.getFloat32(this._position, true);
         this._position += 4;
         return value;
+    }
+
+    float32s() {
+        let values = [];
+        let count = this.int32();
+        for (let i = 0; i < count; i++) {
+            values.push(this.float32());
+        }
+        return values;
     }
 
     float64() {
@@ -901,6 +912,20 @@ mlnet.PredictionTransformerBase = class {
         this.trainSchema = context.openBinary('TrainSchema').schema;
     }
 };
+
+mlnet.FieldAwareFactorizationMachinePredictionTransformer = class extends mlnet.PredictionTransformerBase {
+
+    constructor(context) {
+        super(context);
+        let reader = context.reader;
+        this.inputs = [];
+        for (let i = 0; i < this.model.fieldCount; i++) {
+            this.inputs.push({ name: context.string() });
+        }
+        this.threshold = reader.float32();
+        this.thresholdColumn = context.string();
+    }
+}
 
 mlnet.SingleFeaturePredictionTransformerBase = class extends mlnet.PredictionTransformerBase {
 
@@ -1157,7 +1182,7 @@ mlnet.ValueToKeyMappingTransformer = class extends mlnet.OneToOneTransformerBase
         super(context);
         let reader = context.reader;
         if (context.modelVersionWritten >= 0x00010003) {
-            this.textMetadata = reader.bools(this.outputs.length + this.inputs.length);
+            this.textMetadata = reader.booleans(this.outputs.length + this.inputs.length);
         }
         else {
             this.textMetadata = [];
@@ -1324,8 +1349,8 @@ mlnet.TensorFlowTransformer = class extends mlnet.RowToRowTransformerBase {
     constructor(context) {
         super(context);
         let reader = context.reader;
-        this.frozen = context.modelVersionReadable >= 0x00010002 ? reader.bool() : true;
-        this.addBatchDimensionInput = context.modelVersionReadable >= 0x00010003 ? reader.bool() : true;
+        this.frozen = context.modelVersionReadable >= 0x00010002 ? reader.boolean() : true;
+        this.addBatchDimensionInput = context.modelVersionReadable >= 0x00010003 ? reader.boolean() : true;
         let numInputs = reader.int32();
         this.inputs = [];
         for (let i = 0; i < numInputs; i++) {
@@ -1505,6 +1530,19 @@ mlnet.ModelParametersBase = class {
         if (cbFloat !== 4) {
             throw new mlnet.Error('This file was saved by an incompatible version.');
         }
+    }
+};
+
+mlnet.FieldAwareFactorizationMachineModelParameters = class {
+
+    constructor(context) {
+        let reader = context.reader;
+        this.norm = reader.boolean();
+        this.fieldCount = reader.int32();
+        this.featureCount = reader.int32();
+        this.latentDim = reader.int32();
+        this.linearWeights = reader.float32s();
+        this.latentWeights = reader.float32s();
     }
 };
 
@@ -1747,9 +1785,9 @@ mlnet.ColumnSelectingTransformer = class {
 
     constructor(context) {
         let reader = context.reader;
-        let keepColumns = reader.bool();
-        this.keepHidden = reader.bool();
-        this.ignoreMissing = reader.bool();
+        let keepColumns = reader.boolean();
+        this.keepHidden = reader.boolean();
+        this.ignoreMissing = reader.boolean();
         var length = reader.int32();
         this.inputs = [];
         for (let i = 0; i < length; i++) {

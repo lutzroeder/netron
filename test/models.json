@@ -2215,6 +2215,20 @@
   },
   {
     "type":   "mlnet",
+    "target": "FastTreeModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "FastTreeTweedieModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeTweedieModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
     "target": "GitHubLabelerModel.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/MulticlassClassification-GitHubLabeler/GitHubLabeler/MLModels/GitHubLabelerModel.zip?raw=true",
     "format": "ML.NET v1.0.27701.1",
@@ -2230,8 +2244,45 @@
   {
     "type":   "mlnet",
     "target": "ImageClassification.Predict.imageClassifier.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Predict/assets/inputs/imageClassifier.zip?raw=true",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Predict/assets/inputs/MLNETModel/imageClassifier.zip?raw=true",
+    "format": "ML.NET v1.3.28006.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "IrisClassificationModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/MulticlassClassification_Iris/IrisClassification/MLModels/IrisClassificationModel.zip?raw=true",
     "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "MovieRecommender_Model.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Recommendation-MovieRecommender/MovieRecommender_Model/Model/model.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "MLSentimentModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/ScalableSentimentAnalysisBlazorWebApp/BlazorSentimentAnalysis.Server/ML/MLSentimentModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+
+
+  {
+    "type":   "mlnet",
+    "target": "PoissonModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/PoissonModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "product_month_fastTreeTweedie.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Forecasting-Sales/src/eShopDashboard/Forecast/ModelFiles/product_month_fastTreeTweedie.zip?raw=true",
+    "format": "ML.NET v1.2.27902.10",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
@@ -2253,6 +2304,20 @@
     "target": "randomizedPca.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/AnomalyDetection_CreditCardFraudDetection/CreditCardFraudDetection.Predictor/assets/input/randomizedPca.zip?raw=true",
     "format": "ML.NET v1.2.27902.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "retailClustering.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Clustering_CustomerSegmentation/CustomerSegmentation.Train/assets/outputs/retailClustering.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "SDCAModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/SDCAModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
