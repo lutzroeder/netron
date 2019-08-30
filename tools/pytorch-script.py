@@ -64,7 +64,7 @@ def download_torchscript_model(type, file, input):
         model = pydoc.locate(type)(pretrained=True)
         model.eval()
         traced_model = torch.jit.trace(model, torch.rand(input))
-        traced_model.save(file)
+        torch.jit.save(traced_model, file)
 
 def zoo():
     if not os.environ.get('test'):
