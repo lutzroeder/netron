@@ -749,7 +749,7 @@ onnx.Tensor = class {
             return context;
         }
 
-        if (this._tensor.external_data.some((item) => item && item.key == 'location' && item.value == onnx.proto.TensorProtoDataLocation.EXTERNAL)) {
+        if (this._tensor.data_location === onnx.proto.TensorProto.DataLocation.EXTERNAL) {
             context.state =  'External data not implemented.';
             return context;
         }
