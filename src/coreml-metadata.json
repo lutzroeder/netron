@@ -210,6 +210,23 @@
     }
   },
   {
+    "name": "gelu",
+    "schema": {
+      "category": "Activation",
+      "description": "Gaussian error linear unit activation.",
+      "attributes": [
+        { "name": "mode", "type": "GeluLayerParams.GeluMode" }
+      ]
+    }
+  },
+  {
+    "name": "softmaxND",
+    "schema": {
+      "category": "Activation",
+      "description": "A layer that performs softmax normalization along a specified axis."
+    }
+  },
+  {
     "name": "flatten",
     "schema": {
       "category": "Shape",
@@ -459,6 +476,19 @@
         { "name": "confidence" },
         { "name": "coordinates" }
       ]
+    }
+  },
+  {
+    "name": "squeeze",
+    "schema": {
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "mvn",
+    "schema": {
+      "category": "Normalization",
+      "description": "A layer that performs mean variance normalization, along axis = -3."
     }
   }
 ]
