@@ -2623,6 +2623,13 @@
   },
   {
     "type":   "ncnn",
+    "target": "Mobilenetssd/MobileNetSSD_deploy.param.bin,Mobilenetssd/MobileNetSSD_deploy.bin",
+    "source": "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/blob/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin?raw=true,https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/blob/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin?raw=true",
+    "format": "NCNN",
+    "link":   "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd"
+  },
+  {
+    "type":   "ncnn",
     "target": "ncnn_yolo2/ncnn_yolo2_det3.bin,ncnn_yolo2/ncnn_yolo2_det3.param",
     "source": "https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.bin,https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.param",
     "format": "NCNN",
