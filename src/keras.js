@@ -415,7 +415,7 @@ keras.Graph = class {
             }
             argument = name;
             var nodeOutputs = [ argument ];
-            if (index == config.length) {
+            if (index == layers.length) {
                 if (outputs && outputs.length > 0) {
                     nodeOutputs = [ outputs[0] ];
                     argument = null;
