@@ -689,5 +689,21 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "flatten",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "start_dim", "type": "int64" },
+        { "name": "end_dim", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "inputs" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]

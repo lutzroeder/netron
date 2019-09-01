@@ -272,7 +272,7 @@ mlnet.TensorType = class {
 
     constructor(codec) {
 
-        mlnet.TensorType._map = mlnet.TensorType.map || new Map([ 
+        mlnet.TensorType._map = mlnet.TensorType._map || new Map([ 
             [ 'Boolean', 'boolean' ],
             [ 'Single', 'float32' ],
             [ 'Double', 'float64' ],

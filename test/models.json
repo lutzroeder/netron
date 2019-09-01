@@ -4980,7 +4980,6 @@
     "target": "alexnet.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
-    "error":  "Unsupported file content for extension '.pt' in 'alexnet.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -5003,7 +5002,6 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "render": "skip",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
-    "error":  "Unsupported file content for extension '.pt' in 'densenet121.pt'.",
     "status": "script"
   },
   {
@@ -5018,7 +5016,6 @@
     "target": "inception_v3.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
-    "error":  "Unsupported file content for extension '.pt' in 'inception_v3.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -5040,7 +5037,6 @@
     "target": "mobilenet_v2.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
-    "error":  "Unsupported file content for extension '.pt' in 'mobilenet_v2.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -5084,7 +5080,6 @@
     "target": "resnet18.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
-    "error":  "Unsupported file content for extension '.pt' in 'resnet18.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -5092,7 +5087,6 @@
     "target": "resnet50.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
-    "error":  "Unsupported file content for extension '.pt' in 'resnet50.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -5100,7 +5094,6 @@
     "target": "squeezenet1_1.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
-    "error":  "Unsupported file content for extension '.pt' in 'squeezenet1_1.pt'.",
     "status": "script"
   },
   {
@@ -5129,7 +5122,6 @@
     "target": "vgg16.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
-    "error":  "Unsupported file content for extension '.pt' in 'vgg16.pt'.",
     "status": "script"
   }
 ]
