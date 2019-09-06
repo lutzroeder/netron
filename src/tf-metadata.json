@@ -9904,6 +9904,164 @@
     }
   },
   {
+    "name": "CSRSparseMatrixComponents",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "description": "This op is meant only for debugging / testing, and its interface is not expected\nto be stable.",
+      "inputs": [
+        {
+          "description": "A batched CSRSparseMatrix.",
+          "name": "csr_sparse_matrix",
+          "type": 21
+        },
+        {
+          "description": "The index in `csr_sparse_matrix`'s batch.",
+          "name": "index",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "An array containing CSR matrix row pointers.",
+          "name": "row_ptrs",
+          "type": 3
+        },
+        {
+          "description": "An array containing CSR matrix column indices.",
+          "name": "col_inds",
+          "type": 3
+        },
+        {
+          "description": "An array containing CSR matrix nonzero values.",
+          "name": "values",
+          "typeAttr": "type"
+        }
+      ],
+      "summary": "Reads out the CSR components at batch `index`."
+    }
+  },
+  {
+    "name": "CSRSparseMatrixToDense",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A batched CSRSparseMatrix.",
+          "name": "sparse_input",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A dense tensor.",
+          "name": "dense_output",
+          "typeAttr": "type"
+        }
+      ],
+      "summary": "Convert a (possibly batched) CSRSparseMatrix to dense."
+    }
+  },
+  {
+    "name": "CSRSparseMatrixToSparseTensor",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A (possibly batched) CSRSparseMatrix.",
+          "name": "sparse_matrix",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "SparseTensor indices.",
+          "name": "indices",
+          "type": 9
+        },
+        {
+          "description": "SparseTensor values.",
+          "name": "values",
+          "typeAttr": "type"
+        },
+        {
+          "description": "SparseTensor dense shape.",
+          "name": "dense_shape",
+          "type": 9
+        }
+      ],
+      "summary": "Converts a (possibly batched) CSRSparesMatrix to a SparseTensor."
+    }
+  },
+  {
     "name": "CSVDataset",
     "schema": {
       "attributes": [
@@ -16184,6 +16342,55 @@
     }
   },
   {
+    "name": "DenseToCSRSparseMatrix",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A Dense tensor.",
+          "name": "dense_input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Indices of nonzero elements.",
+          "name": "indices",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A (possibly batched) CSRSparseMatrix.",
+          "name": "sparse_output",
+          "type": 21
+        }
+      ],
+      "summary": "Converts a dense tensor to a (possibly batched) CSRSparseMatrix."
+    }
+  },
+  {
     "name": "DenseToDenseSetOperation",
     "schema": {
       "attributes": [
@@ -16737,6 +16944,11 @@
           "default": "MIN_COMBINED",
           "name": "mode",
           "type": "string"
+        },
+        {
+          "default": -1,
+          "name": "axis",
+          "type": "int64"
         }
       ],
       "category": "Tensor",
@@ -27745,6 +27957,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -27790,6 +28007,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -27840,6 +28062,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -27885,6 +28112,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -27935,6 +28167,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -27975,6 +28212,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28020,6 +28262,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28070,6 +28317,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28115,6 +28367,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28165,6 +28422,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28215,6 +28477,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28255,6 +28522,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28300,6 +28572,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28340,6 +28617,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28385,6 +28667,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28430,6 +28717,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -28480,6 +28772,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -35933,6 +36230,7 @@
           "type": "function"
         },
         {
+          "description": "Types of the elements of `other_arguments`.",
           "minimum": 0,
           "name": "Targuments",
           "type": "type[]"
@@ -35948,33 +36246,40 @@
           "type": "shape[]"
         }
       ],
-      "description": "The resulting dataset is similar to the `InterleaveDataset`, with the exception\nthat if retrieving the next value from a dataset would cause the requester to\nblock, it will skip that input dataset. This dataset is especially useful\nwhen loading data from a variable-latency datastores (e.g. HDFS, GCS), as it\nallows the training step to proceed so long as some data is available.\n\n!! WARNING !! This dataset is not deterministic!",
+      "description": "The resulting dataset is similar to the `InterleaveDataset`, with the exception\nthat if retrieving the next value from a dataset would cause the requester to\nblock, it will skip that input dataset. This dataset is especially useful\nwhen loading data from a variable-latency datastores (e.g. HDFS, GCS), as it\nallows the training step to proceed so long as some data is available.\n\n!! WARNING !! If the `sloppy` parameter is set to `True`, the operation of this\ndataset will not be deterministic!\n\nThis dataset has been superseded by `ParallelInterleaveDatasetV2`.  New code\nshould use `ParallelInterleaveDatasetV2`. \n\nThe Python API `tf.data.experimental.parallel_interleave` creates instances of\nthis op. `tf.data.experimental.parallel_interleave` is a deprecated API.",
       "inputs": [
         {
+          "description": "Dataset that produces a stream of arguments for the function `f`.",
           "name": "input_dataset",
           "type": 21
         },
         {
+          "description": "Additional arguments to pass to `f` beyond those produced by `input_dataset`.\nEvaluated once when the dataset is instantiated. ",
           "name": "other_arguments",
           "typeListAttr": "Targuments"
         },
         {
+          "description": "Number of datasets (each created by applying `f` to the elements of\n`input_dataset`) among which the `ParallelInterleaveDataset` will cycle in a \nround-robin fashion.",
           "name": "cycle_length",
           "type": 9
         },
         {
+          "description": "Number of elements at a time to produce from each interleaved invocation of a\ndataset returned by `f`.",
           "name": "block_length",
           "type": 9
         },
         {
+          "description": "If `True`, return elements as they become available, even if that means returning\nthese elements in a non-deterministic order. Sloppy operation may result in better\nperformance in the presence of stragglers, but the dataset will still block if\nall of its open streams are blocked.\nIf `False`, always return elements in a deterministic order.",
           "name": "sloppy",
           "type": 10
         },
         {
+          "description": "The number of elements each iterator being interleaved should buffer (similar\nto the `.prefetch()` transformation for each interleaved iterator).",
           "name": "buffer_output_elements",
           "type": 9
         },
         {
+          "description": "Determines the number of iterators to prefetch, allowing buffers to warm up and\ndata to be pre-fetched without blocking the main thread.",
           "name": "prefetch_input_elements",
           "type": 9
         }
@@ -36419,6 +36724,161 @@
         }
       ],
       "summary": "Transforms `input_dataset` containing `Example` protos as vectors of DT_STRING into a dataset of `Tensor` or `SparseTensor` objects representing the parsed features."
+    }
+  },
+  {
+    "name": "ParseExampleV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "minimum": 0,
+          "name": "Tdense",
+          "type": "type[]"
+        },
+        {
+          "description": "The number of sparse keys.",
+          "minimum": 0,
+          "name": "num_sparse",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "description": "A list of `num_sparse` types; the data types of data in each Feature\ngiven in sparse_keys.\nCurrently the ParseExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "sparse_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "description": "A list of `num_ragged` types; the data types of data in each Feature\ngiven in ragged_keys (where `num_ragged = sparse_keys.size()`).\nCurrently the ParseExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "ragged_value_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "description": "A list of `num_ragged` types; the data types of row_splits in each Feature\ngiven in ragged_keys (where `num_ragged = sparse_keys.size()`).\nMay be DT_INT32 or DT_INT64.",
+          "minimum": 0,
+          "name": "ragged_split_types",
+          "type": "type[]"
+        },
+        {
+          "description": "A list of `num_dense` shapes; the shapes of data in each Feature\ngiven in dense_keys (where `num_dense = dense_keys.size()`).\nThe number of elements in the Feature corresponding to dense_key[j]\nmust always equal dense_shapes[j].NumEntries().\nIf dense_shapes[j] == (D0, D1, ..., DN) then the shape of output\nTensor dense_values[j] will be (|serialized|, D0, D1, ..., DN):\nThe dense outputs are just the inputs row-stacked by batch.\nThis works for dense_shapes[j] = (-1, D1, ..., DN).  In this case\nthe shape of the output Tensor dense_values[j] will be\n(|serialized|, M, D1, .., DN), where M is the maximum number of blocks\nof elements of length D1 * .... * DN, across all minibatch entries\nin the input.  Any minibatch entry with less than M blocks of elements of\nlength D1 * ... * DN will be padded with the corresponding default_value\nscalar element along the second dimension.",
+          "minimum": 0,
+          "name": "dense_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A scalar or vector containing binary serialized Example protos.",
+          "name": "serialized",
+          "type": 7
+        },
+        {
+          "description": "A tensor containing the names of the serialized protos.\nCorresponds 1:1 with the `serialized` tensor.\nMay contain, for example, table key (descriptive) names for the\ncorresponding serialized protos.  These are purely useful for debugging\npurposes, and the presence of values here has no effect on the output.\nMay also be an empty vector if no names are available.\nIf non-empty, this tensor must have the same shape as \"serialized\".",
+          "name": "names",
+          "type": 7
+        },
+        {
+          "description": "Vector of strings.\nThe keys expected in the Examples' features associated with sparse values.",
+          "name": "sparse_keys",
+          "type": 7
+        },
+        {
+          "description": "Vector of strings.\nThe keys expected in the Examples' features associated with dense values.",
+          "name": "dense_keys",
+          "type": 7
+        },
+        {
+          "description": "Vector of strings.\nThe keys expected in the Examples' features associated with ragged values.",
+          "name": "ragged_keys",
+          "type": 7
+        },
+        {
+          "description": "A list of Tensors (some may be empty).  Corresponds 1:1 with `dense_keys`.\ndense_defaults[j] provides default values\nwhen the example's feature_map lacks dense_key[j].  If an empty Tensor is\nprovided for dense_defaults[j], then the Feature dense_keys[j] is required.\nThe input type is inferred from dense_defaults[j], even when it's empty.\nIf dense_defaults[j] is not empty, and dense_shapes[j] is fully defined,\nthen the shape of dense_defaults[j] must match that of dense_shapes[j].\nIf dense_shapes[j] has an undefined major dimension (variable strides dense\nfeature), dense_defaults[j] must contain a single element:\nthe padding element.",
+          "name": "dense_defaults",
+          "typeListAttr": "Tdense"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sparse_indices",
+          "numberAttr": "num_sparse",
+          "type": 9
+        },
+        {
+          "name": "sparse_values",
+          "typeListAttr": "sparse_types"
+        },
+        {
+          "name": "sparse_shapes",
+          "numberAttr": "num_sparse",
+          "type": 9
+        },
+        {
+          "name": "dense_values",
+          "typeListAttr": "Tdense"
+        },
+        {
+          "name": "ragged_values",
+          "typeListAttr": "ragged_value_types"
+        },
+        {
+          "name": "ragged_row_splits",
+          "typeListAttr": "ragged_split_types"
+        }
+      ],
+      "summary": "Transforms a vector of tf.Example protos (as strings) into typed tensors."
     }
   },
   {
@@ -38293,21 +38753,31 @@
           "default": "HALF_AWAY_FROM_ZERO",
           "name": "round_mode",
           "type": "string"
+        },
+        {
+          "default": false,
+          "name": "narrow_range",
+          "type": "boolean"
+        },
+        {
+          "default": -1,
+          "name": "axis",
+          "type": "int64"
         }
       ],
-      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.  The\n'round_mode' attribute controls which rounding tie-breaking algorithm is used\nwhen rounding float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nout[i] = (in[i] - min_range) * range(T) / (max_range - min_range)\nif T == qint8: out[i] -= (range(T) + 1) / 2.0\n```\n\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nAssume the input is type float and has a possible range of [0.0, 6.0] and the\noutput type is quint8 ([0, 255]). The min_range and max_range values should be\nspecified as 0.0 and 6.0. Quantizing from float to quint8 will multiply each\nvalue of the input by 255/6 and cast to quint8.\n\nIf the output type was qint8 ([-128, 127]), the operation will additionally\nsubtract each value by 128 prior to casting, so that the range of values aligns\nwith the range of qint8.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = num_discrete_values / range\nquantized = round(input * range_scale) - round(range_min * range_scale) +\n  numeric_limits<T>::min()\nquantized = max(quantized, numeric_limits<T>::min())\nquantized = min(quantized, numeric_limits<T>::max())\n```\n\nThe biggest difference between this and MIN_COMBINED is that the minimum range\nis rounded first, before it's subtracted from the rounded value. With\nMIN_COMBINED, a small bias is introduced where repeated iterations of quantizing\nand dequantizing will introduce a larger and larger error.\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, we do not use the full range of the output type,\nchoosing to elide the lowest possible value for symmetry (e.g., output range is\n-127 to 127, not -128 to 127 for signed 8 bit quantization), so that 0.0 maps to\n0.\n\nWe first find the range of values in our tensor. The\nrange we use is always centered on 0, so we find m such that\n\n```c++\n  m = max(abs(input_min), abs(input_max))\n```\n\nOur input tensor range is then `[-m, m]`.\n\nNext, we choose our fixed-point quantization buckets, `[min_fixed, max_fixed]`.\nIf T is signed, this is\n\n```\n  num_bits = sizeof(T) * 8\n  [min_fixed, max_fixed] =\n      [-(1 << (num_bits - 1) - 1), (1 << (num_bits - 1)) - 1]\n```\n\nOtherwise, if T is unsigned, the fixed-point range is\n\n```\n  [min_fixed, max_fixed] = [0, (1 << num_bits) - 1]\n```\n\nFrom this we compute our scaling factor, s:\n\n```c++\n  s = (max_fixed - min_fixed) / (2 * m)\n```\n\nNow we can quantize the elements of our tensor:\n\n```c++\nresult = round(input * s)\n```\n\nOne thing to watch out for is that the operator may choose to adjust the\nrequested minimum and maximum values slightly during the quantization process,\nso you should always use the output ports as the range for further calculations.\nFor example, if the requested minimum and maximum values are close to equal,\nthey will be separated by a small epsilon value to prevent ill-formed quantized\nbuffers from being created. Otherwise, you can end up with buffers where all the\nquantized values map to the same float value, which causes problems for\noperations that have to perform further calculations on them.",
+      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.  The\n'round_mode' attribute controls which rounding tie-breaking algorithm is used\nwhen rounding float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nout[i] = (in[i] - min_range) * range(T) / (max_range - min_range)\nif T == qint8: out[i] -= (range(T) + 1) / 2.0\n```\n\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nAssume the input is type float and has a possible range of [0.0, 6.0] and the\noutput type is quint8 ([0, 255]). The min_range and max_range values should be\nspecified as 0.0 and 6.0. Quantizing from float to quint8 will multiply each\nvalue of the input by 255/6 and cast to quint8.\n\nIf the output type was qint8 ([-128, 127]), the operation will additionally\nsubtract each value by 128 prior to casting, so that the range of values aligns\nwith the range of qint8.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = num_discrete_values / range\nquantized = round(input * range_scale) - round(range_min * range_scale) +\n  numeric_limits<T>::min()\nquantized = max(quantized, numeric_limits<T>::min())\nquantized = min(quantized, numeric_limits<T>::max())\n```\n\nThe biggest difference between this and MIN_COMBINED is that the minimum range\nis rounded first, before it's subtracted from the rounded value. With\nMIN_COMBINED, a small bias is introduced where repeated iterations of quantizing\nand dequantizing will introduce a larger and larger error.\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, the quantization is performed by multiplying each\ninput value by a scaling_factor.\nThe scaling_factor is determined from `min_range` and `max_range` to be as large\nas possible such that the range from `min_range` to `max_range` is representable\nwithin values of type T.\n\n```c++\n\n  const int min_T = std::numeric_limits<T>::min();\n  const int max_T = std::numeric_limits<T>::max();\n  const float max_float = std::numeric_limits<float>::max();\n\n  const float scale_factor_from_min_side =\n      (min_T * min_range > 0) ? min_T / min_range : max_float;\n  const float scale_factor_from_max_side =\n      (max_T * max_range > 0) ? max_T / max_range : max_float;\n\n  const float scale_factor = std::min(scale_factor_from_min_side,\n                                      scale_factor_from_max_side);\n```\n\nWe next use the scale_factor to adjust min_range and max_range as follows:\n\n```c++\n      min_range = min_T / scale_factor;\n      max_range = max_T / scale_factor;\n```\n\n\ne.g. if T = qint8, and initially min_range = -10, and max_range = 9, we would\ncompare -128/-10.0 = 12.8 to 127/9.0 = 14.11, and set scaling_factor = 12.8\nIn this case, min_range would remain -10, but max_range would be adjusted to\n127 / 12.8 = 9.921875\n\nSo we will quantize input values in the range (-10, 9.921875) to (-128, 127).\n\nThe input tensor can now be quantized by clipping values to the range\n`min_range` to `max_range`, then multiplying by scale_factor as follows:\n\n```c++\nresult = round(min(max_range, max(min_range, input)) * scale_factor)\n```\n\nThe adjusted `min_range` and `max_range` are returned as outputs 2 and 3 of\nthis operation. These outputs should be used as the range for any further\ncalculations.\n\n\n*narrow_range (bool) attribute*\n\nIf true, we do not use the minimum quantized value.\ni.e. for int8 the quantized output, it would be restricted to the range\n-127..127 instead of the full -128..127 range.\nThis is provided for compatibility with certain inference backends.\n(Only applies to SCALED mode)\n\n\n*axis (int) attribute*\n\nAn optional `axis` attribute can specify a dimension index of the input tensor,\nsuch that quantization ranges will be calculated and applied separately for each\nslice of the tensor along that dimension. This is useful for per-channel\nquantization.\n\nIf axis is specified, min_range and max_range\n\nif `axis`=None, per-tensor quantization is performed as normal.",
       "inputs": [
         {
           "name": "input",
           "type": 1
         },
         {
-          "description": "The minimum scalar value possibly produced for the input.",
+          "description": "The minimum value of the quantization range. This value may be adjusted by the\nop depending on other parameters. The adjusted value is written to `output_min`.\nIf the `axis` attribute is specified, this must be a 1-D tensor whose size\nmatches the `axis` dimension of the input and output tensors.",
           "name": "min_range",
           "type": 1
         },
         {
-          "description": "The maximum scalar value possibly produced for the input.",
+          "description": "The maximum value of the quantization range. This value may be adjusted by the\nop depending on other parameters. The adjusted value is written to `output_max`.\nIf the `axis` attribute is specified, this must be a 1-D tensor whose size\nmatches the `axis` dimension of the input and output tensors.",
           "name": "max_range",
           "type": 1
         }
@@ -38319,12 +38789,12 @@
           "typeAttr": "T"
         },
         {
-          "description": "The actual minimum scalar value used for the output.",
+          "description": "The final quantization range minimum, used to clip input values before scaling\nand rounding them to quantized values.\nIf the `axis` attribute is specified, this will be a 1-D tensor whose size\nmatches the `axis` dimension of the input and output tensors.",
           "name": "output_min",
           "type": 1
         },
         {
-          "description": "The actual maximum scalar value used for the output.",
+          "description": "The final quantization range maximum, used to clip input values before scaling\nand rounding them to quantized values.\nIf the `axis` attribute is specified, this will be a 1-D tensor whose size\nmatches the `axis` dimension of the input and output tensors.",
           "name": "output_max",
           "type": 1
         }
@@ -53268,6 +53738,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53313,6 +53788,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53363,6 +53843,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53408,6 +53893,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53458,6 +53948,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53498,6 +53993,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53543,6 +54043,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53593,6 +54098,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53638,6 +54148,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53688,6 +54203,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53738,6 +54258,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53778,6 +54303,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53823,6 +54353,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53863,6 +54398,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53908,6 +54448,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -53953,6 +54498,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -54003,6 +54553,11 @@
         {
           "name": "shard_id",
           "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
         }
       ],
       "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -62523,6 +63078,504 @@
     }
   },
   {
+    "name": "SparseMatrixAdd",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "The gradients of SparseMatrixAdd outputs with respect to alpha and beta are not\ncurrently defined (TensorFlow will return zeros for these entries).",
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "a",
+          "type": 21
+        },
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "b",
+          "type": 21
+        },
+        {
+          "description": "A constant scalar.",
+          "name": "alpha",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A constant scalar.",
+          "name": "beta",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "c",
+          "type": 21
+        }
+      ],
+      "summary": "Sparse addition of two CSR matrices, C = alpha * A + beta * B."
+    }
+  },
+  {
+    "name": "SparseMatrixMatMul",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `a` should be transposed.",
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `b` should be transposed.",
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `a` should be conjugate-transposed.",
+          "name": "adjoint_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `b` should be conjugate-transposed.",
+          "name": "adjoint_b",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Transposes the product of `a` and `b`.",
+          "name": "transpose_output",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Conjugates the product of `a` and `b`.",
+          "name": "conjugate_output",
+          "type": "boolean"
+        }
+      ],
+      "description": "Returns a dense matrix.\nFor inputs A and B, where A is CSR and B is dense; this op returns a dense C;\n\nIf transpose_output is false, returns:\n```\n  C = A . B\n```\n\nIf transpose_output is `true`, returns:\n```\n  C = transpose(A . B) = transpose(B) . transpose(A)\n```\nwhere the transposition is performed along the two innermost (matrix)\ndimensions.\n\nIf conjugate_output is `true`, returns:\n```\n  C = conjugate(A . B) = conjugate(A) . conjugate(B)\n```\n\nIf both conjugate_output and transpose_output are `true`, returns:\n```\n  C = conjugate(transpose(A . B)) = conjugate(transpose(B)) .\n                                    conjugate(transpose(A))\n```",
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "a",
+          "type": 21
+        },
+        {
+          "description": "A dense tensor.",
+          "name": "b",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A dense output tensor.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Matrix-multiplies a sparse matrix with a dense matrix."
+    }
+  },
+  {
+    "name": "SparseMatrixMul",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Returns a sparse matrix.\n\nThe dense tensor `b` may be either a scalar; otherwise `a` must be a rank-3\n`SparseMatrix`; in this case `b` must be shaped `[batch_size, 1, 1]` and the\nmultiply operation broadcasts.\n\n**NOTE** even if `b` is zero, the sparsity structure of the output does not\nchange.",
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "a",
+          "type": 21
+        },
+        {
+          "description": "A dense tensor.",
+          "name": "b",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A dense output tensor.",
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "Element-wise multiplication of a sparse matrix with a dense tensor."
+    }
+  },
+  {
+    "name": "SparseMatrixNNZ",
+    "schema": {
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "sparse_matrix",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The number of nonzeroes of `sparse_matrix`.",
+          "name": "nnz",
+          "type": 3
+        }
+      ],
+      "summary": "Returns the number of nonzeroes of `sparse_matrix`."
+    }
+  },
+  {
+    "name": "SparseMatrixOrderingAMD",
+    "schema": {
+      "description": "Computes the Approximate Minimum Degree (AMD) ordering for a sparse matrix.\n\nThe returned permutation may be used to permute the rows and columns of the\ngiven sparse matrix. This typically results in permuted sparse matrix's sparse\nCholesky (or other decompositions) in having fewer zero fill-in compared to\ndecomposition of the original matrix.\n\nThe input sparse matrix may have rank 2 or rank 3. The output Tensor,\nrepresenting would then have rank 1 or 2 respectively, with the same batch\nshape as the input.\n\nEach component of the input sparse matrix must represent a square symmetric\nmatrix; only the lower triangular part of the matrix is read. The values of the\nsparse matrix does not affect the returned permutation, only the sparsity\npattern of the sparse matrix is used. Hence, a single AMD ordering may be\nreused for the Cholesky decompositions of sparse matrices with the same sparsity\npattern but with possibly different values.\n\nEach batch component of the output permutation represents a permutation of `N`\nelements, where the input sparse matrix components each have `N` rows. That is,\nthe component contains each of the integers `{0, .. N-1}` exactly once. The\n`i`th element represents the row index that the `i`th row maps to.\n\nUsage example:\n\n```python\n    from tensorflow.python.ops.linalg.sparse import sparse_csr_matrix_ops\n\n    a_indices = np.array([[0, 0], [1, 1], [2, 1], [2, 2], [3, 3]])\n    a_values = np.array([1.0, 2.0, 1.0, 3.0, 4.0], np.float32)\n    a_dense_shape = [4, 4]\n\n    with tf.Session() as sess:\n      # Define (COO format) SparseTensor over Numpy array.\n      a_st = tf.SparseTensor(a_indices, a_values, a_dense_shape)\n\n      # Convert SparseTensors to CSR SparseMatrix.\n      a_sm = sparse_csr_matrix_ops.sparse_tensor_to_csr_sparse_matrix(\n          a_st.indices, a_st.values, a_st.dense_shape)\n\n      # Obtain the AMD Ordering for the CSR SparseMatrix.\n      ordering_amd = sparse_csr_matrix_ops.sparse_matrix_ordering_amd(sparse_matrix)\n\n      ordering_amd_value = sess.run(ordering_amd)\n```\n\n`ordering_amd_value` stores the AMD ordering: `[1 2 3 0]`.\n\ninput: A `CSRSparseMatrix`.",
+      "inputs": [
+        {
+          "description": "A `CSRSparseMatrix`.",
+          "name": "input",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The Approximate Minimum Degree (AMD) ordering of `input`.",
+          "name": "output",
+          "type": 3
+        }
+      ],
+      "summary": "Computes the Approximate Minimum Degree (AMD) ordering of `input`."
+    }
+  },
+  {
+    "name": "SparseMatrixSoftmax",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "description": "Calculate the softmax of the innermost dimensions of a SparseMatrix.\n\nMissing values are treated as `-inf` (i.e., logits of zero probability); and\nthe output has the same sparsity structure as the input (though missing values\nin the output may now be treated as having probability zero).",
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "logits",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "softmax",
+          "type": 21
+        }
+      ],
+      "summary": "Calculates the softmax of a CSRSparseMatrix."
+    }
+  },
+  {
+    "name": "SparseMatrixSoftmaxGrad",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "softmax",
+          "type": 21
+        },
+        {
+          "description": "The gradient of `softmax`.",
+          "name": "grad_softmax",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output gradient.",
+          "name": "gradient",
+          "type": 21
+        }
+      ],
+      "summary": "Calculates the gradient of the SparseMatrixSoftmax op."
+    }
+  },
+  {
+    "name": "SparseMatrixSparseCholesky",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "description": "Computes the Sparse Cholesky decomposition of a sparse matrix, with the given\nfill-in reducing permutation.\n\nThe input sparse matrix and the fill-in reducing permutation `permutation` must\nhave compatible shapes. If the sparse matrix has rank 3; with the batch\ndimension `B`, then the `permutation` must be of rank 2; with the same batch\ndimension `B`. There is no support for broadcasting.\n\nFurthermore, each component vector of `permutation` must be of length `N`,\ncontaining each of the integers {0, 1, ..., N - 1} exactly once, where `N` is\nthe number of rows of each component of the sparse matrix.\n\nEach component of the input sparse matrix must represent a symmetric positive\ndefinite (SPD) matrix; although only the lower triangular part of the matrix is\nread. If any individual component is not SPD, then an InvalidArgument error is\nthrown.\n\nThe returned sparse matrix has the same dense shape as the input sparse matrix.\nFor each component `A` of the input sparse matrix, the corresponding output\nsparse matrix represents `L`, the lower triangular Cholesky factor satisfying\nthe following identity:\n\n```\n  A = L * Lt\n```\n\nwhere Lt denotes the transpose of L (or its conjugate transpose, if `type` is\n`complex64` or `complex128`).\n\nThe `type` parameter denotes the type of the matrix elements. The supported\ntypes are: `float32`, `float64`, `complex64` and `complex128`.\n\nUsage example:\n\n```python\n    from tensorflow.python.ops.linalg.sparse import sparse_csr_matrix_ops\n\n    a_indices = np.array([[0, 0], [1, 1], [2, 1], [2, 2], [3, 3]])\n    a_values = np.array([1.0, 2.0, 1.0, 3.0, 4.0], np.float32)\n    a_dense_shape = [4, 4]\n\n    with tf.Session() as sess:\n      # Define (COO format) SparseTensor over Numpy array.\n      a_st = tf.SparseTensor(a_indices, a_values, a_dense_shape)\n\n      # Convert SparseTensors to CSR SparseMatrix.\n      a_sm = sparse_csr_matrix_ops.sparse_tensor_to_csr_sparse_matrix(\n          a_st.indices, a_st.values, a_st.dense_shape)\n\n      # Obtain the Sparse Cholesky factor using AMD Ordering for reducing zero\n      # fill-in (number of structural non-zeros in the sparse Cholesky factor).\n      ordering_amd = sparse_csr_matrix_ops.sparse_matrix_ordering_amd(sparse_matrix)\n      cholesky_sparse_matrices = (\n          sparse_csr_matrix_ops.sparse_matrix_sparse_cholesky(\n              sparse_matrix, ordering_amd, type=tf.float32))\n\n      # Convert the CSRSparseMatrix Cholesky factor to a dense Tensor\n      dense_cholesky = sparse_csr_matrix_ops.csr_sparse_matrix_to_dense(\n          cholesky_sparse_matrices, tf.float32)\n\n      # Evaluate the dense Tensor value.\n      dense_cholesky_value = sess.run(dense_cholesky)\n```\n\n`dense_cholesky_value` stores the dense Cholesky factor:\n\n```\n    [[  1.  0.    0.    0.]\n     [  0.  1.41  0.    0.]\n     [  0.  0.70  1.58  0.]\n     [  0.  0.    0.    2.]]\n```\n\n\ninput: A `CSRSparseMatrix`.\npermutation: A `Tensor`.\ntype: The type of `input`.",
+      "inputs": [
+        {
+          "description": "A `CSRSparseMatrix`.",
+          "name": "input",
+          "type": 21
+        },
+        {
+          "description": "A fill-in reducing permutation matrix.",
+          "name": "permutation",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The sparse Cholesky decompsition of `input`.",
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "Computes the sparse Cholesky decomposition of `input`."
+    }
+  },
+  {
+    "name": "SparseMatrixSparseMatMul",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `a` should be transposed.",
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `b` should be transposed.",
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `a` should be conjugate-transposed.",
+          "name": "adjoint_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Indicates whether `b` should be conjugate-transposed.",
+          "name": "adjoint_b",
+          "type": "boolean"
+        }
+      ],
+      "description": "Performs a matrix multiplication of a sparse matrix `a` with a sparse matrix\n`b`; returns a sparse matrix `a * b`, unless either `a` or `b` is transposed or\nadjointed.\n\nEach matrix may be transposed or adjointed (conjugated and transposed)\naccording to the Boolean parameters `transpose_a`, `adjoint_a`, `transpose_b`\nand `adjoint_b`. At most one of `transpose_a` or `adjoint_a` may be True.\nSimilarly, at most one of `transpose_b` or `adjoint_b` may be True.\n\nThe inputs must have compatible shapes. That is, the inner dimension of `a`\nmust be equal to the outer dimension of `b`. This requirement is adjusted\naccording to whether either `a` or `b` is transposed or adjointed.\n\nThe `type` parameter denotes the type of the matrix elements. Both `a` and `b`\nmust have the same type. The supported types are: `float32`, `float64`,\n`complex64` and `complex128`.\n\nBoth `a` and `b` must have the same rank. Broadcasting is not supported. If they\nhave rank 3, each batch of 2D CSRSparseMatrices within `a` and `b` must have the\nsame dense shape.\n\nThe sparse matrix product may have numeric (non-structural) zeros.\nTODO(anudhyan): Consider adding a boolean attribute to control whether to prune\nzeros.\n\nUsage example:\n\n```python\n    from tensorflow.python.ops.linalg.sparse import sparse_csr_matrix_ops\n\n    a_indices = np.array([[0, 0], [2, 3], [2, 4], [3, 0]])\n    a_values = np.array([1.0, 5.0, -1.0, -2.0], np.float32)\n    a_dense_shape = [4, 5]\n\n    b_indices = np.array([[0, 0], [3, 0], [3, 1]])\n    b_values = np.array([2.0, 7.0, 8.0], np.float32)\n    b_dense_shape = [5, 3]\n\n    with tf.Session() as sess:\n      # Define (COO format) Sparse Tensors over Numpy arrays\n      a_st = tf.SparseTensor(a_indices, a_values, a_dense_shape)\n      b_st = tf.SparseTensor(b_indices, b_values, b_dense_shape)\n\n      # Convert SparseTensors to CSR SparseMatrix\n      a_sm = sparse_csr_matrix_ops.sparse_tensor_to_csr_sparse_matrix(\n          a_st.indices, a_st.values, a_st.dense_shape)\n      b_sm = sparse_csr_matrix_ops.sparse_tensor_to_csr_sparse_matrix(\n          b_st.indices, b_st.values, b_st.dense_shape)\n\n      # Compute the CSR SparseMatrix matrix multiplication\n      c_sm = sparse_csr_matrix_ops.sparse_matrix_sparse_mat_mul(\n          a=a_sm, b=b_sm, type=tf.float32)\n\n      # Convert the CSR SparseMatrix product to a dense Tensor\n      c_sm_dense = sparse_csr_matrix_ops.csr_sparse_matrix_to_dense(\n          c_sm, tf.float32)\n      # Evaluate the dense Tensor value\n      c_sm_dense_value = sess.run(c_sm_dense)\n```\n\n`c_sm_dense_value` stores the dense matrix product:\n\n```\n    [[  2.   0.   0.]\n     [  0.   0.   0.]\n     [ 35.  40.   0.]\n     [ -4.   0.   0.]]\n```\n\na: A `CSRSparseMatrix`.\nb: A `CSRSparseMatrix` with the same type and rank as `a`.\ntype: The type of both `a` and `b`.\ntranspose_a: If True, `a` transposed before multiplication.\ntranspose_b: If True, `b` transposed before multiplication.\nadjoint_a: If True, `a` adjointed before multiplication.\nadjoint_b: If True, `b` adjointed before multiplication.",
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "a",
+          "type": 21
+        },
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "b",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "c",
+          "type": 21
+        }
+      ],
+      "summary": "Sparse-matrix-multiplies two CSR matrices `a` and `b`."
+    }
+  },
+  {
+    "name": "SparseMatrixTranspose",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "description": "Indicates whether `input` should be conjugated.",
+          "name": "conjugate",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "description": "Transposes the inner (matrix) dimensions of a SparseMatrix and optionally\nconjugates its values.",
+      "inputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "input",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A CSRSparseMatrix.",
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "Transposes the inner (matrix) dimensions of a CSRSparseMatrix."
+    }
+  },
+  {
+    "name": "SparseMatrixZeros",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "type",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The desired matrix shape.",
+          "name": "dense_shape",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "An empty CSR matrix with shape `dense_shape`.",
+          "name": "sparse_matrix",
+          "type": 21
+        }
+      ],
+      "summary": "Creates an all-zeros CSRSparseMatrix with shape `dense_shape`."
+    }
+  },
+  {
     "name": "SparseReduceMax",
     "schema": {
       "attributes": [
@@ -64525,6 +65578,60 @@
         }
       ],
       "summary": "Creates a dataset that splits a SparseTensor into elements row-wise."
+    }
+  },
+  {
+    "name": "SparseTensorToCSRSparseMatrix",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "SparseTensor indices.",
+          "name": "indices",
+          "type": 9
+        },
+        {
+          "description": "SparseTensor values.",
+          "name": "values",
+          "typeAttr": "T"
+        },
+        {
+          "description": "SparseTensor dense shape.",
+          "name": "dense_shape",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A (possibly batched) CSRSparseMatrix.",
+          "name": "sparse_matrix",
+          "type": 21
+        }
+      ],
+      "summary": "Converts a SparseTensor to a (possibly batched) CSRSparseMatrix."
     }
   },
   {
