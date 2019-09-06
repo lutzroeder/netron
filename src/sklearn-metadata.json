@@ -53,7 +53,7 @@
       "attributes": [
         {
           "default": 1.0,
-          "description": "Penalty parameter C of the error term.\n",
+          "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty.\n",
           "name": "C",
           "option": "optional",
           "type": "float32"
@@ -161,7 +161,7 @@
       "attributes": [
         {
           "default": 1.0,
-          "description": "Penalty parameter C of the error term.\n",
+          "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty.\n",
           "name": "C",
           "option": "optional",
           "type": "float32"
@@ -701,7 +701,7 @@
         },
         {
           "default": null,
-          "description": "The number of jobs to run in parallel.\n`fit`, `predict`, `decision_path` and `apply` are all\nparallelized over the trees.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "description": "The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,\n:meth:`decision_path` and :meth:`apply` are all parallelized over the\ntrees. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`\ncontext. ``-1`` means using all processors. See :term:`Glossary\n<n_jobs>` for more details.\n",
           "name": "n_jobs",
           "option": "optional"
         },
@@ -923,7 +923,7 @@
         },
         {
           "default": null,
-          "description": "The number of jobs to run in parallel.\n`fit`, `predict`, `decision_path` and `apply` are all\nparallelized over the trees.\n`None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "description": "The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,\n:meth:`decision_path` and :meth:`apply` are all parallelized over the\ntrees. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`\ncontext. ``-1`` means using all processors. See :term:`Glossary\n<n_jobs>` for more details.\n",
           "name": "n_jobs",
           "option": "optional"
         },
@@ -1044,7 +1044,7 @@
         },
         {
           "default": null,
-          "description": "The number of jobs to run in parallel.\n`fit`, `predict`, `decision_path` and `apply` are all\nparallelized over the trees.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "description": "The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,\n:meth:`decision_path` and :meth:`apply` are all parallelized over the\ntrees. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`\ncontext. ``-1`` means using all processors. See :term:`Glossary\n<n_jobs>` for more details.\n",
           "name": "n_jobs",
           "option": "optional"
         },
