@@ -3703,7 +3703,7 @@
   {
     "type":   "pytorch",
     "target": "mnist_linear.ckpt",
-    "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear.ckpt]",
+    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear.ckpt]",
     "format": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
@@ -5006,8 +5006,15 @@
   },
   {
     "type":   "torchscript",
-    "target": "mnist_linear_torchscript.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3269075/mnist_linear_torchscript.zip[mnist_linear_torchscript.pt]",
+    "target": "mnist_linear_torchscript_1.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_1.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
+    "target": "mnist_linear_torchscript_2.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_2.pt]",
     "format": "TorchScript v1",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },

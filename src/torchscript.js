@@ -72,11 +72,9 @@ torchscript.ModelFactory = class {
                 container.prefix = version.name.substring(0, version.name.length - 7);
                 let find = (name) => {
                     let entry = container.entries.find((entry) => entry.name == container.prefix + name);
-                    if (entry) {
-                        return entry.data;
-                    }
-                    return null;
+                    return entry ? entry.data : null;
                 }
+                // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
                 container.version = version.data;
                 container.attributes = find('attribtues.pkl');
                 container.constants = find('constants.pkl');
@@ -285,8 +283,8 @@ torchscript.Graph = class {
                         if (parameter.tensorId) {
                             let tensorId = parseInt(parameter.tensorId, 10);
                             parameter.initializer = container.tensors[tensorId];
-                            if (parameter.outputs && parameter.outputs.length == 1) {
-                                container.parameters[parameter.outputs[0]] = parameter;
+                            if (parameter.__outputs__ && parameter.__outputs__.length == 1) {
+                                container.parameters[parameter.__outputs__[0]] = parameter;
                             }
                         }
                     }
@@ -299,34 +297,32 @@ torchscript.Graph = class {
                 }
             }
         }
-        /*
         if (container.data) {
             let queue = [ container.data ];
             while (queue.length > 0) {
                 let module = queue.shift();
-                if (module.parameters) {
-                    for (let parameter of module.parameters) {
-                        if (parameter.tensorId) {
-                            let tensorId = parseInt(parameter.tensorId, 10);
-                            parameter.initializer = container.tensors[tensorId];
-                            if (parameter.outputs && parameter.outputs.length == 1) {
-                                container.parameters[parameter.outputs[0]] = parameter;
-                            }
-                        }
-                    }
-                }
                 for (let key of Object.keys(module)) {
                     if (key !== '__type__' && key !== '__parent__') {
-                        let submodule = module[key];
-                        if (submodule === Object(submodule)) {
-                            submodule.__parent__ = module;
-                            queue.push(submodule);
+                        let obj = module[key];
+                        if (!Array.isArray(obj) && obj === Object(obj)) {
+                            if (obj && obj.__type__ && obj.__type__.endsWith('Tensor')) {
+                                let parameter = obj;
+                                if (!parameter.initializer) {
+                                    parameter.initializer = new torchscript.Tensor('pickle', parameter);
+                                }
+                                if (parameter.__outputs__ && parameter.__outputs__.length == 1) {
+                                    container.parameters[parameter.__outputs__[0]] = parameter;
+                                }
+                            }
+                            else {
+                                obj.__parent__ = module;
+                                queue.push(obj);
+                            }
                         }
                     }
                 }
             }
         }
-        */
 
         if (context) {
             for (let input of context.inputs) {
@@ -344,21 +340,71 @@ torchscript.Graph = class {
             }
         }
 
-        if (container.model) {
+        if (container.model || container.data) {
             this._loadModule(metadata, container, mainModule);
         }
     }
 
     _loadModule(metadata, container, module) {
-        if (module.parameters && module.parameters.length > 0 && !module.hide) {
-            let node = new torchscript.Node(metadata, container, module, null);
-            this._nodes.push(node);
-        }
-        if (module.submodules) {
-            for (let submodule of module.submodules) {
+        if (module) {
+            if (torchscript.Graph._parameters(module).length > 0 && !module.__hide__) {
+                let node = new torchscript.Node(metadata, container, module, null);
+                this._nodes.push(node);
+            }
+            let submodules = torchscript.Graph._submodules(module);
+            for (let submodule of submodules) {
                 this._loadModule(metadata, container, submodule);
             }
         }
+    }
+
+    static _isTensor(obj) {
+        return obj && obj.__type__ && obj.__type__.endsWith('Tensor');
+    }
+
+    static _parameters(module) {
+        if (module) {
+            if (module.__type__) {
+                let parameters = [];
+                for (let key of Object.keys(module)) {
+                    if (torchscript.Graph._isTensor(module[key])) {
+                        var parameter = module[key];
+                        parameter.__name__ = key;
+                        parameters.push(parameter);
+                    }
+                }
+                return parameters;
+            }
+            else {
+                if (module.parameters) {
+                    for (let parameter of module.parameters) {
+                        parameter.__name__ = parameter.name;
+                    }
+                }
+            }
+        }
+        return [];
+    }
+
+    static _submodules(module) {
+        if (module) {
+            if (module.__type__) {
+                let submodules = [];
+                for (let key of Object.keys(module)) {
+                    if (!key.startsWith('__')) {
+                        let value = module[key];
+                        if (value.__type__ && !torchscript.Graph._isTensor(value)) {
+                            submodules.push(value);
+                        }
+                    }
+                }
+                return submodules;
+            }
+            else {
+                return module.submodules || [];
+            }
+        }
+        return [];
     }
 
     get type() {
@@ -434,6 +480,7 @@ torchscript.Argument = class {
 torchscript.Node = class {
 
     constructor(metadata, container, module, node) {
+
         this._metadata = metadata;
         this._attributes = [];
         this._inputs = [];
@@ -441,16 +488,15 @@ torchscript.Node = class {
 
         if (module) {
             this._operator = 'Module';
-            if (module.parameters) {
-                for (let parameter of module.parameters) {
-                    this._inputs.push(new torchscript.Parameter(parameter.name, true, [
-                        new torchscript.Argument('', null, parameter.initializer || null)
-                    ]));
-                    if (parameter.outputs) {
-                        this._outputs.push(new torchscript.Parameter(parameter.name, true,
-                            parameter.outputs.map((id) => new torchscript.Argument(id, null, null))
-                        ));
-                    }
+            let parameters = torchscript.Graph._parameters(module);
+            for (let parameter of parameters) {
+                this._inputs.push(new torchscript.Parameter(parameter.__name__, true, [
+                    new torchscript.Argument('', null, parameter.initializer || null)
+                ]));
+                if (parameter.__outputs__) {
+                    this._outputs.push(new torchscript.Parameter(parameter.__name__, true,
+                        parameter.__outputs__.map((id) => new torchscript.Argument(id, null, null))
+                    ));
                 }
             }
         }
@@ -468,8 +514,8 @@ torchscript.Node = class {
                 for (let argument of input) {
                     let parameter = container.parameters[argument.id];
                     if (parameter) {
-                        if (parameter.module && (module == null || module == parameter.module)) {
-                            module = parameter.module;
+                        if (parameter.__module__ && (module == null || module == parameter.__module__)) {
+                            module = parameter.__module__;
                             count++;
                         }
                         else {
@@ -482,8 +528,16 @@ torchscript.Node = class {
                     break;
                 }
             }
-            if (module && module.parameters.length == count && match) {
-                module.hide = true;
+            let parametersLength = 0;
+            if (module && module.parameters) {
+                parametersLength = module.parameters.length;
+            }
+            else if (module) {
+                parametersLength = Object.keys(module).filter((k) => module[k] && module[k].__type__ && module[k].__type__.endsWith('Tensor')).length;
+            }
+
+            if (module && parametersLength == count && match) {
+                module.__hide__ = true;
                 for (let input of node.inputs) {
                     for (let argument of input) {
                         let parameter = container.parameters[argument.id];
@@ -1321,25 +1375,34 @@ torchscript.GraphContext = class {
         return false;
     }
 
-    _module(expression) {
-        let module;
-        let submodule;
-        if (expression.type === '.') {
-            module = this._module(expression.target);
-            if (module && module.submodules) {
-                for (submodule of module.submodules) {
-                    if (submodule.name === expression.member.value) {
-                        return submodule;
-                    }
+    _submodule(module, name) {
+        var obj = module[name];
+        if (obj && (!obj.__type__ || !obj.__type__.endsWith('Tensor'))) {
+            return obj;
+        }
+        if (module.submodules) {
+            for (let submodule of module.submodules) {
+                if (submodule.name === name) {
+                    return submodule;
                 }
             }
-            if (module[expression.member.value]) {
-                return module[expression.member.value];
+        }
+        return null;
+    }
+
+    _module(expression) {
+        if (expression.type === '.') {
+            let module = this._module(expression.target);
+            if (module) {
+                let submodule = this._submodule(module, expression.member.value);
+                if (submodule) {
+                    return submodule;
+                }
             }
         }
         if (expression.type == 'call' && 
             expression.target.type == 'identifier' && expression.target.value == 'getattr' && expression.arguments.length == 2) {
-            module = this._module(expression.arguments[0]);
+            let module = this._module(expression.arguments[0]);
             if (!module) {
                 return null;
             }
@@ -1348,13 +1411,9 @@ torchscript.GraphContext = class {
                 name = expression.arguments[1].value.substring(1, expression.arguments[1].value.length - 1);
             }
             if (module) {
-                if (module[name]) {
-                    return module[name];
-                }
-                for (submodule of module.submodules) {
-                    if (submodule.name === name) {
-                        return submodule;
-                    }
+                let submodule = this._submodule(module, name);
+                if (submodule) {
+                    return submodule;
                 }
             }
         }
@@ -1362,7 +1421,7 @@ torchscript.GraphContext = class {
             if (expression.value == 'self') {
                 return this._mainModule;
             }
-            module = this._moduleMap[expression.value];
+            let module = this._moduleMap[expression.value];
             if (module) {
                 return module;
             }
@@ -1387,30 +1446,40 @@ torchscript.GraphContext = class {
         expression = this._moduleTensor(expression);
         if (expression.type === '.' && expression.member.type == 'identifier') {
             let targetModule = this._module(expression.target);
-            if (targetModule && targetModule.parameters) {
-                for (let parameter of targetModule.parameters) {
-                    parameter.module = targetModule;
-                    if (parameter.name === expression.member.value) {
-                        parameter.outputs = parameter.outputs || [];
-                        parameter.outputs.push(target.value);
-                        return true;
+            if (targetModule) {
+                if (targetModule.parameters) {
+                    for (let parameter of targetModule.parameters) {
+                        parameter.__module__ = targetModule;
+                        if (parameter.name === expression.member.value) {
+                            parameter.__outputs__ = parameter.__outputs__ || [];
+                            parameter.__outputs__.push(target.value);
+                            return true;
+                        }
                     }
                 }
-                targetModule.unresolvedParameters = targetModule.unresolvedParameters || [];
-                for (let unresolvedParameter of targetModule.unresolvedParameters) {
-                    unresolvedParameter.module = targetModule;
+                let obj = targetModule[expression.member.value];
+                if (obj && obj.__type__ && obj.__type__.endsWith('Tensor')) {
+                    obj.__module__ = targetModule;
+                    obj.__outputs__ = obj.__outputs__ || [];
+                    obj.__outputs__.push(target.value);
+                    return true;
+                }
+                /*
+                targetModule.__unresolvedParameters__ = targetModule.__unresolvedParameters__ || [];
+                for (let unresolvedParameter of targetModule.__unresolvedParameters__) {
+                    unresolvedParameter.__module__ = targetModule;
                     if (unresolvedParameter.name === expression.member.value) {
-                        unresolvedParameter.outputs = unresolvedParameter.outputs || [];
-                        unresolvedParameter.outputs.push(target.value);
+                        unresolvedParameter.__outputs__ = unresolvedParameter.__outputs__ || [];
+                        unresolvedParameter.__outputs__.push(target.value);
                         return true;
                     }
                 }
-                targetModule.unresolvedParameters.push({
+                targetModule.__unresolvedParameters__.push({
                     module: targetModule,
                     name: expression.member.value,
                     outputs: [ target.value ]
                 });
-                return true;
+                */
             }
         }
         return false;

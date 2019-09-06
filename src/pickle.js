@@ -153,7 +153,7 @@ pickle.Unpickler = class {
                     break;
                 case pickle.OpCode.TUPLE:
                     items = stack;
-                    stack = marker .pop();
+                    stack = marker.pop();
                     stack.push(items);
                     break;
                 case pickle.OpCode.SETITEM:
