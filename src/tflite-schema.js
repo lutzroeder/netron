@@ -27,16 +27,16 @@ tflite_schema.TensorType = {
  * @enum {string}
  */
 tflite_schema.TensorTypeName = {
-  0: 'FLOAT32',
-  1: 'FLOAT16',
-  2: 'INT32',
-  3: 'UINT8',
-  4: 'INT64',
-  5: 'STRING',
-  6: 'BOOL',
-  7: 'INT16',
-  8: 'COMPLEX64',
-  9: 'INT8'
+  '0': 'FLOAT32',
+  '1': 'FLOAT16',
+  '2': 'INT32',
+  '3': 'UINT8',
+  '4': 'INT64',
+  '5': 'STRING',
+  '6': 'BOOL',
+  '7': 'INT16',
+  '8': 'COMPLEX64',
+  '9': 'INT8'
 };
 
 /**
@@ -51,8 +51,8 @@ tflite_schema.QuantizationDetails = {
  * @enum {string}
  */
 tflite_schema.QuantizationDetailsName = {
-  0: 'NONE',
-  1: 'CustomQuantization'
+  '0': 'NONE',
+  '1': 'CustomQuantization'
 };
 
 /**
@@ -178,133 +178,137 @@ tflite_schema.BuiltinOperator = {
   ROUND: 116,
   HARD_SWISH: 117,
   IF: 118,
-  WHILE: 119
+  WHILE: 119,
+  NON_MAX_SUPPRESSION_V4: 120,
+  NON_MAX_SUPPRESSION_V5: 121
 };
 
 /**
  * @enum {string}
  */
 tflite_schema.BuiltinOperatorName = {
-  0: 'ADD',
-  1: 'AVERAGE_POOL_2D',
-  2: 'CONCATENATION',
-  3: 'CONV_2D',
-  4: 'DEPTHWISE_CONV_2D',
-  5: 'DEPTH_TO_SPACE',
-  6: 'DEQUANTIZE',
-  7: 'EMBEDDING_LOOKUP',
-  8: 'FLOOR',
-  9: 'FULLY_CONNECTED',
-  10: 'HASHTABLE_LOOKUP',
-  11: 'L2_NORMALIZATION',
-  12: 'L2_POOL_2D',
-  13: 'LOCAL_RESPONSE_NORMALIZATION',
-  14: 'LOGISTIC',
-  15: 'LSH_PROJECTION',
-  16: 'LSTM',
-  17: 'MAX_POOL_2D',
-  18: 'MUL',
-  19: 'RELU',
-  20: 'RELU_N1_TO_1',
-  21: 'RELU6',
-  22: 'RESHAPE',
-  23: 'RESIZE_BILINEAR',
-  24: 'RNN',
-  25: 'SOFTMAX',
-  26: 'SPACE_TO_DEPTH',
-  27: 'SVDF',
-  28: 'TANH',
-  29: 'CONCAT_EMBEDDINGS',
-  30: 'SKIP_GRAM',
-  31: 'CALL',
-  32: 'CUSTOM',
-  33: 'EMBEDDING_LOOKUP_SPARSE',
-  34: 'PAD',
-  35: 'UNIDIRECTIONAL_SEQUENCE_RNN',
-  36: 'GATHER',
-  37: 'BATCH_TO_SPACE_ND',
-  38: 'SPACE_TO_BATCH_ND',
-  39: 'TRANSPOSE',
-  40: 'MEAN',
-  41: 'SUB',
-  42: 'DIV',
-  43: 'SQUEEZE',
-  44: 'UNIDIRECTIONAL_SEQUENCE_LSTM',
-  45: 'STRIDED_SLICE',
-  46: 'BIDIRECTIONAL_SEQUENCE_RNN',
-  47: 'EXP',
-  48: 'TOPK_V2',
-  49: 'SPLIT',
-  50: 'LOG_SOFTMAX',
-  51: 'DELEGATE',
-  52: 'BIDIRECTIONAL_SEQUENCE_LSTM',
-  53: 'CAST',
-  54: 'PRELU',
-  55: 'MAXIMUM',
-  56: 'ARG_MAX',
-  57: 'MINIMUM',
-  58: 'LESS',
-  59: 'NEG',
-  60: 'PADV2',
-  61: 'GREATER',
-  62: 'GREATER_EQUAL',
-  63: 'LESS_EQUAL',
-  64: 'SELECT',
-  65: 'SLICE',
-  66: 'SIN',
-  67: 'TRANSPOSE_CONV',
-  68: 'SPARSE_TO_DENSE',
-  69: 'TILE',
-  70: 'EXPAND_DIMS',
-  71: 'EQUAL',
-  72: 'NOT_EQUAL',
-  73: 'LOG',
-  74: 'SUM',
-  75: 'SQRT',
-  76: 'RSQRT',
-  77: 'SHAPE',
-  78: 'POW',
-  79: 'ARG_MIN',
-  80: 'FAKE_QUANT',
-  81: 'REDUCE_PROD',
-  82: 'REDUCE_MAX',
-  83: 'PACK',
-  84: 'LOGICAL_OR',
-  85: 'ONE_HOT',
-  86: 'LOGICAL_AND',
-  87: 'LOGICAL_NOT',
-  88: 'UNPACK',
-  89: 'REDUCE_MIN',
-  90: 'FLOOR_DIV',
-  91: 'REDUCE_ANY',
-  92: 'SQUARE',
-  93: 'ZEROS_LIKE',
-  94: 'FILL',
-  95: 'FLOOR_MOD',
-  96: 'RANGE',
-  97: 'RESIZE_NEAREST_NEIGHBOR',
-  98: 'LEAKY_RELU',
-  99: 'SQUARED_DIFFERENCE',
-  100: 'MIRROR_PAD',
-  101: 'ABS',
-  102: 'SPLIT_V',
-  103: 'UNIQUE',
-  104: 'CEIL',
-  105: 'REVERSE_V2',
-  106: 'ADD_N',
-  107: 'GATHER_ND',
-  108: 'COS',
-  109: 'WHERE',
-  110: 'RANK',
-  111: 'ELU',
-  112: 'REVERSE_SEQUENCE',
-  113: 'MATRIX_DIAG',
-  114: 'QUANTIZE',
-  115: 'MATRIX_SET_DIAG',
-  116: 'ROUND',
-  117: 'HARD_SWISH',
-  118: 'IF',
-  119: 'WHILE'
+  '0': 'ADD',
+  '1': 'AVERAGE_POOL_2D',
+  '2': 'CONCATENATION',
+  '3': 'CONV_2D',
+  '4': 'DEPTHWISE_CONV_2D',
+  '5': 'DEPTH_TO_SPACE',
+  '6': 'DEQUANTIZE',
+  '7': 'EMBEDDING_LOOKUP',
+  '8': 'FLOOR',
+  '9': 'FULLY_CONNECTED',
+  '10': 'HASHTABLE_LOOKUP',
+  '11': 'L2_NORMALIZATION',
+  '12': 'L2_POOL_2D',
+  '13': 'LOCAL_RESPONSE_NORMALIZATION',
+  '14': 'LOGISTIC',
+  '15': 'LSH_PROJECTION',
+  '16': 'LSTM',
+  '17': 'MAX_POOL_2D',
+  '18': 'MUL',
+  '19': 'RELU',
+  '20': 'RELU_N1_TO_1',
+  '21': 'RELU6',
+  '22': 'RESHAPE',
+  '23': 'RESIZE_BILINEAR',
+  '24': 'RNN',
+  '25': 'SOFTMAX',
+  '26': 'SPACE_TO_DEPTH',
+  '27': 'SVDF',
+  '28': 'TANH',
+  '29': 'CONCAT_EMBEDDINGS',
+  '30': 'SKIP_GRAM',
+  '31': 'CALL',
+  '32': 'CUSTOM',
+  '33': 'EMBEDDING_LOOKUP_SPARSE',
+  '34': 'PAD',
+  '35': 'UNIDIRECTIONAL_SEQUENCE_RNN',
+  '36': 'GATHER',
+  '37': 'BATCH_TO_SPACE_ND',
+  '38': 'SPACE_TO_BATCH_ND',
+  '39': 'TRANSPOSE',
+  '40': 'MEAN',
+  '41': 'SUB',
+  '42': 'DIV',
+  '43': 'SQUEEZE',
+  '44': 'UNIDIRECTIONAL_SEQUENCE_LSTM',
+  '45': 'STRIDED_SLICE',
+  '46': 'BIDIRECTIONAL_SEQUENCE_RNN',
+  '47': 'EXP',
+  '48': 'TOPK_V2',
+  '49': 'SPLIT',
+  '50': 'LOG_SOFTMAX',
+  '51': 'DELEGATE',
+  '52': 'BIDIRECTIONAL_SEQUENCE_LSTM',
+  '53': 'CAST',
+  '54': 'PRELU',
+  '55': 'MAXIMUM',
+  '56': 'ARG_MAX',
+  '57': 'MINIMUM',
+  '58': 'LESS',
+  '59': 'NEG',
+  '60': 'PADV2',
+  '61': 'GREATER',
+  '62': 'GREATER_EQUAL',
+  '63': 'LESS_EQUAL',
+  '64': 'SELECT',
+  '65': 'SLICE',
+  '66': 'SIN',
+  '67': 'TRANSPOSE_CONV',
+  '68': 'SPARSE_TO_DENSE',
+  '69': 'TILE',
+  '70': 'EXPAND_DIMS',
+  '71': 'EQUAL',
+  '72': 'NOT_EQUAL',
+  '73': 'LOG',
+  '74': 'SUM',
+  '75': 'SQRT',
+  '76': 'RSQRT',
+  '77': 'SHAPE',
+  '78': 'POW',
+  '79': 'ARG_MIN',
+  '80': 'FAKE_QUANT',
+  '81': 'REDUCE_PROD',
+  '82': 'REDUCE_MAX',
+  '83': 'PACK',
+  '84': 'LOGICAL_OR',
+  '85': 'ONE_HOT',
+  '86': 'LOGICAL_AND',
+  '87': 'LOGICAL_NOT',
+  '88': 'UNPACK',
+  '89': 'REDUCE_MIN',
+  '90': 'FLOOR_DIV',
+  '91': 'REDUCE_ANY',
+  '92': 'SQUARE',
+  '93': 'ZEROS_LIKE',
+  '94': 'FILL',
+  '95': 'FLOOR_MOD',
+  '96': 'RANGE',
+  '97': 'RESIZE_NEAREST_NEIGHBOR',
+  '98': 'LEAKY_RELU',
+  '99': 'SQUARED_DIFFERENCE',
+  '100': 'MIRROR_PAD',
+  '101': 'ABS',
+  '102': 'SPLIT_V',
+  '103': 'UNIQUE',
+  '104': 'CEIL',
+  '105': 'REVERSE_V2',
+  '106': 'ADD_N',
+  '107': 'GATHER_ND',
+  '108': 'COS',
+  '109': 'WHERE',
+  '110': 'RANK',
+  '111': 'ELU',
+  '112': 'REVERSE_SEQUENCE',
+  '113': 'MATRIX_DIAG',
+  '114': 'QUANTIZE',
+  '115': 'MATRIX_SET_DIAG',
+  '116': 'ROUND',
+  '117': 'HARD_SWISH',
+  '118': 'IF',
+  '119': 'WHILE',
+  '120': 'NON_MAX_SUPPRESSION_V4',
+  '121': 'NON_MAX_SUPPRESSION_V5'
 };
 
 /**
@@ -405,108 +409,112 @@ tflite_schema.BuiltinOptions = {
   HardSwishOptions: 91,
   IfOptions: 92,
   WhileOptions: 93,
-  DepthToSpaceOptions: 94
+  DepthToSpaceOptions: 94,
+  NonMaxSuppressionV4Options: 95,
+  NonMaxSuppressionV5Options: 96
 };
 
 /**
  * @enum {string}
  */
 tflite_schema.BuiltinOptionsName = {
-  0: 'NONE',
-  1: 'Conv2DOptions',
-  2: 'DepthwiseConv2DOptions',
-  3: 'ConcatEmbeddingsOptions',
-  4: 'LSHProjectionOptions',
-  5: 'Pool2DOptions',
-  6: 'SVDFOptions',
-  7: 'RNNOptions',
-  8: 'FullyConnectedOptions',
-  9: 'SoftmaxOptions',
-  10: 'ConcatenationOptions',
-  11: 'AddOptions',
-  12: 'L2NormOptions',
-  13: 'LocalResponseNormalizationOptions',
-  14: 'LSTMOptions',
-  15: 'ResizeBilinearOptions',
-  16: 'CallOptions',
-  17: 'ReshapeOptions',
-  18: 'SkipGramOptions',
-  19: 'SpaceToDepthOptions',
-  20: 'EmbeddingLookupSparseOptions',
-  21: 'MulOptions',
-  22: 'PadOptions',
-  23: 'GatherOptions',
-  24: 'BatchToSpaceNDOptions',
-  25: 'SpaceToBatchNDOptions',
-  26: 'TransposeOptions',
-  27: 'ReducerOptions',
-  28: 'SubOptions',
-  29: 'DivOptions',
-  30: 'SqueezeOptions',
-  31: 'SequenceRNNOptions',
-  32: 'StridedSliceOptions',
-  33: 'ExpOptions',
-  34: 'TopKV2Options',
-  35: 'SplitOptions',
-  36: 'LogSoftmaxOptions',
-  37: 'CastOptions',
-  38: 'DequantizeOptions',
-  39: 'MaximumMinimumOptions',
-  40: 'ArgMaxOptions',
-  41: 'LessOptions',
-  42: 'NegOptions',
-  43: 'PadV2Options',
-  44: 'GreaterOptions',
-  45: 'GreaterEqualOptions',
-  46: 'LessEqualOptions',
-  47: 'SelectOptions',
-  48: 'SliceOptions',
-  49: 'TransposeConvOptions',
-  50: 'SparseToDenseOptions',
-  51: 'TileOptions',
-  52: 'ExpandDimsOptions',
-  53: 'EqualOptions',
-  54: 'NotEqualOptions',
-  55: 'ShapeOptions',
-  56: 'PowOptions',
-  57: 'ArgMinOptions',
-  58: 'FakeQuantOptions',
-  59: 'PackOptions',
-  60: 'LogicalOrOptions',
-  61: 'OneHotOptions',
-  62: 'LogicalAndOptions',
-  63: 'LogicalNotOptions',
-  64: 'UnpackOptions',
-  65: 'FloorDivOptions',
-  66: 'SquareOptions',
-  67: 'ZerosLikeOptions',
-  68: 'FillOptions',
-  69: 'BidirectionalSequenceLSTMOptions',
-  70: 'BidirectionalSequenceRNNOptions',
-  71: 'UnidirectionalSequenceLSTMOptions',
-  72: 'FloorModOptions',
-  73: 'RangeOptions',
-  74: 'ResizeNearestNeighborOptions',
-  75: 'LeakyReluOptions',
-  76: 'SquaredDifferenceOptions',
-  77: 'MirrorPadOptions',
-  78: 'AbsOptions',
-  79: 'SplitVOptions',
-  80: 'UniqueOptions',
-  81: 'ReverseV2Options',
-  82: 'AddNOptions',
-  83: 'GatherNdOptions',
-  84: 'CosOptions',
-  85: 'WhereOptions',
-  86: 'RankOptions',
-  87: 'ReverseSequenceOptions',
-  88: 'MatrixDiagOptions',
-  89: 'QuantizeOptions',
-  90: 'MatrixSetDiagOptions',
-  91: 'HardSwishOptions',
-  92: 'IfOptions',
-  93: 'WhileOptions',
-  94: 'DepthToSpaceOptions'
+  '0': 'NONE',
+  '1': 'Conv2DOptions',
+  '2': 'DepthwiseConv2DOptions',
+  '3': 'ConcatEmbeddingsOptions',
+  '4': 'LSHProjectionOptions',
+  '5': 'Pool2DOptions',
+  '6': 'SVDFOptions',
+  '7': 'RNNOptions',
+  '8': 'FullyConnectedOptions',
+  '9': 'SoftmaxOptions',
+  '10': 'ConcatenationOptions',
+  '11': 'AddOptions',
+  '12': 'L2NormOptions',
+  '13': 'LocalResponseNormalizationOptions',
+  '14': 'LSTMOptions',
+  '15': 'ResizeBilinearOptions',
+  '16': 'CallOptions',
+  '17': 'ReshapeOptions',
+  '18': 'SkipGramOptions',
+  '19': 'SpaceToDepthOptions',
+  '20': 'EmbeddingLookupSparseOptions',
+  '21': 'MulOptions',
+  '22': 'PadOptions',
+  '23': 'GatherOptions',
+  '24': 'BatchToSpaceNDOptions',
+  '25': 'SpaceToBatchNDOptions',
+  '26': 'TransposeOptions',
+  '27': 'ReducerOptions',
+  '28': 'SubOptions',
+  '29': 'DivOptions',
+  '30': 'SqueezeOptions',
+  '31': 'SequenceRNNOptions',
+  '32': 'StridedSliceOptions',
+  '33': 'ExpOptions',
+  '34': 'TopKV2Options',
+  '35': 'SplitOptions',
+  '36': 'LogSoftmaxOptions',
+  '37': 'CastOptions',
+  '38': 'DequantizeOptions',
+  '39': 'MaximumMinimumOptions',
+  '40': 'ArgMaxOptions',
+  '41': 'LessOptions',
+  '42': 'NegOptions',
+  '43': 'PadV2Options',
+  '44': 'GreaterOptions',
+  '45': 'GreaterEqualOptions',
+  '46': 'LessEqualOptions',
+  '47': 'SelectOptions',
+  '48': 'SliceOptions',
+  '49': 'TransposeConvOptions',
+  '50': 'SparseToDenseOptions',
+  '51': 'TileOptions',
+  '52': 'ExpandDimsOptions',
+  '53': 'EqualOptions',
+  '54': 'NotEqualOptions',
+  '55': 'ShapeOptions',
+  '56': 'PowOptions',
+  '57': 'ArgMinOptions',
+  '58': 'FakeQuantOptions',
+  '59': 'PackOptions',
+  '60': 'LogicalOrOptions',
+  '61': 'OneHotOptions',
+  '62': 'LogicalAndOptions',
+  '63': 'LogicalNotOptions',
+  '64': 'UnpackOptions',
+  '65': 'FloorDivOptions',
+  '66': 'SquareOptions',
+  '67': 'ZerosLikeOptions',
+  '68': 'FillOptions',
+  '69': 'BidirectionalSequenceLSTMOptions',
+  '70': 'BidirectionalSequenceRNNOptions',
+  '71': 'UnidirectionalSequenceLSTMOptions',
+  '72': 'FloorModOptions',
+  '73': 'RangeOptions',
+  '74': 'ResizeNearestNeighborOptions',
+  '75': 'LeakyReluOptions',
+  '76': 'SquaredDifferenceOptions',
+  '77': 'MirrorPadOptions',
+  '78': 'AbsOptions',
+  '79': 'SplitVOptions',
+  '80': 'UniqueOptions',
+  '81': 'ReverseV2Options',
+  '82': 'AddNOptions',
+  '83': 'GatherNdOptions',
+  '84': 'CosOptions',
+  '85': 'WhereOptions',
+  '86': 'RankOptions',
+  '87': 'ReverseSequenceOptions',
+  '88': 'MatrixDiagOptions',
+  '89': 'QuantizeOptions',
+  '90': 'MatrixSetDiagOptions',
+  '91': 'HardSwishOptions',
+  '92': 'IfOptions',
+  '93': 'WhileOptions',
+  '94': 'DepthToSpaceOptions',
+  '95': 'NonMaxSuppressionV4Options',
+  '96': 'NonMaxSuppressionV5Options'
 };
 
 /**
@@ -521,8 +529,8 @@ tflite_schema.Padding = {
  * @enum {string}
  */
 tflite_schema.PaddingName = {
-  0: 'SAME',
-  1: 'VALID'
+  '0': 'SAME',
+  '1': 'VALID'
 };
 
 /**
@@ -541,12 +549,12 @@ tflite_schema.ActivationFunctionType = {
  * @enum {string}
  */
 tflite_schema.ActivationFunctionTypeName = {
-  0: 'NONE',
-  1: 'RELU',
-  2: 'RELU_N1_TO_1',
-  3: 'RELU6',
-  4: 'TANH',
-  5: 'SIGN_BIT'
+  '0': 'NONE',
+  '1': 'RELU',
+  '2': 'RELU_N1_TO_1',
+  '3': 'RELU6',
+  '4': 'TANH',
+  '5': 'SIGN_BIT'
 };
 
 /**
@@ -562,9 +570,9 @@ tflite_schema.LSHProjectionType = {
  * @enum {string}
  */
 tflite_schema.LSHProjectionTypeName = {
-  0: 'UNKNOWN',
-  1: 'SPARSE',
-  2: 'DENSE'
+  '0': 'UNKNOWN',
+  '1': 'SPARSE',
+  '2': 'DENSE'
 };
 
 /**
@@ -579,8 +587,8 @@ tflite_schema.FullyConnectedOptionsWeightsFormat = {
  * @enum {string}
  */
 tflite_schema.FullyConnectedOptionsWeightsFormatName = {
-  0: 'DEFAULT',
-  1: 'SHUFFLED4x16INT8'
+  '0': 'DEFAULT',
+  '1': 'SHUFFLED4x16INT8'
 };
 
 /**
@@ -595,8 +603,8 @@ tflite_schema.LSTMKernelType = {
  * @enum {string}
  */
 tflite_schema.LSTMKernelTypeName = {
-  0: 'FULL',
-  1: 'BASIC'
+  '0': 'FULL',
+  '1': 'BASIC'
 };
 
 /**
@@ -612,9 +620,9 @@ tflite_schema.CombinerType = {
  * @enum {string}
  */
 tflite_schema.CombinerTypeName = {
-  0: 'SUM',
-  1: 'MEAN',
-  2: 'SQRTN'
+  '0': 'SUM',
+  '1': 'MEAN',
+  '2': 'SQRTN'
 };
 
 /**
@@ -629,8 +637,8 @@ tflite_schema.MirrorPadMode = {
  * @enum {string}
  */
 tflite_schema.MirrorPadModeName = {
-  0: 'REFLECT',
-  1: 'SYMMETRIC'
+  '0': 'REFLECT',
+  '1': 'SYMMETRIC'
 };
 
 /**
@@ -644,7 +652,7 @@ tflite_schema.CustomOptionsFormat = {
  * @enum {string}
  */
 tflite_schema.CustomOptionsFormatName = {
-  0: 'FLEXBUFFERS'
+  '0': 'FLEXBUFFERS'
 };
 
 /**
@@ -9873,6 +9881,144 @@ tflite_schema.WhileOptions.createWhileOptions = function(builder, condSubgraphIn
   tflite_schema.WhileOptions.addCondSubgraphIndex(builder, condSubgraphIndex);
   tflite_schema.WhileOptions.addBodySubgraphIndex(builder, bodySubgraphIndex);
   return tflite_schema.WhileOptions.endWhileOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.NonMaxSuppressionV4Options = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.NonMaxSuppressionV4Options}
+ */
+tflite_schema.NonMaxSuppressionV4Options.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.NonMaxSuppressionV4Options=} obj
+ * @returns {tflite_schema.NonMaxSuppressionV4Options}
+ */
+tflite_schema.NonMaxSuppressionV4Options.getRootAsNonMaxSuppressionV4Options = function(bb, obj) {
+  return (obj || new tflite_schema.NonMaxSuppressionV4Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.NonMaxSuppressionV4Options=} obj
+ * @returns {tflite_schema.NonMaxSuppressionV4Options}
+ */
+tflite_schema.NonMaxSuppressionV4Options.getSizePrefixedRootAsNonMaxSuppressionV4Options = function(bb, obj) {
+  return (obj || new tflite_schema.NonMaxSuppressionV4Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.NonMaxSuppressionV4Options.startNonMaxSuppressionV4Options = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.NonMaxSuppressionV4Options.endNonMaxSuppressionV4Options = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.NonMaxSuppressionV4Options.createNonMaxSuppressionV4Options = function(builder) {
+  tflite_schema.NonMaxSuppressionV4Options.startNonMaxSuppressionV4Options(builder);
+  return tflite_schema.NonMaxSuppressionV4Options.endNonMaxSuppressionV4Options(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_schema.NonMaxSuppressionV5Options = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_schema.NonMaxSuppressionV5Options}
+ */
+tflite_schema.NonMaxSuppressionV5Options.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.NonMaxSuppressionV5Options=} obj
+ * @returns {tflite_schema.NonMaxSuppressionV5Options}
+ */
+tflite_schema.NonMaxSuppressionV5Options.getRootAsNonMaxSuppressionV5Options = function(bb, obj) {
+  return (obj || new tflite_schema.NonMaxSuppressionV5Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_schema.NonMaxSuppressionV5Options=} obj
+ * @returns {tflite_schema.NonMaxSuppressionV5Options}
+ */
+tflite_schema.NonMaxSuppressionV5Options.getSizePrefixedRootAsNonMaxSuppressionV5Options = function(bb, obj) {
+  return (obj || new tflite_schema.NonMaxSuppressionV5Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_schema.NonMaxSuppressionV5Options.startNonMaxSuppressionV5Options = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.NonMaxSuppressionV5Options.endNonMaxSuppressionV5Options = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_schema.NonMaxSuppressionV5Options.createNonMaxSuppressionV5Options = function(builder) {
+  tflite_schema.NonMaxSuppressionV5Options.startNonMaxSuppressionV5Options(builder);
+  return tflite_schema.NonMaxSuppressionV5Options.endNonMaxSuppressionV5Options(builder);
 }
 
 /**
