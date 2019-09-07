@@ -1383,14 +1383,14 @@
             TypeProto.prototype.tensor_type = null;
             TypeProto.prototype.sequence_type = null;
             TypeProto.prototype.map_type = null;
-            TypeProto.prototype.opaque_type = null;
             TypeProto.prototype.sparse_tensor_type = null;
+            TypeProto.prototype.opaque_type = null;
             TypeProto.prototype.denotation = "";
     
             var $oneOfFields;
     
             Object.defineProperty(TypeProto.prototype, "value", {
-                get: $util.oneOfGetter($oneOfFields = ["tensor_type", "sequence_type", "map_type", "opaque_type", "sparse_tensor_type"]),
+                get: $util.oneOfGetter($oneOfFields = ["tensor_type", "sequence_type", "map_type", "sparse_tensor_type", "opaque_type"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -1410,11 +1410,11 @@
                     case 5:
                         message.map_type = $root.onnx.TypeProto.Map.decode(reader, reader.uint32());
                         break;
-                    case 7:
-                        message.opaque_type = $root.onnx.TypeProto.Opaque.decode(reader, reader.uint32());
-                        break;
                     case 8:
                         message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decode(reader, reader.uint32());
+                        break;
+                    case 7:
+                        message.opaque_type = $root.onnx.TypeProto.Opaque.decode(reader, reader.uint32());
                         break;
                     case 6:
                         message.denotation = reader.string();
@@ -1442,11 +1442,11 @@
                     case "map_type":
                         message.map_type = $root.onnx.TypeProto.Map.decodeText(reader, true);
                         break;
-                    case "opaque_type":
-                        message.opaque_type = $root.onnx.TypeProto.Opaque.decodeText(reader, true);
-                        break;
                     case "sparse_tensor_type":
                         message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decodeText(reader, true);
+                        break;
+                    case "opaque_type":
+                        message.opaque_type = $root.onnx.TypeProto.Opaque.decodeText(reader, true);
                         break;
                     case "denotation":
                         message.denotation = reader.string();
@@ -1513,62 +1513,6 @@
                 };
     
                 return Tensor;
-            })();
-    
-            TypeProto.SparseTensor = (function() {
-    
-                function SparseTensor(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                SparseTensor.prototype.elem_type = 0;
-                SparseTensor.prototype.shape = null;
-    
-                SparseTensor.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TypeProto.SparseTensor();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.elem_type = reader.int32();
-                            break;
-                        case 2:
-                            message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                SparseTensor.decodeText = function decodeText(reader) {
-                    var message = new $root.onnx.TypeProto.SparseTensor();
-                    reader.start();
-                    while (!reader.end()) {
-                        var tag = reader.tag();
-                        switch (tag) {
-                        case "elem_type":
-                            message.elem_type = reader.int32();
-                            break;
-                        case "shape":
-                            message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
-                            break;
-                        default:
-                            reader.field(tag, message);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-    
-                return SparseTensor;
             })();
     
             TypeProto.Sequence = (function() {
@@ -1674,6 +1618,62 @@
                 };
     
                 return Map;
+            })();
+    
+            TypeProto.SparseTensor = (function() {
+    
+                function SparseTensor(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SparseTensor.prototype.elem_type = 0;
+                SparseTensor.prototype.shape = null;
+    
+                SparseTensor.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TypeProto.SparseTensor();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.elem_type = reader.int32();
+                            break;
+                        case 2:
+                            message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                SparseTensor.decodeText = function decodeText(reader) {
+                    var message = new $root.onnx.TypeProto.SparseTensor();
+                    reader.start();
+                    while (!reader.end()) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "elem_type":
+                            message.elem_type = reader.int32();
+                            break;
+                        case "shape":
+                            message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.field(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SparseTensor;
             })();
     
             TypeProto.Opaque = (function() {
