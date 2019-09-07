@@ -7697,7 +7697,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `input`, this operation returns a tensor that has the same buffer\ndata as `input` with datatype `type`.\n\nIf the input datatype `T` is larger than the output datatype `type` then the\nshape changes from [...] to [..., sizeof(`T`)/sizeof(`type`)].\n\nIf `T` is smaller than `type`, the operator requires that the rightmost\ndimension be equal to sizeof(`type`)/sizeof(`T`). The shape then goes from\n[..., sizeof(`type`)/sizeof(`T`)] to [...].\n\ntf.bitcast() and tf.cast() work differently when real dtype is casted as a complex dtype\n(e.g. tf.complex64 or tf.complex128) as tf.cast() make imaginary part 0 while tf.bitcast()\ngives module error.\nFor example,\n\nExample 1:\n```python\n>>> a = [1., 2., 3.]\n>>> equality_bitcast = tf.bitcast(a,tf.complex128)\ntensorflow.python.framework.errors_impl.InvalidArgumentError: Cannot bitcast from float to complex128: shape [3] [Op:Bitcast]\n>>> equality_cast = tf.cast(a,tf.complex128)\n>>> print(equality_cast)\ntf.Tensor([1.+0.j 2.+0.j 3.+0.j], shape=(3,), dtype=complex128)\n```\nExample 2:\n```python\n>>> tf.bitcast(tf.constant(0xffffffff, dtype=tf.uint32), tf.uint8)\n<tf.Tensor: ... shape=(4,), dtype=uint8, numpy=array([255, 255, 255, 255], dtype=uint8)>\n```\nExample 3:\n```python\n>>> x = [1., 2., 3.]\n>>> y = [0., 2., 3.]\n>>> equality= tf.equal(x,y)\n>>> equality_cast = tf.cast(equality,tf.float32)\n>>> equality_bitcast = tf.bitcast(equality_cast,tf.uint8)\n>>> print(equality)\ntf.Tensor([False True True], shape=(3,), dtype=bool)\n>>> print(equality_cast)\ntf.Tensor([0. 1. 1.], shape=(3,), dtype=float32)\n>>> print(equality_bitcast)\ntf.Tensor(\n[[ 0 0 0 0]\n [ 0 0 128 63]\n [ 0 0 128 63]], shape=(3, 4), dtype=uint8)\n```\n\n*NOTE*: Bitcast is implemented as a low-level cast, so machines with different\nendian orderings will give different results.",
+      "description": "Given a tensor `input`, this operation returns a tensor that has the same buffer\ndata as `input` with datatype `type`.\n\nIf the input datatype `T` is larger than the output datatype `type` then the\nshape changes from [...] to [..., sizeof(`T`)/sizeof(`type`)].\n\nIf `T` is smaller than `type`, the operator requires that the rightmost\ndimension be equal to sizeof(`type`)/sizeof(`T`). The shape then goes from\n[..., sizeof(`type`)/sizeof(`T`)] to [...].\n\ntf.bitcast() and tf.cast() work differently when real dtype is casted as a complex dtype\n(e.g. tf.complex64 or tf.complex128) as tf.cast() make imaginary part 0 while tf.bitcast()\ngives module error.\nFor example,\n\nExample 1:\n\n>>> a = [1., 2., 3.]\n>>> equality_bitcast = tf.bitcast(a, tf.complex128)\nTraceback (most recent call last):\n...\nInvalidArgumentError: Cannot bitcast from 1 to 18 [Op:Bitcast]\n>>> equality_cast = tf.cast(a, tf.complex128)\n>>> print(equality_cast)\ntf.Tensor([1.+0.j 2.+0.j 3.+0.j], shape=(3,), dtype=complex128)\n\nExample 2:\n\n>>> tf.bitcast(tf.constant(0xffffffff, dtype=tf.uint32), tf.uint8)\n<tf.Tensor: ... shape=(4,), dtype=uint8, numpy=array([255, 255, 255, 255], dtype=uint8)>\n\nExample 3:\n\n>>> x = [1., 2., 3.]\n>>> y = [0., 2., 3.]\n>>> equality= tf.equal(x,y)\n>>> equality_cast = tf.cast(equality,tf.float32)\n>>> equality_bitcast = tf.bitcast(equality_cast,tf.uint8)\n>>> print(equality)\ntf.Tensor([False True True], shape=(3,), dtype=bool)\n>>> print(equality_cast)\ntf.Tensor([0. 1. 1.], shape=(3,), dtype=float32)\n>>> print(equality_bitcast)\ntf.Tensor(\n    [[  0   0   0   0]\n     [  0   0 128  63]\n     [  0   0 128  63]], shape=(3, 4), dtype=uint8)\n\n*NOTE*: Bitcast is implemented as a low-level cast, so machines with different\nendian orderings will give different results.",
       "inputs": [
         {
           "name": "input",
@@ -9796,7 +9796,7 @@
           "type": "type"
         }
       ],
-      "description": "Broadcasting is the process of making arrays to have compatible shapes\nfor arithmetic operations. Two shapes are compatible if for each\ndimension pair they are either equal or one of them is one. When trying\nto broadcast a Tensor to a shape, it starts with the trailing dimensions,\nand works its way forward.\n\nFor example,\n\n```python\n>>> x = tf.constant([1, 2, 3])\n>>> y = tf.broadcast_to(x, [3, 3])\n>>> sess.run(y)\narray([[1, 2, 3],\n       [1, 2, 3],\n       [1, 2, 3]], dtype=int32)\n```\n\nIn the above example, the input Tensor with the shape of `[1, 3]`\nis broadcasted to output Tensor with shape of `[3, 3]`.",
+      "description": "Broadcasting is the process of making arrays to have compatible shapes\nfor arithmetic operations. Two shapes are compatible if for each\ndimension pair they are either equal or one of them is one. When trying\nto broadcast a Tensor to a shape, it starts with the trailing dimensions,\nand works its way forward.\n\nFor example,\n\n>>> x = tf.constant([1, 2, 3])\n>>> y = tf.broadcast_to(x, [3, 3])\n>>> print(y)\ntf.Tensor(\n    [[1 2 3]\n     [1 2 3]\n     [1 2 3]], shape=(3, 3), dtype=int32)\n\nIn the above example, the input Tensor with the shape of `[1, 3]`\nis broadcasted to output Tensor with shape of `[3, 3]`.",
       "inputs": [
         {
           "description": "A Tensor to broadcast.",
@@ -18929,6 +18929,11 @@
           ],
           "name": "T",
           "type": "type"
+        },
+        {
+          "default": true,
+          "name": "incompatible_shape_error",
+          "type": "boolean"
         }
       ],
       "description": "*NOTE*: `Equal` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n```python\nx = tf.constant([2, 4])\ny = tf.constant(2)\ntf.math.equal(x, y) ==> array([True, False])\n\nx = tf.constant([2, 4])\ny = tf.constant([2, 4])\ntf.math.equal(x, y) ==> array([True,  True])\n```",
@@ -34941,6 +34946,11 @@
           ],
           "name": "T",
           "type": "type"
+        },
+        {
+          "default": true,
+          "name": "incompatible_shape_error",
+          "type": "boolean"
         }
       ],
       "description": "*NOTE*: `NotEqual` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
@@ -44415,7 +44425,7 @@
           "type": "type"
         }
       ],
-      "description": "\nReturns a `RaggedTensor` `result` composed from `rt_dense_values` and\n`rt_nested_splits`, such that\n`result[i] = range(starts[i], limits[i], deltas[i])`.\n\n```python\n>>> (rt_nested_splits, rt_dense_values) = gen_ragged_ops.ragged_range(\n...     starts=[2, 5, 8], limits=[3, 5, 12], deltas=1)\n>>> result = ragged.from_nested_row_splits(rt_dense_values, rt_nested_splits)\n>>> print result.eval().tolist()\n[[2],               # result[0] = range(2, 3)\n [],                # result[1] = range(5, 5)\n [8, 9, 10, 11]]    # result[2] = range(8, 12)\n```\n\nThe input tensors `starts`, `limits`, and `deltas` may be scalars or vectors.\nThe vector inputs must all have the same size.  Scalar inputs are broadcast\nto match the size of the vector inputs.",
+      "description": "\nReturns a `RaggedTensor` `result` composed from `rt_dense_values` and\n`rt_nested_splits`, such that\n`result[i] = range(starts[i], limits[i], deltas[i])`.\n\n```python\n(rt_nested_splits, rt_dense_values) = ragged_range(\n      starts=[2, 5, 8], limits=[3, 5, 12], deltas=1)\nresult = tf.ragged.from_row_splits(rt_dense_values, rt_nested_splits)\nprint(result)\n<tf.RaggedTensor [[2], [], [8, 9, 10, 11]] >\n```\n\nThe input tensors `starts`, `limits`, and `deltas` may be scalars or vectors.\nThe vector inputs must all have the same size.  Scalar inputs are broadcast\nto match the size of the vector inputs.",
       "inputs": [
         {
           "description": "The starts of each range.",
@@ -69064,13 +69074,14 @@
   {
     "name": "TPUCompilationResult",
     "schema": {
+      "description": "This operation returns the result of a TPU compilation as a serialized\nCompilationResultProto, which holds a status and an error message if an error\noccurred during compilation.",
       "outputs": [
         {
           "name": "output",
           "type": 7
         }
       ],
-      "summary": "CompilationResultProto indicating the status of the TPU compilation."
+      "summary": "Returns the result of a TPU compilation."
     }
   },
   {
