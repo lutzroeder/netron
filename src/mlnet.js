@@ -1385,33 +1385,7 @@ mlnet.TextFeaturizingEstimator = class {
                 let dirName = 'Step_' + ('00' + i).slice(-3);
                 let transformer = context.open(dirName).create();
                 this.chain.push(transformer);
-                /*
-                ITransformer transformer;
-                // Try to load as an ITransformer.
-                try
-                {
-                    ctx.LoadModelOrNull<ITransformer, SignatureLoadModel>(env, out transformer, dirName);
-                }
-                catch (FormatException)
-                {
-                    transformer = null;
-                }
-
-                // If that didn't work, this should be a RowToRowMapperTransform with a "Mapper" folder in it containing an ITransformer.
-                var mapperDirName = Path.Combine(dirName, "Mapper");
-                if (transformer == null && ctx.ContainsModel(mapperDirName))
-                    ctx.LoadModelOrNull<ITransformer, SignatureLoadModel>(env, out transformer, mapperDirName);
-
-                if (transformer != null)
-                    data = transformer.Transform(data);
-                else
-                {
-                    ctx.LoadModel<IDataTransform, SignatureLoadDataTransform>(env, out var xf, dirName, data);
-                    data = xf;
-                    transformer = new TransformWrapper(_host, xf);
-                }
-                _chain = _chain.Append(transformer);
-                */
+                // debugger;
             }
 
             // throw new mlnet.Error('Unsupported TextFeaturizingEstimator format.');
@@ -1446,43 +1420,7 @@ mlnet.TextLoader.Bindinds = class {
         let reader = context.reader;
         let cinfo = reader.int32();
         for (let i = 0; i < cinfo; i++) {
-            /*
-            let name = r.string();
-            let kind = r.byte();
-            let itemType = null;
-            if (r.bool()) {
-                let isConfig = r.bool();
-                let min = r.uint64();
-                let count = r.int32();
-                if (count == 0) {
-                    itemType = new KeyType(kind, min, 0, isContig);
-                }
-                else
-                {
-                    itemType = new KeyType(kind, min, count);
-                }
-            }
-            else {
-                itemType = PrimitiveType.FromKind(kind);
-            }
-
-            let cseg = r.int32();
-            let segs = [];
-            for (let iseg = 0; iseg < cseg; iseg++) {
-                segs.push({ 
-                    min: r.int32(),
-                    lim: r.int32(),
-                    forceVector: (header.modelVersionWritten >= 0x0001000A) ? r.bool() : falses
-                });
-                Infos[iinfo] = ColInfo.Create(name, itemType, segs, false);
-                NameToInfoIndex[name] = iinfo;
-            }
-            let textReader = header.openText('Header.txt');
-            if (textReader.line().length > 0) {
-                Parser.ParseSlotNames(parent, _header = result.AsMemory(), Infos, _slotNames);
-            }
-            AsSchema = Schema.Create(this);
-            */
+            // debugger;
         }
     }
 };
