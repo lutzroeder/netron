@@ -5427,7 +5427,7 @@
           "name": "indices"
         },
         {
-          "description": "Gradient computed",
+          "description": "Gradient computed (optional - not used, this argument is for backwards compatibility)",
           "name": "grad"
         }
       ],
