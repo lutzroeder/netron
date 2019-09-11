@@ -90,7 +90,7 @@ metadata() {
     touch ${tools}/tensorflow/__init__.py
     touch ${tools}/tensorflow/core/__init__.py
     touch ${tools}/tensorflow/core/framework/__init__.py
-    python3 tf-script.py
+    python3 tf-script.py metadata
     rm -rf ${tools}/tensorflow
     popd > /dev/null
     deactivate

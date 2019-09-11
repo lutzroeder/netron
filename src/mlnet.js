@@ -4,6 +4,7 @@
 // Experimental
 
 var mlnet = mlnet || {};
+var marked = marked || require('marked');
 var zip = zip || require('./zip');
 
 mlnet.ModelFactory = class {
@@ -182,6 +183,7 @@ mlnet.Argument = class {
 mlnet.Node = class {
 
     constructor(metadata, group, transformer) {
+        this._metadata = metadata;
         this._group = group;
         this._name = transformer.__name__;
         this._operator = transformer.__type__;
@@ -226,11 +228,42 @@ mlnet.Node = class {
         return this._name;
     }
 
-    get documentation() {
-        return '';
+    get category() {
+        var schema = this._metadata.getSchema(this._operator); 
+        return schema && schema.category ? schema.category : '';
     }
 
-    get category() {
+    get documentation() {
+        var schema = this._metadata.getSchema(this._operator); 
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this._operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                for (var attribute of schema.attributes) {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                }
+            }
+            if (schema.inputs) {
+                for (var input of schema.inputs) {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                }
+            }
+            if (schema.outputs) {
+                for (var output of schema.outputs) {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                }
+            }
+            return schema;
+        }
         return '';
     }
 
@@ -999,14 +1032,36 @@ mlnet.LinearMulticlassModelParameters = class extends mlnet.LinearMulticlassMode
 
     constructor(context) {
         super(context);
-        // debugger;
     }
 }
 
-mlnet.RegressionModelParameters = class {
+mlnet.ModelParametersBase = class {
 
-    constructor(/* context */) {
-        // debugger;
+    constructor(context) {
+        let reader = context.reader;
+        let cbFloat = reader.int32();
+        if (cbFloat !== 4) {
+            throw new mlnet.Error('This file was saved by an incompatible version.');
+        }
+    }
+};
+
+mlnet.LinearModelParameters = class extends mlnet.ModelParametersBase {
+
+    constructor(context) {
+        super(context);
+        let reader = context.reader;
+        this.Bias = reader.float32();
+        /* let len = */ reader.int32();
+        this.Indices = reader.int32s();
+        this.Weights = reader.float32s();
+    }
+}
+
+mlnet.RegressionModelParameters = class extends mlnet.LinearModelParameters {
+
+    constructor(context) {
+        super(context);
     }
 }
 
@@ -1014,7 +1069,6 @@ mlnet.PoissonRegressionModelParameters = class extends mlnet.RegressionModelPara
 
     constructor(context) {
         super(context);
-        // debugger;
     }
 }
 
@@ -1022,7 +1076,6 @@ mlnet.LinearRegressionModelParameters = class extends mlnet.RegressionModelParam
 
     constructor(context) {
         super(context);
-        // debugger;
     }
 }
 
@@ -1062,7 +1115,9 @@ mlnet.TokenizingByCharactersTransformer = class extends mlnet.OneToOneTransforme
 
     constructor(context) {
         super(context);
-        // debugger;
+        let reader = context.reader;
+        this.UseMarkerChars = reader.boolean();
+        this.IsSeparatorStartEnd = context.modelVersionReadable < 0x00010002 ? true : reader.boolean();
     }
 };
 
@@ -1131,7 +1186,7 @@ mlnet.ImageLoadingTransformer = class extends mlnet.OneToOneTransformerBase {
 
     constructor(context) {
         super(context);
-        this.imageFolder = context.string(null);
+        this.ImageFolder = context.string(null);
     }
 }
 
@@ -1458,17 +1513,6 @@ mlnet.CalibratedPredictor = class extends mlnet.ValueMapperCalibratedPredictorBa
 
 mlnet.ParameterMixingCalibratedModelParameters = class extends mlnet.ValueMapperCalibratedModelParametersBase {
 
-};
-
-mlnet.ModelParametersBase = class {
-
-    constructor(context) {
-        let reader = context.reader;
-        let cbFloat = reader.int32();
-        if (cbFloat !== 4) {
-            throw new mlnet.Error('This file was saved by an incompatible version.');
-        }
-    }
 };
 
 mlnet.FieldAwareFactorizationMachineModelParameters = class {

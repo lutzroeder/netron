@@ -35,10 +35,18 @@ sync() {
     git_sync mlnet https://github.com/dotnet/machinelearning.git
 }
 
+metadata() {
+    bold "mlnet metadata"
+    pushd ${tools} > /dev/null
+    python3 mlnet-script.py metadata
+    popd > /dev/null
+}
+
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
+        "metadata") metadata;;
     esac
 done
