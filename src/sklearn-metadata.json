@@ -497,8 +497,8 @@
           "type": "float32"
         },
         {
-          "default": false,
-          "description": "Whether to presort the data to speed up the finding of best splits in\nfitting. For the default settings of a decision tree on large\ndatasets, setting this to true may slow down the training process.\nWhen using either a smaller dataset or a restricted depth, this may\nspeed up the training.\n",
+          "default": "deprecated",
+          "description": "This parameter is deprecated and will be removed in v0.24.\n\n.. deprecated :: 0.22\n",
           "name": "presort",
           "option": "optional",
           "type": "boolean"
@@ -598,8 +598,8 @@
           "name": "class_weight"
         },
         {
-          "default": false,
-          "description": "Whether to presort the data to speed up the finding of best splits in\nfitting. For the default settings of a decision tree on large\ndatasets, setting this to true may slow down the training process.\nWhen using either a smaller dataset or a restricted depth, this may\nspeed up the training.\n",
+          "default": "deprecated",
+          "description": "This parameter is deprecated and will be removed in v0.24.\n\n.. deprecated :: 0.22\n",
           "name": "presort",
           "option": "optional",
           "type": "boolean"
