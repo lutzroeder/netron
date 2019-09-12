@@ -8,8 +8,8 @@ var base = base || require('./base');
 paddle.ModelFactory = class {
 
     match(context) {
-        var identifier = context.identifier;
-        var extension = identifier.split('.').pop().toLowerCase();
+        let identifier = context.identifier;
+        let extension = identifier.split('.').pop().toLowerCase();
         if (identifier == '__model__' || extension == 'paddle') {
             return true;
         }
@@ -18,8 +18,8 @@ paddle.ModelFactory = class {
 
     open(context, host) {
         return host.require('./paddle-proto').then(() => {
-            var desc = null;
-            var identifier = context.identifier; 
+            let desc = null;
+            let identifier = context.identifier; 
             try {
                 paddle.proto = protobuf.roots.paddle.paddle.framework.proto;
                 desc = paddle.proto.ProgramDesc.decode(context.buffer);
@@ -44,7 +44,7 @@ paddle.Model = class {
 
     constructor(metadata, desc) {
         this._graphs = [];
-        for (var block of desc.blocks) {
+        for (let block of desc.blocks) {
             this._graphs.push(new paddle.Graph(metadata, block));
         }
     }
@@ -65,9 +65,9 @@ paddle.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        var initializers = {};
-        var types = {};
-        for (var variable of block.vars) {
+        let initializers = {};
+        let types = {};
+        for (let variable of block.vars) {
             if (variable.persistable && variable.type && 
                 variable.type.type != paddle.proto.VarType.Type.FETCH_LIST && 
                 variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
@@ -79,15 +79,15 @@ paddle.Graph = class {
 
         }
 
-        var scope = {};
-        for (var i = 0; i < block.ops.length; i++) {
-            for (var input of block.ops[i].inputs) {
+        let scope = {};
+        for (let i = 0; i < block.ops.length; i++) {
+            for (let input of block.ops[i].inputs) {
                 input.arguments = input.arguments.map((argument) => scope[argument] ? scope[argument] : argument);
             }
-            for (var output of block.ops[i].outputs) {
+            for (let output of block.ops[i].outputs) {
                 output.arguments = output.arguments.map((argument) => {
                     if (scope[argument]) {
-                        var next = argument + '\n' + i.toString(); // custom argument id
+                        let next = argument + '\n' + i.toString(); // custom argument id
                         scope[argument] = next;
                         return next;
                     }
@@ -97,23 +97,23 @@ paddle.Graph = class {
             }
         }
 
-        var lastNode = null;
-        var lastOutput = null;
-        for (var op of block.ops) {
+        let lastNode = null;
+        let lastOutput = null;
+        for (let op of block.ops) {
             if (op.type == 'feed') {
-                var inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                let inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => {
                     return new paddle.Argument(id, types[id], null, null);
                 })));
             }
             else if (op.type == 'fetch') {
-                var outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                let outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._outputs.push(new paddle.Parameter(outputName, op.inputs[0].arguments.map((id) => {
                     return new paddle.Argument(id, types[id], null, null);
                 })));
             }
             else {
-                var node = new paddle.Node(metadata, op, initializers, types);
+                let node = new paddle.Node(metadata, op, initializers, types);
                 if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
                     op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
                     op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() && 
@@ -221,18 +221,18 @@ paddle.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._chain = [];
-        for (var attr of op.attrs) {
+        for (let attr of op.attrs) {
             this._attributes.push(new paddle.Attribute(metadata, this._operator, attr));
         }
-        for (var input of op.inputs) {
+        for (let input of op.inputs) {
             if (input.arguments.length > 0) {
-                var inputConnections = input.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, initializers[argument]));
+                let inputConnections = input.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, initializers[argument]));
                 this._inputs.push(new paddle.Parameter(input.parameter, inputConnections));
             }
         }
-        for (var output of op.outputs) {
+        for (let output of op.outputs) {
             if (output.arguments.length > 0) {
-                var outputConnections = output.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, null));
+                let outputConnections = output.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, null));
                 this._outputs.push(new paddle.Parameter(output.parameter, outputConnections));
             }
         }
@@ -251,7 +251,7 @@ paddle.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -276,8 +276,8 @@ paddle.Node = class {
     }
 
     _update(list, name) {
-        var item = null;
-        for (var i = 0; i < list.length; i++) {
+        let item = null;
+        for (let i = 0; i < list.length; i++) {
             if (list[i].name == name) {
                 item = list[i];
                 list.splice(i, 1);
@@ -349,11 +349,11 @@ paddle.Attribute = class {
                 break;
         }
 
-        var schema = metadata.getAttributeSchema(operator, this._name);
+        let schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                var defaultValue = schema.default;
-                var value = this._value;
+                let defaultValue = schema.default;
+                let value = this._value;
                 if (defaultValue == value) {
                     this._visible = false;
                 }
@@ -483,9 +483,9 @@ paddle.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -499,12 +499,12 @@ paddle.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
