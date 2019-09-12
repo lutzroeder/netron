@@ -11,12 +11,11 @@ var cntk_v2 = null;
 cntk.ModelFactory = class {
 
     match(context) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
-        var buffer = null;
+        let extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'model' || extension == 'cmf' || extension == 'dnn' || extension == 'cntk') {
-            buffer = context.buffer;
+            let buffer = context.buffer;
             // Reject PyTorch models with .model file extension.
-            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
@@ -27,7 +26,7 @@ cntk.ModelFactory = class {
                 return true;
             }
             // CNTK v2
-            var tags = context.tags('pb');
+            let tags = context.tags('pb');
             if (tags.get(1) === 0 && tags.get(2) === 2) {
                 return true;
             }
@@ -37,10 +36,10 @@ cntk.ModelFactory = class {
 
     open(context, host) { 
         return host.require('./cntk-proto').then(() => {
-            var version = 0;
-            var obj = null;
+            let version = 0;
+            let obj = null;
             try {
-                var buffer = context.buffer;
+                let buffer = context.buffer;
                 if (buffer && buffer.length >= 8 && 
                     buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
                     buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
@@ -55,7 +54,7 @@ cntk.ModelFactory = class {
                 if (!obj) {
                     cntk_v2 = protobuf.roots.cntk.CNTK.proto;
                     cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                    var dictionary = cntk_v2.Dictionary.decode(context.buffer);
+                    let dictionary = cntk_v2.Dictionary.decode(context.buffer);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                     version = 2;
                 }
@@ -75,8 +74,8 @@ cntk.ModelFactory = class {
     }
 
     static _convertDictionary(dictionary) {
-        var target = {};
-        for (var key of Object.keys(dictionary.data).filter((key) => key != 'version')) {
+        let target = {};
+        for (let key of Object.keys(dictionary.data).filter((key) => key != 'version')) {
             target[key] = cntk.ModelFactory._convertDictionaryValue(dictionary.data[key]);
         }
         return target;
@@ -149,13 +148,11 @@ cntk.Graph = class {
         this._nodes = [];
         this._functions = [];
 
-        var name;
-        var node;
-        var args = {};
+        let args = {};
         switch (version) {
             case 1:
-                for (name of Object.keys(obj.nodes)) {
-                    node = obj.nodes[name];
+                for (let name of Object.keys(obj.nodes)) {
+                    let node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue':
                             this._inputs.push(new cntk.Parameter(node.name, [ 
@@ -167,14 +164,14 @@ cntk.Graph = class {
                             break;
                     }
                 }
-                for (name of Object.keys(obj.nodes)) {
-                    node = obj.nodes[name];
+                for (let name of Object.keys(obj.nodes)) {
+                    let node = obj.nodes[name];
                     if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
                         this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
                 }
                 if (obj.output) {
-                    for (var output of obj.output) {
+                    for (let output of obj.output) {
                         this._outputs.push(new cntk.Parameter(output, [ 
                             new cntk.Argument(version, output)
                         ]));
@@ -183,32 +180,32 @@ cntk.Graph = class {
                 break;
             case 2:
                 var nodeMap = {};
-                for (node of obj.primitive_functions) {
+                for (let node of obj.primitive_functions) {
                     nodeMap[node.uid] = node;
                 }
                 var argumentNames = {};
-                for (var input of obj.inputs) {
-                    var argument = new cntk.Argument(version, input);
+                for (let input of obj.inputs) {
+                    let argument = new cntk.Argument(version, input);
                     args[input.uid] = argument;
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
-                        var inputName = input.name || input.uid;
+                        let inputName = input.name || input.uid;
                         this._inputs.push(new cntk.Parameter(inputName, [ argument ]));
                     }
                     argumentNames[input.uid] = input;
                 }
-                for (var block of obj.primitive_functions) {
+                for (let block of obj.primitive_functions) {
                     if (block.op == 57 && block.block_function_composite) {
-                        var list = [ block.block_function_composite.root ];
-                        var nodes = [];
+                        let list = [ block.block_function_composite.root ];
+                        let nodes = [];
                         while (list.length > 0) {
-                            name = list.shift();
-                            node = nodeMap[name];
+                            let name = list.shift();
+                            let node = nodeMap[name];
                             if (node) {
                                 nodes.push(new cntk.Node(metadata, version, node, args));
                                 nodeMap[name] = null;
-                                for (var i = 0; i < node.inputs.length; i++) {
-                                    var parts = node.inputs[i].split('_');
+                                for (let i = 0; i < node.inputs.length; i++) {
+                                    let parts = node.inputs[i].split('_');
                                     if (parts.length >= 3) {
                                         parts.pop();
                                         if (parts.pop() == 'Output') {
@@ -218,12 +215,12 @@ cntk.Graph = class {
                                 }
                             }
                         }
-                        var inputs = [];
-                        var outputs = [ block.block_function_composite.root ];
+                        let inputs = [];
+                        let outputs = [ block.block_function_composite.root ];
                         this._functions.push(new cntk.Function(block.block_function_op_name, nodes, inputs, outputs));
                     }
                 }
-                for (node of obj.primitive_functions) {
+                for (let node of obj.primitive_functions) {
                     if (nodeMap[node.uid]) {
                         this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
@@ -370,17 +367,15 @@ cntk.Node = class {
         this._inputs = [];
         this._outputs = [];
 
-        var inputs = [];
-        var outputs = [];
-        var initializers = [];
-
-        var attributeName;
+        let inputs = [];
+        let outputs = [];
+        let initializers = [];
 
         switch (version) {
             case 1:
                 this._operator = obj.__type__;
                 this._name = obj.name;
-                for (attributeName of Object.keys(obj)) {
+                for (let attributeName of Object.keys(obj)) {
                     if (attributeName != '__type__' && attributeName != 'name' && attributeName != 'inputs' && attributeName != 'precision') {
                         this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj[attributeName]));
                     }
@@ -407,7 +402,7 @@ cntk.Node = class {
                     if (!Object.prototype.hasOwnProperty.call(obj, 'op')) {
                         this._operator = obj.type;
                         if (obj.user_defined_state) {
-                            for (attributeName of Object.keys(obj.user_defined_state)) {
+                            for (let attributeName of Object.keys(obj.user_defined_state)) {
                                 this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj.user_defined_state[attributeName]));
                             }
                         }
@@ -420,12 +415,12 @@ cntk.Node = class {
                     }
                 }
                 if (obj.attributes) {
-                    for (attributeName of Object.keys(obj.attributes)) {
+                    for (let attributeName of Object.keys(obj.attributes)) {
                         this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj.attributes[attributeName]));
                     }
                 }
-                for (var input of obj.inputs) {
-                    var argument = args[input];
+                for (let input of obj.inputs) {
+                    let argument = args[input];
                     if (argument) {
                         if (argument.initializer) {
                             initializers.push(argument);
@@ -442,14 +437,14 @@ cntk.Node = class {
                 inputs = inputs.concat(initializers);
         }
 
-        var inputIndex = 0;
-        var schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        let inputIndex = 0;
+        let schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         if (schema && schema.inputs) {
-            for (var inputSchema of schema.inputs) {
+            for (let inputSchema of schema.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
-                    var inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputArguments = [];
-                    for (var inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                    let inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    let inputArguments = [];
+                    for (let inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (inputArgument.id != '' || inputSchema.option != 'optional') {
                             inputArguments.push(inputArgument);
                         }
@@ -463,11 +458,11 @@ cntk.Node = class {
             return new cntk.Parameter((inputIndex + index).toString(), [ argument ]);
         }));
 
-        var outputIndex = 0;
+        let outputIndex = 0;
         if (schema && schema.outputs) {
-            for (var outputSchema of schema.outputs) {
+            for (let outputSchema of schema.outputs) {
                 if (outputIndex < outputs.length || outputSchema.option != 'optional') {
-                    var outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    let outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
                     outputIndex += outputCount;
                 }
@@ -491,7 +486,7 @@ cntk.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        let schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -527,18 +522,18 @@ cntk.Attribute = class {
             this._type = 'shape';
         }
         if (cntk_v2 && this._value instanceof cntk_v2.Axis) {
-            var axis = { __type__: 'Axis' };
-            for (var key of Object.keys(value).filter((key) => key !== 'name')) {
+            let axis = { __type__: 'Axis' };
+            for (let key of Object.keys(value).filter((key) => key !== 'name')) {
                 axis[key] = value[key];
             }
             this._value = axis;
         }
 
-        var schema = metadata.getAttributeSchema(operator, name);
+        let schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
-                var type = cntk_v1[this._type] || cntk_v2[this._type];
+                let type = cntk_v1[this._type] || cntk_v2[this._type];
                 if (type && type[this._value]) {
                     this._value = type[this._value];
                 }
@@ -547,7 +542,7 @@ cntk.Attribute = class {
                 this._visible = false;
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                var defaultValue = schema.default;
+                let defaultValue = schema.default;
                 value = this._value;
                 if (typeof value == 'function') {
                     value = value();
@@ -622,7 +617,7 @@ cntk.Tensor = class {
     }
 
     get value() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return null;
         }
@@ -631,17 +626,17 @@ cntk.Tensor = class {
     }
 
     toString() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        var value = this._decode(context, 0);
+        let value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        var context = {};
+        let context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -655,7 +650,7 @@ cntk.Tensor = class {
             return context;
         }
 
-        var value = this._value;
+        let value = this._value;
         if (!value) {
             context.state = 'Tensor data is empty.';
             return context;
@@ -682,14 +677,14 @@ cntk.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var shape = context.shape;
+        let shape = context.shape;
         if (context.shape.length == 0) {
             shape = [ 1 ];
         }
-        var results = [];
-        var size = shape[dimension];
+        let results = [];
+        let size = shape[dimension];
         if (dimension == shape.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -699,7 +694,7 @@ cntk.Tensor = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -803,13 +798,13 @@ cntk.Metadata = class {
         this._attributeCache = {};
         this._operatorMap = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema)
                     {
-                        var name = item.name;
-                        var schema = item.schema;
+                        let name = item.name;
+                        let schema = item.schema;
                         this._map[name] = schema;
                         if (Object.prototype.hasOwnProperty.call(schema, 'operator')) {
                             this._operatorMap[schema.operator.toString()] = name;
@@ -830,12 +825,12 @@ cntk.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -848,15 +843,15 @@ cntk.Metadata = class {
 cntk_v1.ComputationNetwork = class {
 
     constructor(buffer) {
-        var reader = new cntk_v1.Reader(buffer);
+        let reader = new cntk_v1.Reader(buffer);
         reader.assert('BCN');
         reader.assert('BVersion');
         this.version = reader.uint64();
         reader.version = this.version;
         reader.assert('EVersion');
-        var numNodes = reader.uint64();
+        let numNodes = reader.uint64();
         reader.assert('BNodeList');
-        var op = {};
+        let op = {};
         op.Minus = function() {};
         op.Plus = function() {};
         op.GreaterEqual = function() {};
@@ -875,7 +870,7 @@ cntk_v1.ComputationNetwork = class {
             this.sampleLayout = new cntk_v1.TensorShape(reader, true);
             this.dynamicAxisNodeName = '';
             if (reader.version >= 8) {
-                var nrAxes = reader.uint32();
+                let nrAxes = reader.uint32();
                 if (nrAxes == 1) {
                     this.dynamicAxisNodeName = reader.string();
                 }
@@ -988,12 +983,12 @@ cntk_v1.ComputationNetwork = class {
             this.replacementSampleLayout = new cntk_v1.TensorShape(reader);
         };
         op.ReduceElements = function(reader) {
-            var num_axes = 1;
+            let num_axes = 1;
             if (reader.version >= 27) {
                 num_axes = reader.uint32();
             }
             this.axes = [];
-            for (var i = 0; i < num_axes; i++)
+            for (let i = 0; i < num_axes; i++)
             {
                 this.axes.push(reader.uint32());
             }
@@ -1003,7 +998,7 @@ cntk_v1.ComputationNetwork = class {
             }
         };
         op.BatchNormalization = function(reader) {
-            var mbCount = 0;
+            let mbCount = 0;
             if (reader.version >= 6)
             {
                 this.spatial = reader.bool();
@@ -1028,8 +1023,8 @@ cntk_v1.ComputationNetwork = class {
             }
             else
             {
-                var verWritten = reader.int32();
-                var verReadable = reader.int32();
+                let verWritten = reader.int32();
+                let verReadable = reader.int32();
                 if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
                     throw new cntk.Error('BatchNormalization version not supported.');
                 }
@@ -1065,14 +1060,14 @@ cntk_v1.ComputationNetwork = class {
             this.spliceDim = (reader.version >= 3) ? reader.int32() : 1;
         };
         op.Slice = function(reader) {
-            var num = 1;
+            let num = 1;
             if (reader.version >= 22) {
                 num = reader.int32();
             }
             this.index = [];
             this.axis = [];
             this.strideMultiplier = [];
-            for (var i = 0; i < num; i++) {
+            for (let i = 0; i < num; i++) {
                 this.index.push([ [ reader.uint64(), reader.uint64() ] ]);
                 if (reader.version >= 3) {
                     this.axis.push(reader.int32());
@@ -1090,7 +1085,7 @@ cntk_v1.ComputationNetwork = class {
             }
             else
             {
-                var rows = reader.uint64();
+                let rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
@@ -1107,7 +1102,7 @@ cntk_v1.ComputationNetwork = class {
             }
             else
             {
-                var rows = reader.uint64();
+                let rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
@@ -1123,9 +1118,9 @@ cntk_v1.ComputationNetwork = class {
                 this.axis2 = reader.int32();
                 if (reader.version >= 25 && this.axis1 == 0 && this.axis2 == 0)
                 {
-                    var size = reader.uint64();
+                    let size = reader.uint64();
                     this.perm = [];
-                    for (var i = 0; i < size; i++) {
+                    for (let i = 0; i < size; i++) {
                         this.perm.push(reader.uint64());
                     }
                 }
@@ -1149,17 +1144,17 @@ cntk_v1.ComputationNetwork = class {
         op.PerDimMeanVarNormalization = function() {};
         op.Softmax = function() {};
 
-        var nodes = [];
+        let nodes = [];
         this.nodes = {};
-        for (var i = 0; i < numNodes; i++) {
-            var precision = reader.version >= 7 ? reader.string() : '';
+        for (let i = 0; i < numNodes; i++) {
+            let precision = reader.version >= 7 ? reader.string() : '';
             if (precision != 'float' && precision != 'double' && precision != 'half' && precision != '') {
                 throw new cntk.Error("Invalid precision format '" + precision + "'.");
             }
-            var obj = { __type__: reader.string() };
+            let obj = { __type__: reader.string() };
             obj.name = reader.string();
             obj.precision = precision;
-            var constructor = op[obj.__type__];
+            let constructor = op[obj.__type__];
             if (!constructor) {
                 throw new cntk.Error("Unknown operator '" + obj.__type__ + "'.");
             } 
@@ -1169,16 +1164,16 @@ cntk_v1.ComputationNetwork = class {
         }
         reader.assert('ENodeList');
         reader.assert('BRelation');
-        for (var j = 0; j < numNodes; j++) {
-            var nodeName = reader.string();
-            var node = this.nodes[nodeName];
-            var numChildren = reader.uint64();
-            var children = [];
-            for (var k = 0; k < numChildren; k++) {
+        for (let j = 0; j < numNodes; j++) {
+            let nodeName = reader.string();
+            let node = this.nodes[nodeName];
+            let numChildren = reader.uint64();
+            let children = [];
+            for (let k = 0; k < numChildren; k++) {
                 children.push(reader.string());
             }
             if (this.version < 19 && node.__type__ == 'BatchNormalization') {
-                var runSampleCount = {
+                let runSampleCount = {
                     __type__: 'LearnableParameter',
                     name: nodeName + '.run_sample_count',
                     precision: node.precision,
@@ -1252,8 +1247,8 @@ cntk_v1.Reader = class {
     }
 
     match(text) {
-        var offset = this._offset;
-        for (var i = 0; i < text.length; i++) {
+        let offset = this._offset;
+        for (let i = 0; i < text.length; i++) {
             if (this.uint16() != text.charCodeAt(i)) {
                 this._offset = offset;
                 return false;
@@ -1281,46 +1276,46 @@ cntk_v1.Reader = class {
     }
 
     bools(count) {
-        var array = [];
-        for (var i = 0; i < count; i++) {
+        let array = [];
+        for (let i = 0; i < count; i++) {
             array.push(this.bool());
         }
         return array;
     }
 
     byte() {
-        var value = this._dataView.getUint8(this._offset);
+        let value = this._dataView.getUint8(this._offset);
         this._offset++;
         return value;
     }
 
     bytes(count) {
-        var data = this._buffer.subarray(this._offset, this._offset + count);
+        let data = this._buffer.subarray(this._offset, this._offset + count);
         this._offset += count;
         return data;
     }
 
     uint16() {
-        var value = this._dataView.getUint16(this._offset, true);
+        let value = this._dataView.getUint16(this._offset, true);
         this._offset += 2;
         return value;
     }
 
     int32() {
-        var value = this._dataView.getInt32(this._offset, true);
+        let value = this._dataView.getInt32(this._offset, true);
         this._offset += 4;
         return value;
     }
 
     uint32() {
-        var value = this._dataView.getUint32(this._offset, true);
+        let value = this._dataView.getUint32(this._offset, true);
         this._offset += 4;
         return value;
     }
 
     uint64() {
-        var low = this.uint32();
-        var hi = this.uint32();
+        let low = this.uint32();
+        let hi = this.uint32();
         if (hi > 65536) {
             throw new cntk_v1.Error('Value not in 48-bit range.');
         }
@@ -1328,20 +1323,20 @@ cntk_v1.Reader = class {
     }
 
     float32() {
-        var value = this._dataView.getFloat32(this._offset, true);
+        let value = this._dataView.getFloat32(this._offset, true);
         this._offset += 4;
         return value;
     }
 
     float64() {
-        var value = this._dataView.getFloat64(this._offset, true);
+        let value = this._dataView.getFloat64(this._offset, true);
         this._offset += 8;
         return value;
     }
 
     string() {
-        var text = '';
-        var c = this.uint16();
+        let text = '';
+        let c = this.uint16();
         while (c != 0) {
             text += String.fromCharCode(c);
             c = this.uint16();
@@ -1350,8 +1345,8 @@ cntk_v1.Reader = class {
     }
 
     strings(count) {
-        var array = [];
-        for (var i = 0; i < count; i++) {
+        let array = [];
+        for (let i = 0; i < count; i++) {
             array.push(this.string());
         }
         return array;
@@ -1370,19 +1365,19 @@ cntk_v1.TensorShape = class {
             return;
         }
         this.dims = [];
-        var rank = reader.uint32();
-        var dim0 = 0;
+        let rank = reader.uint32();
+        let dim0 = 0;
         if (rank > 0) {
             dim0 = reader.uint32();
         }
         if (!acceptLegacyFormat || dim0 != 0) {
             this.dims.push(dim0);
-            for (var i = 1; i < rank; i++) {
+            for (let i = 1; i < rank; i++) {
                 this.dims.push(reader.uint32());
             }
         }
         else {
-            var dim = reader.uint32();
+            let dim = reader.uint32();
             this.dims.push(reader.uint32());
             this.dims.push(rank);
             this.dims.push(dim);
@@ -1393,7 +1388,7 @@ cntk_v1.TensorShape = class {
 cntk_v1.Matrix = class {
 
     constructor(reader) {
-        var type = reader.byte();
+        let type = reader.byte();
         switch (type) {
             case 100: // dense
                 reader.assert('BMAT');
