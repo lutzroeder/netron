@@ -1893,20 +1893,6 @@
   },
   {
     "type":   "dl4j",
-    "target": "trained_mnist_model.zip",
-    "source": "https://github.com/deeplearning4j/dl4j-examples/blob/master/android/DL4JImageRecognitionDemo/app/src/main/res/raw/trained_mnist_model.zip?raw=true",
-    "format": "Deeplearning4j",
-    "link":   "https://github.com/deeplearning4j/dl4j-examples"
-  },
-  {
-    "type":   "dl4j",
-    "target": "trained_iris_model.zip",
-    "source": "https://github.com/deeplearning4j/dl4j-examples/blob/master/android/DL4JIrisClassifierDemo/app/src/main/res/raw/trained_iris_model.zip?raw=true",
-    "format": "Deeplearning4j",
-    "link":   "https://github.com/deeplearning4j/dl4j-examples"
-  },
-  {
-    "type":   "dl4j",
     "target": "unet_dl4j_segment_inference.v1.zip",
     "source": "https://deeplearning4jblob.blob.core.windows.net/models/unet_dl4j_segment_inference.v1.zip",
     "format": "Deeplearning4j",
@@ -2595,7 +2581,7 @@
   },
   {
     "type":   "ncnn",
-    "target": "frozen_pb/frozen.pb.weights.ncnn,frozen_pb/frozen.pb.cfg.ncnn",
+    "target": "frozen_pb/frozen.pb.cfg.ncnn,frozen_pb/frozen.pb.weights.ncnn",
     "source": "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.weights.ncnn",
     "format": "NCNN",
     "link":   "https://github.com/00liujj/gen-ncnn-models"
@@ -2616,15 +2602,8 @@
   },
   {
     "type":   "ncnn",
-    "target": "mobilenet_yolov3/mobilenet_yolov3.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenet_yolov3.param",
-    "format": "NCNN",
-    "link":   "https://github.com/Tencent/ncnn"
-  },
-  {
-    "type":   "ncnn",
-    "target": "mobilenet_yolov3/mobilenet_yolov3.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenet_yolov3.param",
+    "target": "mobilenetv2_yolov3/mobilenetv2_yolov3.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenetv2_yolov3.param",
     "format": "NCNN",
     "link":   "https://github.com/Tencent/ncnn"
   },
@@ -2641,6 +2620,13 @@
     "source": "https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.bin,https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.param",
     "format": "NCNN",
     "link":   "https://github.com/kyo055/ncnn_yolo2"
+  },
+  {
+    "type":   "ncnn",
+    "target": "proxylessnasnet/proxylessnasnet.param",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/proxylessnasnet.param",
+    "format": "NCNN",
+    "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
@@ -2673,14 +2659,14 @@
   {
     "type":   "ncnn",
     "target": "squeezenet_v1.1/squeezenet_v1.1.param.bin,squeezenet_v1.1/squeezenet_v1.1.bin",
-    "source": "https://github.com/Tencent/ncnn/blob/master/examples/squeezencnn/assets/squeezenet_v1.1.param.bin?raw=true,https://github.com/Tencent/ncnn/blob/master/examples/squeezenet_v1.1.bin?raw=true",
+    "source": "https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.param.bin?raw=true,https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.bin?raw=true",
     "format": "NCNN",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "squeezenet_v1.1_no_param/squeezenet_v1.1.bin",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/examples/squeezenet_v1.1.bin",
+    "source": "https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.bin?raw=true",
     "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
   },
@@ -3028,7 +3014,7 @@
   {
     "type":   "onnx",
     "target": "super_resolution.onnx",
-    "source": "https://github.com/onnx/models/blob/master/vision/super_resolution/sub_pixel_cnn_2016/super_resolution.onnx?raw=true",
+    "source": "https://github.com/onnx/models/blob/master/vision/super_resolution/sub_pixel_cnn_2016/model/super_resolution.onnx?raw=true",
     "format": "ONNX v4", "producer": "pytorch 1.1",
     "link":   "https://github.com/onnx/models/tree/master/vision/super_resolution"
   },
@@ -3062,7 +3048,8 @@
   {
     "type":   "onnx",
     "target": "tiny_yolov2_opset_8.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/tiny_yolov2/tiny_yolov2.tar.gz[tiny_yolov2/model.onnx]"
+    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/tiny_yolov2/tiny_yolov2.tar.gz[tiny_yolov2/./Model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny_yolov2"
   },
   {
     "type":   "onnx",
@@ -3073,7 +3060,7 @@
     "type":   "onnx",
     "target": "yolov3.onnx",
     "source": "https://onnxzoo.blob.core.windows.net/models/opset_10/yolov3/yolov3.onnx",
-    "format": "ONNX v5", "producer": "keras2onnx 1.4.1",
+    "format": "ONNX v5", "producer": "keras2onnx 1.5.1",
     "link":   "https://github.com/onnx/models/tree/master/yolov3"
   },
   {
@@ -4139,11 +4126,6 @@
   },
   {
     "type":   "tf",
-    "target": "frozen_squeezenet.pb",
-    "source": "http://ftp.openailab.net.cn/Tengine_models/squeeznet/tensorflow/frozen_squeezenet.pb"
-  },
-  {
-    "type":   "tf",
     "target": "graphdef_saved_model.pb",
     "source": "https://github.com/lutzroeder/netron/files/2528688/saved_model.zip[saved_model.pb]",
     "format": "TensorFlow Graph",
@@ -4539,13 +4521,6 @@
     "type":   "tflite",
     "target": "densenet.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
-    "format": "TensorFlow Lite v3",
-    "link":   "https://git.geekyants.com/nitishsahani/Flutter_MLkit"
-  },
-  {
-    "type":   "tflite",
-    "target": "fssd_100_8bit_v1.tflite",
-    "source": "https://git.geekyants.com/nitishsahani/Flutter_MLkit/raw/8b09aaf140ab7eab6a22cb0fe352749d584bcfd1/ios/Pods/GoogleMobileVision/FaceDetector/Resources/GoogleMVFaceDetectorResources/fssd_100_8bit_v1.tflite",
     "format": "TensorFlow Lite v3"
   },
   {
