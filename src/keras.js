@@ -8,28 +8,27 @@ var marked = marked || require('marked');
 keras.ModelFactory = class {
 
     match(context) {
-        var identifier = context.identifier;
-        var extension = identifier.split('.').pop().toLowerCase();
-        var buffer = null;
+        let identifier = context.identifier;
+        let extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'keras' || extension == 'h5' || extension == 'hd5' || extension == 'hdf5') {
             // Reject PyTorch models with .h5 file extension.
-            buffer = context.buffer;
-            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            let buffer = context.buffer;
+            let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
             return true;
         }
         if (extension == 'model') {
-            buffer = context.buffer;
-            var hdf5 = [ 0x89, 0x48, 0x44, 0x46 ];
+            let buffer = context.buffer;
+            let hdf5 = [ 0x89, 0x48, 0x44, 0x46 ];
             return (buffer && buffer.length > hdf5.length && hdf5.every((v, i) => v == buffer[i]));
         }
         if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
-            var json = context.text;
+            let json = context.text;
             if (json.indexOf('"mxnet_version":', 0) == -1) {
                 try {
-                    var root = JSON.parse(json);
+                    let root = JSON.parse(json);
                     if (root && root.nodes && root.arg_nodes && root.heads) {
                         return false;
                     }
@@ -53,14 +52,14 @@ keras.ModelFactory = class {
 
     open(context, host) {
         return host.require('./hdf5').then((hdf5) => {
-            var format = 'Keras';
-            var producer = '';
-            var version = '';
-            var backend = '';
-            var model_config = null;
-            var rootGroup = null;
-            var weightsManifest = null;
-            var identifier = context.identifier;
+            let format = 'Keras';
+            let producer = '';
+            let version = '';
+            let backend = '';
+            let model_config = null;
+            let rootGroup = null;
+            let weightsManifest = null;
+            let identifier = context.identifier;
             try {
                 switch (identifier.split('.').pop().toLowerCase()) {
                     case 'keras':
@@ -106,7 +105,7 @@ keras.ModelFactory = class {
             }
             catch (error) {
                 host.exception(error, false);
-                var message = error && error.message ? error.message : error.toString();
+                let message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 throw new keras.Error(message + " in '" + identifier + "'.");
             }
@@ -123,7 +122,7 @@ keras.ModelFactory = class {
                     return new keras.Model(metadata, format, producer, backend, model_config, rootGroup, weightsManifest);
                 }
                 catch (error) {
-                    var message = error && error.message ? error.message : error.toString();
+                    let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     throw new keras.Error(message + " in '" + identifier + "'.");
                 }
@@ -140,36 +139,34 @@ keras.Model = class {
         this._producer = producer;
         this._graphs = [];
 
-        var initializer;
-        var weights = {};
+        let weights = {};
         if (rootGroup) {
-            var model_weights_group = rootGroup.group('model_weights');
+            let model_weights_group = rootGroup.group('model_weights');
             if (!model_weights_group && rootGroup.attribute('layer_names')) {
                 model_weights_group = rootGroup;
             }
             if (model_weights_group) {
                 model_weights_group = new keras.Group(model_weights_group);
-                var layer_names = model_weights_group.attribute('layer_names');
-                var layer_names_map = {};
-                var layer_name;
-                for (layer_name of layer_names) {
+                let layer_names = model_weights_group.attribute('layer_names');
+                let layer_names_map = {};
+                for (let layer_name of layer_names) {
                     layer_names_map[layer_name] = true;
                 }
-                for (layer_name of layer_names) {
-                    var layer_weights = model_weights_group.group(layer_name);
-                    var weight_names = layer_weights.attribute('weight_names');
+                for (let layer_name of layer_names) {
+                    let layer_weights = model_weights_group.group(layer_name);
+                    let weight_names = layer_weights.attribute('weight_names');
                     if (layer_weights && weight_names && weight_names.length > 0) {
-                        for (var weight_name of weight_names) {
-                            var group = layer_weights.group(weight_name);
+                        for (let weight_name of weight_names) {
+                            let group = layer_weights.group(weight_name);
                             if (group) {
-                                var variable = group.value;
+                                let variable = group.value;
                                 if (variable) {
-                                    var parts = weight_name.split('/');
+                                    let parts = weight_name.split('/');
                                     parts.pop();
-                                    initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.rawData, '');
-                                    var match = false;
+                                    let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.rawData, '');
+                                    let match = false;
                                     while (parts.length > 0) {
-                                        var name = parts.join('/');
+                                        let name = parts.join('/');
                                         if (layer_names_map[name]) {
                                             match = true;
                                         }
@@ -189,13 +186,13 @@ keras.Model = class {
             }
         }
         else if (weightsManifest) {
-            for (var manifest of weightsManifest) {
-                for (var weight of manifest.weights) {
-                    var p = weight.name.split('/');
+            for (let manifest of weightsManifest) {
+                for (let weight of manifest.weights) {
+                    let p = weight.name.split('/');
                     p.pop();
-                    initializer = new keras.Tensor(weight.name, weight.dtype, weight.shape, null, manifest.paths.join(';'));
+                    let initializer = new keras.Tensor(weight.name, weight.dtype, weight.shape, null, manifest.paths.join(';'));
                     while (p.length > 0) {
-                        var weightName = p.join('/');
+                        let weightName = p.join('/');
                         weights[weightName] = weights[weightName] || [];
                         weights[weightName].push(initializer);
                         p.shift();
@@ -256,7 +253,7 @@ keras.Graph = class {
             }
         }
         else if (weights) {
-            for (var layer of Object.keys(weights)) {
+            for (let layer of Object.keys(weights)) {
                 if (weights[layer].length <= 6) {
                     this._nodes.push(new keras.Node(metadata, 'Weights', { name: layer }, [], [], false, weights))
                 }
@@ -288,10 +285,9 @@ keras.Graph = class {
         if (group) {
             this._groups = true;
         }
+        let nodeMap = {};
         if (config.layers) {
-            var nodeMap = {};
-            var layer;
-            for (layer of config.layers) {
+            for (let layer of config.layers) {
                 if (layer.name) {
                     if (!nodeMap[layer.name]) {
                         nodeMap[layer.name] = layer;
@@ -300,14 +296,14 @@ keras.Graph = class {
                     }
                 }
             }
-            for (layer of config.layers) {
+            for (let layer of config.layers) {
                 if (layer.inbound_nodes) {
-                    for (var inbound_node of layer.inbound_nodes) {
-                        for (var inbound_connection of inbound_node) {
-                            var inputName = inbound_connection[0];
-                            var inputNode = nodeMap[inputName];
+                    for (let inbound_node of layer.inbound_nodes) {
+                        for (let inbound_connection of inbound_node) {
+                            let inputName = inbound_connection[0];
+                            let inputNode = nodeMap[inputName];
                             if (inputNode) {
-                                var inputIndex = inbound_connection[2];
+                                let inputIndex = inbound_connection[2];
                                 if (inputIndex != 0) {
                                     inputName += ':' + inputIndex.toString();
                                 }
@@ -322,20 +318,20 @@ keras.Graph = class {
                 }
             }
         }
-        var input_layers = config.input_layers;
+        let input_layers = config.input_layers;
         if (input_layers) {
-            for (var i = 0; i < input_layers.length; i++) {
-                var input_layer = input_layers[i];
-                var name = input_layer[0];
-                var type = null;
-                var node = nodeMap[name];
+            for (let i = 0; i < input_layers.length; i++) {
+                let input_layer = input_layers[i];
+                let name = input_layer[0];
+                let type = null;
+                let node = nodeMap[name];
                 if (node && node.class_name == 'InputLayer') {
                     type = this._getInputType(node);
                     delete nodeMap[name];
                 }
                 if (inputs && i < inputs.length) {
                     if (config.layers) {
-                        for (layer of config.layers) {
+                        for (let layer of config.layers) {
                             if (layer._inputs) {
                                 layer._inputs = layer._inputs.map((input) => {
                                     if (input == name) {
@@ -352,19 +348,19 @@ keras.Graph = class {
                 }
             }
         }
-        var output_layers = config.output_layers;
+        let output_layers = config.output_layers;
         if (output_layers) {
-            for (var j = 0; j < output_layers.length; j++) {
-                var output_layer = output_layers[j];
-                var outputName = output_layer[0];
-                var outputNode = nodeMap[outputName];
-                var addGraphOutput = true;
+            for (let j = 0; j < output_layers.length; j++) {
+                let output_layer = output_layers[j];
+                let outputName = output_layer[0];
+                let outputNode = nodeMap[outputName];
+                let addGraphOutput = true;
                 if (outputs && j < outputs.length) {
                     outputName = outputs[j];
                     addGraphOutput = false;
                 }
                 if (outputNode) {
-                    var outputIndex = output_layer[2];
+                    let outputIndex = output_layer[2];
                     if (outputIndex != 0) {
                         outputName += ':' + outputIndex.toString();
                     }
@@ -380,7 +376,7 @@ keras.Graph = class {
         }
 
         if (config.layers) {
-            for (layer of config.layers) {
+            for (let layer of config.layers) {
                 if (nodeMap[layer.name]) {
                     this._loadNode(layer, layer._inputs, layer._outputs, weights, group);
                 }
@@ -392,15 +388,15 @@ keras.Graph = class {
         if (group) {
             this._groups = true;
         }
-        var inputName = 'input';
-        var inputType = null;
-        var argument = inputName;
-        var index = 0;
-        var layers = config.layers ? config.layers : config;
+        let inputName = 'input';
+        let inputType = null;
+        let argument = inputName;
+        let index = 0;
+        let layers = config.layers ? config.layers : config;
 
-        for (var layer of layers) {
-            var name = index.toString();
-            var nodeInputs = [ argument ];
+        for (let layer of layers) {
+            let name = index.toString();
+            let nodeInputs = [ argument ];
             if (index == 0) {
                 if (inputs && inputs.length > 0) {
                     nodeInputs = [ inputs[0] ];
@@ -414,7 +410,7 @@ keras.Graph = class {
                 name = layer.config.name;
             }
             argument = name;
-            var nodeOutputs = [ argument ];
+            let nodeOutputs = [ argument ];
             if (index == layers.length) {
                 if (outputs && outputs.length > 0) {
                     nodeOutputs = [ outputs[0] ];
@@ -433,7 +429,7 @@ keras.Graph = class {
     }
 
     _loadNode(layer, inputs, outputs, weights, group) {
-        var class_name = layer.class_name;
+        let class_name = layer.class_name;
         switch (class_name) {
             case 'Sequential':
                 this._loadSequential(layer.config, weights, layer.name, inputs, outputs);
@@ -442,17 +438,16 @@ keras.Graph = class {
                 this._loadModel(layer.config, weights, layer.name, inputs, outputs);
                 break;
             default:
-                var config = layer.config;
-                this._nodes.push(new keras.Node(this._metadata, class_name, config, inputs, outputs, group, weights));
+                this._nodes.push(new keras.Node(this._metadata, class_name, layer.config, inputs, outputs, group, weights));
                 break;
         }
     }
 
     _getInputType(layer) {
         if (layer && layer.config) {
-            var dataType = '?';
-            var shape = [];
-            var config = layer.config;
+            let dataType = '?';
+            let shape = [];
+            let config = layer.config;
             if (config.dtype) {
                 dataType = config.dtype;
                 delete config.dtype;
@@ -523,9 +518,9 @@ keras.Node = class {
         this._outputs = [];
         this._attributes = [];
 
-        var names = [ this._name ];
+        let names = [ this._name ];
         if ((operator == 'Bidirectional' || operator == 'TimeDistributed') && (config && config.layer)) {
-            var inner = config.layer;
+            let inner = config.layer;
             delete config.layer;
             this._inner = new keras.Node(this._metadata, inner.class_name, inner.config, [], [], null, null);
             if (operator == 'Bidirectional' && inner.config.name) {
@@ -533,11 +528,11 @@ keras.Node = class {
             }
         }
 
-        var initializers = {};
+        let initializers = {};
         if (weights) {
-            for (var name of names) {
+            for (let name of names) {
                 if (weights[name]) {
-                    for (var initializer of weights[name]) {
+                    for (let initializer of weights[name]) {
                         inputs.push(initializer.name);
                         initializers[initializer.name] = initializer;
                     }
@@ -546,26 +541,26 @@ keras.Node = class {
         }
 
         if (config) {
-            for (var attributeName of Object.keys(config)) {
-                var attributeValue = config[attributeName];
+            for (let attributeName of Object.keys(config)) {
+                let attributeValue = config[attributeName];
                 if (attributeName != 'name' && attributeValue != null) {
                     this._attributes.push(new keras.Attribute(this._metadata, this.operator, attributeName, attributeValue));
                 }
             }
         }
 
-        var schema = this._metadata.getSchema(this.operator);
-        var innerOperator = this.inner ? this.inner.operator : null;
-        var innerSchema = innerOperator ? this._metadata.getSchema(innerOperator) : null;
-        var inputIndex = 0;
+        let schema = this._metadata.getSchema(this.operator);
+        let innerOperator = this.inner ? this.inner.operator : null;
+        let innerSchema = innerOperator ? this._metadata.getSchema(innerOperator) : null;
+        let inputIndex = 0;
         while (inputIndex < inputs.length) {
-            var inputCount = 1;
-            var inputName = null;
-            var visible = true;
+            let inputCount = 1;
+            let inputName = null;
+            let visible = true;
             if (!innerSchema || inputIndex == 0)
             {
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
-                    var input = schema.inputs[inputIndex];
+                    let input = schema.inputs[inputIndex];
                     inputName = input.name;
                     visible = input.visible == false ? false : true; 
                     if (schema.inputs[inputIndex].option == 'variadic') {
@@ -597,14 +592,14 @@ keras.Node = class {
                         break;
                 }
             }
-            var inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+            let inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
                 return new keras.Argument(id, null, initializers[id]);
             });
             if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
-                var parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
-                var inputName1 = parts.pop();
-                var inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
-                var inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
+                let parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
+                let inputName1 = parts.pop();
+                let inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
+                let inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
                 inputName = inputNames.has(inputName2) ? inputName2 : inputName1;
             }
             inputName = inputName || inputIndex.toString();
@@ -613,7 +608,7 @@ keras.Node = class {
         }
 
         this._outputs = outputs.map((output, outputIndex) => {
-            var outputName = 
+            let outputName = 
                 (schema && schema.outputs && outputIndex < schema.outputs.length && schema.outputs[outputIndex] && schema.outputs[outputIndex].name) ?
                     schema.outputs[outputIndex].name :
                     outputIndex.toString();
@@ -634,12 +629,12 @@ keras.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
-        var schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.getSchema(this._operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
@@ -647,28 +642,28 @@ keras.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (var input of schema.inputs) {
+                for (let input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (var output of schema.outputs) {
+                for (let output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
                 }
             }
             if (schema.references) {
-                for (var reference of schema.references) {
+                for (let reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
@@ -750,11 +745,11 @@ keras.Attribute = class {
         if (Array.isArray(value) || value !== Object(value)) {
             return value;
         }
-        var obj = {};
+        let obj = {};
         if (value.class_name) {
             obj.__type__ = value.class_name;
         }
-        for (var key of Object.keys(value.config)) {
+        for (let key of Object.keys(value.config)) {
             obj[key] = keras.Attribute._convert(value.config[key]);
         }
         return obj;
@@ -770,11 +765,11 @@ keras.Attribute = class {
         if (a !== a) {
             return b !== b;
         }
-        var type = typeof a;
+        let type = typeof a;
         if (type !== 'function' && type !== 'object' && typeof b != 'object') {
             return false;
         }
-        var className = toString.call(a);
+        let className = toString.call(a);
         if (className !== toString.call(b)) {
             return false;
         }
@@ -803,13 +798,13 @@ keras.Attribute = class {
                 return true;
         }
 
-        var keys = Object.keys(a);
-        var size = keys.length;
+        let keys = Object.keys(a);
+        let size = keys.length;
         if (Object.keys(b).length != size) {
             return false;
         } 
         while (size--) {
-            var key = keys[size];
+            let key = keys[size];
             if (!(Object.prototype.hasOwnProperty.call(b, key) && keras.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }
@@ -848,7 +843,7 @@ keras.Tensor = class {
     }
 
     get value() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return null;
         }
@@ -857,17 +852,17 @@ keras.Tensor = class {
     }
 
     toString() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        var value = this._decode(context, 0);
+        let value = this._decode(context, 0);
         return keras.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
-        var context = {};
+        let context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -899,10 +894,10 @@ keras.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var results = [];
-        var size = context.dimensions[dimension];
+        let results = [];
+        let size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -927,7 +922,7 @@ keras.Tensor = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -940,9 +935,9 @@ keras.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            var result = [];
+            let result = [];
             result.push(indentation + '[');
-            var items = value.map((item) => keras.Tensor._stringify(item, indentation + indent, indent));
+            let items = value.map((item) => keras.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -1019,9 +1014,9 @@ keras.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -1035,12 +1030,12 @@ keras.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -1057,13 +1052,13 @@ keras.Group = class {
     }
 
     attribute(name) {
-        var value = this._group.attribute(name);
+        let value = this._group.attribute(name);
         if (!value) {
             if (this._group.attribute(name + '0')) {
-                var index = 0;
+                let index = 0;
                 value = [];
                 for (;;) {
-                    var chunk = this._group.attribute(name + index.toString());
+                    let chunk = this._group.attribute(name + index.toString());
                     if (!chunk) {
                         break;
                     }
@@ -1076,7 +1071,7 @@ keras.Group = class {
     }
 
     group(name) {
-        var value = this._group.group(name);
+        let value = this._group.group(name);
         if (value) {
             return new keras.Group(value);
         }
