@@ -276,6 +276,26 @@ torchscript.Graph = class {
         container.parameters = {};
         if (container.model && container.model.mainModule) {
             let queue = [ container.model.mainModule ];
+            let tensorMax = 0;
+            while (queue.length > 0) {
+                let module = queue.shift();
+                if (module.parameters) {
+                    for (let parameter of module.parameters) {
+                        if (parameter.tensorId) {
+                            let tensorId = parseInt(parameter.tensorId, 10);
+                            tensorMax = Math.max(tensorId, tensorMax);
+                        }
+                    }
+                }
+                if (module.submodules) {
+                    for (let submodule of module.submodules) {
+                        submodule.__parent__ = module;
+                        queue.push(submodule);
+                    }
+                }
+            }
+            tensorMax++;
+            queue = [ container.model.mainModule ];
             while (queue.length > 0) {
                 let module = queue.shift();
                 if (module.name && !module.__name__) {
@@ -288,6 +308,17 @@ torchscript.Graph = class {
                             parameter.initializer = container.tensors[tensorId];
                             if (parameter.__outputs__ && parameter.__outputs__.length == 1) {
                                 container.parameters[parameter.__outputs__[0]] = parameter;
+                            }
+                        }
+                    }
+                }
+                if (module.attributes) {
+                    for (let attribute of module.attributes) {
+                        if (attribute.id) {
+                            let attributeId = parseInt(attribute.id, 10);
+                            attribute.initializer = container.tensors[tensorMax + attributeId];
+                            if (attribute.__outputs__ && attribute.__outputs__.length == 1) {
+                                container.parameters[attribute.__outputs__[0]] = attribute;
                             }
                         }
                     }
@@ -369,9 +400,9 @@ torchscript.Graph = class {
     }
 
     static _parameters(module) {
+        let parameters = [];
         if (module) {
             if (module.__type__) {
-                let parameters = [];
                 for (let key of Object.keys(module)) {
                     if (torchscript.Graph._isTensor(module[key])) {
                         var parameter = module[key];
@@ -379,18 +410,23 @@ torchscript.Graph = class {
                         parameters.push(parameter);
                     }
                 }
-                return parameters;
             }
             else {
                 if (module.parameters) {
                     for (let parameter of module.parameters) {
                         parameter.__name__ = parameter.name;
+                        parameters.push(parameter);
                     }
-                    return module.parameters;
+                }
+                if (module.attributes) {
+                    for (let attribute of module.attributes) {
+                        attribute.__name__ = attribute.name;
+                        parameters.push(attribute);
+                    }
                 }
             }
         }
-        return [];
+        return parameters;
     }
 
     static _submodules(module) {
@@ -1458,6 +1494,16 @@ torchscript.GraphContext = class {
                         if (parameter.name === expression.member.value) {
                             parameter.__outputs__ = parameter.__outputs__ || [];
                             parameter.__outputs__.push(target.value);
+                            return true;
+                        }
+                    }
+                }
+                if (targetModule.attributes) {
+                    for (let attribute of targetModule.attributes) {
+                        attribute.__module__ = targetModule;
+                        if (attribute.name === expression.member.value) {
+                            attribute.__outputs__ = attribute.__outputs__ || [];
+                            attribute.__outputs__.push(target.value);
                             return true;
                         }
                     }
