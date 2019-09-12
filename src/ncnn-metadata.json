@@ -601,9 +601,9 @@
         { "name": "num_box", "type": "int32", "default": 5 },
         { "name": "confidence_threshold", "type": "float32", "default": 0.01 },
         { "name": "nms_threshold", "type": "float32", "default": 0.45 },
-        { "name": "biases" },
-        { "name": "mask" },
-        { "name": "anchors_scale" }
+        { "name": "biases", "type": "float32[]" },
+        { "name": "mask", "type": "float32[]" },
+        { "name": "anchors_scale", "type": "float32[]" }
       ],
       "inputs": [
         { "name": "rects" },

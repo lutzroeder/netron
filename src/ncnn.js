@@ -532,6 +532,9 @@ ncnn.Attribute = class {
                 case 'float32':
                     this._value = parseFloat(this._value);
                     break;
+                case 'float32[]':
+                    this._value = this._value.map((v) => parseFloat(v));
+                    break;
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
