@@ -608,7 +608,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The axis in which to compute the arg indices. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "The axis in which to compute the arg indices. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -704,19 +704,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# result: [[0], [0]]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# The content of result is : [[0], [0]]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random')",
           "summary": "default_axes_keepdims"
         },
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
           "summary": "keepdims"
         },
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random')",
           "summary": "negative_axis_keepdims"
         },
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
           "summary": "no_keepdims"
         }
       ],
@@ -766,7 +766,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The axis in which to compute the arg indices. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "The axis in which to compute the arg indices. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -783,19 +783,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# result: [[0], [0]]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# The content of result is : [[0], [0]]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random')",
           "summary": "default_axes_keepdims"
         },
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
           "summary": "keepdims"
         },
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random')",
           "summary": "negative_axis_keepdims"
         },
         {
-          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
           "summary": "no_keepdims"
         }
       ],
@@ -3001,7 +3001,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to concat on. A negative value means counting dimensions from the back. Accepted range is [-rank, rank-1].",
+          "description": "Which axis to concat on. A negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(inputs)..",
           "name": "axis",
           "required": true,
           "type": "int64"
@@ -6100,7 +6100,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1]",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -6117,6 +6117,10 @@
         {
           "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.random.randn(5, 4, 3, 2).astype(np.float32)\nindices = np.array([0, 1, 3])\ny = np.take(data, indices, axis=1)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_1')",
           "summary": "gather_1"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')",
+          "summary": "gather_negative_indices"
         }
       ],
       "inputs": [
@@ -6178,11 +6182,97 @@
     }
   },
   {
+    "name": "Gather",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "category": "Transform",
+      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\naxis = 0 :\n\nLet \\\nk = indices[i_{0}, \u2026, i_{q-1}] \\\nthen \\\noutput[i_{0}, \u2026, i_{q-1}, j_{0}, \u2026, j_{r-2}] = input[k , j_{0}, \u2026, j_{r-2} ]\n\n```\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n```\naxis = 1 :\n\nLet \\\nk = indices[i_{0}, \u2026, i_{q-1}] \\\nthen \\\noutput[i_{0}, \u2026, i_{q-1}, j_{0}, \u2026, j_{r-2}] = input[j_{0}, k, j_{1}, \u2026, j_{r-2} ]\n\n```\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [\n      [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.random.randn(5, 4, 3, 2).astype(np.float32)\nindices = np.array([0, 1, 3])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_0')",
+          "summary": "gather_0"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.random.randn(5, 4, 3, 2).astype(np.float32)\nindices = np.array([0, 1, 3])\ny = np.take(data, indices, axis=1)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_1')",
+          "summary": "gather_1"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')",
+          "summary": "gather_negative_indices"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of int32/int64 indices, of any rank q. All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds.",
+          "name": "indices",
+          "type": "Tind"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank q + (r - 1).",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to any tensor type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain indices to integer types",
+          "type_param_str": "Tind"
+        }
+      ]
+    }
+  },
+  {
     "name": "GatherElements",
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -6198,6 +6288,10 @@
         {
           "code": "axis = 0\nnode = onnx.helper.make_node(\n    'GatherElements',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1, 2, 3],\n                 [4, 5, 6],\n                 [7, 8, 9]], dtype=np.float32)\nindices = np.array([[1, 2, 0],\n                    [2, 0, 0]], dtype=np.int32)\n\ny = gather_elements(data, indices, axis)\n# print(y) produces\n# [[4, 8, 3],\n#  [7, 2, 3]]\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_elements_1')",
           "summary": "gather_elements_1"
+        },
+        {
+          "code": "axis = 0\nnode = onnx.helper.make_node(\n    'GatherElements',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1, 2, 3],\n                 [4, 5, 6],\n                 [7, 8, 9]], dtype=np.float32)\nindices = np.array([[-1, -2, 0],\n                    [-2, 0, 0]], dtype=np.int32)\n\ny = gather_elements(data, indices, axis)\n# print(y) produces\n# [[7, 5, 3],\n#  [4, 2, 3]]\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_elements_negative_indices')",
+          "summary": "gather_elements_negative_indices"
         }
       ],
       "inputs": [
@@ -6207,7 +6301,7 @@
           "type": "T"
         },
         {
-          "description": "Tensor of int32/int64 indices, with the same rank r as the input.",
+          "description": "Tensor of int32/int64 indices, with the same rank r as the input. All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds.",
           "name": "indices",
           "type": "Tind"
         }
@@ -6280,7 +6374,7 @@
           "type": "T"
         },
         {
-          "description": "Tensor of rank q >= 1.",
+          "description": "Tensor of rank q >= 1. All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds.",
           "name": "indices",
           "type": "tensor(int64)"
         }
@@ -7285,7 +7379,7 @@
       "attributes": [
         {
           "default": 1,
-          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size. Negative value means counting dimensions from the back. Accepted range in [-r, r-1] where r = rank(input).",
+          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -9005,7 +9099,7 @@
       "attributes": [
         {
           "default": 1,
-          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size. Negative value means counting dimensions from the back. Accepted range in [-r, r-1] where r = rank(input).",
+          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -11404,6 +11498,10 @@
           "summary": "with_negative_axis"
         },
         {
+          "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')",
+          "summary": "with_negative_indices"
+        },
+        {
           "code": "on_value = 5\noff_value = 2\noutput_type = np.int32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y']\n)\nindices = np.array([0, 7, 8], dtype=np.int64)\ndepth = np.float32(12)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_without_axis')",
           "summary": "without_axis"
         }
@@ -11509,7 +11607,7 @@
           "type": "int64"
         }
       ],
-      "description": "Produces a one-hot tensor based on inputs.\n    The locations represented by the index values in the 'indices' input tensor will have 'on_value'\n    and the other locations will have 'off_value' in the output tensor, where 'on_value' and 'off_value'\n    are specified as part of required input argument 'values', which is a two-element tensor of format\n    [off_value, on_value]. The rank of the output tensor will be one greater than the rank of the\n    input tensor. The additional dimension is for one-hot representation. The additional dimension will\n    be inserted at the position specified by 'axis'. If 'axis' is not specified then then additional\n    dimension will be inserted as the innermost dimension, i.e. axis=-1. The size of the additional\n    dimension is specified by required scalar input 'depth'. The type of the output tensor is the same\n    as the type of the 'values' input. Any entries in the 'indices' input tensor with values outside\n    the range [0, depth) will result in one-hot representation with all 'off_value' values in the\n    output tensor.\n",
+      "description": "Produces a one-hot tensor based on inputs.\n    The locations represented by the index values in the 'indices' input tensor will have 'on_value'\n    and the other locations will have 'off_value' in the output tensor, where 'on_value' and 'off_value'\n    are specified as part of required input argument 'values', which is a two-element tensor of format\n    [off_value, on_value]. The rank of the output tensor will be one greater than the rank of the\n    input tensor. The additional dimension is for one-hot representation. The additional dimension will\n    be inserted at the position specified by 'axis'. If 'axis' is not specified then then additional\n    dimension will be inserted as the innermost dimension, i.e. axis=-1. The size of the additional\n    dimension is specified by required scalar input 'depth'. The type of the output tensor is the same\n    as the type of the 'values' input. Any entries in the 'indices' input tensor with values outside\n    the range [-depth, depth-1] will result in one-hot representation with all 'off_value' values in the\n    output tensor.\n\n    when axis = 0:\n    output[input[i, j, k], i, j, k] = 1 for all i, j, k and 0 otherwise.\n\n    when axis = -1:\n    output[i, j, k, input[i, j, k]] = 1 for all i, j, k and 0 otherwise.\n\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -11521,18 +11619,22 @@
           "summary": "with_negative_axis"
         },
         {
+          "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')",
+          "summary": "with_negative_indices"
+        },
+        {
           "code": "on_value = 5\noff_value = 2\noutput_type = np.int32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y']\n)\nindices = np.array([0, 7, 8], dtype=np.int64)\ndepth = np.float32(12)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_without_axis')",
           "summary": "without_axis"
         }
       ],
       "inputs": [
         {
-          "description": "Input tensor containing indices. The values must be non-negative integers. Any entries in the 'indices' input tensor with values outside the range [0, depth) will result in one-hot representation with all 'off_value' values in the output tensor.In case 'indices' is of non-integer type, the values will be casted to int64 before use.",
+          "description": "Input tensor containing indices. Any entries in the 'indices' input tensor with values outside the range [-depth, depth-1] will result in one-hot representation with all 'off_value' values in the output tensor.In case 'indices' is of non-integer type, the values will be casted to int64 before use.",
           "name": "indices",
           "type": "T1"
         },
         {
-          "description": "Scalar specifying the number of classes in one-hot tensor. This is also the size of the one-hot dimension (specified by 'axis' attribute) added on in the output tensor. The values in the 'indices' input tensor are expected to be in the range [0, depth). In case 'depth' is of non-integer type, it will be casted to int64 before use.",
+          "description": "Scalar specifying the number of classes in one-hot tensor. This is also the size of the one-hot dimension (specified by 'axis' attribute) added on in the output tensor. The values in the 'indices' input tensor are expected to be in the range [-depth, depth-1]. In case 'depth' is of non-integer type, it will be casted to int64 before use.",
           "name": "depth",
           "type": "T2"
         },
@@ -13410,7 +13512,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -13560,7 +13662,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -13706,7 +13808,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -13852,7 +13954,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -14002,7 +14104,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -14152,7 +14254,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -14302,7 +14404,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -14452,7 +14554,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -14602,7 +14704,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -14752,7 +14854,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -16305,7 +16407,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -16330,7 +16432,7 @@
           "type": "T"
         },
         {
-          "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input).",
+          "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input). All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds.",
           "name": "indices",
           "type": "Tind"
         },
@@ -16391,7 +16493,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -16405,6 +16507,10 @@
           "summary": "scatter_elements_with_axis"
         },
         {
+          "code": "axis = 1\nnode = onnx.helper.make_node(\n    'ScatterElements',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, -3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis)\n# print(y) produces\n# [[1.0, 1.1, 2.1, 4.0, 5.0]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_elements_with_negative_indices')",
+          "summary": "scatter_elements_with_negative_indices"
+        },
+        {
           "code": "node = onnx.helper.make_node(\n    'ScatterElements',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_elements_without_axis')",
           "summary": "scatter_elements_without_axis"
         }
@@ -16416,7 +16522,7 @@
           "type": "T"
         },
         {
-          "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input).",
+          "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input). All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds.",
           "name": "indices",
           "type": "Tind"
         },
@@ -17386,7 +17492,7 @@
           "type": "Tind"
         },
         {
-          "description": "1-D tensor of axes that `starts` and `ends` apply to. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "1-D tensor of axes that `starts` and `ends` apply to. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "option": "optional",
           "type": "Tind"
@@ -17508,7 +17614,7 @@
       "attributes": [
         {
           "default": 1,
-          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size. Negative value means counting dimensions from the back. Accepted range in [-r, r-1] where r = rank(input).",
+          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -17867,7 +17973,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to split on. A negative value means counting dimensions from the back. Accepted range is [-rank, rank-1].",
+          "description": "Which axis to split on. A negative value means counting dimensions from the back. Accepted range is [-rank, rank-1] where r = rank(input).",
           "name": "axis",
           "required": false,
           "type": "int64"
@@ -18112,7 +18218,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "List of integers indicating the dimensions to squeeze. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "List of integers indicating the dimensions to squeeze. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": false,
           "type": "int64[]"
@@ -19877,7 +19983,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "List of integers indicating the dimensions to be inserted. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input).",
+          "description": "List of integers indicating the dimensions to be inserted. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
           "name": "axes",
           "required": true,
           "type": "int64[]"
