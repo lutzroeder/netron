@@ -10,12 +10,12 @@ var marked = marked || require('marked');
 sklearn.ModelFactory = class {
 
     match(context) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
+        let extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'pkl' || extension == 'joblib' || extension == 'model') {
-            var buffer = context.buffer;
+            let buffer = context.buffer;
             if (buffer) {
                 // Reject PyTorch models with .pkl file extension.
-                var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+                let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
                 if (buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                     return false;
                 }
@@ -32,14 +32,14 @@ sklearn.ModelFactory = class {
 
     open(context, host) { 
         return host.require('./pickle').then((pickle) => {
-            var obj = null;
-            var weights = null;
-            var identifier = context.identifier;
+            let obj = null;
+            let weights = null;
+            let identifier = context.identifier;
             try {
-                var unpickler = new pickle.Unpickler(context.buffer);
+                let unpickler = new pickle.Unpickler(context.buffer);
 
-                var constructorTable = {};
-                var functionTable = {};
+                let constructorTable = {};
+                let functionTable = {};
 
                 constructorTable['numpy.dtype'] = function(obj, align, copy) { 
                     switch (obj) {
@@ -112,15 +112,15 @@ sklearn.ModelFactory = class {
                         this.rawdata = state[4];
                     };
                     this.__read__ = function(unpickler) {
-                        var array = {};
+                        let array = {};
                         array.__type__ = this.subtype;
                         array.dtype = this.typecode;
                         array.shape = this.shape;
-                        var dims = 1;
-                        for (var i = 0; i < array.shape.length; i++) {
+                        let dims = 1;
+                        for (let i = 0; i < array.shape.length; i++) {
                             dims = dims * array.shape[i];
                         }
-                        var size = array.dtype.itemsize * dims;
+                        let size = array.dtype.itemsize * dims;
                         if (typeof this.rawdata == 'string') {
                             array.data = unpickler.unescape(this.rawdata, size);
                             if (array.data.length != size) {
@@ -142,8 +142,8 @@ sklearn.ModelFactory = class {
                         this.allow_mmap = state.allow_mmap;
                     };
                     this.__read__ = function(unpickler) {
-                        var size = 1;
-                        for (var dimension of this.shape) {
+                        let size = 1;
+                        for (let dimension of this.shape) {
                             size *= dimension;
                         }
                         if (this.dtype.name == 'object') {
@@ -153,7 +153,7 @@ sklearn.ModelFactory = class {
                             this.data = unpickler.read(size * this.dtype.itemsize);
                         }
 
-                        var array = {};
+                        let array = {};
                         array.__type__ = this.subclass;
                         array.dtype = this.dtype;
                         array.shape = this.shape;
@@ -172,6 +172,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.compose._target.TransformedTargetRegressor'] = function() {};
                 constructorTable['sklearn.decomposition.PCA'] = function() {};
                 constructorTable['sklearn.decomposition.pca.PCA'] = function() {};
+                constructorTable['sklearn.decomposition.truncated_svd.TruncatedSVD'] = function() {};
                 constructorTable['sklearn.discriminant_analysis.LinearDiscriminantAnalysis'] = function() {};
                 constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
                 constructorTable['sklearn.externals.joblib.numpy_pickle.NDArrayWrapper'] = function() {};
@@ -256,7 +257,7 @@ sklearn.ModelFactory = class {
 
                 functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
                     if (base == '__builtin__.object') {
-                        var obj = {};
+                        let obj = {};
                         obj.__type__ = cls;
                         return obj;
                     }
@@ -266,14 +267,14 @@ sklearn.ModelFactory = class {
                     throw new sklearn.Error("Unknown base type '" + base + "'.");
                 };
                 functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
-                    var data = rawData;
+                    let data = rawData;
                     if (typeof rawData === 'string' || rawData instanceof String) {
                         data = new Uint8Array(rawData.length);
-                        for (var i = 0; i < rawData.length; i++) {
+                        for (let i = 0; i < rawData.length; i++) {
                             data[i] = rawData.charCodeAt(i);
                         }
                     }
-                    var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    let dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.name) {
                         case 'uint8':
                             return dataView.getUint8(0);
@@ -296,7 +297,7 @@ sklearn.ModelFactory = class {
                     // _data = ndarray.__new__(baseclass, baseshape, basetype)
                     // _mask = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
                     // return subtype.__new__(subtype, _data, mask=_mask, dtype=basetype,)
-                    var obj = {};
+                    let obj = {};
                     obj.__type__ = subtype;
                     return obj;
                 };
@@ -310,12 +311,12 @@ sklearn.ModelFactory = class {
                     return {};
                 };
                 functionTable['collections.OrderedDict'] = function(args) {
-                    var obj = [];
+                    let obj = [];
                     obj.__setitem__ = function(key, value) {
                         obj.push({ key: key, value: value });
                     };
                     if (args) {
-                        for (var arg of args) {
+                        for (let arg of args) {
                             obj.__setitem__(arg[0], arg[1]);
                         }
                     }
@@ -334,19 +335,19 @@ sklearn.ModelFactory = class {
                     return name;
                 }
 
-                var unknownNameMap = new Set();
-                var knownPackageMap = new Set([ 
+                let unknownNameMap = new Set();
+                let knownPackageMap = new Set([ 
                     'sklearn', 'collections', '__builtin__', 'builtins',
                     'copy_reg', 'joblib','xgboost', 'lightgbm', 'gensim', 'numpy'
                 ]);
 
-                var function_call = (name, args) => {
-                    var func = functionTable[name];
+                let function_call = (name, args) => {
+                    let func = functionTable[name];
                     if (func) {
                         return func.apply(null, args);
                     }
-                    var obj = { __type__: name };
-                    var constructor = constructorTable[name];
+                    let obj = { __type__: name };
+                    let constructor = constructorTable[name];
                     if (constructor) {
                         constructor.apply(obj, args);
                     }
@@ -364,13 +365,13 @@ sklearn.ModelFactory = class {
                     throw new sklearn.Error('Array is not a valid root object.');
                 }
 
-                var find_weight_dict = function(dicts) {
+                let find_weight_dict = function(dicts) {
 
-                    for (var dict of dicts) {
+                    for (let dict of dicts) {
                         if (dict && !Array.isArray(dict)) {
-                            var list = [];
-                            for (var key in dict) {
-                                var value = dict[key]
+                            let list = [];
+                            for (let key in dict) {
+                                let value = dict[key]
                                 if (key != 'weight_order') {
                                     if (!key ||
                                         !value.__type__ || !value.__type__ == 'numpy.ndarray') {
@@ -397,7 +398,7 @@ sklearn.ModelFactory = class {
                 }
             }
             catch (error) {
-                var message = error && error.message ? error.message : error.toString();
+                let message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 throw new sklearn.Error(message + " in '" + identifier + "'.");
             }
@@ -408,7 +409,7 @@ sklearn.ModelFactory = class {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    var message = error && error.message ? error.message : error.toString();
+                    let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     throw new sklearn.Error(message + " in '" + identifier + "'.");
                 }
@@ -446,11 +447,11 @@ sklearn.Graph = class {
         this._groups = false;
 
         if (obj) {
-            var input = 'data';
+            let input = 'data';
             switch (obj.__type__) {
                 case 'sklearn.pipeline.Pipeline':
                     this._groups = true;
-                    for (var step of obj.steps) {
+                    for (let step of obj.steps) {
                         this._add('pipeline', step[0], step[1], [ input ], [ step[0] ]);
                         input = step[0];
                     }
@@ -461,11 +462,11 @@ sklearn.Graph = class {
             }
         }
         else if (array_dict) {
-            var group_map = {};
-            var groups = [];
-            for (var array of array_dict) {
-                var key = array.key.split('_');
-                var id = null;
+            let group_map = {};
+            let groups = [];
+            for (let array of array_dict) {
+                let key = array.key.split('_');
+                let id = null;
                 if (key.length > 1) {
                     array.name = key.pop();
                     id = key.join('_');
@@ -474,7 +475,7 @@ sklearn.Graph = class {
                     array.name = '?';
                     id = key.join('_');
                 }
-                var group = group_map[id];
+                let group = group_map[id];
                 if (!group) {
                     group = { id: id, arrays: [] };
                     groups.push(group);
@@ -483,7 +484,7 @@ sklearn.Graph = class {
                 group.arrays.push(array);
             }
             this._nodes = this._nodes.concat(groups.map((group) => {
-                var inputs = group.arrays.map((array) => {
+                let inputs = group.arrays.map((array) => {
                     return new sklearn.Parameter(array.name, [ 
                         new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
                     ]);
@@ -493,10 +494,10 @@ sklearn.Graph = class {
         }
     }
     _add(group, name, obj, inputs, outputs) {
-        var initializers = [];
-        for (var key of Object.keys(obj)) {
+        let initializers = [];
+        for (let key of Object.keys(obj)) {
             if (!key.startsWith('_')) {
-                var value = obj[key];
+                let value = obj[key];
                 if (value && value.__type__ && value.__type__ == 'numpy.ndarray') {
                     initializers.push(new sklearn.Tensor(key, value));
                 }
@@ -511,7 +512,7 @@ sklearn.Graph = class {
         outputs = outputs.map((output) => {
             return new sklearn.Parameter(output, [ new sklearn.Argument(output, null, null) ]);
         });
-        var node = new sklearn.Node(this._metadata, group, name, obj, inputs, outputs);
+        let node = new sklearn.Node(this._metadata, group, name, obj, inputs, outputs);
         this._nodes.push(node);
     }
 
@@ -581,7 +582,7 @@ sklearn.Node = class {
         if (group) {
             this._group = group;
         }
-        var operator = obj.__type__.split('.');
+        let operator = obj.__type__.split('.');
         this._type = operator.pop();
         this._package = operator.join('.');
         this._name = name || '';
@@ -590,9 +591,9 @@ sklearn.Node = class {
         this._attributes = [];
         this._initializers = [];
 
-        for (var key of Object.keys(obj)) {
+        for (let key of Object.keys(obj)) {
             if (!key.startsWith('_')) {
-                var value = obj[key];
+                let value = obj[key];
 
                 if (Array.isArray(value) || Number.isInteger(value) || value == null) {
                     this._attributes.push(new sklearn.Attribute(this._metadata, this, key, value));
@@ -623,7 +624,7 @@ sklearn.Node = class {
     }
 
     get documentation() {
-        var schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.getSchema(this.operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this.operator;
@@ -631,28 +632,28 @@ sklearn.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (var input of schema.inputs) {
+                for (let input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (var output of schema.outputs) {
+                for (let output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
                 }
             }
             if (schema.references) {
-                for (var reference of schema.references) {
+                for (let reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
@@ -664,7 +665,7 @@ sklearn.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -687,7 +688,7 @@ sklearn.Attribute = class {
         this._name = name;
         this._value = value;
 
-        var schema = metadata.getAttributeSchema(node.operator, this._name);
+        let schema = metadata.getAttributeSchema(node.operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'option') && schema.option == 'optional' && this._value == null) {
                 this._visible = false;
@@ -725,11 +726,11 @@ sklearn.Attribute = class {
         if (a !== a) {
             return b !== b;
         }
-        var type = typeof a;
+        let type = typeof a;
         if (type !== 'function' && type !== 'object' && typeof b != 'object') {
             return false;
         }
-        var className = toString.call(a);
+        let className = toString.call(a);
         if (className !== toString.call(b)) {
             return false;
         }
@@ -758,13 +759,13 @@ sklearn.Attribute = class {
                 return true;
         }
 
-        var keys = Object.keys(a);
-        var size = keys.length;
+        let keys = Object.keys(a);
+        let size = keys.length;
         if (Object.keys(b).length != size) {
             return false;
         } 
         while (size--) {
-            var key = keys[size];
+            let key = keys[size];
             if (!(Object.prototype.hasOwnProperty.call(b, key) && sklearn.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }
@@ -805,7 +806,7 @@ sklearn.Tensor = class {
     }
 
     get value() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return null;
         }
@@ -814,12 +815,12 @@ sklearn.Tensor = class {
     }
 
     toString() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        var value = this._decode(context, 0);
+        let value = this._decode(context, 0);
         switch (this._type.dataType) {
             case 'int64':
             case 'uint64':
@@ -829,7 +830,7 @@ sklearn.Tensor = class {
     }
 
     _context() {
-        var context = {};
+        let context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -864,10 +865,10 @@ sklearn.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var results = [];
-        var size = context.dimensions[dimension];
+        let results = [];
+        let size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -908,7 +909,7 @@ sklearn.Tensor = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -921,9 +922,9 @@ sklearn.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            var result = [];
+            let result = [];
             result.push('[');
-            var items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
+            let items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -988,9 +989,9 @@ sklearn.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -1004,12 +1005,12 @@ sklearn.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
