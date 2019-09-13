@@ -43,6 +43,14 @@
             },
             {
               "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
               "value": 3
             },
             {
@@ -21307,14 +21315,14 @@
       "description": "Computes the 3-dimensional discrete Fourier transform over the inner-most 3\ndimensions of `input`.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
           "typeAttr": "Tcomplex"
         }
       ],
       "outputs": [
         {
-          "description": "A complex64 tensor of the same shape as `input`. The inner-most 3\n  dimensions of `input` are replaced with their 3D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.fftn with 3 dimensions.\n@end_compatibility",
+          "description": "A complex tensor of the same shape as `input`. The inner-most 3\n  dimensions of `input` are replaced with their 3D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.fftn with 3 dimensions.\n@end_compatibility",
           "name": "output",
           "typeAttr": "Tcomplex"
         }
@@ -24890,14 +24898,14 @@
       "description": "Computes the inverse 3-dimensional discrete Fourier transform over the\ninner-most 3 dimensions of `input`.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
           "typeAttr": "Tcomplex"
         }
       ],
       "outputs": [
         {
-          "description": "A complex64 tensor of the same shape as `input`. The inner-most 3\n  dimensions of `input` are replaced with their inverse 3D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.ifftn with 3 dimensions.\n@end_compatibility",
+          "description": "A complex tensor of the same shape as `input`. The inner-most 3\n  dimensions of `input` are replaced with their inverse 3D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.ifftn with 3 dimensions.\n@end_compatibility",
           "name": "output",
           "typeAttr": "Tcomplex"
         }
@@ -24908,12 +24916,50 @@
   {
     "name": "IRFFT",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "Treal",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "name": "Tcomplex",
+          "type": "type"
+        }
+      ],
       "description": "Computes the inverse 1-dimensional discrete Fourier transform of a real-valued\nsignal over the inner-most dimension of `input`.\n\nThe inner-most dimension of `input` is assumed to be the result of `RFFT`: the\n`fft_length / 2 + 1` unique components of the DFT of a real-valued signal. If\n`fft_length` is not provided, it is computed from the size of the inner-most\ndimension of `input` (`fft_length = 2 * (inner - 1)`). If the FFT length used to\ncompute `input` is odd, it should be provided since it cannot be inferred\nproperly.\n\nAlong the axis `IRFFT` is computed on, if `fft_length / 2 + 1` is smaller\nthan the corresponding dimension of `input`, the dimension is cropped. If it is\nlarger, the dimension is padded with zeros.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
-          "type": 8
+          "typeAttr": "Tcomplex"
         },
         {
           "description": "An int32 tensor of shape [1]. The FFT length.",
@@ -24925,7 +24971,7 @@
         {
           "description": "A float32 tensor of the same rank as `input`. The inner-most\n  dimension of `input` is replaced with the `fft_length` samples of its inverse\n  1D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.irfft\n@end_compatibility",
           "name": "output",
-          "type": 1
+          "typeAttr": "Treal"
         }
       ],
       "summary": "Inverse real-valued fast Fourier transform."
@@ -24934,12 +24980,50 @@
   {
     "name": "IRFFT2D",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "Treal",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "name": "Tcomplex",
+          "type": "type"
+        }
+      ],
       "description": "Computes the inverse 2-dimensional discrete Fourier transform of a real-valued\nsignal over the inner-most 2 dimensions of `input`.\n\nThe inner-most 2 dimensions of `input` are assumed to be the result of `RFFT2D`:\nThe inner-most dimension contains the `fft_length / 2 + 1` unique components of\nthe DFT of a real-valued signal. If `fft_length` is not provided, it is computed\nfrom the size of the inner-most 2 dimensions of `input`. If the FFT length used\nto compute `input` is odd, it should be provided since it cannot be inferred\nproperly.\n\nAlong each axis `IRFFT2D` is computed on, if `fft_length` (or\n`fft_length / 2 + 1` for the inner-most dimension) is smaller than the\ncorresponding dimension of `input`, the dimension is cropped. If it is larger,\nthe dimension is padded with zeros.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
-          "type": 8
+          "typeAttr": "Tcomplex"
         },
         {
           "description": "An int32 tensor of shape [2]. The FFT length for each dimension.",
@@ -24951,7 +25035,7 @@
         {
           "description": "A float32 tensor of the same rank as `input`. The inner-most 2\n  dimensions of `input` are replaced with the `fft_length` samples of their\n  inverse 2D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.irfft2\n@end_compatibility",
           "name": "output",
-          "type": 1
+          "typeAttr": "Treal"
         }
       ],
       "summary": "Inverse 2D real-valued fast Fourier transform."
@@ -24960,12 +25044,50 @@
   {
     "name": "IRFFT3D",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "Treal",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "name": "Tcomplex",
+          "type": "type"
+        }
+      ],
       "description": "Computes the inverse 3-dimensional discrete Fourier transform of a real-valued\nsignal over the inner-most 3 dimensions of `input`.\n\nThe inner-most 3 dimensions of `input` are assumed to be the result of `RFFT3D`:\nThe inner-most dimension contains the `fft_length / 2 + 1` unique components of\nthe DFT of a real-valued signal. If `fft_length` is not provided, it is computed\nfrom the size of the inner-most 3 dimensions of `input`. If the FFT length used\nto compute `input` is odd, it should be provided since it cannot be inferred\nproperly.\n\nAlong each axis `IRFFT3D` is computed on, if `fft_length` (or\n`fft_length / 2 + 1` for the inner-most dimension) is smaller than the\ncorresponding dimension of `input`, the dimension is cropped. If it is larger,\nthe dimension is padded with zeros.",
       "inputs": [
         {
-          "description": "A complex64 tensor.",
+          "description": "A complex tensor.",
           "name": "input",
-          "type": 8
+          "typeAttr": "Tcomplex"
         },
         {
           "description": "An int32 tensor of shape [3]. The FFT length for each dimension.",
@@ -24977,7 +25099,7 @@
         {
           "description": "A float32 tensor of the same rank as `input`. The inner-most 3\n  dimensions of `input` are replaced with the `fft_length` samples of their\n  inverse 3D real Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.irfftn with 3 dimensions.\n@end_compatibility",
           "name": "output",
-          "type": 1
+          "typeAttr": "Treal"
         }
       ],
       "summary": "Inverse 3D real-valued fast Fourier transform."
@@ -44160,12 +44282,50 @@
   {
     "name": "RFFT",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "Treal",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "name": "Tcomplex",
+          "type": "type"
+        }
+      ],
       "description": "Computes the 1-dimensional discrete Fourier transform of a real-valued signal\nover the inner-most dimension of `input`.\n\nSince the DFT of a real signal is Hermitian-symmetric, `RFFT` only returns the\n`fft_length / 2 + 1` unique components of the FFT: the zero-frequency term,\nfollowed by the `fft_length / 2` positive-frequency terms.\n\nAlong the axis `RFFT` is computed on, if `fft_length` is smaller than the\ncorresponding dimension of `input`, the dimension is cropped. If it is larger,\nthe dimension is padded with zeros.",
       "inputs": [
         {
           "description": "A float32 tensor.",
           "name": "input",
-          "type": 1
+          "typeAttr": "Treal"
         },
         {
           "description": "An int32 tensor of shape [1]. The FFT length.",
@@ -44177,7 +44337,7 @@
         {
           "description": "A complex64 tensor of the same rank as `input`. The inner-most\n  dimension of `input` is replaced with the `fft_length / 2 + 1` unique\n  frequency components of its 1D Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.fft.rfft\n@end_compatibility",
           "name": "output",
-          "type": 8
+          "typeAttr": "Tcomplex"
         }
       ],
       "summary": "Real-valued fast Fourier transform."
@@ -44186,12 +44346,50 @@
   {
     "name": "RFFT2D",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "Treal",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "name": "Tcomplex",
+          "type": "type"
+        }
+      ],
       "description": "Computes the 2-dimensional discrete Fourier transform of a real-valued signal\nover the inner-most 2 dimensions of `input`.\n\nSince the DFT of a real signal is Hermitian-symmetric, `RFFT2D` only returns the\n`fft_length / 2 + 1` unique components of the FFT for the inner-most dimension\nof `output`: the zero-frequency term, followed by the `fft_length / 2`\npositive-frequency terms.\n\nAlong each axis `RFFT2D` is computed on, if `fft_length` is smaller than the\ncorresponding dimension of `input`, the dimension is cropped. If it is larger,\nthe dimension is padded with zeros.",
       "inputs": [
         {
           "description": "A float32 tensor.",
           "name": "input",
-          "type": 1
+          "typeAttr": "Treal"
         },
         {
           "description": "An int32 tensor of shape [2]. The FFT length for each dimension.",
@@ -44203,7 +44401,7 @@
         {
           "description": "A complex64 tensor of the same rank as `input`. The inner-most 2\n  dimensions of `input` are replaced with their 2D Fourier transform. The\n  inner-most dimension contains `fft_length / 2 + 1` unique frequency\n  components.\n\n@compatibility(numpy)\nEquivalent to np.fft.rfft2\n@end_compatibility",
           "name": "output",
-          "type": 8
+          "typeAttr": "Tcomplex"
         }
       ],
       "summary": "2D real-valued fast Fourier transform."
@@ -44212,12 +44410,50 @@
   {
     "name": "RFFT3D",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "name": "Treal",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "name": "Tcomplex",
+          "type": "type"
+        }
+      ],
       "description": "Computes the 3-dimensional discrete Fourier transform of a real-valued signal\nover the inner-most 3 dimensions of `input`.\n\nSince the DFT of a real signal is Hermitian-symmetric, `RFFT3D` only returns the\n`fft_length / 2 + 1` unique components of the FFT for the inner-most dimension\nof `output`: the zero-frequency term, followed by the `fft_length / 2`\npositive-frequency terms.\n\nAlong each axis `RFFT3D` is computed on, if `fft_length` is smaller than the\ncorresponding dimension of `input`, the dimension is cropped. If it is larger,\nthe dimension is padded with zeros.",
       "inputs": [
         {
           "description": "A float32 tensor.",
           "name": "input",
-          "type": 1
+          "typeAttr": "Treal"
         },
         {
           "description": "An int32 tensor of shape [3]. The FFT length for each dimension.",
@@ -44229,7 +44465,7 @@
         {
           "description": "A complex64 tensor of the same rank as `input`. The inner-most 3\n  dimensions of `input` are replaced with the their 3D Fourier transform. The\n  inner-most dimension contains `fft_length / 2 + 1` unique frequency\n  components.\n\n@compatibility(numpy)\nEquivalent to np.fft.rfftn with 3 dimensions.\n@end_compatibility",
           "name": "output",
-          "type": 8
+          "typeAttr": "Tcomplex"
         }
       ],
       "summary": "3D real-valued fast Fourier transform."
