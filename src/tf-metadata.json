@@ -36435,6 +36435,7 @@
           "type": "function"
         },
         {
+          "description": "Types of the elements of `other_arguments`.",
           "minimum": 0,
           "name": "Targuments",
           "type": "type[]"
@@ -36455,24 +36456,30 @@
           "type": "boolean"
         }
       ],
+      "description": "The resulting dataset is similar to the `InterleaveDataset`, except that the\ndataset will fetch records from the interleaved datasets in parallel.\n\nThe `tf.data` Python API creates instances of this op from\n`Dataset.interleave()` when the `num_parallel_calls` parameter of that method\nis set to any value other than `None`.\n\nBy default, the output of this dataset will be deterministic, which may result\nin the dataset blocking if the next data item to be returned isn't available.\nIn order to avoid head-of-line blocking, one can set the \n`experimental_deterministic` parameter of `tf.data.Options` to `False`,\nwhich can improve performance at the expense of non-determinism.",
       "inputs": [
         {
+          "description": "Dataset that produces a stream of arguments for the function `f`.",
           "name": "input_dataset",
           "type": 21
         },
         {
+          "description": "Additional arguments to pass to `f` beyond those produced by `input_dataset`.\nEvaluated once when the dataset is instantiated.",
           "name": "other_arguments",
           "typeListAttr": "Targuments"
         },
         {
+          "description": "Number of datasets (each created by applying `f` to the elements of\n`input_dataset`) among which the `ParallelInterleaveDatasetV2` will cycle in a\nround-robin fashion.",
           "name": "cycle_length",
           "type": 9
         },
         {
+          "description": "Number of elements at a time to produce from each interleaved invocation of a\ndataset returned by `f`.",
           "name": "block_length",
           "type": 9
         },
         {
+          "description": "Determines the number of threads that should be used for fetching data from\ninput datasets in parallel. The Python API `tf.data.experimental.AUTOTUNE` \nconstant can be used to indicate that the level of parallelism should be autotuned.",
           "name": "num_parallel_calls",
           "type": 9
         }
