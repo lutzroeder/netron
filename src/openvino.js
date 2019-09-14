@@ -33,7 +33,8 @@ openvino.ModelFactory = class {
                     throw new openvino.Error("File format is not OpenVINO IR.");
                 }
                 return new openvino.Model(metadata, net);
-            } catch (error) {
+            }
+            catch (error) {
                 host.exception(error, false);
                 var message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
@@ -239,7 +240,8 @@ openvino.Graph = class {
                         if (argumentWithoutId){
                             argumentWithoutId._id = newId;
                         } 
-                    } else {
+                    }
+                    else {
                         // TODO: no tensor information in the new argument - passed as null for now
                         nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length+1).toString(), [
                             new openvino.Argument(newId, null, null)

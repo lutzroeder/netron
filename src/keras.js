@@ -557,8 +557,7 @@ keras.Node = class {
             let inputCount = 1;
             let inputName = null;
             let visible = true;
-            if (!innerSchema || inputIndex == 0)
-            {
+            if (!innerSchema || inputIndex == 0) {
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
                     let input = schema.inputs[inputIndex];
                     inputName = input.name;

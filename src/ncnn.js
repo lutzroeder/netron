@@ -650,8 +650,7 @@ ncnn.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                switch (this._type.dataType)
-                {
+                switch (this._type.dataType) {
                     case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
@@ -693,8 +692,7 @@ ncnn.TensorType = class {
         return this._dataType;
     }
 
-    get shape()
-    {
+    get shape() {
         return this._shape;
     }
 

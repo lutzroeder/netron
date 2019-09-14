@@ -49,16 +49,20 @@ if (!DataView.prototype.setFloat16) {
         if (e < -27) {
             DataView.__float16_base[i] = 0x0000;
             DataView.__float16_shift[i] = 24;
-        } else if (e < -14) {
+        }
+        else if (e < -14) {
             DataView.__float16_base[i] = 0x0400 >> -e - 14;
             DataView.__float16_shift[i] = -e - 1;
-        } else if (e <= 15) {
+        }
+        else if (e <= 15) {
             DataView.__float16_base[i] = e + 15 << 10;
             DataView.__float16_shift[i] = 13;
-        } else if (e < 128) {
+        }
+        else if (e < 128) {
             DataView.__float16_base[i] = 0x7c00;
             DataView.__float16_shift[i] = 24;
-        } else {
+        }
+        else {
             DataView.__float16_base[i] = 0x7c00;
             DataView.__float16_shift[i] = 13;
         }

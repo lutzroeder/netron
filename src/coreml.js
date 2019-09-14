@@ -92,8 +92,7 @@ coreml.Model = class {
 
 coreml.Graph = class {
 
-    constructor(metadata, model)
-    {
+    constructor(metadata, model) {
         this._metadata = metadata;
         this._description = model.description;
         this._groups = false; 

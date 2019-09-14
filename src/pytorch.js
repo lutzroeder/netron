@@ -454,8 +454,7 @@ pytorch.ModelFactory = class {
                     throw new pytorch.Error("Unknown persistent load type '" + typename + "'.");
                 };
 
-                if (Array.isArray(magic_number) && signature.length == magic_number.length && signature.every((value, index) => value == magic_number[index])) 
-                {
+                if (Array.isArray(magic_number) && signature.length == magic_number.length && signature.every((value, index) => value == magic_number[index])) {
                     let protocol_version = unpickler.load();
                     if (protocol_version != 1001) {
                         throw new pytorch.Error("Unsupported protocol version '" + protocol_version + "'.");
@@ -554,8 +553,7 @@ pytorch.ModelFactory = class {
                 if (sys_info.type_sizes &&
                     ((sys_info.type_sizes.int && sys_info.type_sizes.int != 4) ||
                     (sys_info.type_sizes.long && sys_info.type_sizes.long != 4) ||
-                    (sys_info.type_sizes.short && sys_info.type_sizes.short != 2)))
-                {
+                    (sys_info.type_sizes.short && sys_info.type_sizes.short != 2))) {
                     throw new pytorch.Error('Unsupported type sizes.');
                 }
             }
@@ -1252,8 +1250,7 @@ pytorch.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                switch (context.dataType)
-                {
+                switch (context.dataType) {
                     case 'uint8':
                         results.push(context.dataView.getUint8(context.index, this._littleEndian));
                         context.index++;

@@ -24,13 +24,13 @@ class Application {
         }
 
         electron.app.on('second-instance', (event, commandLine, workingDirectory) => {
-            var currentDirectory = process.cwd();
+            let currentDirectory = process.cwd();
             process.chdir(workingDirectory);
-            var open = this._parseCommandLine(commandLine);
+            let open = this._parseCommandLine(commandLine);
             process.chdir(currentDirectory);
             if (!open) {
                 if (this._views.count > 0) {
-                    var view = this._views.item(0);
+                    let view = this._views.item(0);
                     if (view) {
                         view.restore();
                     }
@@ -43,7 +43,7 @@ class Application {
         });
 
         electron.ipcMain.on('drop-files', (e, data) => {
-            var files = data.files.filter((file) => fs.statSync(file).isFile());
+            let files = data.files.filter((file) => fs.statSync(file).isFile());
             this._dropFiles(e.sender, files);
         });
 
@@ -72,11 +72,11 @@ class Application {
     }
 
     _parseCommandLine(argv) {
-        var open = false;
+        let open = false;
         if (argv.length > 1) {
-            for (var arg of argv.slice(1)) {
+            for (let arg of argv.slice(1)) {
                 if (!arg.startsWith('-')) {
-                    var extension = arg.split('.').pop().toLowerCase();
+                    let extension = arg.split('.').pop().toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
                         this._openFile(arg);
                         open = true;
@@ -94,10 +94,10 @@ class Application {
         }
         global.userId = this._configuration.get('userId');
         if (this._openFileQueue) {
-            var openFileQueue = this._openFileQueue;
+            let openFileQueue = this._openFileQueue;
             this._openFileQueue = null;
             while (openFileQueue.length > 0) {
-                var file = openFileQueue.shift();
+                let file = openFileQueue.shift();
                 this._openFile(file);
             }
         }
@@ -114,7 +114,7 @@ class Application {
     }
 
     _openFileDialog() {
-        var showOpenDialogOptions = { 
+        let showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
                 { name: 'All Model Files',  extensions: [ 
@@ -136,7 +136,7 @@ class Application {
         };
         electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {
             if (selectedFiles) {
-                for (var selectedFile of selectedFiles) {
+                for (let selectedFile of selectedFiles) {
                     this._openFile(selectedFile);
                 }
             }
@@ -150,7 +150,7 @@ class Application {
         }
         if (file && file.length > 0 && fs.existsSync(file) && fs.statSync(file).isFile()) {
             // find existing view for this file
-            var view = this._views.find(file);
+            let view = this._views.find(file);
             // find empty welcome window
             if (view == null) {
                 view = this._views.find(null);
@@ -164,7 +164,7 @@ class Application {
     }
 
     _loadFile(file, view) {
-        var recents = this._configuration.get('recents');
+        let recents = this._configuration.get('recents');
         recents = recents.filter(recent => file != recent.path);
         view.open(file);
         recents.unshift({ path: file });
@@ -176,8 +176,8 @@ class Application {
     }
 
     _dropFiles(sender, files) {
-        var view = this._views.from(sender);
-        for (var file of files) {
+        let view = this._views.from(sender);
+        for (let file of files) {
             if (view) {
                 this._loadFile(file, view);
                 view = null;
@@ -189,16 +189,16 @@ class Application {
     }
 
     _export() {
-        var view = this._views.activeView;
+        let view = this._views.activeView;
         if (view && view.path) {
-            var defaultPath = 'Untitled';
-            var file = view.path;
-            var lastIndex = file.lastIndexOf('.');
+            let defaultPath = 'Untitled';
+            let file = view.path;
+            let lastIndex = file.lastIndexOf('.');
             if (lastIndex != -1) {
                 defaultPath = file.substring(0, lastIndex);
             }
-            var owner = electron.BrowserWindow.getFocusedWindow();
-            var showSaveDialogOptions = {
+            let owner = electron.BrowserWindow.getFocusedWindow();
+            let showSaveDialogOptions = {
                 title: 'Export',
                 defaultPath: defaultPath,
                 buttonLabel: 'Export',
@@ -216,7 +216,7 @@ class Application {
     }
 
     execute(command, data) {
-        var view = this._views.activeView;
+        let view = this._views.activeView;
         if (view) {
             view.execute(command, data || {});
         }
@@ -224,7 +224,7 @@ class Application {
     }
 
     _reload() {
-        var view = this._views.activeView;
+        let view = this._views.activeView;
         if (view && view.path) {
             this._loadFile(view.path, view);
         }
@@ -234,8 +234,8 @@ class Application {
         if (!electron.app.isPackaged) {
             return;
         }
-        var autoUpdater = updater.autoUpdater;
-        var promise = autoUpdater.checkForUpdates();
+        let autoUpdater = updater.autoUpdater;
+        let promise = autoUpdater.checkForUpdates();
         if (promise) {
             promise.catch((error) => {
                 console.log(error.message);
@@ -245,9 +245,9 @@ class Application {
 
     get package() { 
         if (!this._package) {
-            var appPath = electron.app.getAppPath();
-            var file = appPath + '/package.json'; 
-            var data = fs.readFileSync(file);
+            let appPath = electron.app.getAppPath();
+            let file = appPath + '/package.json'; 
+            let data = fs.readFileSync(file);
             this._package = JSON.parse(data);
             this._package.date = new Date(fs.statSync(file).mtime);
         }
@@ -255,16 +255,16 @@ class Application {
     }
 
     _about() {
-        var owner = electron.BrowserWindow.getFocusedWindow();
-        var author = this.package.author;
-        var date = this.package.date;
-        var details = [];
+        let owner = electron.BrowserWindow.getFocusedWindow();
+        let author = this.package.author;
+        let date = this.package.date;
+        let details = [];
         details.push('Version ' + electron.app.getVersion());
         if (author && author.name && date) {
             details.push('');
             details.push('Copyright \u00A9 ' + date.getFullYear().toString() + ' ' + author.name);
         }
-        var aboutDialogOptions = {
+        let aboutDialogOptions = {
             icon: path.join(__dirname, 'icon.png'),
             title: ' ',
             message: electron.app.getName(),
@@ -274,7 +274,7 @@ class Application {
     }
 
     _updateMenu() {
-        var context = {};
+        let context = {};
         context.window = electron.BrowserWindow.getFocusedWindow();
         context.webContents = context.window ? context.window.webContents : null; 
         context.view = this._views.activeView;
@@ -283,16 +283,16 @@ class Application {
 
     _resetMenu() {
 
-        var menuRecentsTemplate = [];
+        let menuRecentsTemplate = [];
         if (this._configuration.has('recents')) {
-            var recents = this._configuration.get('recents');
+            let recents = this._configuration.get('recents');
             recents = recents.filter(recent => fs.existsSync(recent.path) && fs.statSync(recent.path).isFile());
             if (recents.length > 9) {
                 recents.splice(9);
             }
             this._configuration.set('recents', recents);
-            for (var i = 0; i < recents.length; i++) {
-                var recent = recents[i];
+            for (let i = 0; i < recents.length; i++) {
+                let recent = recents[i];
                 menuRecentsTemplate.push({
                     file: recent.path,
                     label: Application.minimizePath(recent.path),
@@ -302,7 +302,7 @@ class Application {
             }
         }
 
-        var menuTemplate = [];
+        let menuTemplate = [];
         
         if (process.platform === 'darwin') {
             menuTemplate.unshift({
@@ -392,7 +392,7 @@ class Application {
             ]
         });
     
-        var viewTemplate = {
+        let viewTemplate = {
             label: '&View',
             submenu: [
                 {
@@ -463,7 +463,7 @@ class Application {
             });
         }
 
-        var helpSubmenu = [
+        let helpSubmenu = [
             {
                 label: '&Search Feature Requests',
                 click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues'); }
@@ -487,7 +487,7 @@ class Application {
             submenu: helpSubmenu
         });
 
-        var commandTable = new Map();
+        let commandTable = new Map();
         commandTable.set('file.export', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
         });
@@ -540,9 +540,8 @@ class Application {
 
     static minimizePath(file) {
         if (process.platform != 'win32') {
-            var home = os.homedir();
-            if (file.startsWith(home))
-            {
+            let home = os.homedir();
+            if (file.startsWith(home)) {
                 return '~' + file.substring(home.length);
             }
         }
@@ -560,7 +559,7 @@ class View {
         this._properties = {};
 
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
-        var options = {};
+        let options = {};
         options.title = electron.app.getName(); 
         options.backgroundColor = electron.systemPreferences.isDarkMode() ? '#1d1d1d' : '#e6e6e6';
         options.icon = electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
@@ -613,7 +612,7 @@ class View {
                 electron.shell.openExternal(url);
             }
         });
-        var location = url.format({
+        let location = url.format({
             pathname: path.join(__dirname, 'electron.html'),
             protocol: 'file:',
             slashes: true
@@ -638,7 +637,7 @@ class View {
             this._window.webContents.on('dom-ready', () => {
                 this._window.webContents.send("open", { file: file });
             });
-            var location = url.format({
+            let location = url.format({
                 pathname: path.join(__dirname, 'electron.html'),
                 protocol: 'file:',
                 slashes: true
@@ -675,23 +674,20 @@ class View {
     }
 
     update(name, value) {
-        switch (name) {
-            case 'path':
-                if (value) {
-                    this._path = value;
-                    var title = Application.minimizePath(this._path);
-                    if (process.platform !== 'darwin') {
-                        title = title + ' - ' + electron.app.getName();
-                    }
-                    this._window.setTitle(title);
-                    this._window.focus();
+        if (name === 'path') {
+            if (value) {
+                this._path = value;
+                let title = Application.minimizePath(this._path);
+                if (process.platform !== 'darwin') {
+                    title = title + ' - ' + electron.app.getName();
                 }
-                this._openPath = null;
-                break;
-            default:
-                this._properties[name] = value;
-                break;
+                this._window.setTitle(title);
+                this._window.focus();
+            }
+            this._openPath = null;
+            return;
         }
+        this._properties[name] = value;
     }
 
     get(name) {
@@ -706,7 +702,7 @@ class View {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (var callback of this._events[event]) {
+            for (let callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -727,7 +723,7 @@ class ViewCollection {
     }
 
     openView() {
-        var view = new View(this);
+        let view = new View(this);
         view.on('activated', (sender) => {
             this._activeView = sender;
             this._raise('active-view-changed', { activeView: this._activeView });
@@ -745,7 +741,7 @@ class ViewCollection {
     }
 
     closeView(view) {
-        for (var i = this._views.length - 1; i >= 0; i--) {
+        for (let i = this._views.length - 1; i >= 0; i--) {
             if (this._views[i] == view) {
                 this._views.splice(i, 1);
             }
@@ -773,15 +769,15 @@ class ViewCollection {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (var callback of this._events[event]) {
+            for (let callback of this._events[event]) {
                 callback(this, data);
             }
         }
     }
 
     _updateActiveView() {
-        var window = electron.BrowserWindow.getFocusedWindow();
-        var view = this._views.find(view => view.window == window) || null;
+        let window = electron.BrowserWindow.getFocusedWindow();
+        let view = this._views.find(view => view.window == window) || null;
         if (view != this._activeView) {
             this._activeView = view;
             this._raise('active-view-changed', { activeView: this._activeView });
@@ -793,11 +789,11 @@ class ConfigurationService {
 
     load() {
         this._data = { 'recents': [] };
-        var dir = electron.app.getPath('userData');
+        let dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
-            var file = path.join(dir, 'configuration.json'); 
+            let file = path.join(dir, 'configuration.json'); 
             if (fs.existsSync(file)) {
-                var data = fs.readFileSync(file);
+                let data = fs.readFileSync(file);
                 if (data) {
                     try {
                         this._data = JSON.parse(data);
@@ -812,11 +808,11 @@ class ConfigurationService {
 
     save() {
         if (this._data) {
-            var data = JSON.stringify(this._data);
+            let data = JSON.stringify(this._data);
             if (data) {
-                var dir = electron.app.getPath('userData');
+                let dir = electron.app.getPath('userData');
                 if (dir && dir.length > 0) {
-                    var file = path.join(dir, 'configuration.json'); 
+                    let file = path.join(dir, 'configuration.json'); 
                     fs.writeFileSync(file, data);
                 }
             }
@@ -843,8 +839,8 @@ class MenuService {
         this._menuTemplate = menuTemplate;
         this._commandTable = commandTable;
         this._itemTable = new Map();
-        for (var menu of menuTemplate) {
-            for (var item of menu.submenu) {
+        for (let menu of menuTemplate) {
+            for (let item of menu.submenu) {
                 if (item.id) {
                     if (!item.label) {
                         item.label = '';
@@ -872,12 +868,12 @@ class MenuService {
     }
 
     _updateLabel(context) {
-        var rebuild = false;
-        for (var entry of this._commandTable.entries()) {
-            var menuItem = this._menu.getMenuItemById(entry[0]);
-            var command = entry[1];
+        let rebuild = false;
+        for (let entry of this._commandTable.entries()) {
+            let menuItem = this._menu.getMenuItemById(entry[0]);
+            let command = entry[1];
             if (command && command.label) {
-                var label = command.label(context);
+                let label = command.label(context);
                 if (label != menuItem.label) {
                     if (this._itemTable.has(entry[0])) {
                         this._itemTable.get(entry[0]).label = label;
@@ -890,10 +886,10 @@ class MenuService {
     }
 
     _updateEnabled(context) {
-        for (var entry of this._commandTable.entries()) {
-            var menuItem = this._menu.getMenuItemById(entry[0]);
+        for (let entry of this._commandTable.entries()) {
+            let menuItem = this._menu.getMenuItemById(entry[0]);
             if (menuItem) {
-                var command = entry[1];
+                let command = entry[1];
                 if (command.enabled) {
                     menuItem.enabled = command.enabled(context);
                 }

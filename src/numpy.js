@@ -113,8 +113,7 @@ numpy.Array = class {
         var size = context.shape[dimension];
         if (dimension == context.shape.length - 1) {
             for (var i = 0; i < size; i++) {
-                switch (context.descr)
-                {
+                switch (context.descr) {
                     case '<f2':
                         context.dataView.setFloat16(context.position, data[i], true);
                         break;

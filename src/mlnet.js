@@ -282,8 +282,7 @@ mlnet.Node = class {
 
 mlnet.Attribute = class {
 
-    constructor(metadata, name, value)
-    {
+    constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
     }
@@ -1252,16 +1251,14 @@ mlnet.ValueToKeyMappingTransformer = class extends mlnet.OneToOneTransformerBase
         let reader = context.reader;
         let cmap = reader.int32();
         this.termMap = [];
-        if (context.modelVersionWritten >= 0x00010002)
-        {
+        if (context.modelVersionWritten >= 0x00010002) {
             for (let i = 0; i < cmap; ++i) {
                 this.termMap.push(new mlnet.TermMap(context));
                 // debugger;
                 // termMap[i] = TermMap.Load(c, host, CodecFactory);
             }
         }
-        else
-        {
+        else {
             throw new mlnet.Error('');
             // for (let i = 0; i < cmap; ++i) {
             //    debugger;

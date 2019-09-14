@@ -1149,8 +1149,7 @@ tf.Tensor = class {
                 }
                 else {
                     if (context.rawData) {
-                        switch (this._tensor.dtype)
-                        {
+                        switch (this._tensor.dtype) {
                             case tf.proto.DataType.DT_FLOAT:
                                 results.push(context.rawData.getFloat32(context.index, true));
                                 context.index += 4;
@@ -1205,8 +1204,7 @@ tf.Tensor = class {
     }
 
     static formatDataType(type) {
-        if (!tf.Tensor.dataType)
-        {
+        if (!tf.Tensor.dataType) {
             tf.Tensor.dataType = {};
             for (var key of Object.keys(tf.proto.DataType)) {
                 var value = tf.proto.DataType[key];

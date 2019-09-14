@@ -338,8 +338,7 @@ darknet.Attribute = class {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default'))
-            {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (this._value == schema.default) {
                     this._visible = false;
                 }

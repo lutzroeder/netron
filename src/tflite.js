@@ -31,8 +31,7 @@ tflite.ModelFactory = class {
                 var buffer = context.buffer;
                 var byteBuffer = new flatbuffers.ByteBuffer(buffer);
                 tflite.schema = tflite_schema;
-                if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
-                {
+                if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer)) {
                     var signature = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
                     throw new tflite.Error("File format is not tflite.Model (" + signature + ").");
                 }
@@ -580,8 +579,7 @@ tflite.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                switch (context.dataType)
-                {
+                switch (context.dataType) {
                     case 'uint8':
                         results.push(context.data.getUint8(context.index));
                         context.index += 1;

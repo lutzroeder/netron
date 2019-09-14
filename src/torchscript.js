@@ -906,8 +906,7 @@ torchscript.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                switch (context.dataType)
-                {
+                switch (context.dataType) {
                     case 'uint8':
                         results.push(context.dataView.getUint8(context.index, this._littleEndian));
                         context.index++;
@@ -1360,8 +1359,7 @@ torchscript.GraphContext = class {
         if (expression.type == 'call' && 
             expression.target.type == 'identifier' &&
             expression.target.value == 'int' &&
-            expression.arguments.length == 1) 
-        {
+            expression.arguments.length == 1) {
             let replace = this._attributeExpression(expression.arguments[0]);
             if (replace) {
                 return replace;

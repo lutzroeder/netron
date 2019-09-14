@@ -873,8 +873,7 @@ sklearn.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                switch (context.dataType)
-                {
+                switch (context.dataType) {
                     case 'float32':
                         results.push(context.rawData.getFloat32(context.index, true));
                         context.index += 4;

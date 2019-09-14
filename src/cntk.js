@@ -801,8 +801,7 @@ cntk.Metadata = class {
             let items = JSON.parse(data);
             if (items) {
                 for (let item of items) {
-                    if (item.name && item.schema)
-                    {
+                    if (item.name && item.schema) {
                         let name = item.name;
                         let schema = item.schema;
                         this._map[name] = schema;
@@ -908,8 +907,7 @@ cntk_v1.ComputationNetwork = class {
             }
         };
         op.ConvolutionBase = function(reader) {
-            if (reader.version >= 5)
-            {
+            if (reader.version >= 5) {
                 this.kernelShape = new cntk_v1.TensorShape(reader);
                 this.mapCount = new cntk_v1.TensorShape(reader);
                 this.strides = new cntk_v1.TensorShape(reader);
@@ -988,8 +986,7 @@ cntk_v1.ComputationNetwork = class {
                 num_axes = reader.uint32();
             }
             this.axes = [];
-            for (let i = 0; i < num_axes; i++)
-            {
+            for (let i = 0; i < num_axes; i++) {
                 this.axes.push(reader.uint32());
             }
             this.operation = reader.string();
@@ -999,19 +996,16 @@ cntk_v1.ComputationNetwork = class {
         };
         op.BatchNormalization = function(reader) {
             let mbCount = 0;
-            if (reader.version >= 6)
-            {
+            if (reader.version >= 6) {
                 this.spatial = reader.bool();
                 this.normalizationTimeConstant = reader.float64();
                 this.blendTimeConstant = reader.float64();
                 this.imageLayoutKind = reader.enum();
-                if (reader.version >= 13)
-                {
+                if (reader.version >= 13) {
                     if (reader.version != 19) {
                         this.runCountUntied = reader.uint64();
                     }
-                    else
-                    {
+                    else {
                         this.runCountUntied = reader.bool() ? 0 : 'SIZE_MAX'; // TODO
                     }
                 }
@@ -1021,8 +1015,7 @@ cntk_v1.ComputationNetwork = class {
                 this.epsilon = reader.float64();
                 this.useCntkEngine = reader.bool();
             }
-            else
-            {
+            else {
                 let verWritten = reader.int32();
                 let verReadable = reader.int32();
                 if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
@@ -1045,8 +1038,7 @@ cntk_v1.ComputationNetwork = class {
                     this.useCntkEngine = reader.bool();
                 }
             }
-            if (reader.version < 13)
-            {
+            if (reader.version < 13) {
                 this.runCountUntied = 16 * mbCount;
                 this.convertRunningVariancePending = true;
             }
@@ -1079,45 +1071,37 @@ cntk_v1.ComputationNetwork = class {
         };
         op.PastValue = function(reader) {
             this.timeStep = reader.int32();
-            if (reader.version > 3)
-            {
+            if (reader.version > 3) {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
             }
-            else
-            {
+            else {
                 let rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
-            if (reader.version >= 2)
-            {
+            if (reader.version >= 2) {
                 this.initialStateValue = reader.int32();
             }
         };
         op.FutureValue = function(reader) {
             this.timeStep = reader.int32();
-            if (reader.version > 3)
-            {
+            if (reader.version > 3) {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
             }
-            else
-            {
+            else {
                 let rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
-            if (reader.version >= 2)
-            {
+            if (reader.version >= 2) {
                 this.initialStateValue = reader.int32();
             }
         };
         op.TransposeDimensions = function(reader) {
-            if (reader.version >= 3) 
-            {
+            if (reader.version >= 3) {
                 this.axis1 = reader.int32();
                 this.axis2 = reader.int32();
-                if (reader.version >= 25 && this.axis1 == 0 && this.axis2 == 0)
-                {
+                if (reader.version >= 25 && this.axis1 == 0 && this.axis2 == 0) {
                     let size = reader.uint64();
                     this.perm = [];
                     for (let i = 0; i < size; i++) {

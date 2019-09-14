@@ -140,8 +140,7 @@ onnx.Model = class {
             imports['ai.onnx.ml'] = 1;
         }
 
-        if (model.metadata_props)
-        {
+        if (model.metadata_props) {
             var imageMetadata = {};
             for (var metadata_prop of model.metadata_props) {
                 switch (metadata_prop.key) {
@@ -859,8 +858,7 @@ onnx.Tensor = class {
                 }
                 if (context.data) {
                     var value = context.data[context.index++];
-                    switch (this._tensor.data_type)
-                    {   
+                    switch (this._tensor.data_type) {
                         case onnx.proto.TensorProto.DataType.BOOL:
                             value = value === 0 ? false : true;
                             break;
@@ -869,8 +867,7 @@ onnx.Tensor = class {
                     context.count++;
                 }
                 else if (context.rawData) {
-                    switch (this._tensor.data_type)
-                    {
+                    switch (this._tensor.data_type) {
                         case onnx.proto.TensorProto.DataType.FLOAT16:
                             results.push(context.rawData.getFloat16(context.index, true));
                             context.index += 2;

@@ -413,8 +413,7 @@ grapher.NodeElement.Header = class {
             }
         }
 
-        if (!first) 
-        {
+        if (!first) {
             lineElement = this.createElement('line');
             lineElement.setAttribute('class', 'node');
             lineElement.setAttribute('x1', 0);
@@ -521,8 +520,7 @@ grapher.NodeElement.List = class {
         var r4 = last;
         this._backgroundElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
 
-        if (!first) 
-        {
+        if (!first) {
             var lineElement = this.createElement('line');
             lineElement.setAttribute('class', 'node');
             lineElement.setAttribute('x1', 0);

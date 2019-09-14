@@ -390,8 +390,7 @@ mxnet.Model = class {
 
 mxnet.Graph = class {
 
-    constructor(metadata, manifest, symbol, signature, params)
-    {
+    constructor(metadata, manifest, symbol, signature, params) {
         this._metadata = metadata;
         this._nodes = [];
         this._inputs = [];
@@ -984,8 +983,7 @@ mxnet.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                switch (context.dataType)
-                {
+                switch (context.dataType) {
                     case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;

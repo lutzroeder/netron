@@ -428,8 +428,7 @@ if (typeof TextDecoder === "undefined") {
             case 'utf-8':
                 while (i < length) {
                     var c = buffer[i++];
-                    switch(c >> 4)
-                    { 
+                    switch(c >> 4) {
                         case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
                             result += String.fromCharCode(c);
                             break;
@@ -481,17 +480,20 @@ if (typeof TextEncoder === "undefined") {
                         resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
                         continue;
                     }
-                } else {
+                }
+                else {
                     resArr[resPos += 1] = 0xef; resArr[resPos += 1] = 0xbf;
                     resArr[resPos += 1] = 0xbd; continue;
                 }
             }
             if (point <= 0x007f) {
                 resArr[resPos += 1] = (0x0<<7) | point;
-            } else if (point <= 0x07ff) {
+            }
+            else if (point <= 0x07ff) {
                 resArr[resPos += 1] = (0x6<<5) | (point>>>6);
                 resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
-            } else {
+            }
+            else {
                 resArr[resPos += 1] = (0xe<<4) | (point>>>12);
                 resArr[resPos += 1] = (0x2<<6) | ((point>>>6)&0x3f);
                 resArr[resPos += 1] = (0x2<<6) | (point&0x3f);

@@ -1444,30 +1444,35 @@ python.Tokenizer = class {
             case '*':
                 if (c1 === '*') {
                     length = c2 === '=' ? 3 : 2;
-                } else {
+                }
+                else {
                     length = c1 === '=' ? 2 : 1;
                 }
                 break;
             case '/':
                 if (c1 === '/') {
                     length = c2 === '=' ? 3 : 2;
-                } else {
+                }
+                else {
                     length = c1 === '=' ? 2 : 1;
                 }
                 break;
             case '<':
                 if (c1 === '>') {
                     length = 2;
-                } else if (c1 === '<') {
+                }
+                else if (c1 === '<') {
                     length = c2 === '=' ? 3 : 2;
-                } else {
+                }
+                else {
                     length = c1 === '=' ? 2 : 1;
                 }
                 break;
             case '>':
                 if (c1 === '>') {
                     length = c2 === '=' ? 3 : 2;
-                } else {
+                }
+                else {
                     length = c1 === '=' ? 2 : 1;
                 }
                 break;
