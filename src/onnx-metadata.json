@@ -3008,7 +3008,7 @@
         }
       ],
       "category": "Tensor",
-      "description": "Concatenate a list of tensors into a single tensor",
+      "description": "Concatenate a list of tensors into a single tensor. All input tensors must have the same shape, except for the dimension size of the axis to concatenate on.",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -3038,6 +3038,91 @@
       "since_version": 11,
       "support_level": "common",
       "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain output types to any tensor type.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ConcatFromSequence",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Which axis to concat on. Accepted range in `[-r, r - 1]`, where `r` is the rank of input tensors. When `new_axis` is 1, accepted range is `[-r - 1, r]`. ",
+          "name": "axis",
+          "required": true,
+          "type": "int64"
+        },
+        {
+          "description": "Insert and concatenate on a new axis or not, default 0 means do not insert new axis.",
+          "name": "new_axis",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Concatenate a sequence of tensors into a single tensor.\nAll input tensors must have the same shape, except for the dimension size of the axis to concatenate on.\nBy default 'new_axis' is 0, the behavior is similar to numpy.concatenate.\nWhen 'new_axis' is 1, the behavior is similar to numpy.stack.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Sequence of tensors for concatenation",
+          "name": "input_sequence",
+          "type": "S"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Concatenated tensor",
+          "name": "concat_result",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain input types to any tensor type.",
+          "type_param_str": "S"
+        },
         {
           "allowed_type_strs": [
             "tensor(uint8)",
@@ -16781,6 +16866,424 @@
     }
   },
   {
+    "name": "SequenceAt",
+    "schema": {
+      "description": "Outputs a tensor copy from the tensor at 'position' in 'input_sequence'.\nAccepted range for 'position' is in `[-n, n - 1]`, where `n` is the number of tensors in 'input_sequence'.\nNegative value means counting positions from the back.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input sequence.",
+          "name": "input_sequence",
+          "type": "S"
+        },
+        {
+          "description": "Position of the tensor in the sequence. Negative value means counting positions from the back. Accepted range in `[-n, n - 1]`, where `n` is the number of tensors in 'input_sequence'. It is an error if any of the index values are out of bounds. It must be a scalar(tensor of empty shape).",
+          "name": "position",
+          "type": "I"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor at the specified position in the input sequence.",
+          "name": "tensor",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain to any tensor type.",
+          "type_param_str": "S"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain to any tensor type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain position to integral tensor. It must be a scalar(tensor of empty shape).",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SequenceConstruct",
+    "schema": {
+      "description": "Construct a tensor sequence containing 'inputs' tensors.\nAll tensors in 'inputs' must have the same data type.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Tensors.",
+          "name": "inputs",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Sequence enclosing the input tensors.",
+          "name": "output_sequence",
+          "type": "S"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input types to any tensor type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain output types to any tensor type.",
+          "type_param_str": "S"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SequenceEmpty",
+    "schema": {
+      "attributes": [
+        {
+          "description": "(Optional) The data type of the tensors in the output sequence. The default type is 'float'.",
+          "name": "dtype",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Construct an empty tensor sequence, with given data type.\n",
+      "domain": "ai.onnx",
+      "max_input": 0,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Empty sequence.",
+          "name": "output",
+          "type": "S"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain output types to any tensor type.",
+          "type_param_str": "S"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SequenceErase",
+    "schema": {
+      "description": "Outputs a tensor sequence that removes the tensor at 'position' from 'input_sequence'.\nAccepted range for 'position' is in `[-n, n - 1]`, where `n` is the number of tensors in 'input_sequence'.\nNegative value means counting positions from the back.\n'position' is optional, by default it erases the last tensor from 'input_sequence'.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input sequence.",
+          "name": "input_sequence",
+          "type": "S"
+        },
+        {
+          "description": "Position of the tensor in the sequence. Negative value means counting positions from the back. Accepted range in `[-n, n - 1]`, where `n` is the number of tensors in 'input_sequence'. It is an error if any of the index values are out of bounds. It must be a scalar(tensor of empty shape).",
+          "name": "position",
+          "option": "optional",
+          "type": "I"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output sequence that has the tensor at the specified position removed.",
+          "name": "output_sequence",
+          "type": "S"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain to any tensor type.",
+          "type_param_str": "S"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain position to integral tensor. It must be a scalar(tensor of empty shape).",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SequenceInsert",
+    "schema": {
+      "description": "Outputs a tensor sequence that inserts 'tensor' into 'input_sequence' at 'position'.\n'tensor' must have the same data type as 'input_sequence'.\nAccepted range for 'position' is in `[-n, n]`, where `n` is the number of tensors in 'input_sequence'.\nNegative value means counting positions from the back.\n'position' is optional, by default it inserts 'tensor' to the back of 'input_sequence'.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input sequence.",
+          "name": "input_sequence",
+          "type": "S"
+        },
+        {
+          "description": "Input tensor to be inserted into the input sequence.",
+          "name": "tensor",
+          "type": "T"
+        },
+        {
+          "description": "Position in the sequence where the new tensor is inserted. It is optional and default is to insert to the back of the sequence. Negative value means counting positions from the back. Accepted range in `[-n, n]`, where `n` is the number of tensors in 'input_sequence'. It is an error if any of the index values are out of bounds. It must be a scalar(tensor of empty shape).",
+          "name": "position",
+          "option": "optional",
+          "type": "I"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output sequence that contains the inserted tensor at given position.",
+          "name": "output_sequence",
+          "type": "S"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain to any tensor type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain to any tensor type.",
+          "type_param_str": "S"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain position to integral tensor. It must be a scalar(tensor of empty shape).",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SequenceLength",
+    "schema": {
+      "description": "Produces a scalar(tensor of empty shape) containing the number of tensors in 'input_sequence'.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input sequence.",
+          "name": "input_sequence",
+          "type": "S"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Length of input sequence. It must be a scalar(tensor of empty shape).",
+          "name": "length",
+          "type": "I"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain to any tensor type.",
+          "type_param_str": "S"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain output to integral tensor. It must be a scalar(tensor of empty shape).",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
     "name": "Shape",
     "schema": {
       "description": "Takes a tensor as input and outputs an 1D int64 tensor containing the shape of the input tensor.\n",
@@ -18044,6 +18547,106 @@
           ],
           "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SplitToSequence",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Which axis to split on. A negative value means counting dimensions from the back. Accepted range is [-rank, rank-1].",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "Keep the split dimension or not. Default 1, which means we keep split dimension. If input 'split' is specified, this attribute is ignored.",
+          "name": "keepdims",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Split a tensor into a sequence of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\n'split' must contain only positive numbers.\n'split' is either a scalar (tensor of empty shape), or a 1-D tensor.\nIf 'split' is a scalar, then 'input' will be split into equally sized chunks(if possible).\nLast chunk will be smaller if the 'input' size along the given axis 'axis' is not divisible\nby 'split'.\nOtherwise, the tensor is split into 'size(split)' chunks, with lengths of the parts on 'axis'\nspecified in 'split'. In this scenario, the sum of entries in 'split' must be equal to the\ndimension size of input tensor on 'axis'.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "The tensor to split",
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "description": "Length of each output. It can be either a scalar(tensor of empty shape), or a 1-D tensor. All values must be positive. ",
+          "name": "split",
+          "option": "optional",
+          "type": "I"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "One or more outputs forming a sequence of tensors after splitting",
+          "name": "output_sequence",
+          "type": "S"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input types to all tensor types.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain split size to integral tensor.",
+          "type_param_str": "I"
+        },
+        {
+          "allowed_type_strs": [
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
+          ],
+          "description": "Constrain output types to all tensor types.",
+          "type_param_str": "S"
         }
       ]
     }
