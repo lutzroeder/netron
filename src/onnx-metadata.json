@@ -12746,7 +12746,7 @@
           "type": "tensor(float)"
         },
         {
-          "description": "Zero point for doing quantization to get 'y'. It's a scalar, which means a per-tensor/layer quantization. Default value is 0 if it's not specified.",
+          "description": "Zero point for doing quantization to get 'y'. It's a scalar, which means a per-tensor/layer quantization. Default value is uint8 typed 0 if it's not specified.",
           "name": "y_zero_point",
           "option": "optional",
           "type": "T2"
@@ -20528,12 +20528,20 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.expand_dims(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze')",
-          "summary": "unsqueeze"
-        },
-        {
           "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
           "summary": "unsqueeze_negative_axes"
+        },
+        {
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x'],\n        outputs=['y'],\n        axes=[i],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
+          "summary": "unsqueeze_one_axis"
+        },
+        {
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[2, 4, 5],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_three_axes')",
+          "summary": "unsqueeze_three_axes"
+        },
+        {
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1, 4],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_two_axes')",
+          "summary": "unsqueeze_two_axes"
         }
       ],
       "inputs": [
@@ -20597,12 +20605,20 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.expand_dims(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze')",
-          "summary": "unsqueeze"
-        },
-        {
           "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
           "summary": "unsqueeze_negative_axes"
+        },
+        {
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x'],\n        outputs=['y'],\n        axes=[i],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
+          "summary": "unsqueeze_one_axis"
+        },
+        {
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[2, 4, 5],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_three_axes')",
+          "summary": "unsqueeze_three_axes"
+        },
+        {
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1, 4],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_two_axes')",
+          "summary": "unsqueeze_two_axes"
         }
       ],
       "inputs": [
