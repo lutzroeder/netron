@@ -11944,6 +11944,11 @@
           "description": "Reserved. Do not use.",
           "name": "is_global_init",
           "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "enable_whole_mesh_compilations",
+          "type": "boolean"
         }
       ],
       "outputs": [
@@ -26957,8 +26962,10 @@
           "type": "shape[]"
         }
       ],
+      "description": "The Lightning Memory-Mapped Database Manager, or LMDB, is an embedded binary\nkey-value database. This dataset can read the contents of LMDB database files,\nthe names of which generally have the `.mdb` suffix.\n\nEach output element consists of a key-value pair represented as a pair of\nscalar string `Tensor`s, where the first `Tensor` contains the key and the\nsecond `Tensor` contains the value.\n\nLMDB uses different file formats on big- and little-endian machines.\n`LMDBDataset` can only read files in the format of the host machine.",
       "inputs": [
         {
+          "description": "A scalar or a vector containing the name(s) of the binary file(s) to be\nread.",
           "name": "filenames",
           "type": 7
         }
@@ -26968,7 +26975,8 @@
           "name": "handle",
           "type": 21
         }
-      ]
+      ],
+      "summary": "Creates a dataset that emits the key-value pairs in one or more LMDB files."
     }
   },
   {
