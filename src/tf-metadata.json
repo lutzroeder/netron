@@ -56156,6 +56156,11 @@
           "default": false,
           "name": "preserve_cardinality",
           "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "use_default_device",
+          "type": "boolean"
         }
       ],
       "inputs": [
