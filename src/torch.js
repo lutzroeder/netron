@@ -8,9 +8,9 @@ var long = long || { Long: require('long') };
 torch.ModelFactory = class {
 
     match(context) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
+        let extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 't7') {
-            var buffer = context.buffer;
+            let buffer = context.buffer;
             if (buffer.length >= 1 && buffer[0] > 58) {
                 return false;
             }
@@ -21,22 +21,22 @@ torch.ModelFactory = class {
 
     open(context, host) {
         return torch.Metadata.open(host).then((metadata) => {
-            var identifier = context.identifier;
+            let identifier = context.identifier;
             try {
-                var reader = new torch.T7Reader(context.buffer, (name) => {
+                let reader = new torch.T7Reader(context.buffer, (name) => {
                     if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
                         host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                     }
                     return null;
                 });
-                var root = reader.read();
+                let root = reader.read();
                 if (root && Array.isArray(root) && root.length == 2 && root[0].__type__ && !root[1].__type__) {
                     root = root[0];
                 }
                 return new torch.Model(metadata, root);
             }
             catch (error) {
-                var message = error && error.message ? error.message : error.toString();
+                let message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 throw new torch.Error(message + " in '" + identifier + "'.");
             }
@@ -72,8 +72,8 @@ torch.Graph = class {
             root = root.model;
         }
 
-        var inputs = [];
-        var outputs = [];
+        let inputs = [];
+        let outputs = [];
 
         this._loadModule(metadata, root, [], '', inputs, outputs);
 
@@ -105,10 +105,10 @@ torch.Graph = class {
         if (groups.length > 0) {
             this._groups = true;
         }
-        var index;
-        var subModule;
-        var subInputs;
-        var subOutputs;
+        let index;
+        let subModule;
+        let subInputs;
+        let subOutputs;
         switch (module.__type__) {
             case 'nn.Sequential':
                 groups.push(key);
@@ -147,7 +147,7 @@ torch.Graph = class {
                     index++;
                 }
                 inputs = inputs.concat(newInputs);
-                for (var newOutput of newOutputs) {
+                for (let newOutput of newOutputs) {
                     outputs.push(newOutput);
                 }
                 groups.pop();
@@ -161,8 +161,8 @@ torch.Graph = class {
                 var concatInputs = [];
                 index = 0;
                 for (subModule of module.modules) {
-                    var streamInputs = inputs.map((input) => input);
-                    var streamOutputs = [];
+                    let streamInputs = inputs.map((input) => input);
+                    let streamOutputs = [];
                     this._loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
                     concatInputs = concatInputs.concat(streamOutputs);
                     index++;
@@ -246,17 +246,17 @@ torch.Node = class {
         else {
             this._name = this._group ? (this._group + ':' + name) : name;
         }
-        var type = module.__type__;
+        let type = module.__type__;
         this._operator = type ? type.split('.').pop() : 'Unknown';
-        var initializers = [];
-        var key;
-        var obj;
+        let initializers = [];
+        let key;
+        let obj;
         for (key of Object.keys(module)) {
             obj = module[key];
             if (obj.__type__ && obj.__type__ == 'torch.LongStorage') {
-                var array = [];
+                let array = [];
                 obj.reset();
-                for (var i = 0; i < obj.size; i++) {
+                for (let i = 0; i < obj.size; i++) {
                     array.push(obj.read());
                 }
                 module[key] = array;
@@ -402,7 +402,7 @@ torch.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -453,7 +453,7 @@ torch.Attribute = class {
         if (name == 'train') {
             this._visible = false;
         }
-        var schema = metadata.getAttributeSchema(operator, name);
+        let schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible')) {
                 this._visible = schema.visible;
@@ -495,7 +495,7 @@ torch.Tensor = class {
     }
 
     get value() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return null;
         }
@@ -504,17 +504,17 @@ torch.Tensor = class {
     }
 
     toString() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 1000;
-        var value = this._decode(context, 0);
+        let value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        var context = {};
+        let context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -546,10 +546,10 @@ torch.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var results = [];
-        var size = context.dimensions[dimension];
+        let results = [];
+        let size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -560,7 +560,7 @@ torch.Tensor = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -633,9 +633,9 @@ torch.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -649,12 +649,12 @@ torch.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -844,7 +844,7 @@ torch.T7Reader = class {
     }
 
     read() {
-        var type = this.int32();
+        let type = this.int32();
         switch (type) {
             case 0: return null;
             case 1: return this.float64();
@@ -888,13 +888,13 @@ torch.T7Reader = class {
     }
 
     object() {
-        var index = this.int32();
+        let index = this.int32();
         if (this._memo[index]) {
             return this._memo[index];
         }
 
-        var version = this.string();
-        var name = null;
+        let version = this.string();
+        let name = null;
         if (version.startsWith('V ')) {
             name = this.string();
             version = Number(version.split(' ')[1]);
@@ -904,10 +904,10 @@ torch.T7Reader = class {
             version = 0;
         }
 
-        var obj = { __type__: name };
+        let obj = { __type__: name };
         this._memo[index] = obj;
 
-        var constructor = this._registry[name];
+        let constructor = this._registry[name];
         if (constructor) {
             constructor.apply(obj, [ this, version ]);
         }
@@ -922,18 +922,18 @@ torch.T7Reader = class {
     }
 
     table() {
-        var index = this.int32();
+        let index = this.int32();
         if (this._memo[index]) {
             return this._memo[index];
         }
-        var table = {};
+        let table = {};
         this._memo[index] = table;
-        var size = this.int32();
-        var convert = true;
-        var sum = 0;
-        for (var i = 0; i < size; i++) {
-            var key = this.read();
-            var value = this.read();
+        let size = this.int32();
+        let convert = true;
+        let sum = 0;
+        for (let i = 0; i < size; i++) {
+            let key = this.read();
+            let value = this.read();
             table[key] = value;
             if (Number.isInteger(key) && key >= 0) {
                 sum += key;
@@ -942,11 +942,11 @@ torch.T7Reader = class {
                 convert = false;
             }
         }
-        var n = Object.keys(table).length;
+        let n = Object.keys(table).length;
         if (convert && (n * (n + 1)) == (2 * sum)) {
-            var list = [];
-            for (var j = 0; j < n; j++) {
-                var item = table[j + 1];
+            let list = [];
+            for (let j = 0; j < n; j++) {
+                let item = table[j + 1];
                 if (item == table) {
                     item = list;
                 }
@@ -959,32 +959,32 @@ torch.T7Reader = class {
     }
 
     function() {
-        var index = this.int32();
+        let index = this.int32();
         if (this._memo[index]) {
             return this._memo[index];
         }
 
-        var size = this.int32();
-        var dumped = this.bytes(size);
-        var upvalues = this.read();
+        let size = this.int32();
+        let dumped = this.bytes(size);
+        let upvalues = this.read();
 
-        var func = { __type__: 'Function', size: size, dumped: dumped, upvalues: upvalues };
+        let func = { __type__: 'Function', size: size, dumped: dumped, upvalues: upvalues };
 
         this._memo[index] = func;
         return func;
     }
 
     nn(obj) {
-        var attributes = this.read();
+        let attributes = this.read();
         if (attributes != null) {
-            for (var key of Object.keys(attributes)) {
+            for (let key of Object.keys(attributes)) {
                 obj[key] = attributes[key];
             }
         }
     }
 
     tensor(obj) {
-        var dim = this.int32();
+        let dim = this.int32();
         obj.size = this.int64s(dim);
         obj.stride = this.int64s(dim);
         obj.storage_offset = this.int64() - 1;
@@ -1039,59 +1039,59 @@ torch.BinaryReader = class {
     }
 
     bytes(size) {
-        var data = this._buffer.subarray(this._position, this._position + size);
+        let data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
 
     int8() {
-        var value = this._dataView.getInt8(this._position, true);
+        let value = this._dataView.getInt8(this._position, true);
         this._position += 1;
         return value;
     }
 
     int16() {
-        var value = this._dataView.getInt16(this._position, true);
+        let value = this._dataView.getInt16(this._position, true);
         this._position += 2;
         return value;
     }
 
     int32() {
-        var value = this._dataView.getInt32(this._position, true);
+        let value = this._dataView.getInt32(this._position, true);
         this._position += 4;
         return value;
     }
 
     int64() {
-        var lo = this._dataView.getUint32(this._position, true);
-        var hi = this._dataView.getUint32(this._position + 4, true);
+        let lo = this._dataView.getUint32(this._position, true);
+        let hi = this._dataView.getUint32(this._position + 4, true);
         this._position += 8;
         return new long.Long(lo, hi, false).toNumber();
     }
 
     int64s(size) {
-        var array = [];
-        for (var i = 0; i < size; i++) {
+        let array = [];
+        for (let i = 0; i < size; i++) {
             array.push(this.int64());
         }
         return array;
     }
     
     float32() {
-        var value = this._dataView.getFloat32(this._position, true);
+        let value = this._dataView.getFloat32(this._position, true);
         this._position += 4;
         return value;
     }
 
     float64() {
-        var value = this._dataView.getFloat64(this._position, true);
+        let value = this._dataView.getFloat64(this._position, true);
         this._position += 8;
         return value;
     }
 
     string() {
-        var size = this.int32();
-        var buffer = this.bytes(size);
+        let size = this.int32();
+        let buffer = this.bytes(size);
         return this._textDecoder.decode(buffer);
     }
 
@@ -1115,9 +1115,9 @@ torch.TextReader = class {
     }
 
     line(size) {
-        var start = this._position;
+        let start = this._position;
         while (this._position < this._buffer.length && size > -1) {
-            var c = this._buffer[this._position++];
+            let c = this._buffer[this._position++];
             if (c == this._separator) {
                 return this._buffer.slice(start, this._position - 1);
             }
@@ -1150,8 +1150,8 @@ torch.TextReader = class {
     }
 
     int64() {
-        var token = this._textDecoder.decode(this.line(20));
-        var number = Number.parseInt(token, 10);
+        let token = this._textDecoder.decode(this.line(20));
+        let number = Number.parseInt(token, 10);
         if (Number.isNaN(token - number)) {
             throw new torch.Error("Couldn't parse int64 '" + token + "'.");
         }
@@ -1159,11 +1159,11 @@ torch.TextReader = class {
     }
 
     int64s(size) {
-        var array = [];
+        let array = [];
         if (size > 0) {
-            var text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
-            for (var token of text.split(' ')) {
-                var number = Number.parseInt(token, 10);
+            let text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
+            for (let token of text.split(' ')) {
+                let number = Number.parseInt(token, 10);
                 if (Number.isNaN(token - number)) {
                     throw new torch.Error("Couldn't parse int64 '" + token + "'.");
                 }
@@ -1178,7 +1178,7 @@ torch.TextReader = class {
     }
 
     float64() {
-        var token = this._textDecoder.decode(this.line(24));
+        let token = this._textDecoder.decode(this.line(24));
         if (token.startsWith('-nan')) {
             return -NaN;
         }
@@ -1191,7 +1191,7 @@ torch.TextReader = class {
         if (token.startsWith('-inf')) {
             return -Infinity;
         }
-        var number = Number.parseFloat(token);
+        let number = Number.parseFloat(token);
         if (Number.isNaN(token - number)) {
             throw new Error("Couldn't parse float '" + token + "'.");
         }
@@ -1199,12 +1199,12 @@ torch.TextReader = class {
     }
 
     string() {
-        var size = this.int32();
+        let size = this.int32();
         if (size == 0) {
             return '';
         }
-        var data = this.line(size);
-        var text = this._textDecoder.decode(data);
+        let data = this.line(size);
+        let text = this._textDecoder.decode(data);
         if (size != text.length) {
             throw torch.Error('Invalid text length.');
         }
@@ -1212,7 +1212,7 @@ torch.TextReader = class {
     }
 
     storage(size /*, itemSize */) {
-        var data = size > 0 ? this.line(Number.MAX_SAFE_INTEGER) : new Uint8Array(0);
+        let data = size > 0 ? this.line(Number.MAX_SAFE_INTEGER) : new Uint8Array(0);
         return new torch.TextReader(data, 0x20);
     }
 };
