@@ -13,13 +13,13 @@ numpy.Array = class {
 
     toBuffer() {
 
-        var writer = new numpy.Writer();
+        let writer = new numpy.Writer();
 
         writer.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); // '\\x93NUMPY'
         writer.writeByte(1); // major
         writer.writeByte(0); // minor
 
-        var context = {};
+        let context = {};
         context.itemSize = 1;
         context.position = 0;
         context.shape = this._shape;
@@ -75,7 +75,7 @@ numpy.Array = class {
                 throw new numpy.Error("Unknown data type '" + this._dataType + "'.");
         }
 
-        var shape = '';
+        let shape = '';
         switch (this._shape.length) {
             case 0:
                 throw new numpy.Error('Invalid shape.');
@@ -87,17 +87,17 @@ numpy.Array = class {
                 break;
         }
 
-        var properties = [];
+        let properties = [];
         properties.push("'descr': '" + context.descr + "'");
         properties.push("'fortran_order': False");
         properties.push("'shape': " + shape);
-        var header = '{ ' + properties.join(', ') + ' }';
+        let header = '{ ' + properties.join(', ') + ' }';
         header += ' '.repeat(16 - ((header.length + 2 + 8 + 1) & 0x0f)) + '\n';
         writer.writeUint16(header.length); // header size
         writer.writeString(header);
 
-        var size = context.itemSize;
-        for (var dimension of this._shape) {
+        let size = context.itemSize;
+        for (let dimension of this._shape) {
             size *= dimension;
         }
 
@@ -110,9 +110,9 @@ numpy.Array = class {
     }
 
     static _encodeDimension(context, data, dimension) {
-        var size = context.shape[dimension];
+        let size = context.shape[dimension];
         if (dimension == context.shape.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 switch (context.descr) {
                     case '<f2':
                         context.dataView.setFloat16(context.position, data[i], true);
@@ -152,7 +152,7 @@ numpy.Array = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 numpy.Array._encodeDimension(context, data[j], dimension + 1);
             }
         }
@@ -176,23 +176,23 @@ numpy.Writer = class {
     }
 
     writeBytes(values) {
-        var array = new Uint8Array(values.length);
-        for (var i = 0; i < values.length; i++) {
+        let array = new Uint8Array(values.length);
+        for (let i = 0; i < values.length; i++) {
             array[i] = values[i];
         }
         this.write(array);
     }
 
     writeString(value) {
-        var array = new Uint8Array(value.length);
-        for (var i = 0; i < value.length; i++) {
+        let array = new Uint8Array(value.length);
+        for (let i = 0; i < value.length; i++) {
             array[i] = value.charCodeAt(i);
         }
         this.write(array);
     }
 
     write(array) {
-        var node = { buffer: array, next: null };
+        let node = { buffer: array, next: null };
         if (this._tail) {
             this._tail.next = node;
         }
@@ -204,9 +204,9 @@ numpy.Writer = class {
     }
 
     toBuffer() {
-        var array = new Uint8Array(this._length);
-        var position = 0;
-        var head = this._head;
+        let array = new Uint8Array(this._length);
+        let position = 0;
+        let head = this._head;
         while (head != null) {
             array.set(head.buffer, position);
             position += head.buffer.length;
