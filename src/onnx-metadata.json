@@ -6544,12 +6544,44 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = 0.5 * np.dot(a, b) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_nobroadcast')",
-          "summary": "notranspose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.25,\n    beta=0.35,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([4, 3]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.random.ranf([1, 5]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1, transB=1, alpha=0.25, beta=0.35)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_all_attributes')",
+          "summary": "all_attributes"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.random.ranf([1, 1]).astype(np.float32)\ny = 0.5 * np.dot(a.T, b.T) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_broadcast')",
-          "summary": "transpose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, alpha=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_alpha')",
+          "summary": "alpha"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    beta=0.5\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, beta=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_beta')",
+          "summary": "beta"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_matrix_bias')",
+          "summary": "default_matrix_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "summary": "default_scalar_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 7]).astype(np.float32)\nb = np.random.ranf([7, 3]).astype(np.float32)\nc = np.random.ranf([1]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_single_elem_vector_bias')",
+          "summary": "default_single_elem_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_vector_bias')",
+          "summary": "default_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_zero_bias')",
+          "summary": "default_zero_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeA')",
+          "summary": "transposeA"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transB=1\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transB=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeB')",
+          "summary": "transposeB"
         }
       ],
       "inputs": [
@@ -6637,12 +6669,44 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = 0.5 * np.dot(a, b) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_nobroadcast')",
-          "summary": "notranspose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.25,\n    beta=0.35,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([4, 3]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.random.ranf([1, 5]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1, transB=1, alpha=0.25, beta=0.35)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_all_attributes')",
+          "summary": "all_attributes"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.random.ranf([1, 1]).astype(np.float32)\ny = 0.5 * np.dot(a.T, b.T) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_broadcast')",
-          "summary": "transpose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, alpha=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_alpha')",
+          "summary": "alpha"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    beta=0.5\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, beta=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_beta')",
+          "summary": "beta"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_matrix_bias')",
+          "summary": "default_matrix_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "summary": "default_scalar_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 7]).astype(np.float32)\nb = np.random.ranf([7, 3]).astype(np.float32)\nc = np.random.ranf([1]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_single_elem_vector_bias')",
+          "summary": "default_single_elem_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_vector_bias')",
+          "summary": "default_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_zero_bias')",
+          "summary": "default_zero_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeA')",
+          "summary": "transposeA"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transB=1\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transB=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeB')",
+          "summary": "transposeB"
         }
       ],
       "inputs": [
@@ -6724,12 +6788,44 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = 0.5 * np.dot(a, b) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_nobroadcast')",
-          "summary": "notranspose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.25,\n    beta=0.35,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([4, 3]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.random.ranf([1, 5]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1, transB=1, alpha=0.25, beta=0.35)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_all_attributes')",
+          "summary": "all_attributes"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.random.ranf([1, 1]).astype(np.float32)\ny = 0.5 * np.dot(a.T, b.T) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_broadcast')",
-          "summary": "transpose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, alpha=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_alpha')",
+          "summary": "alpha"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    beta=0.5\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, beta=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_beta')",
+          "summary": "beta"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_matrix_bias')",
+          "summary": "default_matrix_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "summary": "default_scalar_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 7]).astype(np.float32)\nb = np.random.ranf([7, 3]).astype(np.float32)\nc = np.random.ranf([1]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_single_elem_vector_bias')",
+          "summary": "default_single_elem_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_vector_bias')",
+          "summary": "default_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_zero_bias')",
+          "summary": "default_zero_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeA')",
+          "summary": "transposeA"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transB=1\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transB=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeB')",
+          "summary": "transposeB"
         }
       ],
       "inputs": [
@@ -6811,12 +6907,44 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = 0.5 * np.dot(a, b) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_nobroadcast')",
-          "summary": "notranspose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.25,\n    beta=0.35,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([4, 3]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.random.ranf([1, 5]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1, transB=1, alpha=0.25, beta=0.35)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_all_attributes')",
+          "summary": "all_attributes"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.random.ranf([1, 1]).astype(np.float32)\ny = 0.5 * np.dot(a.T, b.T) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_broadcast')",
-          "summary": "transpose"
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, alpha=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_alpha')",
+          "summary": "alpha"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    beta=0.5\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, beta=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_beta')",
+          "summary": "beta"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_matrix_bias')",
+          "summary": "default_matrix_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "summary": "default_scalar_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 7]).astype(np.float32)\nb = np.random.ranf([7, 3]).astype(np.float32)\nc = np.random.ranf([1]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_single_elem_vector_bias')",
+          "summary": "default_single_elem_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_vector_bias')",
+          "summary": "default_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_zero_bias')",
+          "summary": "default_zero_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeA')",
+          "summary": "transposeA"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transB=1\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transB=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeB')",
+          "summary": "transposeB"
         }
       ],
       "inputs": [
@@ -12247,15 +12375,15 @@
         }
       ],
       "category": "Tensor",
-      "description": "Given `data` tensor, paddings, mode, and value.\n\nExample:\n  Insert 0 paddings to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  paddings = [0, 0, 2, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
+      "description": "Given `data` tensor, paddings, mode, and value.\nExample:\n  Insert 0 paddings to the beginning of the second dimension.\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  paddings = [0, 0, 2, 0]\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x'],\n    outputs=['y'],\n    mode='constant',\n    value=1.2,\n    pads=[0, 0, 1, 3, 0, 0, 2, 4],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.pad(\n    x,\n    pad_width=((0, 0), (0, 0), (1, 2), (3, 4)),\n    mode='constant',\n    constant_values=1.2,\n)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constant_pad')",
+          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x', 'pads', 'value'],\n    outputs=['y'],\n    mode='constant'\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 0, 1, 3, 0, 0, 2, 4]).astype(np.int64)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\ny = pad_impl(\n    x,\n    pads,\n    'constant',\n    1.2\n)\n\nexpect(node, inputs=[x, pads, value], outputs=[y],\n       name='test_constant_pad')",
           "summary": "constant_pad"
         },
         {
-          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x'],\n        outputs=['y'],\n        mode=mode,\n        pads=[0, 0, 1, 1, 0, 0, 1, 1]\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.float32)\n    y = np.pad(\n        x,\n        pad_width=((0, 0), (0, 0), (1, 1), (1, 1)),\n        mode=mode,\n    )\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_{}_pad'.format(mode))",
+          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x', 'pads'],\n        outputs=['y'],\n        mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(np.int64)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(\n        x,\n        pads,\n        mode\n    )\n\n    expect(node, inputs=[x, pads], outputs=[y],\n           name='test_{}_pad'.format(mode))",
           "summary": "reflection_and_edge_pad"
         }
       ],
@@ -12321,11 +12449,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x'],\n    outputs=['y'],\n    mode='constant',\n    value=1.2,\n    pads=[0, 0, 1, 3, 0, 0, 2, 4],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.pad(\n    x,\n    pad_width=((0, 0), (0, 0), (1, 2), (3, 4)),\n    mode='constant',\n    constant_values=1.2,\n)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constant_pad')",
+          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x', 'pads', 'value'],\n    outputs=['y'],\n    mode='constant'\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 0, 1, 3, 0, 0, 2, 4]).astype(np.int64)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\ny = pad_impl(\n    x,\n    pads,\n    'constant',\n    1.2\n)\n\nexpect(node, inputs=[x, pads, value], outputs=[y],\n       name='test_constant_pad')",
           "summary": "constant_pad"
         },
         {
-          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x'],\n        outputs=['y'],\n        mode=mode,\n        pads=[0, 0, 1, 1, 0, 0, 1, 1]\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.float32)\n    y = np.pad(\n        x,\n        pad_width=((0, 0), (0, 0), (1, 1), (1, 1)),\n        mode=mode,\n    )\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_{}_pad'.format(mode))",
+          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x', 'pads'],\n        outputs=['y'],\n        mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(np.int64)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(\n        x,\n        pads,\n        mode\n    )\n\n    expect(node, inputs=[x, pads], outputs=[y],\n           name='test_{}_pad'.format(mode))",
           "summary": "reflection_and_edge_pad"
         }
       ],
@@ -12357,6 +12485,83 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Pad",
+    "schema": {
+      "attributes": [
+        {
+          "default": "constant",
+          "description": "Supported modes: `constant`(default), `reflect`, `edge`",
+          "name": "mode",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "category": "Tensor",
+      "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`, \na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = \n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ] \n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output = \n  [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data = \n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ] \n\n  pads = [0, 2, 0, 0]\n\n  mode = 'reflect'\n\n  output = \n  [\n      [\n          [1.0, 1.2, 1.0, 1.2],\n          [2.3, 3.4, 2.3, 3.4],\n          [4.5, 5.7, 4.5, 5.7],\n      ],\n  ]\n\n\nExample 3 (`edge` mode):\n  data = \n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ] \n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output = \n  [\n      [\n          [1.0, 1.0, 1.0, 1.2],\n          [2.3, 2.3, 2.3, 3.4],\n          [4.5, 4.5, 4.5, 5.7],\n      ],\n  ]\n\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x', 'pads', 'value'],\n    outputs=['y'],\n    mode='constant'\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 0, 1, 3, 0, 0, 2, 4]).astype(np.int64)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\ny = pad_impl(\n    x,\n    pads,\n    'constant',\n    1.2\n)\n\nexpect(node, inputs=[x, pads, value], outputs=[y],\n       name='test_constant_pad')",
+          "summary": "constant_pad"
+        },
+        {
+          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x', 'pads'],\n        outputs=['y'],\n        mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(np.int64)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(\n        x,\n        pads,\n        mode\n    )\n\n    expect(node, inputs=[x, pads], outputs=[y],\n           name='test_{}_pad'.format(mode))",
+          "summary": "reflection_and_edge_pad"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of integers indicating the number of padding elements to add or remove (if negative) at the beginning and end of each axis. For 2D input tensor, it is the number of pixels. `pads` should be a 1D tensor of shape [2 * input_rank]. `pads` format should be: [x1_begin, x2_begin,...,x1_end, x2_end,...], where xi_begin is the number of pad values added at the beginning of axis `i` and xi_end, the number of pad values added at the end of axis `i`.",
+          "name": "pads",
+          "type": "tensor(int64)"
+        },
+        {
+          "description": "(Optional) A scalar value to be used if the mode chosen is `constant` (by default it is 0).",
+          "name": "constant_value",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor after padding.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrains input and output to only numeric types.",
           "type_param_str": "T"
         }
       ]
@@ -16412,7 +16617,7 @@
           "type": "int64"
         }
       ],
-      "description": "Given `data`, `updates` and `indices` input tensors of rank r >= 1, write the values provided by `updates` \ninto the first input, `data`, along `axis` dimension of `data` (by default outer-most one as axis=0) at corresponding `indices`. \nFor each entry in `updates`, the target index in `data` is specified by corresponding entry in `indices`\nfor dimension = axis, and index in source for dimension != axis. For instance, in a 2-D tensor case,\ndata[indices[i][j]][j] = updates[i][j] if axis = 0, or data[i][indices[i][j]] = updates[i][j] if axis = 1,\nwhere i and j are loop counters from 0 up to the respective size in `updates` - 1.\n\nExample 1:\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n\nExample 2:\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n",
+      "description": "Given `data`, `updates` and `indices` input tensors of rank r >= 1, write the values provided by `updates` \ninto the first input, `data`, along `axis` dimension of `data` (by default outer-most one as axis=0) at corresponding `indices`. \nFor each entry in `updates`, the target index in `data` is specified by corresponding entry in `indices`\nfor dimension = axis, and index in source for dimension != axis. For instance, in a 2-D tensor case,\ndata[indices[i][j]][j] = updates[i][j] if axis = 0, or data[i][indices[i][j]] = updates[i][j] if axis = 1,\nwhere i and j are loop counters from 0 up to the respective size in `updates` - 1.\nExample 1:\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\nExample 2:\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n",
       "domain": "ai.onnx",
       "examples": [
         {
