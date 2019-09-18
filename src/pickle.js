@@ -10,16 +10,16 @@ pickle.Unpickler = class {
     }
 
     load(function_call, persistent_load) {
-        var i;
-        var obj;
-        var type;
-        var items;
-        var reader = this._reader;
-        var marker = [];
-        var stack = [];
-        var memo = new Map();
+        let i;
+        let obj;
+        let type;
+        let items;
+        let reader = this._reader;
+        let marker = [];
+        let stack = [];
+        let memo = new Map();
         while (reader.position < reader.length) {
-            var opcode = reader.byte();
+            let opcode = reader.byte();
             // console.log(reader.position.toString() + ': ' + opcode.toString());
             switch (opcode) {
                 case pickle.OpCode.PROTO:
@@ -292,18 +292,18 @@ pickle.Unpickler = class {
     }
 
     unescape(token, size) {
-        var length = token.length;
-        var a = new Uint8Array(length);
+        let length = token.length;
+        let a = new Uint8Array(length);
         if (size && size == length) {
-            for (var p = 0; p < size; p++) {
+            for (let p = 0; p < size; p++) {
                 a[p] = token.charCodeAt(p);
             }
             return a;
         }
-        var i = 0;
-        var o = 0;
+        let i = 0;
+        let o = 0;
         while (i < length) {
-            var c = token.charCodeAt(i++);
+            let c = token.charCodeAt(i++);
             if (c !== 0x5C || i >= length) {
                 a[o++] = c;
             }
@@ -321,14 +321,14 @@ pickle.Unpickler = class {
                     case 0x78: // X
                         var xsi = i - 1;
                         var xso = o;
-                        for (var xi = 0; xi < 2; xi++) {
+                        for (let xi = 0; xi < 2; xi++) {
                             if (i >= length) {
                                 i = xsi;
                                 o = xso;
                                 a[o] = 0x5c;
                                 break;
                             }
-                            var xd = token.charCodeAt(i++);
+                            let xd = token.charCodeAt(i++);
                             xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
                             if (xd === -1) {
                                 i = xsi;
@@ -347,16 +347,16 @@ pickle.Unpickler = class {
                         }
                         else {
                             i--;
-                            var osi = i;
-                            var oso = o;
-                            for (var oi = 0; oi < 3; oi++) {
+                            let osi = i;
+                            let oso = o;
+                            for (let oi = 0; oi < 3; oi++) {
                                 if (i >= length) {
                                     i = osi;
                                     o = oso;
                                     a[o] = 0x5c;
                                     break;
                                 }
-                                var od = token.charCodeAt(i++);
+                                let od = token.charCodeAt(i++);
                                 if (od < 48 || od > 57) {
                                     i = osi;
                                     o = oso;
@@ -462,43 +462,43 @@ pickle.Reader = class {
     }
 
     byte() {
-        var value = this._dataView.getUint8(this._position);
+        let value = this._dataView.getUint8(this._position);
         this._position++;
         return value;
     }
 
     bytes(length) {
-        var data = this._buffer.subarray(this._position, this._position + length);
+        let data = this._buffer.subarray(this._position, this._position + length);
         this._position += length;
         return data;
     }
 
     uint16() {
-        var value = this._dataView.getUint16(this._position, true);
+        let value = this._dataView.getUint16(this._position, true);
         this._position += 2;
         return value;
     }
 
     int32() {
-        var value = this._dataView.getInt32(this._position, true);
+        let value = this._dataView.getInt32(this._position, true);
         this._position += 4;
         return value;
     }
 
     uint32() {
-        var value = this._dataView.getUint32(this._position, true);
+        let value = this._dataView.getUint32(this._position, true);
         this._position += 4;
         return value;
     }
 
     float32() {
-        var value = this._dataView.getFloat32(this._position, true);
+        let value = this._dataView.getFloat32(this._position, true);
         this._position += 4;
         return value;
     }
 
     float64() {
-        var value = this._dataView.getFloat64(this._position, false);
+        let value = this._dataView.getFloat64(this._position, false);
         this._position += 8;
         return value;
     }
@@ -508,20 +508,20 @@ pickle.Reader = class {
     }
 
     string(size, encoding) {
-        var data = this.bytes(size);
-        var text = (encoding == 'utf-8') ?
+        let data = this.bytes(size);
+        let text = (encoding == 'utf-8') ?
             pickle.Reader._utf8Decoder.decode(data) :
             pickle.Reader._asciiDecoder.decode(data);
         return text;
     }
 
     line() {
-        var index = this._buffer.indexOf(0x0A, this._position);
+        let index = this._buffer.indexOf(0x0A, this._position);
         if (index == -1) {
             throw new pickle.Error("Could not find end of line.");
         }
-        var size = index - this._position;
-        var text = this.string(size, 'ascii');
+        let size = index - this._position;
+        let text = this.string(size, 'ascii');
         this.seek(1);
         return text;
     }
