@@ -73,7 +73,12 @@
       "category": "Tensor",
       "description": "Concatenates one or more columns of the same item type."
     }
+  },
+  {
+    "name": "CopyTransform",
+    "schema": {
+      "category": "Tensor",
+      "description": "Duplicates columns from the dataset."
+    }
   }
-
-
 ]
