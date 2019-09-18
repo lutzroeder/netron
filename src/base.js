@@ -8,9 +8,9 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
 
 if (!DataView.prototype.getFloat16) {
     DataView.prototype.getFloat16 = function(byteOffset, littleEndian) {
-        var value = this.getUint16(byteOffset, littleEndian);
-        var e = (value & 0x7C00) >> 10;
-        var f = value & 0x03FF;
+        let value = this.getUint16(byteOffset, littleEndian);
+        let e = (value & 0x7C00) >> 10;
+        let f = value & 0x03FF;
         if (e == 0) {
             f = 0.00006103515625 * (f / 1024);
         }
@@ -34,18 +34,18 @@ if (!DataView.prototype.setFloat16) {
     DataView.prototype.setFloat16 = function(byteOffset, value, littleEndian) {
         DataView.__float16_float[0] = value;
         value = DataView.__float16_int[0];
-        var s = (value >>> 16) & 0x8000;
-        var e = (value >>> 23) & 0xff;
-        var f = value & 0x7fffff;
-        var v = s | DataView.__float16_base[e] | (f >> DataView.__float16_shift[e]);
+        let s = (value >>> 16) & 0x8000;
+        let e = (value >>> 23) & 0xff;
+        let f = value & 0x7fffff;
+        let v = s | DataView.__float16_base[e] | (f >> DataView.__float16_shift[e]);
         this.setUint16(byteOffset, v, littleEndian);
     };
     DataView.__float16_float = new Float32Array(1);
     DataView.__float16_int = new Uint32Array(DataView.__float16_float.buffer, 0, DataView.__float16_float.length);
     DataView.__float16_base = new Uint32Array(256);
     DataView.__float16_shift = new Uint32Array(256);
-    for (var i = 0; i < 256; ++i) {
-        var e = i - 127;
+    for (let i = 0; i < 256; ++i) {
+        let e = i - 127;
         if (e < -27) {
             DataView.__float16_base[i] = 0x0000;
             DataView.__float16_shift[i] = 24;
@@ -72,15 +72,15 @@ if (!DataView.prototype.setFloat16) {
 if (!DataView.prototype.getBits) {
     DataView.prototype.getBits = function(offset, bits /*, signed */) {
         offset = offset * bits;
-        var available = (this.byteLength << 3) - offset;
+        let available = (this.byteLength << 3) - offset;
         if (bits > available) {
             throw new RangeError();
         }
-        var value = 0;
-        var index = 0;
+        let value = 0;
+        let index = 0;
         while (index < bits) {
-            var remainder = offset & 7;
-            var size = Math.min(bits - index, 8 - remainder);
+            let remainder = offset & 7;
+            let size = Math.min(bits - index, 8 - remainder);
             value <<= size;
             value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
             offset += size;
