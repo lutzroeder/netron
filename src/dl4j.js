@@ -9,8 +9,8 @@ var long = long || { Long: require('long') };
 dl4j.ModelFactory = class {
 
     match(context) {
-        var identifier = context.identifier.toLowerCase();
-        var extension = identifier.split('.').pop().toLowerCase();
+        let identifier = context.identifier.toLowerCase();
+        let extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'zip' && context.entries.length > 0) {
             if (dl4j.ModelFactory._openContainer(context)) {
                 return true;
@@ -30,7 +30,7 @@ dl4j.ModelFactory = class {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    var message = error && error.message ? error.message : error.toString();
+                    let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     throw new dl4j.Error(message + " in '" + identifier + "'.");
                 }
@@ -38,7 +38,7 @@ dl4j.ModelFactory = class {
         }
         catch (error) {
             host.exception(error, false);
-            var message = error && error.message ? error.message : error.toString();
+            let message = error && error.message ? error.message : error.toString();
             message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
             return Promise.reject(new dl4j.Error(message + " in '" + identifier + "'."));
         }
@@ -49,7 +49,7 @@ dl4j.ModelFactory = class {
         if (configurationEntries.length != 1) {
             return null;
         }
-        var configuration = null;
+        let configuration = null;
         try {
             configuration = new TextDecoder('utf-8').decode(configurationEntries[0].data);
         }
@@ -64,7 +64,7 @@ dl4j.ModelFactory = class {
             return null;
         }
         let coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : 0;
-        var container = {};
+        let container = {};
         container.configuration = configuration;
         container.coefficients = coefficients;
         return container;
@@ -95,11 +95,11 @@ dl4j.Graph = class {
         this._outputs =[];
         this._nodes = [];
 
-        var reader = new dl4j.NDArrayReader(coefficients);
-        var dataType = reader.dataType;
+        let reader = new dl4j.NDArrayReader(coefficients);
+        let dataType = reader.dataType;
 
         if (configuration.networkInputs) {
-            for (var input of configuration.networkInputs) {
+            for (let input of configuration.networkInputs) {
                 this._inputs.push(new dl4j.Parameter(input, true, [
                     new dl4j.Argument(input, null, null)
                 ]));
@@ -107,23 +107,23 @@ dl4j.Graph = class {
         }
 
         if (configuration.networkOutputs) {
-            for (var output of configuration.networkOutputs) {
+            for (let output of configuration.networkOutputs) {
                 this._outputs.push(new dl4j.Parameter(output, true, [
                     new dl4j.Argument(output, null, null)
                 ]));
             }
         }
 
-        var inputs = null;
+        let inputs = null;
 
         // Computation Graph
         if (configuration.vertices) {
-            for (var name in configuration.vertices) {
+            for (let name in configuration.vertices) {
 
-                var vertex = dl4j.Node._object(configuration.vertices[name]);
+                let vertex = dl4j.Node._object(configuration.vertices[name]);
                 inputs = configuration.vertexInputs[name];
-                var variables = [];
-                var layer = null;
+                let variables = [];
+                let layer = null;
 
                 switch (vertex.__type__) {
                     case 'LayerVertex':
@@ -153,8 +153,8 @@ dl4j.Graph = class {
             this._inputs.push(new dl4j.Parameter('input', true, [
                 new dl4j.Argument('input', null, null)
             ]));
-            for (var conf of configuration.confs) {
-                layer = dl4j.Node._object(conf.layer);
+            for (let conf of configuration.confs) {
+                let layer = dl4j.Node._object(conf.layer);
                 this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables));
                 inputs = [ layer.layerName ];
             }
@@ -234,13 +234,13 @@ dl4j.Node = class {
         this._attributes = [];
 
         if (inputs && inputs.length > 0) {
-            var args = inputs.map((input) => new dl4j.Argument(input, null, null));
+            let args = inputs.map((input) => new dl4j.Argument(input, null, null));
             this._inputs.push(new dl4j.Parameter(args.length < 2 ? 'input' : 'inputs', true, args));
         }
 
         if (variables) {
-            for (var variable of variables) {
-                var tensor = null;
+            for (let variable of variables) {
+                let tensor = null;
                 switch (this._operator) {
                     case 'Convolution':
                         switch (variable) {
@@ -297,10 +297,10 @@ dl4j.Node = class {
             ]));
         }
 
-        var attributes = layer;
+        let attributes = layer;
 
         if (layer.activationFn) {
-            var activation = dl4j.Node._object(layer.activationFn);
+            let activation = dl4j.Node._object(layer.activationFn);
             if (activation.__type__ !== 'ActivationIdentity' && activation.__type__ !== 'Identity') {
                 if (activation.__type__.startsWith('Activation')) {
                     activation.__type__ = activation.__type__.substring('Activation'.length);
@@ -316,7 +316,7 @@ dl4j.Node = class {
             }
         }
 
-        for (var key in attributes) {
+        for (let key in attributes) {
             switch (key) {
                 case '__type__':
                 case 'constraints':
@@ -330,7 +330,7 @@ dl4j.Node = class {
         }
 
         if (layer.idropout) {
-            var dropout = dl4j.Node._object(layer.idropout);
+            let dropout = dl4j.Node._object(layer.idropout);
             if (dropout.p !== 1.0) {
                 throw new dl4j.Error("Layer 'idropout' not implemented.");
             }
@@ -346,7 +346,7 @@ dl4j.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -371,10 +371,10 @@ dl4j.Node = class {
     }
 
     static _object(value) {
-        var result = {};
+        let result = {};
         if (value['@class']) {
             result = value;
-            var type = value['@class'].split('.').pop();
+            let type = value['@class'].split('.').pop();
             if (type.endsWith('Layer')) {
                 type = type.substring(0, type.length - 5);
             }
@@ -382,7 +382,7 @@ dl4j.Node = class {
             result.__type__ = type;
         }
         else {
-            var key = Object.keys(value)[0];
+            let key = Object.keys(value)[0];
             result = value[key];
             if (key.length > 0) {
                 key = key[0].toUpperCase() + key.substring(1);
@@ -399,7 +399,7 @@ dl4j.Attribute = class {
         this._name = name;
         this._value = value;
         this._visible = false;
-        var schema = metadata.getAttributeSchema(operator, name);
+        let schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.visible) {
                 this._visible = true;
@@ -501,9 +501,9 @@ dl4j.Metadata = class {
         this._attributeCache = {};
         if (data) {
             if (data) {
-                var items = JSON.parse(data);
+                let items = JSON.parse(data);
                 if (items) {
-                    for (var item of items) {
+                    for (let item of items) {
                         if (item.name && item.schema) {
                             this._map[item.name] = item.schema;
                         }
@@ -518,12 +518,12 @@ dl4j.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -536,9 +536,9 @@ dl4j.Metadata = class {
 dl4j.NDArrayReader = class {
 
     constructor(buffer) {
-        var reader = new dl4j.BinaryReader(buffer);
-        /* var shape = */ dl4j.NDArrayReader._header(reader);
-        var data = dl4j.NDArrayReader._header(reader);
+        let reader = new dl4j.BinaryReader(buffer);
+        /* let shape = */ dl4j.NDArrayReader._header(reader);
+        let data = dl4j.NDArrayReader._header(reader);
         this._dataType = data.type;
     }
 
@@ -547,7 +547,7 @@ dl4j.NDArrayReader = class {
     }
 
     static _header(reader) {
-        var header = {};
+        let header = {};
         header.alloc = reader.string();
         header.length = 0;
         switch (header.alloc) {
@@ -585,14 +585,14 @@ dl4j.BinaryReader = class {
     }
 
     bytes(size) {
-        var data = this._buffer.subarray(this._position, this._position + size);
+        let data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
 
     string() {
-        var size = this._buffer[this._position++] << 8 | this._buffer[this._position++];
-        var buffer = this.bytes(size);
+        let size = this._buffer[this._position++] << 8 | this._buffer[this._position++];
+        let buffer = this.bytes(size);
         return new TextDecoder('ascii').decode(buffer);
     }
 
@@ -604,8 +604,8 @@ dl4j.BinaryReader = class {
     }
 
     int64() {
-        var hi = this.int32();
-        var lo = this.int32();
+        let hi = this.int32();
+        let lo = this.int32();
         return new long.Long(hi, lo, true).toNumber();
     }
 }
