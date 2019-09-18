@@ -9,12 +9,12 @@ var long = long || { Long: require('long') };
 hdf5.File = class {
 
     constructor(buffer) {
-        var reader = new hdf5.Reader(buffer, 0);
+        let reader = new hdf5.Reader(buffer, 0);
         this._globalHeap = new hdf5.GlobalHeap(reader);
         if (!reader.match('\x89HDF\r\n\x1A\n')) {
             throw new hdf5.Error('Not a valid HDF5 file.');
         }
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 0:
             case 1:
@@ -82,17 +82,17 @@ hdf5.Group = class {
 
     group(path) {
         this.decodeGroups();
-        var index = path.indexOf('/');
+        let index = path.indexOf('/');
         if (index != -1) {
-            var childPath = path.substring(index + 1);
-            var subPath = path.substring(0, index);
-            var subGroup = this.group(subPath);
+            let childPath = path.substring(index + 1);
+            let subPath = path.substring(0, index);
+            let subGroup = this.group(subPath);
             if (subGroup != null) {
                 return subGroup.group(childPath);
             }
         }
         else {
-            var group = this._groupMap[path];
+            let group = this._groupMap[path];
             if (group) {
                 return group;
             }
@@ -126,15 +126,15 @@ hdf5.Group = class {
         }
         if (!this._attributes) {
             this._attributes = {};
-            for (var attribute of this._dataObjectHeader.attributes) {
-                var name = attribute.name;
-                var value = attribute.decodeValue(this._globalHeap);
+            for (let attribute of this._dataObjectHeader.attributes) {
+                let name = attribute.name;
+                let value = attribute.decodeValue(this._globalHeap);
                 this._attributes[name] = value;
             }
             this._value = null;
-            var datatype = this._dataObjectHeader.datatype;
-            var dataspace = this._dataObjectHeader.dataspace;
-            var dataLayout = this._dataObjectHeader.dataLayout;
+            let datatype = this._dataObjectHeader.datatype;
+            let dataspace = this._dataObjectHeader.dataspace;
+            let dataLayout = this._dataObjectHeader.dataLayout;
             if (datatype && dataspace && dataLayout) {
                 this._value = new hdf5.Variable(this._reader, this._globalHeap, datatype, dataspace, dataLayout);
             }
@@ -147,12 +147,12 @@ hdf5.Group = class {
             this._groups = [];
             if (this._entry) {
                 if (this._entry.treeAddress || this._entry.heapAddress) {
-                    var heap = new hdf5.Heap(this._reader.move(this._entry.heapAddress));
-                    var tree = new hdf5.Tree(this._reader.move(this._entry.treeAddress));
-                    for (var node of tree.nodes) {
-                        for (var entry of node.entries) {
-                            var name = heap.getString(entry.linkNameOffset);
-                            var group = new hdf5.Group(this._reader, entry, null, this._globalHeap, this._path, name);
+                    let heap = new hdf5.Heap(this._reader.move(this._entry.heapAddress));
+                    let tree = new hdf5.Tree(this._reader.move(this._entry.treeAddress));
+                    for (let node of tree.nodes) {
+                        for (let entry of node.entries) {
+                            let name = heap.getString(entry.linkNameOffset);
+                            let group = new hdf5.Group(this._reader, entry, null, this._globalHeap, this._path, name);
                             this._groups.push(group);
                             this._groupMap[name] = group;
                         }
@@ -161,10 +161,10 @@ hdf5.Group = class {
             }
             else {
                 this.decodeDataObject();
-                for (var link of this._dataObjectHeader.links) {
+                for (let link of this._dataObjectHeader.links) {
                     if (Object.prototype.hasOwnProperty.call(link, 'objectHeaderAddress')) {
-                        var objectHeader = new hdf5.DataObjectHeader(this._reader.move(link.objectHeaderAddress));
-                        var linkGroup = new hdf5.Group(this._reader, null, objectHeader, this._globalHeap, this._path, link.name);
+                        let objectHeader = new hdf5.DataObjectHeader(this._reader.move(link.objectHeaderAddress));
+                        let linkGroup = new hdf5.Group(this._reader, null, objectHeader, this._globalHeap, this._path, link.name);
                         this._groups.push(linkGroup);
                         this._groupMap[name] = linkGroup;
                     }
@@ -193,9 +193,9 @@ hdf5.Variable = class {
 
     get value() {
         if (this._dataLayout.address) {
-            var reader = this._reader.move(this._dataLayout.address);
-            var data = this._dataspace.read(this._datatype, reader);
-            var value = this._dataspace.decode(this._datatype, data, data, this._globalHeap);
+            let reader = this._reader.move(this._dataLayout.address);
+            let data = this._dataspace.read(this._datatype, reader);
+            let value = this._dataspace.decode(this._datatype, data, data, this._globalHeap);
             return value;
         }
         return null;
@@ -203,7 +203,7 @@ hdf5.Variable = class {
 
     get rawData() {
         if (this._dataLayout.address) {
-            var reader = this._reader.move(this._dataLayout.address);
+            let reader = this._reader.move(this._dataLayout.address);
             return reader.bytes(this._dataLayout.size);
         }
         return null;
@@ -226,13 +226,13 @@ hdf5.Reader = class {
     }
 
     int8() {
-        var value = this._dataView.getInt8(this._position + this._offset);
+        let value = this._dataView.getInt8(this._position + this._offset);
         this._offset++;
         return value;
     }
 
     byte() {
-        var value = this._dataView.getUint8(this._position + this._offset);
+        let value = this._dataView.getUint8(this._position + this._offset);
         this._offset++;
         return value;
     }
@@ -242,45 +242,45 @@ hdf5.Reader = class {
     }
 
     bytes(length) {
-        var data = this._buffer.subarray(this._position + this._offset, this._position + this._offset + length);
+        let data = this._buffer.subarray(this._position + this._offset, this._position + this._offset + length);
         this._offset += length;
         return data;
     }
 
     int16() {
-        var value = this._dataView.getInt16(this._position + this._offset, true);
+        let value = this._dataView.getInt16(this._position + this._offset, true);
         this._offset += 2;
         return value;
     }
 
     uint16() {
-        var value = this._dataView.getUint16(this._position + this._offset, true);
+        let value = this._dataView.getUint16(this._position + this._offset, true);
         this._offset += 2;
         return value;
     }
 
     int32() {
-        var value = this._dataView.getInt32(this._position + this._offset, true);
+        let value = this._dataView.getInt32(this._position + this._offset, true);
         this._offset += 4;
         return value;
     }
 
     uint32() {
-        var value = this._dataView.getUint32(this._position + this._offset, true);
+        let value = this._dataView.getUint32(this._position + this._offset, true);
         this._offset += 4;
         return value;
     }
 
     int64() {
-        var lo = this._dataView.getUint32(this._position + this._offset, true);
-        var hi = this._dataView.getUint32(this._position + this._offset + 4, true);
+        let lo = this._dataView.getUint32(this._position + this._offset, true);
+        let hi = this._dataView.getUint32(this._position + this._offset + 4, true);
         this._offset += 8;
         return new long.Long(lo, hi, false).toNumber();
     }
 
     uint64() {
-        var lo = this._dataView.getUint32(this._position + this._offset, true);
-        var hi = this._dataView.getUint32(this._position + this._offset + 4, true);
+        let lo = this._dataView.getUint32(this._position + this._offset, true);
+        let hi = this._dataView.getUint32(this._position + this._offset + 4, true);
         this._offset += 8;
         return new long.Long(lo, hi, true).toNumber();
     }
@@ -295,12 +295,12 @@ hdf5.Reader = class {
     }
 
     float16() {
-        var value = this._dataView.getUint16(this._position + this._offset, true);
+        let value = this._dataView.getUint16(this._position + this._offset, true);
         this._offset += 2;
         // decode float16 value
-        var s = (value & 0x8000) >> 15;
-        var e = (value & 0x7C00) >> 10;
-        var f = value & 0x03FF;
+        let s = (value & 0x8000) >> 15;
+        let e = (value & 0x7C00) >> 10;
+        let f = value & 0x03FF;
         if(e == 0) {
             return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
         }
@@ -311,31 +311,31 @@ hdf5.Reader = class {
     }
 
     float32() {
-        var value = this._dataView.getFloat32(this._position + this._offset, true);
+        let value = this._dataView.getFloat32(this._position + this._offset, true);
         this._offset += 4;
         return value;
     }
 
     float64() {
-        var value = this._dataView.getFloat64(this._position + this._offset, true);
+        let value = this._dataView.getFloat64(this._position + this._offset, true);
         this._offset += 8;
         return value;
     }
 
     string(size, encoding) {
         if (!size || size == -1) {
-            var position = this._position + this._offset;
+            let position = this._position + this._offset;
             while (this._buffer[position] != 0) {
                 position++;
             }
             size = position - this._position + this._offset + 1;
         }
-        var data = this.bytes(size);
+        let data = this.bytes(size);
         return hdf5.Reader.decode(data, encoding);
     }
 
     static decode(data, encoding) {
-        var text = '';
+        let text = '';
         if (encoding == 'utf-8') {
             if (!hdf5.Reader._utf8Decoder) {
                 hdf5.Reader._utf8Decoder = new TextDecoder('utf-8');
@@ -372,7 +372,7 @@ hdf5.Reader = class {
     }
 
     move(position) {
-        var reader = new hdf5.Reader(null);
+        let reader = new hdf5.Reader(null);
         reader._buffer = this._buffer;
         reader._dataView = this._dataView;
         reader._position = position;
@@ -383,7 +383,7 @@ hdf5.Reader = class {
     }
 
     clone() {
-        var reader =  new hdf5.Reader(this._buffer, this._position);
+        let reader =  new hdf5.Reader(this._buffer, this._position);
         reader._buffer = this._buffer;
         reader._dataView = this._dataView;
         reader._position = this._position;
@@ -403,9 +403,9 @@ hdf5.Reader = class {
         if (this._position + this._offset + text.length > this._buffer.length) {
             return false;
         }
-        var offset = this._offset;
-        var buffer = this.bytes(text.length);
-        for (var i = 0; i < text.length; i++) {
+        let offset = this._offset;
+        let buffer = this.bytes(text.length);
+        for (let i = 0; i < text.length; i++) {
             if (text.charCodeAt(i) != buffer[i]) {
                 this._offset = offset;
                 return false;
@@ -428,12 +428,12 @@ hdf5.SymbolTableNode = class {
         if (!reader.match('SNOD')) {
             throw new hdf5.Error("Not a valid 'SNOD' block.");
         }
-        var version = reader.byte();
+        let version = reader.byte();
         if (version == 1) {
             reader.seek(1);
-            var entriesUsed = reader.uint16();
+            let entriesUsed = reader.uint16();
             this.entries = [];
-            for (var i = 0; i < entriesUsed; i++) {
+            for (let i = 0; i < entriesUsed; i++) {
                 this.entries.push(new hdf5.SymbolTableEntry(reader));
             }
         }
@@ -447,7 +447,7 @@ hdf5.SymbolTableEntry = class {
     constructor(reader) {
         this.linkNameOffset = reader.offset();
         this.objectHeaderAddress = reader.offset();
-        var cacheType = reader.uint32();
+        let cacheType = reader.uint32();
         reader.seek(4); // Reserved
         switch (cacheType) {
             case 0:
@@ -470,7 +470,7 @@ hdf5.DataObjectHeader = class {
         this.attributes = [];
         this.links = [];
         this.continuations = [];
-        var version = reader.match('OHDR') ? reader.byte() : reader.byte();
+        let version = reader.match('OHDR') ? reader.byte() : reader.byte();
         switch (version) {
             case 1:
                 this.constructor_v1(reader);
@@ -485,20 +485,20 @@ hdf5.DataObjectHeader = class {
 
     constructor_v1(reader) {
         reader.seek(1);
-        var messageCount = reader.uint16();
+        let messageCount = reader.uint16();
         reader.uint32();
-        var objectHeaderSize = reader.uint32();
+        let objectHeaderSize = reader.uint32();
         reader.align(8);
-        var end = reader.position + objectHeaderSize;
-        for (var i = 0; i < messageCount; i++) {
-            var messageType = reader.uint16();
-            var messageSize = reader.uint16();
-            var messageFlags = reader.byte();
+        let end = reader.position + objectHeaderSize;
+        for (let i = 0; i < messageCount; i++) {
+            let messageType = reader.uint16();
+            let messageSize = reader.uint16();
+            let messageFlags = reader.byte();
             reader.seek(3);
             reader.align(8);
-            var next = this.readMessage(reader, messageType, messageSize, messageFlags);
+            let next = this.readMessage(reader, messageType, messageSize, messageFlags);
             if ((!next || reader.position >= end) && this.continuations.length > 0) {
-                var continuation = this.continuations.shift();
+                let continuation = this.continuations.shift();
                 reader = reader.move(continuation.offset);
                 end = continuation.offset + continuation.length;
             }
@@ -509,7 +509,7 @@ hdf5.DataObjectHeader = class {
     } 
 
     constructor_v2(reader) {
-        var flags = reader.byte();
+        let flags = reader.byte();
         if ((flags & 0x20) != 0) {
             reader.uint32();
             reader.uint32();
@@ -520,13 +520,13 @@ hdf5.DataObjectHeader = class {
             reader.uint16();
             reader.uint16();
         }
-        var size = reader.uint(flags & 0x03);
-        var next = true;
-        var end = reader.position + size;
+        let size = reader.uint(flags & 0x03);
+        let next = true;
+        let end = reader.position + size;
         while (next && reader.position < end) {
-            var messageType = reader.byte();
-            var messageSize = reader.uint16();
-            var messageFlags = reader.byte();
+            let messageType = reader.byte();
+            let messageSize = reader.uint16();
+            let messageFlags = reader.byte();
             if (reader.position < end) {
                 if ((flags & 0x04) != 0) {
                     reader.uint16();
@@ -534,7 +534,7 @@ hdf5.DataObjectHeader = class {
                 next = this.readMessage(reader, messageType, messageSize, messageFlags);
             } 
             if ((!next || reader.position >= end) && this.continuations.length > 0) {
-                var continuation = this.continuations.shift();
+                let continuation = this.continuations.shift();
                 reader = reader.move(continuation.offset);
                 end = continuation.offset + continuation.length;
                 if (!reader.match('OCHK')) {
@@ -609,8 +609,8 @@ hdf5.Message = class {
 hdf5.Datatype = class {
 
     constructor(reader) {
-        var format = reader.byte();
-        var version = format >> 4;
+        let format = reader.byte();
+        let version = format >> 4;
         this._class = format & 0xf;
         switch (version) {
             case 1:
@@ -710,7 +710,7 @@ hdf5.Datatype = class {
             case 9: // variable-length
                 var globalHeapObject = globalHeap.get(data.globalHeapID);
                 if (globalHeapObject != null) {
-                    var characterSet = (this._flags >> 8) & 0x0f; 
+                    let characterSet = (this._flags >> 8) & 0x0f; 
                     switch (characterSet) {
                         case 0:
                             return hdf5.Reader.decode(globalHeapObject.data, 'ascii');
@@ -731,19 +731,19 @@ hdf5.Dataspace = class {
 
     constructor(reader) {
         this._sizes = [];
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 1:
                 this._dimensions = reader.byte();
                 this._flags = reader.byte();
                 reader.seek(1);
                 reader.seek(4);
-                for (var i = 0; i < this._dimensions; i++) {
+                for (let i = 0; i < this._dimensions; i++) {
                     this._sizes.push(reader.length());
                 }
                 if ((this._flags & 0x01) != 0) {
                     this._maxSizes = [];
-                    for (var j = 0; j < this._dimensions; j++) {
+                    for (let j = 0; j < this._dimensions; j++) {
                         this._maxSizes.push(reader.length());
                         if (this._maxSizes[j] != this._sizes[j]) {
                             throw new hdf5.Error('Max size is not supported.');
@@ -758,12 +758,12 @@ hdf5.Dataspace = class {
                 this._dimensions = reader.byte();
                 this._flags = reader.byte();
                 this._type = reader.byte(); // 0 scalar, 1 simple, 2 null
-                for (var k = 0; k < this._dimensions; k++) {
+                for (let k = 0; k < this._dimensions; k++) {
                     this._sizes.push(reader.length());
                 }
                 if ((this._flags & 0x01) != 0) {
                     this._maxSizes = [];
-                    for (var l = 0; l < this._dimensions; l++) {
+                    for (let l = 0; l < this._dimensions; l++) {
                         this._maxSizes.push(reader.length());
                     }
                 }
@@ -786,15 +786,15 @@ hdf5.Dataspace = class {
     }
 
     readArray(datatype, reader, shape, dimension) {
-        var array = [];
-        var size = shape[dimension];
+        let array = [];
+        let size = shape[dimension];
         if (dimension == shape.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 array.push(datatype.read(reader));
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 array.push(this.readArray(datatype, reader, shape, dimension + 1));
             }
         }     
@@ -809,14 +809,14 @@ hdf5.Dataspace = class {
     }
 
     decodeArray(datatype, data, globalHeap, shape, dimension) {
-        var size = shape[dimension];
+        let size = shape[dimension];
         if (dimension == shape.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 data[i] = datatype.decode(data[i], globalHeap);
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 data[j] = this.decodeArray(datatype, data[j], shape, dimension + 1);
             }
         }
@@ -827,7 +827,7 @@ hdf5.Dataspace = class {
 hdf5.LinkInfo = class {
 
     constructor(reader) {
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 0:
                 var flags = reader.byte();
@@ -849,19 +849,19 @@ hdf5.LinkInfo = class {
 hdf5.FillValue = class {
 
     constructor(reader) {
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 2:
                 reader.byte();
                 reader.byte();
                 var valueDefined = reader.byte();
                 if (valueDefined == 1) {
-                    var size = reader.uint32();
+                    let size = reader.uint32();
                     this.data = reader.bytes(size);
                 }
                 break;
             case 3:
-                // var flags = reader.byte();
+                // let flags = reader.byte();
                 // if ((flags & 0x20) != 0) {
                 // }                
                 break;
@@ -874,7 +874,7 @@ hdf5.FillValue = class {
 hdf5.Link = class {
 
     constructor(reader) {
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 1:
                 var flags = reader.byte();
@@ -901,7 +901,7 @@ hdf5.Link = class {
 hdf5.DataLayout = class {
 
     constructor(reader) {
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 3:
                 var layoutClass = reader.byte();
@@ -923,7 +923,7 @@ hdf5.DataLayout = class {
 hdf5.GroupInfo = class {
 
     constructor(reader) {
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 0:
                 var flags = reader.byte();
@@ -945,7 +945,7 @@ hdf5.GroupInfo = class {
 hdf5.Attribute = class {
 
     constructor(reader) {
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 1:
                 this.constructor_v1(reader);
@@ -960,9 +960,9 @@ hdf5.Attribute = class {
 
     constructor_v1(reader) {
         reader.seek(1);
-        var nameSize = reader.uint16();
-        var datatypeSize = reader.uint16();
-        var dataspaceSize = reader.uint16();
+        let nameSize = reader.uint16();
+        let datatypeSize = reader.uint16();
+        let dataspaceSize = reader.uint16();
         this.name = reader.string(nameSize, 'utf-8');
         reader.align(8);
         this._datatype = new hdf5.Datatype(reader.clone());
@@ -976,10 +976,10 @@ hdf5.Attribute = class {
 
     constructor_v3(reader) {
         reader.byte();
-        var nameSize = reader.uint16();
-        var datatypeSize = reader.uint16();
-        var dataspaceSize = reader.uint16();
-        var encoding = reader.byte() == 1 ? 'utf-8' : 'ascii';
+        let nameSize = reader.uint16();
+        let datatypeSize = reader.uint16();
+        let dataspaceSize = reader.uint16();
+        let encoding = reader.byte() == 1 ? 'utf-8' : 'ascii';
         this.name = reader.string(nameSize, encoding);
         this._datatype = new hdf5.Datatype(reader.clone());
         reader.seek(datatypeSize);
@@ -1015,7 +1015,7 @@ hdf5.SymbolTable = class {
 hdf5.AttributeInfo = class {
 
     constructor(reader) {
-        var version = reader.byte();
+        let version = reader.byte();
         switch (version) {
             case 0:
                 var flags = reader.byte();
@@ -1040,21 +1040,21 @@ hdf5.Tree = class {
         if (!reader.match('TREE')) {
             throw new hdf5.Error("Not a valid 'TREE' block.");
         }
-        var type = reader.byte();
-        var level = reader.byte();
-        var entriesUsed = reader.uint16();
+        let type = reader.byte();
+        let level = reader.byte();
+        let entriesUsed = reader.uint16();
         reader.offset();
         reader.offset();
         this.nodes = [];
         if (type == 0) {
-            for (var i = 0; i < entriesUsed; i++) {
+            for (let i = 0; i < entriesUsed; i++) {
                 reader.length();
-                var childPointer = reader.offset();
+                let childPointer = reader.offset();
                 if (level == 0) {
                     this.nodes.push(new hdf5.SymbolTableNode(reader.move(childPointer)));
                 }
                 else {
-                    var tree = new hdf5.Tree(reader.move(childPointer));
+                    let tree = new hdf5.Tree(reader.move(childPointer));
                     this.nodes = this.nodes.concat(tree.nodes);
                 }
             }
@@ -1072,7 +1072,7 @@ hdf5.Heap = class {
         if (!reader.match('HEAP')) {
             throw new hdf5.Error("Not a valid 'HEAP' block.");
         }
-        var version = reader.byte();
+        let version = reader.byte();
         if (version == 0) {
             reader.seek(3);
             this._dataSize = reader.length();
@@ -1086,7 +1086,7 @@ hdf5.Heap = class {
     }
 
     getString(offset) {
-        var reader = this._reader.move(this._dataAddress + offset);
+        let reader = this._reader.move(this._dataAddress + offset);
         return reader.string(-1, 'utf-8');
     }
 };
@@ -1098,7 +1098,7 @@ hdf5.GlobalHeap = class {
     }
 
     getCollection(address) {
-        var globalHeapCollection = this._collections[address];
+        let globalHeapCollection = this._collections[address];
         if (!globalHeapCollection) {
             globalHeapCollection = new hdf5.GlobalHeapCollection(this._reader.move(address));
             this._collections[address] = globalHeapCollection;
@@ -1107,8 +1107,8 @@ hdf5.GlobalHeap = class {
     }
 
     get(globalHeapID) {
-        var globalHeapObject = null;
-        var globalHeapCollection = this.getCollection(globalHeapID.address);
+        let globalHeapObject = null;
+        let globalHeapCollection = this.getCollection(globalHeapID.address);
         if (globalHeapCollection != null) {
             globalHeapObject = globalHeapCollection.getObject(globalHeapID.objectIndex);
         }
@@ -1118,22 +1118,22 @@ hdf5.GlobalHeap = class {
 
 hdf5.GlobalHeapCollection = class {
     constructor(reader) {
-        var startPosition = reader.position;
+        let startPosition = reader.position;
         if (!reader.match('GCOL')) {
             throw new hdf5.Error("Not a valid 'GCOL' block.");
         }
-        var version = reader.byte();
+        let version = reader.byte();
         if (version == 1) {
             reader.seek(3);
             this._objects = {};
-            var size = reader.length();
-            var endPosition = startPosition + size;
+            let size = reader.length();
+            let endPosition = startPosition + size;
             while (reader.position < endPosition) {
-                var index = reader.uint16();
+                let index = reader.uint16();
                 if (index == 0) {
                     break;
                 }
-                var heapObject = new hdf5.GlobalHeapObject(reader);
+                let heapObject = new hdf5.GlobalHeapObject(reader);
                 this._objects[index] = heapObject;
                 reader.align(8);
             }
@@ -1144,7 +1144,7 @@ hdf5.GlobalHeapCollection = class {
     }
 
     getObject(objectIndex) {
-        var globalHeapObject = this._objects[objectIndex];
+        let globalHeapObject = this._objects[objectIndex];
         if (globalHeapObject) {
             return globalHeapObject;
         }
@@ -1157,7 +1157,7 @@ hdf5.GlobalHeapObject = class {
     constructor(reader) {
         reader.uint16();
         reader.seek(4);
-        var size = reader.length();
+        let size = reader.length();
         this.data = reader.bytes(size);
     }
 };
