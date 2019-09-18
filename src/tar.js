@@ -6,7 +6,7 @@ tar.Archive = class {
 
     constructor(buffer) {
         this._entries = [];
-        var reader = new tar.Reader(buffer, 0, buffer.length);
+        let reader = new tar.Reader(buffer, 0, buffer.length);
         while (reader.peek()) {
             this._entries.push(new tar.Entry(reader));
             if (reader.match(512, 0)) {
@@ -23,20 +23,20 @@ tar.Archive = class {
 tar.Entry = class {
 
     constructor(reader) {
-        var position = reader.position;
-        var header = reader.bytes(512);
+        let position = reader.position;
+        let header = reader.bytes(512);
         reader.position = position;
-        var sum = 0;
-        for (var i = 0; i < header.length; i++) {
+        let sum = 0;
+        for (let i = 0; i < header.length; i++) {
             sum += (i >= 148 && i < 156) ? 32 : header[i];
         }
         this._name = reader.string(100);
         reader.string(8); // file mode
         reader.string(8); // owner
         reader.string(8); // group
-        var size = parseInt(reader.string(12).trim(), 8); // size
+        let size = parseInt(reader.string(12).trim(), 8); // size
         reader.string(12); // timestamp
-        var checksum = parseInt(reader.string(8).trim(), 8); // checksum
+        let checksum = parseInt(reader.string(8).trim(), 8); // checksum
         if (isNaN(checksum) || sum != checksum) {
             throw new tar.Error('Invalid tar archive.');
         }
@@ -90,17 +90,17 @@ tar.Reader = class {
         if (this._position + size > this._end) {
             throw new tar.Error('Data not available.');
         }
-        var data = this._buffer.subarray(this._position, this._position + size);
+        let data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
 
     string(size) {
-        var buffer = this.bytes(size);
-        var position = 0;
-        var str = '';
-        for (var i = 0; i < size; i++) {
-            var c = buffer[position++];
+        let buffer = this.bytes(size);
+        let position = 0;
+        let str = '';
+        for (let i = 0; i < size; i++) {
+            let c = buffer[position++];
             if (c == 0) {
                 break;
             }
