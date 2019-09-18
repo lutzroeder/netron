@@ -1440,6 +1440,138 @@
     }
   },
   {
+    "name": "AveragePool",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Wether to use ceil or floor (default) to compute the output shape.",
+          "name": "ceil_mode",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Whether include pad pixels when calculating values for the edges. Default is 0, doesn't count include pad.",
+          "name": "count_include_pad",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "The size of the kernel along each axis.",
+          "name": "kernel_shape",
+          "required": true,
+          "type": "int64[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each spatial axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Stride along each spatial axis. If not present, the stride defaults to 1 along each spatial axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int64[]"
+        }
+      ],
+      "category": "Pool",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n\n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_1d_default')",
+          "summary": "averagepool_1d_default"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [6, 7.5],\n    [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_ceil')",
+          "summary": "averagepool_2d_ceil"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_default')",
+          "summary": "averagepool_2d_default"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_pads')",
+          "summary": "averagepool_2d_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=0)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG', count_include_pad=1)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_pads_count_include_pad')",
+          "summary": "averagepool_2d_pads_count_include_pad"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 7.5, 8, 8.5, 9],\n                [9.5, 10, 10.5, 11, 11.5],\n                [12, 12.5, 13, 13.5, 14],\n                [14.5, 15, 15.5, 16, 16.5],\n                [17, 17.5, 18, 18.5, 19]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_precomputed_pads')",
+          "summary": "averagepool_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[2.5200, 3.6000, 4.8000, 4.0800, 3.2400],\n                [4.5600, 6.4000, 8.4000, 7.0400, 5.5200],\n                [7.2000, 10.0000, 13.0000, 10.8000, 8.4000],\n                [6.9600, 9.6000, 12.4000, 10.2400, 7.9200],\n                [6.1200, 8.4000, 10.8000, 8.8800, 6.8400]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_precomputed_pads_count_include_pad')",
+          "summary": "averagepool_2d_precomputed_pads_count_include_pad"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 3, 3]\npad_shape: [2, 2] -> [1, 1, 1, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[4, 5.5, 7],\n                [11.5, 13, 14.5],\n                [19, 20.5, 22]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_precomputed_same_upper')",
+          "summary": "averagepool_2d_precomputed_same_upper"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[4, 6],\n                [14, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_precomputed_strides')",
+          "summary": "averagepool_2d_precomputed_strides"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
+          "summary": "averagepool_2d_same_lower"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
+          "summary": "averagepool_2d_same_upper"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_strides')",
+          "summary": "averagepool_2d_strides"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_3d_default')",
+          "summary": "averagepool_3d_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes. Floor value of the dimension is used",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "BatchNormalization",
     "schema": {
       "attributes": [
@@ -3487,6 +3619,106 @@
     }
   },
   {
+    "name": "Conv",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "dilation value along each spatial axis of the filter. If not present, the dilation defaults is 1 along each spatial axis.",
+          "name": "dilations",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "description": "number of groups input channels and output channels are divided into.",
+          "name": "group",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "The shape of the convolution kernel. If not present, should be inferred from input W.",
+          "name": "kernel_shape",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each spatial axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Stride along each spatial axis. If not present, the stride defaults is 1 along each spatial axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int64[]"
+        }
+      ],
+      "category": "Layer",
+      "description": "The convolution operator consumes an input tensor and a filter, and\ncomputes the output.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "\nx = np.array([[[[0., 1., 2., 3., 4.],  # (1, 1, 5, 5) input tensor\n                [5., 6., 7., 8., 9.],\n                [10., 11., 12., 13., 14.],\n                [15., 16., 17., 18., 19.],\n                [20., 21., 22., 23., 24.]]]]).astype(np.float32)\nW = np.array([[[[1., 1., 1.],  # (1, 1, 3, 3) tensor for convolution weights\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\n# Convolution with padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n    pads=[1, 1, 1, 1],\n)\ny_with_padding = np.array([[[[12., 21., 27., 33., 24.],  # (1, 1, 5, 5) output tensor\n                             [33., 54., 63., 72., 51.],\n                             [63., 99., 108., 117., 81.],\n                             [93., 144., 153., 162., 111.],\n                             [72., 111., 117., 123., 84.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n       name='test_basic_conv_with_padding')\n\n# Convolution without padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n    pads=[0, 0, 0, 0],\n)\ny_without_padding = np.array([[[[54., 63., 72.],  # (1, 1, 3, 3) output tensor\n                                [99., 108., 117.],\n                                [144., 153., 162.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n       name='test_basic_conv_without_padding')",
+          "summary": "conv"
+        },
+        {
+          "code": "\nx = np.array([[[[0., 1., 2., 3., 4.],  # (1, 1, 7, 5) input tensor\n                [5., 6., 7., 8., 9.],\n                [10., 11., 12., 13., 14.],\n                [15., 16., 17., 18., 19.],\n                [20., 21., 22., 23., 24.],\n                [25., 26., 27., 28., 29.],\n                [30., 31., 32., 33., 34.]]]]).astype(np.float32)\nW = np.array([[[[1., 1., 1.],  # (1, 1, 3, 3) tensor for convolution weights\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\n# Convolution with strides=2 and padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 1, 1, 1],\n    strides=[2, 2],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_padding = np.array([[[[12., 27., 24.],  # (1, 1, 4, 3) output tensor\n                             [63., 108., 81.],\n                             [123., 198., 141.],\n                             [112., 177., 124.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n       name='test_conv_with_strides_padding')\n\n# Convolution with strides=2 and no padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[0, 0, 0, 0],\n    strides=[2, 2],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_without_padding = np.array([[[[54., 72.],  # (1, 1, 3, 2) output tensor\n                                [144., 162.],\n                                [234., 252.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n       name='test_conv_with_strides_no_padding')\n\n# Convolution with strides=2 and padding only along one dimension (the H dimension in NxCxHxW tensor)\nnode_with_asymmetric_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 0, 1, 0],\n    strides=[2, 2],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_asymmetric_padding = np.array([[[[21., 33.],  # (1, 1, 4, 2) output tensor\n                                        [99., 117.],\n                                        [189., 207.],\n                                        [171., 183.]]]]).astype(np.float32)\nexpect(node_with_asymmetric_padding, inputs=[x, W], outputs=[y_with_asymmetric_padding],\n       name='test_conv_with_strides_and_asymmetric_padding')",
+          "summary": "conv_with_strides"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image. Otherwise the size is (N x C x D1 x D2 ... x Dn). Optionally, if dimension denotation is in effect, the operation expects input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The weight tensor that will be used in the convolutions; has size (M x C/group x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the kernel shape will be (M x C/group x k1 x k2 x ... x kn), where (k1 x k2 x ... kn) is the dimension of the kernel. Optionally, if dimension denotation is in effect, the operation expects the weight tensor to arrive with the dimension denotation of [FILTER_OUT_CHANNEL, FILTER_IN_CHANNEL, FILTER_SPATIAL, FILTER_SPATIAL ...]. X.shape[1] == (W.shape[1] * group) == C (assuming zero based indices for the shape array). Or in other words FILTER_IN_CHANNEL should be equal to DATA_CHANNEL. ",
+          "name": "W",
+          "type": "T"
+        },
+        {
+          "description": "Optional 1D bias to be added to the convolution, has size of M.",
+          "name": "B",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "ConvInteger",
     "schema": {
       "attributes": [
@@ -3715,6 +3947,134 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ConvTranspose",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "dilation value along each spatial axis of the filter. If not present, the dilation defaults to 1 along each spatial axis.",
+          "name": "dilations",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "description": "number of groups input channels and output channels are divided into.",
+          "name": "group",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "The shape of the convolution kernel. If not present, should be inferred from input W.",
+          "name": "kernel_shape",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "The zero-padding added to one side of the output. This is also called adjs/adjustment in some frameworks.",
+          "name": "output_padding",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "The shape of the output can be explicitly set which will cause pads values to be auto generated. If output_shape is specified pads values are ignored. See doc for details for equations to generate pads",
+          "name": "output_shape",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each spatial axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Stride along each spatial axis. If not present, the stride defaults to 1 along each spatial axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int64[]"
+        }
+      ],
+      "category": "Layer",
+      "description": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output.\n\nIf the pads parameter is provided the shape of the output is calculated via the following equation:\n\n  output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + ((kernel_shape[i] - 1) * dilations[i] + 1) - pads[start_i] - pads[end_i]\n\noutput_shape can also be explicitly specified in which case pads values are auto generated using these equations:\n\n  total_padding[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + ((kernel_shape[i] - 1) * dilations[i] + 1) - output_shape[i]\n  If (auto_pads != SAME_UPPER): pads[start_i] = total_padding[i]/2; pads[end_i] = total_padding[i] - (total_padding[i]/2)\n  Else: pads[start_i] = total_padding[i] - (total_padding[i]/2); pads[end_i] = (total_padding[i]/2).\n\n    ",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "x = np.array([[[[0., 1., 2.],  # (1, 1, 3, 3)\n                [3., 4., 5.],\n                [6., 7., 8.]]]]).astype(np.float32)\n\nW = np.array([[[[1., 1., 1.],  # (1, 2, 3, 3)\n                [1., 1., 1.],\n                [1., 1., 1.]],\n               [[1., 1., 1.],\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"])\n\ny = np.array([[[[0., 1., 3., 3., 2.],  # (1, 2, 5, 5)\n                [3., 8., 15., 12., 7.],\n                [9., 21., 36., 27., 15.],\n                [9., 20., 33., 24., 13.],\n                [6., 13., 21., 15., 8.]],\n\n               [[0., 1., 3., 3., 2.],\n                [3., 8., 15., 12., 7.],\n                [9., 21., 36., 27., 15.],\n                [9., 20., 33., 24., 13.],\n                [6., 13., 21., 15., 8.]]]]).astype(np.float32)\n\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose')",
+          "summary": "convtranspose"
+        },
+        {
+          "code": "x = np.array([[[0., 1., 2.]]]).astype(np.float32)  # (1, 1, 3)\n\nW = np.array([[[1., 1., 1.],  # (1, 2, 3)\n               [1., 1., 1.]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"])\n\ny = np.array([[[0., 1., 3., 3., 2.],  # (1, 2, 5)\n               [0., 1., 3., 3., 2.]]]).astype(np.float32)\n\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_1d')",
+          "summary": "convtranspose_1d"
+        },
+        {
+          "code": "x = np.array([[[[[0., 1., 2., 3., 4.],  # (1, 1, 3, 4, 5)\n                 [5., 6., 7., 8., 9.],\n                 [10., 11., 12., 13., 14.],\n                 [15., 16., 17., 18., 19.]],\n                [[20., 21., 22., 23., 24.],\n                 [25., 26., 27., 28., 29.],\n                 [30., 31., 32., 33., 34.],\n                 [35., 36., 37., 38., 39.]],\n                [[40., 41., 42., 43., 44.],\n                 [45., 46., 47., 48., 49.],\n                 [50., 51., 52., 53., 54.],\n                 [55., 56., 57., 58., 59.]]]]]).astype(np.float32)\n\nW = np.array([[[[[1., 1., 1.],  # (1, 2, 3, 3, 3)\n                 [1., 1., 1.],\n                 [1., 1., 1.]],\n                [[1., 1., 1.],\n                 [1., 1., 1.],\n                 [1., 1., 1.]],\n                [[1., 1., 1.],\n                 [1., 1., 1.],\n                 [1., 1., 1.]]],\n               [[[1., 1., 1.],\n                 [1., 1., 1.],\n                 [1., 1., 1.]],\n                [[1., 1., 1.],\n                 [1., 1., 1.],\n                 [1., 1., 1.]],\n                [[1., 1., 1.],\n                 [1., 1., 1.],\n                 [1., 1., 1.]]]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"])\n\ny = np.array([[[[[0., 1., 3., 6., 9., 7., 4.],  # (1, 2, 5, 6, 7)\n                 [5., 12., 21., 27., 33., 24., 13.],\n                 [15., 33., 54., 63., 72., 51., 27.],\n                 [30., 63., 99., 108., 117., 81., 42.],\n                 [25., 52., 81., 87., 93., 64., 33.],\n                 [15., 31., 48., 51., 54., 37., 19.]],\n\n                [[20., 42., 66., 72., 78., 54., 28.],\n                 [50., 104., 162., 174., 186., 128., 66.],\n                 [90., 186., 288., 306., 324., 222., 114.],\n                 [120., 246., 378., 396., 414., 282., 144.],\n                 [90., 184., 282., 294., 306., 208., 106.],\n                 [50., 102., 156., 162., 168., 114., 58.]],\n\n                [[60., 123., 189., 198., 207., 141., 72.],\n                 [135., 276., 423., 441., 459., 312., 159.],\n                 [225., 459., 702., 729., 756., 513., 261.],\n                 [270., 549., 837., 864., 891., 603., 306.],\n                 [195., 396., 603., 621., 639., 432., 219.],\n                 [105., 213., 324., 333., 342., 231., 117.]],\n\n                [[60., 122., 186., 192., 198., 134., 68.],\n                 [130., 264., 402., 414., 426., 288., 146.],\n                 [210., 426., 648., 666., 684., 462., 234.],\n                 [240., 486., 738., 756., 774., 522., 264.],\n                 [170., 344., 522., 534., 546., 368., 186.],\n                 [90., 182., 276., 282., 288., 194., 98.]],\n\n                [[40., 81., 123., 126., 129., 87., 44.],\n                 [85., 172., 261., 267., 273., 184., 93.],\n                 [135., 273., 414., 423., 432., 291., 147.],\n                 [150., 303., 459., 468., 477., 321., 162.],\n                 [105., 212., 321., 327., 333., 224., 113.],\n                 [55., 111., 168., 171., 174., 117., 59.]]],\n\n               [[[0., 1., 3., 6., 9., 7., 4.],\n                 [5., 12., 21., 27., 33., 24., 13.],\n                 [15., 33., 54., 63., 72., 51., 27.],\n                 [30., 63., 99., 108., 117., 81., 42.],\n                 [25., 52., 81., 87., 93., 64., 33.],\n                 [15., 31., 48., 51., 54., 37., 19.]],\n\n                [[20., 42., 66., 72., 78., 54., 28.],\n                 [50., 104., 162., 174., 186., 128., 66.],\n                 [90., 186., 288., 306., 324., 222., 114.],\n                 [120., 246., 378., 396., 414., 282., 144.],\n                 [90., 184., 282., 294., 306., 208., 106.],\n                 [50., 102., 156., 162., 168., 114., 58.]],\n\n                [[60., 123., 189., 198., 207., 141., 72.],\n                 [135., 276., 423., 441., 459., 312., 159.],\n                 [225., 459., 702., 729., 756., 513., 261.],\n                 [270., 549., 837., 864., 891., 603., 306.],\n                 [195., 396., 603., 621., 639., 432., 219.],\n                 [105., 213., 324., 333., 342., 231., 117.]],\n\n                [[60., 122., 186., 192., 198., 134., 68.],\n                 [130., 264., 402., 414., 426., 288., 146.],\n                 [210., 426., 648., 666., 684., 462., 234.],\n                 [240., 486., 738., 756., 774., 522., 264.],\n                 [170., 344., 522., 534., 546., 368., 186.],\n                 [90., 182., 276., 282., 288., 194., 98.]],\n\n                [[40., 81., 123., 126., 129., 87., 44.],\n                 [85., 172., 261., 267., 273., 184., 93.],\n                 [135., 273., 414., 423., 432., 291., 147.],\n                 [150., 303., 459., 468., 477., 321., 162.],\n                 [105., 212., 321., 327., 333., 224., 113.],\n                 [55., 111., 168., 171., 174., 117., 59.]]]]]).astype(np.float32)\n\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_3d')",
+          "summary": "convtranspose_3d"
+        },
+        {
+          "code": "x = np.array([[[[0., 1., 2.],  # (1, 1, 3, 3)\n                [3., 4., 5.],\n                [6., 7., 8.]]]]).astype(np.float32)\n\nW = np.array([[[[1., 1., 1.],  # (1, 2, 3, 3)\n                [1., 1., 1.],\n                [1., 1., 1.]],\n               [[1., 1., 1.],\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\ny = np.array([[[[0., 0., 1., 1., 3., 2., 2., 0.],  # (1, 2, 10, 8)\n                [0., 0., 1., 1., 3., 2., 2., 0.],\n                [0., 0., 1., 1., 3., 2., 2., 0.],\n                [3., 3., 7., 4., 9., 5., 5., 0.],\n                [3., 3., 7., 4., 9., 5., 5., 0.],\n                [3., 3., 7., 4., 9., 5., 5., 0.],\n                [6., 6., 13., 7., 15., 8., 8., 0.],\n                [6., 6., 13., 7., 15., 8., 8., 0.],\n                [6., 6., 13., 7., 15., 8., 8., 0.],\n                [0., 0., 0., 0., 0., 0., 0., 0.]],\n\n               [[0., 0., 1., 1., 3., 2., 2., 0.],\n                [0., 0., 1., 1., 3., 2., 2., 0.],\n                [0., 0., 1., 1., 3., 2., 2., 0.],\n                [3., 3., 7., 4., 9., 5., 5., 0.],\n                [3., 3., 7., 4., 9., 5., 5., 0.],\n                [3., 3., 7., 4., 9., 5., 5., 0.],\n                [6., 6., 13., 7., 15., 8., 8., 0.],\n                [6., 6., 13., 7., 15., 8., 8., 0.],\n                [6., 6., 13., 7., 15., 8., 8., 0.],\n                [0., 0., 0., 0., 0., 0., 0., 0.]]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"],\n                             strides=[3, 2],\n                             output_shape=[10, 8])\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_output_shape')\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"],\n                             strides=[3, 2],\n                             output_padding=[1, 1])\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_pad')\n\nnode = onnx.helper.make_node(\n    'ConvTranspose', ['X', 'W'], ['Y'],\n    name='test',\n    strides=[3, 2],\n    output_shape=[10, 8],\n    kernel_shape=[3, 3],\n    output_padding=[1, 1]\n)\nexpect(node, inputs=[x, W], outputs=[y],\n       name='test_convtranspose_kernel_shape')",
+          "summary": "convtranspose_attributes"
+        },
+        {
+          "code": "x = np.array([[[[3., 8., 1.],  # (1, 1, 3, 3)\n                [9., 5., 7.],\n                [3., 2., 6.]]]]).astype(np.float32)\nW = np.array([[[[7., 2.],  # (1, 1, 2, 2)\n                [1., 9.]]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"], dilations=[2, 2])\n\ny = np.array([[[[21., 56., 13., 16., 2.],  # [1, 1, 5, 5]\n                [63., 35., 67., 10., 14.],\n                [24., 22., 76., 76., 21.],\n                [9., 5., 88., 45., 63.],\n                [3., 2., 33., 18., 54.]]]]).astype(np.float32)\n\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_dilations')",
+          "summary": "convtranspose_dilations"
+        },
+        {
+          "code": "x = np.array([[[[0., 1., 2.],  # (1, 1, 3, 3)\n                [3., 4., 5.],\n                [6., 7., 8.]]]]).astype(np.float32)\n\nW = np.array([[[[1., 1., 1.],  # (1, 2, 3, 3)\n                [1., 1., 1.],\n                [1., 1., 1.]],\n               [[1., 1., 1.],\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\"ConvTranspose\", [\"X\", \"W\"], [\"Y\"],\n                             strides=[3, 2],\n                             pads=[1, 2, 1, 2])\n\ny = np.array([[[[1., 1., 3.],  # (1, 2, 7, 3)\n                [1., 1., 3.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [13., 7., 15.],\n                [13., 7., 15.]],\n\n               [[1., 1., 3.],\n                [1., 1., 3.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [7., 4., 9.],\n                [13., 7., 15.],\n                [13., 7., 15.]]]]).astype(np.float32)\n\nexpect(node, inputs=[x, W], outputs=[y], name='test_convtranspose_pads')",
+          "summary": "convtranspose_pads"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image. Otherwise the size is (N x C x D1 x D2 ... x Dn)",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The weight tensor that will be used in the convolutions; has size (C x M/group x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the weight shape will be (C x M/group x k1 x k2 x ... x kn), where (k1 x k2 x ... x kn) is the dimension of the kernel. The number of channels in the output should be equal to W.shape[1] * group (assuming zero based indices of the shape array)",
+          "name": "W",
+          "type": "T"
+        },
+        {
+          "description": "Optional 1D bias to be added to the convolution, has size of M.",
+          "name": "B",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, pad lengths and group count. The number of channels in the output should be equal to W.shape[1] * group (assuming zero based indices of the shape array)",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
       "support_level": "common",
       "type_constraints": [
         {
@@ -9738,6 +10098,79 @@
     }
   },
   {
+    "name": "LpPool",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "The size of the kernel along each axis.",
+          "name": "kernel_shape",
+          "required": true,
+          "type": "int64[]"
+        },
+        {
+          "default": 2,
+          "description": "p value of the Lp norm used to pool over the input data.",
+          "name": "p",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each spatial axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Stride along each spatial axis. If not present, the stride defaults to 1 along each spatial axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int64[]"
+        }
+      ],
+      "category": "Pool",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor from Lp pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "MatMul",
     "schema": {
       "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html\n",
@@ -10480,6 +10913,161 @@
     }
   },
   {
+    "name": "MaxPool",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Wether to use ceil or floor (default) to compute the output shape.",
+          "name": "ceil_mode",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Dilation value along each spatial axis of filter. If not present, the dilation defaults to 1 along each spatial axis.",
+          "name": "dilations",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "The size of the kernel along each axis.",
+          "name": "kernel_shape",
+          "required": true,
+          "type": "int64[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each spatial axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "The storage order of the tensor. 0 is row major, and 1 is column major.",
+          "name": "storage_order",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Stride along each spatial axis. If not present, the stride defaults to 1 along each spatial axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int64[]"
+        }
+      ],
+      "category": "Pool",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n\n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
+          "summary": "maxpool_1d_default"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_ceil')",
+          "summary": "maxpool_2d_ceil"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
+          "summary": "maxpool_2d_default"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4],\n    [5, 6, 7, 8],\n    [9, 10, 11, 12],\n    [13, 14, 15, 16],\n]]]).astype(np.float32)\ny = np.array([[[\n    [11, 12],\n    [15, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_dilations')",
+          "summary": "maxpool_2d_dilations"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "summary": "maxpool_2d_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[\n    [13, 14, 15, 15, 15],\n    [18, 19, 20, 20, 20],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_pads')",
+          "summary": "maxpool_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 3, 3]\npad_shape: [2, 2] -> [1, 1, 1, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9, 10],\n                [17, 19, 20],\n                [22, 24, 25]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_same_upper')",
+          "summary": "maxpool_2d_precomputed_same_upper"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9],\n                [17, 19]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_strides')",
+          "summary": "maxpool_2d_precomputed_strides"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
+          "summary": "maxpool_2d_same_lower"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
+          "summary": "maxpool_2d_same_upper"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
+          "summary": "maxpool_2d_strides"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
+          "summary": "maxpool_3d_default"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y', 'z'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[\n    [13, 14, 15, 15, 15],\n    [18, 19, 20, 20, 20],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25]]]]).astype(np.float32)\nz = np.array([[[\n    [12, 13, 14, 14, 14],\n    [17, 18, 19, 19, 19],\n    [22, 23, 24, 24, 24],\n    [22, 23, 24, 24, 24],\n    [22, 23, 24, 24, 24]]]]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y, z], name='test_maxpool_with_argmax_2d_precomputed_pads')",
+          "summary": "maxpool_with_argmax_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y', 'z'],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n    storage_order=1\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9],\n                [17, 19]]]]).astype(np.float32)\nz = np.array([[[[6, 16],\n                [8, 18]]]]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y, z], name='test_maxpool_with_argmax_2d_precomputed_strides')",
+          "summary": "maxpool_with_argmax_2d_precomputed_strides"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes. Floor value of the dimension is used",
+          "name": "Y",
+          "type": "T"
+        },
+        {
+          "description": "Indices tensor from max pooling across the input tensor. The dimensions of indices are the same as output tensor. The values in indices of are the indices of the selected values during pooling. The indices are computed as flatten 1-D tensor, and the indices do not consider padding. So the values in indices are in [0, N x C x D1 x ... x Dn).",
+          "name": "Indices",
+          "option": "optional",
+          "type": "I"
+        }
+      ],
+      "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain index tensor to int64",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
     "name": "MaxRoiPool",
     "schema": {
       "attributes": [
@@ -10603,6 +11191,92 @@
         }
       ],
       "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain index tensor to int64",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
+    "name": "MaxUnpool",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The size of the kernel along each axis.",
+          "name": "kernel_shape",
+          "required": true,
+          "type": "int64[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each spatial axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Stride along each spatial axis. If not present, the stride defaults to 1 along each spatial axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int64[]"
+        }
+      ],
+      "description": "MaxUnpool essentially computes the partial inverse of the MaxPool op.\n The input information to this op is typically the the output information from a MaxPool op. The first\n input tensor X is the tensor that needs to be unpooled, which is typically the pooled tensor (first output)\n from MaxPool. The second input tensor, I, contains the indices to the (locally maximal) elements corrsponding\n to the elements in the first input tensor X. Input tensor I is typically the second output of the MaxPool op.\n The third (optional) input is a tensor that specifies the output size of the unpooling operation.\n\nMaxUnpool is intended to do 'partial' inverse of the MaxPool op. 'Partial' because all the non-maximal\n values from the original input to MaxPool are set to zero in the output of the MaxUnpool op. Pooling\n the result of an unpooling operation should give back the original input to the unpooling op.\n\nMaxUnpool can produce the same output size for several input sizes, which makes unpooling op ambiguous.\n The third input argument, output_size, is meant to disambiguate the op and produce output tensor of\n known/predictable size.\n\nIn addition to the inputs, MaxUnpool takes three attributes, namely kernel_shape, strides, and pads,\n which define the exact unpooling op. The attributes typically have the same values as the corrsponding\n pooling op that the unpooling op is trying to invert.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'MaxUnpool',\n    inputs=['xT', 'xI', 'output_shape'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nxT = np.array([[[[5, 6],\n                 [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[5, 7],\n                 [13, 15]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array([[[[0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0]]]], dtype=np.float32)\nexpect(node, inputs=[xT, xI, output_shape], outputs=[y], name='test_maxunpool_export_with_output_shape')",
+          "summary": "with_output_shape"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'MaxUnpool',\n    inputs=['xT', 'xI'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nxT = np.array([[[[1, 2],\n                 [3, 4]]]], dtype=np.float32)\nxI = np.array([[[[5, 7],\n                 [13, 15]]]], dtype=np.int64)\ny = np.array([[[[0, 0, 0, 0],\n                [0, 1, 0, 2],\n                [0, 0, 0, 0],\n                [0, 3, 0, 4]]]], dtype=np.float32)\nexpect(node, inputs=[xT, xI], outputs=[y], name='test_maxunpool_export_without_output_shape')",
+          "summary": "without_output_shape"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor that has to be unpooled. This tensor is typically the first output of the MaxPool op.Dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non-image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "X",
+          "type": "T1"
+        },
+        {
+          "description": "Input data tensor containing the indices corresponding to elements in the first input tensor X.This tensor is typically the second output of the MaxPool op.Dimensions must be the same as input tensor X. The indices are linear, i.e. computed considering the tensor as flattened 1-D tensor, assuming row-major storage. Also, the linear indices should not consider padding. So the values in indices are in the range [0, N x C x D1 x ... x Dn).",
+          "name": "I",
+          "type": "T2"
+        },
+        {
+          "description": "The shape of the output can be explicitly set which will cause pads values to be auto generated. If 'output_shape' is specified, 'pads' values are ignored.",
+          "name": "output_shape",
+          "option": "optional",
+          "type": "T2"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor that contains the result of the unpooling.",
+          "name": "output",
+          "type": "T1"
+        }
+      ],
+      "since_version": 11,
       "support_level": "common",
       "type_constraints": [
         {
