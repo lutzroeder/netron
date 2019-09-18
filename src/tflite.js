@@ -9,13 +9,13 @@ var long = long || { Long: require('long') };
 tflite.ModelFactory = class {
 
     match(context) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
+        let extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'tflite' || extension == 'lite') {
             return true;
         }
         if (extension == 'tfl' || extension == 'bin') {
-            var buffer = context.buffer;
-            var signature = [ 0x54, 0x46, 0x4c, 0x33 ]; // TFL3
+            let buffer = context.buffer;
+            let signature = [ 0x54, 0x46, 0x4c, 0x33 ]; // TFL3
             if (buffer && buffer.length > 8 && signature.every((x, i) => x == buffer[i + 4])) {
                 return true;
             }
@@ -25,21 +25,21 @@ tflite.ModelFactory = class {
 
     open(context, host) {
         return host.require('./tflite-schema').then((tflite_schema) => {
-            var identifier = context.identifier;
-            var model = null;
+            let identifier = context.identifier;
+            let model = null;
             try {
-                var buffer = context.buffer;
-                var byteBuffer = new flatbuffers.ByteBuffer(buffer);
+                let buffer = context.buffer;
+                let byteBuffer = new flatbuffers.ByteBuffer(buffer);
                 tflite.schema = tflite_schema;
                 if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer)) {
-                    var signature = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    let signature = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
                     throw new tflite.Error("File format is not tflite.Model (" + signature + ").");
                 }
                 model = tflite.schema.Model.getRootAsModel(byteBuffer);
             }
             catch (error) {
                 host.exception(error, false);
-                var message = error && error.message ? error.message : error.toString();
+                let message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 throw new tflite.Error(message + " in '" + identifier + "'.");
             }
@@ -49,7 +49,7 @@ tflite.ModelFactory = class {
                     return new tflite.Model(metadata, model);
                 }
                 catch (error) {
-                    var message = error && error.message ? error.message : error.toString();
+                    let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     throw new new tflite.Error(message + " in '" + identifier + "'.");
                 }
@@ -64,25 +64,25 @@ tflite.Model = class {
         this._graphs = [];
         this._format = 'TensorFlow Lite v' + model.version().toString();
         this._description = model.description() || '';
-        var operatorCodeList = [];
-        var builtinOperatorMap = {};
-        for (var key of Object.keys(tflite.schema.BuiltinOperator)) {
-            var upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
-            var builtinOperatorIndex = tflite.schema.BuiltinOperator[key]; 
+        let operatorCodeList = [];
+        let builtinOperatorMap = {};
+        for (let key of Object.keys(tflite.schema.BuiltinOperator)) {
+            let upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
+            let builtinOperatorIndex = tflite.schema.BuiltinOperator[key]; 
             builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
                 return (s.length < 1 || upperCase.has(s)) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
             }).join('');
         }
-        for (var operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {
-            var operatorCode = model.operatorCodes(operatorIndex);
-            var builtinCode = operatorCode.builtinCode();
+        for (let operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {
+            let operatorCode = model.operatorCodes(operatorIndex);
+            let builtinCode = operatorCode.builtinCode();
             operatorCodeList.push(builtinCode === tflite.schema.BuiltinOperator.CUSTOM ?
                 { name: operatorCode.customCode(), custom: true } :
                 { name: builtinOperatorMap[builtinCode] });
         }
-        var subgraphsLength = model.subgraphsLength();
-        for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
-            var name = (subgraphsLength > 1) ? subgraph.toString() : '';
+        let subgraphsLength = model.subgraphsLength();
+        for (let subgraph = 0; subgraph < subgraphsLength; subgraph++) {
+            let name = (subgraphsLength > 1) ? subgraph.toString() : '';
             this._graphs.push(new tflite.Graph(metadata, model.subgraphs(subgraph), name, operatorCodeList, model));
         }
     }
@@ -108,30 +108,30 @@ tflite.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        var args = [];
-        var names = [];
-        for (var i = 0; i < graph.tensorsLength(); i++) {
-            var tensor = graph.tensors(i);
-            var initializer = null;
-            var buffer = model.buffers(tensor.buffer());
+        let args = [];
+        let names = [];
+        for (let i = 0; i < graph.tensorsLength(); i++) {
+            let tensor = graph.tensors(i);
+            let initializer = null;
+            let buffer = model.buffers(tensor.buffer());
             if (buffer.dataLength() > 0) {
                 initializer = new tflite.Tensor(tensor, buffer);
             }
             args.push(new tflite.Argument(tensor, i, initializer));
             names.push(tensor.name());
         }
-        for (var j = 0; j < this._graph.operatorsLength(); j++) {
-            var node = this._graph.operators(j);
-            var opcodeIndex = node.opcodeIndex();
-            var operator = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : { name: '(' + opcodeIndex.toString() + ')' };
+        for (let j = 0; j < this._graph.operatorsLength(); j++) {
+            let node = this._graph.operators(j);
+            let opcodeIndex = node.opcodeIndex();
+            let operator = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : { name: '(' + opcodeIndex.toString() + ')' };
             this._nodes.push(new tflite.Node(metadata, node, operator, j.toString(), args));
         }
-        for (var k = 0; k < graph.inputsLength(); k++) {
-            var inputIndex = graph.inputs(k);
+        for (let k = 0; k < graph.inputsLength(); k++) {
+            let inputIndex = graph.inputs(k);
             this._inputs.push(new tflite.Parameter(names[inputIndex], true, [ args[inputIndex] ]));
         }
-        for (var l = 0; l < graph.outputsLength(); l++) {
-            var outputIndex = graph.outputs(l);
+        for (let l = 0; l < graph.outputsLength(); l++) {
+            let outputIndex = graph.outputs(l);
             this._outputs.push(new tflite.Parameter(names[outputIndex], true, [ args[outputIndex] ]));
         }
     }
@@ -166,19 +166,19 @@ tflite.Node = class {
         this._inputs = [];
         this._outputs = [];
         if (node) {
-            var schema = this._metadata.getSchema(this.operator);
-            var inputs = [];
-            for (var i = 0; i < node.inputsLength(); i++) {
+            let schema = this._metadata.getSchema(this.operator);
+            let inputs = [];
+            for (let i = 0; i < node.inputsLength(); i++) {
                 inputs.push(node.inputs(i));
             }
-            var inputIndex = 0;
+            let inputIndex = 0;
             while (inputIndex < inputs.length) {
-                var count = 1;
-                var inputName = null;
-                var inputVisible = true;
-                var inputConnections = [];
+                let count = 1;
+                let inputName = null;
+                let inputVisible = true;
+                let inputConnections = [];
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
-                    var input = schema.inputs[inputIndex];
+                    let input = schema.inputs[inputIndex];
                     inputName = input.name;
                     if (input.option == 'variadic') {
                         count = inputs.length - inputIndex;
@@ -187,8 +187,8 @@ tflite.Node = class {
                         inputVisible = false;
                     }
                 }
-                var inputArray = inputs.slice(inputIndex, inputIndex + count);
-                for (var j = 0; j < inputArray.length; j++) {
+                let inputArray = inputs.slice(inputIndex, inputIndex + count);
+                for (let j = 0; j < inputArray.length; j++) {
                     if (inputArray[j] != -1) {
                         inputConnections.push(args[inputArray[j]]);
                     }
@@ -198,12 +198,12 @@ tflite.Node = class {
                 this._inputs.push(new tflite.Parameter(inputName, inputVisible, inputConnections));
             }
             this._outputs = [];
-            for (var k = 0; k < node.outputsLength(); k++) {
-                var outputIndex = node.outputs(k);
-                var argument = args[outputIndex];
-                var outputName = i.toString();
+            for (let k = 0; k < node.outputsLength(); k++) {
+                let outputIndex = node.outputs(k);
+                let argument = args[outputIndex];
+                let outputName = k.toString();
                 if (schema && schema.outputs && k < schema.outputs.length) {
-                    var output = schema.outputs[k];
+                    let output = schema.outputs[k];
                     if (output && (!output.option || output.opcodeIndex != 'variadic') && output.name) {
                         outputName = output.name;
                     }
@@ -212,34 +212,34 @@ tflite.Node = class {
             }
             this._attributes = [];
             if (operator.custom) {
-                var custom = [];
-                for (var m = 0; m < node.customOptionsLength(); m++) {
+                let custom = [];
+                for (let m = 0; m < node.customOptionsLength(); m++) {
                     custom.push(node.customOptions(m));
                 }
                 this._attributes.push(new tflite.Attribute(this._metadata, this.operator, 'custom', custom));
             }
-            var optionsTypeName = this.operator + 'Options';
+            let optionsTypeName = this.operator + 'Options';
             switch (this.operator) {
                 case 'MaxPool2D':
                 case 'AveragePool2D':
                     optionsTypeName = 'Pool2DOptions';
                     break;
             }
-            var optionsType = tflite.Node._getType(optionsTypeName);
+            let optionsType = tflite.Node._getType(optionsTypeName);
             if (typeof optionsType === 'function') {
-                var options = Reflect.construct(optionsType, []);
+                let options = Reflect.construct(optionsType, []);
                 options = node.builtinOptions(options);
                 if (options) {
-                    var attributeName;
-                    var attributeNames = [];
-                    var attributeNamesMap = {};
+                    let attributeName;
+                    let attributeNames = [];
+                    let attributeNamesMap = {};
                     for (attributeName of Object.keys(Object.getPrototypeOf(options))) {
                         if (attributeName != '__init') {
                             attributeNames.push(attributeName);
                         }
                         attributeNamesMap[attributeName] = true;
                     }
-                    var attributeArrayNamesMap = {}; 
+                    let attributeArrayNamesMap = {}; 
                     for (attributeName of Object.keys(attributeNamesMap)) {
                         if (attributeNamesMap[attributeName + 'Array'] && attributeNamesMap[attributeName + 'Length']) {
                             attributeArrayNamesMap[attributeName] = true;
@@ -248,12 +248,12 @@ tflite.Node = class {
                     }
                     for (attributeName of attributeNames) {
                         if (options[attributeName] && typeof options[attributeName] == 'function') {
-                            var value = null;
+                            let value = null;
                             if (attributeArrayNamesMap[attributeName]) {
-                                var array = [];
-                                var length = options[attributeName + 'Length']();
-                                var a = options[attributeName + 'Array']();
-                                for (var l = 0; l < length; l++) {
+                                let array = [];
+                                let length = options[attributeName + 'Length']();
+                                let a = options[attributeName + 'Array']();
+                                for (let l = 0; l < length; l++) {
                                     array.push(a[l]);
                                 }
                                 value = array;
@@ -261,11 +261,11 @@ tflite.Node = class {
                             else {
                                 value = options[attributeName]();
                             }
-                            var attribute = new tflite.Attribute(this._metadata, this.operator, attributeName, value);
+                            let attribute = new tflite.Attribute(this._metadata, this.operator, attributeName, value);
                             if (attribute.name == 'fused_activation_function') {
                                 value = attribute.value;
                                 if (attribute.value != 'NONE') {
-                                    var activationFunctionMap = { 'RELU': 'Relu', 'RELU_N1_TO_1': "ReluN1To1", "RELU6": "Relu6", "TANH": "Tanh", "SIGN_BIT": "SignBit" };
+                                    let activationFunctionMap = { 'RELU': 'Relu', 'RELU_N1_TO_1': "ReluN1To1", "RELU6": "Relu6", "TANH": "Tanh", "SIGN_BIT": "SignBit" };
                                     if (activationFunctionMap[value]) {
                                         value = activationFunctionMap[value];
                                     }
@@ -305,7 +305,7 @@ tflite.Node = class {
         if (this._operator.custom) {
             return 'custom';
         }
-        var schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -326,10 +326,10 @@ tflite.Node = class {
     }
 
     static _getType(name) {
-        var list = name.split('.');
-        var type = tflite.schema;
+        let list = name.split('.');
+        let type = tflite.schema;
         while (list.length > 0) {
-            var item = list.shift();
+            let item = list.shift();
             type = type[item];
             if (!type) {
                 return null;
@@ -348,12 +348,12 @@ tflite.Attribute = class {
         this._type = null;
         this._value = value;
         this._name = '';
-        var lower = name.toLowerCase();
-        for (var i = 0; i < name.length; i++) {
+        let lower = name.toLowerCase();
+        for (let i = 0; i < name.length; i++) {
             this._name += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
         }
 
-        var schema = metadata.getAttributeSchema(operator, this._name);
+        let schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -362,13 +362,13 @@ tflite.Attribute = class {
                 this._value = new tflite.TensorShape(value);
             }
             else if (this._type && tflite.schema) {
-                var type = tflite.schema[this._type];
+                let type = tflite.schema[this._type];
                 if (type) {
                     tflite.Attribute._reverseMap = tflite.Attribute._reverseMap || {};
-                    var reverse = tflite.Attribute._reverseMap[this._type];
+                    let reverse = tflite.Attribute._reverseMap[this._type];
                     if (!reverse) {
                         reverse = {};
-                        for (var key of Object.keys(type)) {
+                        for (let key of Object.keys(type)) {
                             reverse[type[key.toString()]] = key;
                         }
                         tflite.Attribute._reverseMap[this._type] = reverse;
@@ -443,11 +443,11 @@ tflite.Argument = class {
         this._id = tensor.name() || index.toString();
         this._type = initializer ? null : new tflite.TensorType(tensor);
         this._initializer = initializer;
-        var quantization = tensor.quantization();
+        let quantization = tensor.quantization();
         if (quantization) {
-            var value = 'q';
-            var scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
-            var zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
+            let value = 'q';
+            let scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
+            let zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
             if (scale != 0 || zeroPoint != 0) {
                 value = scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
             }
@@ -507,7 +507,7 @@ tflite.Tensor = class {
     }
 
     get value() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return null;
         }
@@ -516,17 +516,17 @@ tflite.Tensor = class {
     }
 
     toString() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        var value = this._decode(context, 0);
+        let value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        var context = {};
+        let context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -541,19 +541,19 @@ tflite.Tensor = class {
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
 
         if (this._type.dataType == 'string') {
-            var utf8Decoder = new TextDecoder('utf-8');
-            var offset = 0;
-            var count = context.data.getInt32(0, true);
+            let utf8Decoder = new TextDecoder('utf-8');
+            let offset = 0;
+            let count = context.data.getInt32(0, true);
             offset += 4;
-            var offsetTable = [];
-            for (var j = 0; j < count; j++) {
+            let offsetTable = [];
+            for (let j = 0; j < count; j++) {
                 offsetTable.push(context.data.getInt32(offset, true));
                 offset += 4;
             }
             offsetTable.push(this._data.length);
-            var stringTable = [];
-            for (var k = 0; k < count; k++) {
-                var textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
+            let stringTable = [];
+            for (let k = 0; k < count; k++) {
+                let textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
                 if (utf8Decoder) {
                     stringTable.push(utf8Decoder.decode(textArray));
                 }
@@ -567,14 +567,14 @@ tflite.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var shape = context.shape;
+        let shape = context.shape;
         if (shape.length == 0) {
             shape = [ 1 ];
         }
-        var size = shape[dimension];
-        var results = [];
+        let size = shape[dimension];
+        let results = [];
         if (dimension == shape.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -620,7 +620,7 @@ tflite.Tensor = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -640,15 +640,15 @@ tflite.TensorType = class {
     constructor(tensor) {
         if (!tflite.TensorType._tensorTypeMap) {
             tflite.TensorType._tensorTypeMap = tflite.TensorType._tensorTypeMap || {};
-            for (var key of Object.keys(tflite.schema.TensorType)) {
+            for (let key of Object.keys(tflite.schema.TensorType)) {
                 tflite.TensorType._tensorTypeMap[tflite.schema.TensorType[key].toString()] = key.toLowerCase();
             }
         }
         this._dataType = tflite.TensorType._tensorTypeMap[tensor.type().toString()] || '?';
-        var dimensions = [];
-        var shapeLength = tensor.shapeLength();
+        let dimensions = [];
+        let shapeLength = tensor.shapeLength();
         if (shapeLength > 0) {
-            for (var i = 0; i < shapeLength; i++) {
+            for (let i = 0; i < shapeLength; i++) {
                 dimensions.push(tensor.shape(i));
             }
         }
@@ -704,9 +704,9 @@ tflite.Metadata = class {
     constructor(data) {
         this._map = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -720,19 +720,19 @@ tflite.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var schema = this.getSchema(operator);
+        let schema = this.getSchema(operator);
         if (schema) {
-            var attributeMap = schema.attributeMap;
+            let attributeMap = schema.attributeMap;
             if (!attributeMap) {
                 attributeMap = {};
                 if (schema.attributes) {
-                    for (var attribute of schema.attributes) {
+                    for (let attribute of schema.attributes) {
                         attributeMap[attribute.name] = attribute;
                     }
                 }
                 schema.attributeMap = attributeMap;
             }
-            var attributeSchema = attributeMap[name];
+            let attributeSchema = attributeMap[name];
             if (attributeSchema) {
                 return attributeSchema; 
             }
