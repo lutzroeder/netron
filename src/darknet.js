@@ -7,7 +7,7 @@ var base = base || require('./base');
 darknet.ModelFactory = class {
 
     match(context) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
+        let extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'cfg') {
             return true;
         }
@@ -16,14 +16,14 @@ darknet.ModelFactory = class {
 
     open(context, host) {
         return darknet.Metadata.open(host).then((metadata) => {
-            var identifier = context.identifier;
+            let identifier = context.identifier;
             try {
-                var reader = new darknet.CfgReader(context.text);
-                var cfg = reader.read();
+                let reader = new darknet.CfgReader(context.text);
+                let cfg = reader.read();
                 return new darknet.Model(metadata, cfg);
             }
             catch (error) {
-                var message = error && error.message ? error.message : error.toString();
+                let message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 throw new darknet.Error(message + " in '" + identifier + "'.");
             }
@@ -58,7 +58,7 @@ darknet.Graph = class {
             throw new darknet.Error('Config file has no sections.');
         }
 
-        var net = cfg.shift();
+        let net = cfg.shift();
         if (net.__type__ !== 'net' && net.__type__ !== 'network') {
             throw new darknet.Error('First section must be [net] or [network].');
         }
@@ -67,21 +67,20 @@ darknet.Graph = class {
         net.height = net.height ? Number.parseInt(net.height, 10) : 0;
         net.channels = net.channels ? Number.parseInt(net.channels, 10) : 0;
 
-        var inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.width, net.height, net.channels ]));
+        let inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.width, net.height, net.channels ]));
 
-        var input = 'input';
+        let input = 'input';
         this._inputs.push(new darknet.Parameter(input, true, [
             new darknet.Argument(input, inputType, null)
         ]));
 
-        var i;
-        for (i = 0; i < cfg.length; i++) {
+        for (let i = 0; i < cfg.length; i++) {
             cfg[i]._outputs = [ i.toString() ];
         }
 
-        var inputs = [ 'input' ];
-        for (i = 0; i < cfg.length; i++) {
-            var layer = cfg[i];
+        let inputs = [ 'input' ];
+        for (let i = 0; i < cfg.length; i++) {
+            let layer = cfg[i];
             layer._inputs = inputs;
             inputs = [ i.toString() ];
             switch (layer.__type__) {
@@ -94,9 +93,9 @@ darknet.Graph = class {
                 case 'route':
                     layer._inputs = [];
                     var routes = layer.layers.split(',').map((route) => Number.parseInt(route.trim(), 10));
-                    for (var j = 0; j < routes.length; j++) {
-                        var index = (routes[j] < 0) ? i + routes[j] : routes[j];
-                        var route = cfg[index];
+                    for (let j = 0; j < routes.length; j++) {
+                        let index = (routes[j] < 0) ? i + routes[j] : routes[j];
+                        let route = cfg[index];
                         if (route) {
                             layer._inputs.push(route._outputs[0]);
                         }
@@ -104,13 +103,13 @@ darknet.Graph = class {
                     break;
             }
         }
-        for (i = 0; i < cfg.length; i++) {
+        for (let i = 0; i < cfg.length; i++) {
             this._nodes.push(new darknet.Node(metadata, net, cfg[i], i.toString()));
         }
 
         if (cfg.length > 0) {
-            var lastLayer = cfg[cfg.length - 1];
-            for (i = 0; i < lastLayer._outputs.length; i++) {
+            let lastLayer = cfg[cfg.length - 1];
+            for (let i = 0; i < lastLayer._outputs.length; i++) {
                 this._outputs.push(new darknet.Parameter('output' + (i > 1 ? i.toString() : ''), true, [
                     new darknet.Argument(lastLayer._outputs[i], null, null)
                 ]));
@@ -246,7 +245,7 @@ darknet.Node = class {
                 delete layer.layers;
                 break;
         }
-        for (var key of Object.keys(layer)) {
+        for (let key of Object.keys(layer)) {
             if (key != '__type__' && key != '_inputs' && key != '_outputs') {
                 this._attributes.push(new darknet.Attribute(metadata, this._operator, key, layer[key]));
             }
@@ -266,7 +265,7 @@ darknet.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -287,7 +286,7 @@ darknet.Node = class {
     }
 
     _initializer(name, shape) {
-        var id = this._name.toString() + '_' + name;
+        let id = this._name.toString() + '_' + name;
         this._inputs.push(new darknet.Parameter(name, true, [
             new darknet.Argument(id, null, new darknet.Tensor(id, shape))
         ]));
@@ -295,7 +294,7 @@ darknet.Node = class {
 
     _batch_normalize(metadata, net, layer, size) {
         if (layer.batch_normalize == "1") {
-            var batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [], size: size || 0 };
+            let batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [], size: size || 0 };
             this._chain.push(new darknet.Node(metadata, net, batch_normalize_layer, this._name + ':batch_normalize'));
             delete layer.batch_normalize;
         }
@@ -315,18 +314,18 @@ darknet.Attribute = class {
         this._name = name;
         this._value = value;
 
-        var intValue = Number.parseInt(this._value, 10);
+        let intValue = Number.parseInt(this._value, 10);
         if (!Number.isNaN(this._value - intValue)) {
             this._value = intValue;
         }
         else {
-            var floatValue = Number.parseFloat(this._value);
+            let floatValue = Number.parseFloat(this._value);
             if (!Number.isNaN(this._value - floatValue)) {
                 this._value = floatValue;
             }
         }
 
-        var schema = metadata.getAttributeSchema(operator, name);
+        let schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.type == 'boolean') {
                 switch (this._value) {
@@ -448,9 +447,9 @@ darknet.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -464,12 +463,12 @@ darknet.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -487,10 +486,10 @@ darknet.CfgReader = class {
     }
 
     read() {
-        var options = [];
-        var section = null;
+        let options = [];
+        let section = null;
         while (this._line < this._lines.length) {
-            var line = this._lines[this._line];
+            let line = this._lines[this._line];
             line = line.replace(/\s/g, '');
             if (line.length > 0) {
                 switch (line[0]) {
@@ -504,12 +503,12 @@ darknet.CfgReader = class {
                         break;
                     default:
                         if (section) {
-                            var property = line.split('=');
+                            let property = line.split('=');
                             if (property.length != 2) {
                                 throw new darknet.Error("Invalid cfg '" + line + "' at line " + (this._line + 1).toString() + ".");
                             }
-                            var key = property[0].trim();
-                            var value = property[1].trim();
+                            let key = property[0].trim();
+                            let value = property[1].trim();
                             section[key] = value;
                         }
                         break;
