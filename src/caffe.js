@@ -10,9 +10,9 @@ var marked = marked || require('marked');
 caffe.ModelFactory = class {
 
     match(context) {
-        var identifier = context.identifier;
-        var extension = identifier.split('.').pop().toLowerCase();
-        var tags = null;
+        let identifier = context.identifier;
+        let extension = identifier.split('.').pop().toLowerCase();
+        let tags = null;
         if (extension == 'caffemodel') {
             return true;
         }
@@ -29,8 +29,8 @@ caffe.ModelFactory = class {
         }
         if (extension == 'pt') {
             // Reject PyTorch models
-            var buffer = context.buffer;
-            var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            let buffer = context.buffer;
+            let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
@@ -50,12 +50,12 @@ caffe.ModelFactory = class {
         return host.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.roots.caffe.caffe;
             return caffe.Metadata.open(host).then((metadata) => {
-                var extension = context.identifier.split('.').pop();
+                let extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt' || extension == 'pt') {
-                    var tags = context.tags('pbtxt');
+                    let tags = context.tags('pbtxt');
                     if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                         try {
-                            var reader = prototxt.TextReader.create(context.text);
+                            let reader = prototxt.TextReader.create(context.text);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe.proto.SolverParameter) {
                                     message[tag] = this.skip();
@@ -63,18 +63,18 @@ caffe.ModelFactory = class {
                                 }
                                 throw new Error("Unknown field '" + tag + "'" + this.location());
                             };
-                            var solver = caffe.proto.SolverParameter.decodeText(reader);
+                            let solver = caffe.proto.SolverParameter.decodeText(reader);
                             if (solver.net_param) {
                                 return this._openNetParameter(metadata, solver.net_param, host);
                             }
                             else if (solver.net || solver.train_net) {
-                                var file = solver.net || solver.train_net;
+                                let file = solver.net || solver.train_net;
                                 file = file.split('/').pop();
                                 return context.request(file, 'utf-8').then((text) => {
                                     return this._openNetParameterText(metadata, context.identifier, text, host);
                                 }).catch((error) => {
                                     if (error) {
-                                        var message = error && error.message ? error.message : error.toString();
+                                        let message = error && error.message ? error.message : error.toString();
                                         message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                                         throw new caffe.Error("Failed to load '" + file + "' (" + message + ").");
                                     }
@@ -96,7 +96,7 @@ caffe.ModelFactory = class {
 
     _openNetParameterBuffer(metadata, identifier, buffer, host, resolve, reject) {
         try {
-            var netParameter = caffe.proto.NetParameter.decode(buffer);
+            let netParameter = caffe.proto.NetParameter.decode(buffer);
             return this._openNetParameter(metadata, netParameter, host, resolve, reject);
         }
         catch (error) {
@@ -106,9 +106,9 @@ caffe.ModelFactory = class {
 
     _openNetParameterText(metadata, identifier, text, host) {
         try {
-            var reader = prototxt.TextReader.create(text);
+            let reader = prototxt.TextReader.create(text);
             reader.field = function(tag, message) {
-                var type = message.constructor.name;
+                let type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
                     message[tag] = caffe.ModelFactory._decodeText(reader, true);
                     return;
@@ -128,9 +128,9 @@ caffe.ModelFactory = class {
                 throw new Error("Unknown field '" + tag + "'" + this.location());
             };
             reader.enum = function(type) {
-                var token = this.read();
+                let token = this.read();
                 if (!Object.prototype.hasOwnProperty.call(type, token)) {
-                    var value = Number.parseInt(token, 10);
+                    let value = Number.parseInt(token, 10);
                     if (!Number.isNaN(token - value)) {
                         return value;
                     }
@@ -138,7 +138,7 @@ caffe.ModelFactory = class {
                 }
                 return type[token];
             };
-            var netParameter = caffe.proto.NetParameter.decodeText(reader);
+            let netParameter = caffe.proto.NetParameter.decodeText(reader);
             return this._openNetParameter(metadata, netParameter, host);
         }
         catch (error) {
@@ -157,10 +157,10 @@ caffe.ModelFactory = class {
     }
 
     static _decodeText(reader, block) {
-        var message = {};
+        let message = {};
         reader.start(block);
         while (!reader.end(block)) {
-            var tag = reader.tag();
+            let tag = reader.tag();
             if (message[tag]) {
                 if (!Array.isArray(message[tag])) {
                     message[tag] = [ message[tag] ];
@@ -197,9 +197,9 @@ caffe.Model = class {
 
         this._graphs = [];
 
-        var phases = new Set();
-        for (var layer of net.layer) {
-            for (var include of layer.include) {
+        let phases = new Set();
+        for (let layer of net.layer) {
+            for (let include of layer.include) {
                 if (include.phase !== undefined) {
                     phases.add(include.phase);
                 }
@@ -209,7 +209,7 @@ caffe.Model = class {
             phases.add(-1);
         }
 
-        for (var phase of phases) {
+        for (let phase of phases) {
             this._graphs.push(new caffe.Graph(metadata, phase, net, this._version));
         }
     }
@@ -238,23 +238,22 @@ caffe.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        var layer;
-        for (layer of net.layer) {
+        for (let layer of net.layer) {
             layer.input = layer.bottom.slice(0);
             layer.output = layer.top.slice(0);
             layer.chain = [];
         }
 
-        var layers = [];
-        for (layer of net.layer) {
+        let layers = [];
+        for (let layer of net.layer) {
             if (phase === -1 || layer.include.every((include) => include.phase === phase)) {
                 layers.push(layer);
             }
         }
 
-        var scope = {};
-        var index = 0;
-        for (layer of layers) {
+        let scope = {};
+        let index = 0;
+        for (let layer of layers) {
             layer.input = layer.input.map((input) => scope[input] ? scope[input] : input);
             layer.output = layer.output.map((output) => {
                 scope[output] = scope[output] ? output + '\n' + index.toString() : output; // custom argument id
@@ -264,31 +263,31 @@ caffe.Graph = class {
         }
 
         // Graph Outputs
-        var used = new Set();
-        for (layer of layers) {
-            for (input of layer.input) {
+        let used = new Set();
+        for (let layer of layers) {
+            for (let input of layer.input) {
                 used.add(input);
             }
         }
-        var outputTops = [];
-        for (layer of layers) {
+        let outputTops = [];
+        for (let layer of layers) {
             if (layer.input.length > 0) {
-                for (var output of layer.output) {
+                for (let output of layer.output) {
                     if (!used.has(output)) {
                         outputTops.push(output);
                     }
                 }
             }
         }
-        for (var outputTop of outputTops) {
+        for (let outputTop of outputTops) {
             this._outputs.push(new caffe.Parameter(outputTop, [ new caffe.Argument(outputTop, null) ]));
         }
 
-        var nodes = [];
-        var lastLayer = null;
-        var lastTop = null;
+        let nodes = [];
+        let lastLayer = null;
+        let lastTop = null;
         while (layers.length > 0) {
-            layer = layers.shift();
+            let layer = layers.shift();
             if (layer.output.length == 1 && layer.input.length == 1 && 
                 layer.output[0].split('\n').shift() == layer.input[0].split('\n').shift() &&
                 lastLayer &&
@@ -301,7 +300,7 @@ caffe.Graph = class {
                     if (layer.input.length == 0 && layer.output.length == 1 &&
                         layer.input_param && layer.input_param.shape &&
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
-                        var type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
+                        let type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
                         this._inputs.push(new caffe.Parameter(layer.output[0], [ new caffe.Argument(layer.output[0], type) ]));
                         layer = null;
                     }
@@ -318,13 +317,13 @@ caffe.Graph = class {
             }
         }
 
-        var input;
+        let input;
         if (net.input && net.input.length > 0) {
             index = 0;
             for (input of net.input) {
-                var inputType = null;
+                let inputType = null;
                 if (net.input_shape && index < net.input_shape.length) {
-                    var blobShape = net.input_shape[index];
+                    let blobShape = net.input_shape[index];
                     if (blobShape && blobShape.dim) {
                         inputType = new caffe.TensorType(null, new caffe.TensorShape(blobShape.dim));
                     }
@@ -337,10 +336,10 @@ caffe.Graph = class {
             }
         }
 
-        for (layer of nodes) {
-            var node = new caffe.Node(metadata, layer, version);
+        for (let layer of nodes) {
+            let node = new caffe.Node(metadata, layer, version);
             if (layer.chain && layer.chain.length > 0) {
-                for (var chain of layer.chain) {
+                for (let chain of layer.chain) {
                     node.chain.push(new caffe.Node(metadata, chain, version));
                 }
             }
@@ -417,6 +416,7 @@ caffe.Node = class {
     constructor(metadata, layer, version) {
         this._metadata = metadata;
         this._chain = [];
+        this._attributes = [];
 
         switch (version) {
             case 0:
@@ -432,9 +432,9 @@ caffe.Node = class {
                 else {
                     if (!caffe.Node._operatorMap) {
                         caffe.Node._operatorMap = {};
-                        var known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
-                        for (var key of Object.keys(caffe.proto.V1LayerParameter.LayerType)) {
-                            var index = caffe.proto.V1LayerParameter.LayerType[key];
+                        let known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
+                        for (let key of Object.keys(caffe.proto.V1LayerParameter.LayerType)) {
+                            let index = caffe.proto.V1LayerParameter.LayerType[key];
                             caffe.Node._operatorMap[index] = key.split('_').map((item) => {
                                 return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
                             }).join('');
@@ -449,31 +449,30 @@ caffe.Node = class {
                 break;
         }
 
-        this._initializers = [];
-        this._attributes = [];
+        let initializers = [];
 
         switch (version) {
             case 0:
-                for (var attributeName of Object.keys(layer.layer)) {
+                for (let attributeName of Object.keys(layer.layer)) {
                     if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
                         this._attributes.push(new caffe.Attribute(this._metadata, this.operator, attributeName, layer.layer[attributeName]));
                     }
                 }
-                this._initializers = layer.layer.blobs.map((blob) => new caffe.Tensor(blob));
+                initializers = layer.layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
             case 1:
             case 2:
-                for (var layer_kind of Object.keys(layer)) {
+                for (let layer_kind of Object.keys(layer)) {
                     if (layer_kind.endsWith('_param') || layer_kind == 'transform_param') {
-                        var param = layer[layer_kind];
-                        var type = this._type;
+                        let param = layer[layer_kind];
+                        let type = this._type;
                         if (type == 'Deconvolution') {
                             type = 'Convolution';
                         }
-                        var prototype = Object.getPrototypeOf(param);
-                        for (var name of Object.keys(param)) {
-                            var defaultValue = prototype[name];
-                            var value = param[name];
+                        let prototype = Object.getPrototypeOf(param);
+                        for (let name of Object.keys(param)) {
+                            let defaultValue = prototype[name];
+                            let value = param[name];
                             if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
                                 this._attributes.push(new caffe.Attribute(this._metadata, this.operator, name, value));
                             }
@@ -489,21 +488,21 @@ caffe.Node = class {
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
                     this._attributes.push(new caffe.Attribute(this._metadata, this.operator, 'shape', layer.input_param.shape));
                 }
-                var initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
+                initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
         }
 
-        var schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.getSchema(this.operator);
 
         this._inputs = [];
-        var inputs = layer.input.concat(initializers);
-        var inputIndex = 0;
+        let inputs = layer.input.concat(initializers);
+        let inputIndex = 0;
         if (schema && schema.inputs) {
-            for (var inputDef of schema.inputs) {
+            for (let inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    var inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    var inputArguments = [];
-                    for (var input of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                    let inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    let inputArguments = [];
+                    for (let input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (input != '' || inputDef.option != 'optional') {
                             if (input instanceof caffe.Tensor) {
                                 inputArguments.push(new caffe.Argument('', null, input));
@@ -527,12 +526,12 @@ caffe.Node = class {
         }));
 
         this._outputs = [];
-        var outputs = layer.output;
-        var outputIndex = 0;
+        let outputs = layer.output;
+        let outputIndex = 0;
         if (schema && schema.outputs) {
-            for (var outputDef of schema.outputs) {
+            for (let outputDef of schema.outputs) {
                 if (outputIndex < outputs.length) {
-                    var outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    let outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
                         return new caffe.Argument(output, null, null);
                     })));
@@ -552,7 +551,7 @@ caffe.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this._type);
+        let schema = this._metadata.getSchema(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -591,13 +590,13 @@ caffe.Attribute = class {
             this._value = new caffe.TensorShape(value.dim);
         }
 
-        var schema = metadata.getAttributeSchema(operator, this._name);
+        let schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                var defaultValue = schema.default;
+                let defaultValue = schema.default;
                 if (this._value == defaultValue) {
                     this._visible = false;
                 }
@@ -629,7 +628,7 @@ caffe.Tensor = class {
     constructor(blob) {
         this._blob = blob;
 
-        var shape = [];
+        let shape = [];
         if (Object.prototype.hasOwnProperty.call(blob, 'num') && 
             Object.prototype.hasOwnProperty.call(blob, 'channels') &&
             Object.prototype.hasOwnProperty.call(blob, 'width') &&
@@ -651,7 +650,7 @@ caffe.Tensor = class {
             shape = blob.shape.dim;
         }
 
-        var dataType = '?';
+        let dataType = '?';
         if (blob.data.length > 0) {
             dataType = 'float32';
             this._data = blob.data;
@@ -677,7 +676,7 @@ caffe.Tensor = class {
     }
 
     get value() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return null;
         }
@@ -686,17 +685,17 @@ caffe.Tensor = class {
     }
 
     toString() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        var value = this._decode(context, 0);
+        let value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        var context = {};
+        let context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -709,10 +708,10 @@ caffe.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var results = [];
-        var size = context.dimensions[dimension];
+        let results = [];
+        let size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -723,7 +722,7 @@ caffe.Tensor = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -794,9 +793,9 @@ caffe.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -810,12 +809,12 @@ caffe.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
