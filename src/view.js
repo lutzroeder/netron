@@ -77,11 +77,11 @@ view.View = class {
 
         this._sidebar.close();
 
-        var welcomeElement = this._host.document.getElementById('welcome');
-        var openFileButton = this._host.document.getElementById('open-file-button');
-        var spinnerElement = this._host.document.getElementById('spinner');
-        var graphElement = this._host.document.getElementById('graph');
-        var toolbarElement = this._host.document.getElementById('toolbar');
+        let welcomeElement = this._host.document.getElementById('welcome');
+        let openFileButton = this._host.document.getElementById('open-file-button');
+        let spinnerElement = this._host.document.getElementById('spinner');
+        let graphElement = this._host.document.getElementById('graph');
+        let toolbarElement = this._host.document.getElementById('toolbar');
     
         if (page == 'Welcome') {
             this._host.document.body.style.cursor = 'default';
@@ -135,8 +135,8 @@ view.View = class {
     find() {
         if (this._activeGraph) {
             this.clearSelection();
-            var graphElement = document.getElementById('graph');
-            var view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
+            let graphElement = document.getElementById('graph');
+            let view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -240,23 +240,23 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        var container = this._host.document.getElementById('graph-container');
+        let container = this._host.document.getElementById('graph-container');
 
-        var min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
+        let min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
 
         zoom = Math.min(zoom, 2);
         zoom = Math.max(min, zoom);
 
-        var scrollLeft = this._scrollLeft || container.scrollLeft;
-        var scrollTop = this._scrollTop || container.scrollTop;
+        let scrollLeft = this._scrollLeft || container.scrollLeft;
+        let scrollTop = this._scrollTop || container.scrollTop;
 
-        var x = e ? e.pageX : (container.clientWidth / 2);
-        var y = e ? e.pageY : (container.clientHeight / 2);
+        let x = e ? e.pageX : (container.clientWidth / 2);
+        let y = e ? e.pageY : (container.clientHeight / 2);
 
         x += scrollLeft;
         y += scrollTop;
 
-        var graph = this._host.document.getElementById('graph');
+        let graph = this._host.document.getElementById('graph');
         graph.style.width = zoom * this._width;
         graph.style.height = zoom * this._height
 
@@ -290,17 +290,17 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            var graphElement = this._host.document.getElementById('graph');
-            var graphRect = graphElement.getBoundingClientRect();
-            var x = 0;
-            var y = 0;
-            for (var element of selection) {
+            let graphElement = this._host.document.getElementById('graph');
+            let graphRect = graphElement.getBoundingClientRect();
+            let x = 0;
+            let y = 0;
+            for (let element of selection) {
                 element.classList.add('select');
                 this._selection.push(element);
-                var box = element.getBBox();
-                var ex = box.x + (box.width / 2);
-                var ey = box.y + (box.height / 2);
-                var transform = element.transform.baseVal.consolidate();
+                let box = element.getBBox();
+                let ex = box.x + (box.width / 2);
+                let ey = box.y + (box.height / 2);
+                let transform = element.transform.baseVal.consolidate();
                 if (transform) {
                     ex = transform.matrix.e;
                     ey = transform.matrix.f;
@@ -316,7 +316,7 @@ view.View = class {
 
     clearSelection() {
         while (this._selection.length > 0) {
-            var element = this._selection.pop();
+            let element = this._selection.pop();
             element.classList.remove('select');
         }
     }
@@ -337,13 +337,13 @@ view.View = class {
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
-                var format = model.format;
+                let format = model.format;
                 if (format) {
                     format = format + (model.producer ? ' (' + model.producer + ')' : '');
                     this._host.event('Model', 'Format', format);
                 }
                 return this._timeout(20).then(() => {
-                    var graph = model.graphs.length > 0 ? model.graphs[0] : null;
+                    let graph = model.graphs.length > 0 ? model.graphs[0] : null;
                     return this._updateGraph(model, graph);
                 });
             });
@@ -353,8 +353,8 @@ view.View = class {
     _updateActiveGraph(name) {
         this._sidebar.close();
         if (this._model) {
-            var model = this._model;
-            var graph = model.graphs.filter(graph => name == graph.name).shift();
+            let model = this._model;
+            let graph = model.graphs.filter(graph => name == graph.name).shift();
             if (graph) {
                 this.show('Spinner');
                 this._timeout(200).then(() => {
@@ -371,7 +371,7 @@ view.View = class {
     _updateGraph(model, graph) {
         return this._timeout(100).then(() => {
             if (graph && graph != this._activeGraph) {
-                var nodes = graph.nodes;
+                let nodes = graph.nodes;
                 if (nodes.length > 1400) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
@@ -402,7 +402,7 @@ view.View = class {
                 return Promise.resolve();
             }
             else {
-                var graphElement = this._host.document.getElementById('graph');
+                let graphElement = this._host.document.getElementById('graph');
                 while (graphElement.lastChild) {
                     graphElement.removeChild(graphElement.lastChild);
                 }
@@ -420,24 +420,24 @@ view.View = class {
                         break;
                 }
     
-                var groups = graph.groups;
+                let groups = graph.groups;
     
-                var graphOptions = {};
+                let graphOptions = {};
                 graphOptions.nodesep = 25;
                 graphOptions.ranksep = 20;
 
-                var g = new dagre.graphlib.Graph({ compound: groups });
+                let g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
                 g.setDefaultEdgeLabel(() => { return {}; });
             
-                var nodeId = 0;
-                var edgeMap = {};
+                let nodeId = 0;
+                let edgeMap = {};
             
-                var clusterMap = {};
-                var clusterParentMap = {};
+                let clusterMap = {};
+                let clusterParentMap = {};
     
-                var id = new Date().getTime();
-                var nodes = graph.nodes;
+                let id = new Date().getTime();
+                let nodes = graph.nodes;
 
                 if (nodes.length > 1500) {
                     graphOptions.ranker = 'longest-path';
@@ -445,11 +445,10 @@ view.View = class {
 
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
-                var node;
                 if (groups) {
-                    for (node of nodes) {
+                    for (let node of nodes) {
                         if (node.group) {
-                            var path = node.group.split('/');
+                            let path = node.group.split('/');
                             while (path.length > 0) {
                                 var name = path.join('/');
                                 path.pop();
@@ -459,13 +458,8 @@ view.View = class {
                     }
                 }
 
-                var input;
-                var output;
-                var argument;
-                var tuple;
-
                 var self = this;
-                for (node of nodes) {
+                for (let node of nodes) {
     
                     var element = new grapher.NodeElement(this._host.document);
 
@@ -570,7 +564,7 @@ view.View = class {
                                     outputs = chainOutputs;
                                 }
                             }
-                            for (output of outputs) {
+                            for (let output of outputs) {
                                 for (argument of output.arguments) {
                                     if (argument.id != '') {
                                         tuple = edgeMap[argument.id];
@@ -603,7 +597,7 @@ view.View = class {
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
                         for (var controlDependency of node.controlDependencies) {
-                            tuple = edgeMap[controlDependency];
+                            let tuple = edgeMap[controlDependency];
                             if (!tuple) {
                                 tuple = { from: null, to: [] };
                                 edgeMap[controlDependency] = tuple;
@@ -662,9 +656,9 @@ view.View = class {
                     nodeId++;
                 }
 
-                for (input of graph.inputs) {
-                    for (argument of input.arguments) {
-                        tuple = edgeMap[argument.id];
+                for (let input of graph.inputs) {
+                    for (let argument of input.arguments) {
+                        let tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
                             edgeMap[argument.id] = tuple;
@@ -674,49 +668,49 @@ view.View = class {
                             type: argument.type
                         };
                     }
-                    var types = input.arguments.map((argument) => argument.type || '').join('\n');
-                    var inputName = input.name || '';
+                    let types = input.arguments.map((argument) => argument.type || '').join('\n');
+                    let inputName = input.name || '';
                     if (inputName.length > 16) {
                         inputName = inputName.split('/').pop();
                     }
     
-                    var inputElement = new grapher.NodeElement(this._host.document);
-                    var inputHeader = inputElement.block('header');
+                    let inputElement = new grapher.NodeElement(this._host.document);
+                    let inputHeader = inputElement.block('header');
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } ); 
                 }
             
-                for (output of graph.outputs) {
-                    for (argument of output.arguments) {
-                        tuple = edgeMap[argument.id];
+                for (let output of graph.outputs) {
+                    for (let argument of output.arguments) {
+                        let tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
                             edgeMap[argument.id] = tuple;
                         }
                         tuple.to.push({ node: nodeId });
                     }
-                    var outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
-                    var outputName = output.name || '';
+                    let outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
+                    let outputName = output.name || '';
                     if (outputName.length > 16) {
                         outputName = outputName.split('/').pop();
                     }
             
-                    var outputElement = new grapher.NodeElement(this._host.document);
-                    var outputHeader = outputElement.block('header');
+                    let outputElement = new grapher.NodeElement(this._host.document);
+                    let outputHeader = outputElement.block('header');
                     outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: outputElement.format(graphElement) } ); 
                 }
 
-                for (var edge of Object.keys(edgeMap)) {
-                    tuple = edgeMap[edge];
+                for (let edge of Object.keys(edgeMap)) {
+                    let tuple = edgeMap[edge];
                     if (tuple.from != null) {
-                        for (var to of tuple.to) {
-                            var text = '';
-                            var type = tuple.from.type;
+                        for (let to of tuple.to) {
+                            let text = '';
+                            let type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
                                 text = type.shape.dimensions.join('\u00D7');
                             }
@@ -737,7 +731,7 @@ view.View = class {
 
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-                var backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                let backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
                 if (this._host.environment('zoom') == 'd3') {
                     backgroundElement.setAttribute('width', '100%');
@@ -747,12 +741,13 @@ view.View = class {
                 backgroundElement.setAttribute('pointer-events', 'all');
                 graphElement.appendChild(backgroundElement);
 
-                var originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                let originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
                 graphElement.appendChild(originElement);
             
+                let svg = null;
                 if (this._host.environment('zoom') == 'd3') {
-                    var svg = d3.select(graphElement);
+                    svg = d3.select(graphElement);
                     this._zoom = d3.zoom();
                     this._zoom(svg);
                     this._zoom.scaleExtent([0.1, 2]);
@@ -764,10 +759,10 @@ view.View = class {
 
                 return this._timeout(20).then(() => {
 
-                    var graphRenderer = new grapher.Renderer(this._host.document, originElement);
+                    let graphRenderer = new grapher.Renderer(this._host.document, originElement);
                     graphRenderer.render(g);
 
-                    var inputElements = graphElement.getElementsByClassName('graph-input');
+                    let inputElements = graphElement.getElementsByClassName('graph-input');
 
                     switch (this._host.environment('zoom')) {
                         case 'scroll':
@@ -788,7 +783,7 @@ view.View = class {
                             graphElement.setAttribute('height', height);
                             if (inputElements && inputElements.length > 0) {
                                 // Center view based on input elements
-                                for (var j = 0; j < inputElements.length; j++) {
+                                for (let j = 0; j < inputElements.length; j++) {
                                     inputElements[j].scrollIntoView({ behavior: 'instant' });
                                     break;
                                 }
@@ -801,15 +796,15 @@ view.View = class {
                             var svgSize = graphElement.getBoundingClientRect();
                             if (inputElements && inputElements.length > 0) {
                                 // Center view based on input elements
-                                var xs = [];
-                                var ys = [];
-                                for (var i = 0; i < inputElements.length; i++) {
-                                    var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                                let xs = [];
+                                let ys = [];
+                                for (let i = 0; i < inputElements.length; i++) {
+                                    let inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
                                     xs.push(inputTransform.e);
                                     ys.push(inputTransform.f);
                                 }
-                                var x = xs[0];
-                                var y = ys[0];
+                                let x = xs[0];
+                                let y = ys[0];
                                 if (ys.every(y => y == ys[0])) {
                                     x = xs.reduce((a,b) => { return a + b; }) / xs.length;
                                 }
@@ -830,22 +825,22 @@ view.View = class {
     }
 
     applyStyleSheet(element, name) {
-        var rules = [];
-        for (var i = 0; i < this._host.document.styleSheets.length; i++) {
-            var styleSheet = this._host.document.styleSheets[i];
+        let rules = [];
+        for (let i = 0; i < this._host.document.styleSheets.length; i++) {
+            let styleSheet = this._host.document.styleSheets[i];
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
                 rules = styleSheet.cssRules;
                 break;
             }
         }
-        var nodes = element.getElementsByTagName('*');
-        for (var j = 0; j < nodes.length; j++) {
-            var node = nodes[j];
-            for (var k = 0; k < rules.length; k++) {
-                var rule = rules[k];
+        let nodes = element.getElementsByTagName('*');
+        for (let j = 0; j < nodes.length; j++) {
+            let node = nodes[j];
+            for (let k = 0; k < rules.length; k++) {
+                let rule = rules[k];
                 if (node.matches(rule.selectorText)) {
-                    for (var l = 0; l < rule.style.length; l++) {
-                        var item = rule.style.item(l);
+                    for (let l = 0; l < rule.style.length; l++) {
+                        let item = rule.style.item(l);
                         node.style[item] = rule.style[item];
                     }
                 }
@@ -854,36 +849,36 @@ view.View = class {
     }
 
     export(file) {
-        var extension = '';
-        var lastIndex = file.lastIndexOf('.');
+        let extension = '';
+        let lastIndex = file.lastIndexOf('.');
         if (lastIndex != -1) {
             extension = file.substring(lastIndex + 1);
         }
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
-            var graphElement = this._host.document.getElementById('graph');
-            var exportElement = graphElement.cloneNode(true);
+            let graphElement = this._host.document.getElementById('graph');
+            let exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
             exportElement.style.removeProperty('opacity');
             exportElement.style.removeProperty('display');
-            var backgroundElement = exportElement.querySelector('#background');
-            var originElement = exportElement.querySelector('#origin');
+            let backgroundElement = exportElement.querySelector('#background');
+            let originElement = exportElement.querySelector('#origin');
             originElement.setAttribute('transform', 'translate(0,0) scale(1)');
             backgroundElement.removeAttribute('width');
             backgroundElement.removeAttribute('height');
 
-            var parentElement = graphElement.parentElement;
+            let parentElement = graphElement.parentElement;
             parentElement.insertBefore(exportElement, graphElement);
-            var size = exportElement.getBBox();
+            let size = exportElement.getBBox();
             parentElement.removeChild(exportElement);
             parentElement.removeChild(graphElement);
             parentElement.appendChild(graphElement);
 
-            var delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
-            var width = Math.ceil(delta + size.width + delta);
-            var height = Math.ceil(delta + size.height + delta);
+            let delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
+            let width = Math.ceil(delta + size.width + delta);
+            let height = Math.ceil(delta + size.height + delta);
             originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
             exportElement.setAttribute('width', width);
             exportElement.setAttribute('height', height);
@@ -891,22 +886,22 @@ view.View = class {
             backgroundElement.setAttribute('height', height);
             backgroundElement.setAttribute('fill', '#fff');
     
-            var data = new XMLSerializer().serializeToString(exportElement);
+            let data = new XMLSerializer().serializeToString(exportElement);
     
             if (extension == 'svg') {
-                var blob = new Blob([ data ], { type: 'image/svg' });
+                let blob = new Blob([ data ], { type: 'image/svg' });
                 this._host.export(file, blob);
             }
     
             if (extension == 'png') {
-                var imageElement = new Image();
+                let imageElement = new Image();
                 imageElement.onload = () => {
-                    var max = Math.max(width, height);
-                    var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
-                    var canvas = this._host.document.createElement('canvas');
+                    let max = Math.max(width, height);
+                    let scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
+                    let canvas = this._host.document.createElement('canvas');
                     canvas.width = Math.ceil(width * scale);
                     canvas.height = Math.ceil(height * scale);
-                    var context = canvas.getContext('2d');
+                    let context = canvas.getContext('2d');
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
                     this._host.document.body.removeChild(imageElement);
@@ -915,7 +910,7 @@ view.View = class {
                             this._host.export(file, blob);
                         }
                         else {
-                            var err = new Error();
+                            let err = new Error();
                             err.name = 'Error exporting image.';
                             err.message = 'Image may be too large to render as PNG.';
                             this._host.exception(err, false);
@@ -931,7 +926,7 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            var modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._activeGraph);
+            let modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._activeGraph);
             modelSidebar.on('update-active-graph', (sender, name) => {
                 this._updateActiveGraph(name);
             });
@@ -941,17 +936,17 @@ view.View = class {
     
     showNodeProperties(node, input) {
         if (node) {
-            var nodeSidebar = new sidebar.NodeSidebar(this._host, node);
+            let nodeSidebar = new sidebar.NodeSidebar(this._host, node);
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showOperatorDocumentation(node);
             });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
                 this._host.require('./numpy').then((numpy) => {
-                    var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
+                    let defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
-                            var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
-                            var blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
+                            let array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
+                            let blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
                             this._host.export(file, blob);
                         }
                         catch (error) {
@@ -969,9 +964,9 @@ view.View = class {
     }
 
     showOperatorDocumentation(node) {
-        var documentation = node.documentation;
+        let documentation = node.documentation;
         if (documentation) {
-            var documentationSidebar = new sidebar.OperatorDocumentationSidebar(documentation);
+            let documentationSidebar = new sidebar.OperatorDocumentationSidebar(documentation);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
@@ -1016,10 +1011,10 @@ class ModelContext {
     get entries() {
         if (!this._entries) {
             this._entries = [];
-            var buffer = this.buffer;
+            let buffer = this.buffer;
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
                 try {
-                    var archive = new zip.Archive(buffer);
+                    let archive = new zip.Archive(buffer);
                     this._entries = archive.entries;
                 }
                 catch (error) {
@@ -1031,11 +1026,11 @@ class ModelContext {
     }
 
     tags(extension) {
-        var tags = this._tags.get(extension);
+        let tags = this._tags.get(extension);
         if (!tags) {
             tags = new Map();
             try {
-                var reader = null;
+                let reader = null;
                 switch (extension) {
                     case 'pbtxt':
                         var b = this.buffer;
@@ -1053,7 +1048,7 @@ class ModelContext {
                         reader = prototxt.TextReader.create(this.text);
                         reader.start(false);
                         while (!reader.end(false)) {
-                            var tag = reader.tag();
+                            let tag = reader.tag();
                             tags.set(tag, true);
                             reader.skip();
                         }
@@ -1061,7 +1056,7 @@ class ModelContext {
                     case 'pb':
                         reader = new protobuf.Reader.create(this.buffer);
                         while (reader.pos < reader.len) {
-                            var tagType = reader.uint32();
+                            let tagType = reader.uint32();
                             tags.set(tagType >>> 3, tagType & 7);
                             try {
                                 reader.skipType(tagType & 7);
@@ -1088,9 +1083,9 @@ class ArchiveContext {
     constructor(entries, rootFolder, identifier, buffer) {
         this._entries = {};
         if (entries) {
-            for (var entry of entries) {
+            for (let entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
-                    var name = entry.name.substring(rootFolder.length);
+                    let name = entry.name.substring(rootFolder.length);
                     if (identifier.length > 0 && identifier.indexOf('/') < 0) {
                         this._entries[name] = entry;
                     }
@@ -1102,11 +1097,11 @@ class ArchiveContext {
     }
 
     request(file, encoding) {
-        var entry = this._entries[file];
+        let entry = this._entries[file];
         if (!entry) {
             return Promise.reject(new Error('File not found.'));
         }
-        var data = entry.data;
+        let data = entry.data;
         if (encoding != null) {
             data = new TextDecoder(encoding).decode(data);
         }
@@ -1156,7 +1151,7 @@ view.ModelFactoryService = class {
     }
 
     register(id, extensions) {
-        for (var extension of extensions) {
+        for (let extension of extensions) {
             this._extensions.push({ extension: extension, id: id });
         }
     }
@@ -1164,21 +1159,21 @@ view.ModelFactoryService = class {
     open(context) {
         return this._openArchive(context).then((context) => {
             context = new ModelContext(context);
-            var extension = context.identifier.split('.').pop().toLowerCase();
-            var modules = this._filter(context);
+            let extension = context.identifier.split('.').pop().toLowerCase();
+            let modules = this._filter(context);
             if (modules.length == 0) {
                 throw new ModelError("Unsupported file extension '." + extension + "'.");
             }
-            var errors = [];
-            var match = false;
-            var nextModule = () => {
+            let errors = [];
+            let match = false;
+            let nextModule = () => {
                 if (modules.length > 0) {
-                    var id = modules.shift();
+                    let id = modules.shift();
                     return this._host.require(id).then((module) => {
                         if (!module.ModelFactory) {
                             throw new ModelError("Failed to load module '" + id + "'.");
                         }
-                        var modelFactory = new module.ModelFactory(); 
+                        let modelFactory = new module.ModelFactory(); 
                         if (!modelFactory.match(context)) {
                             return nextModule();
                         }
@@ -1206,11 +1201,8 @@ view.ModelFactoryService = class {
     }
 
     _openArchive(context) {
-        var extension;
-        var archive;
-        var entry;
-        var message;
-
+        let archive = null;
+        let extension;
         var identifier = context.identifier;
         var buffer = context.buffer;
 
@@ -1219,7 +1211,7 @@ view.ModelFactoryService = class {
             if (extension == 'gz' || extension == 'tgz') {
                 archive = new gzip.Archive(buffer);
                 if (archive.entries.length == 1) {
-                    entry = archive.entries[0];
+                    let entry = archive.entries[0];
                     if (entry.name) {
                         identifier = entry.name;
                     }
@@ -1234,7 +1226,7 @@ view.ModelFactoryService = class {
             }
         }
         catch (error) {
-            message = error && error.message ? error.message : error.toString();
+            let message = error && error.message ? error.message : error.toString();
             message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
             return Promise.reject(new ArchiveError(message + " in '" + identifier + "'."));
         }
@@ -1255,7 +1247,7 @@ view.ModelFactoryService = class {
             }
         }
         catch (error) {
-            message = error && error.message ? error.message : error.toString();
+            let message = error && error.message ? error.message : error.toString();
             message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
             return Promise.reject(new ArchiveError(message + " in '" + identifier + "'."));
         }
@@ -1266,7 +1258,7 @@ view.ModelFactoryService = class {
 
         try {
             var folders = {};
-            for (entry of archive.entries) {
+            for (let entry of archive.entries) {
                 if (entry.name.indexOf('/') != -1) {
                     folders[entry.name.split('/').shift() + '/'] = true;
                 }
