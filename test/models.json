@@ -2693,8 +2693,8 @@
   },
   {
     "type":   "onnx",
-    "target": "bertsquad10.onnx.tar.gz",
-    "source": "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/model/bertsquad10.onnx.tar.gz?raw=true",
+    "target": "bertsquad10.onnx",
+    "source": "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/model/bertsquad10.onnx?raw=true",
     "format": "ONNX v5", "producer": "tf2onnx 1.5.2",
     "render": "skip",
     "link":   "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/README.md"
