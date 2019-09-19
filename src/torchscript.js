@@ -216,12 +216,14 @@ torchscript.Model = class {
                     this._producer = this._producer + ' v' + container.producerVersion;
                 }
             }
-            container.tensors = container.model.tensors.map((tensor) => {
-                let key = container.prefix + tensor.data.key;
-                let entry = container.entries.find((entry) => entry.name == key);
-                return new torchscript.Tensor('json', { tensor: tensor, data: entry.data });
-            });
-            container.constants = container.tensors;
+            if (container.tensors) {
+                container.tensors = container.model.tensors.map((tensor) => {
+                    let key = container.prefix + tensor.data.key;
+                    let entry = container.entries.find((entry) => entry.name == key);
+                    return new torchscript.Tensor('json', { tensor: tensor, data: entry.data });
+                });
+                container.constants = container.tensors;
+            }
         }
         this._graphs = [];
         this._graphs.push(new torchscript.Graph(metadata, host, python, container));
