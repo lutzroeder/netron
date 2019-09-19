@@ -6564,7 +6564,7 @@
           "summary": "gather_1"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')",
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')",
           "summary": "gather_negative_indices"
         }
       ],
@@ -6650,7 +6650,7 @@
           "summary": "gather_1"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')",
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')",
           "summary": "gather_negative_indices"
         }
       ],
@@ -6920,7 +6920,11 @@
           "summary": "default_matrix_bias"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b'],\n    outputs=['y']\n)\na = np.random.ranf([2, 10]).astype(np.float32)\nb = np.random.ranf([10, 3]).astype(np.float32)\ny = gemm_reference_implementation(a, b)\nexpect(node, inputs=[a, b], outputs=[y],\n       name='test_gemm_default_no_bias')",
+          "summary": "default_no_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
           "summary": "default_scalar_bias"
         },
         {
@@ -7045,7 +7049,11 @@
           "summary": "default_matrix_bias"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b'],\n    outputs=['y']\n)\na = np.random.ranf([2, 10]).astype(np.float32)\nb = np.random.ranf([10, 3]).astype(np.float32)\ny = gemm_reference_implementation(a, b)\nexpect(node, inputs=[a, b], outputs=[y],\n       name='test_gemm_default_no_bias')",
+          "summary": "default_no_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
           "summary": "default_scalar_bias"
         },
         {
@@ -7164,7 +7172,11 @@
           "summary": "default_matrix_bias"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b'],\n    outputs=['y']\n)\na = np.random.ranf([2, 10]).astype(np.float32)\nb = np.random.ranf([10, 3]).astype(np.float32)\ny = gemm_reference_implementation(a, b)\nexpect(node, inputs=[a, b], outputs=[y],\n       name='test_gemm_default_no_bias')",
+          "summary": "default_no_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
           "summary": "default_scalar_bias"
         },
         {
@@ -7283,7 +7295,11 @@
           "summary": "default_matrix_bias"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b'],\n    outputs=['y']\n)\na = np.random.ranf([2, 10]).astype(np.float32)\nb = np.random.ranf([10, 3]).astype(np.float32)\ny = gemm_reference_implementation(a, b)\nexpect(node, inputs=[a, b], outputs=[y],\n       name='test_gemm_default_no_bias')",
+          "summary": "default_no_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
           "summary": "default_scalar_bias"
         },
         {
@@ -7336,6 +7352,134 @@
         }
       ],
       "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain input and output types to float/int tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Gemm",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "Scalar multiplier for the product of input tensors A * B.",
+          "name": "alpha",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "default": 1.0,
+          "description": "Scalar multiplier for input tensor C.",
+          "name": "beta",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "description": "Whether A should be transposed",
+          "name": "transA",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Whether B should be transposed",
+          "name": "transB",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "category": "Layer",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](Broadcasting.md).\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.25,\n    beta=0.35,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([4, 3]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.random.ranf([1, 5]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1, transB=1, alpha=0.25, beta=0.35)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_all_attributes')",
+          "summary": "all_attributes"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, alpha=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_alpha')",
+          "summary": "alpha"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    beta=0.5\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, beta=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_beta')",
+          "summary": "beta"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_matrix_bias')",
+          "summary": "default_matrix_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b'],\n    outputs=['y']\n)\na = np.random.ranf([2, 10]).astype(np.float32)\nb = np.random.ranf([10, 3]).astype(np.float32)\ny = gemm_reference_implementation(a, b)\nexpect(node, inputs=[a, b], outputs=[y],\n       name='test_gemm_default_no_bias')",
+          "summary": "default_no_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_scalar_bias')",
+          "summary": "default_scalar_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 7]).astype(np.float32)\nb = np.random.ranf([7, 3]).astype(np.float32)\nc = np.random.ranf([1]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_single_elem_vector_bias')",
+          "summary": "default_single_elem_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_vector_bias')",
+          "summary": "default_vector_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y']\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_default_zero_bias')",
+          "summary": "default_zero_bias"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeA')",
+          "summary": "transposeA"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    transB=1\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transB=1)\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_transposeB')",
+          "summary": "transposeB"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor A. The shape of A should be (M, K) if transA is 0, or (K, M) if transA is non-zero.",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "Input tensor B. The shape of B should be (K, N) if transB is 0, or (N, K) if transB is non-zero.",
+          "name": "B",
+          "type": "T"
+        },
+        {
+          "description": "Optional input tensor C. If not specified, the computation is done as if C is a scalar 0. The shape of C should be unidirectional broadcastable to (M, N).",
+          "name": "C",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor of shape (M, N).",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 11,
       "support_level": "common",
       "type_constraints": [
         {
@@ -7958,7 +8102,7 @@
           "type": "int64"
         }
       ],
-      "description": "The operator computes the hardmax (1 for the first maximum value, and 0 for all others) values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the hardmax values of the corresponding input.\n\nInput does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\ninput \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then input will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the input tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "The operator computes the hardmax (1 for the first maximum value, and 0 for all others) values for each layer in the batch\n of the given input.\n\nThe input does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\ninput \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then input will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the input tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors. The output tensor has the same shape\nand contains the hardmax values of the corresponding input.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -9679,7 +9823,7 @@
         }
       ],
       "category": "Activation",
-      "description": "The operator computes the logsoftmax (log of softmax) values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the logsoftmax values of the corresponding input.\n\nInput does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\ninput \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then input will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the input tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "The operator computes the logsoftmax (log of softmax) values for each layer in the batch\n of the given input.\n\nThe input does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\ninput \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then input will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the input tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors. The output tensor has the same shape\nand contains the logsoftmax values of the corresponding input.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -16008,7 +16152,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reduced_dims': np.array([3, 8], dtype=np.int64),\n    'extended_dims': np.array([3, 2, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([6, -1, 2], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = np.reshape(data, shape)\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
+          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_all_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reordered_last_dims': np.array([2, 4, 3], dtype=np.int64),\n    'reduced_dims': np.array([2, 12], dtype=np.int64),\n    'extended_dims': np.array([2, 3, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([2, -1, 2], dtype=np.int64),\n    'negative_extended_dims': np.array([-1, 2, 3, 4], dtype=np.int64),\n    'zero_dim': np.array([2, 0, 4, 1], dtype=np.int64),\n    'zero_and_negative_dim': np.array([2, 0, 1, -1], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = reshape_reference_implementation(data, shape)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
           "summary": "reshape"
         }
       ],
@@ -16053,7 +16197,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reduced_dims': np.array([3, 8], dtype=np.int64),\n    'extended_dims': np.array([3, 2, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([6, -1, 2], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = np.reshape(data, shape)\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
+          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_all_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reordered_last_dims': np.array([2, 4, 3], dtype=np.int64),\n    'reduced_dims': np.array([2, 12], dtype=np.int64),\n    'extended_dims': np.array([2, 3, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([2, -1, 2], dtype=np.int64),\n    'negative_extended_dims': np.array([-1, 2, 3, 4], dtype=np.int64),\n    'zero_dim': np.array([2, 0, 4, 1], dtype=np.int64),\n    'zero_and_negative_dim': np.array([2, 0, 1, -1], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = reshape_reference_implementation(data, shape)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
           "summary": "reshape"
         }
       ],
@@ -19003,7 +19147,7 @@
         }
       ],
       "category": "Activation",
-      "description": "The operator computes the softmax (normalized exponential) values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the softmax values of the corresponding input.\n\nInput does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\ninput \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then input will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the input tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "The operator computes the softmax (normalized exponential) values for each layer in the batch\n of the given input.\n\nThe input does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\ninput \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then input will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the input tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors. The output tensor has the same shape\nand contains the softmax values of the corresponding input.\n",
       "domain": "ai.onnx",
       "examples": [
         {
