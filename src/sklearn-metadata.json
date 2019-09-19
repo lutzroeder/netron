@@ -1416,7 +1416,7 @@
         },
         {
           "default": "minkowski",
-          "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of the DistanceMetric class for a\nlist of available metrics.\n",
+          "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of the DistanceMetric class for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`Glossary <sparse graph>`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
           "name": "metric"
         },
         {
@@ -1471,7 +1471,7 @@
         },
         {
           "default": "minkowski",
-          "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of the DistanceMetric class for a\nlist of available metrics.\n",
+          "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of the DistanceMetric class for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`Glossary <sparse graph>`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
           "name": "metric"
         },
         {
@@ -1680,7 +1680,8 @@
           "type": "string"
         },
         {
-          "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used.\nOnly applies if ``analyzer is not callable``.\n",
+          "default": "(1, 1)",
+          "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used. For example an ``ngram_range`` of ``(1, 1)`` means only\nunigrams, ``(1, 2)`` means unigrams and bigrams, and ``(2, 2)`` means\nonly bigrams.\nOnly applies if ``analyzer is not callable``.\n",
           "name": "ngram_range"
         },
         {
@@ -1776,7 +1777,8 @@
           "type": "string"
         },
         {
-          "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used.\nOnly applies if ``analyzer is not callable``.\n",
+          "default": "(1, 1)",
+          "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used. For example an ``ngram_range`` of ``(1, 1)`` means only\nunigrams, ``(1, 2)`` means unigrams and bigrams, and ``(2, 2)`` means\nonly bigrams.\nOnly applies if ``analyzer is not callable``.\n",
           "name": "ngram_range"
         },
         {
