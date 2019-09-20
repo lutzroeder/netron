@@ -47145,6 +47145,7 @@
         }
       ],
       "category": "Activation",
+      "description": "See: https://en.wikipedia.org/wiki/Rectifier_(neural_networks)\nExample usage:\n>>> tf.nn.relu([-2., 0., -0., 3.]).numpy()\narray([ 0.,  0., -0.,  3.], dtype=float32)",
       "inputs": [
         {
           "name": "features",
@@ -59352,7 +59353,7 @@
           "type": "type"
         }
       ],
-      "description": "`y = sign(x) = -1` if `x < 0`; 0 if `x == 0`; 1 if `x > 0`.\n\nFor complex numbers, `y = sign(x) = x / |x|` if `x != 0`, otherwise `y = 0`.",
+      "description": "`y = sign(x) = -1` if `x < 0`; 0 if `x == 0`; 1 if `x > 0`.\n\nFor complex numbers, `y = sign(x) = x / |x|` if `x != 0`, otherwise `y = 0`.\n\nExample usage:\n>>> tf.math.sign([0., 2., -3.])\n<tf.Tensor: id=16, shape=(3,), dtype=float32, numpy=array([ 0.,  1., -1.], dtype=float32)>",
       "inputs": [
         {
           "name": "x",
@@ -72566,7 +72567,7 @@
           "type": "type"
         }
       ],
-      "description": "This operation creates a new tensor by replicating `input` `multiples` times.\nThe output tensor's i'th dimension has `input.dims(i) * multiples[i]` elements,\nand the values of `input` are replicated `multiples[i]` times along the 'i'th\ndimension. For example, tiling `[a b c d]` by `[2]` produces\n`[a b c d a b c d]`.",
+      "description": "This operation creates a new tensor by replicating `input` `multiples` times.\nThe output tensor's i'th dimension has `input.dims(i) * multiples[i]` elements,\nand the values of `input` are replicated `multiples[i]` times along the 'i'th\ndimension. For example, tiling `[a b c d]` by `[2]` produces\n`[a b c d a b c d]`.\n\n>>> a = tf.constant([[1,2,3],[4,5,6]], tf.int32)\n>>> b = tf.constant([1,2], tf.int32)\n>>> tf.tile(a, b)\n<tf.Tensor: id=128, shape=(2, 6), dtype=int32, numpy=\narray([[1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6]], dtype=int32)>\n>>> c = tf.constant([2,1], tf.int32)\n>>> tf.tile(a, c)\n<tf.Tensor: id=130, shape=(4, 3), dtype=int32, numpy=\narray([[1, 2, 3],\n       [4, 5, 6],\n       [1, 2, 3],\n       [4, 5, 6]], dtype=int32)>\n>>> d = tf.constant([2,2], tf.int32)\n>>> tf.tile(a, d)\n<tf.Tensor: id=132, shape=(4, 6), dtype=int32, numpy=\narray([[1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6],\n       [1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6]], dtype=int32)>",
       "inputs": [
         {
           "description": "1-D or higher.",
