@@ -94,6 +94,7 @@ setuptools.setup(
             'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
             'darknet.js', 'darknet-metadata.json',
             'dl4j.js', 'dl4j-metadata.json',
+            'flux.js', 'flux-metadata.json', 'bson.js',
             'keras.js', 'keras-metadata.json', 'hdf5.js',
             'mlnet.js', 'mlnet-metadata.json',
             'mxnet.js', 'mxnet-metadata.json',
