@@ -405,7 +405,6 @@ mlnet.TensorShape = class {
     }
 };
 
-
 mlnet.Metadata = class {
 
     static open(host) {
@@ -2281,5 +2280,4 @@ mlnet.Error = class extends Error {
 
 if (module && module.exports) {
     module.exports.ModelFactory = mlnet.ModelFactory;
-    module.exports.ModelReader = mlnet.ModelReader;
 }
