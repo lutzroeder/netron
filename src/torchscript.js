@@ -216,7 +216,7 @@ torchscript.Model = class {
                     this._producer = this._producer + ' v' + container.producerVersion;
                 }
             }
-            if (container.tensors) {
+            if (container.model.tensors) {
                 container.tensors = container.model.tensors.map((tensor) => {
                     let key = container.prefix + tensor.data.key;
                     let entry = container.entries.find((entry) => entry.name == key);
