@@ -466,7 +466,7 @@ pytorch.ModelFactory = class {
 
                     let root = unpickler.load(function_call, persistent_load);
                     if (!root) {
-                        throw new pytorch.Error("File format is not PyTorch.");
+                        throw new pytorch.Error('File format is not PyTorch.');
                     }
 
                     let deserialized_storage_keys = unpickler.load();
@@ -474,7 +474,7 @@ pytorch.ModelFactory = class {
                         storage = deserialized_objects[deserialized_storage_key];
                         let size = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
                         if (size != storage.size) {
-                            throw new pytorch.Error("Storage size mismatch.")
+                            throw new pytorch.Error('Storage size mismatch.');
                         }
                         storage.data = unpickler.read(storage.dataTypeSize * storage.size);
                     }
