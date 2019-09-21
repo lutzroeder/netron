@@ -737,6 +737,11 @@
           "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
           "name": "ccp_alpha",
           "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
+          "name": "max_samples"
         }
       ],
       "description": "An extra-trees classifier.\n\nThis class implements a meta estimator that fits a number of\nrandomized decision trees (a.k.a. extra-trees) on various sub-samples\nof the dataset and uses averaging to improve the predictive accuracy\nand control over-fitting.\n\nRead more in the :ref:`User Guide <forest>`.\n",
@@ -953,6 +958,11 @@
           "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
           "name": "ccp_alpha",
           "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
+          "name": "max_samples"
         }
       ],
       "description": "A random forest regressor.\n\nA random forest is a meta estimator that fits a number of classifying\ndecision trees on various sub-samples of the dataset and uses averaging\nto improve the predictive accuracy and control over-fitting.\nThe sub-sample size is always the same as the original\ninput sample size but the samples are drawn with replacement if\n`bootstrap=True` (default).\n\nRead more in the :ref:`User Guide <forest>`.\n",
@@ -1080,6 +1090,11 @@
           "description": "Complexity parameter used for Minimal Cost-Complexity Pruning. The\nsubtree with the largest cost complexity that is smaller than\n``ccp_alpha`` will be chosen. By default, no pruning is performed. See\n:ref:`minimal_cost_complexity_pruning` for details.\n\n.. versionadded:: 0.22\n",
           "name": "ccp_alpha",
           "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
+          "name": "max_samples"
         }
       ],
       "description": "A random forest classifier.\n\nA random forest is a meta estimator that fits a number of decision tree\nclassifiers on various sub-samples of the dataset and uses averaging to\nimprove the predictive accuracy and control over-fitting.\nThe sub-sample size is always the same as the original\ninput sample size but the samples are drawn with replacement if\n`bootstrap=True` (default).\n\nRead more in the :ref:`User Guide <forest>`.\n",
