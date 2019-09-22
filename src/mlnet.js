@@ -115,7 +115,7 @@ mlnet.Graph = class {
             for (let output of transformer.outputs) {
                 if (scope[output.name]) {
                     scope[output.name].counter++;
-                    var next = output.name + '|' + scope[output.name].counter.toString(); // custom argument id
+                    var next = output.name + '\n' + scope[output.name].counter.toString(); // custom argument id
                     scope[output.name].argument = next;
                     output.name = next;
                 }
@@ -349,28 +349,26 @@ mlnet.TensorType = class {
             [ 'TextSpan', 'string' ]
         ]);
 
-        switch (codec.name) {
-            case 'VBuffer':
-                if (mlnet.TensorType._map.has(codec.itemType.name)) {
-                    this._dataType = mlnet.TensorType._map.get(codec.itemType.name);
-                }
-                this._shape = new mlnet.TensorShape(codec.dims);
-                break;
-            case 'Key2':
-                this._dataType = 'key2';
-                break;
-            default:
-                if (mlnet.TensorType._map.has(codec.name)) {
-                    this._dataType = mlnet.TensorType._map.get(codec.name);
-                }
-                break;
-        }
+        this._dataType = '?';
+        this._shape = new mlnet.TensorShape(null);
 
-        if (!this._dataType) {
-            this._dataType = '?';
+        if (mlnet.TensorType._map.has(codec.name)) {
+            this._dataType = mlnet.TensorType._map.get(codec.name);
         }
-        if (!this._shape) {
-            this._shape = new mlnet.TensorShape(null);
+        else if (codec.name == 'VBuffer') {
+            if (mlnet.TensorType._map.has(codec.itemType.name)) {
+                this._dataType = mlnet.TensorType._map.get(codec.itemType.name);
+            }
+            else {
+                throw new mlnet.Error("Unknown data type '" + codec.name + "'.");
+            }
+            this._shape = new mlnet.TensorShape(codec.dims);
+        }
+        else if (codec.name == 'Key2') {
+            this._dataType = 'key2';
+        }
+        else { 
+            throw new mlnet.Error("Unknown data type '" + codec.name + "'.");
         }
     }
 
@@ -865,21 +863,16 @@ mlnet.BinaryLoader = class { // 'BINLOADR'
                 this.Threads = context.reader.int32();
                 this.GeneratedRowIndexName = context.string(null);
             }
-            if (context.modelVersionWritten >= 0x00010003) {
-                this.ShuffleBlocks = context.reader.float64();
-            }
+            this.ShuffleBlocks = context.modelVersionWritten >= 0x00010003 ? context.reader.float64() : 4;
             reader = context.openBinary('Schema.idv');
         }
         // https://github.com/dotnet/machinelearning/blob/master/docs/code/IdvFileFormat.md
         reader.assert('CML\0DVB\0');
-        let version = new mlnet.Version(reader);
-        let compatibleVersion =  new mlnet.Version(reader);
-        if (compatibleVersion.value > version.value) {
-            throw new mlnet.Error("Compatibility version '" + compatibleVersion + "' cannot be greater than file version '" + version + "'.");
-        }
+        reader.bytes(8); // version
+        reader.bytes(8); // compatibleVersion
         let tableOfContentsOffset = reader.uint64();
         let tailOffset = reader.int64();
-        /* let rowCount = */ reader.int64();
+        reader.int64(); // rowCount
         let columnCount = reader.int32();
         reader.position = tailOffset;
         reader.assert('\0BVD\0LMC');
@@ -898,24 +891,6 @@ mlnet.BinaryLoader = class { // 'BINLOADR'
         }
     }
 };
-
-mlnet.Version = class {
-
-    constructor(reader) {
-        this.major = reader.int16();
-        this.minor = reader.int16();
-        this.build = reader.int16();
-        this.revision = reader.int16();
-    }
-
-    get value() {
-        return (this.major << 24) | (this.minor << 16) | (this.build << 8) | this.revision;
-    }
-
-    toString() {
-        return [ this.major, this.minor, this.build, this.revision ].join('.');
-    }
-}
 
 mlnet.TransformerChain = class {
 
@@ -1020,14 +995,10 @@ mlnet.ColumnConcatenatingTransformer = class {
 mlnet.PredictionTransformerBase = class {
 
     constructor(context) {
-        let model = context.open('Model');
-        for (let key of Object.keys(model)) {
-            this[key] = model[key];
-        }
-        this.Type = model.__type__;
+        this.Model = context.open('Model');
         var trainSchemaReader = context.openBinary('TrainSchema');
         if (trainSchemaReader) {
-            this.TrainSchema = new mlnet.BinaryLoader(null, trainSchemaReader).schema;
+            new mlnet.BinaryLoader(null, trainSchemaReader).schema;
         }
     }
 };
@@ -1043,6 +1014,7 @@ mlnet.FieldAwareFactorizationMachinePredictionTransformer = class extends mlnet.
         }
         this.Threshold = reader.float32();
         this.ThresholdColumn = context.string();
+        this.inputs.push({ name: this.ThresholdColumn });
     }
 }
 
@@ -1113,7 +1085,8 @@ mlnet.MulticlassPredictionTransformer = class extends mlnet.SingleFeaturePredict
 
     constructor(context) {
         super(context);
-        this.trainLabelColumn = context.string(null);
+        this.TrainLabelColumn = context.string(null);
+        this.inputs.push({ name: this.TrainLabelColumn });
     }
 };
 
