@@ -474,6 +474,7 @@ function loadModel(target, item) {
                 output.name.length;
                 for (argument of output.arguments) {
                     argument.id.toString();
+                    argument.id.length;
                     if (argument.type) {
                         argument.type.toString();
                     }
