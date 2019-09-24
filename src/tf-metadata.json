@@ -24188,7 +24188,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `Greater` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "description": "*NOTE*: `Greater` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nExample:\n\n```python\nx = tf.constant([5, 4, 6])\ny = tf.constant([5, 2, 5])\ntf.math.greater(x, y) ==> [False, True, True]\n\nx = tf.constant([5, 4, 6])\ny = tf.constant([5])\ntf.math.greater(x, y) ==> [False, False, True]\n```",
       "inputs": [
         {
           "name": "x",
@@ -24267,7 +24267,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `GreaterEqual` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "description": "*NOTE*: `GreaterEqual` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nExample:\n\n```python\nx = tf.constant([5, 4, 6, 7])\ny = tf.constant([5, 2, 5, 10])\ntf.math.greater_equal(x, y) ==> [True, True, True, False]\n\nx = tf.constant([5, 4, 6, 7])\ny = tf.constant([5])\ntf.math.greater_equal(x, y) ==> [True, False, True, True]\n```",
       "inputs": [
         {
           "name": "x",
@@ -26450,7 +26450,7 @@
           "type": "type"
         }
       ],
-      "description": "@compatibility(numpy)\nEquivalent to np.isfinite\n@end_compatibility",
+      "description": "@compatibility(numpy)\nEquivalent to np.isfinite\n@end_compatibility\n\nExample:\n\n```python\nx = tf.constant([5.0, 4.8, 6.8, np.inf, np.nan])\ntf.math.is_finite(x) ==> [True, True, True, False, False]\n```",
       "inputs": [
         {
           "name": "x",
@@ -26493,7 +26493,7 @@
           "type": "type"
         }
       ],
-      "description": "@compatibility(numpy)\nEquivalent to np.isinf\n@end_compatibility",
+      "description": "@compatibility(numpy)\nEquivalent to np.isinf\n@end_compatibility\n\nExample:\n\n```python\nx = tf.constant([5.0, np.inf, 6.8, np.inf])\ntf.math.is_inf(x) ==> [False, True, False, True]\n```",
       "inputs": [
         {
           "name": "x",
@@ -26536,7 +26536,7 @@
           "type": "type"
         }
       ],
-      "description": "@compatibility(numpy)\nEquivalent to np.isnan\n@end_compatibility",
+      "description": "@compatibility(numpy)\nEquivalent to np.isnan\n@end_compatibility\n\nExample:\n\n```python\nx = tf.constant([5.0, np.nan, 6.8, np.nan, np.inf])\ntf.math.is_nan(x) ==> [False, True, False, True, False]\n```",
       "inputs": [
         {
           "name": "x",
@@ -27744,7 +27744,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `Less` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "description": "*NOTE*: `Less` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nExample:\n\n```python\nx = tf.constant([5, 4, 6])\ny = tf.constant([5])\ntf.math.less(x, y) ==> [False, True, False]\n\nx = tf.constant([5, 4, 6])\ny = tf.constant([5, 6, 7])\ntf.math.less(x, y) ==> [False, True, True]\n```",
       "inputs": [
         {
           "name": "x",
@@ -27823,7 +27823,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `LessEqual` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "description": "*NOTE*: `LessEqual` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nExample:\n\n```python\nx = tf.constant([5, 4, 6])\ny = tf.constant([5])\ntf.math.less_equal(x, y) ==> [True, True, False]\n\nx = tf.constant([5, 4, 6])\ny = tf.constant([5, 6, 6])\ntf.math.less_equal(x, y) ==> [True, True, True]\n```",
       "inputs": [
         {
           "name": "x",
@@ -27870,6 +27870,7 @@
           "type": "type"
         }
       ],
+      "description": "  For positive numbers, this function computes log((input - 1)!) for every element in the tensor.\n  `lgamma(5) = log((5-1)!) = log(4!) = log(24) = 3.1780539`\n\nExample:\n\n```python\nx = tf.constant([0, 0.5, 1, 4.5, -4, -5.6])\ntf.math.lgamma(x) ==> [inf, 0.5723649, 0., 2.4537368, inf, -4.6477685]\n```",
       "inputs": [
         {
           "name": "x",
@@ -28960,7 +28961,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\\\(y = \\log_e x\\\\).",
+      "description": "I.e., \\\\(y = \\log_e x\\\\).\n\nExample:\n\n```python\nx = tf.constant([0, 0.5, 1, 5])\ntf.math.log(x) ==> [-inf, -0.6931472,  0. ,  1.609438]\n```",
       "inputs": [
         {
           "name": "x",
@@ -29011,7 +29012,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\\\(y = \\log_e (1 + x)\\\\).",
+      "description": "I.e., \\\\(y = \\log_e (1 + x)\\\\).\n\nExample:\n\n```python\nx = tf.constant([0, 0.5, 1, 5])\ntf.math.log1p(x) ==> [0., 0.4054651, 0.6931472, 1.7917595]\n```",
       "inputs": [
         {
           "name": "x",
@@ -46641,6 +46642,51 @@
     }
   },
   {
+    "name": "Recv",
+    "schema": {
+      "attributes": [
+        {
+          "name": "tensor_type",
+          "type": "type"
+        },
+        {
+          "description": "The name of the tensor to receive.",
+          "name": "tensor_name",
+          "type": "string"
+        },
+        {
+          "description": "The name of the device sending the tensor.",
+          "name": "send_device",
+          "type": "string"
+        },
+        {
+          "description": "The current incarnation of send_device.",
+          "name": "send_device_incarnation",
+          "type": "int64"
+        },
+        {
+          "description": "The name of the device receiving the tensor.",
+          "name": "recv_device",
+          "type": "string"
+        },
+        {
+          "default": false,
+          "description": "If set to true, this indicates that the node was added\nto the graph as a result of a client-side feed or fetch of Tensor data,\nin which case the corresponding send or recv is expected to be managed\nlocally by the caller.",
+          "name": "client_terminated",
+          "type": "boolean"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The tensor to receive.",
+          "name": "tensor",
+          "typeAttr": "tensor_type"
+        }
+      ],
+      "summary": "Receives the named tensor from send_device on recv_device."
+    }
+  },
+  {
     "name": "RecvTPUEmbeddingActivations",
     "schema": {
       "attributes": [
@@ -58561,6 +58607,51 @@
         }
       ],
       "summary": "Computes gradients for the scaled exponential linear (Selu) operation."
+    }
+  },
+  {
+    "name": "Send",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "The name of the tensor to send.",
+          "name": "tensor_name",
+          "type": "string"
+        },
+        {
+          "description": "The name of the device sending the tensor.",
+          "name": "send_device",
+          "type": "string"
+        },
+        {
+          "description": "The current incarnation of send_device.",
+          "name": "send_device_incarnation",
+          "type": "int64"
+        },
+        {
+          "description": "The name of the device receiving the tensor.",
+          "name": "recv_device",
+          "type": "string"
+        },
+        {
+          "default": false,
+          "description": "If set to true, this indicates that the node was added\nto the graph as a result of a client-side feed or fetch of Tensor data,\nin which case the corresponding send or recv is expected to be managed\nlocally by the caller.",
+          "name": "client_terminated",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The tensor to send.",
+          "name": "tensor",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Sends the named tensor from send_device to recv_device."
     }
   },
   {
