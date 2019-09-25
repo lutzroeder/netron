@@ -10,28 +10,28 @@ var base = base || require('./base');
 ncnn.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier.toLowerCase();
+        const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
             let text = context.text;
             text = text.substring(0, Math.min(text.length, 32));
-            let signature = text.split('\n').shift().trim();
+            const signature = text.split('\n').shift().trim();
             if (signature === '7767517') {
                 return true;
             }
         }
         if (identifier.endsWith('.param.bin')) {
-            let buffer = context.buffer;
+            const buffer = context.buffer;
             if (buffer.length > 4) {
-                let signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
+                const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
                 if (signature == 0x007685DD) {
                     return true;
                 }
             }
         }
         if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
-            let buffer = context.buffer;
+            const buffer = context.buffer;
             if (buffer.length > 4) {
-                let signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
+                const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
                 if (signature === 0x00000000 || signature === 0x00000001 || 
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
                     return true;
@@ -43,8 +43,8 @@ ncnn.ModelFactory = class {
 
     open(context, host) {
         return ncnn.Metadata.open(host).then((metadata) => {
-            let identifier = context.identifier.toLowerCase();
-            let param = (param, bin) => {
+            const identifier = context.identifier.toLowerCase();
+            const param = (param, bin) => {
                 try {
                     return new ncnn.Model(metadata, param, bin);
                 }
@@ -120,7 +120,7 @@ ncnn.Graph = class {
         this._outputs = [];
         this._nodes = [];
 
-        let blobReader = new ncnn.BlobReader(bin);
+        const blobReader = new ncnn.BlobReader(bin);
 
         let layers = (typeof param == 'string') ?
             this._param(metadata, param, bin) :
@@ -141,11 +141,11 @@ ncnn.Graph = class {
 
     _param(metadata, param) {
         let lines = param.split('\n');
-        let signature = lines.shift();
+        const signature = lines.shift();
         if (signature !== '7767517') {
             throw new ncnn.Error('Invalid signature.')
         }
-        let header = lines.shift().split(' ');
+        const header = lines.shift().split(' ');
         if (header.length !== 2) {
             throw new ncnn.Error('Invalid header count.');
         }
@@ -159,8 +159,8 @@ ncnn.Graph = class {
                 layer = {};
                 layer.type = columns.shift();
                 layer.name = columns.shift();
-                let inputCount = parseInt(columns.shift(), 10);
-                let outputCount = parseInt(columns.shift(), 10);
+                const inputCount = parseInt(columns.shift(), 10);
+                const outputCount = parseInt(columns.shift(), 10);
                 layer.inputs = columns.splice(0, inputCount);
                 layer.outputs = columns.splice(0, outputCount);
                 layer.attr = {};
@@ -184,11 +184,11 @@ ncnn.Graph = class {
     }
 
     _param_bin(metadata, param) {
-        let reader = new ncnn.BinaryParamReader(param);
+        const reader = new ncnn.BinaryParamReader(param);
         if (!reader.signature()) {
             throw new ncnn.Error('Invalid signature.')
         }
-        let layerCount = reader.int32();
+        const layerCount = reader.int32();
         /* var blobCount = */ reader.int32();
         let layers = [];
         for (let i = 0; i < layerCount; i++) {
@@ -271,6 +271,7 @@ ncnn.Parameter = class {
 };
 
 ncnn.Argument = class {
+
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -303,12 +304,12 @@ ncnn.Node = class {
         this._operator = layer.type;
         this._name = layer.name;
 
-        let operator = metadata.getOperatorName(this._operator);
+        const operator = metadata.getOperatorName(this._operator);
         if (operator) {
             this._operator = operator;
         }
 
-        let schema = metadata.getSchema(this._operator);
+        const schema = metadata.getSchema(this._operator);
 
         let attributeMetadata = {};
         if (schema && schema.attributes) {
@@ -471,7 +472,7 @@ ncnn.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -762,7 +763,7 @@ ncnn.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

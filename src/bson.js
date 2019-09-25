@@ -22,19 +22,19 @@ bson.Reader = class {
     }
 
     document(isArray) {
-        let start = this._position;
-        let size = this.int32();
+        const start = this._position;
+        const size = this.int32();
         if (size < 5 || start + size > this._buffer.length || this._buffer[start + size - 1] != 0x00) {
             throw new bson.Reader('Invalid BSON size.');
         }
         let element = isArray ? [] : {};
         let index = 0;
         for (;;) {
-            var type = this.byte();
+            const type = this.byte();
             if (type == 0x00) {
                 break;
             }
-            let key = this.cstring();
+            const key = this.cstring();
             let value = null;
             switch (type) {
                 case 0x01:
@@ -85,15 +85,15 @@ bson.Reader = class {
     }
 
     cstring() {
-        var end = this._buffer.indexOf(0x00, this._position);
-        let value = this._asciiDecoder.decode(this._buffer.subarray(this._position, end));
+        const end = this._buffer.indexOf(0x00, this._position);
+        const value = this._asciiDecoder.decode(this._buffer.subarray(this._position, end));
         this._position = end + 1;
         return value;
     }
 
     string() {
-        let end = this.int32() + this._position - 1;
-        let value = this._utf8Decoder.decode(this._buffer.subarray(this._position, end));
+        const end = this.int32() + this._position - 1;
+        const value = this._utf8Decoder.decode(this._buffer.subarray(this._position, end));
         this._position = end;
         if (this.byte() != '0x00') {
             throw new bson.Error('String missing terminal 0.');
@@ -102,9 +102,9 @@ bson.Reader = class {
     }
 
     binary() {
-        let size = this.int32();
-        let subtype = this.byte();
-        let data = this._buffer.subarray(this._position, this._position + size);
+        const size = this.int32();
+        const subtype = this.byte();
+        const data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         switch (subtype) {
             case 0x00:
@@ -115,7 +115,7 @@ bson.Reader = class {
     }
     
     boolean()  {
-        let value = this.byte();
+        const value = this.byte();
         switch (value) {
             case 0x00: return false;
             case 0x01: return true;
@@ -128,21 +128,21 @@ bson.Reader = class {
     }
 
     int32() {
-        let value = this._view.getInt32(this._position, true);
+        const value = this._view.getInt32(this._position, true);
         this._position += 4;
         return value;
     }
 
     int64() {
-        let low = this._view.getUint32(this._position, true);
-        let hi = this._view.getUint32(this._position + 4, true);
+        const low = this._view.getUint32(this._position, true);
+        const hi = this._view.getUint32(this._position + 4, true);
         this._position += 8;
         return new long.Long(low, hi, false).toNumber();
     }
 
     uint64() {
-        let low = this._view.getUint32(this._position, true);
-        let hi = this._view.getUint32(this._position + 4, true);
+        const low = this._view.getUint32(this._position, true);
+        const hi = this._view.getUint32(this._position + 4, true);
         this._position += 8;
         return new long.Long(low, hi, true).toNumber();
     }

@@ -25,7 +25,7 @@ python.Parser = class {
         let node = this._node('program');
         node.body = [];
         while (!this._tokenizer.match('eof')) {
-            let statement = this._parseStatement();
+            const statement = this._parseStatement();
             if (statement) {
                 node.body.push(statement);
                 continue;
@@ -667,7 +667,7 @@ python.Parser = class {
                 stack.push(node);
                 continue;
             }
-            let identifier = this._parseName();
+            const identifier = this._parseName();
             if (identifier) {
                 stack.push(identifier);
                 continue;
@@ -854,7 +854,7 @@ python.Parser = class {
         if (this._tokenizer.eat('*')) {
             node.parameterType = '*';
         }
-        let identifier = this._parseName();
+        const identifier = this._parseName();
         if (identifier !== null) {
             node.name = identifier.value;
             if (terminal !== ':' && this._tokenizer.eat(':')) {

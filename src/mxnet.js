@@ -10,18 +10,18 @@ var ndarray = ndarray || {};
 mxnet.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier;
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'model' || extension == 'mar') {
             if (context.entries.length > 0) {
                 return true;
             }
         }
         else if (extension == 'json') {
-            let json = context.text;
+            const json = context.text;
             if (json.indexOf('"nodes":', 0) != -1) {
                 try {
-                    let symbol = JSON.parse(json);
+                    const symbol = JSON.parse(json);
                     if (symbol && symbol.nodes && symbol.arg_nodes && symbol.heads) {
                         return true;
                     }
@@ -32,8 +32,8 @@ mxnet.ModelFactory = class {
             }
         }
         else if (extension == 'params') {
-            let buffer = context.buffer;
-            let signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+            const buffer = context.buffer;
+            const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
             if (buffer && buffer.length > signature.length && signature.every((v, i) => v == buffer[i])) {
                 return true;
             }
@@ -42,8 +42,8 @@ mxnet.ModelFactory = class {
     }
 
     open(context, host) {
-        let identifier = context.identifier;
-        let extension = context.identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier;
+        const extension = context.identifier.split('.').pop().toLowerCase();
         let symbol = null;
         let params = null;
         let format = null;
@@ -604,7 +604,7 @@ mxnet.Node = class {
         this._inputs = [];
         this._outputs = [];
 
-        let attrs = node.attrs || node.attr || node.param;
+        const attrs = node.attrs || node.attr || node.param;
         if (attrs) {
             if (this._operator == 'tvm_op' && attrs.func_name) {
                 this._operator = attrs.func_name;
@@ -617,7 +617,7 @@ mxnet.Node = class {
         }
 
         let initializer = null;
-        let schema = metadata.getSchema(this.operator);
+        const schema = metadata.getSchema(this.operator);
         if (node.inputs) {
             let inputs = node.inputs;
             if (this._operator == 'RNN') {
@@ -750,7 +750,7 @@ mxnet.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator); 
+        const schema = this._metadata.getSchema(this._operator); 
         return schema && schema.category ? schema.category : '';
     }
 
@@ -812,7 +812,7 @@ mxnet.Attribute = class {
         this._value = value;
 
         let number;
-        let schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.getAttributeSchema(operator, name);
         if (schema && schema.type) {
             switch (schema.type) {
                 case 'boolean':
@@ -1134,7 +1134,7 @@ mxnet.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

@@ -9,8 +9,8 @@ var marked = marked || require('marked');
 flux.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier; 
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier; 
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'bson') {
             return true;
         }
@@ -20,12 +20,12 @@ flux.ModelFactory = class {
     open(context, host) {
         return host.require('./bson').then((bson) => {
             let model = null;
-            let identifier = context.identifier;
+            const identifier = context.identifier;
             try {
-                let reader = new bson.Reader(context.buffer);
-                let root = reader.read();
-                root = flux.ModelFactory._backref(root, root);
-                model = root.model;
+                const reader = new bson.Reader(context.buffer);
+                const root = reader.read();
+                const obj = flux.ModelFactory._backref(root, root);
+                model = obj.model;
                 if (!model) {
                     throw new flux.Error('File does not contain Flux model.');
                 }
@@ -35,9 +35,7 @@ flux.ModelFactory = class {
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 throw new flux.Error(message + " in '" + identifier + "'.");
             }
-
             return flux.Metadata.open(host).then((metadata) => {
-                let identifier = context.identifier;
                 try {
                     return new flux.Model(metadata, model);
                 }

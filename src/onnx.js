@@ -11,12 +11,11 @@ var marked = marked || require('marked');
 onnx.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier;
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'onnx') {
             return true;
         }
-        let tags = null;
         if (extension == 'pb') {
             if (identifier.endsWith('saved_model.pb')) {
                 return false;
@@ -24,7 +23,7 @@ onnx.ModelFactory = class {
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return false;
             }
-            tags = context.tags('pb');
+            const tags = context.tags('pb');
             if (tags.size === 0) {
                 return false;
             }
@@ -58,7 +57,7 @@ onnx.ModelFactory = class {
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            tags = context.tags('pbtxt');
+            const tags = context.tags('pbtxt');
             if (tags.has('ir_version') || tags.has('graph')) {
                 return true;
             }
@@ -69,12 +68,12 @@ onnx.ModelFactory = class {
     open(context, host) { 
         return host.require('./onnx-proto').then(() => {
             let model = null;
-            let identifier = context.identifier; 
-            let extension = identifier.split('.').pop().toLowerCase();
+            const identifier = context.identifier; 
+            const extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
                     onnx.proto = protobuf.roots.onnx.onnx;
-                    let reader = prototxt.TextReader.create(context.text);
+                    const reader = prototxt.TextReader.create(context.text);
                     model = onnx.proto.ModelProto.decodeText(reader);
                 }
                 catch (error) {
@@ -316,7 +315,7 @@ onnx.Graph = class {
             }
             for (let node of nodes) {
                 let inputs = [];
-                let schema = metadata.getSchema(node.op_type);
+                const schema = metadata.getSchema(node.op_type);
                 if (node.input && node.input.length > 0) {
                     let inputIndex = 0;
                     if (schema && schema.inputs) {
@@ -493,7 +492,7 @@ onnx.Node = class {
     get documentation() {
         let schema = this._metadata.getSchema(this._operator);
         if (schema) {
-            let options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
+            const options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
             if (schema.description) {
@@ -546,7 +545,7 @@ onnx.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -946,7 +945,7 @@ onnx.Tensor = class {
         if (Array.isArray(value)) {
             let result = [];
             result.push(indentation + '[');
-            let items = value.map((item) => onnx.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => onnx.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -1162,7 +1161,7 @@ onnx.GraphMetadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

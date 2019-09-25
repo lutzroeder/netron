@@ -9,8 +9,8 @@ var long = long || { Long: require('long') };
 dl4j.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier.toLowerCase();
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier.toLowerCase();
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'zip' && context.entries.length > 0) {
             if (dl4j.ModelFactory._openContainer(context)) {
                 return true;
@@ -20,10 +20,10 @@ dl4j.ModelFactory = class {
     }
 
     open(context, host) {
-        let identifier = context.identifier;
+        const identifier = context.identifier;
         try {
-            let container = dl4j.ModelFactory._openContainer(context); 
-            let configuration = JSON.parse(container.configuration);
+            const container = dl4j.ModelFactory._openContainer(context); 
+            const configuration = JSON.parse(container.configuration);
             return dl4j.Metadata.open(host).then((metadata) => {
                 try {
                     return new dl4j.Model(metadata, configuration, container.coefficients);
@@ -45,7 +45,7 @@ dl4j.ModelFactory = class {
     }
 
     static _openContainer(context) {
-        let configurationEntries = context.entries.filter((entry) => entry.name === 'configuration.json');
+        const configurationEntries = context.entries.filter((entry) => entry.name === 'configuration.json');
         if (configurationEntries.length != 1) {
             return null;
         }
@@ -59,11 +59,11 @@ dl4j.ModelFactory = class {
         if (configuration.indexOf('"vertices"') === -1 && configuration.indexOf('"confs"') === -1) {
             return null;
         }
-        let coefficientsEntries = context.entries.filter((entry) => entry.name === 'coefficients.bin');
+        const coefficientsEntries = context.entries.filter((entry) => entry.name === 'coefficients.bin');
         if (coefficientsEntries.length > 1) {
             return null;
         }
-        let coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : 0;
+        const coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : 0;
         let container = {};
         container.configuration = configuration;
         container.coefficients = coefficients;
@@ -346,7 +346,7 @@ dl4j.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -399,7 +399,7 @@ dl4j.Attribute = class {
         this._name = name;
         this._value = value;
         this._visible = false;
-        let schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.visible) {
                 this._visible = true;
@@ -521,7 +521,7 @@ dl4j.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

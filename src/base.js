@@ -8,8 +8,8 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
 
 if (!DataView.prototype.getFloat16) {
     DataView.prototype.getFloat16 = function(byteOffset, littleEndian) {
-        let value = this.getUint16(byteOffset, littleEndian);
-        let e = (value & 0x7C00) >> 10;
+        const value = this.getUint16(byteOffset, littleEndian);
+        const e = (value & 0x7C00) >> 10;
         let f = value & 0x03FF;
         if (e == 0) {
             f = 0.00006103515625 * (f / 1024);
@@ -34,10 +34,10 @@ if (!DataView.prototype.setFloat16) {
     DataView.prototype.setFloat16 = function(byteOffset, value, littleEndian) {
         DataView.__float16_float[0] = value;
         value = DataView.__float16_int[0];
-        let s = (value >>> 16) & 0x8000;
-        let e = (value >>> 23) & 0xff;
-        let f = value & 0x7fffff;
-        let v = s | DataView.__float16_base[e] | (f >> DataView.__float16_shift[e]);
+        const s = (value >>> 16) & 0x8000;
+        const e = (value >>> 23) & 0xff;
+        const f = value & 0x7fffff;
+        const v = s | DataView.__float16_base[e] | (f >> DataView.__float16_shift[e]);
         this.setUint16(byteOffset, v, littleEndian);
     };
     DataView.__float16_float = new Float32Array(1);
@@ -72,15 +72,15 @@ if (!DataView.prototype.setFloat16) {
 if (!DataView.prototype.getBits) {
     DataView.prototype.getBits = function(offset, bits /*, signed */) {
         offset = offset * bits;
-        let available = (this.byteLength << 3) - offset;
+        const available = (this.byteLength << 3) - offset;
         if (bits > available) {
             throw new RangeError();
         }
         let value = 0;
         let index = 0;
         while (index < bits) {
-            let remainder = offset & 7;
-            let size = Math.min(bits - index, 8 - remainder);
+            const remainder = offset & 7;
+            const size = Math.min(bits - index, 8 - remainder);
             value <<= size;
             value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
             offset += size;

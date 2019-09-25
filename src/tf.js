@@ -12,11 +12,10 @@ var marked = marked || require('marked');
 tf.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier;
-        let extension = identifier.split('.').pop().toLowerCase();
-        let tags = null;
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'meta') {
-            tags = context.tags('pb');
+            const tags = context.tags('pb');
             if (tags.size === 0) {
                 return false;
             }
@@ -27,15 +26,15 @@ tf.ModelFactory = class {
                 return false;
             }
             if (identifier == 'tfhub_module.pb') {
-                let buffer = context.buffer;
+                const buffer = context.buffer;
                 if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
                     return false;
                 }
             }
-            tags = context.tags('pb');
+            const tags = context.tags('pb');
             if (tags.size === 0) {
-                tags = context.tags('pbtxt');
-                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
+                const textTags = context.tags('pbtxt');
+                if (textTags.has('node') || textTags.has('saved_model_schema_version') || textTags.has('meta_graphs') || textTags.has('graph_def')) {
                     return true;
                 }
                 return false;
@@ -58,14 +57,14 @@ tf.ModelFactory = class {
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            tags = context.tags('pbtxt');
+            const tags = context.tags('pbtxt');
             if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
                 return true;
             }
         }
         if (extension == 'json') {
             try {
-                let root = JSON.parse(context.text);
+                const root = JSON.parse(context.text);
                 if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
                     return true;
                 }
@@ -85,10 +84,10 @@ tf.ModelFactory = class {
             let saved_model = null;
             let format = null;
             let producer = null;
-            let identifier = context.identifier; 
-            let extension = identifier.split('.').pop().toLowerCase();
+            const identifier = context.identifier; 
+            const extension = identifier.split('.').pop().toLowerCase();
             if (extension !== 'json') {
-                let tags = context.tags('pbtxt');
+                const tags = context.tags('pbtxt');
                 if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
                     if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
                         try {
@@ -181,7 +180,7 @@ tf.ModelFactory = class {
             }
             else {
                 try {
-                    let root = JSON.parse(context.text);
+                    const root = JSON.parse(context.text);
                     graph_def = new tf.proto.GraphDef();
                     meta_graph = new tf.proto.MetaGraphDef();
                     meta_graph.graph_def = graph_def;
@@ -220,7 +219,7 @@ tf.Model = class {
         this._producer = producer || '';
         this._graphs = [];
         for (let i = 0; i < model.meta_graphs.length; i++) {
-            let metaGraph = model.meta_graphs[i];
+            const metaGraph = model.meta_graphs[i];
             let name = null;
             if (metaGraph.any_info) {
                 name = metaGraph.any_info.toString();
@@ -278,7 +277,7 @@ tf.Graph = class {
         this._functions = [];
 
         if (metaGraph.graph_def) {
-            let graph = metaGraph.graph_def;
+            const graph = metaGraph.graph_def;
             if (graph.versions) {
                 this._version = 'v' + graph.versions.producer.toString();
             }
@@ -291,12 +290,12 @@ tf.Graph = class {
             if (metaGraph.meta_info_def && metaGraph.meta_info_def.tags) {
                 this._tags = metaGraph.meta_info_def.tags.join(', ');
             }
-            let nodes = graph.node
+            const nodes = graph.node
             if (nodes) {
                 let nodeMap = {};
                 this._namespaces = {};
                 for (let node of nodes) {
-                    let nodeName = node.name;
+                    const nodeName = node.name;
                     nodeMap[nodeName] = node;
                     if (node.op != 'Const') {
                         let lastIndex = nodeName.lastIndexOf('/');
@@ -308,7 +307,7 @@ tf.Graph = class {
                     node.output = [];
                 }
                 for (let node of nodes) {
-                    let inputs = node.input;
+                    const inputs = node.input;
                     node.input = [];
                     node.controlDependencies = [];
                     for (let input of inputs) {
@@ -367,11 +366,11 @@ tf.Graph = class {
                 let inputMap = {};
                 for (let node of nodes) {
                     if (node.op == 'Placeholder' && node.input.length == 0 && node.controlDependencies.length == 0 && node.output.length == 1) {
-                        let dtype = node.attr.dtype;
-                        let shape = node.attr.shape;
+                        const dtype = node.attr.dtype;
+                        const shape = node.attr.shape;
                         if (dtype && dtype.type && shape && shape.shape) {
-                            let type = new tf.TensorType(dtype.type, shape.shape);
-                            let argument = new tf.Argument(node.output[0], type, null);
+                            const type = new tf.TensorType(dtype.type, shape.shape);
+                            const argument = new tf.Argument(node.output[0], type, null);
                             inputMap[node.output[0]] = new tf.Parameter(node.name, [ argument ]);
                         }
                     }
@@ -441,8 +440,8 @@ tf.Graph = class {
         if (node.output.length != 1) {
             return false;
         }
-        let output = node.output[0];
-        let count = this._nodeOutputCountMap[output];
+        const output = node.output[0];
+        const count = this._nodeOutputCountMap[output];
         if (count != 1) {
             return false;
         }
@@ -451,6 +450,7 @@ tf.Graph = class {
 };
 
 tf.Parameter = class {
+
     constructor(name, args) {
         this._name = name;
         this._arguments = args;
@@ -470,6 +470,7 @@ tf.Parameter = class {
 };
 
 tf.Argument = class {
+
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -681,7 +682,7 @@ tf.Node = class {
         if (Object.prototype.hasOwnProperty.call(node, 'device')) {
             this._device = node.device;
         }
-        let metadata = graph.metadata;
+        const metadata = graph.metadata;
         this._attributes = [];
         if (node.attr) {
             for (let attributeName of Object.keys(node.attr)) {
@@ -689,7 +690,7 @@ tf.Node = class {
             }
         }
 
-        let schema = metadata.getSchema(node.op);
+        const schema = metadata.getSchema(node.op);
 
         this._inputs = [];
         let inputIndex = 0;
@@ -769,7 +770,7 @@ tf.Node = class {
     }
 
     get group() {
-        let name = this._name;
+        const name = this._name;
         if (this._graph.namespaces[name]) {
             return name;
         }
@@ -862,7 +863,7 @@ tf.Node = class {
     }
 
     get category() {
-        let schema = this._graph.metadata.getSchema(this.operator);
+        const schema = this._graph.metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -884,11 +885,12 @@ tf.Node = class {
 };
 
 tf.Attribute = class {
+
     constructor(name, value, operator, metadata) {
         this._name = name;
         this._value = null;
         this._type = null;
-        let schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.getAttributeSchema(operator, name);
         if (Object.prototype.hasOwnProperty.call(value, 'tensor')) {
             this._type = 'tensor';
             this._value = new tf.Tensor(value.tensor);
@@ -977,7 +979,7 @@ tf.Attribute = class {
         if (name == '_class') {
             this._visible = false;
         }
-        let attributeVisibleMap = metadata.getAttributeVisibleMap(operator);
+        const attributeVisibleMap = metadata.getAttributeVisibleMap(operator);
         if (attributeVisibleMap[name]) {
             this._visible = false;
         }
@@ -1290,7 +1292,7 @@ tf.GraphMetadata = class {
     }
 
     getSchema(operator) {
-        let schema = this._metadata.getSchema(operator);
+        var schema = this._metadata.getSchema(operator);
         if (!schema) {
             schema = this._map[operator];
         }
@@ -1301,7 +1303,7 @@ tf.GraphMetadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
@@ -1313,7 +1315,7 @@ tf.GraphMetadata = class {
     }
 
     getAttributeVisibleMap(operator) {
-        let schema = this.getSchema(operator);
+        const schema = this.getSchema(operator);
         if (schema) {
             let map = schema.__visisbleAttributeMap__;
             if (!map) {
@@ -1398,7 +1400,7 @@ tf.Metadata = class {
         this._map = {};
         if (data) {
             if (data) {
-                let items = JSON.parse(data);
+                const items = JSON.parse(data);
                 if (items) {
                     for (let item of items) {
                         if (item.name && item.schema) {
@@ -1416,6 +1418,7 @@ tf.Metadata = class {
 };
 
 tf.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading TensorFlow model.';

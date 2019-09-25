@@ -10,9 +10,8 @@ var marked = marked || require('marked');
 caffe.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier;
-        let extension = identifier.split('.').pop().toLowerCase();
-        let tags = null;
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'caffemodel') {
             return true;
         }
@@ -22,15 +21,15 @@ caffe.ModelFactory = class {
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
-            tags = context.tags('pbtxt');
+            const tags = context.tags('pbtxt');
             if (tags.has('layer') || tags.has('layers') || tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                 return true;
             }
         }
         if (extension == 'pt') {
             // Reject PyTorch models
-            let buffer = context.buffer;
-            let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            const buffer = context.buffer;
+            const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
@@ -38,7 +37,7 @@ caffe.ModelFactory = class {
             if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
                 return false;
             }
-            tags = context.tags('pbtxt');
+            const tags = context.tags('pbtxt');
             if (tags.has('layer') || tags.has('layers') || tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                 return true;
             }
@@ -50,9 +49,9 @@ caffe.ModelFactory = class {
         return host.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.roots.caffe.caffe;
             return caffe.Metadata.open(host).then((metadata) => {
-                let extension = context.identifier.split('.').pop();
+                const extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt' || extension == 'pt') {
-                    let tags = context.tags('pbtxt');
+                    const tags = context.tags('pbtxt');
                     if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                         try {
                             let reader = prototxt.TextReader.create(context.text);
@@ -492,7 +491,7 @@ caffe.Node = class {
                 break;
         }
 
-        let schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.getSchema(this.operator);
 
         this._inputs = [];
         let inputs = layer.input.concat(initializers);
@@ -551,7 +550,7 @@ caffe.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._type);
+        const schema = this._metadata.getSchema(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -590,7 +589,7 @@ caffe.Attribute = class {
             this._value = new caffe.TensorShape(value.dim);
         }
 
-        let schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
@@ -812,7 +811,7 @@ caffe.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
@@ -825,6 +824,7 @@ caffe.Metadata = class {
 };
 
 caffe.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading Caffe model.';

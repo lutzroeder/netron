@@ -9,14 +9,13 @@ var marked = marked || require('marked');
 caffe2.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier.toLowerCase();
-        let extension = identifier.split('.').pop().toLowerCase();
-        let tags = null;
+        const identifier = context.identifier.toLowerCase();
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'pb') {
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return true;
             }
-            tags = context.tags('pb');
+            const tags = context.tags('pb');
             // ignore input_0.pb, output_0.pb
             if (tags.size > 0 &&
                 tags.has(1) && tags.get(1) == 0 && 
@@ -49,7 +48,7 @@ caffe2.ModelFactory = class {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
                 return true;
             }
-            tags = context.tags('pbtxt');
+            const tags = context.tags('pbtxt');
             if (tags.has('op')) {
                 return true;
             }
@@ -60,15 +59,15 @@ caffe2.ModelFactory = class {
     open(context, host) {
         return host.require('./caffe2-proto').then(() => {
             return caffe2.Metadata.open(host).then((metadata) => {
-                let identifier = context.identifier; 
-                let extension = identifier.split('.').pop().toLowerCase();
+                const identifier = context.identifier; 
+                const extension = identifier.split('.').pop().toLowerCase();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    let open_text = (predict, init) => {
+                    const open_text = (predict, init) => {
                         let predict_net = null;
                         let init_net = null;
                         try {
                             caffe2.proto = protobuf.roots.caffe2.caffe2;
-                            let reader = prototxt.TextReader.create(predict);
+                            const reader = prototxt.TextReader.create(predict);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe2.proto.DeviceOption) {
                                     message[tag] = this.skip();
@@ -114,7 +113,7 @@ caffe2.ModelFactory = class {
                     }
                 }
                 else {
-                    let open_binary = (predict, init) => {
+                    const open_binary = (predict, init) => {
                         let predict_net = null;
                         let init_net = null;
                         try {
@@ -165,7 +164,7 @@ caffe2.Model = class {
 
     constructor(metadata, predict_net, init_net) {
         this._domain = predict_net.domain || null;
-        let graph = new caffe2.Graph(metadata, predict_net, init_net);
+        const graph = new caffe2.Graph(metadata, predict_net, init_net);
         this._graphs = [ graph ];
     }
 
@@ -196,7 +195,7 @@ caffe2.Graph = class {
         if (init) {
             for (let op of init.op) {
                 if (op.output && op.output.length == 1) {
-                    let name = op.output[0];
+                    const name = op.output[0];
                     let dataType = null;
                     switch (op.type) {
                         case 'GivenTensorFill':
@@ -312,6 +311,7 @@ caffe2.Graph = class {
 };
 
 caffe2.Parameter = class {
+
     constructor(name, args) {
         this._name = name;
         this._arguments = args;
@@ -331,6 +331,7 @@ caffe2.Parameter = class {
 };
 
 caffe2.Argument = class {
+
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -374,7 +375,7 @@ caffe2.Node = class {
             this._attributes.push(new caffe2.Attribute(metadata, this, arg));
         }
 
-        let schema = metadata.getSchema(this._operator);
+        const schema = metadata.getSchema(this._operator);
 
         let inputs = op.input;
         let tensors = {};
@@ -447,7 +448,7 @@ caffe2.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -535,7 +536,7 @@ caffe2.Attribute = class {
             this._value = arg.i;
         }
 
-        let schema = metadata.getAttributeSchema(this._node.operator, this._name);
+        const schema = metadata.getAttributeSchema(this._node.operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 this._type = schema.type;
@@ -724,7 +725,7 @@ caffe2.Tensor = class {
         if (Array.isArray(value)) {
             let result = [];
             result.push(indentation + '[');
-            let items = value.map((item) => caffe2.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => caffe2.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -820,7 +821,7 @@ caffe2.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

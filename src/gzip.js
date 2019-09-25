@@ -11,7 +11,7 @@ gzip.Archive = class {
         if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {
             throw new gzip.Error('Invalid GZIP archive.');
         }
-        let reader = new gzip.Reader(buffer, 0, buffer.length);
+        const reader = new gzip.Reader(buffer, 0, buffer.length);
         this._entries.push(new gzip.Entry(reader));
     }
 
@@ -26,16 +26,16 @@ gzip.Entry = class {
         if (!reader.match([ 0x1f, 0x8b ])) {
             throw new gzip.Error('Invalid GZIP signature.');
         }
-        let compressionMethod = reader.byte();
+        const compressionMethod = reader.byte();
         if (compressionMethod != 8) {
             throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
         }
-        let flags = reader.byte();
+        const flags = reader.byte();
         reader.uint32(); // MTIME
         reader.byte();
         reader.byte(); // OS
         if ((flags & 4) != 0) {
-            let xlen = reader.uint16();
+            const xlen = reader.uint16();
             reader.skip(xlen);
         }
         if ((flags & 8) != 0) {
@@ -59,7 +59,7 @@ gzip.Entry = class {
         }
         reader.position = -8;
         reader.uint32(); // CRC32
-        let size = reader.uint32();
+        const size = reader.uint32();
         if (size != this._data.length) {
             throw new gzip.Error('Invalid size.');
         }
@@ -115,7 +115,7 @@ gzip.Reader = class {
             throw new gzip.Error('Data not available.');
         }
         size = size === undefined ? this._end : size;
-        let data = this._buffer.subarray(this._position, this._position + size);
+        const data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
@@ -124,7 +124,7 @@ gzip.Reader = class {
         if (this._position + 1 > this._end) {
             throw new gzip.Error('Data not available.');
         }
-        let value = this._buffer[this._position];
+        const value = this._buffer[this._position];
         this._position++;
         return value;
     }
@@ -133,7 +133,7 @@ gzip.Reader = class {
         if (this._position + 2 > this._end) {
             throw new gzip.Error('Data not available.');
         }
-        let value = this._buffer[this._position] | (this._buffer[this._position + 1] << 8);
+        const value = this._buffer[this._position] | (this._buffer[this._position + 1] << 8);
         this._position += 2;
         return value;
     }
@@ -144,7 +144,7 @@ gzip.Reader = class {
 
     string() {
         let result = '';
-        let end = this._buffer.indexOf(0x00, this._position);
+        const end = this._buffer.indexOf(0x00, this._position);
         if (end < 0) {
             throw new gzip.Error('End of string not found.');
         }

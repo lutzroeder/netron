@@ -8,24 +8,24 @@ var marked = marked || require('marked');
 keras.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier;
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'keras' || extension == 'h5' || extension == 'hd5' || extension == 'hdf5') {
             // Reject PyTorch models with .h5 file extension.
-            let buffer = context.buffer;
-            let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            const buffer = context.buffer;
+            const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
             return true;
         }
         if (extension == 'model') {
-            let buffer = context.buffer;
-            let hdf5 = [ 0x89, 0x48, 0x44, 0x46 ];
+            const buffer = context.buffer;
+            const hdf5 = [ 0x89, 0x48, 0x44, 0x46 ];
             return (buffer && buffer.length > hdf5.length && hdf5.every((v, i) => v == buffer[i]));
         }
         if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
-            let json = context.text;
+            const json = context.text;
             if (json.indexOf('"mxnet_version":', 0) == -1) {
                 try {
                     let root = JSON.parse(json);
@@ -59,7 +59,7 @@ keras.ModelFactory = class {
             let model_config = null;
             let rootGroup = null;
             let weightsManifest = null;
-            let identifier = context.identifier;
+            const identifier = context.identifier;
             try {
                 switch (identifier.split('.').pop().toLowerCase()) {
                     case 'keras':
@@ -463,6 +463,7 @@ keras.Graph = class {
 };
 
 keras.Parameter = class {
+
     constructor(name, visible, args) {
         this._name = name;
         this._visible = visible;
@@ -483,6 +484,7 @@ keras.Parameter = class {
 };
 
 keras.Argument = class {
+
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -549,7 +551,7 @@ keras.Node = class {
             }
         }
 
-        let schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.getSchema(this.operator);
         let innerOperator = this.inner ? this.inner.operator : null;
         let innerSchema = innerOperator ? this._metadata.getSchema(innerOperator) : null;
         let inputIndex = 0;
@@ -591,14 +593,14 @@ keras.Node = class {
                         break;
                 }
             }
-            let inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+            const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
                 return new keras.Argument(id, null, initializers[id]);
             });
             if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
                 let parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
-                let inputName1 = parts.pop();
-                let inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
-                let inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
+                const inputName1 = parts.pop();
+                const inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
+                const inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
                 inputName = inputNames.has(inputName2) ? inputName2 : inputName1;
             }
             inputName = inputName || inputIndex.toString();
@@ -607,7 +609,7 @@ keras.Node = class {
         }
 
         this._outputs = outputs.map((output, outputIndex) => {
-            let outputName = 
+            const outputName = 
                 (schema && schema.outputs && outputIndex < schema.outputs.length && schema.outputs[outputIndex] && schema.outputs[outputIndex].name) ?
                     schema.outputs[outputIndex].name :
                     outputIndex.toString();
@@ -628,7 +630,7 @@ keras.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -894,7 +896,7 @@ keras.Tensor = class {
 
     _decode(context, dimension) {
         let results = [];
-        let size = context.dimensions[dimension];
+        const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -936,7 +938,7 @@ keras.Tensor = class {
         if (Array.isArray(value)) {
             let result = [];
             result.push(indentation + '[');
-            let items = value.map((item) => keras.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => keras.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -1032,7 +1034,7 @@ keras.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

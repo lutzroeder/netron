@@ -37,10 +37,10 @@ global.TextDecoder = class {
             return String.fromCharCode.apply(null, data);
         }
 
-        var buffer = [];
-        var start = 0;
+        let buffer = [];
+        let start = 0;
         do {
-            var end = start + 32;
+            let end = start + 32;
             if (end > data.length) {
                 end = data.length;
             }
@@ -52,10 +52,9 @@ global.TextDecoder = class {
     }
 };
 
-var type = process.argv.length > 2 ? process.argv[2] : null;
-
-var items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
-var dataFolder = __dirname + '/data';
+const type = process.argv.length > 2 ? process.argv[2] : null;
+const dataFolder = __dirname + '/data';
+let items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
 class TestHost {
 
@@ -82,7 +81,7 @@ class TestHost {
 
     require(id) {
         try {
-            var file = path.join(path.join(__dirname, '../src'), id + '.js');
+            const file = path.join(path.join(__dirname, '../src'), id + '.js');
             return Promise.resolve(require(file));
         }
         catch (error) {
@@ -91,7 +90,7 @@ class TestHost {
     }
 
     request(base, file, encoding) {
-        var pathname = path.join(base || path.join(__dirname, '../src'), file);
+        const pathname = path.join(base || path.join(__dirname, '../src'), file);
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("File not found '" + file + "'."));
         }
@@ -113,7 +112,7 @@ class TestHost {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (var callback of this._events[event]) {
+            for (let callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -159,7 +158,7 @@ class HTMLDocument {
     }
 
     getElementById(id) {
-        var element = this._elements[id];
+        let element = this._elements[id];
         if (!element) {
             element = new HTMLHtmlElement();
             this._elements[id] = element;
@@ -232,12 +231,12 @@ function makeDir(dir) {
 }
 
 function decompress(buffer, identifier) {
-    var archive = null;
-    var extension = identifier.split('.').pop().toLowerCase();
+    let archive = null;
+    const extension = identifier.split('.').pop().toLowerCase();
     if (extension == 'gz' || extension == 'tgz') {
         archive = new gzip.Archive(buffer);
         if (archive.entries.length == 1) {
-            var entry = archive.entries[0];
+            const entry = archive.entries[0];
             if (entry.name) {
                 identifier = entry.name;
             }
@@ -263,8 +262,8 @@ function decompress(buffer, identifier) {
 }
 
 function request(location, cookie) {
-    var options = { rejectUnauthorized: false };
-    var httpRequest = null;
+    const options = { rejectUnauthorized: false };
+    let httpRequest = null;
     switch (url.parse(location).protocol) {
         case 'http:': 
             httpRequest = http.request(location, options);
@@ -288,15 +287,15 @@ function request(location, cookie) {
 }
 
 function downloadFile(location, cookie) {
-    var data = [];
-    var position = 0;
+    let data = [];
+    let position = 0;
     return request(location, cookie).then((response) => {
         if (response.statusCode == 200 &&
             url.parse(location).hostname == 'drive.google.com' && 
             response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
             cookie = response.headers['set-cookie'];
-            var download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
-            var confirm = download.split(';').shift().split('=').pop();
+            const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
+            const confirm = download.split(';').shift().split('=').pop();
             location = location + '&confirm=' + confirm;
             return downloadFile(location, cookie);
         }
@@ -310,11 +309,11 @@ function downloadFile(location, cookie) {
             throw new Error(response.statusCode.toString() + ' ' + location);
         }
         return new Promise((resolve, reject) => {
-            var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
+            const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
             response.on('data', (chunk) => {
                 position += chunk.length;
                 if (length >= 0) {
-                    var label = location.length > 70 ? location.substring(0, 66) + '...' : location; 
+                    const label = location.length > 70 ? location.substring(0, 66) + '...' : location; 
                     process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
                 }
                 else {
@@ -339,10 +338,10 @@ function download(folder, targets, sources) {
     if (!sources) {
         return Promise.reject(new Error('Download source not specified.'));
     }
-    var source = '';
-    var sourceFiles = [];
-    var startIndex = sources.indexOf('[');
-    var endIndex = sources.indexOf(']');
+    let source = '';
+    let sourceFiles = [];
+    const startIndex = sources.indexOf('[');
+    const endIndex = sources.indexOf(']');
     if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
         sourceFiles = sources.substring(startIndex + 1, endIndex).split(',').map((sourceFile) => sourceFile.trim());
         source = sources.substring(0, startIndex);
@@ -352,7 +351,7 @@ function download(folder, targets, sources) {
         }
     }
     else {
-        var commaIndex = sources.indexOf(',');
+        const commaIndex = sources.indexOf(',');
         if (commaIndex != -1) {
             source = sources.substring(0, commaIndex);
             sources = sources.substring(commaIndex + 1);
@@ -362,8 +361,7 @@ function download(folder, targets, sources) {
             sources = '';
         }
     }
-    var target;
-    for (target of targets) {
+    for (let target of targets) {
         makeDir(path.dirname(folder + '/' + target));
     }
     return downloadFile(source).then((data) => {
@@ -372,22 +370,22 @@ function download(folder, targets, sources) {
                 process.stdout.clearLine();
             }
             process.stdout.write('  decompress...\r');
-            var archive = decompress(data, source.split('?').shift().split('/').pop());
-            for (var file of sourceFiles) {
+            const archive = decompress(data, source.split('?').shift().split('/').pop());
+            for (let file of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
                 }
                 process.stdout.write('  write ' + file + '\n');
-                var entry = archive.entries.filter((entry) => entry.name == file)[0];
+                const entry = archive.entries.filter((entry) => entry.name == file)[0];
                 if (!entry) {
                     throw new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
                 }
-                var target = targets.shift();
+                const target = targets.shift();
                 fs.writeFileSync(folder + '/' + target, entry.data, null);
             }
         }
         else {
-            target = targets.shift();
+            const target = targets.shift();
             if (process.stdout.clearLine) {
                 process.stdout.clearLine();
             }
@@ -421,21 +419,21 @@ function script(folder, targets, command, args) {
 }
 
 function loadModel(target, item) {
-    var host = new TestHost();
-    var exceptions = [];
+    const host = new TestHost();
+    let exceptions = [];
     host.on('exception', (_, data) => {
         exceptions.push(data.exception);
     });
-    var folder = path.dirname(target);
-    var identifier = path.basename(target);
-    var size = fs.statSync(target).size;
-    var buffer = new Uint8Array(size);
-    var fd = fs.openSync(target, 'r');
+    const folder = path.dirname(target);
+    const identifier = path.basename(target);
+    const size = fs.statSync(target).size;
+    const buffer = new Uint8Array(size);
+    const fd = fs.openSync(target, 'r');
     fs.readSync(fd, buffer, 0, size, 0);
     fs.closeSync(fd);
-    var context = new TestContext(host, folder, identifier, buffer);
-    var modelFactoryService = new view.ModelFactoryService(host);
-    var opened = false;
+    const context = new TestContext(host, folder, identifier, buffer);
+    const modelFactoryService = new view.ModelFactoryService(host);
+    let opened = false;
     return modelFactoryService.open(context).then((model) => {
         if (opened) {
             throw new Error("Model opened more than once '" + target + "'.");
@@ -454,13 +452,11 @@ function loadModel(target, item) {
         model.description;
         model.author;
         model.license;
-        for (var graph of model.graphs) {
-            var input;
-            var argument;
-            for (input of graph.inputs) {
+        for (let graph of model.graphs) {
+            for (let input of graph.inputs) {
                 input.name.toString();
                 input.name.length;
-                for (argument of input.arguments) {
+                for (let argument of input.arguments) {
                     argument.id.toString();
                     argument.id.length;
                     if (argument.type) {
@@ -468,11 +464,10 @@ function loadModel(target, item) {
                     }
                 }
             }
-            var output;
-            for (output of graph.outputs) {
+            for (let output of graph.outputs) {
                 output.name.toString();
                 output.name.length;
-                for (argument of output.arguments) {
+                for (let argument of output.arguments) {
                     argument.id.toString();
                     argument.id.length;
                     if (argument.type) {
@@ -480,25 +475,25 @@ function loadModel(target, item) {
                     }
                 }
             }
-            for (var node of graph.nodes) {
+            for (let node of graph.nodes) {
                 node.name.toString();
                 node.name.length;
                 node.description;
                 node.documentation.toString();
                 node.category.toString();
-                for (var attribute of node.attributes) {
+                for (let attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;
-                    var value = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type)
+                    let value = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type)
                     if (value && value.length > 1000) {
                         value = value.substring(0, 1000) + '...';
                     }
                     value = value.split('<');
                 }
-                for (input of node.inputs) {
+                for (let input of node.inputs) {
                     input.name.toString();
                     input.name.length;
-                    for (argument of input.arguments) {
+                    for (let argument of input.arguments) {
                         argument.id.toString();
                         argument.id.length;
                         argument.description;
@@ -511,10 +506,10 @@ function loadModel(target, item) {
                         }
                     }
                 }
-                for (output of node.outputs) {
+                for (let output of node.outputs) {
                     output.name.toString();
                     output.name.length;
-                    for (argument of output.arguments) {
+                    for (let argument of output.arguments) {
                         argument.id.toString();
                         argument.id.length;
                         if (argument.type) {
@@ -523,7 +518,7 @@ function loadModel(target, item) {
                     }
                 }
                 if (node.chain) {
-                    for (var chain of node.chain) {
+                    for (let chain of node.chain) {
                         chain.name.toString();
                         chain.name.length;
                     }
@@ -539,8 +534,8 @@ function loadModel(target, item) {
 
 function render(model) {
     try {
-        var host = new TestHost();
-        var currentView = new view.View(host);
+        const host = new TestHost();
+        const currentView = new view.View(host);
         if (!currentView.showAttributes) {
             currentView.toggleAttributes();
         }
@@ -558,7 +553,7 @@ function next() {
     if (items.length == 0) {
         return;
     }
-    var item = items.shift();
+    const item = items.shift();
     if (!item.type) {
         console.error("Property 'type' is required for item '" + JSON.stringify(item) + "'.");
         return;
@@ -570,25 +565,25 @@ function next() {
     if (process.stdout.clearLine) {
         process.stdout.clearLine();
     }
-    var targets = item.target.split(',');
-    var target = targets[0];
-    var folder = dataFolder + '/' + item.type;
+    const targets = item.target.split(',');
+    const target = targets[0];
+    const folder = dataFolder + '/' + item.type;
     process.stdout.write(item.type + '/' + target + '\n');
 
-    var promise = null;
+    let promise = null;
     if (item.script) {
-        var root = path.dirname(__dirname);
-        var command = item.script[0].replace('${root}', root);
-        var args = item.script[1].replace('${root}', root);
+        const root = path.dirname(__dirname);
+        const command = item.script[0].replace('${root}', root);
+        const args = item.script[1].replace('${root}', root);
         promise = script(folder, targets, command, args);
     }
     else {
-        var sources = item.source;
+        const sources = item.source;
         promise = download(folder, targets, sources);
     }
     return promise.then(() => {
         return loadModel(folder + '/' + target, item).then((model) => {
-            var promise = null;
+            let promise = null;
             if (item.render == 'skip') {
                 promise = Promise.resolve();
             }

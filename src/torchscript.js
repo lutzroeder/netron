@@ -12,8 +12,8 @@ var zip = zip || require('./zip');
 torchscript.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier; 
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier; 
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 't7' ||
             extension == 'dms' || extension == 'model' || extension == 'ckpt' || identifier.endsWith('.pth.tar')) {
             if (torchscript.ModelFactory._openContainer(context.entries)) {
@@ -26,7 +26,7 @@ torchscript.ModelFactory = class {
     open(context, host) {
         return host.require('./python').then((python) => {
             return host.require('./pickle').then((pickle) => {
-                let identifier = context.identifier;
+                const identifier = context.identifier;
                 try {
                     let container = torchscript.ModelFactory._openContainer(context.entries);
                     container.identifier = identifier;
@@ -34,7 +34,7 @@ torchscript.ModelFactory = class {
                     container.constants = (container.constants || []).map((tensor) => new torchscript.Tensor('pickle', tensor));
                     container.data = torchscript.ModelFactory._unpickle(host, identifier, pickle, container.data, torchscript.ModelFactory._storage(container, 'data'));
                     container.attributes = torchscript.ModelFactory._unpickle(host, identifier, pickle, container.attributes, null);
-                    let textDecoder = new TextDecoder('utf-8');
+                    const textDecoder = new TextDecoder('utf-8');
                     if (container.version) {
                         container.version = JSON.parse(textDecoder.decode(container.version));
                     }
@@ -65,8 +65,8 @@ torchscript.ModelFactory = class {
 
     static _openContainer(entries) {
         if (entries && entries.length > 0) {
-            let container = { };
-            let version = entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
+            let container = {};
+            const version = entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
             if (version) {
                 container.entries = entries;
                 container.prefix = version.name.substring(0, version.name.length - 7);
@@ -90,10 +90,10 @@ torchscript.ModelFactory = class {
 
     static _storage(container, dirname) {
         let map = new Map();
-        let prefix = container.prefix + dirname + '/';
+        const prefix = container.prefix + dirname + '/';
         for (let entry of container.entries) {
             if (entry.name.startsWith(prefix)) {
-                let key = entry.name.substring(prefix.length);
+                const key = entry.name.substring(prefix.length);
                 map.set(key, entry.data);
             }
         }
@@ -169,15 +169,15 @@ torchscript.ModelFactory = class {
             return obj;
         };
         let deserialized_objects = new Map();
-        let persistent_load = (saved_id) => {
-            let typename = saved_id.shift();
+        const persistent_load = (saved_id) => {
+            const typename = saved_id.shift();
             if (typename !== 'storage') {
                 throw new torchscript.Error("Unknown persistent load type '" + typename + "'.");
             }
-            let data_type = saved_id.shift();
-            let root_key = saved_id.shift();
+            const data_type = saved_id.shift();
+            const root_key = saved_id.shift();
             saved_id.shift(); // location
-            let size = saved_id.shift();
+            const size = saved_id.shift();
             let storage = null;
             if (deserialized_objects.has(root_key)) {
                 storage = deserialized_objects.get(root_key);
@@ -187,7 +187,7 @@ torchscript.ModelFactory = class {
                 storage.data = storage_map.get(root_key);
                 deserialized_objects[root_key] = storage;
             }
-            let view_metadata = saved_id.shift();
+            const view_metadata = saved_id.shift();
             if (view_metadata) {
                 let view_key = view_metadata.shift();
                 view_metadata.shift(); // view_offset
@@ -218,8 +218,8 @@ torchscript.Model = class {
             }
             if (container.model.tensors) {
                 container.tensors = container.model.tensors.map((tensor) => {
-                    let key = container.prefix + tensor.data.key;
-                    let entry = container.entries.find((entry) => entry.name == key);
+                    const key = container.prefix + tensor.data.key;
+                    const entry = container.entries.find((entry) => entry.name == key);
                     return new torchscript.Tensor('json', { tensor: tensor, data: entry.data });
                 });
                 container.constants = container.tensors;
@@ -263,7 +263,7 @@ torchscript.Graph = class {
             }
             else if (container.data) {
                 mainModule = container.data;
-                let typeName = mainModule.__type__.split('.');
+                const typeName = mainModule.__type__.split('.');
                 className = typeName.pop();
                 script = 'code/' + typeName.join('/') + '.py';
             }
@@ -550,7 +550,7 @@ torchscript.Node = class {
             this._operator = node.name;
             this._name = '';
 
-            let schema = metadata.getSchema(this._operator);
+            const schema = metadata.getSchema(this._operator);
 
             module = null; 
             let match = true;
@@ -660,7 +660,7 @@ torchscript.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -971,7 +971,7 @@ torchscript.Tensor = class {
         if (Array.isArray(value)) {
             let result = [];
             result.push(indentation + '[');
-            let items = value.map((item) => torchscript.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => torchscript.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -1075,7 +1075,7 @@ torchscript.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

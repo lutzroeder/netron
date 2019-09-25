@@ -8,9 +8,9 @@ var long = long || { Long: require('long') };
 torch.ModelFactory = class {
 
     match(context) {
-        let extension = context.identifier.split('.').pop().toLowerCase();
+        const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 't7') {
-            let buffer = context.buffer;
+            const buffer = context.buffer;
             if (buffer.length >= 1 && buffer[0] > 58) {
                 return false;
             }
@@ -21,7 +21,7 @@ torch.ModelFactory = class {
 
     open(context, host) {
         return torch.Metadata.open(host).then((metadata) => {
-            let identifier = context.identifier;
+            const identifier = context.identifier;
             try {
                 let reader = new torch.T7Reader(context.buffer, (name) => {
                     if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
@@ -402,7 +402,7 @@ torch.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -453,7 +453,7 @@ torch.Attribute = class {
         if (name == 'train') {
             this._visible = false;
         }
-        let schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible')) {
                 this._visible = schema.visible;
@@ -652,7 +652,7 @@ torch.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
@@ -665,6 +665,7 @@ torch.Metadata = class {
 };
 
 torch.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading Torch model.';

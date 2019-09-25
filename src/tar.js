@@ -6,7 +6,7 @@ tar.Archive = class {
 
     constructor(buffer) {
         this._entries = [];
-        let reader = new tar.Reader(buffer, 0, buffer.length);
+        const reader = new tar.Reader(buffer, 0, buffer.length);
         while (reader.peek()) {
             this._entries.push(new tar.Entry(reader));
             if (reader.match(512, 0)) {
@@ -23,8 +23,8 @@ tar.Archive = class {
 tar.Entry = class {
 
     constructor(reader) {
-        let position = reader.position;
-        let header = reader.bytes(512);
+        const position = reader.position;
+        const header = reader.bytes(512);
         reader.position = position;
         let sum = 0;
         for (let i = 0; i < header.length; i++) {
@@ -34,9 +34,9 @@ tar.Entry = class {
         reader.string(8); // file mode
         reader.string(8); // owner
         reader.string(8); // group
-        let size = parseInt(reader.string(12).trim(), 8); // size
+        const size = parseInt(reader.string(12).trim(), 8); // size
         reader.string(12); // timestamp
-        let checksum = parseInt(reader.string(8).trim(), 8); // checksum
+        const checksum = parseInt(reader.string(8).trim(), 8); // checksum
         if (isNaN(checksum) || sum != checksum) {
             throw new tar.Error('Invalid tar archive.');
         }
@@ -90,13 +90,13 @@ tar.Reader = class {
         if (this._position + size > this._end) {
             throw new tar.Error('Data not available.');
         }
-        let data = this._buffer.subarray(this._position, this._position + size);
+        const data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
 
     string(size) {
-        let buffer = this.bytes(size);
+        const buffer = this.bytes(size);
         let position = 0;
         let str = '';
         for (let i = 0; i < size; i++) {

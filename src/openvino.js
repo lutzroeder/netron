@@ -402,7 +402,7 @@ openvino.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._type);
+        const schema = this._metadata.getSchema(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -523,7 +523,7 @@ openvino.Attribute = class {
         this._name = name;
         this._value = value;
 
-        let schema = metadata.getAttributeSchema(node.operator, name);
+        const schema = metadata.getAttributeSchema(node.operator, name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 switch (schema.type) {
@@ -728,8 +728,8 @@ openvino.Metadata = class {
             if (items) {
                 for (let item of items) {
                     if (item.name && item.schema) {
-                        let name = item.name;
-                        let schema = item.schema;
+                        const name = item.name;
+                        const schema = item.schema;
                         this._map[name] = schema;
                     }
                 }
@@ -745,7 +745,7 @@ openvino.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

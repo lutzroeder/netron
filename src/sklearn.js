@@ -10,12 +10,12 @@ var marked = marked || require('marked');
 sklearn.ModelFactory = class {
 
     match(context) {
-        let extension = context.identifier.split('.').pop().toLowerCase();
+        const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'pkl' || extension == 'joblib' || extension == 'model') {
-            let buffer = context.buffer;
+            const buffer = context.buffer;
             if (buffer) {
                 // Reject PyTorch models with .pkl file extension.
-                let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+                const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
                 if (buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                     return false;
                 }
@@ -34,9 +34,9 @@ sklearn.ModelFactory = class {
         return host.require('./pickle').then((pickle) => {
             let obj = null;
             let weights = null;
-            let identifier = context.identifier;
+            const identifier = context.identifier;
             try {
-                let unpickler = new pickle.Unpickler(context.buffer);
+                const unpickler = new pickle.Unpickler(context.buffer);
 
                 let constructorTable = {};
                 let functionTable = {};
@@ -665,7 +665,7 @@ sklearn.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -688,7 +688,7 @@ sklearn.Attribute = class {
         this._name = name;
         this._value = value;
 
-        let schema = metadata.getAttributeSchema(node.operator, this._name);
+        const schema = metadata.getAttributeSchema(node.operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'option') && schema.option == 'optional' && this._value == null) {
                 this._visible = false;
@@ -923,7 +923,7 @@ sklearn.Tensor = class {
         if (Array.isArray(value)) {
             let result = [];
             result.push('[');
-            let items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -1007,7 +1007,7 @@ sklearn.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

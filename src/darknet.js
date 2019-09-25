@@ -7,7 +7,7 @@ var base = base || require('./base');
 darknet.ModelFactory = class {
 
     match(context) {
-        let extension = context.identifier.split('.').pop().toLowerCase();
+        const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'cfg') {
             return true;
         }
@@ -16,10 +16,10 @@ darknet.ModelFactory = class {
 
     open(context, host) {
         return darknet.Metadata.open(host).then((metadata) => {
-            let identifier = context.identifier;
+            const identifier = context.identifier;
             try {
-                let reader = new darknet.CfgReader(context.text);
-                let cfg = reader.read();
+                const reader = new darknet.CfgReader(context.text);
+                const cfg = reader.read();
                 return new darknet.Model(metadata, cfg);
             }
             catch (error) {
@@ -67,7 +67,7 @@ darknet.Graph = class {
         net.height = net.height ? Number.parseInt(net.height, 10) : 0;
         net.channels = net.channels ? Number.parseInt(net.channels, 10) : 0;
 
-        let inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.width, net.height, net.channels ]));
+        const inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.width, net.height, net.channels ]));
 
         let input = 'input';
         this._inputs.push(new darknet.Parameter(input, true, [
@@ -265,7 +265,7 @@ darknet.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -325,7 +325,7 @@ darknet.Attribute = class {
             }
         }
 
-        let schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.type == 'boolean') {
                 switch (this._value) {

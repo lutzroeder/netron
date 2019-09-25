@@ -9,13 +9,13 @@ var long = long || { Long: require('long') };
 tflite.ModelFactory = class {
 
     match(context) {
-        let extension = context.identifier.split('.').pop().toLowerCase();
+        const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'tflite' || extension == 'lite') {
             return true;
         }
         if (extension == 'tfl' || extension == 'bin') {
-            let buffer = context.buffer;
-            let signature = [ 0x54, 0x46, 0x4c, 0x33 ]; // TFL3
+            const buffer = context.buffer;
+            const signature = [ 0x54, 0x46, 0x4c, 0x33 ]; // TFL3
             if (buffer && buffer.length > 8 && signature.every((x, i) => x == buffer[i + 4])) {
                 return true;
             }
@@ -25,11 +25,11 @@ tflite.ModelFactory = class {
 
     open(context, host) {
         return host.require('./tflite-schema').then((tflite_schema) => {
-            let identifier = context.identifier;
+            const identifier = context.identifier;
             let model = null;
             try {
-                let buffer = context.buffer;
-                let byteBuffer = new flatbuffers.ByteBuffer(buffer);
+                const buffer = context.buffer;
+                const byteBuffer = new flatbuffers.ByteBuffer(buffer);
                 tflite.schema = tflite_schema;
                 if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer)) {
                     let signature = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
@@ -305,7 +305,7 @@ tflite.Node = class {
         if (this._operator.custom) {
             return 'custom';
         }
-        let schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -348,12 +348,12 @@ tflite.Attribute = class {
         this._type = null;
         this._value = value;
         this._name = '';
-        let lower = name.toLowerCase();
+        const lower = name.toLowerCase();
         for (let i = 0; i < name.length; i++) {
             this._name += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
         }
 
-        let schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -720,7 +720,7 @@ tflite.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        let schema = this.getSchema(operator);
+        const schema = this.getSchema(operator);
         if (schema) {
             let attributeMap = schema.attributeMap;
             if (!attributeMap) {

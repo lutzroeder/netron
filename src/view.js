@@ -855,30 +855,30 @@ view.View = class {
             extension = file.substring(lastIndex + 1);
         }
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
-            let graphElement = this._host.document.getElementById('graph');
-            let exportElement = graphElement.cloneNode(true);
+            const graphElement = this._host.document.getElementById('graph');
+            const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
             exportElement.style.removeProperty('opacity');
             exportElement.style.removeProperty('display');
-            let backgroundElement = exportElement.querySelector('#background');
-            let originElement = exportElement.querySelector('#origin');
+            const backgroundElement = exportElement.querySelector('#background');
+            const originElement = exportElement.querySelector('#origin');
             originElement.setAttribute('transform', 'translate(0,0) scale(1)');
             backgroundElement.removeAttribute('width');
             backgroundElement.removeAttribute('height');
 
-            let parentElement = graphElement.parentElement;
+            const parentElement = graphElement.parentElement;
             parentElement.insertBefore(exportElement, graphElement);
-            let size = exportElement.getBBox();
+            const size = exportElement.getBBox();
             parentElement.removeChild(exportElement);
             parentElement.removeChild(graphElement);
             parentElement.appendChild(graphElement);
 
-            let delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
-            let width = Math.ceil(delta + size.width + delta);
-            let height = Math.ceil(delta + size.height + delta);
+            const delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
+            const width = Math.ceil(delta + size.width + delta);
+            const height = Math.ceil(delta + size.height + delta);
             originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
             exportElement.setAttribute('width', width);
             exportElement.setAttribute('height', height);
@@ -886,22 +886,22 @@ view.View = class {
             backgroundElement.setAttribute('height', height);
             backgroundElement.setAttribute('fill', '#fff');
     
-            let data = new XMLSerializer().serializeToString(exportElement);
+            const data = new XMLSerializer().serializeToString(exportElement);
     
             if (extension == 'svg') {
-                let blob = new Blob([ data ], { type: 'image/svg' });
+                const blob = new Blob([ data ], { type: 'image/svg' });
                 this._host.export(file, blob);
             }
     
             if (extension == 'png') {
-                let imageElement = new Image();
+                const imageElement = new Image();
                 imageElement.onload = () => {
-                    let max = Math.max(width, height);
-                    let scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
-                    let canvas = this._host.document.createElement('canvas');
+                    const max = Math.max(width, height);
+                    const scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
+                    const canvas = this._host.document.createElement('canvas');
                     canvas.width = Math.ceil(width * scale);
                     canvas.height = Math.ceil(height * scale);
-                    let context = canvas.getContext('2d');
+                    const context = canvas.getContext('2d');
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
                     this._host.document.body.removeChild(imageElement);
@@ -910,7 +910,7 @@ view.View = class {
                             this._host.export(file, blob);
                         }
                         else {
-                            let err = new Error();
+                            const err = new Error();
                             err.name = 'Error exporting image.';
                             err.message = 'Image may be too large to render as PNG.';
                             this._host.exception(err, false);
@@ -926,7 +926,7 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            let modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._activeGraph);
+            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._activeGraph);
             modelSidebar.on('update-active-graph', (sender, name) => {
                 this._updateActiveGraph(name);
             });
@@ -936,17 +936,17 @@ view.View = class {
     
     showNodeProperties(node, input) {
         if (node) {
-            let nodeSidebar = new sidebar.NodeSidebar(this._host, node);
+            const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showOperatorDocumentation(node);
             });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
                 this._host.require('./numpy').then((numpy) => {
-                    let defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
+                    const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
-                            let array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
-                            let blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
+                            const array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
+                            const blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
                             this._host.export(file, blob);
                         }
                         catch (error) {
@@ -966,7 +966,7 @@ view.View = class {
     showOperatorDocumentation(node) {
         let documentation = node.documentation;
         if (documentation) {
-            let documentationSidebar = new sidebar.OperatorDocumentationSidebar(documentation);
+            const documentationSidebar = new sidebar.OperatorDocumentationSidebar(documentation);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });

@@ -24,13 +24,13 @@ class Application {
         }
 
         electron.app.on('second-instance', (event, commandLine, workingDirectory) => {
-            let currentDirectory = process.cwd();
+            const currentDirectory = process.cwd();
             process.chdir(workingDirectory);
-            let open = this._parseCommandLine(commandLine);
+            const open = this._parseCommandLine(commandLine);
             process.chdir(currentDirectory);
             if (!open) {
                 if (this._views.count > 0) {
-                    let view = this._views.item(0);
+                    const view = this._views.item(0);
                     if (view) {
                         view.restore();
                     }
@@ -43,7 +43,7 @@ class Application {
         });
 
         electron.ipcMain.on('drop-files', (e, data) => {
-            let files = data.files.filter((file) => fs.statSync(file).isFile());
+            const files = data.files.filter((file) => fs.statSync(file).isFile());
             this._dropFiles(e.sender, files);
         });
 
@@ -76,7 +76,7 @@ class Application {
         if (argv.length > 1) {
             for (let arg of argv.slice(1)) {
                 if (!arg.startsWith('-')) {
-                    let extension = arg.split('.').pop().toLowerCase();
+                    const extension = arg.split('.').pop().toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
                         this._openFile(arg);
                         open = true;
@@ -97,7 +97,7 @@ class Application {
             let openFileQueue = this._openFileQueue;
             this._openFileQueue = null;
             while (openFileQueue.length > 0) {
-                let file = openFileQueue.shift();
+                const file = openFileQueue.shift();
                 this._openFile(file);
             }
         }
@@ -114,7 +114,7 @@ class Application {
     }
 
     _openFileDialog() {
-        let showOpenDialogOptions = { 
+        const showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
                 { name: 'All Model Files',  extensions: [ 
@@ -164,8 +164,7 @@ class Application {
     }
 
     _loadFile(file, view) {
-        let recents = this._configuration.get('recents');
-        recents = recents.filter(recent => file != recent.path);
+        const recents = this._configuration.get('recents').filter(recent => file != recent.path);
         view.open(file);
         recents.unshift({ path: file });
         if (recents.length > 9) {
@@ -192,13 +191,13 @@ class Application {
         let view = this._views.activeView;
         if (view && view.path) {
             let defaultPath = 'Untitled';
-            let file = view.path;
-            let lastIndex = file.lastIndexOf('.');
+            const file = view.path;
+            const lastIndex = file.lastIndexOf('.');
             if (lastIndex != -1) {
                 defaultPath = file.substring(0, lastIndex);
             }
-            let owner = electron.BrowserWindow.getFocusedWindow();
-            let showSaveDialogOptions = {
+            const owner = electron.BrowserWindow.getFocusedWindow();
+            const showSaveDialogOptions = {
                 title: 'Export',
                 defaultPath: defaultPath,
                 buttonLabel: 'Export',
@@ -216,7 +215,7 @@ class Application {
     }
 
     execute(command, data) {
-        let view = this._views.activeView;
+        const view = this._views.activeView;
         if (view) {
             view.execute(command, data || {});
         }
@@ -224,7 +223,7 @@ class Application {
     }
 
     _reload() {
-        let view = this._views.activeView;
+        const view = this._views.activeView;
         if (view && view.path) {
             this._loadFile(view.path, view);
         }
@@ -234,8 +233,8 @@ class Application {
         if (!electron.app.isPackaged) {
             return;
         }
-        let autoUpdater = updater.autoUpdater;
-        let promise = autoUpdater.checkForUpdates();
+        const autoUpdater = updater.autoUpdater;
+        const promise = autoUpdater.checkForUpdates();
         if (promise) {
             promise.catch((error) => {
                 console.log(error.message);
@@ -245,9 +244,9 @@ class Application {
 
     get package() { 
         if (!this._package) {
-            let appPath = electron.app.getAppPath();
-            let file = appPath + '/package.json'; 
-            let data = fs.readFileSync(file);
+            const appPath = electron.app.getAppPath();
+            const file = appPath + '/package.json'; 
+            const data = fs.readFileSync(file);
             this._package = JSON.parse(data);
             this._package.date = new Date(fs.statSync(file).mtime);
         }
@@ -255,9 +254,9 @@ class Application {
     }
 
     _about() {
-        let owner = electron.BrowserWindow.getFocusedWindow();
-        let author = this.package.author;
-        let date = this.package.date;
+        const owner = electron.BrowserWindow.getFocusedWindow();
+        const author = this.package.author;
+        const date = this.package.date;
         let details = [];
         details.push('Version ' + electron.app.getVersion());
         if (author && author.name && date) {
@@ -274,15 +273,15 @@ class Application {
     }
 
     _updateMenu() {
-        let context = {};
-        context.window = electron.BrowserWindow.getFocusedWindow();
-        context.webContents = context.window ? context.window.webContents : null; 
-        context.view = this._views.activeView;
-        this._menu.update(context);
+        const window = electron.BrowserWindow.getFocusedWindow();
+        this._menu.update({
+            window: window,
+            webContents: window ? window.webContents : null,
+            view: this._views.activeView
+        });
     }
 
     _resetMenu() {
-
         let menuRecentsTemplate = [];
         if (this._configuration.has('recents')) {
             let recents = this._configuration.get('recents');
@@ -292,7 +291,7 @@ class Application {
             }
             this._configuration.set('recents', recents);
             for (let i = 0; i < recents.length; i++) {
-                let recent = recents[i];
+                const recent = recents[i];
                 menuRecentsTemplate.push({
                     file: recent.path,
                     label: Application.minimizePath(recent.path),
@@ -392,7 +391,7 @@ class Application {
             ]
         });
     
-        let viewTemplate = {
+        const viewTemplate = {
             label: '&View',
             submenu: [
                 {
@@ -463,7 +462,7 @@ class Application {
             });
         }
 
-        let helpSubmenu = [
+        const helpSubmenu = [
             {
                 label: '&Search Feature Requests',
                 click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues'); }
@@ -487,7 +486,7 @@ class Application {
             submenu: helpSubmenu
         });
 
-        let commandTable = new Map();
+        const commandTable = new Map();
         commandTable.set('file.export', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
         });
@@ -540,9 +539,9 @@ class Application {
 
     static minimizePath(file) {
         if (process.platform != 'win32') {
-            let home = os.homedir();
-            if (file.startsWith(home)) {
-                return '~' + file.substring(home.length);
+            const homeDir = os.homedir();
+            if (file.startsWith(homeDir)) {
+                return '~' + file.substring(homeDir.length);
             }
         }
         return file;
@@ -612,7 +611,7 @@ class View {
                 electron.shell.openExternal(url);
             }
         });
-        let location = url.format({
+        const location = url.format({
             pathname: path.join(__dirname, 'electron.html'),
             protocol: 'file:',
             slashes: true
@@ -637,7 +636,7 @@ class View {
             this._window.webContents.on('dom-ready', () => {
                 this._window.webContents.send("open", { file: file });
             });
-            let location = url.format({
+            const location = url.format({
                 pathname: path.join(__dirname, 'electron.html'),
                 protocol: 'file:',
                 slashes: true
@@ -723,7 +722,7 @@ class ViewCollection {
     }
 
     openView() {
-        let view = new View(this);
+        const view = new View(this);
         view.on('activated', (sender) => {
             this._activeView = sender;
             this._raise('active-view-changed', { activeView: this._activeView });
@@ -789,7 +788,7 @@ class ConfigurationService {
 
     load() {
         this._data = { 'recents': [] };
-        let dir = electron.app.getPath('userData');
+        const dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
             let file = path.join(dir, 'configuration.json'); 
             if (fs.existsSync(file)) {
@@ -808,7 +807,7 @@ class ConfigurationService {
 
     save() {
         if (this._data) {
-            let data = JSON.stringify(this._data);
+            const data = JSON.stringify(this._data);
             if (data) {
                 let dir = electron.app.getPath('userData');
                 if (dir && dir.length > 0) {
@@ -870,8 +869,8 @@ class MenuService {
     _updateLabel(context) {
         let rebuild = false;
         for (let entry of this._commandTable.entries()) {
-            let menuItem = this._menu.getMenuItemById(entry[0]);
-            let command = entry[1];
+            const menuItem = this._menu.getMenuItemById(entry[0]);
+            const command = entry[1];
             if (command && command.label) {
                 let label = command.label(context);
                 if (label != menuItem.label) {
@@ -887,7 +886,7 @@ class MenuService {
 
     _updateEnabled(context) {
         for (let entry of this._commandTable.entries()) {
-            let menuItem = this._menu.getMenuItemById(entry[0]);
+            const menuItem = this._menu.getMenuItemById(entry[0]);
             if (menuItem) {
                 let command = entry[1];
                 if (command.enabled) {

@@ -10,10 +10,10 @@ var zip = zip || require('./zip');
 mlnet.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier; 
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier; 
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'zip' && context.entries.length > 0) {
-            var root = new Set([ 'TransformerChain', 'Predictor']);
+            const root = new Set([ 'TransformerChain', 'Predictor']);
             if (context.entries.some((e) => root.has(e.name.split('\\').shift().split('/').shift()))) {
                 return true;
             }
@@ -22,10 +22,10 @@ mlnet.ModelFactory = class {
     }
 
     open(context, host) {
-        let identifier = context.identifier;
+        const identifier = context.identifier;
         return mlnet.Metadata.open(host).then((metadata) => {
             try {
-                let reader = new mlnet.ModelReader(context.entries);
+                const reader = new mlnet.ModelReader(context.entries);
                 return new mlnet.Model(metadata, reader);
             }
             catch (error) {
@@ -441,7 +441,7 @@ mlnet.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

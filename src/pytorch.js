@@ -13,13 +13,13 @@ var zip = zip || require('./zip');
 pytorch.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier; 
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier; 
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'pth' || extension === 'pkl' || extension === 'pt' || extension === 'bin' ||
             extension === 'h5' || extension === 't7' || extension === 'dms' || extension === 'model' ||
             extension === 'ckpt' || identifier.endsWith('.pth.tar')) {
-            let buffer = context.buffer;
-            let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            const buffer = context.buffer;
+            const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return true;
             }
@@ -32,8 +32,8 @@ pytorch.ModelFactory = class {
 
     open(context, host) {
         return host.require('./pickle').then((pickle) => {
-            let identifier = context.identifier;
-            let buffer = context.buffer;
+            const identifier = context.identifier;
+            const buffer = context.buffer;
             let sys_info = null;
             let root_module = null;
             let state_dict = null;
@@ -41,8 +41,8 @@ pytorch.ModelFactory = class {
             try {
                 let unpickler = new pickle.Unpickler(buffer);
 
-                let signature = [ 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-                let magic_number = unpickler.load();
+                const signature = [ 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+                const magic_number = unpickler.load();
 
                 let deserialized_objects = {};
                 let storage = null;
@@ -923,8 +923,8 @@ pytorch.Graph = class {
 
     _createNode(groups, key, obj, args) {
 
-        let operator = obj.__type__.split('.').pop();
-        let schema = this._metadata.getSchema(operator);
+        const operator = obj.__type__.split('.').pop();
+        const schema = this._metadata.getSchema(operator);
 
         let inputSchema = [ { name: 'input'} ];
         if (schema && schema.inputs && schema.inputs.length > 0) {
@@ -1075,7 +1075,7 @@ pytorch.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -1137,7 +1137,7 @@ pytorch.Attribute = class {
         this._name = name;
         this._value = value;
 
-        let schema = metadata.getAttributeSchema(this._node.operator, this._name);
+        const schema = metadata.getAttributeSchema(this._node.operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
@@ -1313,7 +1313,7 @@ pytorch.Tensor = class {
         if (Array.isArray(value)) {
             let result = [];
             result.push(indentation + '[');
-            let items = value.map((item) => pytorch.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => pytorch.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -1417,7 +1417,7 @@ pytorch.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

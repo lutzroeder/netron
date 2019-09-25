@@ -8,8 +8,8 @@ var base = base || require('./base');
 paddle.ModelFactory = class {
 
     match(context) {
-        let identifier = context.identifier;
-        let extension = identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         if (identifier == '__model__' || extension == 'paddle') {
             return true;
         }
@@ -19,7 +19,7 @@ paddle.ModelFactory = class {
     open(context, host) {
         return host.require('./paddle-proto').then(() => {
             let desc = null;
-            let identifier = context.identifier; 
+            const identifier = context.identifier; 
             try {
                 paddle.proto = protobuf.roots.paddle.paddle.framework.proto;
                 desc = paddle.proto.ProgramDesc.decode(context.buffer);
@@ -251,7 +251,7 @@ paddle.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -349,7 +349,7 @@ paddle.Attribute = class {
                 break;
         }
 
-        let schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 let defaultValue = schema.default;
@@ -502,7 +502,7 @@ paddle.Metadata = class {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;

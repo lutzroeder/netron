@@ -11,11 +11,11 @@ var cntk_v2 = null;
 cntk.ModelFactory = class {
 
     match(context) {
-        let extension = context.identifier.split('.').pop().toLowerCase();
+        const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'model' || extension == 'cmf' || extension == 'dnn' || extension == 'cntk') {
-            let buffer = context.buffer;
+            const buffer = context.buffer;
             // Reject PyTorch models with .model file extension.
-            let torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
@@ -26,7 +26,7 @@ cntk.ModelFactory = class {
                 return true;
             }
             // CNTK v2
-            let tags = context.tags('pb');
+            const tags = context.tags('pb');
             if (tags.get(1) === 0 && tags.get(2) === 2) {
                 return true;
             }
@@ -39,7 +39,7 @@ cntk.ModelFactory = class {
             let version = 0;
             let obj = null;
             try {
-                let buffer = context.buffer;
+                const buffer = context.buffer;
                 if (buffer && buffer.length >= 8 && 
                     buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
                     buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
@@ -54,7 +54,7 @@ cntk.ModelFactory = class {
                 if (!obj) {
                     cntk_v2 = protobuf.roots.cntk.CNTK.proto;
                     cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                    let dictionary = cntk_v2.Dictionary.decode(context.buffer);
+                    const dictionary = cntk_v2.Dictionary.decode(context.buffer);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                     version = 2;
                 }
@@ -438,7 +438,7 @@ cntk.Node = class {
         }
 
         let inputIndex = 0;
-        let schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        const schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         if (schema && schema.inputs) {
             for (let inputSchema of schema.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
@@ -486,7 +486,7 @@ cntk.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        const schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -522,14 +522,14 @@ cntk.Attribute = class {
             this._type = 'shape';
         }
         if (cntk_v2 && this._value instanceof cntk_v2.Axis) {
-            let axis = { __type__: 'Axis' };
+            const axis = { __type__: 'Axis' };
             for (let key of Object.keys(value).filter((key) => key !== 'name')) {
                 axis[key] = value[key];
             }
             this._value = axis;
         }
 
-        let schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -802,8 +802,8 @@ cntk.Metadata = class {
             if (items) {
                 for (let item of items) {
                     if (item.name && item.schema) {
-                        let name = item.name;
-                        let schema = item.schema;
+                        const name = item.name;
+                        const schema = item.schema;
                         this._map[name] = schema;
                         if (Object.prototype.hasOwnProperty.call(schema, 'operator')) {
                             this._operatorMap[schema.operator.toString()] = name;
