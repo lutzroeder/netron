@@ -34,23 +34,24 @@ sync() {
 
 install() {
     bold "sklearn install"
-    case "$(uname)" in
-        "Darwin")
-            brew list libomp > /dev/null 2>&1 || brew install libomp > /dev/null
-            export CC=/usr/bin/clang
-            export CXX=/usr/bin/clang++
-            export CPPFLAGS="$CPPFLAGS -Xpreprocessor -fopenmp"
-            export CFLAGS="$CFLAGS -I/usr/local/opt/libomp/include"
-            export CXXFLAGS="$CXXFLAGS -I/usr/local/opt/libomp/include"
-            export LDFLAGS="$LDFLAGS -L/usr/local/opt/libomp/lib -lomp"
-            export DYLD_LIBRARY_PATH=/usr/local/opt/libomp/lib
-            ;;
-    esac
+    # case "$(uname)" in
+    #     "Darwin")
+    #         brew list libomp > /dev/null 2>&1 || brew install libomp > /dev/null
+    #         export CC=/usr/bin/clang
+    #         export CXX=/usr/bin/clang++
+    #         export CPPFLAGS="$CPPFLAGS -Xpreprocessor -fopenmp"
+    #         export CFLAGS="$CFLAGS -I/usr/local/opt/libomp/include"
+    #         export CXXFLAGS="$CXXFLAGS -I/usr/local/opt/libomp/include"
+    #         export LDFLAGS="$LDFLAGS -L/usr/local/opt/libomp/lib -lomp"
+    #         export DYLD_LIBRARY_PATH=/usr/local/opt/libomp/lib
+    #         ;;
+    # esac
     [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
     [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    python3 -m pip install --quiet six Cython numpy scipy
-    python3 -m pip install --quiet ${third_party}/scikit-learn
+    python3 -m pip install --quiet six cython pytest flake8 numpy scipy
+    python3 -m pip install --quiet --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
+    # python3 -m pip install --quiet ${third_party}/scikit-learn
     deactivate
 }
 
