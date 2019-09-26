@@ -7705,7 +7705,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `input`, this operation returns a tensor that has the same buffer\ndata as `input` with datatype `type`.\n\nIf the input datatype `T` is larger than the output datatype `type` then the\nshape changes from [...] to [..., sizeof(`T`)/sizeof(`type`)].\n\nIf `T` is smaller than `type`, the operator requires that the rightmost\ndimension be equal to sizeof(`type`)/sizeof(`T`). The shape then goes from\n[..., sizeof(`type`)/sizeof(`T`)] to [...].\n\ntf.bitcast() and tf.cast() work differently when real dtype is casted as a complex dtype\n(e.g. tf.complex64 or tf.complex128) as tf.cast() make imaginary part 0 while tf.bitcast()\ngives module error.\nFor example,\n\nExample 1:\n\n>>> a = [1., 2., 3.]\n>>> equality_bitcast = tf.bitcast(a, tf.complex128)\nTraceback (most recent call last):\n...\nInvalidArgumentError: Cannot bitcast from 1 to 18 [Op:Bitcast]\n>>> equality_cast = tf.cast(a, tf.complex128)\n>>> print(equality_cast)\ntf.Tensor([1.+0.j 2.+0.j 3.+0.j], shape=(3,), dtype=complex128)\n\nExample 2:\n\n>>> tf.bitcast(tf.constant(0xffffffff, dtype=tf.uint32), tf.uint8)\n<tf.Tensor: ... shape=(4,), dtype=uint8, numpy=array([255, 255, 255, 255], dtype=uint8)>\n\nExample 3:\n\n>>> x = [1., 2., 3.]\n>>> y = [0., 2., 3.]\n>>> equality= tf.equal(x,y)\n>>> equality_cast = tf.cast(equality,tf.float32)\n>>> equality_bitcast = tf.bitcast(equality_cast,tf.uint8)\n>>> print(equality)\ntf.Tensor([False True True], shape=(3,), dtype=bool)\n>>> print(equality_cast)\ntf.Tensor([0. 1. 1.], shape=(3,), dtype=float32)\n>>> print(equality_bitcast)\ntf.Tensor(\n    [[  0   0   0   0]\n     [  0   0 128  63]\n     [  0   0 128  63]], shape=(3, 4), dtype=uint8)\n\n*NOTE*: Bitcast is implemented as a low-level cast, so machines with different\nendian orderings will give different results.",
+      "description": "Given a tensor `input`, this operation returns a tensor that has the same buffer\ndata as `input` with datatype `type`.\n\nIf the input datatype `T` is larger than the output datatype `type` then the\nshape changes from [...] to [..., sizeof(`T`)/sizeof(`type`)].\n\nIf `T` is smaller than `type`, the operator requires that the rightmost\ndimension be equal to sizeof(`type`)/sizeof(`T`). The shape then goes from\n[..., sizeof(`type`)/sizeof(`T`)] to [...].\n\ntf.bitcast() and tf.cast() work differently when real dtype is casted as a complex dtype\n(e.g. tf.complex64 or tf.complex128) as tf.cast() make imaginary part 0 while tf.bitcast()\ngives module error.\nFor example,\n\nExample 1:\n\n>>> a = [1., 2., 3.]\n>>> equality_bitcast = tf.bitcast(a, tf.complex128)\nTraceback (most recent call last):\n...\nInvalidArgumentError: Cannot bitcast from 1 to 18 [Op:Bitcast]\n>>> equality_cast = tf.cast(a, tf.complex128)\n>>> print(equality_cast)\ntf.Tensor([1.+0.j 2.+0.j 3.+0.j], shape=(3,), dtype=complex128)\n\nExample 2:\n\n>>> tf.bitcast(tf.constant(0xffffffff, dtype=tf.uint32), tf.uint8)\n<tf.Tensor: shape=(4,), dtype=uint8, numpy=array([255, 255, 255, 255], dtype=uint8)>\n\nExample 3:\n\n>>> x = [1., 2., 3.]\n>>> y = [0., 2., 3.]\n>>> equality= tf.equal(x,y)\n>>> equality_cast = tf.cast(equality,tf.float32)\n>>> equality_bitcast = tf.bitcast(equality_cast,tf.uint8)\n>>> print(equality)\ntf.Tensor([False True True], shape=(3,), dtype=bool)\n>>> print(equality_cast)\ntf.Tensor([0. 1. 1.], shape=(3,), dtype=float32)\n>>> print(equality_bitcast)\ntf.Tensor(\n    [[  0   0   0   0]\n     [  0   0 128  63]\n     [  0   0 128  63]], shape=(3, 4), dtype=uint8)\n\n*NOTE*: Bitcast is implemented as a low-level cast, so machines with different\nendian orderings will give different results.",
       "inputs": [
         {
           "name": "input",
@@ -27665,7 +27665,7 @@
           "type": "type"
         }
       ],
-      "description": "If `y` is negative, or greater than or equal to the width of `x` in bits the\nresult is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  left_shift_result = bitwise_ops.left_shift(lhs, rhs)\n  \n  print(left_shift_result)\n\n# This will print:\n# tf.Tensor([ -32   -5 -128    0], shape=(4,), dtype=int8)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int16)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int32)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.left_shift(lhs, rhs)\n# <tf.Tensor: id=139, shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
+      "description": "If `y` is negative, or greater than or equal to the width of `x` in bits the\nresult is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  left_shift_result = bitwise_ops.left_shift(lhs, rhs)\n  \n  print(left_shift_result)\n\n# This will print:\n# tf.Tensor([ -32   -5 -128    0], shape=(4,), dtype=int8)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int16)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int32)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.left_shift(lhs, rhs)\n# <tf.Tensor: shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -31061,7 +31061,7 @@
           "type": "type"
         }
       ],
-      "description": "\n`matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions form\nsquare matrices. If `lower` is `True` then the strictly upper triangular part\nof each inner-most matrix is assumed to be zero and not accessed.\nIf `lower` is False then the strictly lower triangular part of each inner-most\nmatrix is assumed to be zero and not accessed.\n`rhs` is a tensor of shape `[..., M, K]`.\n\nThe output is a tensor of shape `[..., M, K]`. If `adjoint` is\n`True` then the innermost matrices in `output` satisfy matrix equations\n`matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `False` then the strictly then the  innermost matrices in\n`output` satisfy matrix equations\n`adjoint(matrix[..., i, k]) * output[..., k, j] = rhs[..., i, j]`.\n\nExample:\n```python\n\na = tf.constant([[3,  0,  0,  0],\n                 [2,  1,  0,  0],\n                 [1,  0,  1,  0],\n                 [1,  1,  1,  1]], dtype=tf.float32)\n\nb = tf.constant([[4],\n                 [2],\n                 [4],\n                 [2]], dtype=tf.float32)\n\nx = tf.linalg.triangular_solve(a, b, lower=True)\nx\n# <tf.Tensor: id=257, shape=(4, 1), dtype=float32, numpy=\n# array([[ 1.3333334 ],\n#        [-0.66666675],\n#        [ 2.6666665 ],\n#        [-1.3333331 ]], dtype=float32)>\n\n# in python3 one can use `a@x`\ntf.matmul(a, x)\n# <tf.Tensor: id=263, shape=(4, 1), dtype=float32, numpy=\n# array([[4.       ],\n#        [2.       ],\n#        [4.       ],\n#        [1.9999999]], dtype=float32)>\n```",
+      "description": "\n`matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions form\nsquare matrices. If `lower` is `True` then the strictly upper triangular part\nof each inner-most matrix is assumed to be zero and not accessed.\nIf `lower` is False then the strictly lower triangular part of each inner-most\nmatrix is assumed to be zero and not accessed.\n`rhs` is a tensor of shape `[..., M, K]`.\n\nThe output is a tensor of shape `[..., M, K]`. If `adjoint` is\n`True` then the innermost matrices in `output` satisfy matrix equations\n`matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `False` then the strictly then the  innermost matrices in\n`output` satisfy matrix equations\n`adjoint(matrix[..., i, k]) * output[..., k, j] = rhs[..., i, j]`.\n\nExample:\n```python\n\na = tf.constant([[3,  0,  0,  0],\n                 [2,  1,  0,  0],\n                 [1,  0,  1,  0],\n                 [1,  1,  1,  1]], dtype=tf.float32)\n\nb = tf.constant([[4],\n                 [2],\n                 [4],\n                 [2]], dtype=tf.float32)\n\nx = tf.linalg.triangular_solve(a, b, lower=True)\nx\n# <tf.Tensor: shape=(4, 1), dtype=float32, numpy=\n# array([[ 1.3333334 ],\n#        [-0.66666675],\n#        [ 2.6666665 ],\n#        [-1.3333331 ]], dtype=float32)>\n\n# in python3 one can use `a@x`\ntf.matmul(a, x)\n# <tf.Tensor: shape=(4, 1), dtype=float32, numpy=\n# array([[4.       ],\n#        [2.       ],\n#        [4.       ],\n#        [1.9999999]], dtype=float32)>\n```",
       "inputs": [
         {
           "description": "Shape is `[..., M, M]`.",
@@ -36883,6 +36883,48 @@
           "default": false,
           "name": "sloppy",
           "type": "boolean"
+        },
+        {
+          "default": [],
+          "minimum": 0,
+          "name": "ragged_keys",
+          "type": "string[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "ragged_value_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "ragged_split_types",
+          "type": "type[]"
         }
       ],
       "inputs": [
@@ -55212,7 +55254,7 @@
           "type": "type"
         }
       ],
-      "description": "Performs a logical shift for unsigned integer types, and an arithmetic shift\nfor signed integer types.\n\nIf `y` is negative, or greater than or equal to than the width of `x` in bits\nthe result is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  right_shift_result = bitwise_ops.right_shift(lhs, rhs)\n  \n  print(right_shift_result)\n  \n# This will print:\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int8)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int16)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int32)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.right_shift(lhs, rhs)\n# <tf.Tensor: id=151, shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
+      "description": "Performs a logical shift for unsigned integer types, and an arithmetic shift\nfor signed integer types.\n\nIf `y` is negative, or greater than or equal to than the width of `x` in bits\nthe result is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  right_shift_result = bitwise_ops.right_shift(lhs, rhs)\n  \n  print(right_shift_result)\n  \n# This will print:\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int8)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int16)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int32)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.right_shift(lhs, rhs)\n# <tf.Tensor: shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -59444,7 +59486,7 @@
           "type": "type"
         }
       ],
-      "description": "`y = sign(x) = -1` if `x < 0`; 0 if `x == 0`; 1 if `x > 0`.\n\nFor complex numbers, `y = sign(x) = x / |x|` if `x != 0`, otherwise `y = 0`.\n\nExample usage:\n>>> tf.math.sign([0., 2., -3.])\n<tf.Tensor: id=16, shape=(3,), dtype=float32, numpy=array([ 0.,  1., -1.], dtype=float32)>",
+      "description": "`y = sign(x) = -1` if `x < 0`; 0 if `x == 0`; 1 if `x > 0`.\n\nFor complex numbers, `y = sign(x) = x / |x|` if `x != 0`, otherwise `y = 0`.\n\nExample usage:\n>>> tf.math.sign([0., 2., -3.])\n<tf.Tensor: shape=(3,), dtype=float32, numpy=array([ 0.,  1., -1.], dtype=float32)>",
       "inputs": [
         {
           "name": "x",
@@ -72658,7 +72700,7 @@
           "type": "type"
         }
       ],
-      "description": "This operation creates a new tensor by replicating `input` `multiples` times.\nThe output tensor's i'th dimension has `input.dims(i) * multiples[i]` elements,\nand the values of `input` are replicated `multiples[i]` times along the 'i'th\ndimension. For example, tiling `[a b c d]` by `[2]` produces\n`[a b c d a b c d]`.\n\n>>> a = tf.constant([[1,2,3],[4,5,6]], tf.int32)\n>>> b = tf.constant([1,2], tf.int32)\n>>> tf.tile(a, b)\n<tf.Tensor: id=128, shape=(2, 6), dtype=int32, numpy=\narray([[1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6]], dtype=int32)>\n>>> c = tf.constant([2,1], tf.int32)\n>>> tf.tile(a, c)\n<tf.Tensor: id=130, shape=(4, 3), dtype=int32, numpy=\narray([[1, 2, 3],\n       [4, 5, 6],\n       [1, 2, 3],\n       [4, 5, 6]], dtype=int32)>\n>>> d = tf.constant([2,2], tf.int32)\n>>> tf.tile(a, d)\n<tf.Tensor: id=132, shape=(4, 6), dtype=int32, numpy=\narray([[1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6],\n       [1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6]], dtype=int32)>",
+      "description": "This operation creates a new tensor by replicating `input` `multiples` times.\nThe output tensor's i'th dimension has `input.dims(i) * multiples[i]` elements,\nand the values of `input` are replicated `multiples[i]` times along the 'i'th\ndimension. For example, tiling `[a b c d]` by `[2]` produces\n`[a b c d a b c d]`.\n\n>>> a = tf.constant([[1,2,3],[4,5,6]], tf.int32)\n>>> b = tf.constant([1,2], tf.int32)\n>>> tf.tile(a, b)\n<tf.Tensor: shape=(2, 6), dtype=int32, numpy=\narray([[1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6]], dtype=int32)>\n>>> c = tf.constant([2,1], tf.int32)\n>>> tf.tile(a, c)\n<tf.Tensor: shape=(4, 3), dtype=int32, numpy=\narray([[1, 2, 3],\n       [4, 5, 6],\n       [1, 2, 3],\n       [4, 5, 6]], dtype=int32)>\n>>> d = tf.constant([2,2], tf.int32)\n>>> tf.tile(a, d)\n<tf.Tensor: shape=(4, 6), dtype=int32, numpy=\narray([[1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6],\n       [1, 2, 3, 1, 2, 3],\n       [4, 5, 6, 4, 5, 6]], dtype=int32)>",
       "inputs": [
         {
           "description": "1-D or higher.",
