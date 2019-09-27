@@ -85,7 +85,9 @@ darknet.Graph = class {
             inputs = [ i.toString() ];
             switch (layer.__type__) {
                 case 'shortcut':
-                    var shortcut = cfg[i + Number.parseInt(layer.from, 10)];
+                    var from = Number.parseInt(layer.from, 10);
+                    from = (from >= 0) ? from : (i + from);
+                    var shortcut = cfg[from];
                     if (shortcut) {
                         layer._inputs.push(shortcut._outputs[0]);
                     }
