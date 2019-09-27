@@ -1080,8 +1080,8 @@ sidebar.FindSidebar = class {
 
         let text = searchText.toLowerCase();
 
-        let nodeMatches = {};
-        let edgeMatches = {};
+        let nodeMatches = new Set();
+        let edgeMatches = new Set();
 
         for (let node of this._graph.nodes) {
 
@@ -1089,13 +1089,13 @@ sidebar.FindSidebar = class {
 
             for (let input of node.inputs) {
                 for (let argument of input.arguments) {
-                    if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.id]) {
+                    if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.id)) {
                         if (!argument.initializer) {
                             let inputItem = this._host.document.createElement('li');
                             inputItem.innerText = '\u2192 ' + argument.id.split('\n').shift(); // custom argument id
                             inputItem.id = 'edge-' + argument.id;
                             this._resultElement.appendChild(inputItem);
-                            edgeMatches[argument.id] = true;
+                            edgeMatches.add(argument.id);
                         }
                         else {
                             initializers.push(argument.initializer);
@@ -1105,12 +1105,15 @@ sidebar.FindSidebar = class {
             }
 
             let name = node.name;
-            if (name && name.toLowerCase().indexOf(text) != -1 && !nodeMatches[name]) {
+            let operator = node.operator;
+            if (!nodeMatches.has(name) &&
+                ((name && name.toLowerCase().indexOf(text) != -1) ||
+                (operator && operator.toLowerCase().indexOf(text) != -1))) {
                 let nameItem = this._host.document.createElement('li');
                 nameItem.innerText = '\u25A2 ' + node.name;
                 nameItem.id = 'node-' + node.name;
                 this._resultElement.appendChild(nameItem);
-                nodeMatches[node.name] = true;
+                nodeMatches.add(node.name);
             }
 
             for (let initializer of initializers) {
