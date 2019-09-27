@@ -750,6 +750,7 @@
                     VarDesc.prototype.name = "";
                     VarDesc.prototype.type = null;
                     VarDesc.prototype.persistable = false;
+                    VarDesc.prototype.need_check_feed = false;
     
                     VarDesc.decode = function decode(reader, length) {
                         if (!(reader instanceof $Reader))
@@ -766,6 +767,9 @@
                                 break;
                             case 3:
                                 message.persistable = reader.bool();
+                                break;
+                            case 4:
+                                message.need_check_feed = reader.bool();
                                 break;
                             default:
                                 reader.skipType(tag & 7);
@@ -840,6 +844,135 @@
                     return BlockDesc;
                 })();
     
+                proto.CompatibleInfo = (function() {
+    
+                    function CompatibleInfo(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    CompatibleInfo.prototype.version = "";
+                    CompatibleInfo.prototype.type = 0;
+    
+                    CompatibleInfo.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.paddle.framework.proto.CompatibleInfo();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.version = reader.string();
+                                break;
+                            case 2:
+                                message.type = reader.int32();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        if (!message.hasOwnProperty("version"))
+                            throw $util.ProtocolError("missing required 'version'", { instance: message });
+                        if (!message.hasOwnProperty("type"))
+                            throw $util.ProtocolError("missing required 'type'", { instance: message });
+                        return message;
+                    };
+    
+                    CompatibleInfo.Type = (function() {
+                        var valuesById = {}, values = Object.create(valuesById);
+                        values[valuesById[0] = "COMPATIBLE"] = 0;
+                        values[valuesById[1] = "DEFINITELY_NOT"] = 1;
+                        values[valuesById[2] = "POSSIBLE"] = 2;
+                        values[valuesById[3] = "BUG_FIX"] = 3;
+                        values[valuesById[4] = "PRECISION_CHANGE"] = 4;
+                        return values;
+                    })();
+    
+                    return CompatibleInfo;
+                })();
+    
+                proto.OpCompatibleMap = (function() {
+    
+                    function OpCompatibleMap(properties) {
+                        this.pair = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    OpCompatibleMap.prototype.pair = $util.emptyArray;
+                    OpCompatibleMap.prototype.default_required_version = "";
+    
+                    OpCompatibleMap.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.paddle.framework.proto.OpCompatibleMap();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.pair && message.pair.length))
+                                    message.pair = [];
+                                message.pair.push($root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair.decode(reader, reader.uint32()));
+                                break;
+                            case 2:
+                                message.default_required_version = reader.string();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    OpCompatibleMap.OpCompatiblePair = (function() {
+    
+                        function OpCompatiblePair(properties) {
+                            if (properties)
+                                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                    if (properties[keys[i]] != null)
+                                        this[keys[i]] = properties[keys[i]];
+                        }
+    
+                        OpCompatiblePair.prototype.op_name = "";
+                        OpCompatiblePair.prototype.compatible_info = null;
+    
+                        OpCompatiblePair.decode = function decode(reader, length) {
+                            if (!(reader instanceof $Reader))
+                                reader = $Reader.create(reader);
+                            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair();
+                            while (reader.pos < end) {
+                                var tag = reader.uint32();
+                                switch (tag >>> 3) {
+                                case 1:
+                                    message.op_name = reader.string();
+                                    break;
+                                case 2:
+                                    message.compatible_info = $root.paddle.framework.proto.CompatibleInfo.decode(reader, reader.uint32());
+                                    break;
+                                default:
+                                    reader.skipType(tag & 7);
+                                    break;
+                                }
+                            }
+                            if (!message.hasOwnProperty("op_name"))
+                                throw $util.ProtocolError("missing required 'op_name'", { instance: message });
+                            if (!message.hasOwnProperty("compatible_info"))
+                                throw $util.ProtocolError("missing required 'compatible_info'", { instance: message });
+                            return message;
+                        };
+    
+                        return OpCompatiblePair;
+                    })();
+    
+                    return OpCompatibleMap;
+                })();
+    
                 proto.ProgramDesc = (function() {
     
                     function ProgramDesc(properties) {
@@ -852,6 +985,7 @@
     
                     ProgramDesc.prototype.blocks = $util.emptyArray;
                     ProgramDesc.prototype.version = null;
+                    ProgramDesc.prototype.op_compatible_map = null;
     
                     ProgramDesc.decode = function decode(reader, length) {
                         if (!(reader instanceof $Reader))
@@ -865,8 +999,11 @@
                                     message.blocks = [];
                                 message.blocks.push($root.paddle.framework.proto.BlockDesc.decode(reader, reader.uint32()));
                                 break;
-                            case 2:
+                            case 4:
                                 message.version = $root.paddle.framework.proto.Version.decode(reader, reader.uint32());
+                                break;
+                            case 3:
+                                message.op_compatible_map = $root.paddle.framework.proto.OpCompatibleMap.decode(reader, reader.uint32());
                                 break;
                             default:
                                 reader.skipType(tag & 7);
