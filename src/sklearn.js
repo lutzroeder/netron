@@ -372,7 +372,7 @@ sklearn.ModelFactory = class {
                             let list = [];
                             for (let key in dict) {
                                 let value = dict[key]
-                                if (key != 'weight_order') {
+                                if (key != 'weight_order' && key != 'lr') {
                                     if (!key ||
                                         !value.__type__ || !value.__type__ == 'numpy.ndarray') {
                                         list = null;
@@ -389,7 +389,7 @@ sklearn.ModelFactory = class {
                     return null;
                 }
 
-                weights = find_weight_dict([ obj, obj.blobs,  ]);
+                weights = find_weight_dict([ obj, obj.blobs ]);
                 if (weights) {
                     obj = null;
                 }
