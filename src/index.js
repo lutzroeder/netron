@@ -253,17 +253,17 @@ host.BrowserHost = class {
         window.open(url, '_target');
     }
 
-    exception(err, fatal) {
-        if (window.ga && this.version && this.version !== '0.0.0') {
+    exception(error, fatal) {
+        if (window.ga && this.version && this.version !== '0.0.0' && error && error.telemetry !== false) {
             var description = [];
-            description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
-            if (err.stack) {
-                var match = err.stack.match(/\n {4}at (.*)\((.*)\)/);
+            description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
+            if (error.stack) {
+                var match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                 if (match) {
                     description.push(match[1] + '(' + match[2].split('/').pop() + ')');
                 }
                 else {
-                    description.push(err.stack.split('\n').shift());
+                    description.push(error.stack.split('\n').shift());
                 }
             }
             window.ga('send', 'exception', {

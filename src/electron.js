@@ -249,13 +249,13 @@ host.ElectronHost = class {
         electron.shell.openExternal(url);
     }
 
-    exception(err, fatal) {
-        if (this._telemetry) {
+    exception(error, fatal) {
+        if (this._telemetry && error && error.telemetry !== false) {
             try {
                 var description = [];
-                description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
-                if (err.stack) {
-                    var match = err.stack.match(/\n {4}at (.*)\((.*)\)/);
+                description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
+                if (error.stack) {
+                    var match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                     if (match) {
                         description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
                     }

@@ -976,9 +976,11 @@ view.View = class {
 };
 
 class ModelError extends Error {
-    constructor(message) {
+
+    constructor(message, telemetry) {
         super(message);
         this.name = 'Error loading model.'; 
+        this.telemetry = telemetry;
     }
 }
 
@@ -1194,7 +1196,14 @@ view.ModelFactoryService = class {
                         }
                         throw new ModelError(errors.map((err) => err.message).join('\n'));
                     }
-                    throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'.");
+                    const knownUnsupportedIdentifiers = new Set([
+                        'natives_blob.bin', 'v8_context_snapshot.bin', 
+                        'LICENSE.meta',
+                        'input_0.pb',
+                        'hand_label_map.pbtxt', 'label_map.pbtxt', 'labelmap.pbtxt', 
+                        'imagenet_2012_challenge_label_map_proto.pbtxt', 'object-detection.pbtxt'
+                    ]);
+                    throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'.", !knownUnsupportedIdentifiers.has(context.identifier));
                 }
             };
             return nextModule();
