@@ -51,7 +51,7 @@ tflite.ModelFactory = class {
                 catch (error) {
                     let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new new tflite.Error(message + " in '" + identifier + "'.");
+                    throw new tflite.Error(message + " in '" + identifier + "'.");
                 }
             });
         });

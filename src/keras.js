@@ -113,7 +113,7 @@ keras.ModelFactory = class {
                 throw new keras.Error('\'model_config\' is not present.');
             }
             if (!rootGroup && !model_config.class_name) {
-                throw new new keras.Error('\'class_name\' is not present.');
+                throw new keras.Error('\'class_name\' is not present.');
             }
     
             return keras.Metadata.open(host).then((metadata) => {
