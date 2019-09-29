@@ -1978,9 +1978,16 @@
   {
     "type":   "keras",
     "target": "generating_images_with_vaes.h5",
-    "source": "https://github.com/lutzroeder/netron/files/2592326/generating_images_with_vaes.h5.zip[generating_images_with_vaes.h5]  ",
+    "source": "https://github.com/lutzroeder/netron/files/2592326/generating_images_with_vaes.h5.zip[generating_images_with_vaes.h5]",
     "format": "Keras v2.1.3",
     "link":   "https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/8.4-generating-images-with-vaes.ipynb"
+  },
+  {
+    "type":   "keras",
+    "target": "generator_model.h5",
+    "source": "https://github.com/mattya/chainer-DCGAN/blob/master/generator_model.h5?raw=true",
+    "error":  "File format is not Keras HDF5 in 'generator_model.h5'.",
+    "link":   "https://github.com/mattya/chainer-DCGAN"
   },
   {
     "type":   "keras",

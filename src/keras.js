@@ -104,7 +104,6 @@ keras.ModelFactory = class {
                 }
             }
             catch (error) {
-                host.exception(error, false);
                 let message = error && error.message ? error.message : error.toString();
                 message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                 throw new keras.Error(message + " in '" + identifier + "'.");
@@ -122,6 +121,7 @@ keras.ModelFactory = class {
                     return new keras.Model(metadata, format, producer, backend, model_config, rootGroup, weightsManifest);
                 }
                 catch (error) {
+                    host.exception(error, false);
                     let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     throw new keras.Error(message + " in '" + identifier + "'.");
