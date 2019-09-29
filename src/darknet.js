@@ -69,7 +69,7 @@ darknet.Graph = class {
 
         const inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.width, net.height, net.channels ]));
 
-        let input = 'input';
+        const input = 'input';
         this._inputs.push(new darknet.Parameter(input, true, [
             new darknet.Argument(input, inputType, null)
         ]));
@@ -80,7 +80,7 @@ darknet.Graph = class {
 
         let inputs = [ 'input' ];
         for (let i = 0; i < cfg.length; i++) {
-            let layer = cfg[i];
+            const layer = cfg[i];
             layer._inputs = inputs;
             inputs = [ i.toString() ];
             switch (layer.__type__) {
@@ -96,8 +96,8 @@ darknet.Graph = class {
                     layer._inputs = [];
                     var routes = layer.layers.split(',').map((route) => Number.parseInt(route.trim(), 10));
                     for (let j = 0; j < routes.length; j++) {
-                        let index = (routes[j] < 0) ? i + routes[j] : routes[j];
-                        let route = cfg[index];
+                        const index = (routes[j] < 0) ? i + routes[j] : routes[j];
+                        const route = cfg[index];
                         if (route) {
                             layer._inputs.push(route._outputs[0]);
                         }
@@ -110,7 +110,7 @@ darknet.Graph = class {
         }
 
         if (cfg.length > 0) {
-            let lastLayer = cfg[cfg.length - 1];
+            const lastLayer = cfg[cfg.length - 1];
             for (let i = 0; i < lastLayer._outputs.length; i++) {
                 this._outputs.push(new darknet.Parameter('output' + (i > 1 ? i.toString() : ''), true, [
                     new darknet.Argument(lastLayer._outputs[i], null, null)
@@ -288,7 +288,7 @@ darknet.Node = class {
     }
 
     _initializer(name, shape) {
-        let id = this._name.toString() + '_' + name;
+        const id = this._name.toString() + '_' + name;
         this._inputs.push(new darknet.Parameter(name, true, [
             new darknet.Argument(id, null, new darknet.Tensor(id, shape))
         ]));
@@ -296,7 +296,7 @@ darknet.Node = class {
 
     _batch_normalize(metadata, net, layer, size) {
         if (layer.batch_normalize == "1") {
-            let batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [], size: size || 0 };
+            const batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [], size: size || 0 };
             this._chain.push(new darknet.Node(metadata, net, batch_normalize_layer, this._name + ':batch_normalize'));
             delete layer.batch_normalize;
         }
@@ -316,12 +316,12 @@ darknet.Attribute = class {
         this._name = name;
         this._value = value;
 
-        let intValue = Number.parseInt(this._value, 10);
+        const intValue = Number.parseInt(this._value, 10);
         if (!Number.isNaN(this._value - intValue)) {
             this._value = intValue;
         }
         else {
-            let floatValue = Number.parseFloat(this._value);
+            const floatValue = Number.parseFloat(this._value);
             if (!Number.isNaN(this._value - floatValue)) {
                 this._value = floatValue;
             }
@@ -449,7 +449,7 @@ darknet.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (let item of items) {
                     if (item.name && item.schema) {
