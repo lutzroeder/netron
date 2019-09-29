@@ -1171,7 +1171,7 @@
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of a single integer,\n    specifying the stride length of the convolution.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of a single integer,\n    specifying the stride length of the convolution.\n    Specifying any `strides!=1` is incompatible with specifying\n    any `dilation_rate!=1`.",
           "name": "strides"
         },
         {
@@ -1323,7 +1323,7 @@
       ],
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.\n",
+          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if `data_format='channels_first'`\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if `data_format='channels_last'`.\n",
           "name": "input"
         }
       ],
