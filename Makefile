@@ -23,6 +23,7 @@ update:
 	@[ -d node_modules ] || npm install
 	@./tools/caffe sync schema
 	@./tools/coreml sync install schema
+	@./tools/chainer sync
 	@./tools/cntk sync schema
 	@./tools/darknet sync
 	@./tools/dl4j sync
