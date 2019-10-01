@@ -945,7 +945,15 @@ view.View = class {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
-                            const array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
+                            const dataTypeMap = new Map([
+                                [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
+                                [ 'byte', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
+                                [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ]
+                            ]);
+                            let array = new numpy.Array();
+                            array.shape = tensor.type.shape.dimensions;
+                            array.data = tensor.value;
+                            array.dataType = dataTypeMap.has(tensor.type.dataType) ? dataTypeMap.get(tensor.type.dataType) : tensor.type.dataType;
                             const blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
                             this._host.export(file, blob);
                         }
@@ -1149,6 +1157,7 @@ view.ModelFactoryService = class {
         this.register('./paddle', [ '.paddle', '__model__' ]);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
         this.register('./flux', [ '.bson' ]);
+        this.register('./chainer', [ '.npz', '.h5', '.hdf5' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
     }
@@ -1200,7 +1209,7 @@ view.ModelFactoryService = class {
                         'natives_blob.bin', 'v8_context_snapshot.bin', 
                         'LICENSE.meta',
                         'input_0.pb',
-                        'hand_label_map.pbtxt', 'label_map.pbtxt', 'labelmap.pbtxt', 
+                        'hand_label_map.pbtxt', 'label_map.pbtxt', 'labelmap.pbtxt', 'mscoco_label_map.pbtxt',
                         'imagenet_2012_challenge_label_map_proto.pbtxt', 'object-detection.pbtxt'
                     ]);
                     throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'.", !knownUnsupportedIdentifiers.has(context.identifier));

@@ -886,6 +886,27 @@
     "link":   "https://github.com/caffe2/models"
   },
   {
+    "type":   "chainer",
+    "target": "generator_model.h5",
+    "source": "https://github.com/mattya/chainer-DCGAN/blob/master/generator_model.h5?raw=true",
+    "format": "Chainer HDF5",
+    "link":   "https://github.com/mattya/chainer-DCGAN"
+  },
+  {
+    "type":   "chainer",
+    "target": "mlp.h5",
+    "source": "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.h5]",
+    "format": "Chainer HDF5",
+    "link":   "https://github.com/lutzroeder/netron/issues/337"
+  },
+  {
+    "type":   "chainer",
+    "target": "mlp.npz",
+    "source": "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.npz]",
+    "format": "Chainer NumPy",
+    "link":   "https://github.com/lutzroeder/netron/issues/337"
+  },
+  {
     "type":   "cntk",
     "target": "v1/01_OneHidden.dnn",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/01_OneHidden.dnn",
@@ -1984,13 +2005,6 @@
   },
   {
     "type":   "keras",
-    "target": "generator_model.h5",
-    "source": "https://github.com/mattya/chainer-DCGAN/blob/master/generator_model.h5?raw=true",
-    "error":  "File format is not Keras HDF5 in 'generator_model.h5'.",
-    "link":   "https://github.com/mattya/chainer-DCGAN"
-  },
-  {
-    "type":   "keras",
     "target": "imdb_embedding.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[imdb_embedding.h5]",
     "format": "Keras v2.1.3",
@@ -2021,7 +2035,7 @@
     "type":   "keras",
     "target": "keras_invalid_file.h5",
     "source": "https://github.com/lutzroeder/netron/files/3364286/keras_invalid_file.zip[keras_invalid_file.h5]",
-    "error":  "Not a valid HDF5 file in 'keras_invalid_file.h5'.",
+    "error":  "Not a valid HDF5 file in 'keras_invalid_file.h5'.\nNot a valid HDF5 file in 'keras_invalid_file.h5'.",
     "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
@@ -2132,7 +2146,7 @@
     "type":   "keras",
     "target": "snapshot_parent_0097.h5",
     "source": "https://github.com/uber-research/deep-neuroevolution/blob/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5?raw=true",
-    "error":  "File format is not Keras HDF5 in 'snapshot_parent_0097.h5'.",
+    "error":  "File format is not Keras HDF5 in 'snapshot_parent_0097.h5'.\nFile format is not Chainer HDF5 in 'snapshot_parent_0097.h5'.",
     "link":   "https://github.com/uber-research/deep-neuroevolution"
   },
   {
