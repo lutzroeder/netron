@@ -13,7 +13,7 @@ chainer.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'npz':
-                return context.entries.length > 0;
+                return context.entries.length > 0 && context.entries.every((entry) => entry.name.indexOf('/') !== -1);
             case 'h5':
             case 'hdf5':
                 return true;
@@ -253,7 +253,7 @@ chainer.ModelFactory = class {
                             dataType: variable.type,
                             byteOrder: variable.littleEndian ? '<' : '>',
                             shape: variable.shape, 
-                            data: variable.rawData });
+                            data: variable.data });
                     }
                 }
 

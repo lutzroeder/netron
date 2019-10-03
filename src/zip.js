@@ -91,15 +91,7 @@ zip.Entry = class {
                     this._data.set(this._compressedData);
                     break;
                 case 8: // Deflate
-                    if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
-                        this._data = require('zlib').inflateRawSync(this._compressedData);
-                    }
-                    else if (typeof pako !== 'undefined') {
-                        this._data = pako.inflateRaw(this._compressedData);
-                    }
-                    else {
-                        this._data = new zip.Inflater().inflateRaw(this._compressedData);
-                    }
+                    this._data = new zip.Inflater().inflateRaw(this._compressedData);
                     if (this._size != this._data.length) {
                         throw new zip.Error('Invalid uncompressed size.');
                     }
@@ -109,7 +101,6 @@ zip.Entry = class {
             }
 
             delete this._size;
-            delete this._inflateRaw;
             delete this._compressedData;
         }
         return this._data;
@@ -171,6 +162,13 @@ zip.HuffmanTree = class {
 zip.Inflater = class {
 
     inflateRaw(data) {
+
+        if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
+            return require('zlib').inflateRawSync(data);
+        }
+        if (typeof pako !== 'undefined') {
+            return pako.inflateRaw(data);
+        }
 
         zip.Inflater.initilize();
         zip.HuffmanTree.initialize();

@@ -163,7 +163,7 @@ keras.Model = class {
                                 if (variable) {
                                     let parts = weight_name.split('/');
                                     parts.pop();
-                                    let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.rawData, '');
+                                    let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.data, '');
                                     let match = false;
                                     while (parts.length > 0) {
                                         let name = parts.join('/');
