@@ -19059,6 +19059,47 @@
     }
   },
   {
+    "name": "Erfinv",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "EuclideanNorm",
     "schema": {
       "attributes": [
@@ -34355,6 +34396,47 @@
     }
   },
   {
+    "name": "Ndtri",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "NearestNeighbors",
     "schema": {
       "description": "Rows of points are assumed to be input points. Rows of centers are assumed to be\nthe list of candidate centers. For each point, the k centers that have least L2\ndistance to it are computed.",
@@ -37327,6 +37409,319 @@
         }
       ],
       "summary": "Transforms a vector of brain.SequenceExample protos (as strings) into typed tensors."
+    }
+  },
+  {
+    "name": "ParseSequenceExampleV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Ncontext_sparse",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "Tcontext_dense",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "A list of Ncontext_sparse types; the data types of data in\neach context Feature given in context_sparse_keys.\nCurrently the ParseSingleSequenceExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "context_sparse_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.value dtypes for the ragged context features.",
+          "minimum": 0,
+          "name": "context_ragged_value_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.row_split dtypes for the ragged context features.",
+          "minimum": 0,
+          "name": "context_ragged_split_types",
+          "type": "type[]"
+        },
+        {
+          "default": [],
+          "description": "A list of Ncontext_dense shapes; the shapes of data in\neach context Feature given in context_dense_keys.\nThe number of elements in the Feature corresponding to context_dense_key[j]\nmust always equal context_dense_shapes[j].NumEntries().\nThe shape of context_dense_values[j] will match context_dense_shapes[j].",
+          "minimum": 0,
+          "name": "context_dense_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nfeature_list_sparse",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nfeature_list_dense",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "feature_list_dense_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "A list of Nfeature_list_sparse types; the data types\nof data in each FeatureList given in feature_list_sparse_keys.\nCurrently the ParseSingleSequenceExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "feature_list_sparse_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.value dtypes for the ragged FeatureList features.",
+          "minimum": 0,
+          "name": "feature_list_ragged_value_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.row_split dtypes for the ragged FeatureList features.",
+          "minimum": 0,
+          "name": "feature_list_ragged_split_types",
+          "type": "type[]"
+        },
+        {
+          "default": [],
+          "description": "A list of Nfeature_list_dense shapes; the shapes of\ndata in each FeatureList given in feature_list_dense_keys.\nThe shape of each Feature in the FeatureList corresponding to\nfeature_list_dense_key[j] must always equal\nfeature_list_dense_shapes[j].NumEntries().",
+          "minimum": 0,
+          "name": "feature_list_dense_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A scalar or vector containing binary serialized SequenceExample protos.",
+          "name": "serialized",
+          "type": 7
+        },
+        {
+          "description": "A scalar or vector containing the names of the serialized protos.\nMay contain, for example, table key (descriptive) name for the\ncorresponding serialized proto.  This is purely useful for debugging\npurposes, and the presence of values here has no effect on the output.\nMay also be an empty vector if no name is available.",
+          "name": "debug_name",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the Examples' features associated with context_sparse\nvalues.",
+          "name": "context_sparse_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the SequenceExamples' context features associated with\ndense values.",
+          "name": "context_dense_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the Examples' features associated with context_ragged\nvalues.",
+          "name": "context_ragged_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the FeatureLists associated with sparse values.",
+          "name": "feature_list_sparse_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the SequenceExamples' feature_lists associated\nwith lists of dense values.",
+          "name": "feature_list_dense_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the FeatureLists associated with ragged values.",
+          "name": "feature_list_ragged_keys",
+          "type": 7
+        },
+        {
+          "description": "A vector corresponding 1:1 with featue_list_dense_keys, indicating which\nfeatures may be missing from the SequenceExamples.  If the associated\nFeatureList is missing, it is treated as empty.",
+          "name": "feature_list_dense_missing_assumed_empty",
+          "type": 10
+        },
+        {
+          "description": "A list of Ncontext_dense Tensors (some may be empty).\ncontext_dense_defaults[j] provides default values\nwhen the SequenceExample's context map lacks context_dense_key[j].\nIf an empty Tensor is provided for context_dense_defaults[j],\nthen the Feature context_dense_keys[j] is required.\nThe input type is inferred from context_dense_defaults[j], even when it's\nempty.  If context_dense_defaults[j] is not empty, its shape must match\ncontext_dense_shapes[j].",
+          "name": "context_dense_defaults",
+          "typeListAttr": "Tcontext_dense"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "context_sparse_indices",
+          "numberAttr": "Ncontext_sparse",
+          "type": 9
+        },
+        {
+          "name": "context_sparse_values",
+          "typeListAttr": "context_sparse_types"
+        },
+        {
+          "name": "context_sparse_shapes",
+          "numberAttr": "Ncontext_sparse",
+          "type": 9
+        },
+        {
+          "name": "context_dense_values",
+          "typeListAttr": "Tcontext_dense"
+        },
+        {
+          "name": "context_ragged_values",
+          "typeListAttr": "context_ragged_value_types"
+        },
+        {
+          "name": "context_ragged_row_splits",
+          "typeListAttr": "context_ragged_split_types"
+        },
+        {
+          "name": "feature_list_sparse_indices",
+          "numberAttr": "Nfeature_list_sparse",
+          "type": 9
+        },
+        {
+          "name": "feature_list_sparse_values",
+          "typeListAttr": "feature_list_sparse_types"
+        },
+        {
+          "name": "feature_list_sparse_shapes",
+          "numberAttr": "Nfeature_list_sparse",
+          "type": 9
+        },
+        {
+          "name": "feature_list_dense_values",
+          "typeListAttr": "feature_list_dense_types"
+        },
+        {
+          "name": "feature_list_dense_lengths",
+          "numberAttr": "Nfeature_list_dense",
+          "type": 9
+        },
+        {
+          "name": "feature_list_ragged_values",
+          "typeListAttr": "feature_list_ragged_value_types"
+        },
+        {
+          "name": "feature_list_ragged_outer_splits",
+          "typeListAttr": "feature_list_ragged_split_types"
+        },
+        {
+          "name": "feature_list_ragged_inner_splits",
+          "typeListAttr": "feature_list_ragged_split_types"
+        }
+      ],
+      "summary": "Transforms a vector of tf.io.SequenceExample protos (as strings) into\ntyped tensors."
     }
   },
   {
@@ -44804,7 +45199,7 @@
         },
         {
           "description": "The expected ragged rank of the output `RaggedTensor`. The following must hold:\n`output_ragged_rank = rank(encoded_ragged) + input_ragged_rank`.",
-          "minimum": 1,
+          "minimum": 0,
           "name": "output_ragged_rank",
           "type": "int64"
         },
@@ -44823,6 +45218,10 @@
               "value": 9
             }
           ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
           "name": "Tsplits",
           "type": "type"
         }
@@ -45003,7 +45402,7 @@
     "schema": {
       "attributes": [
         {
-          "minimum": 1,
+          "minimum": 0,
           "name": "RAGGED_RANK",
           "type": "int64"
         },
@@ -45022,6 +45421,10 @@
               "value": 9
             }
           ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
           "name": "Tsplits",
           "type": "type"
         },
@@ -47992,7 +48395,7 @@
         }
       ],
       "category": "Shape",
-      "description": "Given `tensor`, this operation returns a tensor that has the same values\nas `tensor` with shape `shape`.\n\nIf one component of `shape` is the special value -1, the size of that dimension\nis computed so that the total size remains constant.  In particular, a `shape`\nof `[-1]` flattens into 1-D.  At most one component of `shape` can be -1.\n\nIf `shape` is 1-D or higher, then the operation returns a tensor with shape\n`shape` filled with the values of `tensor`. In this case, the number of elements\nimplied by `shape` must be the same as the number of elements in `tensor`.\n\nFor example:\n\n```\n# tensor 't' is [1, 2, 3, 4, 5, 6, 7, 8, 9]\n# tensor 't' has shape [9]\nreshape(t, [3, 3]) ==> [[1, 2, 3],\n                        [4, 5, 6],\n                        [7, 8, 9]]\n\n# tensor 't' is [[[1, 1], [2, 2]],\n#                [[3, 3], [4, 4]]]\n# tensor 't' has shape [2, 2, 2]\nreshape(t, [2, 4]) ==> [[1, 1, 2, 2],\n                        [3, 3, 4, 4]]\n\n# tensor 't' is [[[1, 1, 1],\n#                 [2, 2, 2]],\n#                [[3, 3, 3],\n#                 [4, 4, 4]],\n#                [[5, 5, 5],\n#                 [6, 6, 6]]]\n# tensor 't' has shape [3, 2, 3]\n# pass '[-1]' to flatten 't'\nreshape(t, [-1]) ==> [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]\n\n# -1 can also be used to infer the shape\n\n# -1 is inferred to be 9:\nreshape(t, [2, -1]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 2:\nreshape(t, [-1, 9]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 3:\nreshape(t, [ 2, -1, 3]) ==> [[[1, 1, 1],\n                              [2, 2, 2],\n                              [3, 3, 3]],\n                             [[4, 4, 4],\n                              [5, 5, 5],\n                              [6, 6, 6]]]\n\n# tensor 't' is [7]\n# shape `[]` reshapes to a scalar\nreshape(t, []) ==> 7\n```",
+      "description": "Given `tensor`, this operation returns a tensor that has the same values\nas `tensor` with shape `shape`.\n\nIf one component of 1-D tensor `shape` is the special value -1, the size of that\ndimension is computed so that the total size remains constant.  In particular, a\n`shape` of `[-1]` flattens into 1-D.  At most one component of `shape` may be\nunknown.\n\nThe `shape` must be 1-D and the operation returns a tensor with shape\n`shape` filled with the values of `tensor`. In this case, the number of elements\nimplied by `shape` must be the same as the number of elements in `tensor`.\n\nIt is an error if `shape` is not 1-D.\n\nFor example:\n\n```\n# tensor 't' is [1, 2, 3, 4, 5, 6, 7, 8, 9]\n# tensor 't' has shape [9]\nreshape(t, [3, 3]) ==> [[1, 2, 3],\n                        [4, 5, 6],\n                        [7, 8, 9]]\n\n# tensor 't' is [[[1, 1], [2, 2]],\n#                [[3, 3], [4, 4]]]\n# tensor 't' has shape [2, 2, 2]\nreshape(t, [2, 4]) ==> [[1, 1, 2, 2],\n                        [3, 3, 4, 4]]\n\n# tensor 't' is [[[1, 1, 1],\n#                 [2, 2, 2]],\n#                [[3, 3, 3],\n#                 [4, 4, 4]],\n#                [[5, 5, 5],\n#                 [6, 6, 6]]]\n# tensor 't' has shape [3, 2, 3]\n# pass '[-1]' to flatten 't'\nreshape(t, [-1]) ==> [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]\n\n# -1 can also be used to infer the shape\n\n# -1 is inferred to be 9:\nreshape(t, [2, -1]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 2:\nreshape(t, [-1, 9]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 3:\nreshape(t, [ 2, -1, 3]) ==> [[[1, 1, 1],\n                              [2, 2, 2],\n                              [3, 3, 3]],\n                             [[4, 4, 4],\n                              [5, 5, 5],\n                              [6, 6, 6]]]\n\n# tensor 't' is [7]\n# shape `[]` reshapes to a scalar\nreshape(t, []) ==> 7\n```",
       "inputs": [
         {
           "name": "tensor",
