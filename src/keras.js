@@ -555,17 +555,21 @@ keras.Node = class {
         let innerOperator = this.inner ? this.inner.operator : null;
         let innerSchema = innerOperator ? this._metadata.getSchema(innerOperator) : null;
         let inputIndex = 0;
-        while (inputIndex < inputs.length) {
-            let inputCount = 1;
+        while (inputs.length > 0) {
+            let variadic = false;
             let inputName = null;
             let visible = true;
             if (!innerSchema || inputIndex == 0) {
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
                     let input = schema.inputs[inputIndex];
                     inputName = input.name;
+                    if (operator === 'BatchNormalization' && inputName === 'gamma' && config.scale === false) {
+                        inputIndex++;
+                        continue;
+                    }
                     visible = input.visible == false ? false : true; 
                     if (schema.inputs[inputIndex].option == 'variadic') {
-                        inputCount = this._inputs.length - inputIndex;
+                        variadic = true;
                     }
                 }
             }
@@ -593,7 +597,8 @@ keras.Node = class {
                         break;
                 }
             }
-            const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+            const input = !variadic ? [ inputs.shift() ] : inputs.slice(0, inputs.length);
+            const inputArguments = input.map((id) => {
                 return new keras.Argument(id, null, initializers[id]);
             });
             if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
@@ -603,9 +608,8 @@ keras.Node = class {
                 const inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
                 inputName = inputNames.has(inputName2) ? inputName2 : inputName1;
             }
-            inputName = inputName || inputIndex.toString();
-            this._inputs.push(new keras.Parameter(inputName, visible, inputArguments));
-            inputIndex += inputCount;
+            this._inputs.push(new keras.Parameter(inputName || inputIndex.toString(), visible, inputArguments));
+            inputIndex++;
         }
 
         this._outputs = outputs.map((output, outputIndex) => {
@@ -713,6 +717,9 @@ keras.Attribute = class {
             default:
                 var schema = metadata.getAttributeSchema(operator, this._name);
                 if (schema) {
+                    if (schema.type) {
+                        this._type = schema.type;
+                    }
                     if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                         this._visible = false;
                     }
