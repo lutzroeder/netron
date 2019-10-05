@@ -16877,5 +16877,65 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "ResizeNearest3DGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Scale along temporal dimension",
+          "name": "temporal_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along width dimension",
+          "name": "width_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along height dimension",
+          "name": "height_scale",
+          "option": "optional"
+        }
+      ],
+      "description": null,
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "ResizeNearest3D",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Scale along temporal dimension",
+          "name": "temporal_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along width dimension",
+          "name": "width_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along height dimension",
+          "name": "height_scale",
+          "option": "optional"
+        }
+      ],
+      "description": "\nResizes the spatial dimensions of the input tensor using nearest neighbor\ninterpolation. The `width_scale` and `height_scale` arguments\ncontrol the size of the output, which is given by:\noutput_width = floor(input_width * width_scale)\noutput_height = floor(output_height * height_scale)\nAssumptions:\n  - Only resize height and width\n  - Both width_scale and height_scale scale are 2\n",
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
