@@ -100,7 +100,7 @@ setuptools.setup(
             'mxnet.js', 'mxnet-metadata.json',
             'ncnn.js', 'ncnn-metadata.json',
             'mnn.js', 'mnn-metadata.json', 'mnn-schema.js',
-            'openvino.js', 'openvino-metadata.json',
+            'openvino.js', 'openvino-metadata.json',,
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn.js', 'sklearn-metadata.json',
