@@ -1,0 +1,1162 @@
+{
+  "OpTypeStyle":[
+    {
+      "name": "AbsVal",
+      "schema": {
+        "operator": 0,
+        "category":""
+      }
+    },
+    {
+      "name": "QuantizedAdd",
+      "schema": {
+        "operator": 1,
+        "category":""
+      }
+    },
+    {
+      "name": "ArgMax",
+      "schema": {
+        "operator": 2,
+        "category": ""
+      }
+    },
+    { 
+      "name": "AsString",
+      "schema": {
+        "operator": 3,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "BatchNorm",
+      "schema": {
+        "operator": 4,
+        "category": "Normalization"
+      }
+    },
+    {
+      "name": "BatchToSpaceND",
+      "schema": {
+        "operator": 5,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "Bias",
+      "schema": {
+        "operator": 6,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "BinaryOp",
+      "schema": {
+        "operator": 7,
+        "category": ""
+      }
+    },
+    {
+      "name": "Bnll",
+      "schema": {
+        "operator": 8,
+        "category": ""
+      }
+    },
+    {
+      "name": "Cast",
+      "schema": {
+        "operator": 9,
+        "category": ""
+      }
+    },
+    {
+      "name": "Concat",
+      "schema": {
+        "operator": 10,
+        "category": "Tensor"
+      }
+    },
+    {
+      "name": "Const",
+      "schema": {
+        "operator": 11,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Convolution",
+      "schema": {
+        "operator": 12,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "ConvolutionDepthwise",
+      "schema": {
+        "operator": 13,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Crop",
+      "schema": {
+        "operator": 14,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "CropAndResize",
+      "schema": {
+        "operator": 15,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "Cubic",
+      "schema": {
+        "operator": 16,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Deconvolution",
+      "schema": {
+        "operator": 17,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "DeconvolutionDepthwise",
+      "schema": {
+        "operator": 18,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Dequantize",
+      "schema": {
+        "operator": 19,
+        "category": ""
+      }
+    },
+    {
+      "name": "DetectionOutput",
+      "schema": {
+        "operator": 20,
+        "category": ""
+      }
+    },
+    {
+      "name": "Dropout",
+      "schema": {
+        "operator": 21,
+        "category": "Dropout"
+      }
+    },
+    {
+      "name": "Eltwise",
+      "schema": {
+        "operator": 22,
+        "category": ""
+      }
+    },
+    {
+      "name": "ELU",
+      "schema": {
+        "operator": 23,
+        "category": ""
+      }
+    },
+    {
+      "name": "Embed",
+      "schema": {
+        "operator": 24,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "Exp",
+      "schema": {
+        "operator": 25,
+        "category": ""
+      }
+    },
+    {
+      "name": "ExpandDims",
+      "schema": {
+        "operator": 26,
+        "category": ""
+      }
+    },
+    {
+      "name": "Fill",
+      "schema": {
+        "operator": 27,
+        "category": "Data" 
+      }
+    },
+    {
+      "name": "Flatten",
+      "schema": {
+        "operator": 28,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "FloorMod",
+      "schema": {
+        "operator": 29,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Gather",
+      "schema": {
+        "operator": 30,
+        "category": "Data"
+      }
+    },
+    {
+      "name": "GatherV2",
+      "schema": {
+        "operator": 31,
+        "category": "Data"
+      }
+    },
+    {
+      "name": "Im2Seq",
+      "schema": {
+        "operator": 32,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "InnerProduct",
+      "schema": {
+        "operator": 33,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Input",
+      "schema": {
+        "operator": 34,
+        "category": ""
+      }
+    },
+    {
+      "name": "Interp",
+      "schema": {
+        "operator": 35,
+        "category": ""
+      }
+    },
+    {
+      "name": "Log",
+      "schema": {
+        "operator": 36,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "LRN",
+      "schema": {
+        "operator": 37,
+        "category": ""
+      }
+    },
+    {
+      "name": "LSTM",
+      "schema": {
+        "operator": 38,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "MatMul",
+      "schema": {
+        "operator": 39,
+        "category": ""
+      }
+    },
+    {
+      "name": "MVN",
+      "schema": {
+        "operator": 40,
+        "category": ""
+      }
+    },
+    {
+      "name": "NonMaxSuppression",
+      "schema": {
+        "operator": 41,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "NonMaxSuppressionV2",
+      "schema": {
+        "operator": 42,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Normalize",
+      "schema": {
+        "operator": 43,
+        "category": "Normalization"
+      }
+    },
+    {
+      "name": "Pack",
+      "schema": {
+        "operator": 44,
+        "category": ""
+      }
+    },
+    {
+      "name": "Padding",
+      "schema": {
+        "operator": 45,
+        "category": "Tensor"
+      }
+    },
+    {
+      "name": "Permute",
+      "schema": {
+        "operator": 46,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "Pooling",
+      "schema": {
+        "operator": 47,
+        "category": "Pool"
+      }
+    },
+    {
+      "name": "Power",
+      "schema": {
+        "operator": 48,
+        "category": ""
+      }
+    },
+    {
+      "name": "PReLU",
+      "schema": {
+        "operator": 49,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "PriorBox",
+      "schema": {
+        "operator": 50,
+        "category": ""
+      }
+    },
+    {
+      "name": "Proposal",
+      "schema": {
+        "operator": 51,
+        "category": ""
+      }
+    },
+    {
+      "name": "QuantizedAvgPool",
+      "schema": {
+        "operator": 52,
+        "category": "Pool"
+      }
+    },
+    {
+      "name": "QuantizedBiasAdd",
+      "schema": {
+        "operator": 53,
+        "category": ""
+      }
+    },
+    {
+      "name": "QuantizedConcat",
+      "schema": {
+        "operator": 54,
+        "category": "Tensor"
+      }
+    },
+    {
+      "name": "QuantizedDepthwiseConv2D",
+      "schema": {
+        "operator": 55,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "QuantizedLogistic",
+      "schema": {
+        "operator": 56,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "QuantizedMatMul",
+      "schema": {
+        "operator": 57,
+        "category": ""
+      }
+    },
+    {
+      "name": "QuantizedMaxPool",
+      "schema": {
+        "operator": 58,
+        "category": "Pool"
+      }
+    },
+    {
+      "name": "QuantizedRelu",
+      "schema": {
+        "operator": 59,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "QuantizedRelu6",
+      "schema": {
+        "operator": 60,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "QuantizedReshape",
+      "schema": {
+        "operator": 61,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "QuantizedSoftmax",
+      "schema": {
+        "operator": 62,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "QuantizeMaxMin",
+      "schema": {
+        "operator": 63,
+        "category": ""
+      }
+    },
+    {
+      "name": "QuantizeV2",
+      "schema": {
+        "operator": 64,
+        "category": ""
+      }
+    },
+    {
+      "name": "Range",
+      "schema": {
+        "operator": 65,
+        "category": ""
+      }
+    },
+    {
+      "name": "Rank",
+      "schema": {
+        "operator": 66,
+        "category": ""
+      }
+    },
+    {
+      "name": "ReduceJoin",
+      "schema": {
+        "operator": 67,
+        "category": ""
+      }
+    },
+    {
+      "name": "Reduction",
+      "schema": {
+        "operator": 68,
+        "category": ""
+      }
+    },
+    {
+      "name": "ReLU",
+      "schema": {
+        "operator": 69,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "ReLU6",
+      "schema": {
+        "operator": 70,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "RequantizationRange",
+      "schema": {
+        "operator": 71,
+        "category": ""
+      }
+    },
+    {
+      "name": "Requantize",
+      "schema": {
+        "operator": 72,
+        "category": ""
+      }
+    },
+    {
+      "name": "Reshape",
+      "schema": {
+        "operator": 73,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "Resize",
+      "schema": {
+        "operator": 74,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "RNN",
+      "schema": {
+        "operator": 75,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "ROIPooling",
+      "schema": {
+        "operator": 76,
+        "category": "Pool"
+      }
+    },
+    {
+      "name": "Scale",
+      "schema": {
+        "operator": 77,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Selu",
+      "schema": {
+        "operator": 78,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "Seq2Out",
+      "schema": {
+        "operator": 79,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "Shape",
+      "schema": {
+        "operator": 80,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "Sigmoid",
+      "schema": {
+        "operator": 81,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Size",
+      "schema": {
+        "operator": 82,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "Slice",
+      "schema": {
+        "operator": 83,
+        "category": ""
+      }
+    },
+    {
+      "name": "SliceTf",
+      "schema": {
+        "operator": 84,
+        "category": ""
+      }
+    },
+    {
+      "name": "Softmax",
+      "schema": {
+        "operator": 85,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "SpaceToBatchND",
+      "schema": {
+        "operator": 86,
+        "category": "Shape"
+      }
+    },
+    {
+      "name": "SpatialProduct",
+      "schema": {
+        "operator": 87,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Split",
+      "schema": {
+        "operator": 88,
+        "category": ""
+      }
+    },
+    {
+      "name": "SPP",
+      "schema": {
+        "operator": 89,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Squeeze",
+      "schema": {
+        "operator": 90,
+        "category": ""
+      }
+    },
+    {
+      "name": "StridedSlice",
+      "schema": {
+        "operator": 91,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "StringJoin",
+      "schema": {
+        "operator": 92,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "StringSplit",
+      "schema": {
+        "operator": 93,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "StringToNumber",
+      "schema": {
+        "operator": 94,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "TanH",
+      "schema": {
+        "operator": 95,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "TfQuantizedConv2D",
+      "schema": {
+        "operator": 96,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Threshold",
+      "schema": {
+        "operator": 97,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "Tile",
+      "schema": {
+        "operator": 98,
+        "category": ""
+      }
+    },
+    {
+      "name": "TopKV2",
+      "schema": {
+        "operator": 99,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Transpose",
+      "schema": {
+        "operator": 100,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "UnaryOp",
+      "schema": {
+        "operator": 101,
+        "category": ""
+      }
+    },
+    {
+      "name": "Unpack",
+      "schema": {
+        "operator": 102,
+        "category": ""
+      }
+    },
+    {
+      "name": "Where",
+      "schema": {
+        "operator": 103,
+        "category": ""
+      }
+    },
+    {
+      "name": "Moments",
+      "schema": {
+        "operator": 104,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "RNNSequenceGRU",
+      "schema": {
+        "operator": 105,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "BatchMatMul",
+      "schema": {
+        "operator": 106,
+        "category": ""
+      }
+    },
+    {
+      "name": "Unsqueeze",
+      "schema": {
+        "operator": 107,
+        "category": ""
+      }
+    },
+    {
+      "name": "MaxLayerCount",
+      "schema": {
+        "operator": 128,
+        "category": ""
+      }
+    },
+    {
+      "name": "ConvertTensor",
+      "schema": {
+        "operator": 129,
+        "category": "Tensor"
+      }
+    },
+    {
+      "name": "PLUGIN",
+      "schema": {
+        "operator": 256,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Select",
+      "schema": {
+        "operator": 257,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "ZerosLike",
+      "schema": {
+        "operator": 258,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Broastcast",
+      "schema": {
+        "operator": 259,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "SetDiff1D",
+      "schema": {
+        "operator": 260,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "ReluGrad",
+      "schema": {
+        "operator": 261,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "Relu6Grad",
+      "schema": {
+        "operator": 262,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "PoolGrad",
+      "schema": {
+        "operator": 263,
+        "category": "Pool"
+      }
+    },
+    {
+      "name": "SoftmaxGrad",
+      "schema": {
+        "operator": 264,
+        "category": "Activation"
+      }
+    },
+    {
+      "name": "Conv2DBackPropFilter",
+      "schema": {
+        "operator": 265,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "ConvInt8",
+      "schema": {
+        "operator": 513,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "Int8ToFloat",
+      "schema": {
+        "operator": 514,
+        "category": "Transform"
+      }
+    },
+    {
+      "name": "DepthwiseConvInt8",
+      "schema": {
+        "operator": 515,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "PoolInt8",
+      "schema": {
+        "operator": 516,
+        "category": "Layer"
+      }
+    },
+    {
+      "name": "FloatToInt8",
+      "schema": {
+        "operator": 517,
+        "category": "Transform"
+      }
+    }
+  ],
+
+  "OpParameterAlias":[
+    {
+      "name":"QuantizedAdd",
+      "alias":{
+        "activationType":"FusedActivation"
+      }
+    },
+
+    {
+      "name":"AsString",
+      "alias":{
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"BinaryOp",
+      "alias": {
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"Blob",
+      "alias":{
+        "dataFormat":"MNN_DATA_FORMAT",
+        "dataType":"DataType"
+      }
+    },
+
+    {
+      "name":"Convolution2DCommon",
+      "alias":{
+        "padMode":"PadMode"
+      }
+    },
+
+    {
+      "name":"CastParam",
+      "alias": {
+        "srcT":"DataType",
+        "dstT":"DataType"
+      }
+    },
+
+    {
+      "name":"CropAndResize",
+      "alias":{
+        "method":"CropAndResizeMethod"
+      }
+    },
+
+    {
+      "name":"Dequantize",
+      "alias":{
+        "mode":"QuantizeMode",
+        "modelFormat":"ModeFormat"
+      }
+    },
+
+    {
+      "name":"ExpandDims",
+      "alias":{
+        "T":"DataType",
+        "Tdim":"DataType"
+      }
+    },
+
+    {
+      "name":"Gather",
+      "alias":{
+        "Tindices":"DataType",
+        "Tparams":"DataType"
+      }
+    },
+
+    {
+      "name":"GatherV2",
+      "alias": {
+        "Tindices":"DataType",
+        "Taxis":"DataType",
+        "Tparams":"DataType"
+      }
+    },
+
+    {
+      "name":"Input",
+      "alias":{
+        "dtype":"DataType",
+        "dformat":"MNN_DATA_FORMAT"
+      }
+    },
+
+    {
+      "name":"MatMul",
+      "alias":{
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"PackParam",
+      "alias":{
+        "dataType":"DataType"
+      }
+    },
+
+    {
+      "name":"Pool",
+      "alias": {
+        "type":"PoolType",
+        "padType":"PoolPadType",
+        "dataType":"DataType"
+      }
+    },
+
+    {
+      "name":"QuantizedAvgPool",
+      "alias":{
+        "modelFormat":"ModeFormat",
+        "padType":"PoolPadType",
+        "type":"DataType"
+      }
+    },
+
+    {
+      "name":"QuantizedBiasAdd",
+      "alias":{
+        "inputType":"DataType",
+        "outputType":"DataType"
+      }
+    },
+
+    {
+      "name":"QuantizedConcat",
+      "alias":{
+        "activationType":"FusedActivation"
+      }
+    },
+
+    {
+      "name":"QuantizedMaxPool",
+      "alias":{
+        "modelFormat":"ModeFormat",
+        "padType":"PoolPadType",
+        "type":"DataType"
+      }
+    },
+
+    {
+      "name":"QuantizedRelu",
+      "alias":{
+        "type":"DataType"
+      }
+    },
+
+    {
+      "name":"QuantizedRelu6",
+      "alias":[
+        {"type":"DataType"}
+      ]
+    },
+
+    {
+      "name":"QuantizedReshape",
+      "alias":{
+        "modelFormat":"ModeFormat"
+      }
+    },
+
+    {
+      "name":"QuantizeMaxMin",
+      "alias":{
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"QuantizeV2",
+      "alias":{
+        "type":"DataType",
+        "mode":"QuantizeMode",
+        "roundMode":"QuantizeRoundMode"
+      }
+    },
+
+    {
+      "name":"Range",
+      "alias":{
+        "Tidx":"DataType"
+      }
+    },
+
+    {
+      "name":"ReductionParam",
+      "alias":{
+        "operation":"ReductionType",
+        "dType":"DataType"
+      }
+    },
+
+    {
+      "name":"Reshape",
+      "alias":{
+        "dimType":"MNN_DATA_FORMAT"
+      }
+    },
+
+    {
+      "name":"Size",
+      "alias":{
+        "outputDataType":"DataType"
+      }
+    },
+
+    {
+      "name":"Slice",
+      "alias":{
+        "sourceType":"NetSource"
+      }
+    },
+
+    {
+      "name":"SliceTf",
+      "alias":{
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"StridedSliceParam",
+      "alias":{
+        "Index":"DataType",
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"TensorConvertInfo",
+      "alias":{
+        "source":"MNN_DATA_FORMAT",
+        "dest":"MNN_DATA_FORMAT"
+      }
+    },
+
+    {
+      "name":"TfQuantizedConv2D",
+      "alias":{
+        "activationType":"FusedActivation",
+        "modelFormat":"ModeFormat"
+      }
+    },
+
+    {
+      "name":"TopKV2",
+      "alias":{
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"Transpose",
+      "alias":{
+        "Tperm":"DataType"
+      }
+    },
+
+    {
+      "name":"UnaryOp",
+      "alias":{
+        "T":"DataType"
+      }
+    },
+
+    {
+      "name":"MomentsParam",
+      "alias":{
+        "dType":"DataType"
+      }
+    }
+  ]
+}
+

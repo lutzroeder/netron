@@ -78,6 +78,8 @@ fileAssociations:
     ext: pt
   - name: "Torch Model"
     ext: t7
+  - name: "MNN Model"
+    ext: mnn
 afterSign: "setup/notarize.js"
 publish:
   - provider: github

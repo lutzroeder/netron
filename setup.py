@@ -99,6 +99,7 @@ setuptools.setup(
             'mlnet.js', 'mlnet-metadata.json',
             'mxnet.js', 'mxnet-metadata.json',
             'ncnn.js', 'ncnn-metadata.json',
+            'mnn.js', 'mnn-metadata.json', 'mnn-schema.js',
             'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'pickle.js',

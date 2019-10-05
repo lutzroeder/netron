@@ -5119,5 +5119,40 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "type":   "mnn",
+    "target": "MobileNetV2_224.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/MobileNetV2_224.mnn?raw=true",
+    "format": "MNN",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "SqueezeNetV1.0.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/SqueezeNetV1.0.mnn?raw=true",
+    "format": "MNN",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "inception-v3.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/inception-v3.mnn?raw=true",
+    "format": "MNN",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "mobilenet-v1-1.0.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/mobilenet-v1-1.0.mnn?raw=true",
+    "format": "MNN",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "resnet-v2-50.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/resnet-v2-50.mnn?raw=true",
+    "format": "MNN",
+    "link":   "https://github.com/alibaba/MNN"
   }
 ]

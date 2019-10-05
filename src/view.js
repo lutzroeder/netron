@@ -1149,6 +1149,7 @@ view.ModelFactoryService = class {
         this.register('./flux', [ '.bson' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
+        this.register('./mnn', ['.mnn']);
     }
 
     register(id, extensions) {

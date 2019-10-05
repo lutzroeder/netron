@@ -131,7 +131,8 @@ class Application {
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg',
-                    'xml' ] }
+                    'xml',
+                    'mnn' ] }
             ]
         };
         electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {
