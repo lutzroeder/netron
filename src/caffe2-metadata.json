@@ -14825,6 +14825,7 @@
   {
     "name": "Squeeze",
     "schema": {
+      "category": "Transform",
       "attributes": [
         {
           "description": "List of dimensions of *data* to squeeze out.",
