@@ -39,7 +39,7 @@ sync() {
 }
 
 install() {
-    bold "flatbuffers install"
+    bold "tflite install"
     case "$(uname)" in
         "Linux")
             [ -n "$(which cmake)" ] || sudo apt install -y cmake
@@ -49,8 +49,8 @@ install() {
             ;;
     esac
     pushd "${third_party}/flatbuffers" > /dev/null
-    cmake -G "Unix Makefiles" .
-    make
+    cmake -G "Unix Makefiles" . > /dev/null
+    make > /dev/null
     popd > /dev/null
     [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
     [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
