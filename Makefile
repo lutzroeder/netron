@@ -28,6 +28,7 @@ update:
 	@./tools/darknet sync
 	@./tools/dl4j sync
 	@./tools/keras sync install metadata
+	@./tools/mnn sync install schema
 	@./tools/mlnet sync metadata
 	@./tools/mxnet sync metadata
 	@./tools/ncnn sync

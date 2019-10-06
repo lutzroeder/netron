@@ -2171,6 +2171,41 @@
     "status": "script"
   },
   {
+    "type":   "mnn",
+    "target": "inception-v3.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/inception-v3.mnn?raw=true",
+    "format": "MNN v2",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "mobilenet-v1-1.0.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/mobilenet-v1-1.0.mnn?raw=true",
+    "format": "MNN v2",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "MobileNetV2_224.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/MobileNetV2_224.mnn?raw=true",
+    "format": "MNN v2",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "resnet-v2-50.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/resnet-v2-50.mnn?raw=true",
+    "format": "MNN v2",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "SqueezeNetV1.0.mnn",
+    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/SqueezeNetV1.0.mnn?raw=true",
+    "format": "MNN v2",
+    "link":   "https://github.com/alibaba/MNN"
+  },
+  {
     "type":   "mlnet",
     "target": "BinaryClassification_AutoML_SentimentModel.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip?raw=true",
@@ -2233,8 +2268,6 @@
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
-
-
   {
     "type":   "mlnet",
     "target": "PoissonModel.zip",

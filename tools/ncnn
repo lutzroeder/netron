@@ -39,6 +39,5 @@ while [ "$#" != 0 ]; do
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
-        "metadata") metadata;;
     esac
 done
