@@ -103,8 +103,7 @@ tflite.Model = class {
 tflite.Graph = class {
 
     constructor(metadata, graph, name, operatorCodeList, model) {
-        this._graph = graph;
-        this._name = this._graph.name() || name;
+        this._name = graph.name() || name;
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
@@ -120,8 +119,8 @@ tflite.Graph = class {
             args.push(new tflite.Argument(tensor, i, initializer));
             names.push(tensor.name());
         }
-        for (let j = 0; j < this._graph.operatorsLength(); j++) {
-            const node = this._graph.operators(j);
+        for (let j = 0; j < graph.operatorsLength(); j++) {
+            const node = graph.operators(j);
             const opcodeIndex = node.opcodeIndex();
             const operator = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : { name: '(' + opcodeIndex.toString() + ')' };
             this._nodes.push(new tflite.Node(metadata, node, operator, j.toString(), args));
