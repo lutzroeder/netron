@@ -373,7 +373,7 @@
   {
     "name": "Squeeze",
     "schema": {
-      "category": "Tensor",
+      "category": "Transform",
       "inputs": [
         { "name": "input" }
       ],
