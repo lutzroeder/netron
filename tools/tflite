@@ -58,14 +58,14 @@ install() {
 
 schema() {
     bold "tflite schema"
-    sed 's/namespace tflite;/namespace tflite_schema;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
+    sed 's/namespace tflite;/namespace TFLITE;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
     ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/tflite.schema.fbs
     rm ${tools}/tflite.schema.fbs
     rm ${src}/tflite-schema.js
     mv ./tflite.schema_generated.js ${src}/tflite-schema.js
     cat <<EOT >> ${src}/tflite-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = tflite_schema;
+  module.exports = TFLITE;
 }
 EOT
 }
