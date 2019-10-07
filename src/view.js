@@ -1210,6 +1210,7 @@ view.ModelFactoryService = class {
                         'natives_blob.bin', 'v8_context_snapshot.bin', 
                         'LICENSE.meta',
                         'input_0.pb',
+                        'image_net_labels.json',
                         'hand_label_map.pbtxt', 'label_map.pbtxt', 'labelmap.pbtxt', 'mscoco_label_map.pbtxt',
                         'imagenet_2012_challenge_label_map_proto.pbtxt', 'object-detection.pbtxt'
                     ]);
