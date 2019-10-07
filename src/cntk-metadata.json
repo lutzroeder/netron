@@ -919,7 +919,8 @@
   {
     "name": "Squeeze",
     "schema": {
-      "operator": 88
+      "operator": 88,
+      "category": "Transform"
     }
   },
   {

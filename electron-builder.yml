@@ -24,6 +24,8 @@ fileAssociations:
     ext: keras
   - name: "Core ML Model"
     ext: mlmodel
+  - name: "MNN Model"
+    ext: mnn
   - name: "MXNet Model"
     ext: model
   - name: "MXNet Model"

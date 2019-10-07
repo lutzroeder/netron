@@ -5,7 +5,6 @@ var gzip = gzip || {};
 
 gzip.Archive = class {
 
-    // inflate (optional): optimized inflater callback like require('zlib').inflateRawSync or pako.inflateRa
     constructor(buffer) {
         this._entries = [];
         if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {

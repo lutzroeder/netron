@@ -584,7 +584,7 @@
         },
         {
           "default": null,
-          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
+          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
           "name": "max_samples"
         }
       ],
@@ -805,7 +805,7 @@
         },
         {
           "default": null,
-          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
+          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
           "name": "max_samples"
         }
       ],
@@ -937,7 +937,7 @@
         },
         {
           "default": null,
-          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
+          "description": "If bootstrap is True, the number of samples to draw from X\nto train each base estimator.\n\n- If None (default), then draw `X.shape[0]` samples.\n- If int, then draw `max_samples` samples.\n- If float, then draw `max_samples * X.shape[0]` samples. Thus,\n`max_samples` should be in the interval `(0, 1)`.\n\n.. versionadded:: 0.22\n",
           "name": "max_samples"
         }
       ],

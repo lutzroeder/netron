@@ -820,7 +820,8 @@
         {
           "default": true,
           "description": "If True, multiply by `gamma`.\n    If False, `gamma` is not used.\n    When the next layer is linear (also e.g. `nn.relu`),\n    this can be disabled since the scaling\n    will be done by the next layer.",
-          "name": "scale"
+          "name": "scale",
+          "type": "boolean"
         },
         {
           "default": true,
@@ -1171,7 +1172,7 @@
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of a single integer,\n    specifying the stride length of the convolution.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of a single integer,\n    specifying the stride length of the convolution.\n    Specifying any `strides!=1` is incompatible with specifying\n    any `dilation_rate!=1`.",
           "name": "strides"
         },
         {
@@ -1323,7 +1324,7 @@
       ],
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.\n",
+          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if `data_format='channels_first'`\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if `data_format='channels_last'`.\n",
           "name": "input"
         }
       ],
@@ -1351,7 +1352,7 @@
         },
         {
           "default": "hard_sigmoid",
-          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: sigmoid (`sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "recurrent_activation"
         },
         {
@@ -1504,7 +1505,7 @@
         },
         {
           "default": "hard_sigmoid",
-          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: sigmoid (`sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "recurrent_activation"
         },
         {
@@ -2256,7 +2257,7 @@
           "name": "activation"
         },
         {
-          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: sigmoid (`sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "recurrent_activation"
         },
         {
@@ -2347,7 +2348,7 @@
           "name": "activation"
         },
         {
-          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).x",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: sigmoid (`sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).x",
           "name": "recurrent_activation"
         },
         {

@@ -60,7 +60,7 @@ cntk.ModelFactory = class {
                 }
             }
             catch (error) {
-                throw new new cntk.Error("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'.");
+                throw new cntk.Error("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'.");
             }
             return cntk.Metadata.open(host).then((metadata) => {
                 try {
@@ -227,7 +227,7 @@ cntk.Graph = class {
                 }
                 break;
             default:
-                throw new new cntk.Error("Unsupported graph version '" + version + "'.");
+                throw new cntk.Error("Unsupported graph version '" + version + "'.");
         }
     }
 

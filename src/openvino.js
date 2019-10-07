@@ -13,6 +13,8 @@ openvino.ModelFactory = class {
                 return true;
             }
         }
+        // if (extension === 'bin') {
+        // }
         return false;
     }
 
@@ -68,30 +70,28 @@ openvino.Graph = class {
         this._name = net.getAttribute('name') || '';
         this._batch = net.getAttribute('batch') || '';
         this._version = net.getAttribute('version') || '';
-
         this._nodes = [];
         this._operators = {};
         this._inputs = [];
         this._outputs = [];
-
         this._arguments = {};
 
-        let layersElement = openvino.Node.children(net, 'layers')[0];
-        let edgesElement = openvino.Node.children(net, 'edges')[0];
+        const layersElement = openvino.Node.children(net, 'layers')[0];
+        const edgesElement = openvino.Node.children(net, 'edges')[0];
 
-        let layers = openvino.Node.children(layersElement, 'layer');
-        let edges = openvino.Node.children(edgesElement, 'edge');
+        const layers = openvino.Node.children(layersElement, 'layer');
+        const edges = openvino.Node.children(edgesElement, 'edge');
 
-        let edgeMap = this._collectEdges(edges);
+        const edgeMap = this._collectEdges(edges);
 
         for (let layer of layers) {
-            let operator = layer.getAttribute('type');
+            const operator = layer.getAttribute('type');
             switch (operator) {
-                case 'Input':
-                    var args = [];
-                    var precision = layer.getAttribute('precision');
-                    var name = layer.getAttribute('name') || '';
-                    var id = layer.getAttribute('id');
+                case 'Input': {
+                    let args = [];
+                    const precision = layer.getAttribute('precision');
+                    const name = layer.getAttribute('name') || '';
+                    const id = layer.getAttribute('id');
                     for (let outputElement of openvino.Node.children(layer, 'output')) {
                         for (let portElement of openvino.Node.children(outputElement, 'port')) {
                             args.push(this._argument(id, precision, portElement, null));
@@ -99,6 +99,7 @@ openvino.Graph = class {
                     }
                     this._inputs.push(new openvino.Parameter(name, args));
                     break;
+                }
                 default:
                     this._nodes.push(new openvino.Node(this, this._metadata, layer, edgeMap));
                     break;
@@ -160,7 +161,7 @@ openvino.Graph = class {
             for (let dimElement of Array.prototype.slice.call(port.getElementsByTagName('dim'))) {
                 dimensions.push(parseInt(dimElement.textContent.trim()));
             }
-            let shape = (dimensions.length == 0) ? null : new openvino.TensorShape(dimensions);
+            const shape = (dimensions.length == 0) ? null : new openvino.TensorShape(dimensions);
             argument = new openvino.Argument(id, new openvino.TensorType(precision, shape), null);
         }
         return argument;
@@ -168,7 +169,6 @@ openvino.Graph = class {
 
     _replaceTensorIteratorWithSubgraph(layers, edges) {
         const tiNodes = layers.filter((node) => node.getAttribute('type') === 'TensorIterator');
-
         for (let singleTensorIteratorNode of tiNodes) {
             const singleTensorIteratorNodeId = singleTensorIteratorNode.getAttribute("id");
             const body = openvino.Node.children(singleTensorIteratorNode, 'body')[0];
@@ -181,11 +181,9 @@ openvino.Graph = class {
             const iteratorBackEdges = openvino.Node.children(iteratorBackEdgesContainer, 'edge')
             const iteratorBackEdgesMap = this._collectEdges(iteratorBackEdges);
             const iteratorAllEdges = Object.assign({}, iteratorEdgeMap, iteratorBackEdgesMap);
-
             const mappingForNestedIR = this._parseMappingBlock(singleTensorIteratorNode);
-
             for (let nestedLayer of iteratorLayers) {
-                const nestedNode = new openvino.Node(this, this._metadata, nestedLayer, iteratorAllEdges);
+                let nestedNode = new openvino.Node(this, this._metadata, nestedLayer, iteratorAllEdges);
                 nestedNode._id = `${singleTensorIteratorNodeId}_${nestedLayer.getAttribute('id')}`;
                 for (let input of nestedNode._inputs) {
                     for (let input_argument of input.arguments) {
@@ -221,11 +219,10 @@ openvino.Graph = class {
                 const candidate_edges = edges.filter((edge) => {
                     return edge.getAttribute('to-layer') === singleTensorIteratorNodeId && edge.getAttribute('to-port') === nestedInput.external_port_id;
                 });
-                let candidate_edge;
                 if (!candidate_edges.length){
                     return;
                 }
-                for (candidate_edge of candidate_edges) {
+                for (let candidate_edge of candidate_edges) {
                     const parentLayerID = candidate_edge.getAttribute('from-layer');
                     const parentPortID = candidate_edge.getAttribute('from-port');
                     if (!nestedNode._inputs){
@@ -282,16 +279,16 @@ openvino.Graph = class {
     _collectEdges(edges){
         let edgeMap = {};
         for (let edge of edges) {
-            let fromLayer = edge.getAttribute('from-layer');
-            let fromPort = edge.getAttribute('from-port');
-            let toLayer = edge.getAttribute('to-layer');
-            let toPort = edge.getAttribute('to-port');
+            const fromLayer = edge.getAttribute('from-layer');
+            const fromPort = edge.getAttribute('from-port');
+            const toLayer = edge.getAttribute('to-layer');
+            const toPort = edge.getAttribute('to-port');
             edgeMap[toLayer + ':' + toPort] = fromLayer + ':' + fromPort;
         }
         return edgeMap;
     }
 
-    _collectPortsInformation(ports){
+    _collectPortsInformation(ports) {
         return ports.reduce((acc, port) => {
             acc.push({
                 axis: port.getAttribute("axis"),
@@ -336,9 +333,7 @@ openvino.Node = class {
         this._outputs = [];
         this._initializers = [];
         this._attributes = [];
-
-        let precision = layer.getAttribute('precision');
-
+        const precision = layer.getAttribute('precision');
         let inputIndex = 0;
         const input = openvino.Node.children(layer, 'input')[0];
         if (input) {
@@ -350,7 +345,6 @@ openvino.Node = class {
                 inputIndex++;
             }
         }
-
         let outputIndex = 0;
         const output = openvino.Node.children(layer, 'output')[0];
         if (output) {
@@ -362,21 +356,19 @@ openvino.Node = class {
                 outputIndex++;
             }
         }
-
         const data = openvino.Node.children(layer, 'data')[0];
         if (data && data.attributes) {
             for (let attribute of Array.from(data.attributes)) {
                 this._attributes.push(new openvino.Attribute(metadata, this, attribute.name, attribute.value));
             }
         }
-
         const blobs = openvino.Node.children(layer, 'blobs')[0];
         if (blobs){
             for (let blob of Array.from(blobs.childNodes).filter((node) => node.nodeName != '#text')) {
                 if (blob.getAttribute && typeof blob.getAttribute === 'function') {
-                    let name = blob.nodeName;
-                    let offset = parseInt(blob.getAttribute('offset'));
-                    let size = parseInt(blob.getAttribute('size'));
+                    const name = blob.nodeName;
+                    const offset = parseInt(blob.getAttribute('offset'));
+                    const size = parseInt(blob.getAttribute('size'));
                     this._initializers.push(new openvino.Parameter(name, [
                         new openvino.Argument('', null, new openvino.Tensor(precision, null, offset, size))
                     ]));
@@ -522,7 +514,6 @@ openvino.Attribute = class {
         this._node = node;
         this._name = name;
         this._value = value;
-
         const schema = metadata.getAttributeSchema(node.operator, name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
@@ -539,21 +530,23 @@ openvino.Attribute = class {
                                 break;
                         }
                         break;
-                    case 'int32':
-                        var intValue = Number.parseInt(this._value, 10);
+                    case 'int32': {
+                        const intValue = Number.parseInt(this._value, 10);
                         this._value = Number.isNaN(this._value - intValue) ? value : intValue;
                         break;
+                    }
                     case 'float32':
-                    case 'float64':
-                        var floatValue = Number.parseFloat(this._value);
+                    case 'float64': {
+                        const floatValue = Number.parseFloat(this._value);
                         this._value = Number.isNaN(this._value - floatValue) ? value : floatValue;
                         break;
+                    }
                     case 'int32[]':
                         if (this._value.length > 2) {
                             let ints = [];
                             this._value.split(',').map((item) => {
                                 item = item.trim();
-                                let intValue = Number.parseInt(item, 10);
+                                const intValue = Number.parseInt(item, 10);
                                 if (Number.isNaN(item - intValue)) {
                                     ints = null;
                                 }

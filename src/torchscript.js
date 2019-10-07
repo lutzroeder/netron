@@ -815,6 +815,7 @@ torchscript.Tensor = class {
             case 'json':
                 torchscript.Tensor._dataTypeMap = torchscript.Tensor._dataTypeMap || new Map([
                     [ 'FLOAT', 'float32' ],
+                    [ 'FLOAT16', 'float16' ],
                     [ 'DOUBLE', 'float64' ],
                     [ 'INT32', 'int32' ],
                     [ 'INT64', 'int64' ]

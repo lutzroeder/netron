@@ -16959,13 +16959,18 @@
           "type": "string"
         },
         {
+          "default": false,
+          "name": "narrow_range",
+          "type": "boolean"
+        },
+        {
           "default": -1,
           "name": "axis",
           "type": "int64"
         }
       ],
       "category": "Tensor",
-      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nif T == qint8: in[i] += (range(T) + 1)/ 2.0\nout[i] = min_range + (in[i]* (max_range - min_range) / range(T))\n```\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nIf the input comes from a QuantizedRelu6, the output type is\nquint8 (range of 0-255) but the possible range of QuantizedRelu6 is\n0-6.  The min_range and max_range values are therefore 0.0 and 6.0.\nDequantize on quint8 will take each value, cast to float, and multiply\nby 6 / 255.\nNote that if quantizedtype is qint8, the operation will additionally add\neach value by 128 prior to casting.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```c++\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = range / num_discrete_values\nconst double offset_input = static_cast<double>(input) - lowest_quantized;\nresult = range_min + ((input - numeric_limits<T>::min()) * range_scale)\n```\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, we do not use the full range of the output type,\nchoosing to elide the lowest possible value for symmetry (e.g., output range is\n-127 to 127, not -128 to 127 for signed 8 bit quantization), so that 0.0 maps to\n0.\n\nWe first find the range of values in our tensor. The\nrange we use is always centered on 0, so we find m such that\n```c++\n  m = max(abs(input_min), abs(input_max))\n```\n\nOur input tensor range is then `[-m, m]`.\n\nNext, we choose our fixed-point quantization buckets, `[min_fixed, max_fixed]`.\nIf T is signed, this is\n```\n  num_bits = sizeof(T) * 8\n  [min_fixed, max_fixed] =\n      [-(1 << (num_bits - 1) - 1), (1 << (num_bits - 1)) - 1]\n```\n\nOtherwise, if T is unsigned, the fixed-point range is\n```\n  [min_fixed, max_fixed] = [0, (1 << num_bits) - 1]\n```\n\nFrom this we compute our scaling factor, s:\n```c++\n  s = (2 * m) / (max_fixed - min_fixed)\n```\n\nNow we can dequantize the elements of our tensor:\n```c++\nresult = input * s\n```",
+      "description": "[min_range, max_range] are scalar floats that specify the range for\nthe output. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nif T == qint8: in[i] += (range(T) + 1)/ 2.0\nout[i] = min_range + (in[i]* (max_range - min_range) / range(T))\n```\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nIf the input comes from a QuantizedRelu6, the output type is\nquint8 (range of 0-255) but the possible range of QuantizedRelu6 is\n0-6.  The min_range and max_range values are therefore 0.0 and 6.0.\nDequantize on quint8 will take each value, cast to float, and multiply\nby 6 / 255.\nNote that if quantizedtype is qint8, the operation will additionally add\neach value by 128 prior to casting.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```c++\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = range / num_discrete_values\nconst double offset_input = static_cast<double>(input) - lowest_quantized;\nresult = range_min + ((input - numeric_limits<T>::min()) * range_scale)\n```\n\nIf the mode is `SCALED`, dequantization is performed by multiplying each\ninput value by a scaling_factor. (Thus an input of 0 always maps to 0.0).\n\nThe scaling_factor is determined from `min_range`, `max_range`, and\n`narrow_range` in a way that is compatible with `QuantizeAndDequantize{V2|V3}`\nand `QuantizeV2`, using the following algorithm:\n\n```c++\n\n  const int min_expected_T = std::numeric_limits<T>::min() +\n    (narrow_range ? 1 : 0);\n  const int max_expected_T = std::numeric_limits<T>::max();\n  const float max_expected_T = std::numeric_limits<float>::max();\n\n  const float scale_factor =\n    (std::numeric_limits<T>::min() == 0) ? (max_range / max_expected_T)\n                                         : std::max(min_range / min_expected_T,\n                                                    max_range / max_expected_T);\n```",
       "inputs": [
         {
           "name": "input",
@@ -19051,6 +19056,47 @@
         }
       ],
       "summary": "Computes the complementary error function of `x` element-wise."
+    }
+  },
+  {
+    "name": "Erfinv",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
@@ -34350,6 +34396,47 @@
     }
   },
   {
+    "name": "Ndtri",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "NearestNeighbors",
     "schema": {
       "description": "Rows of points are assumed to be input points. Rows of centers are assumed to be\nthe list of candidate centers. For each point, the k centers that have least L2\ndistance to it are computed.",
@@ -37322,6 +37409,319 @@
         }
       ],
       "summary": "Transforms a vector of brain.SequenceExample protos (as strings) into typed tensors."
+    }
+  },
+  {
+    "name": "ParseSequenceExampleV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Ncontext_sparse",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "Tcontext_dense",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "A list of Ncontext_sparse types; the data types of data in\neach context Feature given in context_sparse_keys.\nCurrently the ParseSingleSequenceExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "context_sparse_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.value dtypes for the ragged context features.",
+          "minimum": 0,
+          "name": "context_ragged_value_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.row_split dtypes for the ragged context features.",
+          "minimum": 0,
+          "name": "context_ragged_split_types",
+          "type": "type[]"
+        },
+        {
+          "default": [],
+          "description": "A list of Ncontext_dense shapes; the shapes of data in\neach context Feature given in context_dense_keys.\nThe number of elements in the Feature corresponding to context_dense_key[j]\nmust always equal context_dense_shapes[j].NumEntries().\nThe shape of context_dense_values[j] will match context_dense_shapes[j].",
+          "minimum": 0,
+          "name": "context_dense_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nfeature_list_sparse",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nfeature_list_dense",
+          "type": "int64"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "feature_list_dense_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "A list of Nfeature_list_sparse types; the data types\nof data in each FeatureList given in feature_list_sparse_keys.\nCurrently the ParseSingleSequenceExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "feature_list_sparse_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.value dtypes for the ragged FeatureList features.",
+          "minimum": 0,
+          "name": "feature_list_ragged_value_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": [],
+          "description": "RaggedTensor.row_split dtypes for the ragged FeatureList features.",
+          "minimum": 0,
+          "name": "feature_list_ragged_split_types",
+          "type": "type[]"
+        },
+        {
+          "default": [],
+          "description": "A list of Nfeature_list_dense shapes; the shapes of\ndata in each FeatureList given in feature_list_dense_keys.\nThe shape of each Feature in the FeatureList corresponding to\nfeature_list_dense_key[j] must always equal\nfeature_list_dense_shapes[j].NumEntries().",
+          "minimum": 0,
+          "name": "feature_list_dense_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A scalar or vector containing binary serialized SequenceExample protos.",
+          "name": "serialized",
+          "type": 7
+        },
+        {
+          "description": "A scalar or vector containing the names of the serialized protos.\nMay contain, for example, table key (descriptive) name for the\ncorresponding serialized proto.  This is purely useful for debugging\npurposes, and the presence of values here has no effect on the output.\nMay also be an empty vector if no name is available.",
+          "name": "debug_name",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the Examples' features associated with context_sparse\nvalues.",
+          "name": "context_sparse_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the SequenceExamples' context features associated with\ndense values.",
+          "name": "context_dense_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the Examples' features associated with context_ragged\nvalues.",
+          "name": "context_ragged_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the FeatureLists associated with sparse values.",
+          "name": "feature_list_sparse_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the SequenceExamples' feature_lists associated\nwith lists of dense values.",
+          "name": "feature_list_dense_keys",
+          "type": 7
+        },
+        {
+          "description": "The keys expected in the FeatureLists associated with ragged values.",
+          "name": "feature_list_ragged_keys",
+          "type": 7
+        },
+        {
+          "description": "A vector corresponding 1:1 with featue_list_dense_keys, indicating which\nfeatures may be missing from the SequenceExamples.  If the associated\nFeatureList is missing, it is treated as empty.",
+          "name": "feature_list_dense_missing_assumed_empty",
+          "type": 10
+        },
+        {
+          "description": "A list of Ncontext_dense Tensors (some may be empty).\ncontext_dense_defaults[j] provides default values\nwhen the SequenceExample's context map lacks context_dense_key[j].\nIf an empty Tensor is provided for context_dense_defaults[j],\nthen the Feature context_dense_keys[j] is required.\nThe input type is inferred from context_dense_defaults[j], even when it's\nempty.  If context_dense_defaults[j] is not empty, its shape must match\ncontext_dense_shapes[j].",
+          "name": "context_dense_defaults",
+          "typeListAttr": "Tcontext_dense"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "context_sparse_indices",
+          "numberAttr": "Ncontext_sparse",
+          "type": 9
+        },
+        {
+          "name": "context_sparse_values",
+          "typeListAttr": "context_sparse_types"
+        },
+        {
+          "name": "context_sparse_shapes",
+          "numberAttr": "Ncontext_sparse",
+          "type": 9
+        },
+        {
+          "name": "context_dense_values",
+          "typeListAttr": "Tcontext_dense"
+        },
+        {
+          "name": "context_ragged_values",
+          "typeListAttr": "context_ragged_value_types"
+        },
+        {
+          "name": "context_ragged_row_splits",
+          "typeListAttr": "context_ragged_split_types"
+        },
+        {
+          "name": "feature_list_sparse_indices",
+          "numberAttr": "Nfeature_list_sparse",
+          "type": 9
+        },
+        {
+          "name": "feature_list_sparse_values",
+          "typeListAttr": "feature_list_sparse_types"
+        },
+        {
+          "name": "feature_list_sparse_shapes",
+          "numberAttr": "Nfeature_list_sparse",
+          "type": 9
+        },
+        {
+          "name": "feature_list_dense_values",
+          "typeListAttr": "feature_list_dense_types"
+        },
+        {
+          "name": "feature_list_dense_lengths",
+          "numberAttr": "Nfeature_list_dense",
+          "type": 9
+        },
+        {
+          "name": "feature_list_ragged_values",
+          "typeListAttr": "feature_list_ragged_value_types"
+        },
+        {
+          "name": "feature_list_ragged_outer_splits",
+          "typeListAttr": "feature_list_ragged_split_types"
+        },
+        {
+          "name": "feature_list_ragged_inner_splits",
+          "typeListAttr": "feature_list_ragged_split_types"
+        }
+      ],
+      "summary": "Transforms a vector of tf.io.SequenceExample protos (as strings) into\ntyped tensors."
     }
   },
   {
@@ -44799,7 +45199,7 @@
         },
         {
           "description": "The expected ragged rank of the output `RaggedTensor`. The following must hold:\n`output_ragged_rank = rank(encoded_ragged) + input_ragged_rank`.",
-          "minimum": 1,
+          "minimum": 0,
           "name": "output_ragged_rank",
           "type": "int64"
         },
@@ -44818,6 +45218,10 @@
               "value": 9
             }
           ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
           "name": "Tsplits",
           "type": "type"
         }
@@ -44998,7 +45402,7 @@
     "schema": {
       "attributes": [
         {
-          "minimum": 1,
+          "minimum": 0,
           "name": "RAGGED_RANK",
           "type": "int64"
         },
@@ -45017,6 +45421,10 @@
               "value": 9
             }
           ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
           "name": "Tsplits",
           "type": "type"
         },
@@ -47987,7 +48395,7 @@
         }
       ],
       "category": "Shape",
-      "description": "Given `tensor`, this operation returns a tensor that has the same values\nas `tensor` with shape `shape`.\n\nIf one component of `shape` is the special value -1, the size of that dimension\nis computed so that the total size remains constant.  In particular, a `shape`\nof `[-1]` flattens into 1-D.  At most one component of `shape` can be -1.\n\nIf `shape` is 1-D or higher, then the operation returns a tensor with shape\n`shape` filled with the values of `tensor`. In this case, the number of elements\nimplied by `shape` must be the same as the number of elements in `tensor`.\n\nFor example:\n\n```\n# tensor 't' is [1, 2, 3, 4, 5, 6, 7, 8, 9]\n# tensor 't' has shape [9]\nreshape(t, [3, 3]) ==> [[1, 2, 3],\n                        [4, 5, 6],\n                        [7, 8, 9]]\n\n# tensor 't' is [[[1, 1], [2, 2]],\n#                [[3, 3], [4, 4]]]\n# tensor 't' has shape [2, 2, 2]\nreshape(t, [2, 4]) ==> [[1, 1, 2, 2],\n                        [3, 3, 4, 4]]\n\n# tensor 't' is [[[1, 1, 1],\n#                 [2, 2, 2]],\n#                [[3, 3, 3],\n#                 [4, 4, 4]],\n#                [[5, 5, 5],\n#                 [6, 6, 6]]]\n# tensor 't' has shape [3, 2, 3]\n# pass '[-1]' to flatten 't'\nreshape(t, [-1]) ==> [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]\n\n# -1 can also be used to infer the shape\n\n# -1 is inferred to be 9:\nreshape(t, [2, -1]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 2:\nreshape(t, [-1, 9]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 3:\nreshape(t, [ 2, -1, 3]) ==> [[[1, 1, 1],\n                              [2, 2, 2],\n                              [3, 3, 3]],\n                             [[4, 4, 4],\n                              [5, 5, 5],\n                              [6, 6, 6]]]\n\n# tensor 't' is [7]\n# shape `[]` reshapes to a scalar\nreshape(t, []) ==> 7\n```",
+      "description": "Given `tensor`, this operation returns a tensor that has the same values\nas `tensor` with shape `shape`.\n\nIf one component of 1-D tensor `shape` is the special value -1, the size of that\ndimension is computed so that the total size remains constant.  In particular, a\n`shape` of `[-1]` flattens into 1-D.  At most one component of `shape` may be\nunknown.\n\nThe `shape` must be 1-D and the operation returns a tensor with shape\n`shape` filled with the values of `tensor`. In this case, the number of elements\nimplied by `shape` must be the same as the number of elements in `tensor`.\n\nIt is an error if `shape` is not 1-D.\n\nFor example:\n\n```\n# tensor 't' is [1, 2, 3, 4, 5, 6, 7, 8, 9]\n# tensor 't' has shape [9]\nreshape(t, [3, 3]) ==> [[1, 2, 3],\n                        [4, 5, 6],\n                        [7, 8, 9]]\n\n# tensor 't' is [[[1, 1], [2, 2]],\n#                [[3, 3], [4, 4]]]\n# tensor 't' has shape [2, 2, 2]\nreshape(t, [2, 4]) ==> [[1, 1, 2, 2],\n                        [3, 3, 4, 4]]\n\n# tensor 't' is [[[1, 1, 1],\n#                 [2, 2, 2]],\n#                [[3, 3, 3],\n#                 [4, 4, 4]],\n#                [[5, 5, 5],\n#                 [6, 6, 6]]]\n# tensor 't' has shape [3, 2, 3]\n# pass '[-1]' to flatten 't'\nreshape(t, [-1]) ==> [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]\n\n# -1 can also be used to infer the shape\n\n# -1 is inferred to be 9:\nreshape(t, [2, -1]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 2:\nreshape(t, [-1, 9]) ==> [[1, 1, 1, 2, 2, 2, 3, 3, 3],\n                         [4, 4, 4, 5, 5, 5, 6, 6, 6]]\n# -1 is inferred to be 3:\nreshape(t, [ 2, -1, 3]) ==> [[[1, 1, 1],\n                              [2, 2, 2],\n                              [3, 3, 3]],\n                             [[4, 4, 4],\n                              [5, 5, 5],\n                              [6, 6, 6]]]\n\n# tensor 't' is [7]\n# shape `[]` reshapes to a scalar\nreshape(t, []) ==> 7\n```",
       "inputs": [
         {
           "name": "tensor",
@@ -69078,7 +69486,7 @@
           "type": "string"
         }
       ],
-      "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, then as many characters as possible are used.\n\nA negative `pos` indicates distance within the string backwards from the end.\n\nIf `pos` specifies an index which is out of range for any of the input strings,\nthen an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```",
+      "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, or if `len` is negative, then as many characters as possible are used.\n\nA negative `pos` indicates distance within the string backwards from the end.\n\nIf `pos` specifies an index which is out of range for any of the input strings,\nthen an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```",
       "inputs": [
         {
           "description": "Tensor of strings",

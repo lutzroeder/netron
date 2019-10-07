@@ -113,7 +113,7 @@ keras.ModelFactory = class {
                 throw new keras.Error('\'model_config\' is not present.');
             }
             if (!rootGroup && !model_config.class_name) {
-                throw new new keras.Error('\'class_name\' is not present.');
+                throw new keras.Error('\'class_name\' is not present.');
             }
     
             return keras.Metadata.open(host).then((metadata) => {
@@ -163,7 +163,7 @@ keras.Model = class {
                                 if (variable) {
                                     let parts = weight_name.split('/');
                                     parts.pop();
-                                    let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.rawData, '');
+                                    let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.data, '');
                                     let match = false;
                                     while (parts.length > 0) {
                                         let name = parts.join('/');
@@ -190,7 +190,7 @@ keras.Model = class {
                 for (let weight of manifest.weights) {
                     let p = weight.name.split('/');
                     p.pop();
-                    let initializer = new keras.Tensor(weight.name, weight.dtype, weight.shape, null, manifest.paths.join(';'));
+                    let initializer = new keras.Tensor(weight.name, weight.dtype, weight.shape, false, null, manifest.paths.join(';'));
                     while (p.length > 0) {
                         let weightName = p.join('/');
                         weights[weightName] = weights[weightName] || [];
@@ -555,17 +555,21 @@ keras.Node = class {
         let innerOperator = this.inner ? this.inner.operator : null;
         let innerSchema = innerOperator ? this._metadata.getSchema(innerOperator) : null;
         let inputIndex = 0;
-        while (inputIndex < inputs.length) {
-            let inputCount = 1;
+        while (inputs.length > 0) {
+            let variadic = false;
             let inputName = null;
             let visible = true;
             if (!innerSchema || inputIndex == 0) {
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
                     let input = schema.inputs[inputIndex];
                     inputName = input.name;
+                    if (operator === 'BatchNormalization' && inputName === 'gamma' && config.scale === false) {
+                        inputIndex++;
+                        continue;
+                    }
                     visible = input.visible == false ? false : true; 
                     if (schema.inputs[inputIndex].option == 'variadic') {
-                        inputCount = this._inputs.length - inputIndex;
+                        variadic = true;
                     }
                 }
             }
@@ -593,7 +597,8 @@ keras.Node = class {
                         break;
                 }
             }
-            const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+            const input = !variadic ? [ inputs.shift() ] : inputs.slice(0, inputs.length);
+            const inputArguments = input.map((id) => {
                 return new keras.Argument(id, null, initializers[id]);
             });
             if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
@@ -603,9 +608,8 @@ keras.Node = class {
                 const inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
                 inputName = inputNames.has(inputName2) ? inputName2 : inputName1;
             }
-            inputName = inputName || inputIndex.toString();
-            this._inputs.push(new keras.Parameter(inputName, visible, inputArguments));
-            inputIndex += inputCount;
+            this._inputs.push(new keras.Parameter(inputName || inputIndex.toString(), visible, inputArguments));
+            inputIndex++;
         }
 
         this._outputs = outputs.map((output, outputIndex) => {
@@ -713,6 +717,9 @@ keras.Attribute = class {
             default:
                 var schema = metadata.getAttributeSchema(operator, this._name);
                 if (schema) {
+                    if (schema.type) {
+                        this._type = schema.type;
+                    }
                     if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                         this._visible = false;
                     }
@@ -816,9 +823,10 @@ keras.Attribute = class {
 
 keras.Tensor = class {
 
-    constructor(name, type, shape, data, reference) {
+    constructor(name, type, shape, littleEndian, data, reference) {
         this._name = name;
         this._type = new keras.TensorType(type, new keras.TensorShape(shape));
+        this._littleEndian = littleEndian;
         this._data = data;
         this._reference = reference;
     }
@@ -890,6 +898,7 @@ keras.Tensor = class {
                 break;
         }
         context.dimensions = this._type.shape.dimensions;
+        context.littleEndian = this._littleEndian;
         context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
         return context;
     }
@@ -897,6 +906,7 @@ keras.Tensor = class {
     _decode(context, dimension) {
         let results = [];
         const size = context.dimensions[dimension];
+        const littleEndian = context.littleEndian;
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -906,15 +916,15 @@ keras.Tensor = class {
                 if (context.rawData) {
                     switch (context.precision) {
                         case 16:
-                            results.push(context.rawData.getFloat16(context.index, true));
+                            results.push(context.rawData.getFloat16(context.index, littleEndian));
                             context.index += 2;
                             break;
                         case 32:
-                            results.push(context.rawData.getFloat32(context.index, true));
+                            results.push(context.rawData.getFloat32(context.index, littleEndian));
                             context.index += 4;
                             break;
                         case 64:
-                            results.push(context.rawData.getFloat64(context.index, true));
+                            results.push(context.rawData.getFloat64(context.index, littleEndian));
                             context.index += 8;
                             break;
                     }

@@ -124,6 +124,7 @@ class Application {
                     'caffemodel',
                     'model', 'dnn', 'cmf',
                     'mar', 'params',
+                    'mnn',
                     'meta',
                     'tflite', 'lite', 'tfl', 'bin',
                     'param', 'ncnn',

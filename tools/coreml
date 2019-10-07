@@ -18,11 +18,12 @@ bold() {
 git_sync () {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -p
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -40,6 +41,7 @@ install() {
     [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
     [ -d "${virtualenv}" ] || python3 -m virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
+    python3 -m pip install --quiet six numpy protobuf
     python3 -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }

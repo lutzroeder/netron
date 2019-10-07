@@ -14833,6 +14833,7 @@
           "type": "int64[]"
         }
       ],
+      "category": "Transform",
       "description": "\nThe *Squeeze* op removes single-dimensional entries from the shape of the input tensor *data,* and produces a single output tensor *squeezed*. The op also takes an argument *dims* with a list of dimensions to squeeze. If the same blob is provided as input and output, the operation is copy-free. This is the exact inverse operation of *ExpandDims* given the same *dims* argument.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/expand_squeeze_dims_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/expand_squeeze_dims_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Squeeze\",\n    [\"data\"],\n    [\"squeezed\"],\n    dims=[0,1],\n)\n\nworkspace.FeedBlob(\"data\", np.zeros((1,1,100,100)).astype(np.float32))\nprint(\"data.shape:\", workspace.FetchBlob(\"data\").shape)\n\nworkspace.RunOperatorOnce(op)\nprint(\"squeezed.shape:\", workspace.FetchBlob(\"squeezed\").shape)\n\n```\n\n**Result**\n\n```\n\ndata.shape: (1, 1, 100, 100)\nsqueezed.shape: (100, 100)\n\n```\n\n</details>\n\n",
       "inputs": [
         {
@@ -16872,6 +16873,66 @@
       "outputs": [
         {
           "description": "Transposed output",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "ResizeNearest3DGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Scale along temporal dimension",
+          "name": "temporal_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along width dimension",
+          "name": "width_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along height dimension",
+          "name": "height_scale",
+          "option": "optional"
+        }
+      ],
+      "description": null,
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "ResizeNearest3D",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Scale along temporal dimension",
+          "name": "temporal_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along width dimension",
+          "name": "width_scale",
+          "option": "optional"
+        },
+        {
+          "description": "Scale along height dimension",
+          "name": "height_scale",
+          "option": "optional"
+        }
+      ],
+      "description": "\nResizes the spatial dimensions of the input tensor using nearest neighbor\ninterpolation. The `width_scale` and `height_scale` arguments\ncontrol the size of the output, which is given by:\noutput_width = floor(input_width * width_scale)\noutput_height = floor(output_height * height_scale)\nAssumptions:\n  - Only resize height and width\n  - Both width_scale and height_scale scale are 2\n",
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Output tensor",
           "name": "Y"
         }
       ],
