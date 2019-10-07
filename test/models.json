@@ -2200,6 +2200,13 @@
   },
   {
     "type":   "mnn",
+    "target": "simple.mnn",
+    "source": "https://github.com/lutzroeder/netron/files/3698466/simple.mnn.zip[simple.mnn]",
+    "format": "MNN v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/341"
+  },
+  {
+    "type":   "mnn",
     "target": "SqueezeNetV1.0.mnn",
     "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/SqueezeNetV1.0.mnn?raw=true",
     "format": "MNN v2",

@@ -89,7 +89,7 @@ mnn.Graph = class {
                     const index = op.outputIndexes(j);
                     const name = net.tensorName(index);
                     const extraTensorDescribe = net.extraTensorDescribe(index);
-                    const type = mnn.Graph._blobTensorType(extraTensorDescribe.blob());
+                    const type = extraTensorDescribe ? mnn.Graph._blobTensorType(extraTensorDescribe.blob()) : null;
                     args.push(new mnn.Argument(name, type, null))
                 }
                 this._inputs.push(new mnn.Parameter(op.name(), true, args))
@@ -107,7 +107,7 @@ mnn.Graph = class {
             if (!inputSet.has(i)) {
                 const name = net.tensorName(i);
                 const extraTensorDescribe = net.extraTensorDescribe(i);
-                const type = mnn.Graph._blobTensorType(extraTensorDescribe.blob());
+                const type = extraTensorDescribe ? mnn.Graph._blobTensorType(extraTensorDescribe.blob()) : null;
                 this._outputs.push(new mnn.Parameter(name, true, [
                     new mnn.Argument(name, type, null)
                 ]));
