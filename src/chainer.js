@@ -11,12 +11,15 @@ chainer.ModelFactory = class {
     match(context) {
         const identifier = context.identifier; 
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'npz':
-                return context.entries.length > 0 && context.entries.every((entry) => entry.name.indexOf('/') !== -1);
-            case 'h5':
-            case 'hdf5':
+        if (extension === 'npz') {
+            return context.entries.length > 0 && context.entries.every((entry) => entry.name.indexOf('/') !== -1);
+        }
+        if (extension === 'h5' || extension === 'hd5' || extension === 'hdf5' || extension === 'keras' || extension === 'model') {
+            const buffer = context.buffer;
+            const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
+            if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
                 return true;
+            }
         }
         return false;
     }
@@ -28,6 +31,7 @@ chainer.ModelFactory = class {
             case 'npz':
                 return this._openNumPy(context, host);
             case 'h5':
+            case 'hd5':
             case 'hdf5':
                 return this._openHdf5(context, host);
         }

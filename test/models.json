@@ -2021,7 +2021,7 @@
     "type":   "keras",
     "target": "keras_invalid_file.h5",
     "source": "https://github.com/lutzroeder/netron/files/3364286/keras_invalid_file.zip[keras_invalid_file.h5]",
-    "error":  "Not a valid HDF5 file in 'keras_invalid_file.h5'.\nNot a valid HDF5 file in 'keras_invalid_file.h5'.",
+    "error":  "Unsupported file content for extension '.h5' in 'keras_invalid_file.h5'.",
     "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
