@@ -99,6 +99,7 @@ linux:
 win:
   target:
   - nsis
+  verifyUpdateCodeSignature: false
 dmg:
   iconSize: 160
   contents:
