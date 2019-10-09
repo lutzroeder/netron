@@ -1701,7 +1701,7 @@
           "name": "dilation_rate"
         },
         {
-          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    tanh is applied by default.",
           "name": "activation"
         },
         {
