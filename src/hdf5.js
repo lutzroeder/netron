@@ -704,7 +704,7 @@ hdf5.Datatype = class {
                     }
                     else {
                         switch (this._size) {
-                            case 1: return 'byte';
+                            case 1: return 'uint8';
                             case 2: return 'uint16';
                             case 4: return 'uint32';
                             case 8: return 'uint64';

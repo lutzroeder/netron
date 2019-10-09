@@ -161,7 +161,7 @@ chainer.ModelFactory = class {
 
                     const dataTypeMap = new Map([
                         [ 'i1', 'int8'], [ 'i2', 'int16' ], [ 'i4', 'int32'], [ 'i8', 'int64' ],
-                        [ 'u1', 'byte'], [ 'u2', 'uint16' ], [ 'u4', 'uint32'], [ 'u8', 'uint64' ],
+                        [ 'u1', 'uint8'], [ 'u2', 'uint16' ], [ 'u4', 'uint32'], [ 'u8', 'uint64' ],
                         [ 'f2', 'float16'], [ 'f4', 'float32' ], [ 'f8', 'float64']
                     ]);
 
