@@ -33,22 +33,24 @@ tf.ModelFactory = class {
             }
             const tags = context.tags('pb');
             if (tags.size === 0) {
-                const textTags = context.tags('pbtxt');
-                if (textTags.has('node') || textTags.has('saved_model_schema_version') || textTags.has('meta_graphs') || textTags.has('graph_def')) {
-                    return true;
+                const tags = context.tags('pbtxt');
+                if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
+                    return false;
                 }
-                return false;
+                if (tags.has('input_stream') || tags.has('output_stream')) {
+                    return false;
+                }
             }
-            // ignore input_0.pb, output_0.pb
-            if (tags.size > 0 &&
-                tags.has(1) && tags.get(1) === 0 && 
-                tags.has(2) && tags.get(2) === 0 && 
-                tags.has(9) && tags.get(9) === 2) {
-                return false;
-            }
-            if (tags.size > 0 &&
-                Array.from(tags.values()).some((v) => v === 5)) {
-                return false;
+            else {
+                // ignore input_0.pb, output_0.pb
+                if (tags.has(1) && tags.get(1) === 0 && 
+                    tags.has(2) && tags.get(2) === 0 && 
+                    tags.has(9) && tags.get(9) === 2) {
+                    return false;
+                }
+                if (Array.from(tags.values()).some((v) => v === 5)) {
+                    return false;
+                }
             }
             return true;
         }
@@ -58,9 +60,13 @@ tf.ModelFactory = class {
                 return false;
             }
             const tags = context.tags('pbtxt');
-            if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
-                return true;
+            if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
+                return false;
             }
+            if (tags.has('input_stream') || tags.has('output_stream')) {
+                return false;
+            }
+            return true;
         }
         if (extension == 'json') {
             try {
