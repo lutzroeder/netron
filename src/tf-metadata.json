@@ -15338,6 +15338,11 @@
           "default": false,
           "name": "allow_stateful",
           "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "strip_device_assignment",
+          "type": "boolean"
         }
       ],
       "description": "Returns a graph representation for `input_dataset`.",
