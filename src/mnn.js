@@ -39,7 +39,7 @@ mnn.ModelFactory = class {
                     host.exception(error, false);
                     let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new new mnn.Error(message + " in '" + identifier + "'.");
+                    throw new mnn.Error(message + " in '" + identifier + "'.");
                 }
             });
         });
