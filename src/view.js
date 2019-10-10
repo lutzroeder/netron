@@ -1209,7 +1209,7 @@ view.ModelFactoryService = class {
                     const knownUnsupportedIdentifiers = new Set([
                         'natives_blob.bin', 'v8_context_snapshot.bin', 'snapshot_blob.bin',
                         'LICENSE.meta',
-                        'input_0.pb',
+                        'input_0.pb', 'output_0.pb',
                         'image_net_labels.json',
                         'imagenet_2012_challenge_label_map_proto.pbtxt', 'object-detection.pbtxt',
                         'hand_label_map.pbtxt', 'label_map.pbtxt', 'labels_map.pbtxt', 'labelmap.pbtxt', 'mscoco_label_map.pbtxt',
