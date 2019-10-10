@@ -69995,6 +69995,11 @@
           "description": "The function to call.",
           "name": "f",
           "type": "function"
+        },
+        {
+          "default": 0,
+          "name": "autotuner_thresh",
+          "type": "int64"
         }
       ],
       "inputs": [
