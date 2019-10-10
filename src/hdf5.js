@@ -673,9 +673,130 @@ hdf5.Message = class {
     }
 };
 
+hdf5.Dataspace = class {
+
+    constructor(reader) {
+        // https://support.hdfgroup.org/HDF5/doc/H5.format.html#DataspaceMessage
+        this._sizes = [];
+        const version = reader.byte();
+        switch (version) {
+            case 1:
+                this._dimensions = reader.byte();
+                this._flags = reader.byte();
+                reader.seek(1);
+                reader.seek(4);
+                for (let i = 0; i < this._dimensions; i++) {
+                    this._sizes.push(reader.length());
+                }
+                if ((this._flags & 0x01) != 0) {
+                    this._maxSizes = [];
+                    for (let j = 0; j < this._dimensions; j++) {
+                        this._maxSizes.push(reader.length());
+                        if (this._maxSizes[j] != this._sizes[j]) {
+                            throw new hdf5.Error('Max size is not supported.');
+                        }
+                    }
+                }
+                if ((this._flags & 0x02) != 0) {
+                    throw new hdf5.Error('Permutation indices not supported.');
+                }
+                break;
+            case 2:
+                this._dimensions = reader.byte();
+                this._flags = reader.byte();
+                this._type = reader.byte(); // 0 scalar, 1 simple, 2 null
+                for (let k = 0; k < this._dimensions; k++) {
+                    this._sizes.push(reader.length());
+                }
+                if ((this._flags & 0x01) != 0) {
+                    this._maxSizes = [];
+                    for (let l = 0; l < this._dimensions; l++) {
+                        this._maxSizes.push(reader.length());
+                    }
+                }
+                break;
+            default:
+                throw new hdf5.Error("Unsupported dataspace message version '" + version + "'.");
+    
+        }
+    }
+
+    get shape() {
+        return this._sizes;
+    }
+
+    read(datatype, reader) {
+        if (this._dimensions == 0) {
+            return datatype.read(reader);
+        }
+        return this._readArray(datatype, reader, this._sizes, 0);
+    }
+
+    _readArray(datatype, reader, shape, dimension) {
+        const array = [];
+        const size = shape[dimension];
+        if (dimension == shape.length - 1) {
+            for (let i = 0; i < size; i++) {
+                array.push(datatype.read(reader));
+            }
+        }
+        else {
+            for (let j = 0; j < size; j++) {
+                array.push(this._readArray(datatype, reader, shape, dimension + 1));
+            }
+        }     
+        return array;
+    }
+
+    decode(datatype, data, globalHeap) {
+        if (this._dimensions == 0) {
+            return datatype.decode(data, globalHeap);
+        }
+        return this._decodeArray(datatype, data, globalHeap, this._sizes, 0);
+    }
+
+    _decodeArray(datatype, data, globalHeap, shape, dimension) {
+        const size = shape[dimension];
+        if (dimension == shape.length - 1) {
+            for (let i = 0; i < size; i++) {
+                data[i] = datatype.decode(data[i], globalHeap);
+            }
+        }
+        else {
+            for (let j = 0; j < size; j++) {
+                data[j] = this._decodeArray(datatype, data[j], shape, dimension + 1);
+            }
+        }
+        return data;
+    }
+};
+
+hdf5.LinkInfo = class {
+
+    constructor(reader) {
+        const version = reader.byte();
+        switch (version) {
+            case 0:
+                var flags = reader.byte();
+                if ((flags & 1) != 0) {
+                    this.maxCreationIndex = reader.uint64();
+                }
+                this.fractalHeapAddress = reader.offset();
+                this.nameIndexTreeAddress = reader.offset();
+                if ((flags & 2) != 0) {
+                    this.creationOrderIndexTreeAddress = reader.offset();
+                }
+                break;
+            default:
+                throw new hdf5.Error("Unsupported link info message version '" + version + "'.");
+        }
+    }
+};
+
 hdf5.Datatype = class {
 
     constructor(reader) {
+        // https://support.hdfgroup.org/HDF5/doc/H5.format.html#DatatypeMessage
         const format = reader.byte();
         const version = format >> 4;
         this._class = format & 0xf;
@@ -821,128 +942,10 @@ hdf5.Datatype = class {
     }
 };
 
-hdf5.Dataspace = class {
-
-    constructor(reader) {
-        this._sizes = [];
-        const version = reader.byte();
-        switch (version) {
-            case 1:
-                this._dimensions = reader.byte();
-                this._flags = reader.byte();
-                reader.seek(1);
-                reader.seek(4);
-                for (let i = 0; i < this._dimensions; i++) {
-                    this._sizes.push(reader.length());
-                }
-                if ((this._flags & 0x01) != 0) {
-                    this._maxSizes = [];
-                    for (let j = 0; j < this._dimensions; j++) {
-                        this._maxSizes.push(reader.length());
-                        if (this._maxSizes[j] != this._sizes[j]) {
-                            throw new hdf5.Error('Max size is not supported.');
-                        }
-                    }
-                }
-                if ((this._flags & 0x02) != 0) {
-                    throw new hdf5.Error('Permutation indices not supported.');
-                }
-                break;
-            case 2:
-                this._dimensions = reader.byte();
-                this._flags = reader.byte();
-                this._type = reader.byte(); // 0 scalar, 1 simple, 2 null
-                for (let k = 0; k < this._dimensions; k++) {
-                    this._sizes.push(reader.length());
-                }
-                if ((this._flags & 0x01) != 0) {
-                    this._maxSizes = [];
-                    for (let l = 0; l < this._dimensions; l++) {
-                        this._maxSizes.push(reader.length());
-                    }
-                }
-                break;
-            default:
-                throw new hdf5.Error("Unsupported dataspace message version '" + version + "'.");
-    
-        }
-    }
-
-    get shape() {
-        return this._sizes;
-    }
-
-    read(datatype, reader) {
-        if (this._dimensions == 0) {
-            return datatype.read(reader);
-        }
-        return this._readArray(datatype, reader, this._sizes, 0);
-    }
-
-    _readArray(datatype, reader, shape, dimension) {
-        const array = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                array.push(datatype.read(reader));
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                array.push(this._readArray(datatype, reader, shape, dimension + 1));
-            }
-        }     
-        return array;
-    }
-
-    decode(datatype, data, globalHeap) {
-        if (this._dimensions == 0) {
-            return datatype.decode(data, globalHeap);
-        }
-        return this._decodeArray(datatype, data, globalHeap, this._sizes, 0);
-    }
-
-    _decodeArray(datatype, data, globalHeap, shape, dimension) {
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                data[i] = datatype.decode(data[i], globalHeap);
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                data[j] = this._decodeArray(datatype, data[j], shape, dimension + 1);
-            }
-        }
-        return data;
-    }
-};
-
-hdf5.LinkInfo = class {
-
-    constructor(reader) {
-        const version = reader.byte();
-        switch (version) {
-            case 0:
-                var flags = reader.byte();
-                if ((flags & 1) != 0) {
-                    this.maxCreationIndex = reader.uint64();
-                }
-                this.fractalHeapAddress = reader.offset();
-                this.nameIndexTreeAddress = reader.offset();
-                if ((flags & 2) != 0) {
-                    this.creationOrderIndexTreeAddress = reader.offset();
-                }
-                break;
-            default:
-                throw new hdf5.Error("Unsupported link info message version '" + version + "'.");
-        }
-    }
-};
-
 hdf5.FillValue = class {
 
     constructor(reader) {
+        // https://support.hdfgroup.org/HDF5/doc/H5.format.html#FillValueMessage
         const version = reader.byte();
         switch (version) {
             case 2:
@@ -964,6 +967,7 @@ hdf5.FillValue = class {
 hdf5.Link = class {
 
     constructor(reader) {
+        // https://support.hdfgroup.org/HDF5/doc/H5.format.html#FillValueMessage
         const version = reader.byte();
         switch (version) {
             case 1:
