@@ -145,29 +145,31 @@ keras.Model = class {
                 }
                 for (let layer_name of layer_names) {
                     let layer_weights = model_weights_group.group(layer_name);
-                    let weight_names = layer_weights.attribute('weight_names');
-                    if (layer_weights && weight_names && weight_names.length > 0) {
-                        for (let weight_name of weight_names) {
-                            let group = layer_weights.group(weight_name);
-                            if (group) {
-                                let variable = group.value;
-                                if (variable) {
-                                    let parts = weight_name.split('/');
-                                    parts.pop();
-                                    let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.data, '');
-                                    let match = false;
-                                    while (parts.length > 0) {
-                                        let name = parts.join('/');
-                                        if (layer_names_map[name]) {
-                                            match = true;
+                    if (layer_weights) {
+                        let weight_names = layer_weights.attribute('weight_names');
+                        if (layer_weights && weight_names && weight_names.length > 0) {
+                            for (let weight_name of weight_names) {
+                                let group = layer_weights.group(weight_name);
+                                if (group) {
+                                    let variable = group.value;
+                                    if (variable) {
+                                        let parts = weight_name.split('/');
+                                        parts.pop();
+                                        let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.data, '');
+                                        let match = false;
+                                        while (parts.length > 0) {
+                                            let name = parts.join('/');
+                                            if (layer_names_map[name]) {
+                                                match = true;
+                                            }
+                                            weights[name] = weights[name] || [];
+                                            weights[name].push(initializer);
+                                            parts.shift();
                                         }
-                                        weights[name] = weights[name] || [];
-                                        weights[name].push(initializer);
-                                        parts.shift();
-                                    }
-                                    if (!match) {
-                                        weights[layer_name] = weights[layer_name] || [];
-                                        weights[layer_name].push(initializer);
+                                        if (!match) {
+                                            weights[layer_name] = weights[layer_name] || [];
+                                            weights[layer_name].push(initializer);
+                                        }
                                     }
                                 }
                             }
