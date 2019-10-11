@@ -25,6 +25,26 @@
     }
   },
   {
+    "name": "conv2d",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "groups", "type": "int64", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "max_pool2d",
     "schema": {
       "category": "Pool",
@@ -255,6 +275,22 @@
       ],
       "attributes": [
         { "name": "dim", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "log_softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64" },
+        { "name": "dtype", "visible": false }
       ],
       "outputs": [
         { "name": "output" }

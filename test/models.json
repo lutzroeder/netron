@@ -5087,7 +5087,6 @@
     "target": "netron_issue_313.pt",
     "source": "https://github.com/lutzroeder/netron/files/3715300/netron_issue_313.zip[netron_issue_313.pt]",
     "format": "TorchScript v1",
-    "error":  "Unknown statement '{\"location\":\" at 15:7\",\"type\":\"=\",\"target\":{\"type\":\"identifier\",\"value\":\"_0\",\"keyword\":false},\"expression\":{\"type\":\"string\",\"value\":\"\\\"Implicit dimension choice for {} has been deprecated. Change the call to include dim=X as an argument.\\\"\"}}' in 'netron_issue_313.pt'.",
     "link":   "https://github.com/lutzroeder/netron/issues/313"
   },
   {

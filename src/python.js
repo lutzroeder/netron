@@ -88,23 +88,23 @@ python.Parser = class {
 
         let node = this._node();
 
-        node = this._eat('identifier', 'break');
+        node = this._eat('id', 'break');
         if (node) {
             return node;
         }
-        node = this._eat('identifier', 'continue');
+        node = this._eat('id', 'continue');
         if (node) {
             return node;
         }
-        node = this._eat('identifier', 'return');
+        node = this._eat('id', 'return');
         if (node) {
             node.expression = this._parseExpression(-1, [], true);
             return node;
         }
-        node = this._eat('identifier', 'raise');
+        node = this._eat('id', 'raise');
         if (node) {
             node.exception = this._parseExpression(-1, [ 'from' ]);
-            if (this._tokenizer.eat('identifier', 'from')) {
+            if (this._tokenizer.eat('id', 'from')) {
                 node.from = this._parseExpression();
             }
             else if (this._tokenizer.eat(',')) {
@@ -116,7 +116,7 @@ python.Parser = class {
             }
             return node;
         }
-        node = this._eat('identifier', 'assert');
+        node = this._eat('id', 'assert');
         if (node) {
             node.condition = this._parseExpression();
             while (this._tokenizer.eat(',')) {
@@ -125,7 +125,7 @@ python.Parser = class {
             }
             return node;
         }
-        node = this._eat('identifier', 'exec');
+        node = this._eat('id', 'exec');
         if (node) {
             node.variable = this._parseExpression(-1, [ 'in' ]);
             if (this._tokenizer.eat('in')) {
@@ -138,7 +138,7 @@ python.Parser = class {
             return node;
         }
 
-        node = this._eat('identifier', 'global');
+        node = this._eat('id', 'global');
         if (node) {
             node.variable = [];
             do {
@@ -147,7 +147,7 @@ python.Parser = class {
             while (this._tokenizer.eat(','));
             return node;
         }
-        node = this._eat('identifier', 'nonlocal');
+        node = this._eat('id', 'nonlocal');
         if (node) {
             node.variable = [];
             do {
@@ -156,14 +156,14 @@ python.Parser = class {
             while (this._tokenizer.eat(','));
             return node;
         }
-        node = this._eat('identifier', 'import');
+        node = this._eat('id', 'import');
         let symbol = null;
         if (node) {
             node.symbol = [];
             do {
                 symbol = this._node('symbol');
                 symbol.symbol = this._parseExpression(-1, [], false);
-                if (this._tokenizer.eat('identifier', 'as')) {
+                if (this._tokenizer.eat('id', 'as')) {
                     symbol.as = this._parseExpression(-1, [], false); 
                 }
                 node.symbol.push(symbol);
@@ -171,7 +171,7 @@ python.Parser = class {
             while (this._tokenizer.eat(','));
             return node;
         }
-        node = this._eat('identifier', 'from');
+        node = this._eat('id', 'from');
         if (node) {
             let dots = this._tokenizer.peek();
             if (dots && Array.from(dots.type).every((c) => c == '.')) {
@@ -181,13 +181,13 @@ python.Parser = class {
             else {
                 node.from = this._parseExpression();
             }
-            this._tokenizer.expect('identifier', 'import');
+            this._tokenizer.expect('id', 'import');
             node.import = [];
             let close = this._tokenizer.eat('(');
             do {
                 symbol = this._node();
                 symbol.symbol = this._parseExpression(-1, [], false);
-                if (this._tokenizer.eat('identifier', 'as')) {
+                if (this._tokenizer.eat('id', 'as')) {
                     symbol.as = this._parseExpression(-1, [], false); 
                 }
                 node.import.push(symbol);
@@ -198,7 +198,7 @@ python.Parser = class {
             }
             return node;
         }
-        node = this._eat('identifier', 'class');
+        node = this._eat('id', 'class');
         if (node) {
             node.name = this._parseName().value;
             if (this._tokenizer.peek().value === '(') {
@@ -209,15 +209,15 @@ python.Parser = class {
             return node;
         }
 
-        let async = this._eat('identifier', 'async');
+        let async = this._eat('id', 'async');
         if (async && 
-            !this._tokenizer.match('identifier', 'def') &&
-            !this._tokenizer.match('identifier', 'with') && 
-            !this._tokenizer.match('identifier', 'for')) {
+            !this._tokenizer.match('id', 'def') &&
+            !this._tokenizer.match('id', 'with') && 
+            !this._tokenizer.match('id', 'for')) {
             throw new python.Error("Expected 'def', 'with' or 'for'" + this._tokenizer.location());
         }
 
-        node = this._eat('identifier', 'def');
+        node = this._eat('id', 'def');
         if (node) {
             if (async) {
                 node.async = async;
@@ -232,24 +232,24 @@ python.Parser = class {
             node.body = this._parseSuite();
             return node;
         }
-        node = this._eat('identifier', 'del');
+        node = this._eat('id', 'del');
         if (node) {
             node.expression = this._parseExpression(-1, [], true);
             return node;
         }
-        node = this._eat('identifier', 'print');
+        node = this._eat('id', 'print');
         if (node) {
             node.expression = this._parseExpression(-1, [], true);
             return node;
         }
-        node = this._eat('identifier', 'if');
+        node = this._eat('id', 'if');
         if (node) {
             node.condition = this._parseExpression();
             this._tokenizer.expect(':');
             node.then = this._parseSuite();
             let current = node;
             this._tokenizer.eat('\n');
-            while (this._tokenizer.eat('identifier', 'elif')) {
+            while (this._tokenizer.eat('id', 'elif')) {
                 current.else = this._node('if');
                 current = current.else;
                 current.condition = this._parseExpression();
@@ -257,39 +257,39 @@ python.Parser = class {
                 current.then = this._parseSuite();
                 this._tokenizer.eat('\n');
             }
-            if (this._tokenizer.eat('identifier', 'else')) {
+            if (this._tokenizer.eat('id', 'else')) {
                 this._tokenizer.expect(':');
                 current.else = this._parseSuite();
             }
             return node;
         }
-        node = this._eat('identifier', 'while');
+        node = this._eat('id', 'while');
         if (node) {
             node.condition = this._parseExpression();
             this._tokenizer.expect(':');
             node.body = this._parseSuite();
-            if (this._tokenizer.eat('identifier', 'else')) {
+            if (this._tokenizer.eat('id', 'else')) {
                 this._tokenizer.expect(':');
                 node.else = this._parseSuite();
             }
             return node;
         }
-        node = this._eat('identifier', 'pass');
+        node = this._eat('id', 'pass');
         if (node) {
             return node;
         }
-        node = this._eat('identifier', 'for');
+        node = this._eat('id', 'for');
         if (node) {
             node.variable = [];
             node.variable.push(this._parseExpression(-1, [ 'in' ]));
             while (this._tokenizer.eat(',')) {
-                if (this._tokenizer.match('identifier', 'in')) {
+                if (this._tokenizer.match('id', 'in')) {
                     node.variable.push({});
                     break;
                 }
                 node.variable.push(this._parseExpression(-1, [ 'in' ]));
             }
-            this._tokenizer.expect('identifier', 'in');
+            this._tokenizer.expect('id', 'in');
             node.target = [];
             node.target.push(this._parseExpression());
             while (this._tokenizer.eat(',')) {
@@ -301,13 +301,13 @@ python.Parser = class {
             }
             this._tokenizer.expect(':');
             node.body = this._parseSuite();
-            if (this._tokenizer.eat('identifier', 'else')) {
+            if (this._tokenizer.eat('id', 'else')) {
                 this._tokenizer.expect(':');
                 node.else = this._parseSuite();
             }
             return node;
         }
-        node = this._eat('identifier', 'with');
+        node = this._eat('id', 'with');
         if (node) {
             if (async) {
                 node.async = async;
@@ -317,7 +317,7 @@ python.Parser = class {
                 let item = this._node();
                 item.type = 'with_item'
                 item.expression = this._parseExpression();
-                if (this._tokenizer.eat('identifier', 'as')) {
+                if (this._tokenizer.eat('id', 'as')) {
                     item.variable = this._parseExpression();
                 }
                 node.item.push(item);
@@ -327,14 +327,14 @@ python.Parser = class {
             node.body = this._parseSuite();
             return node;
         }
-        node = this._eat('identifier', 'try');
+        node = this._eat('id', 'try');
         if (node) {
             this._tokenizer.expect(':');
             node.body = this._parseSuite();
             node.except = [];
-            while (this._tokenizer.match('identifier', 'except')) {
+            while (this._tokenizer.match('id', 'except')) {
                 let except = this._node('except');
-                this._tokenizer.expect('identifier', 'except');
+                this._tokenizer.expect('id', 'except');
                 except.clause = [];
                 except.clause.push(this._parseExpression());
                 while (this._tokenizer.eat(',')) {
@@ -344,22 +344,22 @@ python.Parser = class {
                     }
                     except.clause.push(this._parseExpression());
                 }
-                if (this._tokenizer.eat('identifier', 'as')) {
+                if (this._tokenizer.eat('id', 'as')) {
                     except.variable = this._parseExpression();
                 }
                 this._tokenizer.expect(':');
                 except.body = this._parseSuite();
                 node.except.push(except);
             }
-            if (this._tokenizer.match('identifier', 'else')) {
+            if (this._tokenizer.match('id', 'else')) {
                 node.else = this._node('else');
-                this._tokenizer.expect('identifier', 'else')
+                this._tokenizer.expect('id', 'else')
                 this._tokenizer.expect(':');
                 node.else.body = this._parseSuite();
             }
-            if (this._tokenizer.match('identifier', 'finally')) {
+            if (this._tokenizer.match('id', 'finally')) {
                 node.finally = this._node('finally');
-                this._tokenizer.expect('identifier', 'finally');
+                this._tokenizer.expect('id', 'finally');
                 this._tokenizer.expect(':');
                 node.finally.body = this._parseSuite();
             }
@@ -370,7 +370,7 @@ python.Parser = class {
             node = this._node('decorator');
             this._tokenizer.expect('@')
             node.value = this._parseExpression();
-            if (!node.value || (node.value.type !== 'call' && node.value.type !== 'identifier' && node.value.type !== '.')) {
+            if (!node.value || (node.value.type !== 'call' && node.value.type !== 'id' && node.value.type !== '.')) {
                 throw new python.Error('Invalid decorator' + this._tokenizer.location());
             }
             return node;
@@ -435,7 +435,7 @@ python.Parser = class {
                 case '^':
                 case '|':
                 case 'not':
-                case 'identifier':
+                case 'id':
                 case 'number':
                 case 'in':
                 case 'and':
@@ -472,11 +472,11 @@ python.Parser = class {
                 if (precedence >= minPrecedence) {
                     this._tokenizer.read();
                     node.type = token.value;
-                    if (token.type == 'identifier' && (token.value === 'in' || token.value === 'not')) {
+                    if (token.type == 'id' && (token.value === 'in' || token.value === 'not')) {
                         if (token.value === 'in') {
                             node.type = 'in';
                         }
-                        else if (this._tokenizer.eat('identifier', 'in')) {
+                        else if (this._tokenizer.eat('id', 'in')) {
                             node.type = 'not in';
                         }
                         else {
@@ -492,8 +492,8 @@ python.Parser = class {
                         stack.push(node);
                         continue;
                     }
-                    else if (token.type == 'identifier' && token.value == 'is') {
-                        if (this._tokenizer.eat('identifier', 'not')) {
+                    else if (token.type == 'id' && token.value == 'is') {
+                        if (this._tokenizer.eat('id', 'not')) {
                             node.type = 'is not';
                         }
                     }
@@ -538,46 +538,46 @@ python.Parser = class {
                     stack.push(node);
                     continue;
             }
-            node = this._eat('identifier', 'if');
+            node = this._eat('id', 'if');
             if (node) {
                 node.then = stack.pop();
                 node.condition = this._parseExpression();
-                this._tokenizer.expect('identifier', 'else');
+                this._tokenizer.expect('id', 'else');
                 node.else = this._parseExpression();
                 stack.push(node);
                 continue;
             }
-            while (this._tokenizer.match('identifier', 'for') || this._tokenizer.match('identifier', 'async')) {
-                let async = this._eat('identifier', 'async');
-                if (async && !this._tokenizer.match('identifier', 'for')) {
+            while (this._tokenizer.match('id', 'for') || this._tokenizer.match('id', 'async')) {
+                let async = this._eat('id', 'async');
+                if (async && !this._tokenizer.match('id', 'for')) {
                     throw new python.Error("Expected 'for'" + this._tokenizer.location());
                 }
-                node = this._eat('identifier', 'for');
+                node = this._eat('id', 'for');
                 if (node) {
                     if (async) {
                         node.async = async;
                     }
                     node.expression = stack.pop();
                     node.variable = this._parseExpression(-1, [ 'in' ], true);
-                    this._tokenizer.expect('identifier', 'in');
+                    this._tokenizer.expect('id', 'in');
                     node.target = this._parseExpression(-1, [ 'for', 'if' ], true);
-                    while (this._tokenizer.eat('identifier', 'if')) {
+                    while (this._tokenizer.eat('id', 'if')) {
                         node.condition = node.condition || [];
                         node.condition.push(this._parseExpression(-1, [ 'for', 'if' ]));
                     }
                     stack.push(node);
                 }
             }
-            node = this._eat('identifier', 'lambda');
+            node = this._eat('id', 'lambda');
             if (node) {
                 node.parameters = this._parseParameters(':');
                 node.body = this._parseExpression(-1, terminal, false);
                 stack.push(node);
                 continue;
             }
-            node = this._eat('identifier', 'yield');
+            node = this._eat('id', 'yield');
             if (node) {
-                if (this._tokenizer.eat('identifier', 'from')) {
+                if (this._tokenizer.eat('id', 'from')) {
                     node.from = this._parseExpression(-1, [], true);
                 }
                 else {
@@ -590,7 +590,7 @@ python.Parser = class {
                 stack.push(node);
                 continue;
             }
-            node = this._eat('identifier', 'await');
+            node = this._eat('id', 'await');
             if (node) {
                 node.expression = this._parseExpression(minPrecedence, terminal, tuple);
                 stack.push(node);
@@ -680,7 +680,6 @@ python.Parser = class {
                 else {
                     node = this._node('tuple');
                     node.value = [ stack.pop() ];
-                    node.location = node.value.location;
                     stack.push(node);
                 }
                 if (!this._tokenizer.match('=') && !terminalSet.has(this._tokenizer.peek().value)) {
@@ -796,7 +795,7 @@ python.Parser = class {
 
     _parseName() {
         let token = this._tokenizer.peek();
-        if (token.type == 'identifier' && !token.keyword) {
+        if (token.type == 'id' && !token.keyword) {
             this._tokenizer.read();
             return token;
         }
@@ -919,7 +918,7 @@ python.Parser = class {
 
     _eat(type, value) {
         if (this._tokenizer.match(type, value)) {
-            let node = this._node(type === 'identifier' ? value : type);
+            let node = this._node(type === 'id' ? value : type);
             this._tokenizer.expect(type, value);
             return node;
         }
@@ -1416,7 +1415,7 @@ python.Tokenizer = class {
         }
         if (i > this._position) {
             let text = this._text.substring(this._position, i);
-            return { type: 'identifier', value: text, keyword: python.Tokenizer._isKeyword(text) };
+            return { type: 'id', value: text, keyword: python.Tokenizer._isKeyword(text) };
         }
         return null;
     }

@@ -615,7 +615,7 @@ torchscript.Node = class {
                 let attributeSchema = null;
                 let attributeName = attributeIndex.toString();
                 let attributeValue = node.attributes[attributeIndex];
-                if (attributeValue && attributeValue.type === '=' && attributeValue.target.type == 'identifier') {
+                if (attributeValue && attributeValue.type === '=' && attributeValue.target.type == 'id') {
                     attributeName = attributeValue.target.value;
                     attributeValue = attributeValue.expression;
                     if (schema && schema.attributes) {
@@ -733,7 +733,7 @@ torchscript.Attribute = class {
                 case 'boolean':
                     this._value = value.value;
                     break;
-                case 'identifier':
+                case 'id':
                     this._value = value.value;
                     break;
             }
@@ -1100,8 +1100,7 @@ torchscript.GraphContext = class {
         this._nodes = [];
 
         this._moduleMap = {};
-        this._argumentMap = {};
-        this._numToTensorMap = {};
+        this._state = {};
 
         if (script) {
             let codeKey = container.prefix + script;
@@ -1129,12 +1128,14 @@ torchscript.GraphContext = class {
                     }
 
                     if (this._body.length >= 2) {
+                        // x = ...
+                        // return x
                         let returnStatement = this._body[this._body.length - 1];
                         let assignStatement = this._body[this._body.length - 2];
                         if (returnStatement.type === 'return' && 
-                            returnStatement.expression.type === 'identifier' &&
+                            returnStatement.expression.type === 'id' &&
                             assignStatement.type === '=' &&
-                            assignStatement.target.type === 'identifier' &&
+                            assignStatement.target.type === 'id' &&
                             assignStatement.target.value === returnStatement.expression.value) {
                             returnStatement.expression = assignStatement.expression;
                             this._body.pop();
@@ -1145,6 +1146,9 @@ torchscript.GraphContext = class {
 
                     while (this._body.length > 0) {
                         let statement = this._body.shift();
+                        if (this._conditionStatement(statement, this._body)) {
+                            continue;
+                        }
                         if (this._attributeStatement(statement)) {
                             continue;
                         }
@@ -1184,7 +1188,7 @@ torchscript.GraphContext = class {
         if (type.type == 'type' && type.value == 'Tuple' && type.arguments && type.arguments.length > 0) {
             if (this._body.length > 0) {
                 let statement = this._body[0];
-                if (statement.expression.type == 'identifier' && statement.expression.value == parameter.name) {
+                if (statement.expression.type == 'id' && statement.expression.value == parameter.name) {
                     if (statement.type === '=' && statement.target.type === 'tuple') {
                         for (let input of statement.target.value) {
                             if (input) {
@@ -1201,6 +1205,109 @@ torchscript.GraphContext = class {
         }
     }
 
+    _conditionStatement(statement) {
+        if (statement.type === 'if') {
+            if (statement.condition.type === 'call' &&
+                this._name(statement.condition.target) === 'torch.eq' &&
+                statement.condition.arguments.length === 2) {
+                // if torch.eq("zeros", "circular"):
+                if (statement.condition.arguments[0].type === 'string' &&
+                    statement.condition.arguments[1].type === 'string') {
+                    if (statement.condition.arguments[0].value === statement.condition.arguments[1].value) {
+                        this._body = statement.then.statements.concat(this._body);
+                    }
+                    else {
+                        this._body = statement.else.statements.concat(this._body);
+                    }
+                    return true;
+                }
+                // if torch.eq(torch.dim(x4), 2):
+                if (statement.condition.arguments[0].type === 'call' &&
+                    this._name(statement.condition.arguments[0].target) == 'torch.dim' &&
+                    statement.condition.arguments[1].type === 'number') {
+                    // TODO
+                    this._body = statement.then.statements.concat(this._body);
+                    return true;
+                }
+            }
+            if (statement.condition.type == 'id') {
+                if (statement.condition.value == 'True') {
+                    this._body = statement.then.statements.concat(this._body);
+                    return true;
+                }
+                if (statement.condition.value == 'False') {
+                    this._body = statement.else.statements.concat(this._body);
+                    return true;
+                }
+                const condition = this._state[statement.condition.value]; 
+                if (condition && condition.type == 'id') {
+                    if (condition.value === 'True') {
+                        this._body = statement.then.statements.concat(this._body);
+                        return true;
+                    }
+                    if (condition.value === 'False') {
+                        this._body = statement.else.statements.concat(this._body);
+                        return true;
+                    }
+                }
+            }
+            // _0 = torch.__is__(None, None)
+            if (statement.condition.type === 'call' &&
+                this._name(statement.condition.target) === 'torch.__is__' &&
+                statement.condition.arguments.length === 2 &&
+                statement.condition.arguments[0].type == 'id' && 
+                statement.condition.arguments[0].value == 'None' && 
+                statement.condition.arguments[1].type == 'id' &&
+                statement.condition.arguments[1].value == 'None') {
+                this._body = statement.then.statements.concat(this._body);
+                return true;
+            }
+            // _0 = torch.__is__(..., None)
+            if (statement.condition.type === 'call' &&
+                this._name(statement.condition.target) === 'torch.__is__' &&
+                statement.condition.arguments.length === 2 &&
+                statement.condition.arguments[0].type == 'id' && 
+                statement.condition.arguments[1].type == 'id' &&
+                statement.condition.arguments[1].value == 'None') {
+                const argument = this._state[statement.condition.arguments[0].value];
+                if (!argument && argument.value == 'None') {
+                    this._body = statement.then.statements.concat(this._body);
+                }
+                else {
+                    this._body = statement.else.statements.concat(this._body);
+                }
+                return true;
+            }
+            // _0 = torch.__is__(1, None)
+            if (statement.condition.type === 'call' &&
+                this._name(statement.condition.target) === 'torch.__is__' &&
+                statement.condition.arguments.length === 2 &&
+                statement.condition.arguments[0].type == 'number' && 
+                statement.condition.arguments[1].type == 'id' &&
+                statement.condition.arguments[1].value == 'None') {
+                this._body = statement.else.statements.concat(this._body);
+                return true;
+            }
+            // _0 = torch.__isnot__(..., None)
+            if (statement.condition.type === 'call' &&
+                this._name(statement.condition.target) === 'torch.__isnot__' &&
+                statement.condition.arguments.length === 2 &&
+                statement.condition.arguments[0].type == 'id' && 
+                statement.condition.arguments[1].type == 'id' &&
+                statement.condition.arguments[1].value == 'None') {
+                const argument = this._state[statement.condition.arguments[0].value];
+                if (argument && argument.value !== 'None') {
+                    this._body = statement.then.statements.concat(this._body);
+                }
+                else {
+                    this._body = statement.else.statements.concat(this._body);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     _returnStatement(statement) {
         if (statement.type == 'return') {
             let variable = this._variable();
@@ -1208,7 +1315,7 @@ torchscript.GraphContext = class {
                 this._outputs.push(variable.value);
                 return true;
             }
-            if (statement.expression.type == 'identifier') {
+            if (statement.expression.type == 'id') {
                 this._outputs.push(statement.expression.value);
                 return true;
             }
@@ -1218,9 +1325,9 @@ torchscript.GraphContext = class {
                     variable = this._variable();
                     if (this._nodeExpression(expression, variable)) {
                         outputs.push(variable.value);
-                        continue
+                        continue;
                     }
-                    if (expression.type == 'identifier') {
+                    if (expression.type == 'id') {
                         outputs.push(expression.value);
                         continue;
                     }
@@ -1234,7 +1341,7 @@ torchscript.GraphContext = class {
     }
 
     _nodeExpression(expression, target) {
-        if (expression.type == 'call' && (target.type == 'identifier' || target.type == 'tuple')) {
+        if (expression.type == 'call' && (target.type == 'id' || target.type == 'tuple')) {
             let name = this._name(expression.target);
             let namespace = 'torch.';
             if (name.startsWith(namespace)) {
@@ -1247,11 +1354,13 @@ torchscript.GraphContext = class {
                 while (args.length > 0) {
                     let argument = args[0];
                     argument = this._moduleTensor(argument);
-                    if (argument.type == 'identifier' && this._argumentMap[argument.value]) {
-                        argument = this._argumentMap[argument.value];
-                        delete this._argumentMap[argument.value];
+                    if (argument.type == 'id' &&
+                        this._state[argument.value] &&
+                        !torchscript.Graph._isTensor(this._state[argument.value])) {
+                        argument = this._state[argument.value];
+                        delete this._state[argument.value];
                     }
-                    if (argument.type == 'identifier') {
+                    if (argument.type == 'id') {
                         if (argument.value === 'False' || argument.value === 'True') {
                             break;
                         }
@@ -1269,7 +1378,7 @@ torchscript.GraphContext = class {
                             else if (this._argumentExpression(input, variable)) {
                                 list.push({ id: variable.value });
                             }
-                            else if (input.type == 'identifier') {
+                            else if (input.type == 'id') {
                                 list.push({ id: input.value });
                             }
                             else {
@@ -1304,9 +1413,9 @@ torchscript.GraphContext = class {
                         continue;
                     }
                     if (argument.type == '.' &&
-                        argument.target.type == 'identifier' &&
+                        argument.target.type == 'id' &&
                         argument.target.value == 'CONSTANTS' &&
-                        argument.member.type == 'identifier' &&
+                        argument.member.type == 'id' &&
                         argument.member.value.startsWith('c')) {
                         let constantId = [ argument.target.value, argument.member.value ].join('.');
                         let constantIndex = parseInt(argument.member.value.substring(1), 10);
@@ -1330,7 +1439,7 @@ torchscript.GraphContext = class {
                     node.attributes.push(args[0]);
                     args.shift();
                 }
-                if (target.type == 'identifier') {
+                if (target.type == 'id') {
                     node.outputs.push(target.value);
                 }
                 if (target.type == 'tuple') {
@@ -1355,13 +1464,13 @@ torchscript.GraphContext = class {
     }
 
     _attributeExpression(expression) {
-        if (expression.type == 'identifier') {
-            if (this._numToTensorMap[expression.value]) {
-                return { type: 'number', value: this._numToTensorMap[expression.value] };
+        if (expression.type == 'id') {
+            if (this._state[expression.value]) {
+                return this._state[expression.value];
             }
         }
         if (expression.type == 'call' && 
-            expression.target.type == 'identifier' &&
+            expression.target.type == 'id' &&
             expression.target.value == 'int' &&
             expression.arguments.length == 1) {
             let replace = this._attributeExpression(expression.arguments[0]);
@@ -1374,7 +1483,8 @@ torchscript.GraphContext = class {
 
     _attributeStatement(statement) {
         if (statement.type == '=' &&
-            statement.target.type == 'identifier') { 
+            statement.target.type == 'id') { 
+            // _0 = ops.prim.NumToTensor(...)
             if (statement.expression.type == 'call' &&
                 this._name(statement.expression.target) == 'ops.prim.NumToTensor' && 
                 statement.expression.arguments.length == 1) {
@@ -1382,37 +1492,63 @@ torchscript.GraphContext = class {
                 if (size.type == 'call' &&
                     size.arguments.length == 2 &&
                     this._name(size.target) == 'torch.size' &&
-                    size.arguments[0].type == 'identifier' &&
+                    size.arguments[0].type == 'id' &&
                     size.arguments[1].type == 'number') {
-                    this._numToTensorMap[statement.target.value] = this._name(size.target) + '(' + size.arguments.map((a) => a.value.toString()).join(',') + ')';
+                    this._state[statement.target.value] = this._name(size.target) + '(' + size.arguments.map((a) => a.value.toString()).join(',') + ')';
                     return true;
                 }
-                if (size.type == 'identifier') {
-                    let duplicate1 = this._numToTensorMap[size.value];
+                if (size.type == 'id') {
+                    let duplicate1 = this._state[size.value];
                     if (duplicate1) {
-                        this._numToTensorMap[statement.target.value] = duplicate1;
+                        this._state[statement.target.value] = duplicate1;
                         return true;
                     }
                 }
             }
+            // stride = ops.prim.unchecked_unwrap_optional(_127)
+            if (statement.expression.type == 'call' &&
+                this._name(statement.expression.target) == 'ops.prim.unchecked_unwrap_optional' && 
+                statement.expression.arguments.length == 1) {
+                let target = statement.expression.arguments[0];
+                if (target && target.type == 'id' && this._state[target.value]) {
+                    target = this._state[target.value];
+                }
+                this._state[statement.target.value] = target;
+                return true;
+            }
+            // _0 = torch.size(... , ...)
             if (statement.expression.type == 'call' &&
                 statement.expression.arguments.length == 2 &&
                 this._name(statement.expression.target) == 'torch.size' &&
-                statement.expression.arguments[0].type == 'identifier' &&
+                statement.expression.arguments[0].type == 'id' &&
                 statement.expression.arguments[1].type == 'number') {
-                this._numToTensorMap[statement.target.value] = this._name(statement.expression.target) + '(' + statement.expression.arguments.map((a) => a.value.toString()).join(',') + ')';
+                this._state[statement.target.value] = this._name(statement.expression.target) + '(' + statement.expression.arguments.map((a) => a.value.toString()).join(',') + ')';
                 return true;
             }
+            // _0 = int(...)
             if (statement.expression.type == 'call' &&
-                statement.expression.target.type == 'identifier' &&
+                statement.expression.target.type == 'id' &&
                 statement.expression.target.value == 'int' &&
                 statement.expression.arguments.length == 1 &&
-                statement.expression.arguments[0].type == 'identifier') {
-                let duplicate2 = this._numToTensorMap[statement.expression.arguments[0].value];
+                statement.expression.arguments[0].type == 'id') {
+                let duplicate2 = this._state[statement.expression.arguments[0].value];
                 if (duplicate2) {
-                    this._numToTensorMap[statement.target.value] = duplicate2;
+                    this._state[statement.target.value] = duplicate2;
                     return true;
                 }
+            }
+            // _268 = torch.__isnot__(_267, None)
+            if (statement.expression.type == 'call' &&
+                statement.expression.arguments.length == 2 &&
+                this._name(statement.expression.target) == 'torch.__isnot__' &&
+                statement.expression.arguments.length == 2 &&
+                statement.expression.arguments[0].type == 'id' &&
+                statement.expression.arguments[1].type == 'id' &&
+                statement.expression.arguments[1].value == 'None') {
+                this._state[statement.target.value] = torchscript.Graph._isTensor(this._state[statement.expression.arguments[0].value]) ?
+                    { 'type': 'id', 'value': 'True' } :
+                    { 'type': 'id', 'value': 'False' };
+                return true;
             }
         }
         return false;
@@ -1444,7 +1580,7 @@ torchscript.GraphContext = class {
             }
         }
         if (expression.type == 'call' && 
-            expression.target.type == 'identifier' && expression.target.value == 'getattr' && expression.arguments.length == 2) {
+            expression.target.type == 'id' && expression.target.value == 'getattr' && expression.arguments.length == 2) {
             let module = this._module(expression.arguments[0]);
             if (!module) {
                 return null;
@@ -1460,7 +1596,7 @@ torchscript.GraphContext = class {
                 }
             }
         }
-        if (expression.type == 'identifier') {
+        if (expression.type == 'id') {
             if (expression.value == 'self') {
                 return this._mainModule;
             }
@@ -1474,7 +1610,7 @@ torchscript.GraphContext = class {
 
     _moduleStatement(statement) {
         if (statement.type == '=' && 
-            statement.target.type === 'identifier') {
+            statement.target.type === 'id') {
             let moduleName = statement.target.value;
             let module = this._module(statement.expression);
             if (module) {
@@ -1487,7 +1623,7 @@ torchscript.GraphContext = class {
 
     _argumentExpression(expression, target) {
         expression = this._moduleTensor(expression);
-        if (expression.type === '.' && expression.member.type == 'identifier') {
+        if (expression.type === '.' && expression.member.type == 'id') {
             let targetModule = this._module(expression.target);
             if (targetModule) {
                 if (targetModule.parameters) {
@@ -1496,6 +1632,7 @@ torchscript.GraphContext = class {
                         if (parameter.name === expression.member.value) {
                             parameter.__outputs__ = parameter.__outputs__ || [];
                             parameter.__outputs__.push(target.value);
+                            // TODO this._state[target.value] = parameter;
                             return true;
                         }
                     }
@@ -1506,6 +1643,7 @@ torchscript.GraphContext = class {
                         if (attribute.name === expression.member.value) {
                             attribute.__outputs__ = attribute.__outputs__ || [];
                             attribute.__outputs__.push(target.value);
+                            // TODO this._state[target.value] = attribute;
                             return true;
                         }
                     }
@@ -1515,6 +1653,7 @@ torchscript.GraphContext = class {
                     obj.__module__ = targetModule;
                     obj.__outputs__ = obj.__outputs__ || [];
                     obj.__outputs__.push(target.value);
+                    this._state[target.value] = obj;
                     return true;
                 }
             }
@@ -1523,25 +1662,65 @@ torchscript.GraphContext = class {
     }
 
     _argumentStatement(statement) {
-        if (statement.type === '=' && statement.target.type === 'identifier') {
+        if (statement.type === '=' && 
+            statement.target.type === 'id') {
+            // _1 = self.conv1
             if (this._argumentExpression(statement.expression, statement.target)) {
                 return true;
             }
-            if (statement.target.type == 'identifier' &&
+            if (statement.target.type == 'id' &&
                 statement.expression.type == 'list') {
-                this._argumentMap[statement.target.value] = statement.expression;
+                this._state[statement.target.value] = statement.expression;
                 return true;
             }
+            // _0 = "Implicit dimension choice for {} has been deprecated. Change the call to include dim=X as an argument."
+            if (statement.expression.type == 'string') {
+                this._state[statement.target.value] = statement.expression;
+                return true;
+            }
+            // _3 = uninitialized(Tensor)
+            if (statement.expression.type == 'call' &&
+                statement.expression.target.type == 'id' &&
+                statement.expression.target.value == 'uninitialized') {
+                this._state[statement.target.value] = statement.expression;
+                return true;
+            }
+        }
+        // _4, _5 = False, _3
+        if (statement.type === '=' &&
+            statement.target.type === 'tuple' &&
+            statement.expression.type === 'tuple' &&
+            statement.target.value.length == statement.expression.value.length) {
+            for (let i = 0; i < statement.target.value.length; i++) {
+                const target = statement.target.value[i];
+                const expression = statement.expression.value[i];
+                if (target.type == 'id' && expression.type == 'id' && (expression.value == 'False' || expression.value == 'True')) {
+                    this._state[target.value] = expression;
+                    continue;
+                }
+                if (this._argumentExpression(expression, target)) {
+                    continue;
+                }
+            }
+            return true;
+        }
+        // _5 = False
+        if (statement.type === '=' &&
+            statement.target.type === 'id' &&
+            statement.expression.type === 'id' &&
+            (statement.expression.value === 'False' || statement.expression.value === 'True')) {
+            this._state[statement.target.value] = statement.expression;
+            return true;
         }
         return false;
     }
 
     _variable() {
-        return { type: 'identifier', value: '_gen' + Math.random().toString(36).substring(7) };
+        return { type: 'id', value: '_gen' + Math.random().toString(36).substring(7) };
     }
 
     _name(expression) {
-        if (expression.type == 'identifier') {
+        if (expression.type == 'id') {
             return expression.value;
         }
         if (expression.type == '.') {
