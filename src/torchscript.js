@@ -1131,10 +1131,11 @@ torchscript.GraphContext = class {
                     if (this._body.length >= 2) {
                         let returnStatement = this._body[this._body.length - 1];
                         let assignStatement = this._body[this._body.length - 2];
-                        if (returnStatement.type == 'return' && 
-                            returnStatement.expression.type == 'identifier' &&
-                            assignStatement.target.type == 'identifier' &&
-                            assignStatement.target.value == returnStatement.expression.value) {
+                        if (returnStatement.type === 'return' && 
+                            returnStatement.expression.type === 'identifier' &&
+                            assignStatement.type === '=' &&
+                            assignStatement.target.type === 'identifier' &&
+                            assignStatement.target.value === returnStatement.expression.value) {
                             returnStatement.expression = assignStatement.expression;
                             this._body.pop();
                             this._body.pop();
