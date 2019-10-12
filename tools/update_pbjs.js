@@ -5,15 +5,15 @@
 const fs = require('fs');
 const process = require('process');
 
-var pattern = process.argv[2];
-var file = process.argv[3];
-var variable = process.argv[4];
-var type = process.argv[5];
-var count = parseInt(process.argv[6]);
+const pattern = process.argv[2];
+const file = process.argv[3];
+const variable = process.argv[4];
+const type = process.argv[5];
+const count = parseInt(process.argv[6]);
 
-var arrayType = '';
-var dataViewMethod = '';
-var shift = 0;
+let arrayType = '';
+let dataViewMethod = '';
+let shift = 0;
 
 switch (type) {
     case 'float':
@@ -32,10 +32,10 @@ switch (type) {
         break;
 }
 
-var source = fs.readFileSync(file, 'utf-8');
+const source = fs.readFileSync(file, 'utf-8');
 
-var search = '';
-var replace = '';
+let search = '';
+let replace = '';
 
 switch (pattern) {
     case 'array':
@@ -122,14 +122,14 @@ replace = replace.split('$(arrayType)').join(arrayType);
 replace = replace.split('$(dataViewMethod)').join(dataViewMethod);
 replace = replace.split('$(shift)').join(shift);
 
-for (var i = 0; i < 8; i++) {
+for (let i = 0; i < 8; i++) {
 
     search = search.split('\n').map((line) => '    ' + line).join('\n');
     replace = replace.split('\n').map((line) => '    ' + line).join('\n');
 
-    var parts = source.split(search);
+    const parts = source.split(search);
     if (parts.length == (count + 1)) {
-        var target = parts.join(replace);
+        const target = parts.join(replace);
         fs.writeFileSync(file, target, 'utf-8');
         process.exit(0);
     }

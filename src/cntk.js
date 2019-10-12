@@ -150,9 +150,9 @@ cntk.Graph = class {
 
         let args = {};
         switch (version) {
-            case 1:
+            case 1: {
                 for (let name of Object.keys(obj.nodes)) {
-                    let node = obj.nodes[name];
+                    const node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue':
                             this._inputs.push(new cntk.Parameter(node.name, [ 
@@ -165,7 +165,7 @@ cntk.Graph = class {
                     }
                 }
                 for (let name of Object.keys(obj.nodes)) {
-                    let node = obj.nodes[name];
+                    const node = obj.nodes[name];
                     if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
                         this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
@@ -178,12 +178,13 @@ cntk.Graph = class {
                     }
                 }
                 break;
-            case 2:
-                var nodeMap = {};
+            }
+            case 2: {
+                let nodeMap = {};
                 for (let node of obj.primitive_functions) {
                     nodeMap[node.uid] = node;
                 }
-                var argumentNames = {};
+                let argumentNames = {};
                 for (let input of obj.inputs) {
                     let argument = new cntk.Argument(version, input);
                     args[input.uid] = argument;
@@ -226,6 +227,7 @@ cntk.Graph = class {
                     }
                 }
                 break;
+            }
             default:
                 throw new cntk.Error("Unsupported graph version '" + version + "'.");
         }
@@ -372,7 +374,7 @@ cntk.Node = class {
         let initializers = [];
 
         switch (version) {
-            case 1:
+            case 1: {
                 this._operator = obj.__type__;
                 this._name = obj.name;
                 for (let attributeName of Object.keys(obj)) {
@@ -388,9 +390,10 @@ cntk.Node = class {
                 });
                 outputs = [ new cntk.Argument(version, this._name) ];
                 break;
-            case 2:
+            }
+            case 2: {
                 this._name = obj.name || obj.uid || null;
-                var output = obj.uid;
+                const output = obj.uid;
                 if (obj.op == 57) {
                     this._operator = 'Block';
                     if (obj.block_function_op_name) {
@@ -435,6 +438,8 @@ cntk.Node = class {
                 }
                 outputs.push(new cntk.Argument(version, output + '_Output_0'));
                 inputs = inputs.concat(initializers);
+                break;
+            }
         }
 
         let inputIndex = 0;
@@ -1374,9 +1379,10 @@ cntk_v1.Matrix = class {
     constructor(reader) {
         let type = reader.byte();
         switch (type) {
-            case 100: // dense
+            case 100: { 
+                // dense
                 reader.assert('BMAT');
-                var elsize = reader.uint64();
+                const elsize = reader.uint64();
                 this.name = reader.string();
                 this.format = reader.uint32();
                 this.rows = reader.uint64();
@@ -1384,6 +1390,7 @@ cntk_v1.Matrix = class {
                 reader.bytes(elsize * this.rows * this.columns);
                 reader.assert('EMAT');
                 break;
+            }
             case 115: // sparse
                 throw new cntk_v1.Error('Matrix sparse type not implemented.');
             default:

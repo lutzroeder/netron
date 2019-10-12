@@ -1017,20 +1017,24 @@ onnx.Tensor = class {
         }
         switch (type.value) {
             case 'tensor_type':
-            case 'sparse_tensor_type':
-                var shape = [];
+            case 'sparse_tensor_type': {
+                let shape = [];
                 if (type.tensor_type.shape && type.tensor_type.shape.dim) {
                     shape = type.tensor_type.shape.dim.map((dim) => {
                         return dim.dim_param ? dim.dim_param : dim.dim_value;
                     });
                 }
                 return new onnx.TensorType(type.tensor_type.elem_type, new onnx.TensorShape(shape), denotation);
-            case 'map_type':
+            }
+            case 'map_type': {
                 return new onnx.MapType(type.map_type.key_type, onnx.Tensor._formatType(type.map_type.value_type, imageFormat), denotation);
-            case 'sequence_type':
+            }
+            case 'sequence_type': {
                 return new onnx.SequenceType(onnx.Tensor._formatType(type.sequence_type.elem_type, imageFormat), denotation);
-            case 'opaque_type':
+            }
+            case 'opaque_type': {
                 return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
+            }
         }
         return null;
     }

@@ -243,25 +243,29 @@ zip.Inflater = class {
         for (let position = 0; position < hlit + hdist;) {
             let symbol = reader.symbol(zip.Inflater._codeTree);
             switch (symbol) {
-                case 16:
-                    var prev = zip.Inflater._lengths[position - 1];
+                case 16: {
+                    const prev = zip.Inflater._lengths[position - 1];
                     for (length = reader.bits(2) + 3; length; length--) {
                         zip.Inflater._lengths[position++] = prev;
                     }
                     break;
-                case 17:
+                }
+                case 17: {
                     for (length = reader.bits(3) + 3; length; length--) {
                         zip.Inflater._lengths[position++] = 0;
                     }
                     break;
-                case 18:
+                }
+                case 18: {
                     for (length = reader.bits(7) + 11; length; length--) {
                         zip.Inflater._lengths[position++] = 0;
                     }
                     break;
-                default:
+                }
+                default: {
                     zip.Inflater._lengths[position++] = symbol;
                     break;
+                }
             }
         }
         lengthTree.build(zip.Inflater._lengths, 0, hlit);

@@ -440,12 +440,12 @@ coreml.Graph = class {
         let result = '?';
         if (type) {
             switch (type.Type) {
-                case 'multiArrayType':
-                    var shape = new coreml.TensorShape([]);
+                case 'multiArrayType': {
+                    let shape = new coreml.TensorShape([]);
                     if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
                         shape = new coreml.TensorShape(type.multiArrayType.shape);
                     }
-                    var dataType = '?';
+                    let dataType = '?';
                     switch (type.multiArrayType.dataType) {
                         case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
                             dataType = 'float32';
@@ -459,21 +459,27 @@ coreml.Graph = class {
                     }
                     result = new coreml.TensorType(dataType, shape);
                     break;
-                case 'stringType':
+                }
+                case 'stringType': {
                     result = new coreml.TensorType('string');
                     break;
-                case 'doubleType':
+                }
+                case 'doubleType': {
                     result = new coreml.TensorType('float64');
                     break;
-                case 'int64Type':
+                }
+                case 'int64Type': {
                     result = new coreml.TensorType('int64');
                     break;
-                case 'dictionaryType':
+                }
+                case 'dictionaryType': {
                     result = new coreml.MapType(type.dictionaryType.KeyType.replace('KeyType', ''), 'float64');
                     break;
-                case 'imageType':
+                }
+                case 'imageType': {
                     result = new coreml.ImageType(type.imageType.colorSpace, type.imageType.width, type.imageType.height);
                     break;
+                }
             }
             if (type.isOptional) {
                 result = new coreml.OptionalType(result);

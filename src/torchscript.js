@@ -407,7 +407,7 @@ torchscript.Graph = class {
             if (module.__type__) {
                 for (let key of Object.keys(module)) {
                     if (torchscript.Graph._isTensor(module[key])) {
-                        var parameter = module[key];
+                        const parameter = module[key];
                         parameter.__name__ = key;
                         parameters.push(parameter);
                     }
@@ -1555,7 +1555,7 @@ torchscript.GraphContext = class {
     }
 
     _submodule(module, name) {
-        var obj = module[name];
+        const obj = module[name];
         if (obj && (!obj.__type__ || !obj.__type__.endsWith('Tensor'))) {
             return obj;
         }

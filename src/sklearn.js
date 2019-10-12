@@ -738,16 +738,18 @@ sklearn.Attribute = class {
             case '[object RegExp]':
             case '[object String]':
                 return '' + a === '' + b;
-            case '[object Number]':
+            case '[object Number]': {
                 if (+a !== +a) {
                     return +b !== +b;
                 }
                 return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+            }
             case '[object Date]':
-            case '[object Boolean]':
+            case '[object Boolean]': {
                 return +a === +b;
-            case '[object Array]':
-                var length = a.length;
+            }
+            case '[object Array]': {
+                let length = a.length;
                 if (length !== b.length) {
                     return false;
                 }
@@ -757,6 +759,7 @@ sklearn.Attribute = class {
                     }
                 }
                 return true;
+            }
         }
 
         let keys = Object.keys(a);

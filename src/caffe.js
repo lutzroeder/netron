@@ -418,13 +418,14 @@ caffe.Node = class {
         this._attributes = [];
 
         switch (version) {
-            case 0:
+            case 0: {
                 this._name = layer.layer.name;
                 this._type = layer.layer.type;
                 break;
-            case 1:
+            }
+            case 1: {
                 this._name = layer.name;
-                var typeIndex = layer.type;
+                const typeIndex = layer.type;
                 if (typeIndex === undefined) {
                     this._type = '?';
                 }
@@ -442,6 +443,7 @@ caffe.Node = class {
                     this._type = caffe.Node._operatorMap[typeIndex] || typeIndex.toString();
                 }
                 break;
+            }
             case 2:
                 this._name = layer.name;
                 this._type = layer.type;

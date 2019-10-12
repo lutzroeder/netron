@@ -110,11 +110,11 @@ torch.Graph = class {
         let subInputs;
         let subOutputs;
         switch (module.__type__) {
-            case 'nn.Sequential':
+            case 'nn.Sequential': {
                 groups.push(key);
                 subInputs = inputs;
                 subOutputs = [];
-                var length = module.modules.length;
+                const length = module.modules.length;
                 index = 0;
                 for (subModule of module.modules) {
                     if (index == length - 1) {
@@ -127,12 +127,13 @@ torch.Graph = class {
                 }
                 groups.pop();
                 break;
+            }
             case 'nn.Parallel':
             case 'nn.ParallelTable':
-            case 'nn.JointTrain':
+            case 'nn.JointTrain': {
                 groups.push(key);
-                var newInputs = [];
-                var newOutputs = [];
+                let newInputs = [];
+                let newOutputs = [];
                 index = 0;
                 for (subModule of module.modules) {
                     subInputs = [].concat(inputs);
@@ -152,13 +153,14 @@ torch.Graph = class {
                 }
                 groups.pop();
                 break;
+            }
             case 'nn.Concat':
-            case 'nn.ConcatTable':
-                var prefix = key;
+            case 'nn.ConcatTable': {
+                const prefix = key;
                 if (inputs.length == 0) {
                     inputs.push(new torch.Argument(groups.join('/') + ':' + key + ':in', null, null));
                 }
-                var concatInputs = [];
+                let concatInputs = [];
                 index = 0;
                 for (subModule of module.modules) {
                     let streamInputs = inputs.map((input) => input);
@@ -171,16 +173,19 @@ torch.Graph = class {
                 delete module.dimension;
                 this._createNode(metadata, module, groups, key, concatInputs, outputs);
                 break;
-            case 'nn.Inception':
+            }
+            case 'nn.Inception': {
                 delete module.modules; // TODO
                 delete module.module; // TODO
                 delete module.transfer; // TODO
                 delete module.pool; // TODO
                 this._createNode(metadata, module, groups, key, inputs, outputs);
                 break;
-            default:
+            }
+            default: {
                 this._createNode(metadata, module, groups, key, inputs, outputs);
                 break;
+            }
         }
     }
 

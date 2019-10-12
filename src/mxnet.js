@@ -87,8 +87,8 @@ mxnet.ModelFactory = class {
                     return this._openModel(identifier, format, null, null, null, params, host);
                 }
             case 'mar':
-            case 'model':
-                var entries = new Map();
+            case 'model': {
+                let entries = new Map();
                 try {
                     for (let entry of context.entries) {
                         entries.set(entry.name, entry);
@@ -98,8 +98,8 @@ mxnet.ModelFactory = class {
                     throw new mxnet.Error('Failed to decompress ZIP archive. ' + err.message);
                 }
 
-                var manifestEntry = entries.get(entries.has('MANIFEST.json') ? 'MANIFEST.json' : 'MAR-INF/MANIFEST.json');
-                var rootFolder = '';
+                let manifestEntry = entries.get(entries.has('MANIFEST.json') ? 'MANIFEST.json' : 'MAR-INF/MANIFEST.json');
+                let rootFolder = '';
                 if (!manifestEntry) {
                     const folders = Array.from(entries.keys()).filter((name) => name.endsWith('/')).filter((name) => entries.get(name + 'MANIFEST.json'));
                     if (folders.length != 1) {
@@ -109,8 +109,8 @@ mxnet.ModelFactory = class {
                     manifestEntry = entries.get(rootFolder + 'MANIFEST.json');
                 }
 
-                var decoder = new TextDecoder('utf-8');
-                var manifest = null;
+                const decoder = new TextDecoder('utf-8');
+                let manifest = null;
                 try {
                     manifest = JSON.parse(decoder.decode(manifestEntry.data));
                 }
@@ -118,10 +118,10 @@ mxnet.ModelFactory = class {
                     throw new mxnet.Error('Failed to read manifest. ' + err.message);
                 }
 
-                var modelFormat = null;
-                var symbolEntry = null;
-                var signatureEntry = null;
-                var paramsEntry = null;
+                let modelFormat = null;
+                let symbolEntry = null;
+                let signatureEntry = null;
+                let paramsEntry = null;
                 if (manifest.Model) {
                     modelFormat = manifest.Model['Model-Format'];
                     if (modelFormat && modelFormat != 'MXNet-Symbolic') {
@@ -188,7 +188,7 @@ mxnet.ModelFactory = class {
                 if (paramsEntry) {
                     params = paramsEntry.data;
                 }
-                var signature = null;
+                let signature = null;
                 try {
                     if (signatureEntry) {
                         signature = JSON.parse(decoder.decode(signatureEntry.data));
@@ -206,6 +206,7 @@ mxnet.ModelFactory = class {
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     throw new mxnet.Error(message + " in '" + identifier + "'.");
                 }
+            }
             default:
                 throw new mxnet.Error('Unsupported file extension.');
         }

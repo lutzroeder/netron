@@ -30,22 +30,24 @@ numpy.Array = class {
             this._shape = header.shape;
             this._byteOrder = header.descr[0];
             switch (this._byteOrder) {
-                case '|':
+                case '|': {
                     this._dataType = header.descr.substring(1);
                     this._data = reader.bytes(reader.size - reader.position);
                     break;
+                }
                 case '>':
-                case '<':
+                case '<': {
                     if (header.descr.length !== 3) {
                         throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
                     }
                     this._dataType = header.descr.substring(1);
-                    var size = parseInt(header.descr[2]);
+                    let size = parseInt(header.descr[2]);
                     for (let dimension of this._shape) {
                         size *= dimension;
                     }
                     this._data = reader.bytes(size);
                     break;
+                }
                 default:
                     throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
             }

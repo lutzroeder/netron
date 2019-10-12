@@ -450,7 +450,7 @@ view.View = class {
                         if (node.group) {
                             let path = node.group.split('/');
                             while (path.length > 0) {
-                                var name = path.join('/');
+                                const name = path.join('/');
                                 path.pop();
                                 clusterParentMap[name] = path.join('/');
                             }
@@ -458,21 +458,21 @@ view.View = class {
                     }
                 }
 
-                var self = this;
+                const self = this;
                 for (let node of nodes) {
     
-                    var element = new grapher.NodeElement(this._host.document);
+                    let element = new grapher.NodeElement(this._host.document);
 
-                    var addNode = function(element, node, edges) {
+                    const addNode = function(element, node, edges) {
 
-                        var header =  element.block('header');
-                        var styles = [ 'node-item-operator' ];
-                        var category = node.category;
+                        let header =  element.block('header');
+                        let styles = [ 'node-item-operator' ];
+                        const category = node.category;
                         if (category) {
                             styles.push('node-item-operator-' + category.toLowerCase());
                         }
-                        var content = self.showNames && node.name ? node.name : node.operator;
-                        var tooltip = self.showNames && node.name ? node.operator : node.name;
+                        const content = self.showNames && node.name ? node.name : node.operator;
+                        const tooltip = self.showNames && node.name ? node.operator : node.name;
                         header.add(null, styles, content, tooltip, () => { 
                             self.showNodeProperties(node, null);
                         });
@@ -483,10 +483,10 @@ view.View = class {
                             });
                         }
 
-                        var initializers = [];
-                        var hiddenInitializers = false;
+                        let initializers = [];
+                        let hiddenInitializers = false;
                         if (self._showInitializers) {
-                            for (var input of node.inputs) {
+                            for (let input of node.inputs) {
                                 if (input.visible && input.arguments.length == 1 && input.arguments[0].initializer != null) {
                                     initializers.push(input);
                                 }
@@ -496,20 +496,20 @@ view.View = class {
                                 }
                             }
                         }
-                        var attributes = [];
+                        let attributes = [];
                         if (self.showAttributes && node.attributes) {
                             attributes = node.attributes.filter((attribute) => attribute.visible);
                         }
                         if (initializers.length > 0 || hiddenInitializers || attributes.length > 0) {
-                            var block = element.block('list');
+                            let block = element.block('list');
                             block.handler = () => {
                                 self.showNodeProperties(node);
                             };
-                            for (var initializer of initializers) {
-                                var argument = initializer.arguments[0];
-                                var type = argument.type;
-                                var shape = '';
-                                var separator = '';
+                            for (let initializer of initializers) {
+                                const argument = initializer.arguments[0];
+                                const type = argument.type;
+                                let shape = '';
+                                let separator = '';
                                 if (type &&
                                     type.shape && 
                                     type.shape.dimensions && 
@@ -529,9 +529,9 @@ view.View = class {
                                 block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
                             }
 
-                            for (var attribute of attributes) {
+                            for (let attribute of attributes) {
                                 if (attribute.visible) {
-                                    var attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
+                                    let attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
                                         attributeValue = attributeValue.substring(0, 25) + '\u2026';
                                     }
@@ -541,11 +541,11 @@ view.View = class {
                         }
 
                         if (edges) {
-                            var inputs = node.inputs;
-                            for (input of inputs) {
-                                for (argument of input.arguments) {
+                            const inputs = node.inputs;
+                            for (let input of inputs) {
+                                for (let argument of input.arguments) {
                                     if (argument.id != '' && !argument.initializer) {
-                                        var tuple = edgeMap[argument.id];
+                                        let tuple = edgeMap[argument.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
                                             edgeMap[argument.id] = tuple;
@@ -557,17 +557,17 @@ view.View = class {
                                     }
                                 }
                             }
-                            var outputs = node.outputs;
+                            let outputs = node.outputs;
                             if (node.chain && node.chain.length > 0) {
-                                var chainOutputs = node.chain[node.chain.length - 1].outputs;
+                                const chainOutputs = node.chain[node.chain.length - 1].outputs;
                                 if (chainOutputs.length > 0) {
                                     outputs = chainOutputs;
                                 }
                             }
                             for (let output of outputs) {
-                                for (argument of output.arguments) {
+                                for (let argument of output.arguments) {
                                     if (argument.id != '') {
-                                        tuple = edgeMap[argument.id];
+                                        let tuple = edgeMap[argument.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
                                             edgeMap[argument.id] = tuple;
@@ -583,7 +583,7 @@ view.View = class {
                         }
     
                         if (node.chain && node.chain.length > 0) {
-                            for (var innerNode of node.chain) {
+                            for (let innerNode of node.chain) {
                                 addNode(element, innerNode, false);
                             }
                         }
@@ -596,7 +596,7 @@ view.View = class {
                     addNode(element, node, true);
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        for (var controlDependency of node.controlDependencies) {
+                        for (let controlDependency of node.controlDependencies) {
                             let tuple = edgeMap[controlDependency];
                             if (!tuple) {
                                 tuple = { from: null, to: [] };
@@ -610,7 +610,7 @@ view.View = class {
                         }
                     }
 
-                    var nodeName = node.name;
+                    const nodeName = node.name;
                     if (nodeName) {
                         g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + nodeName });
                     }
@@ -619,11 +619,11 @@ view.View = class {
                         id++;
                     }
             
-                    var createCluster = function(name) {
+                    const createCluster = function(name) {
                         if (!clusterMap[name]) {
                             g.setNode(name, { rx: 5, ry: 5});
                             clusterMap[name] = true;
-                            var parent = clusterParentMap[name];
+                            const parent = clusterParentMap[name];
                             if (parent) {
                                 createCluster(parent);
                                 g.setParent(name, parent);
@@ -632,10 +632,10 @@ view.View = class {
                     }
     
                     if (groups) {
-                        var groupName = node.group;
+                        let groupName = node.group;
                         if (groupName && groupName.length > 0) {
                             if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
-                                var lastIndex = groupName.lastIndexOf('/');
+                                const lastIndex = groupName.lastIndexOf('/');
                                 if (lastIndex != -1) {
                                     groupName = groupName.substring(0, lastIndex);
                                     if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
@@ -765,11 +765,11 @@ view.View = class {
                     let inputElements = graphElement.getElementsByClassName('graph-input');
 
                     switch (this._host.environment('zoom')) {
-                        case 'scroll':
-                            var size = graphElement.getBBox();
-                            var margin = 100;
-                            var width = Math.ceil(margin + size.width + margin);
-                            var height = Math.ceil(margin + size.height + margin);
+                        case 'scroll': {
+                            const size = graphElement.getBBox();
+                            let margin = 100;
+                            const width = Math.ceil(margin + size.width + margin);
+                            const height = Math.ceil(margin + size.height + margin);
                             originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
                             backgroundElement.setAttribute('width', width);
                             backgroundElement.setAttribute('height', height);
@@ -792,8 +792,9 @@ view.View = class {
                                 // this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
                             }
                             break;
-                        case 'd3':
-                            var svgSize = graphElement.getBoundingClientRect();
+                        }
+                        case 'd3': {
+                            const svgSize = graphElement.getBoundingClientRect();
                             if (inputElements && inputElements.length > 0) {
                                 // Center view based on input elements
                                 let xs = [];
@@ -814,6 +815,7 @@ view.View = class {
                                 this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
                             }
                             break;
+                        }
                     }
                     return;
                 });
@@ -1042,10 +1044,10 @@ class ModelContext {
             try {
                 let reader = null;
                 switch (extension) {
-                    case 'pbtxt':
-                        var b = this.buffer;
-                        var length = b.length;
-                        var signature = 
+                    case 'pbtxt': {
+                        let b = this.buffer;
+                        const length = b.length;
+                        const signature = 
                             (length >= 3 && b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) ||
                             (length >= 4 && b[0] === 0x00 && b[1] === 0x00 && b[2] === 0xfe && b[3] === 0xff) ||
                             (length >= 4 && b[0] === 0xff && b[1] === 0xfe && b[2] === 0x00 && b[3] === 0x00) ||
@@ -1063,10 +1065,11 @@ class ModelContext {
                             reader.skip();
                         }
                         break;
-                    case 'pb':
+                    }
+                    case 'pb': {
                         reader = new protobuf.Reader.create(this.buffer);
                         while (reader.pos < reader.len) {
-                            let tagType = reader.uint32();
+                            const tagType = reader.uint32();
                             tags.set(tagType >>> 3, tagType & 7);
                             try {
                                 reader.skipType(tagType & 7);
@@ -1077,6 +1080,7 @@ class ModelContext {
                             }
                         }
                         break;
+                    }
                 }
             }
             catch (error) {
@@ -1225,8 +1229,8 @@ view.ModelFactoryService = class {
     _openArchive(context) {
         let archive = null;
         let extension;
-        var identifier = context.identifier;
-        var buffer = context.buffer;
+        let identifier = context.identifier;
+        let buffer = context.buffer;
 
         try {
             extension = identifier.split('.').pop().toLowerCase();
@@ -1256,16 +1260,18 @@ view.ModelFactoryService = class {
         try {
             extension = identifier.split('.').pop().toLowerCase();
             switch (extension) {
-                case 'tar':
+                case 'tar': {
                     // handle .pth.tar
-                    var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+                    const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
                     if (!buffer || buffer.length < 14 || buffer[0] != 0x80 || !torch.every((v, i) => v == buffer[i + 2])) {
                         archive = new tar.Archive(buffer);
                     }
                     break;
-                case 'zip':
+                }
+                case 'zip': {
                     archive = new zip.Archive(buffer);
                     break;
+                }
             }
         }
         catch (error) {
@@ -1279,7 +1285,7 @@ view.ModelFactoryService = class {
         }
 
         try {
-            var folders = {};
+            let folders = {};
             for (let entry of archive.entries) {
                 if (entry.name.indexOf('/') != -1) {
                     folders[entry.name.split('/').shift() + '/'] = true;
@@ -1291,27 +1297,27 @@ view.ModelFactoryService = class {
             if (extension == 'tar') {
                 delete folders['PaxHeader/'];
             }
-            var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
+            let rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
             rootFolder = rootFolder == '/' ? '' : rootFolder;
-            var matches = [];
-            var entries = archive.entries.slice();
-            var sourceContext = context;
-            var nextEntry = () => {
+            let matches = [];
+            let entries = archive.entries.slice();
+            const sourceContext = context;
+            const nextEntry = () => {
                 if (entries.length > 0) {
-                    var entry = entries.shift();
+                    const entry = entries.shift();
                     if (entry.name.startsWith(rootFolder)) {
-                        var identifier = entry.name.substring(rootFolder.length);
+                        const identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            var context = new ModelContext(new ArchiveContext(null, rootFolder, entry.name, entry.data));
-                            var modules = this._filter(context);
-                            var nextModule = () => {
+                            const context = new ModelContext(new ArchiveContext(null, rootFolder, entry.name, entry.data));
+                            let modules = this._filter(context);
+                            const nextModule = () => {
                                 if (modules.length > 0) {
-                                    var id = modules.shift();
+                                    const id = modules.shift();
                                     return this._host.require(id).then((module) => {
                                         if (!module.ModelFactory) {
                                             throw new ArchiveError("Failed to load module '" + id + "'.", null);
                                         }
-                                        var factory = new module.ModelFactory();
+                                        const factory = new module.ModelFactory();
                                         if (factory.match(context)) {
                                             matches.push(entry);
                                             modules = [];
@@ -1343,7 +1349,7 @@ view.ModelFactoryService = class {
                             return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
                         }
                     }
-                    var match = matches[0];
+                    const match = matches[0];
                     return Promise.resolve(new ModelContext(new ArchiveContext(archive.entries, rootFolder, match.name, match.data)));
                 }
             };
@@ -1356,7 +1362,7 @@ view.ModelFactoryService = class {
 
     accept(identifier) {
         identifier = identifier.toLowerCase();
-        for (var extension of this._extensions) {
+        for (let extension of this._extensions) {
             if (identifier.endsWith(extension.extension)) {
                 return true;
             }
@@ -1371,10 +1377,10 @@ view.ModelFactoryService = class {
     }
 
     _filter(context) {
-        var moduleList = [];
-        var moduleMap = {};
-        var identifier = context.identifier.toLowerCase();
-        for (var extension of this._extensions) {
+        let moduleList = [];
+        let moduleMap = {};
+        const identifier = context.identifier.toLowerCase();
+        for (let extension of this._extensions) {
             if (identifier.endsWith(extension.extension)) {
                 if (!moduleMap[extension.id]) {
                     moduleList.push(extension.id);

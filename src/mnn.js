@@ -80,7 +80,7 @@ mnn.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        var inputSet = new Set();
+        let inputSet = new Set();
         for (let i = 0; i < net.oplistsLength(); i++) {
             const op = net.oplists(i);
             if (mnn.schema.OpTypeName[op.type()] === 'Input') {
@@ -307,7 +307,7 @@ mnn.Node = class {
             }
 
             if (parameter[attributeName] && typeof parameter[attributeName] == 'function') {
-                var value = null;
+                let value = null;
                 if (attributeArrayNamesMap[attributeName]) {
                     let array = [];
                     const length = parameter[attributeName + 'Length']();
@@ -334,8 +334,8 @@ mnn.Node = class {
     
     static _findParameterClassName(opParameterObject) {
         const keys = Object.getOwnPropertyNames(mnn.schema);
-        for (var key of keys) {
-            var cls = mnn.schema[key];
+        for (let key of keys) {
+            const cls = mnn.schema[key];
             if (typeof cls === "function" && opParameterObject instanceof cls) {
                 return key;
             }
@@ -527,7 +527,7 @@ mnn.Tensor = class {
         if (shape.length == 0) {
             shape = [ 1 ];
         }
-        var results = [];
+        let results = [];
         let size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {

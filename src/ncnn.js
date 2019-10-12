@@ -189,7 +189,7 @@ ncnn.Graph = class {
             throw new ncnn.Error('Invalid signature.')
         }
         const layerCount = reader.int32();
-        /* var blobCount = */ reader.int32();
+        /* const blobCount = */ reader.int32();
         let layers = [];
         for (let i = 0; i < layerCount; i++) {
             let layer = {};
@@ -375,7 +375,7 @@ ncnn.Node = class {
         let scale_data_size;
         let bias_data_size;
         switch (this._operator) {
-            case 'BatchNorm':
+            case 'BatchNorm': {
                 channels = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'slope', [ channels ], 'float32');
                 this._weight(blobReader, 'mean', [ channels ], 'float32');
@@ -383,7 +383,8 @@ ncnn.Node = class {
                 this._weight(blobReader, 'bias', [ channels ], 'float32');
                 blobReader.next();
                 break;
-            case 'InnerProduct':
+            }
+            case 'InnerProduct': {
                 num_output = parseInt(layer.attr['0'] || 0, 10);
                 weight_data_size = parseInt(layer.attr['2'] || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / num_output ]);
@@ -392,12 +393,14 @@ ncnn.Node = class {
                 }
                 blobReader.next();
                 break;
-            case 'Bias':
+            }
+            case 'Bias': {
                 bias_data_size = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 blobReader.next();
                 break;
-            case 'Embed':
+            }
+            case 'Embed': {
                 num_output = parseInt(layer.attr['0'] || 0, 10);
                 weight_data_size = parseInt(layer.attr['3'] || 0, 10);
                 this._weight(blobReader, 'weight', [ weight_data_size ]);
@@ -406,13 +409,14 @@ ncnn.Node = class {
                 }
                 blobReader.next();
                 break;
+            }
             case 'Convolution':
             case 'ConvolutionDepthWise':
             case 'Deconvolution':
-            case 'DeconvolutionDepthWise':
+            case 'DeconvolutionDepthWise': {
                 num_output = parseInt(layer.attr['0'] || 0, 10);
-                var kernel_w = parseInt(layer.attr['1'] || 0, 10);
-                var kernel_h = parseInt(layer.attr['1'] || kernel_w, 10);
+                const kernel_w = parseInt(layer.attr['1'] || 0, 10);
+                const kernel_h = parseInt(layer.attr['1'] || kernel_w, 10);
                 weight_data_size = parseInt(layer.attr['6'] || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
                 if (layer.attr['5'] == '1') {
@@ -420,27 +424,31 @@ ncnn.Node = class {
                 }
                 blobReader.next();
                 break;
-            case 'Dequantize':
+            }
+            case 'Dequantize': {
                 if (layer.attr['1'] == '1') {
                     bias_data_size = parseInt(layer.attr['2'] || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
                 blobReader.next();
                 break;
-            case 'Requantize':
+            }
+            case 'Requantize': {
                 if (layer.attr['2'] == '1') {
                     bias_data_size = parseInt(layer.attr['3'] || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
                 blobReader.next();
                 break;
-            case 'InstanceNorm':
+            }
+            case 'InstanceNorm': {
                 channels = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'gamma', [ channels ], 'float32');
                 this._weight(blobReader, 'beta', [ channels ], 'float32');
                 blobReader.next();
                 break;
-            case 'Scale':
+            }
+            case 'Scale': {
                 scale_data_size = parseInt(layer.attr['0'] || 0, 10);
                 if (scale_data_size != -233) {
                     this._weight(blobReader, 'scale', [ scale_data_size], 'float32');
@@ -450,16 +458,19 @@ ncnn.Node = class {
                     blobReader.next();
                 }
                 break;
-            case 'Normalize':
+            }
+            case 'Normalize': {
                 scale_data_size = parseInt(layer.attr['3'] || 0, 10);
                 this._weight(blobReader, 'scale', [ scale_data_size ], 'float32');
                 blobReader.next();
                 break;
-            case 'PReLU':
-                var num_slope = parseInt(layer.attr['0'] || 0, 10);
+            }
+            case 'PReLU': {
+                const num_slope = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'slope', [ num_slope ], 'float32');
                 blobReader.next();
                 break;
+            }
         }
     }
 

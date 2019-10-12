@@ -169,13 +169,13 @@ chainer.ModelFactory = class {
                         if (!entry.name.endsWith('.npy')) {
                             throw new chainer.Error("Invalid file name '" + entry.name + "'.");
                         }
-                        var id = entry.name.split('/');
+                        const id = entry.name.split('/');
                         if (id.length != 2) {
                             throw new chainer.Error("Invalid parameter name '" + entry.name + "'.");
                         }
-                        var moduleName = id[0];
-                        var parameterName = id[1].substring(0, id[1].length - 4);
-                        var module = null;
+                        const moduleName = id[0];
+                        const parameterName = id[1].substring(0, id[1].length - 4);
+                        let module = null;
                         if (map.has(id[0])) {
                             module = map.get(moduleName);
                         }
