@@ -50,6 +50,9 @@ caffe2.ModelFactory = class {
             }
             const tags = context.tags('pbtxt');
             if (tags.has('op')) {
+                if (context.identifier === 'ops.pbtxt' && context.text.indexOf('  attr {') !== -1) {
+                    return false;
+                }
                 return true;
             }
         }

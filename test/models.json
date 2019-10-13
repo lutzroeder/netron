@@ -845,6 +845,13 @@
   },
   {
     "type":   "caffe2",
+    "target": "ops/ops.pbtxt",
+    "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/core/ops/ops.pbtxt",
+    "error":  "Unsupported file content for extension '.pbtxt' in 'ops.pbtxt'.",
+    "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/ops/ops.pbtxt"
+  },
+  {
+    "type":   "caffe2",
     "target": "resnet50/predict_net.pb,resnet50/init_net.pb",
     "source": "https://s3.amazonaws.com/download.caffe2.ai/models/resnet50/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/resnet50/init_net.pb",
     "format": "Caffe2",
