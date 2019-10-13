@@ -89,7 +89,8 @@ mnn.Graph = class {
                     const index = op.outputIndexes(j);
                     const name = net.tensorName(index);
                     const extraTensorDescribe = net.extraTensorDescribe(index);
-                    const type = extraTensorDescribe ? mnn.Graph._blobTensorType(extraTensorDescribe.blob()) : null;
+                    const blob = extraTensorDescribe ? extraTensorDescribe.blob() : null;
+                    const type = blob ? mnn.Graph._blobTensorType(blob) : null;
                     args.push(new mnn.Argument(name, type, null))
                 }
                 this._inputs.push(new mnn.Parameter(op.name(), true, args))
@@ -107,7 +108,8 @@ mnn.Graph = class {
             if (!inputSet.has(i)) {
                 const name = net.tensorName(i);
                 const extraTensorDescribe = net.extraTensorDescribe(i);
-                const type = extraTensorDescribe ? mnn.Graph._blobTensorType(extraTensorDescribe.blob()) : null;
+                const blob = extraTensorDescribe ? extraTensorDescribe.blob() : null;
+                const type = blob ? mnn.Graph._blobTensorType(blob) : null;
                 this._outputs.push(new mnn.Parameter(name, true, [
                     new mnn.Argument(name, type, null)
                 ]));
@@ -195,7 +197,7 @@ mnn.Node = class {
         const parameterConstructor = mnn.schema[parameterType];
         if (typeof parameterConstructor === 'function') {
             const parameter = op.main(Reflect.construct(parameterConstructor, []));
-            if (parameter instanceof mnn.schema.Blob) {
+            if (parameter !== null && parameter instanceof mnn.schema.Blob) {
                 this._inputs.push(new mnn.Parameter('value', true, [
                     new mnn.Argument('', null, mnn.Node._blobTensor(parameter))
                 ]));
