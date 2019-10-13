@@ -332,6 +332,22 @@
     }
   },
   {
+    "name": "dropout_",
+    "schema": {
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "p", "type": "float64", "default": 0.5 },
+        { "name": "train", "type": "boolean", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "addmm",
     "schema": {
       "category": "Layer",

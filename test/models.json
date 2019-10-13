@@ -5020,6 +5020,13 @@
   },
   {
     "type":   "torchscript",
+    "target": "alexnet_traced.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
     "target": "cruise_cutin_vehicle_model.pt",
     "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_cutin_vehicle_model.pt?raw=true",
     "format": "TorchScript v1",
@@ -5034,7 +5041,7 @@
   },
   {
     "type":   "torchscript",
-    "target": "densenet121.pt",
+    "target": "densenet121_traced.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "render": "skip",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
@@ -5056,7 +5063,7 @@
   },
   {
     "type":   "torchscript",
-    "target": "inception_v3.pt",
+    "target": "inception_v3_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5077,15 +5084,22 @@
   },
   {
     "type":   "torchscript",
-    "target": "mobilenet_v2.pt",
+    "target": "mobilenet_v2_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "torchscript",
-    "target": "netron_issue_313.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3715300/netron_issue_313.zip[netron_issue_313.pt]",
+    "target": "netron_issue_313_v1.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/313"
+  },
+  {
+    "type":   "torchscript",
+    "target": "netron_issue_313_v2.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v2.pt]",
     "format": "TorchScript v1",
     "link":   "https://github.com/lutzroeder/netron/issues/313"
   },
@@ -5119,21 +5133,21 @@
   },
   {
     "type":   "torchscript",
-    "target": "resnet18.pt",
+    "target": "resnet18_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "torchscript",
-    "target": "resnet50.pt",
+    "target": "resnet50_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "torchscript",
-    "target": "squeezenet1_1.pt",
+    "target": "squeezenet1_1_traced.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
@@ -5161,7 +5175,7 @@
   },
   {
     "type":   "torchscript",
-    "target": "vgg16.pt",
+    "target": "vgg16_traced.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
