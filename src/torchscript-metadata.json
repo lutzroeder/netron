@@ -757,5 +757,37 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "_pack_padded_sequence",
+    "schema": {
+      "attributes": [
+        { "name": "batch_first", "type": "boolean" }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "lengths" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_pad_packed_sequence",
+    "schema": {
+      "attributes": [
+        { "name": "batch_first", "type": "boolean" },
+        { "name": "padding_value", "type": "float32" },
+        { "name": "total_length", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "data" },
+        { "name": "batch_sizes" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]

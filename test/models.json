@@ -5091,6 +5091,13 @@
   },
   {
     "type":   "torchscript",
+    "target": "mobilenet_v2.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
     "target": "mobilenet_v2_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
@@ -5140,6 +5147,13 @@
   },
   {
     "type":   "torchscript",
+    "target": "resnet18.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
     "target": "resnet18_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
@@ -5148,6 +5162,13 @@
   {
     "type":   "torchscript",
     "target": "resnet50_traced.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "resnet50.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5179,6 +5200,13 @@
     "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_pred_layer.pt?raw=true",
     "format": "TorchScript v1",
     "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "torchscript",
+    "target": "vgg16.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
   },
   {
     "type":   "torchscript",
