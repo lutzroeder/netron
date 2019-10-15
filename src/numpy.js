@@ -171,7 +171,7 @@ numpy.Array = class {
                         context.dataView.setInt32(context.position, data[i], littleEndian);
                         break;
                     case 'i8':
-                        context.data.set(data[i].toBytesLE(), context.position);
+                        context.data.set(data[i].toBytes(littleEndian), context.position);
                         break;
                     case 'u1':
                         context.dataView.setUint8(context.position, data[i], littleEndian);
