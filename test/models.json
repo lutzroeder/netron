@@ -5048,6 +5048,14 @@
   },
   {
     "type":   "torchscript",
+    "target": "densenet121.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "render": "skip",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "type":   "torchscript",
     "target": "densenet121_traced.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "render": "skip",
@@ -5067,6 +5075,13 @@
     "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_2.pt]",
     "format": "TorchScript v1",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
+    "target": "inception_v3.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "torchscript",
@@ -5172,6 +5187,21 @@
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "shufflenet_v2_x1_0.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "render": "skip",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "type":   "torchscript",
+    "target": "squeezenet1_1.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "status": "script"
   },
   {
     "type":   "torchscript",

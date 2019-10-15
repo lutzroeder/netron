@@ -682,6 +682,11 @@ python.Parser = class {
                     node.value = [ stack.pop() ];
                     stack.push(node);
                 }
+                // for, bar, = <expr>
+                if (this._tokenizer.peek().value === '=') {
+                    node.value.push({ type: 'id', value: '' });
+                    continue;
+                }
                 if (!this._tokenizer.match('=') && !terminalSet.has(this._tokenizer.peek().value)) {
                     let nextTerminal = terminal.slice(0).concat([ ',', '=' ]);
                     let expression = this._parseExpression(minPrecedence, nextTerminal, tuple);

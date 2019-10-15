@@ -132,7 +132,8 @@
         { "name": "stride", "type": "int64[]" },
         { "name": "padding", "type": "int64[]", "default": 0 },
         { "name": "ceil_mode", "type": "boolean", "default": false },
-        { "name": "count_include_pad", "type": "boolean", "default": true }
+        { "name": "count_include_pad", "type": "boolean", "default": true },
+        { "name": "divisor_override" }
       ],
       "outputs": [
         { "name": "output" }
@@ -151,7 +152,8 @@
         { "name": "stride", "type": "int64[]" },
         { "name": "padding", "type": "int64[]" },
         { "name": "ceil_mode", "type": "boolean", "default": false },
-        { "name": "count_include_pad", "type": "boolean", "default": true }
+        { "name": "count_include_pad", "type": "boolean", "default": true },
+        { "name": "divisor_override" }
       ],
       "outputs": [
         { "name": "output" }
@@ -422,7 +424,31 @@
     }
   },
   {
+    "name": "sub",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "div",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "floordiv",
     "schema": {
       "inputs": [
         { "name": "input" },
@@ -481,6 +507,21 @@
       "attributes": [
         { "name": "dim0", "type": "int64" },
         { "name": "dim1", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "chunk",
+    "schema": {
+      "attributes": [
+        { "name": "chunks", "type": "int64" },
+        { "name": "dim", "type": "int64", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" }
       ],
       "outputs": [
         { "name": "output" }
@@ -784,6 +825,22 @@
       "inputs": [
         { "name": "data" },
         { "name": "batch_sizes" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "quantize_per_tensor",
+    "schema": {
+      "attributes": [
+        { "name": "scale", "type": "float32" },
+        { "name": "zero_point", "type": "float32" },
+        { "name": "dtype" }
+      ],
+      "inputs": [
+        { "name": "input" }
       ],
       "outputs": [
         { "name": "output" }
