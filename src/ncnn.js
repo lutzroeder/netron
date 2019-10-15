@@ -29,6 +29,9 @@ ncnn.ModelFactory = class {
             }
         }
         if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
+            if (identifier == 'snapshot_blob.bin' || identifier === 'v8_context_snapshot.bin') {
+                return false;
+            }
             const buffer = context.buffer;
             if (buffer.length > 4) {
                 const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
