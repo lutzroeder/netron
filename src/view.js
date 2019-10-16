@@ -1211,13 +1211,24 @@ view.ModelFactoryService = class {
                         throw new ModelError(errors.map((err) => err.message).join('\n'));
                     }
                     const knownUnsupportedIdentifiers = new Set([
-                        'natives_blob.bin', 'v8_context_snapshot.bin', 'snapshot_blob.bin',
-                        'LICENSE.meta',
-                        'input_0.pb', 'output_0.pb',
+                        'natives_blob.bin', 
+                        'v8_context_snapshot.bin',
+                        'snapshot_blob.bin',
                         'image_net_labels.json',
-                        'imagenet_2012_challenge_label_map_proto.pbtxt', 'object-detection.pbtxt',
-                        'hand_label_map.pbtxt', 'label_map.pbtxt', 'labels_map.pbtxt', 'labelmap.pbtxt', 'mscoco_label_map.pbtxt',
-                        'package.json', 'models.json'
+                        'package.json',
+                        'models.json',
+                        'LICENSE.meta',
+                        'input_0.pb', 
+                        'output_0.pb',
+                        'face_label_map.pbtxt', 
+                        'hand_label_map.pbtxt',
+                        'imagenet_2012_challenge_label_map_proto.pbtxt', 
+                        'label_map.pbtxt',
+                        'labels_map.pbtxt',
+                        'labelmap.pbtxt',
+                        'mscoco_label_map.pbtxt',
+                        'object-detection.pbtxt',
+                        'training_label_map.pbtxt'
                     ]);
                     throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'.", !knownUnsupportedIdentifiers.has(context.identifier));
                 }
