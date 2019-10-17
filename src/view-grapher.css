@@ -77,8 +77,8 @@
 @media (prefers-color-scheme: dark) {
 
     .edge-label text { fill: #b2b2b2; }
-    .edge-path { stroke: #666666; }
-    #arrowhead-vee { fill: #666666; }
+    .edge-path { stroke: #888888; }
+    #arrowhead-vee { fill: #888888; }
 
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
@@ -132,8 +132,8 @@
 }
 
 .dark-mode .edge-label text { fill: #b2b2b2; }
-.dark-mode .edge-path { stroke: #666666; }
-.dark-mode #arrowhead-vee { fill: #666666; }
+.dark-mode .edge-path { stroke: #888888; }
+.dark-mode #arrowhead-vee { fill: #888888; }
 
 .dark-mode .node path { stroke: #1d1d1d; }
 .dark-mode .node line { stroke: #1d1d1d; }
