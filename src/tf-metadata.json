@@ -76504,13 +76504,16 @@
           "type": "shape[]"
         },
         {
+          "description": "The length of `input_datasets`",
           "minimum": 1,
           "name": "N",
           "type": "int64"
         }
       ],
+      "description": "The elements of the resulting dataset are created by zipping corresponding \nelements from each of the input datasets.\n\nThe size of the resulting dataset will match the size of the smallest input\ndataset, and no error will be raised if input datasets have different sizes.",
       "inputs": [
         {
+          "description": "List of `N` variant Tensors representing datasets to be zipped together.",
           "name": "input_datasets",
           "numberAttr": "N",
           "type": 21
