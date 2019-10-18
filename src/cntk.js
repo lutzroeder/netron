@@ -180,11 +180,10 @@ cntk.Graph = class {
                 break;
             }
             case 2: {
-                let nodeMap = {};
+                let nodeMap = new Map();
                 for (let node of obj.primitive_functions) {
-                    nodeMap[node.uid] = node;
+                    nodeMap.set(node.uid, node);
                 }
-                let argumentNames = {};
                 for (let input of obj.inputs) {
                     let argument = new cntk.Argument(version, input);
                     args[input.uid] = argument;
@@ -193,18 +192,17 @@ cntk.Graph = class {
                         let inputName = input.name || input.uid;
                         this._inputs.push(new cntk.Parameter(inputName, [ argument ]));
                     }
-                    argumentNames[input.uid] = input;
                 }
                 for (let block of obj.primitive_functions) {
                     if (block.op == 57 && block.block_function_composite) {
                         let list = [ block.block_function_composite.root ];
                         let nodes = [];
                         while (list.length > 0) {
-                            let name = list.shift();
-                            let node = nodeMap[name];
-                            if (node) {
+                            const name = list.shift();
+                            if (nodeMap.has(name)) {
+                                const node = nodeMap.get(name);
                                 nodes.push(new cntk.Node(metadata, version, node, args));
-                                nodeMap[name] = null;
+                                nodeMap.delete(name);
                                 for (let i = 0; i < node.inputs.length; i++) {
                                     let parts = node.inputs[i].split('_');
                                     if (parts.length >= 3) {
@@ -222,7 +220,7 @@ cntk.Graph = class {
                     }
                 }
                 for (let node of obj.primitive_functions) {
-                    if (nodeMap[node.uid]) {
+                    if (nodeMap.has(node.uid)) {
                         this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
                 }

@@ -45,12 +45,12 @@ chainer.ModelFactory = class {
                     let modules = [];
                     let map = new Map();
 
-                    let functionTable = {};
-                    let constructorTable = {};
-                    functionTable['_codecs.encode'] = function(obj /*, econding */) {
+                    let functionTable = new Map();
+                    let constructorTable = new Map();
+                    functionTable.set('_codecs.encode', function(obj /*, econding */) {
                         return obj;
-                    };
-                    constructorTable['numpy.core.multiarray._reconstruct'] = function(subtype, shape, dtype) {
+                    });
+                    constructorTable.set('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
                         this.subtype = subtype;
                         this.shape = shape;
                         this.dtype = dtype;
@@ -85,8 +85,8 @@ chainer.ModelFactory = class {
                             }
                             return array;
                         };
-                    };
-                    constructorTable['numpy.dtype'] = function(obj, align, copy) { 
+                    });
+                    constructorTable.set('numpy.dtype', function(obj, align, copy) { 
                         switch (obj) {
                             case 'i1': this.name = 'int8'; this.itemsize = 1; break;
                             case 'i2': this.name = 'int16'; this.itemsize = 2; break;
@@ -142,15 +142,15 @@ chainer.ModelFactory = class {
                                     throw new chainer.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                             }
                         };
-                    };
+                    });
                     let function_call = (name, args) => {
-                        const func = functionTable[name];
-                        if (func) {
+                        if (functionTable.has(name)) {
+                            const func = functionTable.get(name);
                             return func.apply(null, args);
                         }
                         let obj = { __type__: name };
-                        const constructor = constructorTable[name];
-                        if (constructor) {
+                        if (constructorTable.has(name)) {
+                            const constructor = constructorTable.get(name);
                             constructor.apply(obj, args);
                         }
                         else {

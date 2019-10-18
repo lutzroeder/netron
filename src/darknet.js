@@ -448,14 +448,14 @@ darknet.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
+        this._map = new Map();
+        this._attributeCache = new Map();
         if (data) {
             const items = JSON.parse(data);
             if (items) {
                 for (let item of items) {
                     if (item.name && item.schema) {
-                        this._map[item.name] = item.schema;
+                        this._map.set(item.name, item.schema);
                     }
                 }
             }
@@ -463,22 +463,22 @@ darknet.Metadata = class {
     }
 
     getSchema(operator) {
-        return this._map[operator] || null;
+        return this._map.get(operator) || null;
     }
 
     getAttributeSchema(operator, name) {
-        let map = this._attributeCache[operator];
+        let map = this._attributeCache.get(operator);
         if (!map) {
-            map = {};
+            map = new Map();
             let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (let attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+                    map.set(attribute.name, attribute);
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache.set(operator, map);
         }
-        return map[name] || null;
+        return map.get(name) || null;
     }
 };
 

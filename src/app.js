@@ -556,7 +556,7 @@ class View {
         this._owner = owner;
         this._ready = false;
         this._path = null;
-        this._properties = {};
+        this._properties = new Map();
 
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         let options = {};
@@ -687,11 +687,11 @@ class View {
             this._openPath = null;
             return;
         }
-        this._properties[name] = value;
+        this._properties.set(name, value);
     }
 
     get(name) {
-        return this._properties[name];
+        return this._properties.get(name);
     }
 
     on(event, callback) {
