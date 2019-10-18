@@ -1227,6 +1227,7 @@ view.ModelFactoryService = class {
                         'labels_map.pbtxt',
                         'labelmap.pbtxt',
                         'mscoco_label_map.pbtxt',
+                        'mscoco_complete_label_map.pbtxt',
                         'object-detection.pbtxt',
                         'training_label_map.pbtxt'
                     ]);
