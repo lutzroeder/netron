@@ -14,10 +14,18 @@ torchscript.ModelFactory = class {
     match(context) {
         const identifier = context.identifier; 
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'pt' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 't7' ||
+        if (extension == 'pt' || extension == 'pt1' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 't7' ||
             extension == 'dms' || extension == 'model' || extension == 'ckpt' || identifier.endsWith('.pth.tar')) {
-            if (torchscript.ModelFactory._openContainer(context.entries)) {
-                return true;
+            const entries = context.entries;
+            if (entries && entries.length > 0) {
+                const versionEntry = entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
+                if (versionEntry) {
+                    const prefix = versionEntry.name.substring(0, versionEntry.name.length - 7);
+                    if (entries.some((entry) => entry.name == prefix + 'model.json') ||
+                        entries.some((entry) => entry.name == prefix + 'data.pkl')) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -28,22 +36,10 @@ torchscript.ModelFactory = class {
             return host.require('./pickle').then((pickle) => {
                 const identifier = context.identifier;
                 try {
-                    let container = torchscript.ModelFactory._openContainer(context.entries);
-                    container.identifier = identifier;
-                    container.constants = torchscript.ModelFactory._unpickle(host, identifier, pickle, container.constants, torchscript.ModelFactory._storage(container, 'constants'));
-                    container.constants = (container.constants || []).map((tensor) => new torchscript.Tensor('pickle', tensor));
-                    container.data = torchscript.ModelFactory._unpickle(host, identifier, pickle, container.data, torchscript.ModelFactory._storage(container, 'data'));
-                    container.attributes = torchscript.ModelFactory._unpickle(host, identifier, pickle, container.attributes, null);
-                    const textDecoder = new TextDecoder('utf-8');
-                    if (container.version) {
-                        container.version = JSON.parse(textDecoder.decode(container.version));
-                    }
-                    if (container.model) {
-                        container.model = JSON.parse(textDecoder.decode(container.model));
-                    }
+                    let container = new torchscript.Container(context.identifier, context.entries, python, pickle);
                     return torchscript.Metadata.open(host).then((metadata) => {
                         try {
-                            return new torchscript.Model(metadata, host, python, container);
+                            return new torchscript.Model(metadata, host, container);
                         }
                         catch (error) {
                             host.exception(error, false);
@@ -62,189 +58,20 @@ torchscript.ModelFactory = class {
             });
         });
     }
-
-    static _openContainer(entries) {
-        if (entries && entries.length > 0) {
-            const version = entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
-            if (version) {
-                let container = {};
-                container.entries = entries;
-                container.prefix = version.name.substring(0, version.name.length - 7);
-                let find = (name) => {
-                    let entry = container.entries.find((entry) => entry.name == container.prefix + name);
-                    return entry ? entry.data : null;
-                }
-                // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
-                container.version = version.data;
-                container.attributes = find('attribtues.pkl');
-                container.constants = find('constants.pkl');
-                container.data = find('data.pkl');
-                container.model = find('model.json');
-                if (container.version && (container.model || container.data)) {
-                    return container;
-                }
-            }
-        }
-        return null;
-    }
-
-    static _storage(container, dirname) {
-        let map = new Map();
-        const prefix = container.prefix + dirname + '/';
-        for (let entry of container.entries) {
-            if (entry.name.startsWith(prefix)) {
-                const key = entry.name.substring(prefix.length);
-                map.set(key, entry.data);
-            }
-        }
-        return map;
-    }
-
-    static _unpickle(host, identifier, pickle, data, storage_map) {
-        if (!data) {
-            return null;
-        }
-        let functionTable = new Map();
-        functionTable.set('collections.OrderedDict', function(args) {
-            let obj = [];
-            obj.__setitem__ = function(key, value) {
-                obj.push({ key: key, value: value });
-            };
-            if (args) {
-                for (let arg of args) {
-                    obj.__setitem__(arg[0], arg[1]);
-                }
-            }
-            return obj;
-        });
-        functionTable.set('torch._utils._rebuild_tensor_v2', function(storage, storage_offset, size, stride, requires_grad, backward_hooks) {
-            return {
-                __type__: storage.__type__.replace('Storage', 'Tensor'),
-                storage: storage,
-                storage_offset: storage_offset,
-                size: size,
-                stride: stride,
-                requires_grad:requires_grad,
-                backward_hooks: backward_hooks
-            };
-        });
-        functionTable.set('torch._utils._rebuild_qtensor', function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
-            return {
-                __type__: storage.__type__.replace('Storage', 'Tensor'),
-                storage: storage,
-                storage_offset: storage_offset,
-                size: size,
-                stride: stride,
-                quantizer_params: quantizer_params,
-                requires_grad:requires_grad,
-                backward_hooks: backward_hooks
-            };
-        });
-        functionTable.set('torch.jit._pickle.build_intlist', function(data) {
-            return data;
-        });
-        let constructorTable = new Map();
-        constructorTable.set('torch.ByteStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
-        });
-        constructorTable.set('torch.CharStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 1; this.dataType = 'int8'; 
-        });
-        constructorTable.set('torch.ShortStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 2; this.dataType = 'int16';
-        });
-        constructorTable.set('torch.IntStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 4; this.dataType = 'int32';
-        });
-        constructorTable.set('torch.LongStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 8; this.dataType = 'int64';
-        });
-        constructorTable.set('torch.HalfStorage', function (size) {
-            this.size = size; this.dataTypeSize = 2; this.dataType = 'float16';
-        });
-        constructorTable.set('torch.FloatStorage', function (size) {
-            this.size = size; this.dataTypeSize = 4; this.dataType = 'float32';
-        });
-        constructorTable.set('torch.DoubleStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 8; this.dataType = 'float64';
-        });
-        constructorTable.set('torch.QInt8Storage', function (size) { 
-            this.size = size; this.dataTypeSize = 1; this.dataType = 'qint8';
-        });
-        let function_call = (name, args) => {
-            if (functionTable.has(name)) {
-                const func = functionTable.get(name);
-                return func.apply(null, args);
-            }
-            let obj = { __type__: name };
-            if (constructorTable.has(name)) {
-                const constructor = constructorTable.get(name);
-                constructor.apply(obj, args);
-            }
-            else if (!name.startsWith('__torch__.')) {
-                host.exception(new torchscript.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
-            }
-            return obj;
-        };
-        let deserialized_objects = new Map();
-        const persistent_load = (saved_id) => {
-            const typename = saved_id.shift();
-            if (typename !== 'storage') {
-                throw new torchscript.Error("Unknown persistent load type '" + typename + "'.");
-            }
-            const data_type = saved_id.shift();
-            const root_key = saved_id.shift();
-            saved_id.shift(); // location
-            const size = saved_id.shift();
-            let storage = null;
-            if (deserialized_objects.has(root_key)) {
-                storage = deserialized_objects.get(root_key);
-            }
-            else {
-                storage = function_call(data_type, [ size ]);
-                storage.data = storage_map.get(root_key);
-                deserialized_objects[root_key] = storage;
-            }
-            const view_metadata = saved_id.shift();
-            if (view_metadata) {
-                let view_key = view_metadata.shift();
-                view_metadata.shift(); // view_offset
-                view_metadata.shift(); // view_size
-                let view = deserialized_objects[view_key];
-                if (!view) {
-                    view = null; // storage.slice(view_offset, view_offset + view_size);
-                    deserialized_objects[view_key] = view;
-                }
-                return view;
-            }
-            return storage;
-        };
-        return new pickle.Unpickler(data).load(function_call, persistent_load);
-    }
 };
 
 torchscript.Model = class { 
 
-    constructor(metadata, host, python, container) {
+    constructor(metadata, host, container) {
         this._format = 'TorchScript v' + container.version.toString();
-        if (container.model) {
-            if (container.producerName) {
-                this._producer = container.producerName;
-                if (container.producerVersion) {
-                    this._producer = this._producer + ' v' + container.producerVersion;
-                }
-            }
-            if (container.model.tensors) {
-                container.tensors = container.model.tensors.map((tensor) => {
-                    const key = container.prefix + tensor.data.key;
-                    const entry = container.entries.find((entry) => entry.name == key);
-                    return new torchscript.Tensor('json', { tensor: tensor, data: entry.data });
-                });
-                container.constants = container.tensors;
+        if (container.model && container.model.producerName) {
+            this._producer = container.model.producerName;
+            if (container.model.producerVersion) {
+                this._producer = this._producer + ' v' + container.model.producerVersion;
             }
         }
         this._graphs = [];
-        this._graphs.push(new torchscript.Graph(metadata, host, python, container));
+        this._graphs.push(new torchscript.Graph(metadata, host, container));
     }
 
     get format() {
@@ -262,7 +89,7 @@ torchscript.Model = class {
 
 torchscript.Graph = class {
 
-    constructor(metadata, host, python, container) {
+    constructor(metadata, host, container) {
         if (container.model && container.model.mainModule) {
             this._name = container.model.mainModule.name;
         }
@@ -270,24 +97,25 @@ torchscript.Graph = class {
         this._outputs = [];
         this._nodes = [];
 
-        let mainModule = null;
+        let tensors = [];
+        let constants = [];
+
+        if (container.model && container.model.tensors) {
+            tensors = container.model.tensors.map((tensor) => {
+                return new torchscript.Tensor('json', tensor);
+            });
+        }
+
+        if (container.constants) {
+            constants = container.constants.map((tensor) => new torchscript.Tensor('pickle', tensor));
+        }
+        else {
+            constants = tensors;
+        }
+
         let context = null;
         try {
-            let script = '';
-            let namespaceName = null;
-            let className = null;
-            if (container.model && container.model.mainModule) {
-                mainModule = container.model.mainModule;
-                script = mainModule.torchscriptArena.key;
-            }
-            else if (container.data) {
-                mainModule = container.data;
-                const typeName = mainModule.__type__.split('.');
-                className = typeName.pop();
-                namespaceName = typeName.join('.');
-                script = 'code/' + typeName.join('/') + '.py';
-            }
-            context = new torchscript.GraphContext(container, python, mainModule, script, className, namespaceName);
+            context = new torchscript.GraphContext(container, constants);
         }
         catch (error) {
             let message = error && error.message ? error.message : error.toString();
@@ -327,7 +155,7 @@ torchscript.Graph = class {
                     for (let parameter of module.parameters) {
                         if (parameter.tensorId) {
                             let tensorId = parseInt(parameter.tensorId, 10);
-                            parameter.initializer = container.tensors[tensorId];
+                            parameter.initializer = tensors[tensorId];
                             if (parameter.__outputs__ && parameter.__outputs__.length == 1) {
                                 container.parameters[parameter.__outputs__[0]] = parameter;
                             }
@@ -338,7 +166,7 @@ torchscript.Graph = class {
                     for (let attribute of module.attributes) {
                         if (attribute.id) {
                             let attributeId = parseInt(attribute.id, 10);
-                            attribute.initializer = container.tensors[tensorMax + attributeId];
+                            attribute.initializer = tensors[tensorMax + attributeId];
                             if (attribute.__outputs__ && attribute.__outputs__.length == 1) {
                                 container.parameters[attribute.__outputs__[0]] = attribute;
                             }
@@ -400,7 +228,7 @@ torchscript.Graph = class {
         }
 
         if (container.model || container.data) {
-            this._loadModule(metadata, container, mainModule);
+            this._loadModule(metadata, container, container.model || container.data);
         }
     }
 
@@ -850,7 +678,7 @@ torchscript.Attribute = class {
 
 torchscript.Tensor = class {
 
-    constructor(format, data) {
+    constructor(format, tensor) {
         switch (format) {
             case 'json':
                 torchscript.Tensor._dataTypeMap = torchscript.Tensor._dataTypeMap || new Map([
@@ -860,16 +688,16 @@ torchscript.Tensor = class {
                     [ 'INT32', 'int32' ],
                     [ 'INT64', 'int64' ]
                 ]);
-                if (!torchscript.Tensor._dataTypeMap.has(data.tensor.dataType)) {
-                    throw new torchscript.Error("Unknown tensor data type '" + data.tensor.dataType + "'.");
+                if (!torchscript.Tensor._dataTypeMap.has(tensor.dataType)) {
+                    throw new torchscript.Error("Unknown tensor data type '" + tensor.dataType + "'.");
                 }
-                this._type = new torchscript.TensorType(torchscript.Tensor._dataTypeMap.get(data.tensor.dataType), new torchscript.TensorShape(data.tensor.dims));
-                this._name = data.tensor.data.key;
-                this._data = data.data;
+                this._type = new torchscript.TensorType(torchscript.Tensor._dataTypeMap.get(tensor.dataType), new torchscript.TensorShape(tensor.dims));
+                this._name = tensor.data.key;
+                this._data = tensor.storage;
                 break;
             case 'pickle':
-                this._type = new torchscript.TensorType(data.storage.dataType, new torchscript.TensorShape(data.size));
-                this._data = data.storage.data;
+                this._type = new torchscript.TensorType(tensor.storage.dataType, new torchscript.TensorShape(tensor.size));
+                this._data = tensor.storage.data;
                 break;
         }
         this._littleEndian = true;
@@ -1187,12 +1015,397 @@ torchscript.Utility = class {
     }
 }
 
+torchscript.Container = class {
+
+    constructor(identifier, entries, python, pickle) {
+        this._identifier = identifier;
+        this._entries = entries;
+        this._python = python;
+        this._pickle = pickle;
+        this._utf8Decoder = new TextDecoder('utf-8');
+        this._types = new Map();
+        this._packages = new Map();
+
+        // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
+        const versionEntry = this._entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
+        if (!versionEntry) {
+            throw new torchscript.Error('TorchScript container does not contain version signature.');
+        }
+        this._prefix = versionEntry.name.substring(0, versionEntry.name.length - 7);
+        this._version = JSON.parse(this._utf8Decoder.decode(versionEntry.data));
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get version() {
+        return this._version;
+    }
+
+    get data() {
+        if (this._data ===  undefined) {
+            this._data = null;
+            let entry = this._entries.find((entry) => entry.name == this._prefix + 'data.pkl');
+            if (entry) {
+                this._data = this._unpickle(entry.data, this._storage('data'));
+            }
+        }
+        return this._data;
+    }
+
+    get model() {
+        if (this._model === undefined) {
+            this._model = null;
+            let entry = this._entries.find((entry) => entry.name == this._prefix + 'model.json');
+            if (entry) {
+                this._model = JSON.parse(this._utf8Decoder.decode(entry.data))
+                let entries = new Map();
+                for (let entry of this._entries) {
+                    entries.set(entry.name, entry.data);
+                }
+                for (let tensor of this._model.tensors) {
+                    const key = this._prefix + tensor.data.key;
+                    tensor.storage = entries.get(key);
+                }
+            }
+        }
+        return this._model;
+    }
+
+    get attributes() {
+        if (this._attributes ===  undefined) {
+            this._attributes = null;
+            let entry = this._entries.find((entry) => entry.name == this._prefix + 'attributes.pkl');
+            if (entry) {
+                this._attributes = this._unpickle(entry.data, null);
+
+            }
+        }
+        return this._attributes;
+
+    }
+
+    get constants() {
+        if (this._constants ===  undefined) {
+            this._constants = null;
+            let entry = this._entries.find((entry) => entry.name == this._prefix + 'constants.pkl');
+            if (entry) {
+                this._constants = this._unpickle(entry.data, this._storage('constants'));
+            }
+        }
+        return this._constants;
+    }
+
+    parse(file) {
+        if (!this._packages.has(file)) {
+            const key = this._prefix + file;
+            const entries = this._entries.filter((e) => e.name === key);
+            if (entries.length === 1) {
+                const code = this._utf8Decoder.decode(entries[0].data);
+                const reader = new this._python.Parser(code);
+                const program = reader.parse();
+                this._packages.set(file, program);
+            }
+        }
+        return this._packages.get(file);
+    }
+
+    _storage(dirname) {
+        let map = new Map();
+        const prefix = this._prefix + dirname + '/';
+        for (let entry of this._entries) {
+            if (entry.name.startsWith(prefix)) {
+                const key = entry.name.substring(prefix.length);
+                map.set(key, entry.data);
+            }
+        }
+        return map;
+    }
+
+    _unpickle(data, storage_map) {
+        if (!data) {
+            return null;
+        }
+        let functionTable = new Map();
+        functionTable.set('collections.OrderedDict', function(args) {
+            let obj = [];
+            obj.__setitem__ = function(key, value) {
+                obj.push({ key: key, value: value });
+            };
+            if (args) {
+                for (let arg of args) {
+                    obj.__setitem__(arg[0], arg[1]);
+                }
+            }
+            return obj;
+        });
+        functionTable.set('torch._utils._rebuild_tensor_v2', function(storage, storage_offset, size, stride, requires_grad, backward_hooks) {
+            return {
+                __type__: storage.__type__.replace('Storage', 'Tensor'),
+                storage: storage,
+                storage_offset: storage_offset,
+                size: size,
+                stride: stride,
+                requires_grad:requires_grad,
+                backward_hooks: backward_hooks
+            };
+        });
+        functionTable.set('torch._utils._rebuild_qtensor', function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
+            return {
+                __type__: storage.__type__.replace('Storage', 'Tensor'),
+                storage: storage,
+                storage_offset: storage_offset,
+                size: size,
+                stride: stride,
+                quantizer_params: quantizer_params,
+                requires_grad:requires_grad,
+                backward_hooks: backward_hooks
+            };
+        });
+        functionTable.set('torch.jit._pickle.build_intlist', function(data) {
+            return data;
+        });
+        functionTable.set('torch.jit._pickle.build_tensorlist', function(data) {
+            return data;
+        });
+        let constructorTable = new Map();
+        constructorTable.set('torch.ByteStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
+        });
+        constructorTable.set('torch.CharStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 1; this.dataType = 'int8'; 
+        });
+        constructorTable.set('torch.ShortStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 2; this.dataType = 'int16';
+        });
+        constructorTable.set('torch.IntStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 4; this.dataType = 'int32';
+        });
+        constructorTable.set('torch.LongStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 8; this.dataType = 'int64';
+        });
+        constructorTable.set('torch.HalfStorage', function (size) {
+            this.size = size; this.dataTypeSize = 2; this.dataType = 'float16';
+        });
+        constructorTable.set('torch.FloatStorage', function (size) {
+            this.size = size; this.dataTypeSize = 4; this.dataType = 'float32';
+        });
+        constructorTable.set('torch.DoubleStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 8; this.dataType = 'float64';
+        });
+        constructorTable.set('torch.QInt8Storage', function (size) { 
+            this.size = size; this.dataTypeSize = 1; this.dataType = 'qint8';
+        });
+        let function_call = (name, args) => {
+            if (functionTable.has(name)) {
+                const func = functionTable.get(name);
+                return func.apply(null, args);
+            }
+            let obj = { __type__: name };
+            if (constructorTable.has(name)) {
+                const constructor = constructorTable.get(name);
+                constructor.apply(obj, args);
+                return obj;
+            }
+            const type = this.type(name);
+            if (type) {
+                // this._invoke(type.body.statements, obj, args);
+                return obj;
+            }
+            throw new torchscript.Error("Unknown function '" + name + "'.");
+        };
+        let deserialized_objects = new Map();
+        const persistent_load = (saved_id) => {
+            const typename = saved_id.shift();
+            if (typename !== 'storage') {
+                throw new torchscript.Error("Unknown persistent load type '" + typename + "'.");
+            }
+            const data_type = saved_id.shift();
+            const root_key = saved_id.shift();
+            saved_id.shift(); // location
+            const size = saved_id.shift();
+            let storage = null;
+            if (deserialized_objects.has(root_key)) {
+                storage = deserialized_objects.get(root_key);
+            }
+            else {
+                storage = function_call(data_type, [ size ]);
+                storage.data = storage_map.get(root_key);
+                deserialized_objects[root_key] = storage;
+            }
+            const view_metadata = saved_id.shift();
+            if (view_metadata) {
+                let view_key = view_metadata.shift();
+                view_metadata.shift(); // view_offset
+                view_metadata.shift(); // view_size
+                let view = deserialized_objects[view_key];
+                if (!view) {
+                    view = null; // storage.slice(view_offset, view_offset + view_size);
+                    deserialized_objects[view_key] = view;
+                }
+                return view;
+            }
+            return storage;
+        };
+        return new this._pickle.Unpickler(data).load(function_call, persistent_load);
+    }
+
+    type(name) {
+        if (!this._types.has(name)) {
+            let parts = name.split('.');
+            const className = parts.pop();
+            const file = 'code/' + parts.join('/') + '.py';
+            const program = this.parse(file);
+            if (program) {
+                for (let statement of program.body) {
+                    if (statement.type === 'class' && statement.name == className) {
+                        this._types.set(name, statement);
+                        break;
+                    }
+                }
+            }
+        }
+        return this._types.get(name);
+    }
+
+    _invoke(statements, obj, args) {
+        for (let statement of statements) {
+            switch (statement.type) {
+                case 'def': {
+                    const method = statement;
+                    const self = this;
+                    obj[statement.name] = function() {
+                        var locals = {};
+                        var args = Array.prototype.slice.call(arguments);
+                        for (let parameter of method.parameters) {
+                            if (parameter.name == 'self') {
+                                locals['self'] = obj;
+                            }
+                            else {
+                                locals[parameter.name] = args.shift();
+                            }
+                        }
+                        self._invoke(method.body.statements, obj, locals);
+                    }
+                    break;
+                }
+                case 'var':
+                    break;
+                default:
+                    this._statement(statement, obj, args);
+                    break;
+            }
+        }
+    }
+
+    _statement(statement, obj, locals) {
+        switch (statement.type) {
+            case '=':
+                this._expression(statement, obj, locals);
+                return;
+        }
+        throw new torchscript.Error("Unknown statement '" + statement + "'.");
+    }
+
+    _expression(expression, obj, locals) {
+        switch (expression.type) {
+            case '=': {
+                const target = expression.target;
+                if (target.type === 'id') {
+                    locals[target.value] = this._expression(expression.expression, obj, locals);
+                    return;
+                }
+                else if (target.type === '[]') {
+                    if (target.target.type === 'id' &&
+                        target.arguments.type === 'list' &&
+                        target.arguments.value.length === 1) {
+                        const index = this._expression(target.arguments.value[0], obj, locals);
+                        locals[target.target.value][index] = this._expression(expression.expression, obj, locals);
+                        return;
+                    }
+                }
+                else if (target.type === '.' && 
+                    target.member.type === 'id') {
+                    this._expression(target.target, obj, locals)[target.member.value] = this._expression(expression.expression, obj, locals);
+                    return;
+                }
+                else if (target.type === 'tuple') {
+                    const value = this._expression(expression.expression, obj, locals);
+                    if  (target.value.length == value.length && target.value.every((item) => item.type === 'id')) {
+                        for (let i = 0; i < value.length; i++) {
+                            locals[target.value[i].value] = value[i];
+                        }
+                        return;
+                    }
+                }
+                break;
+            }
+            case 'list': {
+                return expression.value.map((item) => this._expression(item, obj, locals));
+            }
+            case 'string': {
+                return expression.value.substring(1, expression.value.length - 1);
+            }
+            case 'number': {
+                return expression.value;
+            }
+            case '[]': {
+                if (expression.target.type === 'id' &&
+                    expression.arguments.type === 'list' &&
+                    expression.arguments.value.length === 1)  {
+                    const index = this._expression(expression.arguments.value[0], obj, locals);
+                    return locals[expression.target.value][index];
+                }
+                break;
+            }
+            case '.': {
+                const targetName = torchscript.Utility.target(expression);
+                if (targetName) {
+                    const type = this.type(targetName);
+                    if (type) {
+                        return { __type__: type };
+                    }
+                }
+                if (expression.member.type == 'id') {
+                    return this._expression(expression.target, obj, locals)[expression.member.value];
+                }
+                break;
+            }
+            case 'id': {
+                if (expression.value === 'self') {
+                    return obj;
+                }
+                return locals[expression.value];
+            }
+
+        }
+        throw new torchscript.Error("Unknown expression '" + expression + "'.");
+    }
+}
+
 torchscript.GraphContext = class {
 
-    constructor(container, python, mainModule, script, className, namespaceName) {
+    constructor(container, constants) {
 
         this._container = container;
-        this._mainModule = mainModule;
+        this._constants = constants;
+
+        this._mainModule = null;
+        let script = '';
+        let namespaceName = null;
+        let className = null;
+        if (container.model && container.model.mainModule) {
+            this._mainModule = container.model.mainModule;
+            script = this._mainModule.torchscriptArena.key;
+        }
+        else if (container.data) {
+            this._mainModule = container.data;
+            const typeName = this._mainModule.__type__.split('.');
+            className = typeName.pop();
+            namespaceName = typeName.join('.');
+            script = 'code/' + typeName.join('/') + '.py';
+        }
 
         this._inputs = [];
         this._outputs = [];
@@ -1203,14 +1416,8 @@ torchscript.GraphContext = class {
         this._state = {};
 
         if (script) {
-            let codeKey = container.prefix + script;
-            let codeEntries = container.entries.filter((e) => e.name === codeKey);
-            if (codeEntries.length == 1) {
-                let codeEntry = codeEntries[0];
-                let textDecoder = new TextDecoder('utf-8');
-                let code = textDecoder.decode(codeEntry.data);
-                let reader = new python.Parser(code);
-                let program = reader.parse();
+            const program = container.parse(script);
+            if (program) {
                 let statements = program.body;
                 if (className) {
                     let main = null;
@@ -1448,6 +1655,10 @@ torchscript.GraphContext = class {
                     if (this._isCall(argumentExpression, 'torch.device', [ { type: 'string' } ])) {
                         break;
                     }
+                    if (this._isCall(argumentExpression, 'int', [ {} ]) ||
+                        this._isCall(argumentExpression, 'float', [ {} ])) {
+                        break;
+                    }
                     const variable = this._variable();
                     if (this._nodeExpression(argumentExpression, variable)) {
                         inputs.push([ { id: variable.value } ]);
@@ -1466,10 +1677,16 @@ torchscript.GraphContext = class {
                         argumentExpression.member.value.startsWith('c')) {
                         const constantId = [ argumentExpression.target.value, argumentExpression.member.value ].join('.');
                         const constantIndex = parseInt(argumentExpression.member.value.substring(1), 10);
-                        const constantTensor = this._container.constants[constantIndex];
+                        const constantTensor = this._constants[constantIndex];
                         inputs.push([ { id: constantId, initializer: constantTensor } ]);
                         args.shift();
                         continue;
+                    }
+                    if (argumentExpression.type == '.') {
+                        const value = this._evaluateExpression(argumentExpression);
+                        if (!torchscript.Utility.isTensor(value)) {
+                            break;
+                        }
                     }
                     throw new torchscript.Error('Unknown function argument.');
                 }
@@ -1579,6 +1796,11 @@ torchscript.GraphContext = class {
                 this._state[target.value] = argument;
                 return true;
             }
+            // stride = unchecked_cast(List[int], _134)
+            if (this._isCall(expression, 'unchecked_cast', [ {}, { type: 'id' } ])) {
+                this._state[target.value] = expression.arguments[1];
+                return true;
+            }
             // _0 = torch.size(... , ...)
             if (this._isCall(expression, 'torch.size', [ { type: 'id' }, { type: 'number' } ])) {
                 this._state[target.value] = expression;
@@ -1604,6 +1826,16 @@ torchscript.GraphContext = class {
             }
             // exponential_average_factor = 0.10000000000000001
             if (expression.type === 'number') {
+                this._state[target.value] = expression;
+                return true;
+            }
+            // _8 = (empty, empty)
+            if (expression.type === 'tuple') {
+                this._state[target.value] = expression;
+                return true;
+            }
+            // _6 = [torch.mul(self.lstm_depth, 2), torch.size(token_emb, 0), self.lstm_width]
+            if (expression.type === '[]') {
                 this._state[target.value] = expression;
                 return true;
             }
@@ -1781,7 +2013,7 @@ torchscript.GraphContext = class {
             for (let i = 0; i < statement.target.value.length; i++) {
                 const target = statement.target.value[i];
                 const expression = statement.expression.value[i];
-                if (target.type == 'id' && expression.type == 'id' && (expression.value == 'False' || expression.value == 'True')) {
+                if (target.type == 'id' && expression.type == 'id') {
                     this._state[target.value] = expression;
                     continue;
                 }
@@ -1846,6 +2078,9 @@ torchscript.GraphContext = class {
                 if (typeof value === 'number') {
                     return { type: 'number', value: value };
                 }
+                if (torchscript.Utility.isTensor(value)) {
+                    return value;
+                }
             }
         }
         // int(x)
@@ -1855,6 +2090,10 @@ torchscript.GraphContext = class {
         // float(x)
         if (this._isCall(expression, 'float', [ {} ])) {
             return this._evaluateExpression(expression.arguments[0]);
+        }
+        // _foo
+        if (expression.type == 'id' && this._state[expression.value]) {
+            return this._state[expression.value];
         }
         return expression;
     }
@@ -1877,11 +2116,21 @@ torchscript.GraphContext = class {
             return this._toBooleanLiteral(true); // TODO
         }
         // torch.ne(torch.dim(x4), 4):
-        if (this._isCall(expression, 'torch.ne', [ {}, { type: 'number' } ])) {
-            if (this._isCall(expression.arguments[0], 'torch.dim', [ { type: 'id' } ]) ||
-                this._isCall(expression.arguments[0], 'torch.len', [ {} ])) {
-                return this._toBooleanLiteral(false); // TODO
+        if (this._isCall(expression, 'torch.ne', [ {}, {} ])) {
+            const right = this._evaluateExpression(expression.arguments[1]);
+            const left = this._evaluateExpression(expression.arguments[0]);
+            if (right.type === 'number') {
+                if (this._isCall(expression.arguments[0], 'torch.dim', [ { type: 'id' } ]) ||
+                    this._isCall(expression.arguments[0], 'torch.len', [ {} ])) {
+                    return this._toBooleanLiteral(false); // TODO
+                }
             }
+            if (left.type === 'number') {
+                if (this._isCall(expression.arguments[1], 'torch.size', [ {}, {} ])) {
+                    return this._toBooleanLiteral(false); // TODO
+                }
+            }
+            return this._toBooleanLiteral(false); // TODO
         }
         // torch.__is__(None, None)
         if (this._isCall(expression, 'torch.__is__', [ { type: 'id', value: 'None' }, { type: 'id', value: 'None' } ])) {

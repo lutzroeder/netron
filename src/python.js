@@ -378,8 +378,9 @@ python.Parser = class {
 
         let expression = this._parseExpression(-1, [], true);
         if (expression) {
-            if (this._tokenizer.eat(':')) {
+            if (expression.type == 'id' && this._tokenizer.eat(':')) {
                 node = this._node('var');
+                node.name = expression.value;
                 node.location = expression.location;
                 node.variableType = this._parseExpression(-1, [ '=' ]);
                 if (this._tokenizer.eat('=')) {
@@ -684,7 +685,6 @@ python.Parser = class {
                 }
                 // for, bar, = <expr>
                 if (this._tokenizer.peek().value === '=') {
-                    node.value.push({ type: 'id', value: '' });
                     continue;
                 }
                 if (!this._tokenizer.match('=') && !terminalSet.has(this._tokenizer.peek().value)) {
@@ -791,9 +791,6 @@ python.Parser = class {
         }
         if (node.start && !node.stop && !node.step) {
             node = node.start;
-        }
-        if (node.type == 'list' && node.value.length == 1) {
-            node = node.value[0];
         }
         return node;
     }

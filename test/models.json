@@ -5078,6 +5078,22 @@
   },
   {
     "type":   "torchscript",
+    "target": "mobilenet_quantized_scripted_925.pt",
+    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
+    "error":  "Unknown statement '{\"location\":\" at 373:8\",\"type\":\"=\",\"target\":{\"type\":\"id\",\"value\":\"_23\",\"keyword\":false},\"expression\":{\"location\":\" at 373:14\",\"type\":\".\",\"target\":{\"type\":\"id\",\"value\":\"_21\",\"keyword\":false},\"member\":{\"type\":\"id\",\"value\":\"_packed_params\",\"keyword\":false}}}' in 'mobilenet_quantized_scripted_925.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/pytorch/android-demo-app"
+  },
+  {
+    "type":   "torchscript",
+    "target": "model-reddit16-f140225004_2.pt1",
+    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1?raw=true",
+    "error":  "Unknown statement '{\"location\":\" at 132:17\",\"type\":\"=\",\"target\":{\"location\":\" at 132:11\",\"type\":\"tuple\",\"value\":[{\"type\":\"id\",\"value\":\"_32\",\"keyword\":false},{\"type\":\"id\",\"value\":\"_33\",\"keyword\":false}]},\"expression\":{\"type\":\"id\",\"value\":\"hx\",\"keyword\":false}}' in 'model-reddit16-f140225004_2.pt1'.",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/pytorch/android-demo-app"
+  },
+  {
+    "type":   "torchscript",
     "target": "inception_v3.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
