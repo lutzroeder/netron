@@ -8684,6 +8684,21 @@
           "description": "Expected lengths for ranges",
           "name": "lengths",
           "option": "optional"
+        },
+        {
+          "description": "The number of observations needed before deciding that the ratio of empty ranges or mismatched ranges is alarming.",
+          "name": "min_observation",
+          "option": "optional"
+        },
+        {
+          "description": "An error is raised when ratio of empty ranges exceeds this.",
+          "name": "max_empty_ratio",
+          "option": "optional"
+        },
+        {
+          "description": "An error is raised when ratio of mismatched ranges exceeds this.",
+          "name": "max_mismatched_ratio",
+          "option": "optional"
         }
       ],
       "description": "\nGiven DATA tensor of rank 1, and RANGES tensor of rank 3, gather values\ncorresponding to each range into a separate output tensor. If the optional input\nKEY tensor is also given, the output will be sorted by KEY for each example.\n\nRANGES dimensions description:\n1: represents list of examples within a batch\n2: represents list features\n3: two values which are start and length or a range (to be applied on DATA)\n\nEach feature has fixed lengths which are passed as lengths argument and a\nseparate tensor will be produced for each feature.\ni.e. DATA.dim(1) = len(lengths) = NumOuptuts.\n\nMissing features (represented by empty ranges) filled with default_value.\n\nExample 1:\n  DATA  = [1, 2, 3, 4, 5, 6, 7, 8]\n  RANGES = [\n    [\n      [2, 4],\n      [0, 2],\n    ],\n    [\n      [0, 0],\n      [6, 2],\n    ]\n  ]\n  lengths = [4, 2]\n  OUTPUT[0] = [[3, 4, 5, 6], [0, 0, 0, 0]]\n  OUTPUT[1] = [[1, 2], [7, 8]]\n\nExample 2 (with KEY):\nDATA  = [1, 2, 3, 4, 5, 6, 7, 8]\nKEY   = [0, 1, 3, 2, 1, 0, 1, 0]\nRANGES = [\n  [\n    [2, 4],\n    [0, 2],\n  ],\n  [\n    [0, 0],\n    [6, 2],\n  ]\n]\nlengths = [4, 2]\nOUTPUT[0] = [[6, 5, 4, 3], [0, 0, 0, 0]]\nOUTPUT[1] = [[1, 2], [8, 7]]\n\nContrast Example 2 with Example 1. For each data point per feature, the values\nare sorted by the corresponding KEY.\n",
