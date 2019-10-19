@@ -5040,6 +5040,11 @@
     "schema": {
       "attributes": [
         {
+          "default": 0,
+          "name": "auto_shard_policy",
+          "type": "int64"
+        },
+        {
           "minimum": 1,
           "name": "output_types",
           "type": "type[]"
@@ -15374,6 +15379,39 @@
     }
   },
   {
+    "name": "DatasetToGraphV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "external_state_policy",
+          "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "strip_device_assignment",
+          "type": "boolean"
+        }
+      ],
+      "description": "Returns a graph representation for `input_dataset`.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the dataset to return the graph representation for.",
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The graph representation of the dataset (as serialized GraphDef).",
+          "name": "graph",
+          "type": 7
+        }
+      ],
+      "summary": "Returns a serialized GraphDef representing `input_dataset`."
+    }
+  },
+  {
     "name": "DatasetToSingleElement",
     "schema": {
       "attributes": [
@@ -19552,6 +19590,11 @@
     "name": "ExperimentalAutoShardDataset",
     "schema": {
       "attributes": [
+        {
+          "default": 0,
+          "name": "auto_shard_policy",
+          "type": "int64"
+        },
         {
           "minimum": 1,
           "name": "output_types",
@@ -28104,6 +28147,10 @@
             {
               "type": "type",
               "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
@@ -46416,6 +46463,10 @@
             {
               "type": "type",
               "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
             },
             {
               "type": "type",
