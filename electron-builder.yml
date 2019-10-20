@@ -96,6 +96,9 @@ linux:
   target:
   - AppImage
   - deb
+  - snap
+snap:
+  publish: github
 win:
   target:
   - nsis

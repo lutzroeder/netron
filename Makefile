@@ -3,7 +3,7 @@
 
 build: clean lint build_python build_electron
 
-publish: clean lint publish_github_electron publish_python publish_github_pages publish_cask
+publish: clean lint publish_github_electron publish_python publish_github_pages publish_snap publish_cask
 
 install:
 	rm -rf ./node_modules
@@ -86,6 +86,9 @@ publish_github_pages:
 	git -C ./build/gh-pages add --all
 	git -C ./build/gh-pages commit --amend --no-edit
 	git -C ./build/gh-pages push --force origin gh-pages
+
+publish_snap:
+	snapcraft push --release=stable build/*.snap
 
 publish_cask:
 	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d ''
