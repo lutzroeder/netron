@@ -1033,6 +1033,140 @@ torchscript.Container = class {
         }
         this._prefix = versionEntry.name.substring(0, versionEntry.name.length - 7);
         this._version = JSON.parse(this._utf8Decoder.decode(versionEntry.data));
+
+        this._functionTable = new Map();
+
+        this._functionTable.set('getattr', function(obj, name, defaultValue) {
+            if (Object.prototype.hasOwnProperty.call(obj, name)) {
+                return obj[name];
+            }
+            return defaultValue;
+        });
+        this._functionTable.set('annotate', function(type, value) {
+            // debugger;
+            return value;
+        });
+        this._functionTable.set('uninitialized', function(type) {
+            return ({ __type__: type.__typeref__ });
+        });
+        this._functionTable.set('unchecked_cast', function(type, value) {
+            return value;
+        });
+        this._functionTable.set('ops.prim.unchecked_unwrap_optional', function(value) {
+            return value;
+        });
+        this._functionTable.set('ops.quantized.conv_prepack', function(/* weight, bias, stride, padding, dilation, groups */) {
+            return { __type__: '__conv_prepack__' }; // TODO
+        });
+        this._functionTable.set('ops.quantized.linear_prepack', function(/* weight, bias */) {
+            return { __type__: '__linear_prepack__' }; // TODO
+        });
+        this._functionTable.set('collections.OrderedDict', function(args) {
+            let obj = [];
+            obj.__setitem__ = function(key, value) {
+                obj.push({ key: key, value: value });
+            };
+            if (args) {
+                for (let arg of args) {
+                    obj.__setitem__(arg[0], arg[1]);
+                }
+            }
+            return obj;
+        });
+        this._functionTable.set('torch._utils._rebuild_tensor_v2', function(storage, storage_offset, size, stride, requires_grad, backward_hooks) {
+            return {
+                __type__: storage.__type__.replace('Storage', 'Tensor'),
+                storage: storage,
+                storage_offset: storage_offset,
+                size: size,
+                stride: stride,
+                requires_grad:requires_grad,
+                backward_hooks: backward_hooks
+            };
+        });
+        this._functionTable.set('torch._utils._rebuild_qtensor', function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
+            return {
+                __type__: storage.__type__.replace('Storage', 'Tensor'),
+                storage: storage,
+                storage_offset: storage_offset,
+                size: size,
+                stride: stride,
+                quantizer_params: quantizer_params,
+                requires_grad:requires_grad,
+                backward_hooks: backward_hooks
+            };
+        });
+        this._functionTable.set('torch.jit._pickle.build_intlist', function(data) {
+            return data;
+        });
+        this._functionTable.set('torch.jit._pickle.build_tensorlist', function(data) {
+            return data;
+        });
+        this._functionTable.set('torch.eq', function(left, right) {
+            if (typeof left === 'string' && typeof right === 'string') {
+                return left === right;
+            }
+            throw new torchscript.Error('Unknown expression type.');
+        });
+        this._functionTable.set('torch.lt', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                return left < right;
+            }
+            throw new torchscript.Error('Unknown expression type.');
+        });
+        this._functionTable.set('torch.mul', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                return left * right;
+            }
+            throw new torchscript.Error('Unknown expression type.');
+        });
+        this._functionTable.set('torch.gt', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                return left > right;
+            }
+            throw new torchscript.Error('Unknown expression type.');
+        });
+        this._functionTable.set('torch.__is__', function(left, right) {
+            if (left === null && right === null) {
+                return true;
+            }
+            if ((left !== null && right === null) || (left === null && right !== null)) {
+                return false;
+            }
+            // debugger;
+            throw new torchscript.Error('Unknown expression type.');
+        });
+        this._functionTable.set('torch.q_scale', function(/* tensor */) {
+            return -1; // TODO
+        });
+        this._constructorTable = new Map();
+        this._constructorTable.set('torch.ByteStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
+        });
+        this._constructorTable.set('torch.CharStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 1; this.dataType = 'int8'; 
+        });
+        this._constructorTable.set('torch.ShortStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 2; this.dataType = 'int16';
+        });
+        this._constructorTable.set('torch.IntStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 4; this.dataType = 'int32';
+        });
+        this._constructorTable.set('torch.LongStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 8; this.dataType = 'int64';
+        });
+        this._constructorTable.set('torch.HalfStorage', function (size) {
+            this.size = size; this.dataTypeSize = 2; this.dataType = 'float16';
+        });
+        this._constructorTable.set('torch.FloatStorage', function (size) {
+            this.size = size; this.dataTypeSize = 4; this.dataType = 'float32';
+        });
+        this._constructorTable.set('torch.DoubleStorage', function (size) { 
+            this.size = size; this.dataTypeSize = 8; this.dataType = 'float64';
+        });
+        this._constructorTable.set('torch.QInt8Storage', function (size) {
+            this.size = size; this.dataTypeSize = 1; this.dataType = 'qint8';
+        });
     }
 
     get identifier() {
@@ -1047,7 +1181,7 @@ torchscript.Container = class {
         if (this._data ===  undefined) {
             this._data = null;
             let entry = this._entries.find((entry) => entry.name == this._prefix + 'data.pkl');
-            if (entry) {
+            if (entry && entry.data) {
                 this._data = this._unpickle(entry.data, this._storage('data'));
             }
         }
@@ -1077,7 +1211,7 @@ torchscript.Container = class {
         if (this._attributes ===  undefined) {
             this._attributes = null;
             let entry = this._entries.find((entry) => entry.name == this._prefix + 'attributes.pkl');
-            if (entry) {
+            if (entry && entry.data) {
                 this._attributes = this._unpickle(entry.data, null);
 
             }
@@ -1090,7 +1224,7 @@ torchscript.Container = class {
         if (this._constants ===  undefined) {
             this._constants = null;
             let entry = this._entries.find((entry) => entry.name == this._prefix + 'constants.pkl');
-            if (entry) {
+            if (entry && entry.data) {
                 this._constants = this._unpickle(entry.data, this._storage('constants'));
             }
         }
@@ -1124,97 +1258,6 @@ torchscript.Container = class {
     }
 
     _unpickle(data, storage_map) {
-        if (!data) {
-            return null;
-        }
-        let functionTable = new Map();
-        functionTable.set('collections.OrderedDict', function(args) {
-            let obj = [];
-            obj.__setitem__ = function(key, value) {
-                obj.push({ key: key, value: value });
-            };
-            if (args) {
-                for (let arg of args) {
-                    obj.__setitem__(arg[0], arg[1]);
-                }
-            }
-            return obj;
-        });
-        functionTable.set('torch._utils._rebuild_tensor_v2', function(storage, storage_offset, size, stride, requires_grad, backward_hooks) {
-            return {
-                __type__: storage.__type__.replace('Storage', 'Tensor'),
-                storage: storage,
-                storage_offset: storage_offset,
-                size: size,
-                stride: stride,
-                requires_grad:requires_grad,
-                backward_hooks: backward_hooks
-            };
-        });
-        functionTable.set('torch._utils._rebuild_qtensor', function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
-            return {
-                __type__: storage.__type__.replace('Storage', 'Tensor'),
-                storage: storage,
-                storage_offset: storage_offset,
-                size: size,
-                stride: stride,
-                quantizer_params: quantizer_params,
-                requires_grad:requires_grad,
-                backward_hooks: backward_hooks
-            };
-        });
-        functionTable.set('torch.jit._pickle.build_intlist', function(data) {
-            return data;
-        });
-        functionTable.set('torch.jit._pickle.build_tensorlist', function(data) {
-            return data;
-        });
-        let constructorTable = new Map();
-        constructorTable.set('torch.ByteStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
-        });
-        constructorTable.set('torch.CharStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 1; this.dataType = 'int8'; 
-        });
-        constructorTable.set('torch.ShortStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 2; this.dataType = 'int16';
-        });
-        constructorTable.set('torch.IntStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 4; this.dataType = 'int32';
-        });
-        constructorTable.set('torch.LongStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 8; this.dataType = 'int64';
-        });
-        constructorTable.set('torch.HalfStorage', function (size) {
-            this.size = size; this.dataTypeSize = 2; this.dataType = 'float16';
-        });
-        constructorTable.set('torch.FloatStorage', function (size) {
-            this.size = size; this.dataTypeSize = 4; this.dataType = 'float32';
-        });
-        constructorTable.set('torch.DoubleStorage', function (size) { 
-            this.size = size; this.dataTypeSize = 8; this.dataType = 'float64';
-        });
-        constructorTable.set('torch.QInt8Storage', function (size) { 
-            this.size = size; this.dataTypeSize = 1; this.dataType = 'qint8';
-        });
-        let function_call = (name, args) => {
-            if (functionTable.has(name)) {
-                const func = functionTable.get(name);
-                return func.apply(null, args);
-            }
-            let obj = { __type__: name };
-            if (constructorTable.has(name)) {
-                const constructor = constructorTable.get(name);
-                constructor.apply(obj, args);
-                return obj;
-            }
-            const type = this.type(name);
-            if (type) {
-                // this._invoke(type.body.statements, obj, args);
-                return obj;
-            }
-            throw new torchscript.Error("Unknown function '" + name + "'.");
-        };
         let deserialized_objects = new Map();
         const persistent_load = (saved_id) => {
             const typename = saved_id.shift();
@@ -1230,7 +1273,7 @@ torchscript.Container = class {
                 storage = deserialized_objects.get(root_key);
             }
             else {
-                storage = function_call(data_type, [ size ]);
+                storage = this._invoke(data_type, [ size ]);
                 storage.data = storage_map.get(root_key);
                 deserialized_objects[root_key] = storage;
             }
@@ -1248,7 +1291,7 @@ torchscript.Container = class {
             }
             return storage;
         };
-        return new this._pickle.Unpickler(data).load(function_call, persistent_load);
+        return new this._pickle.Unpickler(data).load((name, args) => this._invoke(name, args), persistent_load);
     }
 
     type(name) {
@@ -1269,43 +1312,126 @@ torchscript.Container = class {
         return this._types.get(name);
     }
 
-    _invoke(statements, obj, args) {
-        for (let statement of statements) {
+    trace(obj, method) {
+        let args = [];
+        this._tensors = new Set();
+        for (let parameter of method.parameters) {
+            if (parameter.name !== 'self') {
+                this._tensors.add(parameter.name);
+                args.push({});
+            }
+        }
+        this._apply(method, obj, args);
+        this._tensors = null;
+    }
+
+    _trace(statement /*, obj, locals */) {
+        if (this._tensors) {
+            if (statement.type === '=') {
+                const target = statement.target;
+                const expression = statement.expression;
+                if (target.type === 'id' && expression.type === 'call') {
+                    let name = torchscript.Utility.target(expression.target);
+                    let namespace = 'torch.';
+                    if (name.startsWith(namespace)) {
+                        switch (name) {
+                            case 'torch.conv2d':
+                            case 'torch.relu_':
+                            case 'torch.relu':
+                            case 'torch.max_pool2d':
+                            case 'torch.view':
+                                return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    _invoke(name, args) {
+        if (this._functionTable.has(name)) {
+            const func = this._functionTable.get(name);
+            return func.apply(null, args);
+        }
+        let obj = { __type__: name };
+        if (this._constructorTable.has(name)) {
+            const constructor = this._constructorTable.get(name);
+            constructor.apply(obj, args);
+            return obj;
+        }
+        const type = this.type(name);
+        if (type) {
+            this._construct(type, obj, args);
+            return obj;
+        }
+        throw new torchscript.Error("Unknown symbol '" + name + "'.");
+    }
+
+    _construct(type, obj, args) {
+        this._block(type.body, obj, obj);
+        if (obj.__init__ && typeof obj.__init__ === 'function') {
+            obj.__init__(obj, args);
+        }
+    }
+
+    _apply(method, obj, args) {
+        args = Array.prototype.slice.call(args);
+        var locals = {};
+        for (let parameter of method.parameters) {
+            if (parameter.name == 'self') {
+                locals['self'] = obj;
+            }
+            else {
+                locals[parameter.name] = args.shift();
+            }
+        }
+        return this._block(method.body, obj, locals)
+    }
+
+    _block(block, obj, locals) {
+        let statements = Array.prototype.slice.call(block.statements);
+        while (statements.length > 0) {
+            const statement = statements.shift();
+            if (this._trace(statement, obj, locals)) {
+                continue;
+            }
             switch (statement.type) {
+                case 'return': {
+                    return this._expression(statement.expression);
+                }
                 case 'def': {
                     const method = statement;
                     const self = this;
                     obj[statement.name] = function() {
-                        var locals = {};
-                        var args = Array.prototype.slice.call(arguments);
-                        for (let parameter of method.parameters) {
-                            if (parameter.name == 'self') {
-                                locals['self'] = obj;
-                            }
-                            else {
-                                locals[parameter.name] = args.shift();
-                            }
-                        }
-                        self._invoke(method.body.statements, obj, locals);
+                        return self._apply(method, obj, arguments);
                     }
                     break;
                 }
-                case 'var':
+                case 'var': {
                     break;
-                default:
-                    this._statement(statement, obj, args);
+                }
+                case '=': {
+                    this._expression(statement, obj, locals);
                     break;
+                }
+                case 'if': {
+                    const condition = this._expression(statement.condition, obj, locals);
+                    if (condition === true) {
+                        statements = statement.then.statements.concat(statements);
+                        break;
+                    }
+                    else if (condition === false) {
+                        statements = statement.else.statements.concat(statements);
+                        break;
+                    }
+                    throw new torchscript.Error("Unknown condition '" + condition + "'.");
+                }
+                default: {
+                    throw new torchscript.Error("Unknown statement '" + statement + "'.");
+                }
             }
         }
-    }
-
-    _statement(statement, obj, locals) {
-        switch (statement.type) {
-            case '=':
-                this._expression(statement, obj, locals);
-                return;
-        }
-        throw new torchscript.Error("Unknown statement '" + statement + "'.");
     }
 
     _expression(expression, obj, locals) {
@@ -1321,6 +1447,9 @@ torchscript.Container = class {
                         target.arguments.type === 'list' &&
                         target.arguments.value.length === 1) {
                         const index = this._expression(target.arguments.value[0], obj, locals);
+                        if (target.target.value === '__annotations__') {
+                            locals[target.target.value] = locals[target.target.value] || {};
+                        }
                         locals[target.target.value][index] = this._expression(expression.expression, obj, locals);
                         return;
                     }
@@ -1348,14 +1477,19 @@ torchscript.Container = class {
                 return expression.value.substring(1, expression.value.length - 1);
             }
             case 'number': {
-                return expression.value;
-            }
+                return Number(expression.value);
+            }  
             case '[]': {
                 if (expression.target.type === 'id' &&
                     expression.arguments.type === 'list' &&
-                    expression.arguments.value.length === 1)  {
-                    const index = this._expression(expression.arguments.value[0], obj, locals);
-                    return locals[expression.target.value][index];
+                    expression.arguments.value.length === 1) {
+                    if (Object.prototype.hasOwnProperty.call(locals, expression.target.value)) {
+                        const index = this._expression(expression.arguments.value[0], obj, locals);
+                        return locals[expression.target.value][index];
+                    }
+                    if (expression.target.value === 'List' && expression.arguments.value.every((item) => item.type === 'id')) {
+                        return { __typeref__: expression.target.value + '[' + expression.arguments.value.map((item) => item.value).join(',') + ']' };
+                    }
                 }
                 break;
             }
@@ -1368,19 +1502,42 @@ torchscript.Container = class {
                     }
                 }
                 if (expression.member.type == 'id') {
-                    return this._expression(expression.target, obj, locals)[expression.member.value];
+                    const target = this._expression(expression.target, obj, locals);
+                    return target[expression.member.value];
+                }
+                break;
+            }
+            case 'call': {
+                const targetName = torchscript.Utility.target(expression.target);
+                if (targetName) {
+                    const args = expression.arguments.map((argument) => this._expression(argument, obj, locals));
+                    return this._invoke(targetName, args);
                 }
                 break;
             }
             case 'id': {
-                if (expression.value === 'self') {
-                    return obj;
+                switch (expression.value) {
+                    case 'self': return obj;
+                    case 'None': return null;
+                    case 'True': return true;
+                    case 'False': return false;
                 }
-                return locals[expression.value];
+                if (Object.prototype.hasOwnProperty.call(locals, expression.value)) {
+                    return locals[expression.value];
+                }
+                if (expression.value === 'Tensor') {
+                    return { __typeref__: expression.value };
+                }
+                if (expression.value === 'int') {
+                    return { __typeref__: expression.value };
+                }
+                break;
             }
-
+            case 'tuple': {
+                return expression.value.map((expression) => this._expression(expression, obj, locals));
+            }
         }
-        throw new torchscript.Error("Unknown expression '" + expression + "'.");
+        throw new torchscript.Error("Unknown expression '" + JSON.stringify(expression) + "'.");
     }
 }
 
@@ -1435,6 +1592,9 @@ torchscript.GraphContext = class {
                 }
                 let method = statements.find((statement) => statement.type == 'def' && statement.name == 'forward');
                 if (method) {
+
+                    // container.trace(this._mainModule, method);
+
                     this._body = method.body.statements;
                     let methodParameters = method.parameters;
                     if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
@@ -1763,117 +1923,131 @@ torchscript.GraphContext = class {
     }
 
     _assignStatement(statement) {
-        if (statement.type == '=' &&
-            statement.target.type == 'id') {
+        if (statement.type == '=') {
             const target = statement.target;
             const expression = statement.expression;
-            // _0 = ops.prim.NumToTensor(...)
-            if (this._isCall(expression, 'ops.prim.NumToTensor', [ {} ])) { 
-                let sizeExpression = expression.arguments[0];
-                if (this._isCall(sizeExpression, 'torch.size', [ { type: 'id' }, {} ])) { 
-                    this._state[target.value] = sizeExpression;
+            if (target.type == 'id') {
+                // _0 = ops.prim.NumToTensor(...)
+                if (this._isCall(expression, 'ops.prim.NumToTensor', [ {} ])) { 
+                    let sizeExpression = expression.arguments[0];
+                    if (this._isCall(sizeExpression, 'torch.size', [ { type: 'id' }, {} ])) { 
+                        this._state[target.value] = sizeExpression;
+                        return true;
+                    }
+                    if (sizeExpression.type == 'id') {
+                        let duplicate1 = this._state[sizeExpression.value];
+                        if (duplicate1) {
+                            this._state[target.value] = duplicate1;
+                            return true;
+                        }
+                    }
+                }
+                // _stride_3 = torch._unwrap_optional(_3)
+                // _stride_3 = ops.prim.unchecked_unwrap_optional(_127)
+                if (this._isCall(expression, 'torch._unwrap_optional', [ {} ]) ||
+                    this._isCall(expression, 'ops.prim.unchecked_unwrap_optional', [ {} ])) {
+                    let argument = expression.arguments[0];
+                    if (argument && 
+                        argument.type == 'id' && 
+                        this._state[argument.value] &&
+                        !torchscript.Utility.isTensor(this._state[argument.value])) {
+                        argument = this._state[argument.value];
+                    }
+                    this._state[target.value] = argument;
                     return true;
                 }
-                if (sizeExpression.type == 'id') {
-                    let duplicate1 = this._state[sizeExpression.value];
-                    if (duplicate1) {
-                        this._state[target.value] = duplicate1;
+                // stride = unchecked_cast(List[int], _134)
+                if (this._isCall(expression, 'unchecked_cast', [ {}, { type: 'id' } ])) {
+                    this._state[target.value] = expression.arguments[1];
+                    return true;
+                }
+                // stride = annotate(List[int], [])
+                if (this._isCall(expression, 'annotate', [ {}, {} ])) {
+                    this._state[target.value] = expression.arguments[1];
+                    return true;
+                }
+                // _0 = torch.size(... , ...)
+                if (this._isCall(expression, 'torch.size', [ { type: 'id' }, { type: 'number' } ])) {
+                    this._state[target.value] = expression;
+                    return true;
+                }
+                // _output_size = torch.list_with_default([7, 7], torch.size(x0))
+                if (this._isCall(expression, 'torch.list_with_default', [ {}, {} ])) {
+                    this._state[target.value] = expression;
+                    return true;
+                }
+                // _0 = int(...)
+                if (this._isCall(expression, 'int', [ { type: 'id' }] )) {
+                    let duplicate2 = this._state[statement.expression.arguments[0].value];
+                    if (duplicate2) {
+                        this._state[target.value] = duplicate2;
                         return true;
                     }
                 }
-            }
-            // _stride_3 = torch._unwrap_optional(_3)
-            // _stride_3 = ops.prim.unchecked_unwrap_optional(_127)
-            if (this._isCall(expression, 'torch._unwrap_optional', [ {} ]) ||
-                this._isCall(expression, 'ops.prim.unchecked_unwrap_optional', [ {} ])) {
-                let argument = expression.arguments[0];
-                if (argument && 
-                    argument.type == 'id' && 
-                    this._state[argument.value] &&
-                    !torchscript.Utility.isTensor(this._state[argument.value])) {
-                    argument = this._state[argument.value];
-                }
-                this._state[target.value] = argument;
-                return true;
-            }
-            // stride = unchecked_cast(List[int], _134)
-            if (this._isCall(expression, 'unchecked_cast', [ {}, { type: 'id' } ])) {
-                this._state[target.value] = expression.arguments[1];
-                return true;
-            }
-            // _0 = torch.size(... , ...)
-            if (this._isCall(expression, 'torch.size', [ { type: 'id' }, { type: 'number' } ])) {
-                this._state[target.value] = expression;
-                return true;
-            }
-            // _output_size = torch.list_with_default([7, 7], torch.size(x0))
-            if (this._isCall(expression, 'torch.list_with_default', [ {}, {} ])) {
-                this._state[target.value] = expression;
-                return true;
-            }
-            // _0 = int(...)
-            if (this._isCall(expression, 'int', [ { type: 'id' }] )) {
-                let duplicate2 = this._state[statement.expression.arguments[0].value];
-                if (duplicate2) {
-                    this._state[target.value] = duplicate2;
+                // _14 = _15
+                if (expression.type === 'id' && this._isBooleanLiteral(this._state[expression.value])) {
+                    this._state[target.value] = this._state[expression.value];
                     return true;
                 }
-            }
-            // _14 = _15
-            if (expression.type === 'id' && this._isBooleanLiteral(this._state[expression.value])) {
-                this._state[target.value] = this._state[expression.value];
-                return true;
-            }
-            // exponential_average_factor = 0.10000000000000001
-            if (expression.type === 'number') {
-                this._state[target.value] = expression;
-                return true;
-            }
-            // _8 = (empty, empty)
-            if (expression.type === 'tuple') {
-                this._state[target.value] = expression;
-                return true;
-            }
-            // _6 = [torch.mul(self.lstm_depth, 2), torch.size(token_emb, 0), self.lstm_width]
-            if (expression.type === '[]') {
-                this._state[target.value] = expression;
-                return true;
-            }
-            const valueExpression = this._evaluateExpression(expression);
-            if (valueExpression.type === 'number' || this._isBooleanLiteral(valueExpression)) {
-                this._state[target.value] = expression;
-                return true;
-            }
-            // _aux = None
-            if (expression.type === 'id' && expression.value === 'None') {
-                this._state[target.value] = expression;
-                return true;
-            }
-            // _0 = <boolean expression>
-            const booleanExpression = this._evaluateBooleanExpression(expression);
-            if (booleanExpression) {
-                this._state[target.value] = booleanExpression;
-                return true;
-            }
-            // _0 = self.features
-            const moduleName = target.value;
-            const module = this._getModule(expression);
-            if (module) {
-                this._moduleMap.set(moduleName, module);
-                return true;
-            }
-            // _14190 = __torch__.torchvision.models.inception.InceptionOutputs(x219, aux)
-            if (expression.type == 'call') {
-                const className = torchscript.Utility.target(expression.target);
-                if (this._classMap.has(className)) {
-                    const tuple = this._classMap.get(className);
-                    if (tuple && tuple.base && tuple.base.length > 0 &&
-                        tuple.base[0].type === 'id' && tuple.base[0].value === 'NamedTuple') {
-                        this._state[target.value] = { type: 'tuple', value: expression.arguments };
-                        return true;
+                // exponential_average_factor = 0.10000000000000001
+                if (expression.type === 'number') {
+                    this._state[target.value] = expression;
+                    return true;
+                }
+                // _8 = (empty, empty)
+                if (expression.type === 'tuple') {
+                    this._state[target.value] = expression;
+                    return true;
+                }
+                // _6 = [torch.mul(self.lstm_depth, 2), torch.size(token_emb, 0), self.lstm_width]
+                if (expression.type === '[]') {
+                    this._state[target.value] = expression;
+                    return true;
+                }
+                const valueExpression = this._evaluateExpression(expression);
+                if (valueExpression.type === 'number' || this._isBooleanLiteral(valueExpression)) {
+                    this._state[target.value] = expression;
+                    return true;
+                }
+                // _aux = None
+                if (expression.type === 'id' && expression.value === 'None') {
+                    this._state[target.value] = expression;
+                    return true;
+                }
+                // _0 = <boolean expression>
+                const booleanExpression = this._evaluateBooleanExpression(expression);
+                if (booleanExpression) {
+                    this._state[target.value] = booleanExpression;
+                    return true;
+                }
+                // _0 = self.features
+                const moduleName = target.value;
+                const module = this._getModule(expression);
+                if (module) {
+                    this._moduleMap.set(moduleName, module);
+                    return true;
+                }
+                // _14190 = __torch__.torchvision.models.inception.InceptionOutputs(x219, aux)
+                if (expression.type == 'call') {
+                    const className = torchscript.Utility.target(expression.target);
+                    if (this._classMap.has(className)) {
+                        const tuple = this._classMap.get(className);
+                        if (tuple && tuple.base && tuple.base.length > 0 &&
+                            tuple.base[0].type === 'id' && tuple.base[0].value === 'NamedTuple') {
+                            this._state[target.value] = { type: 'tuple', value: expression.arguments };
+                            return true;
+                        }
                     }
                 }
             }
+            /*
+            if (target.type === 'tuple' && target.value.every((item) => item.type === 'id')) {
+                // _30, _31, = _24
+                if (expression.type === 'id' && this._state[expression.value]) {
+                    debugger;
+                }
+            }
+            */
         }
         return false;
     }
@@ -1913,7 +2087,7 @@ torchscript.GraphContext = class {
 
     _getSubmodule(module, name) {
         const obj = module[name];
-        if (obj && (!obj.__type__ || !obj.__type__.endsWith('Tensor'))) {
+        if (obj && !Array.isArray(obj) && (!obj.__type__ || !obj.__type__.endsWith('Tensor'))) {
             return obj;
         }
         if (module.submodules) {
@@ -2091,6 +2265,10 @@ torchscript.GraphContext = class {
         if (this._isCall(expression, 'float', [ {} ])) {
             return this._evaluateExpression(expression.arguments[0]);
         }
+        // annotate(Optional[int], None)
+        if (this._isCall(expression, 'annotate', [ {}, { type: 'id', value: 'None' } ])) {
+            return expression.arguments[1];
+        }
         // _foo
         if (expression.type == 'id' && this._state[expression.value]) {
             return this._state[expression.value];
@@ -2142,9 +2320,12 @@ torchscript.GraphContext = class {
             return this._toBooleanLiteral(!argument && argument.value == 'None');
         }
         // torch.__is__(annotate(Optional[int], None), None)
-        if (this._isCall(expression, 'torch.__is__', [ { type: 'call' }, { type: 'id', value: 'None' } ]) &&
-            this._isCall(expression.arguments[0], 'annotate', [ {}, { type: 'id', value: 'None' } ])) {
-            return this._toBooleanLiteral(true);
+        if (this._isCall(expression, 'torch.__is__', [ { type: 'call' }, { type: 'id', value: 'None' } ])) {
+            const left = this._evaluateExpression(expression.arguments[0]);
+            const right = this._evaluateExpression(expression.arguments[1]);
+            if (left.type === 'id' && left.value === 'None' && right.type === 'id' && right.value === 'None') {
+                return this._toBooleanLiteral(true);
+            }
         }
         // _torch.__is__(1, None)
         if (this._isCall(expression, 'torch.__is__', [ { type: 'number' }, { type: 'id', value: 'None' } ])) {
