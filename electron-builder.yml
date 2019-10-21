@@ -97,6 +97,10 @@ linux:
   - AppImage
   - deb
   - snap
+snap:
+  plugs:
+  - default
+  - removable-media
 win:
   target:
   - nsis
