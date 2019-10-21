@@ -342,6 +342,7 @@ mlnet.TensorType = class {
     constructor(codec) {
 
         mlnet.TensorType._map = mlnet.TensorType._map || new Map([ 
+            [ 'Byte', 'uint8' ],
             [ 'Boolean', 'boolean' ],
             [ 'Single', 'float32' ],
             [ 'Double', 'float64' ],
@@ -481,6 +482,7 @@ mlnet.ModelReader = class {
         catalog.register('GenericScoreTransform', mlnet.GenericScoreTransform);
         catalog.register('IidChangePointDetector', mlnet.IidChangePointDetector);
         catalog.register('IidSpikeDetector', mlnet.IidSpikeDetector);
+        catalog.register('ImageClassificationTrans', mlnet.ImageClassificationTransformer);
         catalog.register('ImageLoaderTransform', mlnet.ImageLoadingTransformer);
         catalog.register('ImageScalerTransform', mlnet.ImageResizingTransformer);
         catalog.register('ImagePixelExtractor', mlnet.ImagePixelExtractingTransformer);
@@ -1669,6 +1671,40 @@ mlnet.RowToRowTransformerBase = class {
     }
 }
 
+mlnet.ImageClassificationTransformer = class extends mlnet.RowToRowTransformerBase {
+
+    constructor(context) {
+        super(context);
+        const reader = context.reader;
+        this.addBatchDimensionInput = reader.boolean();
+        let numInputs = reader.int32();
+        this.inputs = [];
+        for (let i = 0; i < numInputs; i++) {
+            this.inputs.push({ name: context.string() });
+        }
+        this.outputs = [];
+        let numOutputs = reader.int32();
+        for (let i = 0; i < numOutputs; i++) {
+            this.outputs.push({ name: context.string() });
+        }
+        this.labelColumn = reader.string();
+        this.checkpointName = reader.string();
+        this.arch = reader.int32(); // Architecture
+        this.scoreColumnName = reader.string();
+        this.predictedColumnName = reader.string();
+        this.learningRate = reader.float32();
+        this.classCount = reader.int32();
+        this.keyValueAnnotations = [];
+        for (let i = 0; i < this.classCount; i++) {
+            this.keyValueAnnotations.push(context.string());
+        }
+        this.predictionTensorName = reader.string();
+        this.softMaxTensorName = reader.string();
+        this.jpegDataTensorName = reader.string();
+        this.resizeTensorName = reader.string();
+    }
+}
+
 mlnet.OnnxTransformer = class extends mlnet.RowToRowTransformerBase {
 
     constructor(context) {
@@ -2075,6 +2111,8 @@ mlnet.Codec = class {
             case 'Single':
                 break;
             case 'Double':
+                break;
+            case 'Byte':
                 break;
             case 'UInt32':
                 break;
