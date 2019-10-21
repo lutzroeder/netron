@@ -2353,7 +2353,8 @@ torchscript.GraphContext = class {
             return this._evaluateExpression(expression.arguments[0]);
         }
         // annotate(Optional[int], None)
-        if (this._isCall(expression, 'annotate', [ {}, { type: 'id', value: 'None' } ])) {
+        // annotate(List[int], [])
+        if (this._isCall(expression, 'annotate', [ {}, {} ])) {
             return expression.arguments[1];
         }
         // _foo

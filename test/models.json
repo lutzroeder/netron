@@ -5034,6 +5034,21 @@
   },
   {
     "type":   "torchscript",
+    "target": "blitz_neural_networks_tutorial_traced.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial_traced.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
+    "target": "blitz_neural_networks_tutorial.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial.pt]",
+    "error":  "Unknown statement '{\"location\":\" at 516:5\",\"type\":\"for\",\"variable\":[{\"type\":\"id\",\"value\":\"_261\",\"keyword\":false}],\"target\":[{\"location\":\" at 516:22\",\"type\":\"call\",\"target\":{\"type\":\"id\",\"value\":\"range\",\"keyword\":false},\"arguments\":[{\"location\":\" at 516:32\",\"type\":\"call\",\"target\":{\"location\":\" at 516:28\",\"type\":\".\",\"target\":{\"type\":\"id\",\"value\":\"torch\",\"keyword\":false},\"member\":{\"type\":\"id\",\"value\":\"len\",\"keyword\":false}},\"arguments\":[{\"type\":\"id\",\"value\":\"size\",\"keyword\":false}]}]}],\"body\":{\"location\":\" at 516:40\",\"type\":\"block\",\"statements\":[{\"location\":\" at 517:8\",\"type\":\"=\",\"target\":{\"type\":\"id\",\"value\":\"s\",\"keyword\":false},\"expression\":{\"location\":\" at 517:15\",\"type\":\"[]\",\"target\":{\"type\":\"id\",\"value\":\"size\",\"keyword\":false},\"arguments\":{\"type\":\"list\",\"value\":[{\"type\":\"id\",\"value\":\"_261\",\"keyword\":false}]}}},{\"location\":\" at 518:19\",\"type\":\"=\",\"target\":{\"type\":\"id\",\"value\":\"num_features\",\"keyword\":false},\"expression\":{\"location\":\" at 518:31\",\"type\":\"call\",\"target\":{\"location\":\" at 518:27\",\"type\":\".\",\"target\":{\"type\":\"id\",\"value\":\"torch\",\"keyword\":false},\"member\":{\"type\":\"id\",\"value\":\"mul\",\"keyword\":false}},\"arguments\":[{\"type\":\"id\",\"value\":\"num_features\",\"keyword\":false},{\"type\":\"id\",\"value\":\"s\",\"keyword\":false}]}}]}}' in 'blitz_neural_networks_tutorial.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
     "target": "blitz_cifar10_tutorial.pt",
     "source": "https://github.com/lutzroeder/netron/files/3748500/blitz_cifar10_tutorial.zip[blitz_cifar10_tutorial.pt]",
     "format": "TorchScript v1",
