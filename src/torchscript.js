@@ -1081,6 +1081,9 @@ torchscript.Container = class {
         this._functionTable.set('int', function(/* tensor */) {
             return 0; // TODO
         });
+        this._functionTable.set('float', function(/* tensor */) {
+            return 0.0; // TODO
+        });
         this._functionTable.set('getattr', function(obj, name, defaultValue) {
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
                 return obj[name];
@@ -1418,6 +1421,8 @@ torchscript.Container = class {
                 case 'torch.adaptive_avg_pool2d':
                 case 'torch.batch_norm':
                 case 'torch.cat':
+                case 'torch.select':
+                case 'torch.unsqueeze':
                     return { __type__: 'Tensor' }; // TODO
                 case 'torch.max_pool2d_with_indices':
                     return [ { __type__: 'Tensor' }, { __type__: 'Tensor' } ]; // TODO
@@ -1617,6 +1622,17 @@ torchscript.Container = class {
                 }
                 if (expression.value === 'int') {
                     return { __typeref__: expression.value };
+                }
+                if (expression.value === 'CONSTANTS') {
+                    if (!Object.prototype.hasOwnProperty.call(locals, 'CONSTANTS')) {
+                        let obj = {};
+                        let constants = this.constants;
+                        for (let i = 0; i < constants.length; i++) {
+                            obj['c' + i.toString()] = constants[i];
+                        }
+                        locals['CONSTANTS'] = obj;
+                    }
+                    return locals['CONSTANTS'];
                 }
                 break;
             }
