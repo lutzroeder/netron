@@ -5034,6 +5034,13 @@
   },
   {
     "type":   "torchscript",
+    "target": "blitz_cifar10_tutorial.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3748500/blitz_cifar10_tutorial.zip[blitz_cifar10_tutorial.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
     "target": "cruise_cutin_vehicle_model.pt",
     "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_cutin_vehicle_model.pt?raw=true",
     "format": "TorchScript v1",
