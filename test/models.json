@@ -3757,8 +3757,16 @@
   },
   {
     "type":   "pytorch",
+    "target": "Mobilenet_se_focal_121000.pt",
+    "source": "https://download.01.org/openvinotoolkit/open_model_zoo/training_toolbox_pytorch/models/fr/Mobilenet_se_focal_121000.pt",
+    "format": "PyTorch",
+    "link":   "https://github.com/grib0ed0v/face_recognition.pytorch"
+  },
+  {
+    "type":   "pytorch",
     "target": "model_chall_train_152ft_384x288.pth.tar",
     "source": "https://www.dropbox.com/s/hfz5nkd39uisvbr/model_chall_train_152ft_384x288.pth.tar?dl=1",
+    "format": "PyTorch",
     "link":   "https://github.com/JimmySuen/integral-human-pose"
   },
   {
@@ -3766,6 +3774,7 @@
     "target": "pytorch_invalid_file.pth",
     "source": "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
     "error":  "Could not find end of line in 'pytorch_invalid_file.pth'.",
+    "format": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/133"
   },
   {
@@ -3778,24 +3787,30 @@
   {
     "type":   "pytorch",
     "target": "resnet18-5c106cde.pth",
-    "source": "https://download.pytorch.org/models/resnet18-5c106cde.pth"
+    "source": "https://download.pytorch.org/models/resnet18-5c106cde.pth",
+    "format": "PyTorch",
+    "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
   },
   {
     "type":   "pytorch",
     "target": "resnet18_large_blocks.pth",
     "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/resnet18_large_blocks.pth?raw=true",
+    "format": "PyTorch",
     "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
   },
   {
     "type":   "pytorch",
     "target": "resnet-18-at-export.pth",
     "source": "https://s3.amazonaws.com/modelzoo-networks/resnet-18-at-export.pth",
+    "format": "PyTorch",
     "link":   "https://github.com/szagoruyko/attention-transfer"
   },
   {
     "type":   "pytorch",
     "target": "resnet34-333f7ec4.pth",
-    "source": "https://download.pytorch.org/models/resnet34-333f7ec4.pth"
+    "source": "https://download.pytorch.org/models/resnet34-333f7ec4.pth",
+    "format": "PyTorch",
+    "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
   },
   {
     "type":   "pytorch",

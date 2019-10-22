@@ -633,7 +633,7 @@ pytorch.ModelFactory = class {
             }
         }
         const candidates = [ 
-            root, root.state_dict, root.state, 
+            root, root.state_dict, root.state,
             root.model_state, root.model, root.model_state_dict,
             root.params, root.generator, root.discriminator, root.g_state,
             root.network, root.net, root.netG,
@@ -730,10 +730,10 @@ pytorch.ModelFactory = class {
                 state_map[state_group_name] = state_group;
                 state_dict.push(state_group);
             }
-            const  item = obj[state_group_name];
+            const item = obj[state_group_name];
             if (!item) {
                 return null;
-            } 
+            }
             if (Array.isArray(item)) {
                 for (let entry of item) {
                     if (!entry || !entry.key || !entry.value || !pytorch.ModelFactory._isTensor(entry.value)) {
@@ -746,7 +746,7 @@ pytorch.ModelFactory = class {
                     });
                 }
             }
-            else {
+            else if (Object(item) === item) {
                 for (let key in item) {
                     const value = item[key];
                     if (pytorch.ModelFactory._isTensor(value)) {
@@ -762,6 +762,9 @@ pytorch.ModelFactory = class {
                         return null;
                     }
                 }
+            }
+            else {
+                return null;
             }
         }
         return state_dict;
