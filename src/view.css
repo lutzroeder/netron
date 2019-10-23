@@ -234,17 +234,3 @@ body {
 .dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
 .dropdown .separator { border-color: #424242; }
 }
-
-.dark-mode .background { background-color: #1e1e1e; }
-.dark-mode .logo .stroke { stroke: #666666; }
-.dark-mode .logo .fill { fill: #666666; }
-.dark-mode .logo .border { stroke: #000000; }
-.dark-mode .spinner .stroke { stroke: #aaaaaa; }
-.dark-mode .graph { background-color: #404040; }
-.dark-mode .graph-container { background-color: #404040; }
-.dark-mode .background button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
-.dark-mode .background button:hover { color: #1e1e1e; background-color: #aaaaaa; }
-.dark-mode .icon .border { stroke: #1d1d1d; }
-.dark-mode .icon .stroke { stroke: #aaaaaa; }
-.dark-mode .icon:hover .stroke { stroke: #dfdfdf; }
-

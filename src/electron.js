@@ -27,25 +27,11 @@ host.ElectronHost = class {
             throw new Error('window.eval() not supported.');
         };
 
-        this._updateTheme();
-        if (electron.remote.systemPreferences.subscribeNotification) {
-            electron.remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => this._updateTheme());
-        }
         this.document.body.style.opacity = 1;
     }
 
     get document() {
         return window.document;
-    }
-
-    _updateTheme() {
-        if (electron.remote.systemPreferences.isDarkMode &&
-            electron.remote.systemPreferences.isDarkMode()) {
-            this.document.body.classList.add('dark-mode');
-        }
-        else {
-            this.document.body.classList.remove('dark-mode');
-        }
     }
 
     get version() {
