@@ -135,10 +135,10 @@ class Application {
                     'xml' ] }
             ]
         };
-        electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {
-            if (selectedFiles) {
-                for (let selectedFile of selectedFiles) {
-                    this._openFile(selectedFile);
+        electron.dialog.showOpenDialog(showOpenDialogOptions).then((result) => {
+            if (!result.canceled) {
+                for (let file of result.filePaths) {
+                    this._openFile(file);
                 }
             }
         });
@@ -267,7 +267,7 @@ class Application {
         let aboutDialogOptions = {
             icon: path.join(__dirname, 'icon.png'),
             title: ' ',
-            message: electron.app.getName(),
+            message: electron.app.name,
             detail: details.join('\n')
         };
         electron.dialog.showMessageBoxSync(owner, aboutDialogOptions);
@@ -306,7 +306,7 @@ class Application {
         
         if (process.platform === 'darwin') {
             menuTemplate.unshift({
-                label: electron.app.getName(),
+                label: electron.app.name,
                 submenu: [
                     { role: "about" },
                     { type: 'separator' },
@@ -560,8 +560,8 @@ class View {
 
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         let options = {};
-        options.title = electron.app.getName(); 
-        options.backgroundColor = electron.systemPreferences.isDarkMode() ? '#1d1d1d' : '#e6e6e6';
+        options.title = electron.app.name; 
+        options.backgroundColor = electron.nativeTheme.shouldUseDarkColors ? '#1d1d1d' : '#e6e6e6';
         options.icon = electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
         options.minWidth = 600;
         options.minHeight = 400;
@@ -679,7 +679,7 @@ class View {
                 this._path = value;
                 let title = Application.minimizePath(this._path);
                 if (process.platform !== 'darwin') {
-                    title = title + ' - ' + electron.app.getName();
+                    title = title + ' - ' + electron.app.name;
                 }
                 this._window.setTitle(title);
                 this._window.focus();
