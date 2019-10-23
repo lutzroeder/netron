@@ -1,5 +1,33 @@
 [
   {
+    "type":   "bigdl",
+    "target": "analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
+    "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/imageclassification/imagenet/analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
+    "format": "BigDL",
+    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification/"
+  },
+  {
+    "type":   "bigdl",
+    "target": "analytics-zoo_inception-v3_imagenet_0.1.0.model",
+    "source": "https://analytics-zoo-models.s3-ap-southeast-1.amazonaws.com/analytics-zoo_inception-v3_imagenet_0.1.0.model",
+    "format": "BigDL",
+    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification/"
+  },
+  {
+    "type":   "bigdl",
+    "target": "analytics-zoo_ssd-mobilenet-300x300_PASCAL_0.1.0.model",
+    "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/object-detection/analytics-zoo_ssd-mobilenet-300x300_PASCAL_0.1.0.model",
+    "format": "BigDL",
+    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/object-detection/"
+  },
+  {
+    "type":   "bigdl",
+    "target": "bigdl_inception-v1_imagenet_0.4.0.model",
+    "source": "https://s3-ap-southeast-1.amazonaws.com/bigdl-models/imageclassification/imagenet/bigdl_inception-v1_imagenet_0.4.0.model",
+    "format": "BigDL",
+    "link":   "https://github.com/intel-analytics/analytics-zoo/tree/master/pyzoo/zoo/examples/nnframes/imageTransferLearning"
+  },
+  {
     "type":   "caffe",
     "target": "1D_lstm.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/1D_lstm.prototxt",

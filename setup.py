@@ -90,6 +90,7 @@ setuptools.setup(
             'numpy.js', 'pickle.js', 'hdf5.js', 'bson.js',
             'zip.js', 'tar.js', 'gzip.js',
             'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
+            'bigdl.js', 'bigdl-metadata.json',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
             'chainer.js',

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout"
+    }
+  },
+  {
+    "name": "Linear",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Scale",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "SpatialBatchNormalization",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "SpatialConvolution",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "SpatialCrossMapLRN",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "SpatialAveragePooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "SpatialMaxPooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "SoftMax",
+    "schema": {
+      "category": "Activation"
+    }
+  }
+]

@@ -388,6 +388,7 @@ caffe.Parameter = class {
 };
 
 caffe.Argument = class {
+
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;

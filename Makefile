@@ -21,6 +21,7 @@ reset:
 
 update:
 	@[ -d node_modules ] || npm install
+	@./tools/bigdl sync schema
 	@./tools/caffe sync schema
 	@./tools/coreml sync install schema
 	@./tools/chainer sync
