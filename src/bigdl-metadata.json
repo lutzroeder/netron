@@ -8,13 +8,23 @@
   {
     "name": "Linear",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
     }
   },
   {
     "name": "Scale",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
     }
   },
   {
@@ -26,7 +36,12 @@
   {
     "name": "SpatialConvolution",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
     }
   },
   {

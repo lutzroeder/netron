@@ -4,21 +4,28 @@
     "target": "analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/imageclassification/imagenet/analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
     "format": "BigDL",
-    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification/"
+    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification"
   },
   {
     "type":   "bigdl",
     "target": "analytics-zoo_inception-v3_imagenet_0.1.0.model",
     "source": "https://analytics-zoo-models.s3-ap-southeast-1.amazonaws.com/analytics-zoo_inception-v3_imagenet_0.1.0.model",
     "format": "BigDL",
-    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification/"
+    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification"
+  },
+  {
+    "type":   "bigdl",
+    "target": "analytics-zoo_mobilenet-v2_imagenet_0.1.0.model",
+    "source": "https://analytics-zoo-models.s3-ap-southeast-1.amazonaws.com/analytics-zoo_mobilenet-v2_imagenet_0.1.0.model",
+    "format": "BigDL",
+    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification"
   },
   {
     "type":   "bigdl",
     "target": "analytics-zoo_ssd-mobilenet-300x300_PASCAL_0.1.0.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/object-detection/analytics-zoo_ssd-mobilenet-300x300_PASCAL_0.1.0.model",
     "format": "BigDL",
-    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/object-detection/"
+    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/object-detection"
   },
   {
     "type":   "bigdl",

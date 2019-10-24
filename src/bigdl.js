@@ -1,6 +1,8 @@
 /* jshint esversion: 6 */
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
+// Experimental
+
 var bigdl = bigdl || {};
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
@@ -24,6 +26,7 @@ bigdl.ModelFactory = class {
             return bigdl.Metadata.open(host).then((metadata) => {
                 const identifier = context.identifier;
                 try {
+                    // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
                     bigdl.proto = protobuf.roots.bigdl.com.intel.analytics.bigdl.serialization;
                     let module = bigdl.proto.BigDLModule.decode(context.buffer);
                     return new bigdl.Model(metadata, module);
@@ -139,17 +142,44 @@ bigdl.Node = class {
     constructor(metadata, module) {
         this._metadata = metadata;
         this._type = module.moduleType.split('.').pop();
-        this._name = module.name || this._type + module.namePostfix;
+        this._name = module.name;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
         this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
+        const schema =  metadata.getSchema(this.operator);
+        let inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
+        inputs.shift();
+        if (module.weight) {
+            inputs.shift();
+            this._inputs.push(new bigdl.Parameter('weight', [
+                new bigdl.Argument('', null, new bigdl.Tensor(module.weight))
+            ]));
+        }
+        if (module.bias) {
+            inputs.shift();
+            this._inputs.push(new bigdl.Parameter('bias', [
+                new bigdl.Argument('', null, new bigdl.Tensor(module.bias))
+            ]));
+        }
+        if (module.parameters && module.parameters.length > 0) {
+            for (let parameter of module.parameters) {
+                const input = inputs.shift();
+                const inputName = input ? input.name : this._inputs.length.toString();
+                this._inputs.push(new bigdl.Parameter(inputName, [ 
+                    new bigdl.Argument('', null, new bigdl.Tensor(parameter))
+                ]));
+            }
+        }
         for (let key of Object.keys(module.attr)) {
             const value = module.attr[key];
             if (key === 'module_numerics' || key === 'module_tags') {
                 continue;
             }
             if (value.dataType === bigdl.proto.DataType.TENSOR) {
+                if (value.value) {
+                    this._inputs.push(new bigdl.Parameter(key, [ new bigdl.Argument('', null, new bigdl.Tensor(value.tensorValue)) ]));
+                }
                 continue;
             }
             if (value.dataType === bigdl.proto.DataType.REGULARIZER && value.value === undefined) {
@@ -161,22 +191,9 @@ bigdl.Node = class {
             }
             this._attributes.push(new bigdl.Attribute(metadata, this._operator, key, value));
         }
-        if (module.weight) {
-            this._inputs.push(new bigdl.Parameter('weight', [
-                new bigdl.Argument('', null, new bigdl.Tensor(module.weight))
-            ]));
-        }
-        if (module.bias) {
-            this._inputs.push(new bigdl.Parameter('bias', [
-                new bigdl.Argument('', null, new bigdl.Tensor(module.bias))
-            ]));
-        }
-        if (module.parameters && module.parameters.length > 0) {
-            this._inputs.push(new bigdl.Parameter('parameters', module.parameters.map((tensor) => new bigdl.Argument('', null, new bigdl.Tensor(tensor)))));
-        }
-        // this._outputs.push(new bigdl.Parameter('output', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
+        const output = this._name || this._type + module.namePostfix
         this._outputs.push(new bigdl.Parameter('output', [
-            new bigdl.Argument(this._name, null, null)
+            new bigdl.Argument(output, null, null)
         ]));
     }
 
