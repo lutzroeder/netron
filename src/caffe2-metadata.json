@@ -8691,7 +8691,7 @@
           "option": "optional"
         },
         {
-          "description": "An error is raised when ratio of empty ranges exceeds this.",
+          "description": "An crital log is triggered when ratio of empty ranges exceeds this.",
           "name": "max_empty_ratio",
           "option": "optional"
         },
