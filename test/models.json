@@ -2670,6 +2670,13 @@
   },
   {
     "type":   "ncnn",
+    "target": "centerface/centerface.param,centerface/centerface.bin",
+    "source": "https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param?raw=true,https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin?raw=true",
+    "format": "NCNN",
+    "link":   "https://github.com/MirrorYuChen/ncnn_example"
+  },
+  {
+    "type":   "ncnn",
     "target": "darknet_yolov2/darknet_yolov2.cfg.ncnn,darknet_yolov2/darknet_yolov2.weights.ncnn",
     "source": "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.weights.ncnn",
     "format": "NCNN",
@@ -2688,6 +2695,13 @@
     "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/googlenet.param",
     "format": "NCNN",
     "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "mnet-opt/mnet-opt.param,mnet-opt/mnet-opt.bin",
+    "source": "https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.param?raw=true,https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.bin?raw=true",
+    "format": "NCNN",
+    "link":   "https://github.com/MirrorYuChen/ncnn_example"
   },
   {
     "type":   "ncnn",

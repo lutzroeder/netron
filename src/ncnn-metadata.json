@@ -134,6 +134,9 @@
       "attributes": [
         { "name": "op_type", "default": 0 },
         { "name": "coeffs", "default": [] }
+      ],
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
       ]
     }
   },
