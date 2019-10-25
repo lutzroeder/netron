@@ -23,7 +23,7 @@ torch.ModelFactory = class {
         return torch.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier;
             try {
-                let reader = new torch.T7Reader(context.buffer, (name) => {
+                const reader = new torch.T7Reader(context.buffer, (name) => {
                     if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
                         host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                     }
@@ -74,7 +74,6 @@ torch.Graph = class {
 
         let inputs = [];
         let outputs = [];
-
         this._loadModule(metadata, root, [], '', inputs, outputs);
 
         this._inputs = this._inputs.concat(inputs.map((input, index) => {
@@ -105,18 +104,14 @@ torch.Graph = class {
         if (groups.length > 0) {
             this._groups = true;
         }
-        let index;
-        let subModule;
-        let subInputs;
-        let subOutputs;
         switch (module.__type__) {
             case 'nn.Sequential': {
                 groups.push(key);
-                subInputs = inputs;
-                subOutputs = [];
+                let subInputs = inputs;
+                let subOutputs = [];
                 const length = module.modules.length;
-                index = 0;
-                for (subModule of module.modules) {
+                let index = 0;
+                for (let subModule of module.modules) {
                     if (index == length - 1) {
                         subOutputs = outputs;
                     }                    
@@ -134,10 +129,10 @@ torch.Graph = class {
                 groups.push(key);
                 let newInputs = [];
                 let newOutputs = [];
-                index = 0;
-                for (subModule of module.modules) {
-                    subInputs = [].concat(inputs);
-                    subOutputs = [].concat(outputs);
+                let index = 0;
+                for (let subModule of module.modules) {
+                    let subInputs = [].concat(inputs);
+                    let subOutputs = [].concat(outputs);
                     this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     if (inputs.length == 0) {
                         newInputs = newInputs.concat(subInputs);
@@ -161,8 +156,8 @@ torch.Graph = class {
                     inputs.push(new torch.Argument(groups.join('/') + ':' + key + ':in', null, null));
                 }
                 let concatInputs = [];
-                index = 0;
-                for (subModule of module.modules) {
+                let index = 0;
+                for (let subModule of module.modules) {
                     let streamInputs = inputs.map((input) => input);
                     let streamOutputs = [];
                     this._loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
@@ -251,14 +246,12 @@ torch.Node = class {
         else {
             this._name = this._group ? (this._group + ':' + name) : name;
         }
-        let type = module.__type__;
+        const type = module.__type__;
         this._operator = type ? type.split('.').pop() : 'Unknown';
         let initializers = [];
-        let key;
-        let obj;
-        for (key of Object.keys(module)) {
-            obj = module[key];
-            if (obj.__type__ && obj.__type__ == 'torch.LongStorage') {
+        for (let key of Object.keys(module)) {
+            const obj = module[key];
+            if (obj && obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Storage')) {
                 let array = [];
                 obj.reset();
                 for (let i = 0; i < obj.size; i++) {
@@ -350,9 +343,12 @@ torch.Node = class {
         }
         this._attributes = [];
         if (module.__type__) {
-            for (key of Object.keys(module)) {
-                obj = module[key];
+            for (let key of Object.keys(module)) {
                 if (key == '__type__' || key == '_type') {
+                    continue;
+                }
+                const obj = module[key];
+                if (Array.isArray(obj) && obj.every(((item) => item && item.__type__ && item.__type__.startsWith('nn.')))) {
                     continue;
                 }
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
@@ -514,7 +510,7 @@ torch.Tensor = class {
             return '';
         }
         context.limit = 1000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
@@ -552,7 +548,7 @@ torch.Tensor = class {
 
     _decode(context, dimension) {
         let results = [];
-        let size = context.dimensions[dimension];
+        const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
