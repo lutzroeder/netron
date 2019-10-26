@@ -1085,13 +1085,6 @@
   },
   {
     "type":   "cntk",
-    "target": "v2/HotailorPOC2.model",
-    "source": "https://privdatastorage.blob.core.windows.net/github/cntk-python-web-service-on-azure/HotailorPOC2.model",
-    "format": "CNTK v2",
-    "link":   "https://github.com/karolzak/cntk-python-web-service-on-azure"
-  },
-  {
-    "type":   "cntk",
     "target": "v2/initial_policy_network.dnn",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/bindings/python/cntk/contrib/deeprl/tests/data/initial_policy_network.dnn",
     "format": "CNTK v2",
@@ -2335,7 +2328,7 @@
     "type":   "mlnet",
     "target": "product_month_fastTreeTweedie.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Forecasting-Sales/src/eShopDashboard/Forecast/ModelFiles/product_month_fastTreeTweedie.zip?raw=true",
-    "format": "ML.NET v1.2.27902.10",
+    "format": "ML.NET v1.3.28006.10",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
@@ -4895,13 +4888,6 @@
   },
   {
     "type":   "torch",
-    "target": "completionnet_places2.t7",
-    "source": "http://hi.cs.waseda.ac.jp/~iizuka/data/completionnet_places2.t7",
-    "format": "Torch v7",
-    "link":   "https://github.com/yangwangx/inpainting_glcic_pytorch"
-  },
-  {
-    "type":   "torch",
     "target": "composition_vii.t7",
     "source": "https://cs.stanford.edu/people/jcjohns/fast-neural-style/models/eccv16/composition_vii.t7",
     "format": "Torch v7",
@@ -4976,13 +4962,6 @@
     "source": "https://drive.google.com/uc?export=download&id=1KJMUW0sOZ3CRjshCEsJPd76DN4GT6Otv",
     "format": "Torch v7",
     "link":   "https://github.com/robbiebarrat/art-DCGAN/issues/3"
-  },
-  {
-    "type":   "torch",
-    "target": "RefineNet.t7",
-    "source": "http://www.visionlab.cs.hku.hk/data/TOM-Net/TOM-Net_model.tgz[TOM-Net_model/RefineNet.t7]",
-    "format": "Torch v7",
-    "link":   "https://github.com/guanyingc/TOM-Net"
   },
   {
     "type":   "torch",
