@@ -37,14 +37,14 @@
         }
       ],
       "description": "Transform between iterable of iterables and a multilabel format\n\nAlthough a list of sets or tuples is a very intuitive format for multilabel\ndata, it is unwieldy to process. This transformer converts between this\nintuitive format and the supported multilabel format: a (samples x classes)\nbinary matrix indicating the presence of a class label.\n",
-      "package": "sklearn.preprocessing.label"
+      "package": "sklearn.preprocessing"
     }
   },
   {
     "name": "LabelEncoder",
     "schema": {
       "description": "Encode target labels with value between 0 and n_classes-1.\n\nThis transformer should be used to encode target values, *i.e.* `y`, and\nnot the input `X`.\n\nRead more in the :ref:`User Guide <preprocessing_targets>`.\n",
-      "package": "sklearn.preprocessing.label"
+      "package": "sklearn.preprocessing"
     }
   },
   {
@@ -367,7 +367,7 @@
         }
       ],
       "description": "Logistic Regression (aka logit, MaxEnt) classifier.\n\nIn the multiclass case, the training algorithm uses the one-vs-rest (OvR)\nscheme if the 'multi_class' option is set to 'ovr', and uses the\ncross-entropy loss if the 'multi_class' option is set to 'multinomial'.\n(Currently the 'multinomial' option is supported only by the 'lbfgs',\n'sag', 'saga' and 'newton-cg' solvers.)\n\nThis class implements regularized logistic regression using the\n'liblinear' library, 'newton-cg', 'sag', 'saga' and 'lbfgs' solvers. **Note\nthat regularization is applied by default**. It can handle both dense\nand sparse input. Use C-ordered arrays or CSR matrices containing 64-bit\nfloats for optimal performance; any other input format will be converted\n(and copied).\n\nThe 'newton-cg', 'sag', and 'lbfgs' solvers support only L2 regularization\nwith primal formulation, or no regularization. The 'liblinear' solver\nsupports both L1 and L2 regularization, with a dual formulation only for\nthe L2 penalty. The Elastic-Net regularization is only supported by the\n'saga' solver.\n\nRead more in the :ref:`User Guide <logistic_regression>`.\n",
-      "package": "sklearn.linear_model.logistic"
+      "package": "sklearn.linear_model"
     }
   },
   {
@@ -1162,7 +1162,7 @@
         }
       ],
       "description": "\nOrdinary least squares Linear Regression.\n",
-      "package": "sklearn.linear_model.base"
+      "package": "sklearn.linear_model"
     }
   }
 ]
