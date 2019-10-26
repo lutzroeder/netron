@@ -310,7 +310,7 @@ torchscript.Graph = class {
                 for (let key of Object.keys(module)) {
                     if (!key.startsWith('__')) {
                         let value = module[key];
-                        if (value.__type__ && !torchscript.Utility.isTensor(value)) {
+                        if (value && value.__type__ && !torchscript.Utility.isTensor(value)) {
                             submodules.push(value);
                         }
                     }
