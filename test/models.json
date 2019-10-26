@@ -213,7 +213,7 @@
     "type":   "caffe",
     "target": "deploy_iResNet_ROB.tpl.prototxt",
     "source": "https://raw.githubusercontent.com/leonzfa/iResNet/master/models/model/deploy_iResNet_ROB.tpl.prototxt",
-    "error":  "File text format is not caffe.NetParameter (Unexpected token '$' at 70:17) in 'deploy_iResNet_ROB.tpl.prototxt'.",
+    "error":  "File text format is not caffe.NetParameter (Couldn't parse float '$SCALE_WIDTH' at 727:59) in 'deploy_iResNet_ROB.tpl.prototxt'.",
     "link":   "https://github.com/leonzfa/iResNet"
   },
   {
@@ -419,20 +419,6 @@
   },
   {
     "type":   "caffe",
-    "target": "mobilenet_yolov3_solver.prototxt,mobilenet_yolov3_train.prototxt",
-    "source": "https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_solver.prototxt,https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_train.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/eric612/Caffe-YOLOv3-Windows"
-  },
-  {
-    "type":   "caffe",
-    "target": "mobilenet_yolov3_lite_train.prototxt",
-    "source": "https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_lite_train.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/eric612/Caffe-YOLOv3-Windows"
-  },
-  {
-    "type":   "caffe",
     "target": "mobilenet.caffemodel",
     "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet.caffemodel",
     "format": "Caffe v2",
@@ -447,6 +433,20 @@
   },
   {
     "type":   "caffe",
+    "target": "mobilenet_yolov3_lite_train.prototxt",
+    "source": "https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_lite_train.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/eric612/Caffe-YOLOv3-Windows"
+  },
+  {
+    "type":   "caffe",
+    "target": "mobilenet_yolov3_solver.prototxt,mobilenet_yolov3_train.prototxt",
+    "source": "https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_solver.prototxt,https://raw.githubusercontent.com/eric612/Caffe-YOLOv3-Windows/master/models/yolov3/mobilenet_yolov3_train.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/eric612/Caffe-YOLOv3-Windows"
+  },
+  {
+    "type":   "caffe",
     "target": "mobilenet_v2.caffemodel",
     "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2.caffemodel",
     "format": "Caffe v2",
@@ -458,6 +458,13 @@
     "source": "https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2_deploy.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/shicai/MobileNet-Caffe"
+  },
+  {
+    "type":   "caffe",
+    "target": "MobileNetSSD_train.prototxt",
+    "source": "https://github.com/lutzroeder/netron/files/3771164/MobileNetSSD_train.prototxt.txt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/358"
   },
   {
     "type":   "caffe",

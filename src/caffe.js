@@ -109,7 +109,7 @@ caffe.ModelFactory = class {
             reader.field = function(tag, message) {
                 let type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
-                    message[tag] = caffe.ModelFactory._decodeText(reader, true);
+                    message[tag] = caffe.ModelFactory._decodeText(reader);
                     return;
                 }  
                 else if (message.constructor.name.endsWith('Parameter')) {
@@ -155,19 +155,20 @@ caffe.ModelFactory = class {
         }
     }
 
-    static _decodeText(reader, block) {
+    static _decodeText(reader) {
         let message = {};
-        reader.start(block);
-        while (!reader.end(block)) {
-            let tag = reader.tag();
-            if (message[tag]) {
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            const value = reader.skip();
+            if (!message[tag]) {
+                message[tag] = value;
+            }
+            else {
                 if (!Array.isArray(message[tag])) {
                     message[tag] = [ message[tag] ];
                 }
-                message[tag].push(reader.skip());
-            }
-            else {
-                message[tag] = reader.skip();
+                message[tag].push(value);
             }
         }
         return message;
