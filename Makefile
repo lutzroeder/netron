@@ -3,7 +3,7 @@
 
 build: clean lint build_python build_electron
 
-publish: clean lint publish_github_electron publish_python publish_github_pages publish_snap publish_cask
+publish: clean lint publish_github_electron publish_python publish_github_pages publish_cask
 
 install:
 	rm -rf ./node_modules
@@ -48,7 +48,11 @@ build_python:
 build_electron:
 	@[ -d node_modules ] || npm install
 	npx electron-builder install-app-deps
-	npx electron-builder --mac --linux --win
+	npx electron-builder --mac
+	npx electron-builder --win
+	npx electron-builder --linux deb
+	npx electron-builder --linux appimage
+	npx electron-builder --linux snap
 
 lint:
 	@[ -d node_modules ] || npm install
@@ -72,7 +76,11 @@ publish_python:
 publish_github_electron:
 	@[ -d node_modules ] || npm install
 	npx electron-builder install-app-deps
-	npx electron-builder --mac --linux --win --publish always
+	npx electron-builder --mac --publish always
+	npx electron-builder --win --publish always
+	npx electron-builder --linux deb --publish always
+	npx electron-builder --linux appimage --publish always
+	npx electron-builder --linux snap --publish always
 
 publish_github_pages:
 	@[ -d node_modules ] || npm install
@@ -87,9 +95,6 @@ publish_github_pages:
 	git -C ./build/gh-pages add --all
 	git -C ./build/gh-pages commit --amend --no-edit
 	git -C ./build/gh-pages push --force origin gh-pages
-
-publish_snap:
-	snapcraft push --release=stable build/*.snap
 
 publish_cask:
 	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d ''

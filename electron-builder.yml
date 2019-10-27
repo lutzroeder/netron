@@ -101,6 +101,10 @@ snap:
   plugs:
   - default
   - removable-media
+  publish:
+  - provider: snapStore
+    channels:
+    - stable
 win:
   target:
   - nsis
