@@ -189,7 +189,7 @@ class Application {
     }
 
     _export() {
-        let view = this._views.activeView;
+        const view = this._views.activeView;
         if (view && view.path) {
             let defaultPath = 'Untitled';
             const file = view.path;
@@ -264,7 +264,7 @@ class Application {
             details.push('');
             details.push('Copyright \u00A9 ' + date.getFullYear().toString() + ' ' + author.name);
         }
-        let aboutDialogOptions = {
+        const aboutDialogOptions = {
             icon: path.join(__dirname, 'icon.png'),
             title: ' ',
             message: electron.app.name,
@@ -565,14 +565,8 @@ class View {
         options.icon = electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
         options.minWidth = 600;
         options.minHeight = 400;
-        options.width = size.width;
-        options.height = size.height;
-        if (options.width > 1024) {
-            options.width = 1024;
-        }
-        if (options.height > 768) {
-            options.height = 768;
-        }
+        options.width = size.width > 1024 ? 1024 : size.width;
+        options.height = size.height > 768 ? 768 : size.height;
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;
             options.y = View._position[1] + 30;
@@ -776,8 +770,8 @@ class ViewCollection {
     }
 
     _updateActiveView() {
-        let window = electron.BrowserWindow.getFocusedWindow();
-        let view = this._views.find(view => view.window == window) || null;
+        const window = electron.BrowserWindow.getFocusedWindow();
+        const view = this._views.find(view => view.window == window) || null;
         if (view != this._activeView) {
             this._activeView = view;
             this._raise('active-view-changed', { activeView: this._activeView });
@@ -791,9 +785,9 @@ class ConfigurationService {
         this._data = { 'recents': [] };
         const dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
-            let file = path.join(dir, 'configuration.json'); 
+            const file = path.join(dir, 'configuration.json'); 
             if (fs.existsSync(file)) {
-                let data = fs.readFileSync(file);
+                const data = fs.readFileSync(file);
                 if (data) {
                     try {
                         this._data = JSON.parse(data);
@@ -810,9 +804,9 @@ class ConfigurationService {
         if (this._data) {
             const data = JSON.stringify(this._data);
             if (data) {
-                let dir = electron.app.getPath('userData');
+                const dir = electron.app.getPath('userData');
                 if (dir && dir.length > 0) {
-                    let file = path.join(dir, 'configuration.json'); 
+                    const file = path.join(dir, 'configuration.json'); 
                     fs.writeFileSync(file, data);
                 }
             }
@@ -873,7 +867,7 @@ class MenuService {
             const menuItem = this._menu.getMenuItemById(entry[0]);
             const command = entry[1];
             if (command && command.label) {
-                let label = command.label(context);
+                const label = command.label(context);
                 if (label != menuItem.label) {
                     if (this._itemTable.has(entry[0])) {
                         this._itemTable.get(entry[0]).label = label;
@@ -889,7 +883,7 @@ class MenuService {
         for (let entry of this._commandTable.entries()) {
             const menuItem = this._menu.getMenuItemById(entry[0]);
             if (menuItem) {
-                let command = entry[1];
+                const command = entry[1];
                 if (command.enabled) {
                     menuItem.enabled = command.enabled(context);
                 }
