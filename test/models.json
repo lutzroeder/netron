@@ -35,6 +35,13 @@
     "link":   "https://github.com/intel-analytics/analytics-zoo/tree/master/pyzoo/zoo/examples/nnframes/imageTransferLearning"
   },
   {
+    "type":   "bigdl",
+    "target": "bigdl_messi_quantize.model",
+    "source": "https://s3-ap-southeast-1.amazonaws.com/bigdl-models/object-detection/bigdl_messi_quantize.model",
+    "format": "BigDL",
+    "link":   "https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=2ahUKEwisj6SS1sDlAhWRsJ4KHU1jCPAQFjAAegQIABAB&url=https%3A%2F%2Fcode.ihub.org.cn%2Fprojects%2F224%2Frepository%2Fcommit_diff%3Fchangeset%3Dad9908ee94c150af026b0be07a7d35dea071cf15&usg=AOvVaw3jUiipbdKKG6pDJs_Z7_kE"
+  },
+  {
     "type":   "caffe",
     "target": "1D_lstm.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/1D_lstm.prototxt",

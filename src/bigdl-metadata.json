@@ -17,6 +17,22 @@
     }
   },
   {
+    "name": "NormalizeScale",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "w" }
+      ]
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "Scale",
     "schema": {
       "category": "Layer",
@@ -25,6 +41,12 @@
         { "name": "weight" },
         { "name": "bias" }
       ]
+    }
+  },
+  {
+    "name": "SoftMax",
+    "schema": {
+      "category": "Activation"
     }
   },
   {
@@ -51,6 +73,17 @@
     }
   },
   {
+    "name": "SpatialDilatedConvolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
+    }
+  },
+  {
     "name": "SpatialAveragePooling",
     "schema": {
       "category": "Pool"
@@ -63,15 +96,9 @@
     }
   },
   {
-    "name": "ReLU",
+    "name": "Transpose",
     "schema": {
-      "category": "Activation"
-    }
-  },
-  {
-    "name": "SoftMax",
-    "schema": {
-      "category": "Activation"
+      "category": "Shape"
     }
   }
 ]

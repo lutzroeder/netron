@@ -15,7 +15,7 @@ bigdl.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'model' || extension == 'bigdl') {
             const tags = context.tags('pb');
-            if (tags.has(1) && tags.has(2) && tags.has(7) && tags.has(8) && tags.has(9)) {
+            if (tags.has(2) && tags.has(7) && tags.has(8) && tags.has(9) && tags.has(10) && tags.has(11) && tags.has(12)) {
                 return true;
             }
         }
@@ -66,9 +66,42 @@ bigdl.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        for (let submodule of module.subModules) {
-            this._nodes.push(new bigdl.Node(metadata, submodule));
+        this._loadModule(metadata, '', module);
+    }
+
+    _loadModule(metadata, group, module) {
+        switch (module.moduleType) {
+            case 'com.intel.analytics.bigdl.nn.StaticGraph': {
+                this._loadStaticGraph(metadata, group, module)
+                break;
+            }
+            case 'com.intel.analytics.bigdl.nn.Sequential': {
+                this._loadSequential(metadata, group, module)
+                break;
+            }
+            default: {
+                this._nodes.push(new bigdl.Node(metadata, group, module));
+                break;
+            }
         }
+    }
+
+    _loadSequential(metadata, group, module) {
+        group = group.length > 0 ?  group + '.' + module.namePostfix : module.namePostfix;
+        for (let submodule of module.subModules) {
+            this._loadModule(metadata, group, submodule);
+        }
+    }
+
+    _loadStaticGraph(metadata, group, module) {
+        group = group.length > 0 ?  group + '.' + module.namePostfix : module.namePostfix;
+        for (let submodule of module.subModules) {
+            this._loadModule(metadata, group, submodule);
+        }
+    }
+
+    get groups() {
+        return this._groups || false;
     }
 
     get type() {
@@ -139,8 +172,9 @@ bigdl.Argument = class {
 
 bigdl.Node = class {
 
-    constructor(metadata, module) {
+    constructor(metadata, group, module) {
         this._metadata = metadata;
+        this._group = group;
         this._type = module.moduleType.split('.').pop();
         this._name = module.name;
         this._attributes = [];
@@ -195,6 +229,10 @@ bigdl.Node = class {
         this._outputs.push(new bigdl.Parameter('output', [
             new bigdl.Argument(output, null, null)
         ]));
+    }
+
+    get group() {
+        return this._group;
     }
 
     get operator() {
