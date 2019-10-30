@@ -235,6 +235,7 @@ keras.Graph = class {
         if (model) {
             this._name = model.name || (model.config && model.config.name ? model.config.name : '');
             switch (model.class_name) {
+                case 'AllCNN':
                 case 'Sequential':
                     this._loadSequential(model.config, weights, '', null, null);
                     break;
