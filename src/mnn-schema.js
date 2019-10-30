@@ -196,7 +196,8 @@ MNN.BinaryOpOperation = {
   FLOORDIV: 13,
   SquaredDifference: 14,
   EQUAL: 15,
-  LESS_EQUAL: 16
+  LESS_EQUAL: 16,
+  FLOORMOD: 17
 };
 
 /**
@@ -219,7 +220,8 @@ MNN.BinaryOpOperationName = {
   '13': 'FLOORDIV',
   '14': 'SquaredDifference',
   '15': 'EQUAL',
-  '16': 'LESS_EQUAL'
+  '16': 'LESS_EQUAL',
+  '17': 'FLOORMOD'
 };
 
 /**
@@ -232,7 +234,9 @@ MNN.ReductionType = {
   MEAN: 3,
   MAXIMUM: 4,
   MINIMUM: 5,
-  PROD: 6
+  PROD: 6,
+  ANY: 7,
+  ALL: 8
 };
 
 /**
@@ -245,7 +249,9 @@ MNN.ReductionTypeName = {
   '3': 'MEAN',
   '4': 'MAXIMUM',
   '5': 'MINIMUM',
-  '6': 'PROD'
+  '6': 'PROD',
+  '7': 'ANY',
+  '8': 'ALL'
 };
 
 /**
@@ -540,6 +546,8 @@ MNN.OpType = {
   ReverseSequence: 111,
   Pooling3D: 112,
   Convolution3D: 113,
+  MatrixBandPart: 114,
+  GatherND: 115,
   MaxLayerCount: 128,
   ConvertTensor: 129,
   PLUGIN: 256,
@@ -679,6 +687,8 @@ MNN.OpTypeName = {
   '111': 'ReverseSequence',
   '112': 'Pooling3D',
   '113': 'Convolution3D',
+  '114': 'MatrixBandPart',
+  '115': 'GatherND',
   '128': 'MaxLayerCount',
   '129': 'ConvertTensor',
   '256': 'PLUGIN',
@@ -1378,6 +1388,565 @@ MNN.Blob.createBlob = function(builder, dimsOffset, dataFormat, dataType, uint8s
   MNN.Blob.addFloat32s(builder, float32sOffset);
   MNN.Blob.addStrings(builder, stringsOffset);
   return MNN.Blob.endBlob(builder);
+}
+
+/**
+ * @constructor
+ */
+MNN.ListValue = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {MNN.ListValue}
+ */
+MNN.ListValue.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.ListValue=} obj
+ * @returns {MNN.ListValue}
+ */
+MNN.ListValue.getRootAsListValue = function(bb, obj) {
+  return (obj || new MNN.ListValue).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.ListValue=} obj
+ * @returns {MNN.ListValue}
+ */
+MNN.ListValue.getSizePrefixedRootAsListValue = function(bb, obj) {
+  return (obj || new MNN.ListValue).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+MNN.ListValue.prototype.s = function(index, optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.ListValue.prototype.sLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+MNN.ListValue.prototype.i = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.ListValue.prototype.iLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+MNN.ListValue.prototype.iArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+MNN.ListValue.prototype.f = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.ListValue.prototype.fLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Float32Array}
+ */
+MNN.ListValue.prototype.fArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {number} index
+ * @returns {boolean}
+ */
+MNN.ListValue.prototype.b = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index) : false;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.ListValue.prototype.bLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int8Array}
+ */
+MNN.ListValue.prototype.bArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {number} index
+ * @returns {MNN.DataType}
+ */
+MNN.ListValue.prototype.type = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? /** @type {MNN.DataType} */ (this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4)) : /** @type {MNN.DataType} */ (0);
+};
+
+/**
+ * @returns {number}
+ */
+MNN.ListValue.prototype.typeLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+MNN.ListValue.prototype.typeArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+MNN.ListValue.startListValue = function(builder) {
+  builder.startObject(5);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} sOffset
+ */
+MNN.ListValue.addS = function(builder, sOffset) {
+  builder.addFieldOffset(0, sOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.ListValue.createSVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.ListValue.startSVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} iOffset
+ */
+MNN.ListValue.addI = function(builder, iOffset) {
+  builder.addFieldOffset(1, iOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.ListValue.createIVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.ListValue.startIVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} fOffset
+ */
+MNN.ListValue.addF = function(builder, fOffset) {
+  builder.addFieldOffset(2, fOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.ListValue.createFVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addFloat32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.ListValue.startFVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} bOffset
+ */
+MNN.ListValue.addB = function(builder, bOffset) {
+  builder.addFieldOffset(3, bOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<boolean>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.ListValue.createBVector = function(builder, data) {
+  builder.startVector(1, data.length, 1);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(+data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.ListValue.startBVector = function(builder, numElems) {
+  builder.startVector(1, numElems, 1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} typeOffset
+ */
+MNN.ListValue.addType = function(builder, typeOffset) {
+  builder.addFieldOffset(4, typeOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<MNN.DataType>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.ListValue.createTypeVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.ListValue.startTypeVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+MNN.ListValue.endListValue = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} sOffset
+ * @param {flatbuffers.Offset} iOffset
+ * @param {flatbuffers.Offset} fOffset
+ * @param {flatbuffers.Offset} bOffset
+ * @param {flatbuffers.Offset} typeOffset
+ * @returns {flatbuffers.Offset}
+ */
+MNN.ListValue.createListValue = function(builder, sOffset, iOffset, fOffset, bOffset, typeOffset) {
+  MNN.ListValue.startListValue(builder);
+  MNN.ListValue.addS(builder, sOffset);
+  MNN.ListValue.addI(builder, iOffset);
+  MNN.ListValue.addF(builder, fOffset);
+  MNN.ListValue.addB(builder, bOffset);
+  MNN.ListValue.addType(builder, typeOffset);
+  return MNN.ListValue.endListValue(builder);
+}
+
+/**
+ * @constructor
+ */
+MNN.Attribute = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {MNN.Attribute}
+ */
+MNN.Attribute.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.Attribute=} obj
+ * @returns {MNN.Attribute}
+ */
+MNN.Attribute.getRootAsAttribute = function(bb, obj) {
+  return (obj || new MNN.Attribute).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.Attribute=} obj
+ * @returns {MNN.Attribute}
+ */
+MNN.Attribute.getSizePrefixedRootAsAttribute = function(bb, obj) {
+  return (obj || new MNN.Attribute).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+MNN.Attribute.prototype.s = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.Attribute.prototype.i = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {boolean}
+ */
+MNN.Attribute.prototype.b = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+MNN.Attribute.prototype.key = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {MNN.DataType}
+ */
+MNN.Attribute.prototype.type = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? /** @type {MNN.DataType} */ (this.bb.readInt32(this.bb_pos + offset)) : MNN.DataType.DT_INVALID;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.Attribute.prototype.f = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @param {MNN.Blob=} obj
+ * @returns {MNN.Blob|null}
+ */
+MNN.Attribute.prototype.tensor = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? (obj || new MNN.Blob).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {MNN.ListValue=} obj
+ * @returns {MNN.ListValue|null}
+ */
+MNN.Attribute.prototype.list = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? (obj || new MNN.ListValue).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+MNN.Attribute.startAttribute = function(builder) {
+  builder.startObject(8);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} sOffset
+ */
+MNN.Attribute.addS = function(builder, sOffset) {
+  builder.addFieldOffset(0, sOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} i
+ */
+MNN.Attribute.addI = function(builder, i) {
+  builder.addFieldInt32(1, i, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} b
+ */
+MNN.Attribute.addB = function(builder, b) {
+  builder.addFieldInt8(2, +b, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} keyOffset
+ */
+MNN.Attribute.addKey = function(builder, keyOffset) {
+  builder.addFieldOffset(3, keyOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {MNN.DataType} type
+ */
+MNN.Attribute.addType = function(builder, type) {
+  builder.addFieldInt32(4, type, MNN.DataType.DT_INVALID);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} f
+ */
+MNN.Attribute.addF = function(builder, f) {
+  builder.addFieldFloat32(5, f, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} tensorOffset
+ */
+MNN.Attribute.addTensor = function(builder, tensorOffset) {
+  builder.addFieldOffset(6, tensorOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} listOffset
+ */
+MNN.Attribute.addList = function(builder, listOffset) {
+  builder.addFieldOffset(7, listOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+MNN.Attribute.endAttribute = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} sOffset
+ * @param {number} i
+ * @param {boolean} b
+ * @param {flatbuffers.Offset} keyOffset
+ * @param {MNN.DataType} type
+ * @param {number} f
+ * @param {flatbuffers.Offset} tensorOffset
+ * @param {flatbuffers.Offset} listOffset
+ * @returns {flatbuffers.Offset}
+ */
+MNN.Attribute.createAttribute = function(builder, sOffset, i, b, keyOffset, type, f, tensorOffset, listOffset) {
+  MNN.Attribute.startAttribute(builder);
+  MNN.Attribute.addS(builder, sOffset);
+  MNN.Attribute.addI(builder, i);
+  MNN.Attribute.addB(builder, b);
+  MNN.Attribute.addKey(builder, keyOffset);
+  MNN.Attribute.addType(builder, type);
+  MNN.Attribute.addF(builder, f);
+  MNN.Attribute.addTensor(builder, tensorOffset);
+  MNN.Attribute.addList(builder, listOffset);
+  return MNN.Attribute.endAttribute(builder);
 }
 
 /**
@@ -16078,10 +16647,28 @@ MNN.Extra.prototype.infoArray = function() {
 };
 
 /**
+ * @param {number} index
+ * @param {MNN.Attribute=} obj
+ * @returns {MNN.Attribute}
+ */
+MNN.Extra.prototype.attr = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? (obj || new MNN.Attribute).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.Extra.prototype.attrLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 MNN.Extra.startExtra = function(builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -16131,6 +16718,35 @@ MNN.Extra.startInfoVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} attrOffset
+ */
+MNN.Extra.addAttr = function(builder, attrOffset) {
+  builder.addFieldOffset(3, attrOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.Extra.createAttrVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.Extra.startAttrVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 MNN.Extra.endExtra = function(builder) {
@@ -16143,13 +16759,15 @@ MNN.Extra.endExtra = function(builder) {
  * @param {flatbuffers.Offset} typeOffset
  * @param {flatbuffers.Offset} engineOffset
  * @param {flatbuffers.Offset} infoOffset
+ * @param {flatbuffers.Offset} attrOffset
  * @returns {flatbuffers.Offset}
  */
-MNN.Extra.createExtra = function(builder, typeOffset, engineOffset, infoOffset) {
+MNN.Extra.createExtra = function(builder, typeOffset, engineOffset, infoOffset, attrOffset) {
   MNN.Extra.startExtra(builder);
   MNN.Extra.addType(builder, typeOffset);
   MNN.Extra.addEngine(builder, engineOffset);
   MNN.Extra.addInfo(builder, infoOffset);
+  MNN.Extra.addAttr(builder, attrOffset);
   return MNN.Extra.endExtra(builder);
 }
 
