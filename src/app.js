@@ -245,8 +245,7 @@ class Application {
 
     get package() { 
         if (!this._package) {
-            const appPath = electron.app.getAppPath();
-            const file = appPath + '/package.json'; 
+            const file = path.join(path.dirname(__dirname), 'package.json');
             const data = fs.readFileSync(file);
             this._package = JSON.parse(data);
             this._package.date = new Date(fs.statSync(file).mtime);
@@ -265,6 +264,7 @@ class Application {
             details.push('Copyright \u00A9 ' + date.getFullYear().toString() + ' ' + author.name);
         }
         const aboutDialogOptions = {
+            buttons: [ 'OK' ],
             icon: path.join(__dirname, 'icon.png'),
             title: ' ',
             message: electron.app.name,
