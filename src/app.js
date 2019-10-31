@@ -135,13 +135,12 @@ class Application {
                     'xml' ] }
             ]
         };
-        electron.dialog.showOpenDialog(showOpenDialogOptions).then((result) => {
-            if (!result.canceled) {
-                for (let file of result.filePaths) {
-                    this._openFile(file);
-                }
+        const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
+        if (!selectedFiles) {
+            for (let file of selectedFiles) {
+                this._openFile(file);
             }
-        });
+        }
     }
 
     _openFile(file) {
@@ -207,11 +206,10 @@ class Application {
                     { name: 'SVG', extensions: [ 'svg' ] }
                 ]
             };
-            electron.dialog.showSaveDialog(owner, showSaveDialogOptions, (filename) => {
-                if (filename) {
-                    view.execute('export', { 'file': filename });
-                }
-            });
+            const selectedFile = electron.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
+            if (selectedFile) {
+                view.execute('export', { 'file': selectedFile });
+            }
         }
     }
 
