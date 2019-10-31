@@ -1166,6 +1166,7 @@ view.ModelFactoryService = class {
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
+        this.register('./armnn', [ '.armnn' ]);
     }
 
     register(id, extensions) {
