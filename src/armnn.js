@@ -50,7 +50,7 @@ armnn.ModelFactory = class {
 armnn.Model = class {
 
     constructor(model, metadata) {
-        this._format = 'ArmNN';
+        this._format = 'Arm NN';
         this._description = '';
         this._graphs = [ new armnn.Graph(model, metadata) ];
     }
@@ -71,7 +71,7 @@ armnn.Model = class {
 armnn.Graph = class {
 
     constructor(graph, metadata) {
-        this._name = 'ArmNN\'s Serialized Graph';
+        this._name = 'Arm NN\'s Serialized Graph';
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
@@ -705,7 +705,7 @@ armnn.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'Error loading ArmNN model.';
+        this.name = 'Error loading Arm NN model.';
     }
 };
 
