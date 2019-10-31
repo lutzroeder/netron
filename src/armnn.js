@@ -270,6 +270,8 @@ armnn.Node = class {
         let schema = this._metadata.getSchema(layerName);
 
         let _layer = armnn.Node.castLayer(layer);
+	if (_layer == null)
+	    return;
 
         if (typeof schema["attributes"] != "undefined") {
             for (let i = 0 ; i < schema.attributes.length ; i++) {
