@@ -131,6 +131,7 @@ class Application {
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
+                    'armnn',
                     'cfg',
                     'xml' ] }
             ]

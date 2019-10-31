@@ -1154,6 +1154,7 @@ view.ModelFactoryService = class {
         this.register('./torchscript', [ '.pt', '.pt1', '.pth' ]);
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.json' ]);
+        this.register('./armnn', [ '.armnn' ]);
         this.register('./sklearn', [ '.pkl', '.joblib', '.model' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./openvino', [ '.xml' ]);
