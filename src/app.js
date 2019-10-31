@@ -136,13 +136,12 @@ class Application {
                     'xml' ] }
             ]
         };
-        electron.dialog.showOpenDialog(showOpenDialogOptions).then((result) => {
-            if (!result.canceled) {
-                for (let file of result.filePaths) {
-                    this._openFile(file);
-                }
+        const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
+        if (!selectedFiles) {
+            for (let file of selectedFiles) {
+                this._openFile(file);
             }
-        });
+        }
     }
 
     _openFile(file) {
@@ -208,11 +207,10 @@ class Application {
                     { name: 'SVG', extensions: [ 'svg' ] }
                 ]
             };
-            electron.dialog.showSaveDialog(owner, showSaveDialogOptions, (filename) => {
-                if (filename) {
-                    view.execute('export', { 'file': filename });
-                }
-            });
+            const selectedFile = electron.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
+            if (selectedFile) {
+                view.execute('export', { 'file': selectedFile });
+            }
         }
     }
 
@@ -246,9 +244,7 @@ class Application {
 
     get package() { 
         if (!this._package) {
-            const appPath = electron.app.getAppPath();
-            const appDir = electron.app.isPackaged ? appPath : path.dirname(appPath);
-            const file = path.join(appDir, 'package.json');
+            const file = path.join(path.dirname(__dirname), 'package.json');
             const data = fs.readFileSync(file);
             this._package = JSON.parse(data);
             this._package.date = new Date(fs.statSync(file).mtime);

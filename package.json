@@ -18,7 +18,7 @@
     "dependencies": {
         "d3": "5.12.0",
         "dagre": "0.8.4",
-        "electron-updater": "4.1.2",
+        "electron-updater": "4.2.0",
         "flatbuffers": "1.11.0",
         "handlebars": "4.5.1",
         "long": "4.0.0",
@@ -29,7 +29,7 @@
     },
     "devDependencies": {
         "electron": "7.0.0",
-        "electron-builder": "21.2.0",
+        "electron-builder": "22.1.0",
         "electron-notarize": "0.1.1",
         "eslint": "6.6.0",
         "xmldom": "0.1.27"

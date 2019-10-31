@@ -173,11 +173,10 @@ host.ElectronHost = class {
             buttonLabel: 'Export',
             filters: [ { name: name, extensions: [ extension ] } ]
         };
-        electron.remote.dialog.showSaveDialog(owner, showSaveDialogOptions, (filename) => {
-            if (filename) {
-                callback(filename);
-            }
-        });
+        const selectedFile = electron.remote.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
+        if (selectedFile) {
+            callback(selectedFile);
+        }
     }
 
     export(file, blob) {
