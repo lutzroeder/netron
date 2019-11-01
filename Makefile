@@ -40,6 +40,7 @@ update:
 	@./tools/tf sync install schema metadata
 	@./tools/tflite sync install schema
 	@./tools/torch sync
+	@./tools/armnn sync install schema
 
 build_python:
 	@[ -d node_modules ] || npm install
