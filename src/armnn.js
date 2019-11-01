@@ -196,102 +196,7 @@ armnn.Node = class {
     }
 
     static castLayer(layer) {
-        let layerType = layer.layerType();
-
-        if (layerType == armnn.schema.Layer.ActivationLayer)
-            return layer.layer(new armnn.schema.ActivationLayer);
-        else if (layerType == armnn.schema.Layer.AdditionLayer)
-            return layer.layer(new armnn.schema.AdditionLayer);
-        else if (layerType == armnn.schema.Layer.BatchToSpaceNdLayer)
-            return layer.layer(new armnn.schema.BatchToSpaceNdLayer);
-        else if (layerType == armnn.schema.Layer.BatchNormalizationLayer)
-            return layer.layer(new armnn.schema.BatchNormalizationLayer);
-        else if (layerType == armnn.schema.Layer.ConstantLayer)
-            return layer.layer(new armnn.schema.ConstantLayer);
-        else if (layerType == armnn.schema.Layer.Convolution2dLayer)
-            return layer.layer(new armnn.schema.Convolution2dLayer);
-        else if (layerType == armnn.schema.Layer.DepthwiseConvolution2dLayer)
-            return layer.layer(new armnn.schema.DepthwiseConvolution2dLayer);
-        else if (layerType == armnn.schema.Layer.FullyConnectedLayer)
-            return layer.layer(new armnn.schema.FullyConnectedLayer);
-        else if (layerType == armnn.schema.Layer.InputLayer)
-            return layer.layer(new armnn.schema.InputLayer);
-        else if (layerType == armnn.schema.Layer.MultiplicationLayer)
-            return layer.layer(new armnn.schema.MultiplicationLayer);
-        else if (layerType == armnn.schema.Layer.OutputLayer)
-            return layer.layer(new armnn.schema.OutputLayer);
-        else if (layerType == armnn.schema.Layer.PermuteLayer)
-            return layer.layer(new armnn.schema.PermuteLayer);
-        else if (layerType == armnn.schema.Layer.Pooling2dLayer)
-            return layer.layer(new armnn.schema.Pooling2dLayer);
-        else if (layerType == armnn.schema.Layer.ReshapeLayer)
-            return layer.layer(new armnn.schema.ReshapeLayer);
-        else if (layerType == armnn.schema.Layer.SoftmaxLayer)
-            return layer.layer(new armnn.schema.SoftmaxLayer);
-        else if (layerType == armnn.schema.Layer.SpaceToBatchNdLayer)
-            return layer.layer(new armnn.schema.SpaceToBatchNdLayer);
-        else if (layerType == armnn.schema.Layer.DivisionLayer)
-            return layer.layer(new armnn.schema.DivisionLayer);
-        else if (layerType == armnn.schema.Layer.MinimumLayer)
-            return layer.layer(new armnn.schema.MinimumLayer);
-        else if (layerType == armnn.schema.Layer.EqualLayer)
-            return layer.layer(new armnn.schema.EqualLayer);
-        else if (layerType == armnn.schema.Layer.MaximumLayer)
-            return layer.layer(new armnn.schema.MaximumLayer);
-        else if (layerType == armnn.schema.Layer.NormalizationLayer)
-            return layer.layer(new armnn.schema.NormalizationLayer);
-        else if (layerType == armnn.schema.Layer.PadLayer)
-            return layer.layer(new armnn.schema.PadLayer);
-        else if (layerType == armnn.schema.Layer.RsqrtLayer)
-            return layer.layer(new armnn.schema.RsqrtLayer);
-        else if (layerType == armnn.schema.Layer.FloorLayer)
-            return layer.layer(new armnn.schema.FloorLayer);
-        else if (layerType == armnn.schema.Layer.GreaterLayer)
-            return layer.layer(new armnn.schema.GreaterLayer);
-        else if (layerType == armnn.schema.Layer.ResizeBilinearLayer)
-            return layer.layer(new armnn.schema.ResizeBilinearLayer);
-        else if (layerType == armnn.schema.Layer.SubtractionLayer)
-            return layer.layer(new armnn.schema.SubtractionLayer);
-        else if (layerType == armnn.schema.Layer.StridedSliceLayer)
-            return layer.layer(new armnn.schema.StridedSliceLayer);
-        else if (layerType == armnn.schema.Layer.GatherLayer)
-            return layer.layer(new armnn.schema.GatherLayer);
-        else if (layerType == armnn.schema.Layer.MeanLayer)
-            return layer.layer(new armnn.schema.MeanLayer);
-        else if (layerType == armnn.schema.Layer.MergerLayer)
-            return layer.layer(new armnn.schema.MergerLayer);
-        else if (layerType == armnn.schema.Layer.L2NormalizationLayer)
-            return layer.layer(new armnn.schema.L2NormalizationLayer);
-        else if (layerType == armnn.schema.Layer.SplitterLayer)
-            return layer.layer(new armnn.schema.SplitterLayer);
-        else if (layerType == armnn.schema.Layer.DetectionPostProcessLayer)
-            return layer.layer(new armnn.schema.DetectionPostProcessLayer);
-        else if (layerType == armnn.schema.Layer.LstmLayer)
-            return layer.layer(new armnn.schema.LstmLayer);
-        else if (layerType == armnn.schema.Layer.QuantizedLstmLayer)
-            return layer.layer(new armnn.schema.QuantizedLstmLayer);
-        else if (layerType == armnn.schema.Layer.QuantizeLayer)
-            return layer.layer(new armnn.schema.QuantizeLayer);
-        else if (layerType == armnn.schema.Layer.DequantizeLayer)
-            return layer.layer(new armnn.schema.DequantizeLayer);
-        else if (layerType == armnn.schema.Layer.MergeLayer)
-            return layer.layer(new armnn.schema.MergeLayer);
-        else if (layerType == armnn.schema.Layer.SwitchLayer)
-            return layer.layer(new armnn.schema.SwitchLayer);
-        else if (layerType == armnn.schema.Layer.ConcatLayer)
-            return layer.layer(new armnn.schema.ConcatLayer);
-        else if (layerType == armnn.schema.Layer.SpaceToDepthLayer)
-            return layer.layer(new armnn.schema.SpaceToDepthLayer);
-        else if (layerType == armnn.schema.Layer.PreluLayer)
-            return layer.layer(new armnn.schema.PreluLayer);
-        else if (layerType == armnn.schema.Layer.TransposeConvolution2dLayer)
-            return layer.layer(new armnn.schema.TransposeConvolution2dLayer);
-        else if (layerType == armnn.schema.Layer.ResizeLayer)
-            return layer.layer(new armnn.schema.ResizeLayer);
-        else if (layerType == armnn.schema.Layer.StackLayer)
-            return layer.layer(new armnn.schema.StackLayer);
-        else
-            return null;
+	return armnn.schema.castLayer(armnn.schema, layer);
     }
 
     static getBase(layer) {
@@ -312,6 +217,9 @@ armnn.Node = class {
         let key  = attr.src;
         let type = attr.src_type;
 
+        if (typeof descriptor[key] == "undefined")
+            return "undefined";
+
         if (typeof type != "undefined") {
             if (typeof armnn.schema[type + "Name"] != "undefined")
                 return armnn.schema[type + "Name"][descriptor[key]()];
@@ -326,20 +234,13 @@ armnn.Node = class {
             return values.join(", ");
         }
         else {
-            return this.packArray(descriptor[key]());
-        }
-    }
-
-    packArray(arr) {
-        let values = [];
-        if (Array.isArray(arr)) {
-            for (let i = 0 ; i < arr.length ; i++)
-                values.push(this.packArray(arr[i]));
-
-            return "[ " + values.join(", ") + " ]";
-        }
-        else {
-            return arr;
+            let values = descriptor[key]();
+            if (Array.isArray(values)) {
+                return values.join(", ");
+            }
+            else {
+                return values;
+            }
         }
     }
 
@@ -354,8 +255,8 @@ armnn.Node = class {
         if (typeof schema["attributes"] != "undefined") {
             for (let i = 0 ; i < schema.attributes.length ; i++) {
                 let attr = schema.attributes[i];
-                let value = this.packAttr(_layer, attr);
 
+                let value = this.packAttr(_layer, attr);
                 this._attributes.push(new armnn.Attribute(attr.name, attr.type, value));
             }
         }

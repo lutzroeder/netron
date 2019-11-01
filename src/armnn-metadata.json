@@ -94,7 +94,7 @@
     "schema": {
       "category": "Activation",
       "attributes": [
-        { "name": "function", "type": "string", "src": "func", "src_type": "ActivationFunction" },
+        { "name": "function", "type": "string", "src": "activationFunction", "src_type": "ActivationFunction" },
         { "name": "a", "type": "float", "src": "a" },
         { "name": "b", "type": "float", "src": "b" }
       ]

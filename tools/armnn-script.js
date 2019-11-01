@@ -1,5 +1,5 @@
 var flatbuffers = require('../third_party/flatbuffers/js/flatbuffers.js').flatbuffers;
-var schema = require('../src/armnn-schema.js.new');
+var schema = require('../src/armnn-schema.js');
 
 console.log('');
 console.log('armnnSerializer.castLayer = function(schema, layer) {');
