@@ -2486,11 +2486,15 @@
   {
     "name": "HasElements",
     "schema": {
-      "description": "\nThe *HasElements* op accepts a single input $tensor$, and produces a single boolean output $has\\_elements$. The output is *True* if and only if $tensor$ has size > 0. Note, this op is the opposite of the *IsEmpty* op.\n\nGithub Links:\n\n- https://github.com/caffe2/caffe2/blob/master/caffe2/operators/utility_ops.cc\n- https://github.com/caffe2/caffe2/blob/master/caffe2/operators/utility_ops.h\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"HasElements\",\n    [\"tensor\"],\n    [\"has_elements\"],\n)\n\n// Use a not-empty tensor\nworkspace.FeedBlob(\"tensor\", np.random.randn(2, 2).astype(np.float32))\nprint(\"tensor:\\n\", workspace.FetchBlob(\"tensor\"))\n\nworkspace.RunOperatorOnce(op)\nprint(\"has_elements: \", workspace.FetchBlob(\"has_elements\"),\"\\n\")\n\n// Use an empty tensor\nworkspace.FeedBlob(\"tensor\", np.empty(0))\nprint(\"tensor:\\n\", workspace.FetchBlob(\"tensor\"))\n\nworkspace.RunOperatorOnce(op)\nprint(\"has_elements: \", workspace.FetchBlob(\"has_elements\"))\n\n```\n\n**Result**\n\n```\n\ntensor:\n [[ 0.6116506  -0.54433197]\n [ 0.19406661 -0.7338629 ]]\nhas_elements:  True\n\ntensor:\n []\nhas_elements:  False\n\n```\n\n</details>\n\n",
+      "description": "\nThe *HasElements* op accepts a single or multiple input tensors, and produces a single boolean output $has\\_elements$. The output is *True* if and only if any of the input tensor has size > 0. Note, this op is the opposite of the *IsEmpty* op.\n\nGithub Links:\n\n- https://github.com/caffe2/caffe2/blob/master/caffe2/operators/utility_ops.cc\n- https://github.com/caffe2/caffe2/blob/master/caffe2/operators/utility_ops.h\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"HasElements\",\n    [\"tensor\"],\n    [\"has_elements\"],\n)\n\n// Use a not-empty tensor\nworkspace.FeedBlob(\"tensor\", np.random.randn(2, 2).astype(np.float32))\nprint(\"tensor:\\n\", workspace.FetchBlob(\"tensor\"))\n\nworkspace.RunOperatorOnce(op)\nprint(\"has_elements: \", workspace.FetchBlob(\"has_elements\"),\"\\n\")\n\n// Use an empty tensor\nworkspace.FeedBlob(\"tensor\", np.empty(0))\nprint(\"tensor:\\n\", workspace.FetchBlob(\"tensor\"))\n\nworkspace.RunOperatorOnce(op)\nprint(\"has_elements: \", workspace.FetchBlob(\"has_elements\"))\n\n```\n\n**Result**\n\n```\n\ntensor:\n [[ 0.6116506  -0.54433197]\n [ 0.19406661 -0.7338629 ]]\nhas_elements:  True\n\ntensor:\n []\nhas_elements:  False\n\n```\n\n</details>\n\n",
       "inputs": [
         {
           "description": "Input data tensor to check for elements.",
           "name": "tensor"
+        },
+        {
+          "description": "List of input data tensors to check for elements.",
+          "name": "X1, X2, ..."
         }
       ],
       "outputs": [
@@ -8691,13 +8695,18 @@
           "option": "optional"
         },
         {
-          "description": "An crital log is triggered when ratio of empty ranges exceeds this.",
+          "description": "An error log is triggered when ratio of empty ranges exceeds this.",
           "name": "max_empty_ratio",
           "option": "optional"
         },
         {
           "description": "An error is raised when ratio of mismatched ranges exceeds this.",
           "name": "max_mismatched_ratio",
+          "option": "optional"
+        },
+        {
+          "description": "A log is recorded only after an error is triggered every n times.",
+          "name": "log_every_n",
           "option": "optional"
         }
       ],
