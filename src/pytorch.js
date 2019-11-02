@@ -634,7 +634,7 @@ pytorch.ModelFactory = class {
         }
         const candidates = [ 
             root, root.state_dict, root.state,
-            root.model_state, root.model, root.model_state_dict,
+            root.model_state, root.model, root.model_state_dict, root.net_dict,
             root.params, root.generator, root.discriminator, root.g_state,
             root.network, root.net, root.netG,
             root.state_dict_stylepredictor, root.state_dict_ghiasi
