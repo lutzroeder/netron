@@ -5372,6 +5372,7 @@
                 values[valuesById[6] = "DATA_ITERATOR_SPEC"] = 6;
                 values[valuesById[7] = "OPTIONAL_SPEC"] = 7;
                 values[valuesById[8] = "PER_REPLICA_SPEC"] = 8;
+                values[valuesById[9] = "VARIABLE_SPEC"] = 9;
                 return values;
             })();
     
