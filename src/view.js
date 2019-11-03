@@ -1230,6 +1230,7 @@ view.ModelFactoryService = class {
                         'mscoco_label_map.pbtxt',
                         'mscoco_complete_label_map.pbtxt',
                         'object-detection.pbtxt',
+                        'tf_label_map.pbtxt',
                         'training_label_map.pbtxt'
                     ]);
                     throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'.", !knownUnsupportedIdentifiers.has(context.identifier));
