@@ -45,6 +45,27 @@
     }
   },
   {
+    "name": "conv2d_relu",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "packed_weight" }
+      ],
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "groups", "type": "int64", "default": 1 },
+        { "name": "output_scale", "type": "float64" },
+        { "name": "output_zero_point", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "max_pool2d",
     "schema": {
       "category": "Pool",

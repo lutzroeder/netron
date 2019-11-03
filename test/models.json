@@ -5143,36 +5143,6 @@
   },
   {
     "type":   "torchscript",
-    "target": "mnist_linear_torchscript_1.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_1.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "torchscript",
-    "target": "mnist_linear_torchscript_2.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_2.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "torchscript",
-    "target": "mobilenet_quantized_scripted_925.pt",
-    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
-    "error":  "Unknown statement '{\"location\":\" at 374:8\",\"type\":\"=\",\"target\":{\"type\":\"id\",\"value\":\"_24\",\"keyword\":false},\"expression\":{\"location\":\" at 374:14\",\"type\":\".\",\"target\":{\"type\":\"id\",\"value\":\"_21\",\"keyword\":false},\"member\":{\"type\":\"id\",\"value\":\"stride\",\"keyword\":false}}}' in 'mobilenet_quantized_scripted_925.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/pytorch/android-demo-app"
-  },
-  {
-    "type":   "torchscript",
-    "target": "model-reddit16-f140225004_2.pt1",
-    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1?raw=true",
-    "error":  "Unknown statement '{\"location\":\" at 132:17\",\"type\":\"=\",\"target\":{\"location\":\" at 132:11\",\"type\":\"tuple\",\"value\":[{\"type\":\"id\",\"value\":\"_32\",\"keyword\":false},{\"type\":\"id\",\"value\":\"_33\",\"keyword\":false}]},\"expression\":{\"type\":\"id\",\"value\":\"hx\",\"keyword\":false}}' in 'model-reddit16-f140225004_2.pt1'.",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/pytorch/android-demo-app"
-  },
-  {
-    "type":   "torchscript",
     "target": "inception_v3.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
@@ -5208,10 +5178,39 @@
   },
   {
     "type":   "torchscript",
+    "target": "mnist_linear_torchscript_1.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_1.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
+    "target": "mnist_linear_torchscript_2.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_2.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "torchscript",
+    "target": "mobilenet_quantized_scripted_925.pt",
+    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/pytorch/android-demo-app"
+  },
+  {
+    "type":   "torchscript",
     "target": "mobilenet_v2_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "model-reddit16-f140225004_2.pt1",
+    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1?raw=true",
+    "error":  "Unknown function argument in 'model-reddit16-f140225004_2.pt1'.",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/pytorch/android-demo-app"
   },
   {
     "type":   "torchscript",
