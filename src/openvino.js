@@ -2,6 +2,7 @@
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var openvino = openvino || {};
+var base = base || require('./base');
 var marked = marked || require('marked');
 
 openvino.ModelFactory = class {
@@ -19,22 +20,38 @@ openvino.ModelFactory = class {
     }
 
     open(context, host) {
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        switch (extension) {
+            case 'xml':
+                return context.request(identifier.substring(0, identifier.length - 4) + '.bin', null).then((bin) => {
+                    return this._openModel(identifier, host, context.text, bin);
+                }).catch(() => {
+                    return this._openModel(identifier, host, context.text, null);
+                });
+            case 'bin':
+                return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
+                    return this._openModel(identifier, host, xml, context.buffer);
+                });
+        }
+    }
+
+    _openModel(identifier, host, xml, bin) {
         return openvino.Metadata.open(host).then((metadata) => {
-            const identifier = context.identifier;
             try {
                 let errors = false;
                 const parser = new DOMParser({ errorHandler: () => { errors = true; } });
-                const xml = parser.parseFromString(context.text, 'text/xml');
-                if (errors || xml.documentElement == null || xml.getElementsByTagName('parsererror').length > 0) {
+                const xmlDoc = parser.parseFromString(xml, 'text/xml');
+                if (errors || xmlDoc.documentElement == null || xmlDoc.getElementsByTagName('parsererror').length > 0) {
                     throw new openvino.Error("File format is not OpenVINO.");
                 }
-                const net = xml.documentElement;
+                const net = xmlDoc.documentElement;
                 if (!net || net.nodeName != 'net' ||
                     openvino.Node.children(net, 'layers').length != 1 ||
                     openvino.Node.children(net, 'edges').length != 1) {
                     throw new openvino.Error("File format is not OpenVINO IR.");
                 }
-                return new openvino.Model(metadata, net);
+                return new openvino.Model(metadata, net, bin);
             }
             catch (error) {
                 host.exception(error, false);
@@ -48,8 +65,8 @@ openvino.ModelFactory = class {
 
 openvino.Model = class {
 
-    constructor(metadata, net) {
-        let graph = new openvino.Graph(metadata, net);
+    constructor(metadata, net, bin) {
+        let graph = new openvino.Graph(metadata, net, bin);
         this._graphs = [ graph ];
     }
 
@@ -65,8 +82,7 @@ openvino.Model = class {
 
 openvino.Graph = class {
 
-    constructor(metadata, net) {
-        this._metadata = metadata;
+    constructor(metadata, net, bin) {
         this._name = net.getAttribute('name') || '';
         this._batch = net.getAttribute('batch') || '';
         this._version = net.getAttribute('version') || '';
@@ -101,12 +117,12 @@ openvino.Graph = class {
                     break;
                 }
                 default:
-                    this._nodes.push(new openvino.Node(this, this._metadata, layer, edgeMap));
+                    this._nodes.push(new openvino.Node(this, metadata, bin, layer, edgeMap));
                     break;
             }
         }
 
-        this._replaceTensorIteratorWithSubgraph(layers, edges);
+        this._replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges);
         delete this._arguments;
 
         // Validation
@@ -167,7 +183,7 @@ openvino.Graph = class {
         return argument;
     }
 
-    _replaceTensorIteratorWithSubgraph(layers, edges) {
+    _replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges) {
         const tiNodes = layers.filter((node) => node.getAttribute('type') === 'TensorIterator');
         for (let singleTensorIteratorNode of tiNodes) {
             const singleTensorIteratorNodeId = singleTensorIteratorNode.getAttribute("id");
@@ -183,7 +199,7 @@ openvino.Graph = class {
             const iteratorAllEdges = Object.assign({}, iteratorEdgeMap, iteratorBackEdgesMap);
             const mappingForNestedIR = this._parseMappingBlock(singleTensorIteratorNode);
             for (let nestedLayer of iteratorLayers) {
-                let nestedNode = new openvino.Node(this, this._metadata, nestedLayer, iteratorAllEdges);
+                let nestedNode = new openvino.Node(this, metadata, bin, nestedLayer, iteratorAllEdges);
                 nestedNode._id = `${singleTensorIteratorNodeId}_${nestedLayer.getAttribute('id')}`;
                 for (let input of nestedNode._inputs) {
                     for (let input_argument of input.arguments) {
@@ -324,7 +340,7 @@ openvino.Graph = class {
 
 openvino.Node = class {
 
-    constructor(graph, metadata, layer, edgeMap) {
+    constructor(graph, metadata, bin, layer, edgeMap) {
         this._metadata = metadata;
         this._type = layer.getAttribute('type');
         this._name = layer.getAttribute('name') || '';
@@ -356,9 +372,11 @@ openvino.Node = class {
                 outputIndex++;
             }
         }
+        let attributes = {};
         const data = openvino.Node.children(layer, 'data')[0];
         if (data && data.attributes) {
             for (let attribute of Array.from(data.attributes)) {
+                attributes[attribute.name] = attribute.value;
                 this._attributes.push(new openvino.Attribute(metadata, this, attribute.name, attribute.value));
             }
         }
@@ -367,10 +385,49 @@ openvino.Node = class {
             for (let blob of Array.from(blobs.childNodes).filter((node) => node.nodeName != '#text')) {
                 if (blob.getAttribute && typeof blob.getAttribute === 'function') {
                     const name = blob.nodeName;
-                    const offset = parseInt(blob.getAttribute('offset'));
-                    const size = parseInt(blob.getAttribute('size'));
+                    let data = null;
+                    let shape = null;
+                    if (bin) {
+                        const offset = parseInt(blob.getAttribute('offset'));
+                        const size = parseInt(blob.getAttribute('size'));
+                        if ((offset + size) <= bin.length) {
+                            data = bin.slice(offset, offset + size);
+                        }
+                        const precisionMap = { 'FP32': 4, 'FP16': 2, 'I8': 1 }
+                        if (precisionMap[precision]) {
+                            let itemSize = precisionMap[precision];
+                            switch (this._type) {
+                                case 'FullyConnected': {
+                                    switch (name) {
+                                        case 'weights': {
+                                            const outSize = parseInt(attributes['out-size'], 10);
+                                            shape = [ size / (outSize * itemSize), outSize ];
+                                            break;
+                                        }
+                                        case 'biases': {
+                                            shape = [ parseInt(attributes['out-size'], 10) ];
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                                case 'Convolution': {
+                                    switch (name) {
+                                        case 'biases': {
+                                            shape = [ size / itemSize ];
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (shape) {
+                        shape = new openvino.TensorShape(shape);
+                    }
                     this._initializers.push(new openvino.Parameter(name, [
-                        new openvino.Argument('', null, new openvino.Tensor(precision, null, offset, size))
+                        new openvino.Argument('', null, new openvino.Tensor(precision, shape, data))
                     ]));
                 }
             }
@@ -618,11 +675,9 @@ openvino.Attribute = class {
 
 openvino.Tensor = class {
 
-    constructor(precision, shape, offset, size) {
-        this._data = null;
-        this._reference = '{ offset: ' + offset.toString() + ', size: ' + size.toString() + ' }';
-        this._shape = shape;
-        this._type = new openvino.TensorType(precision, this._shape);
+    constructor(precision, shape, data) {
+        this._data = data;
+        this._type = new openvino.TensorType(precision, shape);
     }
 
     get type() {
@@ -633,20 +688,97 @@ openvino.Tensor = class {
         return 'Blob';
     }
 
-    get reference() {
-        return this._reference;
-    }
-
     get state() {
-        return 'Tensor data is empty.';
+        return this._context().state;
     }
 
     get value() {
-        return null;
+        let context = this._context();
+        if (context.state) {
+            return null;
+        }
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        return '';
+        let context = this._context();
+        if (context.state) {
+            return '';
+        }
+        context.limit = 10000;
+        let value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
+    }
+
+    _context() {
+        let context = {};
+        context.state = null;
+
+        if (!this._data) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+
+        if (!this._type.shape) {
+            context.state = 'Tensor shape is not defined.';
+            return context;
+        }
+
+        context.index = 0;
+        context.count = 0;
+        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+        context.dataType = this._type.dataType;
+        context.shape = this._type.shape.dimensions;
+
+        return context;
+    }
+
+    _decode(context, dimension) {
+        let shape = context.shape;
+        if (context.shape.length == 0) {
+            shape = [ 1 ];
+        }
+        let results = [];
+        let size = shape[dimension];
+        if (dimension == shape.length - 1) {
+            for (let i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                switch (this._type.dataType) {
+                    case 'float32':
+                        results.push(context.data.getFloat32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'float16':
+                        results.push(context.data.getFloat16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'int8':
+                        results.push(context.data.getInt8(context.index, true));
+                        context.index += 1;
+                        context.count++;
+                        break;
+                }
+            }
+        }
+        else {
+            for (let j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decode(context, dimension + 1));
+            }
+        }
+        if (context.shape.length == 0) {
+            return results[0];
+        }
+        return results;
     }
 };
 
@@ -654,12 +786,17 @@ openvino.TensorType = class {
 
     constructor(precision, shape) {
         switch (precision) {
+            case 'FP16':
+                this._dataType = 'float16';
+                break;
             case 'FP32':
                 this._dataType = 'float32';
                 break;
-            default:
-                this._dataType = precision;
+            case 'I8':
+                this._dataType = 'int8';
                 break;
+            default:
+                throw new openvino.Error("Unknown precision '" + precision + "'.");
         }
         this._shape = shape;
     }

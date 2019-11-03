@@ -3245,8 +3245,8 @@
   },
   {
     "type":   "openvino",
-    "target": "2018_R3_rm_lstm4f.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_lstm4f/rm_lstm4f.xml",
+    "target": "2018_R3_rm_lstm4f.xml,2018_R3_rm_lstm4f.bin",
+    "source": "https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_lstm4f/rm_lstm4f.xml,https://download.01.org/openvinotoolkit/2018_R3/models_contrib/GNA/rm_lstm4f/rm_lstm4f.bin",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
@@ -3462,8 +3462,8 @@
   },
   {
     "type":   "openvino",
-    "target": "2018_R4_landmarks-regression-retail-0009-fp16.xml",
-    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml",
+    "target": "2018_R4_landmarks-regression-retail-0009-fp16.xml,2018_R4_landmarks-regression-retail-0009-fp16.bin",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml,https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.bin",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
