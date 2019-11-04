@@ -196,7 +196,7 @@ armnn.Node = class {
     }
 
     static castLayer(layer) {
-	return armnn.schema.castLayer(armnn.schema, layer);
+        return armnn.schema.castLayer(armnn.schema, layer);
     }
 
     static getBase(layer) {
