@@ -211,36 +211,41 @@ armnn.Node = class {
         return layer.descriptor();
     }
 
+    getAttr(descriptor, key) {
+        if (typeof descriptor[key] == "undefined")
+            return "undefined";
+
+        let values = descriptor[key]();
+        if (Array.isArray(values)) {
+            return values.join(", ");
+        }
+        else {
+            return values;
+        }
+    }
+
     packAttr(layer, attr) {
         let descriptor = this.getDescriptor(layer);
 
         let key  = attr.src;
         let type = attr.src_type;
 
-        if (typeof descriptor[key] == "undefined")
-            return "undefined";
-
         if (typeof type != "undefined") {
+            let value = this.getAttr(descriptor, key);
             if (typeof armnn.schema[type + "Name"] != "undefined")
-                return armnn.schema[type + "Name"][descriptor[key]()];
+                return armnn.schema[type + "Name"][value];
             else
-                return descriptor[key]();
+                return value;
         }
         else if (Array.isArray(key)) {
             let values = [];
             for (let i = 0 ; i < key.length ; i++) {
-                values.push(descriptor[key[i]]());
+                values.push(this.getAttr(descriptor, key[i]));
             }
             return values.join(", ");
         }
         else {
-            let values = descriptor[key]();
-            if (Array.isArray(values)) {
-                return values.join(", ");
-            }
-            else {
-                return values;
-            }
+            return this.getAttr(descriptor, key);
         }
     }
 
