@@ -529,7 +529,7 @@ class NodeAttributeView {
                 this._element.appendChild(descriptionLine);
             }
 
-            if (this._attribute.type == 'tensor') {
+            if (this._attribute.type == 'tensor' && value) {
                 let state = value.state;
                 let valueLine = this._host.document.createElement('div');
                 valueLine.className = 'sidebar-view-item-value-line-border';
