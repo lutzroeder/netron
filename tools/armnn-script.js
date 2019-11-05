@@ -1,4 +1,3 @@
-var flatbuffers = require('../third_party/flatbuffers/js/flatbuffers.js').flatbuffers;
 var schema = require('../src/armnn-schema.js');
 
 console.log('');
