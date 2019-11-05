@@ -275,8 +275,9 @@ armnn.Node = class {
                 let input = schema.inputs[i];
                 let value = _layer[input["src"]]();
 
-                if (value)
-                    this._inputs.push(new armnn.Parameter(input["name"], null, null, value));
+                if (value) {
+                    this._inputs.push(new armnn.Parameter(input["name"], '', null, value));
+                }
             }
         }
 
