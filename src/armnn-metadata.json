@@ -1,20 +1,8 @@
 [
   {
-    "name": "AdditionLayer",
-    "schema": {
-      "category": "Layer"
-    }
-  },
-  {
     "name": "InputLayer",
     "schema": {
       "category": "Tensor"
-    }
-  },
-  {
-    "name": "MultiplicationLayer",
-    "schema": {
-      "category": "Layer"
     }
   },
   {
@@ -42,7 +30,7 @@
   {
     "name": "ReshapeLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Shape",
       "attributes": [
         { "name": "targetShape", "type": "string", "src": "targetShape" }
       ]
@@ -51,7 +39,7 @@
   {
     "name": "SoftmaxLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Activation",
       "attributes": [
         { "name": "beta", "type": "float", "src": "beta" }
       ]
@@ -103,7 +91,7 @@
   {
     "name": "PermuteLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Shape",
       "attributes": [
         { "name": "dimMappings", "type": "string", "src": "dimMappings" }
       ]
@@ -125,7 +113,7 @@
   {
     "name": "ConstantLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Tensor",
       "inputs": [
         { "name": "input", "src": "input" }
       ]
@@ -180,7 +168,7 @@
   {
     "name": "NormalizationLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Normalization",
       "attributes": [
         { "name": "normChannelType", "type": "string", "src": "normChannelType", "src_type": "NormalizationAlgorithmChannel" },
         { "name": "normMethodType", "type": "string", "src": "normMethodType", "src_type": "NormalizationAlgorithmMethod" },
@@ -217,7 +205,7 @@
   {
     "name": "BatchNormalizationLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Normalization",
       "inputs": [
         { "name": "mean", "src": "mean" },
         { "name": "variance", "src": "variance" },
@@ -275,13 +263,12 @@
   {
     "name": "GatherLayer",
     "schema": {
-      "category": "Layer"
+      "category": "Tensor"
     }
   },
   {
     "name": "MeanLayer",
     "schema": {
-      "category": "Layer",
       "attributes": [
         { "name": "axis", "type": "uint", "src": "axis" },
         { "name": "keepDims", "type": "bool", "src": "keepDims" }
@@ -291,15 +278,13 @@
   {
     "name": "MergerLayer",
     "schema": {
-      "category": "Layer",
-      "attributes": [
-      ]
+      "category": "Tensor"
     }
   },
   {
     "name": "L2NormalizationLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float", "src": "eps" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
@@ -309,7 +294,7 @@
   {
     "name": "SplitterLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Tensor",
       "attributes": [
         { "name": "concatAxis", "type": "uint", "src": "concatAxis" },
         { "name": "numViews", "type": "uint", "src": "numViewes" },
@@ -320,7 +305,7 @@
   {
     "name": "DetectionPostProcessLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Custom",
       "attributes": [
         { "name": "maxDetections", "type": "uint", "src": "maxDetections" },
         { "name": "maxClassesPerDetection", "type": "uint", "src": "maxClassesPerDetection" },
@@ -401,7 +386,7 @@
   {
     "name": "ConcatLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Tensor",
       "attributes": [
         { "name": "concatAxis", "type": "uint", "src": "concatAxis" },
         { "name": "numViews", "type": "uint", "src": "numViewes" },
