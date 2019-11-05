@@ -179,7 +179,8 @@ TFLITE.BuiltinOperator = {
   IF: 118,
   WHILE: 119,
   NON_MAX_SUPPRESSION_V4: 120,
-  NON_MAX_SUPPRESSION_V5: 121
+  NON_MAX_SUPPRESSION_V5: 121,
+  SCATTER_ND: 122
 };
 
 /**
@@ -307,7 +308,8 @@ TFLITE.BuiltinOperatorName = {
   '118': 'IF',
   '119': 'WHILE',
   '120': 'NON_MAX_SUPPRESSION_V4',
-  '121': 'NON_MAX_SUPPRESSION_V5'
+  '121': 'NON_MAX_SUPPRESSION_V5',
+  '122': 'SCATTER_ND'
 };
 
 /**
@@ -410,7 +412,8 @@ TFLITE.BuiltinOptions = {
   WhileOptions: 93,
   DepthToSpaceOptions: 94,
   NonMaxSuppressionV4Options: 95,
-  NonMaxSuppressionV5Options: 96
+  NonMaxSuppressionV5Options: 96,
+  ScatterNdOptions: 97
 };
 
 /**
@@ -513,7 +516,8 @@ TFLITE.BuiltinOptionsName = {
   '93': 'WhileOptions',
   '94': 'DepthToSpaceOptions',
   '95': 'NonMaxSuppressionV4Options',
-  '96': 'NonMaxSuppressionV5Options'
+  '96': 'NonMaxSuppressionV5Options',
+  '97': 'ScatterNdOptions'
 };
 
 /**
@@ -10018,6 +10022,75 @@ TFLITE.NonMaxSuppressionV5Options.endNonMaxSuppressionV5Options = function(build
 TFLITE.NonMaxSuppressionV5Options.createNonMaxSuppressionV5Options = function(builder) {
   TFLITE.NonMaxSuppressionV5Options.startNonMaxSuppressionV5Options(builder);
   return TFLITE.NonMaxSuppressionV5Options.endNonMaxSuppressionV5Options(builder);
+}
+
+/**
+ * @constructor
+ */
+TFLITE.ScatterNdOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.ScatterNdOptions}
+ */
+TFLITE.ScatterNdOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.ScatterNdOptions=} obj
+ * @returns {TFLITE.ScatterNdOptions}
+ */
+TFLITE.ScatterNdOptions.getRootAsScatterNdOptions = function(bb, obj) {
+  return (obj || new TFLITE.ScatterNdOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.ScatterNdOptions=} obj
+ * @returns {TFLITE.ScatterNdOptions}
+ */
+TFLITE.ScatterNdOptions.getSizePrefixedRootAsScatterNdOptions = function(bb, obj) {
+  return (obj || new TFLITE.ScatterNdOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.ScatterNdOptions.startScatterNdOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.ScatterNdOptions.endScatterNdOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.ScatterNdOptions.createScatterNdOptions = function(builder) {
+  TFLITE.ScatterNdOptions.startScatterNdOptions(builder);
+  return TFLITE.ScatterNdOptions.endScatterNdOptions(builder);
 }
 
 /**
