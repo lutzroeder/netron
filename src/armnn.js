@@ -132,15 +132,15 @@ armnn.Node = class {
 
     constructor(layer, params, metadata) {
         this._metadata = metadata;
-        this._operator = armnn.schema.LayerName[layer.layerType()];
-
-        let base = armnn.Node.getBase(layer);
+        this._operator = armnn.schema.LayerName[layer.layerType()].replace(/Layer$/, '');
 
         this._name = '';
         this._outputs = [];
         this._inputs = [];
         this._category = '';
         this._attributes = [];
+
+        let base = armnn.Node.getBase(layer)
 
         if (base) {
             this._name = base.layerName();
@@ -254,6 +254,10 @@ armnn.Node = class {
         let layerName = armnn.schema.LayerName[layerType];
 
         let schema = this._metadata.getSchema(layerName);
+
+        // ignore unknown layer
+        if (!schema)
+            return;
 
         let _layer = armnn.Node.castLayer(layer);
 
