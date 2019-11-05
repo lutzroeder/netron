@@ -393,7 +393,7 @@ openvino.Node = class {
                         if ((offset + size) <= bin.length) {
                             data = bin.slice(offset, offset + size);
                         }
-                        const precisionMap = { 'FP32': 4, 'FP16': 2, 'I8': 1 }
+                        const precisionMap = { 'FP16': 2, 'FP32': 4, 'I8': 1, 'I32': 4 };
                         if (precisionMap[precision]) {
                             let itemSize = precisionMap[precision];
                             switch (this._type) {
@@ -759,8 +759,13 @@ openvino.Tensor = class {
                         context.count++;
                         break;
                     case 'int8':
-                        results.push(context.data.getInt8(context.index, true));
+                        results.push(context.data.getInt8(context.index));
                         context.index += 1;
+                        context.count++;
+                        break;
+                    case 'int32':
+                        results.push(context.data.getInt32(context.index, true));
+                        context.index += 4;
                         context.count++;
                         break;
                 }
@@ -794,6 +799,9 @@ openvino.TensorType = class {
                 break;
             case 'I8':
                 this._dataType = 'int8';
+                break;
+            case 'I32':
+                this._dataType = 'int32';
                 break;
             default:
                 throw new openvino.Error("Unknown precision '" + precision + "'.");
