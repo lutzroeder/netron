@@ -3,6 +3,7 @@
 
 var openvino = openvino || {};
 var base = base || require('./base');
+var long = long || { Long: require('long') };
 var marked = marked || require('marked');
 
 openvino.ModelFactory = class {
@@ -393,7 +394,11 @@ openvino.Node = class {
                         if ((offset + size) <= bin.length) {
                             data = bin.slice(offset, offset + size);
                         }
-                        const precisionMap = { 'FP16': 2, 'FP32': 4, 'I8': 1, 'I32': 4 };
+                        const precisionMap = {
+                            'FP16': 2, 'FP32': 4,
+                            'I8': 1, 'I16': 2, 'I32': 4, 'I64': 8,
+                            'U8': 1, 'U16': 2, 'U32': 4, 'U64': 8
+                        };
                         if (precisionMap[precision]) {
                             let itemSize = precisionMap[precision];
                             switch (this._type) {
@@ -763,9 +768,39 @@ openvino.Tensor = class {
                         context.index += 1;
                         context.count++;
                         break;
+                    case 'int16':
+                        results.push(context.data.getInt16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
                     case 'int32':
                         results.push(context.data.getInt32(context.index, true));
                         context.index += 4;
+                        context.count++;
+                        break;
+                    case 'int64':
+                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), false));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 'uint8':
+                        results.push(context.data.getUint8(context.index));
+                        context.index += 1;
+                        context.count++;
+                        break;
+                    case 'uint16':
+                        results.push(context.data.getUint16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'uint32':
+                        results.push(context.data.getUint32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'uint64':
+                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), true));
+                        context.index += 8;
                         context.count++;
                         break;
                 }
@@ -791,20 +826,17 @@ openvino.TensorType = class {
 
     constructor(precision, shape) {
         switch (precision) {
-            case 'FP16':
-                this._dataType = 'float16';
-                break;
-            case 'FP32':
-                this._dataType = 'float32';
-                break;
-            case 'I8':
-                this._dataType = 'int8';
-                break;
-            case 'I32':
-                this._dataType = 'int32';
-                break;
-            default:
-                throw new openvino.Error("Unknown precision '" + precision + "'.");
+            case 'FP16': this._dataType = 'float16'; break;
+            case 'FP32': this._dataType = 'float32'; break;
+            case 'I8':   this._dataType = 'int8'; break;
+            case 'I16':  this._dataType = 'int16'; break;
+            case 'I32':  this._dataType = 'int32'; break;
+            case 'I64':  this._dataType = 'int64'; break;
+            case 'U8':   this._dataType = 'uint8'; break;
+            case 'U16':  this._dataType = 'uint16'; break;
+            case 'U32':  this._dataType = 'uint32'; break;
+            case 'U64':  this._dataType = 'uint64'; break;
+            default: throw new openvino.Error("Unknown precision '" + precision + "'.");
         }
         this._shape = shape;
     }
