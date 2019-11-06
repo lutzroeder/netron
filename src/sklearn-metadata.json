@@ -366,7 +366,7 @@
           "option": "optional"
         }
       ],
-      "description": "Logistic Regression (aka logit, MaxEnt) classifier.\n\nIn the multiclass case, the training algorithm uses the one-vs-rest (OvR)\nscheme if the 'multi_class' option is set to 'ovr', and uses the\ncross-entropy loss if the 'multi_class' option is set to 'multinomial'.\n(Currently the 'multinomial' option is supported only by the 'lbfgs',\n'sag', 'saga' and 'newton-cg' solvers.)\n\nThis class implements regularized logistic regression using the\n'liblinear' library, 'newton-cg', 'sag', 'saga' and 'lbfgs' solvers. **Note\nthat regularization is applied by default**. It can handle both dense\nand sparse input. Use C-ordered arrays or CSR matrices containing 64-bit\nfloats for optimal performance; any other input format will be converted\n(and copied).\n\nThe 'newton-cg', 'sag', and 'lbfgs' solvers support only L2 regularization\nwith primal formulation, or no regularization. The 'liblinear' solver\nsupports both L1 and L2 regularization, with a dual formulation only for\nthe L2 penalty. The Elastic-Net regularization is only supported by the\n'saga' solver.\n\nRead more in the :ref:`User Guide <logistic_regression>`.\n",
+      "description": "\nLogistic Regression (aka logit, MaxEnt) classifier.\n\nIn the multiclass case, the training algorithm uses the one-vs-rest (OvR)\nscheme if the 'multi_class' option is set to 'ovr', and uses the\ncross-entropy loss if the 'multi_class' option is set to 'multinomial'.\n(Currently the 'multinomial' option is supported only by the 'lbfgs',\n'sag', 'saga' and 'newton-cg' solvers.)\n\nThis class implements regularized logistic regression using the\n'liblinear' library, 'newton-cg', 'sag', 'saga' and 'lbfgs' solvers. **Note\nthat regularization is applied by default**. It can handle both dense\nand sparse input. Use C-ordered arrays or CSR matrices containing 64-bit\nfloats for optimal performance; any other input format will be converted\n(and copied).\n\nThe 'newton-cg', 'sag', and 'lbfgs' solvers support only L2 regularization\nwith primal formulation, or no regularization. The 'liblinear' solver\nsupports both L1 and L2 regularization, with a dual formulation only for\nthe L2 penalty. The Elastic-Net regularization is only supported by the\n'saga' solver.\n\nRead more in the :ref:`User Guide <logistic_regression>`.\n",
       "package": "sklearn.linear_model"
     }
   },
@@ -676,7 +676,7 @@
           "type": "boolean"
         },
         {
-          "description": "auto :\nthe solver is selected by a default policy based on `X.shape` and\n`n_components`: if the input data is larger than 500x500 and the\nnumber of components to extract is lower than 80% of the smallest\ndimension of the data, then the more efficient 'randomized'\nmethod is enabled. Otherwise the exact full SVD is computed and\noptionally truncated afterwards.\nfull :\nrun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\narpack :\nrun SVD truncated to n_components calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n0 < n_components < min(X.shape)\nrandomized :\nrun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n",
+          "description": "If auto :\nThe solver is selected by a default policy based on `X.shape` and\n`n_components`: if the input data is larger than 500x500 and the\nnumber of components to extract is lower than 80% of the smallest\ndimension of the data, then the more efficient 'randomized'\nmethod is enabled. Otherwise the exact full SVD is computed and\noptionally truncated afterwards.\nIf full :\nrun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\nIf arpack :\nrun SVD truncated to n_components calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n0 < n_components < min(X.shape)\nIf randomized :\nrun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n",
           "name": "svd_solver",
           "type": "string"
         },
@@ -698,7 +698,7 @@
           "option": "optional"
         }
       ],
-      "description": "Principal component analysis (PCA)\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space. The input data is centered\nbut not scaled for each feature before applying the SVD.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nIt can also use the scipy.sparse.linalg ARPACK implementation of the\ntruncated SVD.\n\nNotice that this class does not support sparse input. See\n:class:`TruncatedSVD` for an alternative with sparse data.\n\nRead more in the :ref:`User Guide <PCA>`.\n",
+      "description": "Principal component analysis (PCA).\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space. The input data is centered\nbut not scaled for each feature before applying the SVD.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nIt can also use the scipy.sparse.linalg ARPACK implementation of the\ntruncated SVD.\n\nNotice that this class does not support sparse input. See\n:class:`TruncatedSVD` for an alternative with sparse data.\n\nRead more in the :ref:`User Guide <PCA>`.\n",
       "package": "sklearn.decomposition"
     }
   },
@@ -1135,7 +1135,7 @@
       "attributes": [
         {
           "default": true,
-          "description": "whether to calculate the intercept for this model. If set\nto False, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
+          "description": "Whether to calculate the intercept for this model. If set\nto False, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
           "name": "fit_intercept",
           "option": "optional",
           "type": "boolean"
@@ -1161,7 +1161,7 @@
           "option": "optional"
         }
       ],
-      "description": "\nOrdinary least squares Linear Regression.\n",
+      "description": "\nOrdinary least squares Linear Regression.\n\nLinearRegression fits a linear model with coefficients w = (w1, ..., wp)\nto minimize the residual sum of squares between the observed targets in\nthe dataset, and the targets predicted by the linear approximation.\n",
       "package": "sklearn.linear_model"
     }
   }
