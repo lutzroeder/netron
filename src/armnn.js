@@ -85,8 +85,8 @@ armnn.Graph = class {
             for (let i = 0 ; i < base.outputSlotsLength() ; i++) {
                 let key = armnn.Parameter.makeKey(base.index(), i);
                 let name = paramIdx.toString();
-
-                params[key] = new armnn.Parameter(name, name, base.outputSlots(i).tensorInfo(), null);
+                let args = [ new armnn.Argument(name, base.outputSlots(i).tensorInfo(), null) ];
+                params[key] = new armnn.Parameter(name, name, args);
                 paramIdx++;
             }
         }
@@ -149,6 +149,7 @@ armnn.Node = class {
                 let srcConnection = base.inputSlots(i).connection();
                 let srcLayerIdx = srcConnection.sourceLayerIndex()
                 let srcOutputIdx = srcConnection.outputSlotIndex()
+
                 this._inputs.push(params[armnn.Parameter.makeKey(srcLayerIdx, srcOutputIdx)]);
             }
 
@@ -276,7 +277,8 @@ armnn.Node = class {
                 let value = _layer[input["src"]]();
 
                 if (value) {
-                    this._inputs.push(new armnn.Parameter(input["name"], '', null, value));
+                    let args = [ new armnn.Argument('', null, value) ];
+                    this._inputs.push(new armnn.Parameter(input["name"], '', args));
                 }
             }
         }
@@ -309,9 +311,9 @@ armnn.Attribute = class {
 
 armnn.Parameter = class {
 
-    constructor(name, id, tensorInfo, initializer) {
+    constructor(name, id, args) {
         this._name = name;
-        this._arguments = [ new armnn.Argument(id, tensorInfo, initializer) ];
+        this._arguments = args;
     }
 
     get name() {
