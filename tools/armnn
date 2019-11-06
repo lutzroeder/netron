@@ -21,6 +21,11 @@ git_sync () {
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
+
+    if [ ${1} == "armnn" ]; then
+        git checkout master
+    fi
+
     git -C "${third_party}/${1}" submodule sync --quiet
     git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
@@ -55,8 +60,6 @@ install() {
 schema() {
     bold "armnn schema"
 
-    # master branch is patched not to make problem with js but current release branch is not patched yet
-    cat ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs | sed "s/^    function:/    activationFunction:/g" > ArmnnSchema.fbs
     ${third_party}/flatbuffers/flatc --js ArmnnSchema.fbs
     mv ./ArmnnSchema_generated.js ${src}/armnn-schema.js
     node armnn-script.js >> ${src}/armnn-schema.js
