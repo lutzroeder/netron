@@ -5338,5 +5338,12 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
+  },
+  {
+    "type":   "armnn",
+    "target": "ssd_mobilenet_v3_small_coco_2019_08_14.armnn",
+    "source": "https://github.com/ARM-software/armnn/blob/master/samples/serialized/ssd_mobilenet_v3_small_coco_2019_08_14.armnn",
+    "format": "Arm NN",
+    "link":   "https://arxiv.org/abs/1905.02244"
   }
 ]
