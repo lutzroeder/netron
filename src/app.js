@@ -136,7 +136,7 @@ class Application {
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
-        if (!selectedFiles) {
+        if (selectedFiles) {
             for (let file of selectedFiles) {
                 this._openFile(file);
             }
