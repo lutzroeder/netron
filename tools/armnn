@@ -64,7 +64,6 @@ schema() {
 
     ${third_party}/flatbuffers/flatc --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
     mv ./ArmnnSchema_generated.js ${src}/armnn-schema.js
-    node armnn-script.js >> ${src}/armnn-schema.js
 }
 
 while [ "$#" != 0 ]; do
