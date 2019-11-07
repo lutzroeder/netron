@@ -24,8 +24,8 @@ git_sync () {
 
     if [ ${1} == "armnn" ]; then
         pushd .
-	cd ${third_party}/${1} && git checkout master
-	popd
+        cd ${third_party}/${1} && git checkout master
+        popd
     fi
 
     git -C "${third_party}/${1}" submodule sync --quiet
