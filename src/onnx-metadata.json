@@ -12550,7 +12550,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "output (always 2D tensor)",
+          "description": "output",
           "name": "Y",
           "type": "tensor(int64)"
         }
@@ -19133,7 +19133,7 @@
     "name": "Slice",
     "schema": {
       "category": "Tensor",
-      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\nSlices uses `starts`, `ends`, `axes` and `steps` inputs to specify the start and end\ndimension and step for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension. If the value passed to start or end is larger than the `n` (the\nnumber of elements in this dimension), it represents `n`. For slicing to the\nend of a dimension with unknown size, it is recommended to pass in `INT_MAX`.\nIf a negative value is passed for step, it represents slicing backward.\nIf `axes` are omitted, they are set to `[0, ..., ndim-1]`.\nIf `steps` are omitted, they are set to `[1, ..., 1]` of length `len(starts)`\nExample 1:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n  steps = [1, 2]\n  result = [\n      [5, 7],\n  ]\nExample 2:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0, 1]\n  ends = [-1, 1000]\n  result = [\n      [2, 3, 4],\n  ]\n",
+      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\nSlices uses `starts`, `ends`, `axes` and `steps` inputs to specify the start and end\ndimension and step for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represents number of elements before the end of that\ndimension. If the value passed to start or end is larger than the `n` (the\nnumber of elements in this dimension), it represents `n`. For slicing to the\nend of a dimension with unknown size, it is recommended to pass in `INT_MAX` \nwhen sclicing forward and 'INT_MIN' when slicing backward.\nIf a negative value is passed for step, it represents slicing backward. \nHowever step value cannot be 0.\nIf `axes` are omitted, they are set to `[0, ..., ndim-1]`.\nIf `steps` are omitted, they are set to `[1, ..., 1]` of length `len(starts)`\nExample 1:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n  steps = [1, 2]\n  result = [\n      [5, 7],\n  ]\nExample 2:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0, 1]\n  ends = [-1, 1000]\n  result = [\n      [2, 3, 4],\n  ]\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -19192,7 +19192,7 @@
           "type": "Tind"
         },
         {
-          "description": "1-D tensor of slice step of corresponding axis in `axes`. Default to 1. ",
+          "description": "1-D tensor of slice step of corresponding axis in `axes`. Negative value means slicing backward. 'steps' cannot be 0. Defaults to 1.",
           "name": "steps",
           "option": "optional",
           "type": "Tind"

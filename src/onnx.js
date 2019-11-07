@@ -115,7 +115,6 @@ onnx.Model = class {
         this._modelVersion = model.model_version;
         this._description = model.doc_string;
         this._metadata = [];
-        this._imageFormat = '';
         this._imports = null;
 
         let imports = {};
@@ -139,6 +138,7 @@ onnx.Model = class {
             imports['ai.onnx.ml'] = 1;
         }
 
+        let imageFormat = '';
         if (model.metadata_props) {
             let imageMetadata = {};
             for (let metadata_prop of model.metadata_props) {
@@ -168,12 +168,12 @@ onnx.Model = class {
                         break;
                 }
             }
-            this._imageFormat = [ imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange'] ].filter((item) => item);
+            imageFormat = [ imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange'] ].filter((item) => item);
         }
         this._graphs = [];
         if (model && model.graph) {
-            let graphMetadata = new onnx.GraphMetadata(metadata, imports);
-            let graph = new onnx.Graph(graphMetadata, this._imageFormat, model.graph);
+            const graphMetadata = new onnx.GraphMetadata(metadata, imports);
+            const graph = new onnx.Graph(graphMetadata, imageFormat, model.graph);
             this._graphs.push(graph);
         }
     }
@@ -255,7 +255,6 @@ onnx.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        this._imageFormat = imageFormat;
 
         if (graph) {
             this._name = graph.name || null;
@@ -301,16 +300,16 @@ onnx.Graph = class {
 
             this._arguments = {};
             for (let valueInfo of graph.value_info) {
-                this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
             }
             for (let valueInfo of graph.input) {
-                let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
                 if (!initializers[valueInfo.name]) {
                     this._inputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
                 }
             }
             for (let valueInfo of graph.output) {
-                let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name]);
+                let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
                 this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
             for (let node of nodes) {
@@ -323,7 +322,7 @@ onnx.Graph = class {
                             if (inputIndex < node.input.length || inputSchema.option != 'optional') {
                                 let inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
                                 let inputArguments = node.input.slice(inputIndex, inputIndex + inputCount).map((id) => {
-                                    return this._argument(id, null, null, initializers[id]);
+                                    return this._argument(id, null, null, initializers[id], imageFormat);
                                 });
                                 inputIndex += inputCount;
                                 inputs.push(new onnx.Parameter(inputSchema.name, inputArguments));
@@ -333,7 +332,7 @@ onnx.Graph = class {
                     else {
                         inputs = inputs.concat(node.input.slice(inputIndex).map((id, index) => {
                             return new onnx.Parameter((inputIndex + index).toString(), [
-                                this._argument(id, null, null)
+                                this._argument(id, null, null, null, imageFormat)
                             ])
                         }));
                     }
@@ -346,7 +345,7 @@ onnx.Graph = class {
                             if (outputIndex < node.output.length || outputSchema.option != 'optional') {
                                 let outputCount = (outputSchema.option == 'variadic') ? (node.output.length - outputIndex) : 1;
                                 let outputArguments = node.output.slice(outputIndex, outputIndex + outputCount).map((id) => {
-                                    return this._argument(id, null, null, null);
+                                    return this._argument(id, null, null, null, imageFormat);
                                 });
                                 outputIndex += outputCount;
                                 outputs.push(new onnx.Parameter(outputSchema.name, outputArguments));
@@ -356,7 +355,7 @@ onnx.Graph = class {
                     else {
                         outputs = outputs.concat(node.output.slice(outputIndex).map((id, index) => {
                             return new onnx.Parameter((outputIndex + index).toString(), [
-                                this._argument(id, null, null)
+                                this._argument(id, null, null, null, imageFormat)
                             ]);
                         }));
                     }
@@ -366,7 +365,6 @@ onnx.Graph = class {
         }
 
         delete this._arguments;
-        delete this._imageFormat;
     }
 
     get name() {
@@ -397,10 +395,10 @@ onnx.Graph = class {
         return 'graph(' + this.name + ')';
     }
 
-    _argument(id, type, doc_string, initializer) {
+    _argument(id, type, doc_string, initializer, imageFormat) {
         let argument = this._arguments[id];
         if (!argument) {
-            argument = new onnx.Argument(id, type ? onnx.Tensor._formatType(type, this._imageFormat) : null, doc_string, initializer);
+            argument = new onnx.Argument(id, type ? onnx.Tensor._formatType(type, imageFormat) : null, doc_string, initializer);
             this._arguments[id] = argument;
         }
         return argument;
