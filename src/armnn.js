@@ -197,7 +197,13 @@ armnn.Node = class {
     }
 
     static castLayer(layer) {
-        return armnn.schema.castLayer(armnn.schema, layer);
+        let layerType = layer.layerType();
+
+        for (let k of Object.keys(armnn.schema.Layer)) {
+            if (layerType == armnn.schema.Layer[k]) 
+                return layer.layer(new armnn.schema[k]);
+        }
+        return null;
     }
 
     static getBase(layer) {
