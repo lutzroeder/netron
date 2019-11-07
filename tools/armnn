@@ -23,7 +23,9 @@ git_sync () {
     fi
 
     if [ ${1} == "armnn" ]; then
-        git checkout master
+        pushd .
+	cd ${third_party}/${1} && git checkout master
+	popd
     fi
 
     git -C "${third_party}/${1}" submodule sync --quiet
@@ -60,7 +62,7 @@ install() {
 schema() {
     bold "armnn schema"
 
-    ${third_party}/flatbuffers/flatc --js ArmnnSchema.fbs
+    ${third_party}/flatbuffers/flatc --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
     mv ./ArmnnSchema_generated.js ${src}/armnn-schema.js
     node armnn-script.js >> ${src}/armnn-schema.js
 }
