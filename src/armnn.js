@@ -469,32 +469,32 @@ armnn.Tensor = class {
                     return results;
                 }
                 switch (context.dataType) {
-                    case 'float16':
+                    case 'Float16':
                         results.push(context.data.getFloat16(context.index, true));
                         context.index += 2;
                         context.count++;
                         break;
-                    case 'float32':
+                    case 'Float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'quantisedasymm8':
+                    case 'QuantisedAsymm8':
                         results.push(context.data.getInt8(context.index));
                         context.index += 1;
                         context.count++;
                         break;
-                    case 'quantisedsymm16':
+                    case 'QuantisedSymm16':
                         results.push(context.data.getInt16(context.index, true));
                         context.index += 2;
                         context.count++;
                         break;
-                    case 'signed32':
+                    case 'Signed32':
                         results.push(context.data.getInt32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'boolean':
+                    case 'Boolean':
                         results.push(context.data.getInt8(context.index));
                         context.index += 1;
                         context.count++;
@@ -523,7 +523,7 @@ armnn.Tensor = class {
 armnn.TensorType = class {
 
     constructor(tensorInfo) {
-        this._dataType = armnn.schema.DataTypeName[tensorInfo.dataType()].toLowerCase() || '?';
+        this._dataType = armnn.schema.DataTypeName[tensorInfo.dataType()] || '?';
 
         if (this.isQuantized()) {
             this.quantizationScale = tensorInfo.quantizationScale();
