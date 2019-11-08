@@ -1,5 +1,12 @@
 [
   {
+    "type":   "armnn",
+    "target": "ssd_mobilenet_v3_small_coco_2019_08_14.armnn",
+    "source": "https://github.com/ARM-software/armnn/blob/master/samples/serialized/ssd_mobilenet_v3_small_coco_2019_08_14.armnn?raw=true",
+    "format": "Arm NN",
+    "link":   "https://github.com/ARM-software/armnn"
+  },
+  {
     "type":   "bigdl",
     "target": "analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/imageclassification/imagenet/analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",

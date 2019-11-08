@@ -66,7 +66,7 @@ setuptools.setup(
     version=package_version(),
     description="Viewer for neural network, deep learning and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning and machine learning models.\n\n' +
-                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), NCNN (`.param`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **ML.NET** (`.zip`), MNN (`.mnn`), **OpenVINO** (`.xml`), **BigDL** (`.bigdl`, `.model`), **Chainer**, (`.npz`, `.h5`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
+                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), NCNN (`.param`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **ArmNN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer**, (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Darknet** (`.cfg`), **Deeplearning4j** (`.zip`), **PaddlePaddle** (`__model__`), **ML.NET** (`.zip`), MNN (`.mnn`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
     keywords=[
         'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'mnn' 'openvino', 'darknet', 'paddlepaddle', 'chainer',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',
@@ -89,7 +89,7 @@ setuptools.setup(
             'base.js', 
             'numpy.js', 'pickle.js', 'hdf5.js', 'bson.js',
             'zip.js', 'tar.js', 'gzip.js',
-            'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
+            'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',
             'bigdl.js', 'bigdl-metadata.json',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
@@ -104,6 +104,7 @@ setuptools.setup(
             'mnn.js', 'mnn-metadata.json', 'mnn-schema.js',
             'mxnet.js', 'mxnet-metadata.json',
             'ncnn.js', 'ncnn-metadata.json',
+            'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
             'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
             'pytorch.js', 'pytorch-metadata.json',

@@ -1156,14 +1156,15 @@ view.ModelFactoryService = class {
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.json' ]);
         this.register('./sklearn', [ '.pkl', '.joblib', '.model' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./openvino', [ '.xml' ]);
-        this.register('./darknet', [ '.cfg' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
+        this.register('./armnn', [ '.armnn' ]);
+        this.register('./bigdl', [ '.model', '.bigdl' ]);
+        this.register('./darknet', [ '.cfg' ]);
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
+        this.register('./openvino', [ '.xml' ]);
         this.register('./flux', [ '.bson' ]);
         this.register('./chainer', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
-        this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
     }

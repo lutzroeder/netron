@@ -6,6 +6,8 @@ directories:
   buildResources: setup
   output: ./build
 fileAssociations:
+  - name: "Arm NN Model"
+    ext: armnn
   - name: "CNTK Model"
     ext: cmf
   - name: "CNTK Model"
