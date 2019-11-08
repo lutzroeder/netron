@@ -4,6 +4,7 @@
 converage/*
 build/*
 node_modules/*
+node_modules
 third_party/*
 test/data/*
 package-lock.json
