@@ -24237,6 +24237,70 @@
     }
   },
   {
+    "name": "GenerateBoundingBoxProposals",
+    "schema": {
+      "attributes": [
+        {
+          "default": 300,
+          "description": "An integer. Maximum number of rois in the output.",
+          "name": "post_nms_topn",
+          "type": "int64"
+        }
+      ],
+      "description": "      The op selects top `pre_nms_topn` scoring boxes, decodes them with respect to anchors,\n      applies non-maximal suppression on overlapping boxes with higher than\n      `nms_threshold` intersection-over-union (iou) value, discarding boxes where shorter\n      side is less than `min_size`.\n      Inputs:\n      `scores`: A 4D tensor of shape [Batch, Height, Width, Num Anchors] containing the scores per anchor at given postion\n      `bbox_deltas`: is a tensor of shape [Batch, Height, Width, 4 x Num Anchors] boxes encoded to each anchor\n      `anchors`: A 1D tensor of shape [4 x Num Anchors], representing the anchors.\n      Outputs:\n      `rois`: output RoIs, a 3D tensor of shape [Batch, post_nms_topn, 4], padded by 0 if less than post_nms_topn candidates found.\n      `roi_probabilities`: probability scores of each roi in 'rois', a 2D tensor of shape [Batch,post_nms_topn], padded with 0 if needed, sorted by scores.",
+      "inputs": [
+        {
+          "description": "A 4-D float tensor of shape `[num_images, height, width, num_achors]` containing scores of the boxes for given anchors, can be unsorted.",
+          "name": "scores",
+          "type": 1
+        },
+        {
+          "description": "A 4-D float tensor of shape `[num_images, height, width, 4 x num_anchors]`. encoding boxes with respec to each anchor.\nCoordinates are given in the form [dy, dx, dh, dw].",
+          "name": "bbox_deltas",
+          "type": 1
+        },
+        {
+          "description": "A 2-D float tensor of shape `[num_images, 5]` containing image information Height, Width, Scale.",
+          "name": "image_info",
+          "type": 1
+        },
+        {
+          "description": "A 2-D float tensor of shape `[num_anchors, 4]` describing the anchor boxes. Boxes are formatted in the form [y1, x1, y2, x2].",
+          "name": "anchors",
+          "type": 1
+        },
+        {
+          "description": "A scalar float tensor for non-maximal-suppression threshold.",
+          "name": "nms_threshold",
+          "type": 1
+        },
+        {
+          "description": "A scalar int tensor for the number of top scoring boxes to be used as input.",
+          "name": "pre_nms_topn",
+          "type": 3
+        },
+        {
+          "description": "A scalar float tensor. Any box that has a smaller size than min_size will be discarded.",
+          "name": "min_size",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 3-D float tensor of shape `[num_images,post_nms_topn,4]` representing the selected\nregion of interest boxes. Sorted in descending order in scores.",
+          "name": "rois",
+          "type": 1
+        },
+        {
+          "description": "A 2-D float tensor of shape `[num_images, post_nms_topn]` representing the score of the\nregion of interest box in `rois` tensor at the same index.",
+          "name": "roi_probabilities",
+          "type": 1
+        }
+      ],
+      "summary": "This op produces Region of Interests from given bounding boxes(bbox_deltas) encoded wrt anchors according to eq.2 in arXiv:1506.01497"
+    }
+  },
+  {
     "name": "GenerateVocabRemapping",
     "schema": {
       "attributes": [
