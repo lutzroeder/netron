@@ -268,6 +268,15 @@ armnn.Node = class {
 
         let _layer = armnn.Node.castLayer(layer);
 
+        if (typeof schema["bindings"] != "undefined") {
+            for (let i = 0 ; i < schema.bindings.length ; i++) {
+                let binding = schema.bindings[i];
+
+                let value = _layer.base()[binding.src]();
+                this._attributes.push(new armnn.Attribute(binding.name, binding.type, value));
+            }
+        }
+
         if (typeof schema["attributes"] != "undefined") {
             for (let i = 0 ; i < schema.attributes.length ; i++) {
                 let attr = schema.attributes[i];

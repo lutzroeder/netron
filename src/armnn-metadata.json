@@ -2,13 +2,19 @@
   {
     "name": "InputLayer",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "bindings": [
+	{ "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+      ]
     }
   },
   {
     "name": "OutputLayer",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "bindings": [
+	{ "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+      ]
     }
   },
   {
