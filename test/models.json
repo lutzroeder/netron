@@ -2227,6 +2227,124 @@
     "status": "script"
   },
   {
+    "type":   "mlnet",
+    "target": "BinaryClassification_AutoML_SentimentModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "FastTreeModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "FastTreeTweedieModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeTweedieModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "GitHubLabelerModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/MulticlassClassification-GitHubLabeler/GitHubLabeler/MLModels/GitHubLabelerModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ImageClassification.Predict.imageClassifier.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Predict/assets/inputs/MLNETModel/imageClassifier.zip?raw=true",
+    "format": "ML.NET v1.4.28230.4",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "IrisClassificationModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/MulticlassClassification_Iris/IrisClassification/MLModels/IrisClassificationModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "MovieRecommender_Model.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Recommendation-MovieRecommender/MovieRecommender_Model/Model/model.zip?raw=true",
+    "format": "ML.NET v1.4.28230.4",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "MLSentimentModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/ScalableSentimentAnalysisBlazorWebApp/BlazorSentimentAnalysis.Server/ML/MLSentimentModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "PoissonModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/PoissonModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "product_month_fastTreeTweedie.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Forecasting-Sales/src/eShopDashboard/Forecast/ModelFiles/product_month_fastTreeTweedie.zip?raw=true",
+    "format": "ML.NET v1.3.28006.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ProductSalesChangePointModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesChangePointModel.zip?raw=true",
+    "format": "ML.NET v1.4.28305.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ProductSalesSpikeModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesSpikeModel.zip?raw=true",
+    "format": "ML.NET v1.4.28305.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "randomizedPca.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/AnomalyDetection_CreditCardFraudDetection/CreditCardFraudDetection.Predictor/assets/input/randomizedPca.zip?raw=true",
+    "format": "ML.NET v1.2.27902.10",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "retailClustering.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Clustering_CustomerSegmentation/CustomerSegmentation.Train/assets/outputs/retailClustering.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "SDCAModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/SDCAModel.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "TaxiFareModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_AutoML/TaxiFarePrediction/MLModels/TaxiFareModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "TinyYoloModel.zip",
+    "source": "https://github.com/dotnet/machinelearning-samples/blob/61b428c746f39069a9d1d92f9e0f819e6beb30f3/samples/csharp/end-to-end-apps/DeepLearning_ObjectDetection_Onnx/OnnxObjectDetectionE2EAPP/ML/MLNETModel/TinyYoloModel.zip?raw=true",
+    "format": "ML.NET v1.0.27701.1"
+  },
+  {
     "type":   "mnn",
     "target": "inception-v3.mnn",
     "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/inception-v3.mnn?raw=true",
@@ -2267,131 +2385,6 @@
     "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/SqueezeNetV1.0.mnn?raw=true",
     "format": "MNN v2",
     "link":   "https://github.com/alibaba/MNN"
-  },
-  {
-    "type":   "mlnet",
-    "target": "BinaryClassification_AutoML_SentimentModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip?raw=true",
-    "format": "ML.NET v1.0.27701.1",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "FastTreeModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeModel.zip?raw=true",
-    "format": "ML.NET v1.0.0.0",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "FastTreeTweedieModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeTweedieModel.zip?raw=true",
-    "format": "ML.NET v1.0.0.0",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "GitHubLabelerModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/MulticlassClassification-GitHubLabeler/GitHubLabeler/MLModels/GitHubLabelerModel.zip?raw=true",
-    "format": "ML.NET v1.0.27701.1",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "ImageClassification.Train.imageClassifier.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Train/assets/outputs/imageClassifier.zip?raw=true",
-    "format": "ML.NET v1.3.28006.10",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "ImageClassification.Predict.imageClassifier.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Predict/assets/inputs/MLNETModel/imageClassifier.zip?raw=true",
-    "format": "ML.NET v1.3.28006.10",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "IrisClassificationModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/MulticlassClassification_Iris/IrisClassification/MLModels/IrisClassificationModel.zip?raw=true",
-    "format": "ML.NET v1.0.0.0",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "MovieRecommender_Model.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Recommendation-MovieRecommender/MovieRecommender_Model/Model/model.zip?raw=true",
-    "format": "ML.NET v1.0.27701.1",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "MLSentimentModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/ScalableSentimentAnalysisBlazorWebApp/BlazorSentimentAnalysis.Server/ML/MLSentimentModel.zip?raw=true",
-    "format": "ML.NET v1.0.0.0",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "PoissonModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/PoissonModel.zip?raw=true",
-    "format": "ML.NET v1.0.0.0",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "product_month_fastTreeTweedie.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Forecasting-Sales/src/eShopDashboard/Forecast/ModelFiles/product_month_fastTreeTweedie.zip?raw=true",
-    "format": "ML.NET v1.3.28006.10",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "ProductSalesChangePointModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesChangePointModel.zip?raw=true",
-    "format": "ML.NET v1.2.27902.10",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "ProductSalesSpikeModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesSpikeModel.zip?raw=true",
-    "format": "ML.NET v1.2.27902.10",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "randomizedPca.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/AnomalyDetection_CreditCardFraudDetection/CreditCardFraudDetection.Predictor/assets/input/randomizedPca.zip?raw=true",
-    "format": "ML.NET v1.2.27902.10",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "retailClustering.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Clustering_CustomerSegmentation/CustomerSegmentation.Train/assets/outputs/retailClustering.zip?raw=true",
-    "format": "ML.NET v1.0.27701.1",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "SDCAModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/SDCAModel.zip?raw=true",
-    "format": "ML.NET v1.0.0.0",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "TaxiFareModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_AutoML/TaxiFarePrediction/MLModels/TaxiFareModel.zip?raw=true",
-    "format": "ML.NET v1.0.27701.1",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
-    "target": "TinyYoloModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/61b428c746f39069a9d1d92f9e0f819e6beb30f3/samples/csharp/end-to-end-apps/DeepLearning_ObjectDetection_Onnx/OnnxObjectDetectionE2EAPP/ML/MLNETModel/TinyYoloModel.zip?raw=true",
-    "format": "ML.NET v1.0.27701.1"
   },
   {
     "type":   "mxnet",
@@ -2598,12 +2591,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "resnet18v1.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet18v1.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
     "target": "resnet18v2.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet18v2.model",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
@@ -2664,23 +2651,13 @@
   },
   {
     "type":   "mxnet",
-    "target": "vgg16.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16/vgg16.model"
+    "target": "vgg16.mar",
+    "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/vgg16.mar"
   },
   {
     "type":   "mxnet",
     "target": "vgg16_bn.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16_bn/vgg16_bn.model"
-  },
-  {
-    "type":   "mxnet",
-    "target": "vgg19.model",
-    "source": "https://s3.amazonaws.com/model-server/models/onnx-vgg19/vgg19.model"
-  },
-  {
-    "type":   "mxnet",
-    "target": "vgg19_bn.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
   },
   {
     "type":   "ncnn",
@@ -5094,6 +5071,7 @@
     "target": "alexnet.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
+    "error":  "Unknown statement in 'alexnet.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -5101,6 +5079,7 @@
     "target": "alexnet_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v1",
+    "error":  "Unknown statement in 'alexnet_traced.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -5114,7 +5093,7 @@
     "type":   "torchscript",
     "target": "blitz_neural_networks_tutorial.pt",
     "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial.pt]",
-    "error":  "Unknown statement '{\"location\":\" at 516:5\",\"type\":\"for\",\"variable\":[{\"type\":\"id\",\"value\":\"_261\",\"keyword\":false}],\"target\":[{\"location\":\" at 516:22\",\"type\":\"call\",\"target\":{\"type\":\"id\",\"value\":\"range\",\"keyword\":false},\"arguments\":[{\"location\":\" at 516:32\",\"type\":\"call\",\"target\":{\"location\":\" at 516:28\",\"type\":\".\",\"target\":{\"type\":\"id\",\"value\":\"torch\",\"keyword\":false},\"member\":{\"type\":\"id\",\"value\":\"len\",\"keyword\":false}},\"arguments\":[{\"type\":\"id\",\"value\":\"size\",\"keyword\":false}]}]}],\"body\":{\"location\":\" at 516:40\",\"type\":\"block\",\"statements\":[{\"location\":\" at 517:8\",\"type\":\"=\",\"target\":{\"type\":\"id\",\"value\":\"s\",\"keyword\":false},\"expression\":{\"location\":\" at 517:15\",\"type\":\"[]\",\"target\":{\"type\":\"id\",\"value\":\"size\",\"keyword\":false},\"arguments\":{\"type\":\"list\",\"value\":[{\"type\":\"id\",\"value\":\"_261\",\"keyword\":false}]}}},{\"location\":\" at 518:19\",\"type\":\"=\",\"target\":{\"type\":\"id\",\"value\":\"num_features\",\"keyword\":false},\"expression\":{\"location\":\" at 518:31\",\"type\":\"call\",\"target\":{\"location\":\" at 518:27\",\"type\":\".\",\"target\":{\"type\":\"id\",\"value\":\"torch\",\"keyword\":false},\"member\":{\"type\":\"id\",\"value\":\"mul\",\"keyword\":false}},\"arguments\":[{\"type\":\"id\",\"value\":\"num_features\",\"keyword\":false},{\"type\":\"id\",\"value\":\"s\",\"keyword\":false}]}}]}}' in 'blitz_neural_networks_tutorial.pt'.",
+    "error":  "Unknown statement in 'blitz_neural_networks_tutorial.pt'.",
     "format": "TorchScript v1",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
@@ -5143,6 +5122,7 @@
     "type":   "torchscript",
     "target": "densenet121.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "error":  "Unknown statement in 'densenet121.pt'.",
     "render": "skip",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
@@ -5152,6 +5132,7 @@
     "target": "densenet121_traced.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "render": "skip",
+    "error":  "Unknown function argument in 'densenet121_traced.pt'.",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
@@ -5159,6 +5140,7 @@
     "type":   "torchscript",
     "target": "inception_v3.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Unknown statement in 'inception_v3.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5166,6 +5148,7 @@
     "type":   "torchscript",
     "target": "inception_v3_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Unknown statement in 'inception_v3_traced.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5185,13 +5168,6 @@
   },
   {
     "type":   "torchscript",
-    "target": "mobilenet_v2.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
     "target": "mnist_linear_torchscript_1.pt",
     "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_1.pt]",
     "format": "TorchScript v1",
@@ -5206,6 +5182,14 @@
   },
   {
     "type":   "torchscript",
+    "target": "mobilenet_v2.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Method 'forward' not found in 'mobilenet_v2.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
     "target": "mobilenet_quantized_scripted_925.pt",
     "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
     "format": "TorchScript v1",
@@ -5215,6 +5199,7 @@
     "type":   "torchscript",
     "target": "mobilenet_v2_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Unknown function argument in 'mobilenet_v2_traced.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5272,6 +5257,7 @@
     "type":   "torchscript",
     "target": "resnet18.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Method 'forward' not found in 'resnet18.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5279,13 +5265,7 @@
     "type":   "torchscript",
     "target": "resnet18_traced.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "resnet50_traced.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Unknown statement in 'resnet18_traced.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5293,6 +5273,16 @@
     "type":   "torchscript",
     "target": "resnet50.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Unknown statement in 'resnet50.pt'.",
+    "error":  "Method 'forward' not found in 'resnet50.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "torchscript",
+    "target": "resnet50_traced.pt",
+    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "error":  "Unknown statement in 'resnet50_traced.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5300,6 +5290,7 @@
     "type":   "torchscript",
     "target": "shufflenet_v2_x1_0.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "error":  "Method 'forward' not found in 'shufflenet_v2_x1_0.pt'.",
     "render": "skip",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
@@ -5308,6 +5299,7 @@
     "type":   "torchscript",
     "target": "squeezenet1_1.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "error":  "Unknown statement in 'squeezenet1_1.pt'.",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
@@ -5315,6 +5307,7 @@
     "type":   "torchscript",
     "target": "squeezenet1_1_traced.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "error":  "Unknown statement in 'squeezenet1_1_traced.pt'.",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
@@ -5343,6 +5336,7 @@
     "type":   "torchscript",
     "target": "vgg16.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "error":  "Unknown statement in 'vgg16.pt'.",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
@@ -5350,6 +5344,7 @@
     "type":   "torchscript",
     "target": "vgg16_traced.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "error":  "Unknown statement in 'vgg16_traced.pt'.",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
   }

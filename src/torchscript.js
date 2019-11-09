@@ -1595,61 +1595,62 @@ torchscript.GraphContext = class {
 
         let statements = container.body;
         let method = statements.find((statement) => statement.type == 'def' && statement.name == 'forward');
-        if (method) {
+        if (!method) {
+            throw new torchscript.Error("Method 'forward' not found.");
+        }
 
-            // container.trace(this._mainModule, method);
+        // container.trace(this.data, method);
 
-            this._body = method.body.statements;
-            let methodParameters = method.parameters;
-            if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
-                methodParameters.shift();
-            }
-            for (let parameter of methodParameters) {
-                this._parameter(parameter);
-            }
+        this._body = method.body.statements;
+        let methodParameters = method.parameters;
+        if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
+            methodParameters.shift();
+        }
+        for (let parameter of methodParameters) {
+            this._parameter(parameter);
+        }
 
-            if (this._body.length >= 2) {
-                // x = ...
-                // return x
-                let returnStatement = this._body[this._body.length - 1];
-                let assignStatement = this._body[this._body.length - 2];
-                if (returnStatement.type === 'return' && 
-                    returnStatement.expression.type === 'id' &&
-                    assignStatement.type === '=' &&
-                    assignStatement.target.type === 'id' &&
-                    assignStatement.target.value === returnStatement.expression.value) {
-                    returnStatement.expression = assignStatement.expression;
-                    this._body.pop();
-                    this._body.pop();
-                    this._body.push(returnStatement);
-                }
+        if (this._body.length >= 2) {
+            // x = ...
+            // return x
+            let returnStatement = this._body[this._body.length - 1];
+            let assignStatement = this._body[this._body.length - 2];
+            if (returnStatement.type === 'return' && 
+                returnStatement.expression.type === 'id' &&
+                assignStatement.type === '=' &&
+                assignStatement.target.type === 'id' &&
+                assignStatement.target.value === returnStatement.expression.value) {
+                returnStatement.expression = assignStatement.expression;
+                this._body.pop();
+                this._body.pop();
+                this._body.push(returnStatement);
             }
+        }
 
-            while (this._body.length > 0) {
-                let statement = this._body.shift();
-                if (this._conditionStatement(statement)) {
-                    continue;
-                }
-                if (this._assignStatement(statement)) {
-                    continue;
-                }
-                if (this._argumentStatement(statement)) {
-                    continue;
-                }
-                if (this._nodeStatement(statement)) {
-                    continue;
-                }
-                if (this._returnStatement(statement)) {
-                    continue;
-                }
-                if (statement.type === 'pass') {
-                    continue;
-                }
-                if (this._isCall(statement, 'torch.warn', [ {}, {} ])) {
-                    continue;
-                }
-                throw new torchscript.Error("Unknown statement '" + JSON.stringify(statement) + "'.");
+        while (this._body.length > 0) {
+            let statement = this._body.shift();
+            if (this._conditionStatement(statement)) {
+                continue;
             }
+            if (this._assignStatement(statement)) {
+                continue;
+            }
+            if (this._argumentStatement(statement)) {
+                continue;
+            }
+            if (this._nodeStatement(statement)) {
+                continue;
+            }
+            if (this._returnStatement(statement)) {
+                continue;
+            }
+            if (statement.type === 'pass') {
+                continue;
+            }
+            if (this._isCall(statement, 'torch.warn', [ {}, {} ])) {
+                continue;
+            }
+            throw new torchscript.Error("Unknown statement.");
         }
     }
 
