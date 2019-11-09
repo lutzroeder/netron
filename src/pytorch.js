@@ -213,6 +213,9 @@ pytorch.ModelFactory = class {
                 constructorTable['torch.DoubleStorage'] = function (size) { 
                     this.size = size; this.dataTypeSize = 8; this.dataType = 'float64';
                 };
+                constructorTable['torch.QInt8Storage'] = function (size) { 
+                    this.size = size; this.dataTypeSize = 1; this.dataType = 'qint8';
+                };
                 constructorTable['torch.FloatTensor'] = function () {
                     this.__setstate__ = function(state) {
                         this.storage = state[0];
@@ -364,6 +367,18 @@ pytorch.ModelFactory = class {
                     obj.backward_hooks = backward_hooks;
                     return obj;
                 };
+                functionTable['torch._utils._rebuild_qtensor'] = function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
+                    return {
+                        __type__: storage.__type__.replace('Storage', 'Tensor'),
+                        storage: storage,
+                        storage_offset: storage_offset,
+                        size: size,
+                        stride: stride,
+                        quantizer_params: quantizer_params,
+                        requires_grad:requires_grad,
+                        backward_hooks: backward_hooks
+                    };
+                };
                 functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
                     let data = rawData;
                     if (rawData.constructor !== Uint8Array) {
@@ -409,7 +424,7 @@ pytorch.ModelFactory = class {
                     if (constructor) {
                         constructor.apply(obj, args);
                     }
-                    else if (name && unknownNameMap.has(name)) {
+                    else if (name && !unknownNameMap.has(name)) {
                         unknownNameMap.add(name);
                         if (knownPackageMap.has(name.split('.').shift())) {
                             host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
@@ -696,6 +711,11 @@ pytorch.ModelFactory = class {
             state.id = key;
             state.name = split.pop();
             state.value = obj[key];
+            if (state.value && state.value.__type__ === 'torch.nn.parameter.Parameter') {
+                if (pytorch.ModelFactory._isTensor(state.value.data)) {
+                    state.value = state.value.data;
+                }
+            }
             if (!pytorch.ModelFactory._isTensor(state.value)) {
                 return null;
             }
@@ -1258,6 +1278,7 @@ pytorch.Tensor = class {
                         context.index++;
                         context.count++;
                         break;
+                    case 'qint8':
                     case 'int8':
                         results.push(context.dataView.getInt8(context.index, this._littleEndian));
                         context.index++;

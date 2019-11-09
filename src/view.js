@@ -948,9 +948,10 @@ view.View = class {
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
                             const dataTypeMap = new Map([
+                                [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ],
                                 [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
                                 [ 'uint8', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
-                                [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ]
+                                [ 'qint8', 'i1' ]
                             ]);
                             let array = new numpy.Array();
                             array.shape = tensor.type.shape.dimensions;
@@ -1132,6 +1133,7 @@ class ArchiveContext {
 }
 
 class ArchiveError extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading archive.';

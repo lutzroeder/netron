@@ -3856,6 +3856,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "resnet18_fbgemm_16fa66dd.pth",
+    "source": "https://download.pytorch.org/models/quantized/resnet18_fbgemm_16fa66dd.pth",
+    "format": "PyTorch",
+    "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/quantization/resnet.py"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet18_large_blocks.pth",
     "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/resnet18_large_blocks.pth?raw=true",
     "format": "PyTorch",
