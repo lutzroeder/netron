@@ -58,8 +58,13 @@ install() {
 schema() {
     bold "armnn schema"
 
-    ${third_party}/flatbuffers/flatc --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    ${third_party}/flatbuffers/flatc --no-js-exports --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
     mv ./ArmnnSchema_generated.js ${src}/armnn-schema.js
+    cat <<EOT >> ${src}/armnn-schema.js
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+  module.exports = armnnSerializer;
+}
+EOT
 }
 
 while [ "$#" != 0 ]; do

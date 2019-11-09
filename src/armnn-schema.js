@@ -13935,5 +13935,6 @@ armnnSerializer.SerializedGraph.createSerializedGraph = function(builder, layers
   return armnnSerializer.SerializedGraph.endSerializedGraph(builder);
 }
 
-// Exports for Node.js and RequireJS
-this.armnnSerializer = armnnSerializer;
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+  module.exports = armnnSerializer;
+}

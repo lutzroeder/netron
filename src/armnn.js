@@ -23,7 +23,7 @@ armnn.ModelFactory = class {
             try {
                 const buffer = context.buffer;
                 const byteBuffer = new flatbuffers.ByteBuffer(buffer);
-                armnn.schema = armnn_schema.armnnSerializer;
+                armnn.schema = armnn_schema;
                 model = armnn.schema.SerializedGraph.getRootAsSerializedGraph(byteBuffer);
             }
             catch (error) {
