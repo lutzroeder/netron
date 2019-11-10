@@ -10,10 +10,6 @@ pickle.Unpickler = class {
     }
 
     load(function_call, persistent_load) {
-        let i;
-        let obj;
-        let type;
-        let items;
         let reader = this._reader;
         let marker = [];
         let stack = [];
@@ -22,31 +18,35 @@ pickle.Unpickler = class {
             let opcode = reader.byte();
             // console.log(reader.position.toString() + ': ' + opcode.toString());
             switch (opcode) {
-                case pickle.OpCode.PROTO:
-                    var version = reader.byte();
+                case pickle.OpCode.PROTO: {
+                    const version = reader.byte();
                     if (version > 4) {
                         throw new pickle.Error("Unsupported protocol version '" + version + "'.");
                     }
                     break;
+                }
                 case pickle.OpCode.GLOBAL:
                     stack.push([ reader.line(), reader.line() ].join('.'));
                     break;
                 case pickle.OpCode.STACK_GLOBAL:
                     stack.push([ stack.pop(), stack.pop() ].reverse().join('.'));
                     break;
-                case pickle.OpCode.PUT:
-                    i = parseInt(reader.line(), 10);
-                    memo.set(i, stack[stack.length - 1]);
+                case pickle.OpCode.PUT: {
+                    const index = parseInt(reader.line(), 10);
+                    memo.set(index, stack[stack.length - 1]);
                     break;
-                case pickle.OpCode.OBJ:
-                    items = stack;
+                }
+                case pickle.OpCode.OBJ: {
+                    let items = stack;
                     stack = marker.pop();
                     stack.push(function_call(items.pop(), items));
                     break;
-                case pickle.OpCode.GET:
-                    i = parseInt(reader.line(), 10);
-                    stack.push(memo.get(i));
+                }
+                case pickle.OpCode.GET: {
+                    const index = parseInt(reader.line(), 10);
+                    stack.push(memo.get(index));
                     break;
+                }
                 case pickle.OpCode.POP:
                     stack.pop();
                     break;
@@ -62,16 +62,18 @@ pickle.Unpickler = class {
                 case pickle.OpCode.BINPERSID:
                     stack.push(persistent_load(stack.pop()));
                     break;
-                case pickle.OpCode.REDUCE:
-                    items = stack.pop();
-                    type = stack.pop();
+                case pickle.OpCode.REDUCE: {
+                    const items = stack.pop();
+                    const type = stack.pop();
                     stack.push(function_call(type, items));
                     break;
-                case pickle.OpCode.NEWOBJ:
-                    items = stack.pop();
-                    type = stack.pop();
+                }
+                case pickle.OpCode.NEWOBJ: {
+                    const items = stack.pop();
+                    const type = stack.pop();
                     stack.push(function_call(type, items));
                     break;
+                }
                 case pickle.OpCode.BINGET:
                     stack.push(memo.get(reader.byte()));
                     break;
@@ -108,18 +110,19 @@ pickle.Unpickler = class {
                 case pickle.OpCode.BINFLOAT:
                     stack.push(reader.float64());
                     break;
-                case pickle.OpCode.INT:
-                    var intValue = reader.line();
-                    if (intValue == '01') {
+                case pickle.OpCode.INT: {
+                    const value = reader.line();
+                    if (value == '01') {
                         stack.push(true);
                     }
-                    else if (intValue == '00') {
+                    else if (value == '00') {
                         stack.push(false);
                     }
                     else {
-                        stack.push(parseInt(intValue, 10));
+                        stack.push(parseInt(value, 10));
                     }
                     break;
+                }
                 case pickle.OpCode.EMPTY_LIST:
                     stack.push([]);
                     break;
@@ -129,49 +132,54 @@ pickle.Unpickler = class {
                 case pickle.OpCode.EMPTY_SET:
                     stack.push([]);
                     break;
-                case pickle.OpCode.ADDITEMS:
-                    items = stack;
+                case pickle.OpCode.ADDITEMS: {
+                    const items = stack;
                     stack = marker.pop();
-                    obj = stack[stack.length - 1];
-                    for (i = 0; i < items.length; i++) {
+                    let obj = stack[stack.length - 1];
+                    for (let i = 0; i < items.length; i++) {
                         obj.push(items[i]);
                     }
                     break;
-                case pickle.OpCode.DICT:
-                    items = stack;
+                }
+                case pickle.OpCode.DICT: {
+                    const items = stack;
                     stack = marker.pop();
-                    var dict = {};
-                    for (i = 0; i < items.length; i += 2) {
+                    let dict = {};
+                    for (let i = 0; i < items.length; i += 2) {
                         dict[items[i]] = items[i + 1];
                     }
                     stack.push(dict);
                     break;
-                case pickle.OpCode.LIST:
-                    items = stack;
+                }
+                case pickle.OpCode.LIST: {
+                    const items = stack;
                     stack = marker.pop();
                     stack.push(items);
                     break;
-                case pickle.OpCode.TUPLE:
-                    items = stack;
+                }
+                case pickle.OpCode.TUPLE: {
+                    const items = stack;
                     stack = marker.pop();
                     stack.push(items);
                     break;
-                case pickle.OpCode.SETITEM:
-                    var value = stack.pop();
-                    var key = stack.pop();
-                    var setItemObj = stack[stack.length - 1];
-                    if (setItemObj.__setitem__) {
-                        setItemObj.__setitem__(key, value);
+                }
+                case pickle.OpCode.SETITEM: {
+                    const value = stack.pop();
+                    const key = stack.pop();
+                    let obj = stack[stack.length - 1];
+                    if (obj.__setitem__) {
+                        obj.__setitem__(key, value);
                     }
                     else {
-                        setItemObj[key] = value;
+                        obj[key] = value;
                     }
                     break;
-                case pickle.OpCode.SETITEMS:
-                    items = stack;
+                }
+                case pickle.OpCode.SETITEMS: {
+                    const items = stack;
                     stack = marker.pop();
-                    obj = stack[stack.length - 1];
-                    for (i = 0; i < items.length; i += 2) {
+                    let obj = stack[stack.length - 1];
+                    for (let i = 0; i < items.length; i += 2) {
                         if (obj.__setitem__) {
                             obj.__setitem__(items[i], items[i + 1]);
                         }
@@ -180,23 +188,27 @@ pickle.Unpickler = class {
                         }
                     }
                     break;
+                }
                 case pickle.OpCode.EMPTY_DICT:
                     stack.push({});
                     break;
-                case pickle.OpCode.APPEND:
-                    var append = stack.pop();
+                case pickle.OpCode.APPEND: {
+                    const append = stack.pop();
                     stack[stack.length-1].push(append);
                     break;
-                case pickle.OpCode.APPENDS:
-                    var appends = stack;
+                }
+                case pickle.OpCode.APPENDS: {
+                    const appends = stack;
                     stack = marker.pop();
-                    var list = stack[stack.length - 1];
+                    let list = stack[stack.length - 1];
                     list.push.apply(list, appends);
                     break;
-                case pickle.OpCode.STRING:
-                    var str = reader.line();
+                }
+                case pickle.OpCode.STRING: {
+                    const str = reader.line();
                     stack.push(str.substr(1, str.length - 2));
                     break;
+                }
                 case pickle.OpCode.BINSTRING:
                     stack.push(reader.string(reader.uint32()));
                     break;
@@ -212,14 +224,14 @@ pickle.Unpickler = class {
                 case pickle.OpCode.SHORT_BINUNICODE:
                     stack.push(reader.string(reader.byte(), 'utf-8'));
                     break;
-                case pickle.OpCode.BUILD:
-                    var state = stack.pop();
-                    obj = stack.pop();
+                case pickle.OpCode.BUILD: {
+                    const state = stack.pop();
+                    let obj = stack.pop();
                     if (obj.__setstate__) {
                         obj.__setstate__(state);
                     }
                     else {
-                        for (var p in state) {
+                        for (let p in state) {
                             obj[p] = state[p];
                         }
                     }
@@ -228,6 +240,7 @@ pickle.Unpickler = class {
                     }
                     stack.push(obj);
                     break;
+                }
                 case pickle.OpCode.MARK:
                     marker.push(stack);
                     stack = [];
@@ -238,9 +251,9 @@ pickle.Unpickler = class {
                 case pickle.OpCode.NEWFALSE:
                     stack.push(false);
                     break;
-                case pickle.OpCode.LONG1:
-                    var data = reader.bytes(reader.byte());
-                    var number = 0;
+                case pickle.OpCode.LONG1: {
+                    const data = reader.bytes(reader.byte());
+                    let number = 0;
                     switch (data.length) {
                         case 0: number = 0; break;
                         case 1: number = data[0]; break;
@@ -251,6 +264,7 @@ pickle.Unpickler = class {
                     }
                     stack.push(number);
                     break;
+                }
                 case pickle.OpCode.LONG4:
                     // TODO decode LONG4
                     stack.push(reader.bytes(reader.uint32()));
@@ -258,17 +272,19 @@ pickle.Unpickler = class {
                 case pickle.OpCode.TUPLE1:
                     stack.push([ stack.pop() ]);
                     break;
-                case pickle.OpCode.TUPLE2:
-                    var t2b = stack.pop();
-                    var t2a = stack.pop();
-                    stack.push([ t2a, t2b ]);
+                case pickle.OpCode.TUPLE2: {
+                    const b = stack.pop();
+                    const a = stack.pop();
+                    stack.push([ a, b ]);
                     break;
-                case pickle.OpCode.TUPLE3:
-                    var t3c = stack.pop();
-                    var t3b = stack.pop();
-                    var t3a = stack.pop();
-                    stack.push([ t3a, t3b, t3c ]);
+                }
+                case pickle.OpCode.TUPLE3: {
+                    const c = stack.pop();
+                    const b = stack.pop();
+                    const a = stack.pop();
+                    stack.push([ a, b, c ]);
                     break;
+                }
                 case pickle.OpCode.MEMOIZE:
                     memo.set(memo.size, stack[stack.length - 1]);
                     break;
@@ -292,8 +308,8 @@ pickle.Unpickler = class {
     }
 
     unescape(token, size) {
-        let length = token.length;
-        let a = new Uint8Array(length);
+        const length = token.length;
+        const a = new Uint8Array(length);
         if (size && size == length) {
             for (let p = 0; p < size; p++) {
                 a[p] = token.charCodeAt(p);
@@ -318,9 +334,9 @@ pickle.Unpickler = class {
                     case 0x74: a[o++] = 0x09; break; // \t
                     case 0x62: a[o++] = 0x08; break; // \b
                     case 0x58: // x
-                    case 0x78: // X
-                        var xsi = i - 1;
-                        var xso = o;
+                    case 0x78: { // X 
+                        const xsi = i - 1;
+                        const xso = o;
                         for (let xi = 0; xi < 2; xi++) {
                             if (i >= length) {
                                 i = xsi;
@@ -340,6 +356,7 @@ pickle.Unpickler = class {
                         }
                         o++;
                         break;
+                    }
                     default:
                         if (c < 48 || c > 57) { // 0-9
                             a[o++] = 0x5c;
