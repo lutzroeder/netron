@@ -564,7 +564,7 @@ coreml.Node = class {
         this._attributes = [];
         this._initializers = [];
         if (data) {
-            let initializerMap = this._initialize(data);
+            const initializerMap = this._initialize(data);
             for (let key of Object.keys(data)) {
                 if (!initializerMap[key]) {
                     this._attributes.push(new coreml.Attribute(this._metadata, this.operator, key, data[key]));
@@ -646,8 +646,8 @@ coreml.Node = class {
 
     _initialize(data) {
         switch (this._operator) {
-            case 'convolution':
-                var weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
+            case 'convolution': {
+                let weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
                 if (data.isDeconvolution) {
                     weightsShape[0] = data.kernelChannels;
                     weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
@@ -656,8 +656,8 @@ coreml.Node = class {
                 if (data.hasBias) {
                     this._initializer('Weights', 'bias', [ data.outputChannels ], data.bias);
                 }
-
                 return { 'weights': true, 'bias': data.hasBias };
+            }
             case 'innerProduct':
                 this._initializer('Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights);
                 if (data.hasBias) {
@@ -696,10 +696,10 @@ coreml.Node = class {
                     this._initializer('Weights', 'bias', [ data.outputVectorSize ], data.biasVector);
                 }
                 return { 'weightMatrix': true, 'recursionMatrix': true, 'biasVector': data.hasBiasVectors };
-            case 'gru':
-                var recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
-                var weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
-                var biasVectorShape = [ data.outputVectorSize ];
+            case 'gru': {
+                const recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
+                const weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
+                const biasVectorShape = [ data.outputVectorSize ];
                 this._initializer('Weights', 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix);
                 this._initializer('Weights', 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix);
                 this._initializer('Weights', 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix);
@@ -714,15 +714,17 @@ coreml.Node = class {
                 return {
                     'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true, 
                     'updateGateRecursionMatrix': true, 'resetGateRecursionMatrix': true, 'outputGateRecursionMatrix': true,
-                    'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors };
+                    'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors 
+                };
+            }
             case 'uniDirectionalLSTM':
-            case 'biDirectionalLSTM':
-                var count = (this._operator == 'uniDirectionalLSTM') ? 1 : 2;
-                var matrixShape = [ data.outputVectorSize, data.inputVectorSize ];
-                var vectorShape = [ data.outputVectorSize ];
+            case 'biDirectionalLSTM': {
+                const count = (this._operator == 'uniDirectionalLSTM') ? 1 : 2;
+                const matrixShape = [ data.outputVectorSize, data.inputVectorSize ];
+                const vectorShape = [ data.outputVectorSize ];
                 for (let i = 0; i < count; i++) {
-                    let weights = count == 1 ? data.weightParams : data.weightParams[i];
-                    let suffix = (i == 0) ? '' : '_rev';
+                    const weights = count == 1 ? data.weightParams : data.weightParams[i];
+                    const suffix = (i == 0) ? '' : '_rev';
                     this._initializer('Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix);
                     this._initializer('Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix);
                     this._initializer('Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix);
@@ -744,6 +746,7 @@ coreml.Node = class {
                     }
                 }
                 return { 'weightParams': true };
+            }
             case 'dictVectorizer':
                 data.stringToIndex = this._convertVector(data.stringToIndex);
                 return {};
