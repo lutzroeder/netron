@@ -1243,7 +1243,7 @@ torchscript.Container = class {
             const entries = this._entries.filter((e) => e.name === key);
             if (entries.length === 1) {
                 const code = this._utf8Decoder.decode(entries[0].data);
-                const reader = new this._python.Parser(code);
+                const reader = new this._python.Parser(code, file);
                 const program = reader.parse();
                 this._packages.set(file, program);
             }

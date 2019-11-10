@@ -7,8 +7,8 @@ var python = python || {};
 
 python.Parser = class {
 
-    constructor(text) {
-        this._tokenizer = new python.Tokenizer(text);
+    constructor(text, file) {
+        this._tokenizer = new python.Tokenizer(text, file);
         if (!python.Parser._precedence) {
             python.Parser._precedence = {
                 'or': 2, 'and': 3, 'not' : 4, 
@@ -157,16 +157,15 @@ python.Parser = class {
             return node;
         }
         node = this._eat('id', 'import');
-        let symbol = null;
         if (node) {
-            node.symbol = [];
+            node.modules = [];
             do {
-                symbol = this._node('symbol');
-                symbol.symbol = this._parseExpression(-1, [], false);
+                let module = this._node('module');
+                module.name = this._parseExpression(-1, [], false);
                 if (this._tokenizer.eat('id', 'as')) {
-                    symbol.as = this._parseExpression(-1, [], false); 
+                    module.as = this._parseExpression(-1, [], false); 
                 }
-                node.symbol.push(symbol);
+                node.modules.push(module);
             }
             while (this._tokenizer.eat(','));
             return node;
@@ -185,7 +184,7 @@ python.Parser = class {
             node.import = [];
             let close = this._tokenizer.eat('(');
             do {
-                symbol = this._node();
+                let symbol = this._node();
                 symbol.symbol = this._parseExpression(-1, [], false);
                 if (this._tokenizer.eat('id', 'as')) {
                     symbol.as = this._parseExpression(-1, [], false); 
@@ -930,8 +929,9 @@ python.Parser = class {
 
 python.Tokenizer = class {
 
-    constructor(text) {
+    constructor(text, file) {
         this._text = text;
+        this._file = file;
         this._position = 0;
         this._lineStart = 0;
         this._line = 0;
@@ -1004,7 +1004,7 @@ python.Tokenizer = class {
     }
 
     location() {
-        return ' at ' + (this._line + 1).toString() + ':' + (this._position - this._lineStart + 1).toString();
+        return ' at ' + this._file + ':' + (this._line + 1).toString() + ':' + (this._position - this._lineStart + 1).toString();
     }
 
     static _isSpace(c) {
