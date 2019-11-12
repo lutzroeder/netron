@@ -551,7 +551,7 @@ armnn.TensorType = class {
     }
 
     isQuantized() {
-        return this._dataType.startsWith("quantised");
+        return this._dataType.startsWith("Quantised");
     }
 };
 
