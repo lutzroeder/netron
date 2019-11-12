@@ -170,11 +170,12 @@ chainer.ModelFactory = class {
                             throw new chainer.Error("Invalid file name '" + entry.name + "'.");
                         }
                         const id = entry.name.split('/');
-                        if (id.length != 2) {
+                        if (id.length < 2) {
                             throw new chainer.Error("Invalid parameter name '" + entry.name + "'.");
                         }
-                        const moduleName = id[0];
-                        const parameterName = id[1].substring(0, id[1].length - 4);
+                        let parameterName = id.pop();
+                        parameterName = parameterName.substring(0, parameterName.length - 4);
+                        const moduleName = id.join('/');
                         let module = null;
                         if (map.has(id[0])) {
                             module = map.get(moduleName);
