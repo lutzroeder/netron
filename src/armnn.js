@@ -350,17 +350,15 @@ armnn.Parameter = class {
 armnn.Argument = class {
 
     constructor(id, tensorInfo, initializer) {
-        let info = initializer? initializer.info() : tensorInfo;
+        let info = initializer ? initializer.info() : tensorInfo;
 
         this._id = id;
         this._type = new armnn.TensorType(info);
-        this._initializer = initializer? new armnn.Tensor(info, initializer) : null;
-        this._quantization = this._type.isQuantized();
+        this._initializer = initializer ? new armnn.Tensor(info, initializer) : null;
 
-        if (this._quantization) {
-            let scale = this._type.quantizationScale;
-            let zeroPoint = this._type.quantizationOffset;
-            this._quantization = scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
+        if (this._type.dataType.startsWith('q') && info) {
+            this._scale = info.quantizationScale();
+            this._zeroPoint = info.quantizationOffset();
         }
     }
 
@@ -373,7 +371,10 @@ armnn.Argument = class {
     }
 
     get quantization() {
-        return this._quantization;
+        if (this._scale !== undefined && this._zeroPoint !== undefined) {
+            return this._scale.toString() + ' * ' + (this._zeroPoint == 0 ? 'q' : ('(q - ' + this._zeroPoint.toString() + ')'));
+        }
+        return undefined;
     }
 
     get initializer() {
@@ -468,32 +469,32 @@ armnn.Tensor = class {
                     return results;
                 }
                 switch (context.dataType) {
-                    case 'Float16':
+                    case 'float16':
                         results.push(context.data.getFloat16(context.index, true));
                         context.index += 2;
                         context.count++;
                         break;
-                    case 'Float32':
+                    case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'QuantisedAsymm8':
-                        results.push(context.data.getInt8(context.index));
+                    case 'quint8':
+                        results.push(context.data.getUint8(context.index));
                         context.index += 1;
                         context.count++;
                         break;
-                    case 'QuantisedSymm16':
+                    case 'qint16':
                         results.push(context.data.getInt16(context.index, true));
                         context.index += 2;
                         context.count++;
                         break;
-                    case 'Signed32':
+                    case 'int32':
                         results.push(context.data.getInt32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'Boolean':
+                    case 'boolean':
                         results.push(context.data.getInt8(context.index));
                         context.index += 1;
                         context.count++;
@@ -522,12 +523,18 @@ armnn.Tensor = class {
 armnn.TensorType = class {
 
     constructor(tensorInfo) {
-        this._dataType = armnn.schema.DataTypeName[tensorInfo.dataType()] || '?';
 
-        if (this.isQuantized()) {
-            this.quantizationScale = tensorInfo.quantizationScale();
-            this.quantizationOffset = tensorInfo.quantizationOffset();
+        const dataType = tensorInfo.dataType();
+        switch (dataType) {
+            case 0: this._dataType = 'float16'; break;
+            case 1: this._dataType = 'float32'; break;
+            case 2: this._dataType = 'quint8'; break;
+            case 3: this._dataType = 'int32'; break;
+            case 4: this._dataType = 'boolean'; break;
+            case 5: this._dataType = 'qint16'; break;
+            default: throw new armnn.Error("Unknown data type '" + dataType + "'.");
         }
+
         let dimensions = [];
         let dimensionsLength = tensorInfo.dimensionsLength();
         if (dimensionsLength > 0) {
@@ -548,10 +555,6 @@ armnn.TensorType = class {
 
     toString() {
         return this.dataType + this._shape.toString();
-    }
-
-    isQuantized() {
-        return this._dataType.startsWith("quantised");
     }
 };
 
