@@ -767,10 +767,4 @@ class BrowserContext {
     }
 }
 
-try {
-    host.BrowserContext = BrowserContext;
-    window.host = host;
-    window.__view__ = new view.View(new host.BrowserHost());
-} catch (e) {
-    // unable to properly initialize View
-}
+window.__view__ = new view.View(new host.BrowserHost());
