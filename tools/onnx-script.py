@@ -80,13 +80,19 @@ categories = {
     'Squeeze': 'Transform',
 }
 
+attribute_type_table = {
+    'undefined': None,
+    'float': 'float32', 'int': 'int64', 'string': 'string', 'tensor': 'tensor', 'graph': 'graph',
+    'floats': 'float32[]', 'ints': 'int64[]', 'strings': 'string[]', 'tensors': 'tensor[]', 'graphs': 'graph[]',
+}
+
 def generate_json_attr_type(type):
     assert isinstance(type, OpSchema.AttrType)
     s = str(type)
     s = s[s.rfind('.')+1:].lower()
-    if s[-1] == 's':
-        s = s[0:-1] + '[]'
-    return s
+    if s in attribute_type_table:
+        return attribute_type_table[s]
+    return None
 
 def generate_json_attr_default_value(attr_value):
     if not str(attr_value):
@@ -157,7 +163,11 @@ def generate_json(schemas, json_file):
                 json_attribute = {}
                 json_attribute['name'] = attribute.name
                 json_attribute['description'] = attribute.description
-                json_attribute['type'] = generate_json_attr_type(attribute.type)
+                attribute_type = generate_json_attr_type(attribute.type)
+                if attribute_type:
+                    json_attribute['type'] = attribute_type
+                elif 'type' in json_attribute:
+                    del json_attribute['type']
                 json_attribute['required'] = attribute.required
                 default_value = generate_json_attr_default_value(attribute.default_value)
                 if default_value:
@@ -209,7 +219,7 @@ def metadata():
     generate_json(schemas, '../src/onnx-metadata.json')
 
 def convert():
-    file = sys.argv[2];
+    file = sys.argv[2]
     base, extension = os.path.splitext(file)
     if extension == '.mlmodel':
         pip_import('coremltools')
@@ -242,8 +252,8 @@ def convert():
 def optimize():
     import onnx
     from onnx import optimizer
-    file = sys.argv[2];
-    base, extension = os.path.splitext(file)
+    file = sys.argv[2]
+    base = os.path.splitext(file)
     onnx_model = onnx.load(file)
     passes = optimizer.get_available_passes()
     optimized_model = optimizer.optimize(onnx_model, passes)
@@ -253,13 +263,13 @@ def infer():
     import onnx
     import onnx.shape_inference
     from onnx import shape_inference
-    file = sys.argv[2];
-    base, extension = os.path.splitext(file)
+    file = sys.argv[2]
+    base = os.path.splitext(file)[0]
     onnx_model = onnx.load(base + '.onnx')
-    onnx_model = onnx.shape_inference.infer_shapes(onnx_model);
+    onnx_model = onnx.shape_inference.infer_shapes(onnx_model)
     onnx.save(onnx_model, base + '.shape.onnx')
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'convert': convert, 'optimize': optimize, 'infer': infer }
-    command = sys.argv[1];
+    command = sys.argv[1]
     command_table[command]()

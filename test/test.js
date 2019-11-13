@@ -10,6 +10,7 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const protobuf = require('protobufjs');
+const sidebar = require('../src/view-sidebar.js');
 const view = require('../src/view.js');
 const zip = require('../src/zip');
 const gzip = require('../src/gzip');
@@ -36,10 +37,10 @@ global.TextDecoder = class {
             return String.fromCharCode.apply(null, data);
         }
 
-        var buffer = [];
-        var start = 0;
+        let buffer = [];
+        let start = 0;
         do {
-            var end = start + 32;
+            let end = start + 32;
             if (end > data.length) {
                 end = data.length;
             }
@@ -51,10 +52,9 @@ global.TextDecoder = class {
     }
 };
 
-var type = process.argv.length > 2 ? process.argv[2] : null;
-
-var models = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
-var dataFolder = __dirname + '/data';
+const type = process.argv.length > 2 ? process.argv[2] : null;
+const dataFolder = __dirname + '/data';
+let items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
 class TestHost {
 
@@ -79,34 +79,22 @@ class TestHost {
     screen(/* name */) {
     }
 
-    require(id, callback) {
+    require(id) {
         try {
-            var file = path.join(path.join(__dirname, '../src'), id + '.js');
-            callback(null, require(file));
-            return;
+            const file = path.join(path.join(__dirname, '../src'), id + '.js');
+            return Promise.resolve(require(file));
         }
-        catch (err) {
-            callback(err, null);
-            return;
+        catch (error) {
+            return Promise.reject(error);
         }
     }
 
-    request(base, file, encoding, callback) {
-        var pathname = path.join(base || path.join(__dirname, '../src'), file);
-        fs.exists(pathname, (exists) => {
-            if (!exists) {
-                callback(new Error('File not found.'), null);
-                return;
-            }
-            fs.readFile(pathname, encoding, (err, data) => {
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-                return;
-            });
-        });
+    request(base, file, encoding) {
+        const pathname = path.join(base || path.join(__dirname, '../src'), file);
+        if (!fs.existsSync(pathname)) {
+            return Promise.reject(new Error("File not found '" + file + "'."));
+        }
+        return Promise.resolve(fs.readFileSync(pathname, encoding));
     }
 
     event(/* category, action, label, value */) {
@@ -124,7 +112,7 @@ class TestHost {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (var callback of this._events[event]) {
+            for (let callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -140,10 +128,8 @@ class TestContext {
         this._buffer = buffer;
     }
 
-    request(file, encoding, callback) {
-        this._host.request(this._folder, file, encoding, (err, buffer) => {
-            callback(err, buffer);
-        });
+    request(file, encoding) {
+        return this._host.request(this._folder, file, encoding);
     }
 
     get identifier() {
@@ -172,7 +158,7 @@ class HTMLDocument {
     }
 
     getElementById(id) {
-        var element = this._elements[id];
+        let element = this._elements[id];
         if (!element) {
             element = new HTMLHtmlElement();
             this._elements[id] = element;
@@ -245,12 +231,12 @@ function makeDir(dir) {
 }
 
 function decompress(buffer, identifier) {
-    var archive = null;
-    var extension = identifier.split('.').pop().toLowerCase();
+    let archive = null;
+    const extension = identifier.split('.').pop().toLowerCase();
     if (extension == 'gz' || extension == 'tgz') {
         archive = new gzip.Archive(buffer);
         if (archive.entries.length == 1) {
-            var entry = archive.entries[0];
+            const entry = archive.entries[0];
             if (entry.name) {
                 identifier = entry.name;
             }
@@ -261,7 +247,6 @@ function decompress(buffer, identifier) {
                 }
             }
             buffer = entry.data;
-            archive = null;
         }
     }
 
@@ -276,78 +261,87 @@ function decompress(buffer, identifier) {
     return archive;
 }
 
-function request(location, cookie, callback) {
-    var data = [];
-    var position = 0;
-    var protocol = url.parse(location).protocol;
-    var httpModules = { 'http:': http, 'https:': https };
-    var httpModule = httpModules[protocol];
-    var httpRequest = httpModule.request(location, {
-        rejectUnauthorized: false
-    });
-    if (cookie.length > 0) {
+function request(location, cookie) {
+    const options = { rejectUnauthorized: false };
+    let httpRequest = null;
+    switch (url.parse(location).protocol) {
+        case 'http:': 
+            httpRequest = http.request(location, options);
+            break;
+        case 'https:':
+            httpRequest = https.request(location, options);
+            break;
+    }
+    if (cookie && cookie.length > 0) {
         httpRequest.setHeader('Cookie', cookie);
     }
-    httpRequest.on('response', (response) => {
-        if (response.statusCode == 200 && url.parse(location).hostname == 'drive.google.com' && 
+    return new Promise((resolve, reject) => {
+        httpRequest.on('response', (response) => {
+            resolve(response);
+        });
+        httpRequest.on('error', (error) => {
+            reject(error);
+        });
+        httpRequest.end();
+    });
+}
+
+function downloadFile(location, cookie) {
+    let data = [];
+    let position = 0;
+    return request(location, cookie).then((response) => {
+        if (response.statusCode == 200 &&
+            url.parse(location).hostname == 'drive.google.com' && 
             response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
             cookie = response.headers['set-cookie'];
-            var download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
-            var confirm = download.split(';').shift().split('=').pop();
+            const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
+            const confirm = download.split(';').shift().split('=').pop();
             location = location + '&confirm=' + confirm;
-            request(location, cookie, callback);
-            return;
+            return downloadFile(location, cookie);
         }
         if (response.statusCode == 301 || response.statusCode == 302) {
             location = url.parse(response.headers.location).hostname ?
                 response.headers.location : 
                 url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
-            request(location, cookie, callback);
-            return;
+            return downloadFile(location, cookie);
         }
         if (response.statusCode != 200) {
-            callback(new Error(response.statusCode.toString() + ' ' + location), null);
-            return;
+            throw new Error(response.statusCode.toString() + ' ' + location);
         }
-        var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
-        response.on("data", (chunk) => {
-            position += chunk.length;
-            if (length >= 0) {
-                var label = location.length > 70 ? location.substring(0, 66) + '...' : location; 
-                process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
-            }
-            else {
-                process.stdout.write('  ' + position + ' bytes\r');
-            }
-            data.push(chunk);
-        });
-        response.on("end", () => {
-            callback(null, Buffer.concat(data));
-        });
-        response.on("error", (err) => {
-            callback(err, null);
+        return new Promise((resolve, reject) => {
+            const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
+            response.on('data', (chunk) => {
+                position += chunk.length;
+                if (length >= 0) {
+                    const label = location.length > 70 ? location.substring(0, 66) + '...' : location; 
+                    process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
+                }
+                else {
+                    process.stdout.write('  ' + position + ' bytes\r');
+                }
+                data.push(chunk);
+            });
+            response.on('end', () => {
+                resolve(Buffer.concat(data));
+            });
+            response.on('error', (error) => {
+                reject(error);
+            });
         });
     });
-    httpRequest.on('error', (err) => {
-        callback(err, null);
-    });
-    httpRequest.end();
 }
 
-function download(folder, targets, sources, completed, callback) {
+function download(folder, targets, sources) {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
-        completed = completed.concat(targets);
-        callback(null, completed);
-        return;
+        return Promise.resolve();
     }
     if (!sources) {
-        callback(new Error('Download source not specified.'), null);
-        return;
+        return Promise.reject(new Error('Download source not specified.'));
     }
-    var source = '';
-    var sourceFiles = [];
-    var startIndex = sources.indexOf('[');
-    var endIndex = sources.indexOf(']');
+    let source = '';
+    let sourceFiles = [];
+    const startIndex = sources.indexOf('[');
+    const endIndex = sources.indexOf(']');
     if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
         sourceFiles = sources.substring(startIndex + 1, endIndex).split(',').map((sourceFile) => sourceFile.trim());
         source = sources.substring(0, startIndex);
@@ -357,7 +351,7 @@ function download(folder, targets, sources, completed, callback) {
         }
     }
     else {
-        var commaIndex = sources.indexOf(',');
+        const commaIndex = sources.indexOf(',');
         if (commaIndex != -1) {
             source = sources.substring(0, commaIndex);
             sources = sources.substring(commaIndex + 1);
@@ -367,187 +361,199 @@ function download(folder, targets, sources, completed, callback) {
             sources = '';
         }
     }
-    var target;
-    for (target of targets) {
+    for (let target of targets) {
         makeDir(path.dirname(folder + '/' + target));
     }
-    request(source, [], (err, data) => {
-        if (err) {
-            callback(err, null);
-            return;
-        }
+    return downloadFile(source).then((data) => {
         if (sourceFiles.length > 0) {
             if (process.stdout.clearLine) {
                 process.stdout.clearLine();
             }
             process.stdout.write('  decompress...\r');
-            var archive = decompress(data, source.split('/').pop());
-            // console.log(archive);
-            for (var file of sourceFiles) {
+            const archive = decompress(data, source.split('?').shift().split('/').pop());
+            for (let file of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
                 }
                 process.stdout.write('  write ' + file + '\n');
-                var entry = archive.entries.filter((entry) => entry.name == file)[0];
+                const entry = archive.entries.filter((entry) => entry.name == file)[0];
                 if (!entry) {
-                    callback(new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " ."), null);
+                    throw new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
                 }
-                var target = targets.shift();
+                const target = targets.shift();
                 fs.writeFileSync(folder + '/' + target, entry.data, null);
-                completed.push(target);
             }
         }
         else {
-            target = targets.shift();
+            const target = targets.shift();
             if (process.stdout.clearLine) {
                 process.stdout.clearLine();
             }
             process.stdout.write('  write ' + target + '\r');
             fs.writeFileSync(folder + '/' + target, data, null);
-            completed.push(target);
         }
         if (process.stdout.clearLine) {
             process.stdout.clearLine();
         }
         if (sources.length > 0) {
-            download(folder, targets, sources, completed, callback);
-            return;
+            return download(folder, targets, sources);
         }
-        callback(null, completed);
-    });
-}
-
-function loadModel(target, item, callback) {
-    var host = new TestHost();
-    var exceptions = [];
-    host.on('exception', (_, data) => {
-        exceptions.push(data.exception);
-    });
-    var folder = path.dirname(target);
-    var identifier = path.basename(target);
-    var size = fs.statSync(target).size;
-    var buffer = new Uint8Array(size);
-    var fd = fs.openSync(target, 'r');
-    fs.readSync(fd, buffer, 0, size, 0);
-    fs.closeSync(fd);
-    var context = new TestContext(host, folder, identifier, buffer);
-    var modelFactoryService = new view.ModelFactoryService(host);
-    var opened = false;
-    modelFactoryService.open(context, (err, model) => {
-        if (opened) {
-            callback(new Error("Model opened more than once '" + target + "'."), null);
-            process.exit();
-            return;
-        }
-        opened = true;
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        if (!model.format || (item.format && model.format != item.format)) {
-            callback(new Error("Invalid model format '" + model.format + "'."), null);
-            return;
-        }
-        if (item.producer && model.producer != item.producer) {
-            callback(new Error("Invalid producer '" + model.producer + "'."), null);
-            return;
-        }
-        try {
-            for (var graph of model.graphs) {
-                var input;
-                var connection;
-                for (input of graph.inputs) {
-                    input.name.toString();
-                    for (connection of input.connections) {
-                        connection.id.toString();
-                        if (connection.type) {
-                            connection.type.toString();
-                        }
-                    }
-                }
-                var output;
-                for (output of graph.outputs) {
-                    output.name.toString();
-                    for (connection of output.connections) {
-                        connection.id.toString();
-                        if (connection.type) {
-                            connection.type.toString();
-                        }
-                    }
-                }
-                for (var node of graph.nodes) {
-                    node.name.toString();
-                    node.documentation.toString();
-                    node.category.toString();
-                    for (var attribute of node.attributes) {
-                        attribute.name.toString();
-                        var value = view.View.formatAttributeValue(attribute.value, attribute.type)
-                        if (value && value.length > 1000) {
-                            value = value.substring(0, 1000) + '...';
-                        }
-                        value = value.split('<');
-                    }
-                    for (input of node.inputs) {
-                        input.name.toString();
-                        for (connection of input.connections) {
-                            connection.id.toString();
-                            if (connection.type) {
-                                connection.type.toString();
-                            }
-                            if (connection.initializer) {
-                                connection.initializer.toString();
-                            }
-                        }
-                    }
-                    for (output of node.outputs) {
-                        output.name.toString();
-                        for (connection of output.connections) {
-                            connection.id.toString();
-                            if (connection.type) {
-                                connection.type.toString();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (error) {
-            callback(error, null);
-            return;
-        }
-        if (exceptions.length > 0) {
-            callback(exceptions[0], null);
-            return;
-        }
-        callback(null, model);
         return;
     });
 }
 
-function render(model, callback) {
+function script(folder, targets, command, args) {
+    if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
+        return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+        try {
+            console.log('  ' + command + ' ' + args);
+            child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
+            resolve();
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+
+function loadModel(target, item) {
+    const host = new TestHost();
+    let exceptions = [];
+    host.on('exception', (_, data) => {
+        exceptions.push(data.exception);
+    });
+    const folder = path.dirname(target);
+    const identifier = path.basename(target);
+    const size = fs.statSync(target).size;
+    const buffer = new Uint8Array(size);
+    const fd = fs.openSync(target, 'r');
+    fs.readSync(fd, buffer, 0, size, 0);
+    fs.closeSync(fd);
+    const context = new TestContext(host, folder, identifier, buffer);
+    const modelFactoryService = new view.ModelFactoryService(host);
+    let opened = false;
+    return modelFactoryService.open(context).then((model) => {
+        if (opened) {
+            throw new Error("Model opened more than once '" + target + "'.");
+        }
+        opened = true;
+        if (!model.format || (item.format && model.format != item.format)) {
+            throw new Error("Invalid model format '" + model.format + "'.");
+        }
+        if (item.producer && model.producer != item.producer) {
+            throw new Error("Invalid producer '" + model.producer + "'.");
+        }
+        if (item.runtime && model.runtime != item.runtime) {
+            throw new Error("Invalid runtime '" + model.runtime + "'.");
+        }
+        model.version;
+        model.description;
+        model.author;
+        model.license;
+        for (let graph of model.graphs) {
+            for (let input of graph.inputs) {
+                input.name.toString();
+                input.name.length;
+                for (let argument of input.arguments) {
+                    argument.id.toString();
+                    argument.id.length;
+                    if (argument.type) {
+                        argument.type.toString();
+                    }
+                }
+            }
+            for (let output of graph.outputs) {
+                output.name.toString();
+                output.name.length;
+                for (let argument of output.arguments) {
+                    argument.id.toString();
+                    argument.id.length;
+                    if (argument.type) {
+                        argument.type.toString();
+                    }
+                }
+            }
+            for (let node of graph.nodes) {
+                node.name.toString();
+                node.name.length;
+                node.description;
+                node.documentation.toString();
+                node.category.toString();
+                for (let attribute of node.attributes) {
+                    attribute.name.toString();
+                    attribute.name.length;
+                    let value = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type)
+                    if (value && value.length > 1000) {
+                        value = value.substring(0, 1000) + '...';
+                    }
+                    value = value.split('<');
+                }
+                for (let input of node.inputs) {
+                    input.name.toString();
+                    input.name.length;
+                    for (let argument of input.arguments) {
+                        argument.id.toString();
+                        argument.id.length;
+                        argument.description;
+                        if (argument.type) {
+                            argument.type.toString();
+                        }
+                        if (argument.initializer) {
+                            argument.initializer.toString();
+                            argument.initializer.type.toString();
+                        }
+                    }
+                }
+                for (let output of node.outputs) {
+                    output.name.toString();
+                    output.name.length;
+                    for (let argument of output.arguments) {
+                        argument.id.toString();
+                        argument.id.length;
+                        if (argument.type) {
+                            argument.type.toString();
+                        }
+                    }
+                }
+                if (node.chain) {
+                    for (let chain of node.chain) {
+                        chain.name.toString();
+                        chain.name.length;
+                    }
+                }
+            }
+        }
+        if (exceptions.length > 0) {
+            throw exceptions[0];
+        }
+        return model;
+    });
+}
+
+function render(model) {
     try {
-        var host = new TestHost();
-        var currentView = new view.View(host);
+        const host = new TestHost();
+        const currentView = new view.View(host);
         if (!currentView.showAttributes) {
             currentView.toggleAttributes();
         }
         if (!currentView.showInitializers) {
             currentView.toggleInitializers();
         }
-        currentView.renderGraph(model.graphs[0], (err) => {
-            callback(err);
-        });
+        return currentView.renderGraph(model.graphs[0]);
     }
-    catch (err) {
-        callback(err);
+    catch (error) {
+        return Promise.reject(error);
     }
 }
 
 function next() {
-    if (models.length == 0) {
+    if (items.length == 0) {
         return;
     }
-    var item = models.shift();
+    const item = items.shift();
     if (!item.type) {
         console.error("Property 'type' is required for item '" + JSON.stringify(item) + "'.");
         return;
@@ -556,59 +562,50 @@ function next() {
         next();
         return;
     }
-    var targets = item.target.split(',');
     if (process.stdout.clearLine) {
         process.stdout.clearLine();
     }
-    var folder = dataFolder + '/' + item.type;
-    process.stdout.write(item.type + '/' + targets[0] + '\n');
-    var sources = item.source;
-    download(folder, targets, sources, [], (err, completed) => {
-        if (err) {
-            if (item.script) {
-                try {
-                    var root = path.dirname(__dirname);
-                    var command = item.script[0].replace('${root}', root);
-                    var args = item.script[1].replace('${root}', root);
-                    console.log('  ' + command + ' ' + args);
-                    child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
-                    completed = targets;
-                }
-                catch (err) {
-                    console.error(err);
-                    return;
-                }
+    const targets = item.target.split(',');
+    const target = targets[0];
+    const folder = dataFolder + '/' + item.type;
+    process.stdout.write(item.type + '/' + target + '\n');
+
+    let promise = null;
+    if (item.script) {
+        const root = path.dirname(__dirname);
+        const command = item.script[0].replace('${root}', root);
+        const args = item.script[1].replace('${root}', root);
+        promise = script(folder, targets, command, args);
+    }
+    else {
+        const sources = item.source;
+        promise = download(folder, targets, sources);
+    }
+    return promise.then(() => {
+        return loadModel(folder + '/' + target, item).then((model) => {
+            let promise = null;
+            if (item.render == 'skip') {
+                promise = Promise.resolve();
             }
             else {
-                console.error(err);
-                return;
+                promise = render(model);
             }
-        }
-        loadModel(folder + '/' + completed[0], item, (err, model) => {
-            if (err) {
-                if (!item.error || item.error != err.message) {
-                    console.error(err);
-                    return;
-                }
-                next();
-            }
-            else {
-                if (item.render != 'skip') {
-                    render(model, (err) => {
-                        if (err) {
-                            if (!item.error && item.error != err.message) {
-                                console.error(err);
-                                return;
-                            }
-                        }
-                        next();
-                    });
+            return promise.then(() => {
+                if (item.error) {
+                    console.error('Expected error.');
                 }
                 else {
-                    next();
+                    return next();
                 }
-            }
+            });
         });
+    }).catch((error) => {
+        if (!item.error || item.error != error.message) {
+            console.error(error);
+        }
+        else {
+            return next();
+        }
     });
 }
 

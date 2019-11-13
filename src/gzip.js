@@ -5,13 +5,12 @@ var gzip = gzip || {};
 
 gzip.Archive = class {
 
-    // inflate (optional): optimized inflater callback like require('zlib').inflateRawSync or pako.inflateRa
     constructor(buffer) {
         this._entries = [];
         if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {
             throw new gzip.Error('Invalid GZIP archive.');
         }
-        var reader = new gzip.Reader(buffer, 0, buffer.length);
+        const reader = new gzip.Reader(buffer, 0, buffer.length);
         this._entries.push(new gzip.Entry(reader));
     }
 
@@ -26,16 +25,16 @@ gzip.Entry = class {
         if (!reader.match([ 0x1f, 0x8b ])) {
             throw new gzip.Error('Invalid GZIP signature.');
         }
-        var compressionMethod = reader.byte();
+        const compressionMethod = reader.byte();
         if (compressionMethod != 8) {
             throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
         }
-        var flags = reader.byte();
+        const flags = reader.byte();
         reader.uint32(); // MTIME
         reader.byte();
         reader.byte(); // OS
         if ((flags & 4) != 0) {
-            var xlen = reader.uint16();
+            const xlen = reader.uint16();
             reader.skip(xlen);
         }
         if ((flags & 8) != 0) {
@@ -47,7 +46,7 @@ gzip.Entry = class {
         if ((flags & 1) != 0) {
             reader.uint16(); // CRC16
         }
-        var compressedData = reader.bytes();
+        let compressedData = reader.bytes();
         if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
             this._data = require('zlib').inflateRawSync(compressedData);
         }
@@ -59,7 +58,7 @@ gzip.Entry = class {
         }
         reader.position = -8;
         reader.uint32(); // CRC32
-        var size = reader.uint32();
+        const size = reader.uint32();
         if (size != this._data.length) {
             throw new gzip.Error('Invalid size.');
         }
@@ -85,7 +84,7 @@ gzip.Reader = class {
 
     match(signature) {
         if (this._position + signature.length <= this._end) {
-            for (var i = 0; i < signature.length; i++) {
+            for (let i = 0; i < signature.length; i++) {
                 if (this._buffer[this._position + i] != signature[i]) {
                     return false;
                 }
@@ -115,7 +114,7 @@ gzip.Reader = class {
             throw new gzip.Error('Data not available.');
         }
         size = size === undefined ? this._end : size;
-        var data = this._buffer.subarray(this._position, this._position + size);
+        const data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
@@ -124,7 +123,7 @@ gzip.Reader = class {
         if (this._position + 1 > this._end) {
             throw new gzip.Error('Data not available.');
         }
-        var value = this._buffer[this._position];
+        const value = this._buffer[this._position];
         this._position++;
         return value;
     }
@@ -133,7 +132,7 @@ gzip.Reader = class {
         if (this._position + 2 > this._end) {
             throw new gzip.Error('Data not available.');
         }
-        var value = this._buffer[this._position] | (this._buffer[this._position + 1] << 8);
+        const value = this._buffer[this._position] | (this._buffer[this._position + 1] << 8);
         this._position += 2;
         return value;
     }
@@ -143,8 +142,8 @@ gzip.Reader = class {
     }
 
     string() {
-        var result = '';
-        var end = this._buffer.indexOf(0x00, this._position);
+        let result = '';
+        const end = this._buffer.indexOf(0x00, this._position);
         if (end < 0) {
             throw new gzip.Error('End of string not found.');
         }

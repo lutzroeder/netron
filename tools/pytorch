@@ -7,17 +7,11 @@ build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
 test=${root}/test
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=pytorch
-virtualenv=${build}/virtualenv/${identifier}
-
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -26,12 +20,12 @@ bold() {
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -p
-        git -C "${third_party}/${1}" reset --quiet --hard origin/$(git -C "${third_party}/${1}" rev-parse --abbrev-ref HEAD)
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --recursive ${2}
+        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -43,33 +37,24 @@ clean() {
 sync() {
     bold "pytorch sync"
     git_sync pytorch https://github.com/pytorch/pytorch.git
+    git_sync torchvision https://github.com/pytorch/vision.git
 }
 
 install() {
     bold "pytorch install"
-    case "$(uname)" in
-        "Linux")
-            [ -n "$(which cmake)" ] || sudo apt install -y cmake
-            ;;
-        "Darwin")
-            brew list automake > /dev/null 2>&1 || brew install automake > /dev/null
-            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
-            brew list gflags > /dev/null 2>&1 || brew install gflags > /dev/null
-            brew list glog > /dev/null 2>&1 || brew install glog > /dev/null
-            ;;
-    esac
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || ${python} -m virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || python3 -m virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing tqdm
-    ${python} -m pip install --quiet ${third_party}/pytorch
-    ${python} -m pip install --quiet torchvision
+    python3 -m pip install --quiet future protobuf numpy scikit-build scipy
+    python3 -m pip install --quiet ninja pyyaml mkl mkl-include setuptools cmake cffi six typing
+    python3 -m pip install --quiet --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    python3 -m pip install --quiet --pre torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
 }
 
 schema() {
     bold "caffe2 schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2-proto.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe2 -o ${src}/caffe2-proto.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
     node ${tools}/update_pbjs.js enumeration ${src}/caffe2-proto.js floats float 1
 }
 
@@ -77,9 +62,9 @@ metadata() {
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
     bold "pytorch metadata"
-    ${python} pytorch-script.py metadata
+    python3 pytorch-script.py metadata
     bold "caffe2 metadata"
-    ${python} caffe2-script.py metadata
+    python3 caffe2-script.py metadata
     popd > /dev/null
     deactivate
 }
@@ -88,17 +73,7 @@ zoo() {
     bold "pytorch zoo"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} pytorch-script.py zoo torchvision.models.alexnet ${test}/data/pytorch/alexnet.pth
-    ${python} pytorch-script.py zoo torchvision.models.densenet121 ${test}/data/pytorch/densenet121.pth
-    ${python} pytorch-script.py zoo torchvision.models.densenet161 ${test}/data/pytorch/densenet161.pth
-    ${python} pytorch-script.py zoo torchvision.models.inception_v3 ${test}/data/pytorch/inception_v3.pth
-    ${python} pytorch-script.py zoo torchvision.models.resnet101 ${test}/data/pytorch/resnet101.pth
-    ${python} pytorch-script.py zoo torchvision.models.resnet18 ${test}/data/pytorch/resnet18.pth
-    ${python} pytorch-script.py zoo torchvision.models.resnet50 ${test}/data/pytorch/resnet50.pth
-    ${python} pytorch-script.py zoo torchvision.models.squeezenet1_0 ${test}/data/pytorch/squeezenet1_0.pth
-    ${python} pytorch-script.py zoo torchvision.models.vgg11_bn ${test}/data/pytorch/vgg11_bn.pth
-    ${python} pytorch-script.py zoo torchvision.models.vgg16 ${test}/data/pytorch/vgg16.pth
-    rm -rf ~/.torch/models
+    python3 pytorch-script.py zoo
     popd > /dev/null
     deactivate
 }

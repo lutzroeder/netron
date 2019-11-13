@@ -6,17 +6,11 @@ root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=tensorflow
-virtualenv=${build}/virtualenv/${identifier}
-
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -25,11 +19,12 @@ bold() {
 git_sync () {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -p
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -53,16 +48,16 @@ install() {
             brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
             ;;
     esac
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet protobuf
+    python3 -m pip install --quiet protobuf
     deactivate
 }
 
 schema() {
     bold "tf schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r tf -o ${src}/tf-proto.js \
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ${src}/tf-proto.js \
         ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
         ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
         ${third_party}/${identifier}/tensorflow/core/protobuf/saver.proto \
@@ -75,6 +70,7 @@ schema() {
         ${third_party}/${identifier}/tensorflow/core/framework/function.proto \
         ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto \
         ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/variable.proto \
         ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
         ${third_party}/${identifier}/tensorflow/core/protobuf/saved_object_graph.proto \
         ${third_party}/${identifier}/tensorflow/core/protobuf/trackable_object_graph.proto \
@@ -95,7 +91,7 @@ metadata() {
     touch ${tools}/tensorflow/__init__.py
     touch ${tools}/tensorflow/core/__init__.py
     touch ${tools}/tensorflow/core/framework/__init__.py
-    ${python} tf-script.py
+    python3 tf-script.py metadata
     rm -rf ${tools}/tensorflow
     popd > /dev/null
     deactivate

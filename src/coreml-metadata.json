@@ -210,6 +210,23 @@
     }
   },
   {
+    "name": "gelu",
+    "schema": {
+      "category": "Activation",
+      "description": "Gaussian error linear unit activation.",
+      "attributes": [
+        { "name": "mode", "type": "GeluLayerParams.GeluMode" }
+      ]
+    }
+  },
+  {
+    "name": "softmaxND",
+    "schema": {
+      "category": "Activation",
+      "description": "A layer that performs softmax normalization along a specified axis."
+    }
+  },
+  {
     "name": "flatten",
     "schema": {
       "category": "Shape",
@@ -233,7 +250,7 @@
   {
     "name": "padding",
     "schema": {
-      "category": "Layer",
+      "category": "Shape",
       "description": "Fill a constant value in the padded region.",
       "attributes": [
         { "name": "paddingAmounts", "visible": false }
@@ -440,6 +457,38 @@
       "attributes": [
         { "name": "revision", "visible": false }
       ]
+    }
+  },
+  {
+    "name": "nonMaximumSuppression",
+    "schema": {
+      "attributes": [
+        { "name": "iouThreshold" },
+        { "name": "confidenceThreshold" }
+      ],
+      "inputs": [
+        { "name": "confidence" },
+        { "name": "coordinates" },
+        { "name": "iouThreshold" },
+        { "name": "confidenceThreshold" }
+      ],
+      "outputs": [
+        { "name": "confidence" },
+        { "name": "coordinates" }
+      ]
+    }
+  },
+  {
+    "name": "squeeze",
+    "schema": {
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "mvn",
+    "schema": {
+      "category": "Normalization",
+      "description": "A layer that performs mean variance normalization, along axis = -3."
     }
   }
 ]

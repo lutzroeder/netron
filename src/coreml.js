@@ -10,37 +10,30 @@ var marked = marked || require('marked');
 coreml.ModelFactory = class {
 
     match(context) {
-        var extension = context.identifier.split('.').pop().toLowerCase();
+        const extension = context.identifier.split('.').pop().toLowerCase();
         return extension == 'mlmodel';
     }
 
-    open(context, host, callback) { 
-        host.require('./coreml-proto', (err) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            var identifier = context.identifier;
-            var decodedBuffer = null;
+    open(context, host) { 
+        return host.require('./coreml-proto').then(() => {
+            const identifier = context.identifier;
+            let decodedBuffer = null;
             try {
                 coreml.proto = protobuf.roots.coreml.CoreML.Specification;
                 decodedBuffer = coreml.proto.Model.decode(context.buffer);
             }
             catch (error) {
-                callback(new coreml.Error("File format is not coreml.Model (" + error.message + ") in '" + identifier + "'."), null);
-                return;
+                throw new coreml.Error("File format is not coreml.Model (" + error.message + ") in '" + identifier + "'.");
             }
-            coreml.Metadata.open(host, (err, metadata) => {
+            return coreml.Metadata.open(host).then((metadata) => {
                 try {
-                    var model = new coreml.Model(metadata, decodedBuffer);
-                    callback(null, model);
+                    return new coreml.Model(metadata, decodedBuffer);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    var message = error && error.message ? error.message : error.toString();
+                    let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    callback(new coreml.Error(message + " in '" + identifier + "'."), null);
-                    return;
+                    throw new coreml.Error(message + " in '" + identifier + "'.");
                 }
             });
         });
@@ -53,7 +46,7 @@ coreml.Model = class {
         this._specificationVersion = model.specificationVersion;
         this._graphs = [ new coreml.Graph(metadata, model) ];
         if (model.description && model.description.metadata) {
-            var properties = model.description.metadata;
+            const properties = model.description.metadata;
             if (properties.versionString) {
                 this._version = properties.versionString;
             }
@@ -73,7 +66,7 @@ coreml.Model = class {
     }
 
     get format() {
-        return 'CoreML v' + this._specificationVersion.toString();
+        return 'Core ML v' + this._specificationVersion.toString();
     }
 
     get version() {
@@ -99,8 +92,7 @@ coreml.Model = class {
 
 coreml.Graph = class {
 
-    constructor(metadata, model)
-    {
+    constructor(metadata, model) {
         this._metadata = metadata;
         this._description = model.description;
         this._groups = false; 
@@ -110,13 +102,13 @@ coreml.Graph = class {
 
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
-                var connection = new coreml.Connection(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
-                return new coreml.Argument(input.name, true, [ connection ]);
+                const argument = new coreml.Argument(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
+                return new coreml.Parameter(input.name, true, [ argument ]);
             });
 
             this._outputs = this._description.output.map((output) => {
-                var connection = new coreml.Connection(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
-                return new coreml.Argument(output.name, true, [ connection ]);
+                const argument = new coreml.Argument(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
+                return new coreml.Parameter(output.name, true, [ argument ]);
             });
         }
 
@@ -148,46 +140,46 @@ coreml.Graph = class {
     }
 
     _updateOutput(name, newName) {
-        for (var node of this._nodes) {
+        for (let node of this._nodes) {
             node._outputs = node._outputs.map((output) => (output != name) ? output : newName);
         }
         return newName;
     }
 
     _updateClassifierOutput(group, classifier) {
-        var labelProbabilityLayerName = classifier.labelProbabilityLayerName;
+        let labelProbabilityLayerName = classifier.labelProbabilityLayerName;
         if (!labelProbabilityLayerName && this._nodes.length > 0) {
             labelProbabilityLayerName = this._nodes.slice(-1).pop()._outputs[0];
         }
-        var predictedFeatureName = this._description.predictedFeatureName;
-        var predictedProbabilitiesName = this._description.predictedProbabilitiesName;
+        let predictedFeatureName = this._description.predictedFeatureName;
+        let predictedProbabilitiesName = this._description.predictedProbabilitiesName;
         if ((predictedFeatureName || predictedProbabilitiesName) && labelProbabilityLayerName && classifier.ClassLabels) {
             predictedFeatureName = predictedFeatureName ? predictedFeatureName : '?';
             predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
-            var labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
-            var operator = classifier.ClassLabels;
+            let labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
+            let operator = classifier.ClassLabels;
             this._nodes.push(new coreml.Node(this._metadata, this._group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
     }
 
     _updatePreprocessing(scope, group, preprocessing) {
-        if (preprocessing && preprocessing.length > 0) {               
-            var preprocessingInput = this._description.input[0].name;
-            var inputNodes = [];
-            for (var node of this._nodes) {
+        if (preprocessing && preprocessing.length > 0) {
+            let preprocessingInput = this._description.input[0].name;
+            let inputNodes = [];
+            for (let node of this._nodes) {
                 if (node._inputs.some((input => input == preprocessingInput))) {
                     inputNodes.push(node);
                 }
             }
-            var preprocessorOutput = preprocessingInput;
-            var preprocessorIndex = 0;
-            for (var p of preprocessing) {
-                var input = p.featureName ? p.featureName : preprocessorOutput;
+            let preprocessorOutput = preprocessingInput;
+            let preprocessorIndex = 0;
+            for (let p of preprocessing) {
+                let input = p.featureName ? p.featureName : preprocessorOutput;
                 preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
                 this._createNode(scope, group, p.preprocessor, null, p[p.preprocessor], [ input ], [ preprocessorOutput ]);
                 preprocessorIndex++;
             }
-            for (var inputNode of inputNodes) {
+            for (let inputNode of inputNodes) {
                 inputNode._inputs = inputNode._inputs.map((input) => (input != preprocessingInput) ? input : preprocessorOutput);
             }
         }
@@ -195,10 +187,9 @@ coreml.Graph = class {
 
     _loadModel(model, scope, group) {
         this._groups = this._groups | (group.length > 0 ? true : false);
-        var layer;
         if (model.neuralNetworkClassifier) {
-            var neuralNetworkClassifier = model.neuralNetworkClassifier;
-            for (layer of neuralNetworkClassifier.layers) {
+            const neuralNetworkClassifier = model.neuralNetworkClassifier;
+            for (let layer of neuralNetworkClassifier.layers) {
                 this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
             }
             this._updateClassifierOutput(group, neuralNetworkClassifier);
@@ -206,36 +197,36 @@ coreml.Graph = class {
             return 'Neural Network Classifier';
         }
         else if (model.neuralNetwork) {
-            var neuralNetwork = model.neuralNetwork;
-            for (layer of neuralNetwork.layers) {
+            const neuralNetwork = model.neuralNetwork;
+            for (let layer of neuralNetwork.layers) {
                 this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
             }
             this._updatePreprocessing(scope, group, neuralNetwork.preprocessing);
             return 'Neural Network';
         }
         else if (model.neuralNetworkRegressor) {
-            var neuralNetworkRegressor = model.neuralNetworkRegressor;
-            for (layer of neuralNetworkRegressor.layers) {
+            const neuralNetworkRegressor = model.neuralNetworkRegressor;
+            for (let layer of neuralNetworkRegressor.layers) {
                 this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
             }
             this._updatePreprocessing(scope, group, neuralNetworkRegressor);
             return 'Neural Network Regressor';
         }
         else if (model.pipeline) {
-            for (layer of model.pipeline.models) {
-                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipeline');
+            for (let i = 0; i < model.pipeline.models.length; i++) {
+                this._loadModel(model.pipeline.models[i], scope, (group ? (group + '/') : '') + 'pipeline[' + i.toString() + ']');
             }
             return 'Pipeline';
         }
         else if (model.pipelineClassifier) {
-            for (layer of model.pipelineClassifier.pipeline.models) {
-                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipelineClassifier');
+            for (let i = 0; i < model.pipelineClassifier.pipeline.models.length; i++) {
+                this._loadModel(model.pipelineClassifier.pipeline.models[i], scope, (group ? (group + '/') : '') + 'pipelineClassifier[' + i.toString() + ']');
             }
             return 'Pipeline Classifier';
         }
         else if (model.pipelineRegressor) {
-            for (layer of model.pipelineRegressor.pipeline.models) {
-                this._loadModel(layer, scope, (group ? (group + '/') : '') + 'pipelineRegressor');
+            for (let i = 0; i < model.pipelineRegressor.pipeline.models.length; i++) {
+                this._loadModel(model.pipelineRegressor.pipeline.models[i], scope, (group ? (group + '/') : '') + 'pipelineRegressor[' + i.toString() + ']');
             }
             return 'Pipeline Regressor';
         }
@@ -320,8 +311,8 @@ coreml.Graph = class {
             return 'Array Feature Extractor';
         }
         else if (model.oneHotEncoder) {
-            var categoryType = model.oneHotEncoder.CategoryType;
-            var oneHotEncoderParams = { outputSparse: model.oneHotEncoder.outputSparse };
+            const categoryType = model.oneHotEncoder.CategoryType;
+            const oneHotEncoderParams = { outputSparse: model.oneHotEncoder.outputSparse };
             oneHotEncoderParams[categoryType] = model.oneHotEncoder[categoryType];
             this._createNode(scope, group, 'oneHotEncoder', null, 
                 oneHotEncoderParams,
@@ -330,9 +321,9 @@ coreml.Graph = class {
             return 'One Hot Encoder';
         }
         else if (model.imputer) {
-            var imputedValue = model.imputer.ImputedValue;
-            var replaceValue = model.imputer.ReplaceValue;
-            var imputerParams = {};
+            const imputedValue = model.imputer.ImputedValue;
+            const replaceValue = model.imputer.ReplaceValue;
+            let imputerParams = {};
             imputerParams[imputedValue] = model.imputer[imputedValue];
             imputerParams[replaceValue] = model.imputer[replaceValue];
             this._createNode(scope, group, 'oneHotEncoder', null, 
@@ -368,40 +359,93 @@ coreml.Graph = class {
                 [ model.description.output[0].name ]);
             return 'Text Classifier';
         }
-        return 'Unknown';
+        else if (model.nonMaximumSuppression) {
+            const nonMaximumSuppressionParams = { 
+                pickTop: model.nonMaximumSuppression.pickTop,
+                stringClassLabels: model.nonMaximumSuppression.stringClassLabels,
+                iouThreshold: model.nonMaximumSuppression.iouThreshold, 
+                confidenceThreshold: model.nonMaximumSuppression.confidenceThreshold
+            };
+            this._createNode(scope, group, 'nonMaximumSuppression', null, 
+                nonMaximumSuppressionParams,
+                [
+                    model.nonMaximumSuppression.confidenceInputFeatureName,
+                    model.nonMaximumSuppression.coordinatesInputFeatureName,
+                    model.nonMaximumSuppression.iouThresholdInputFeatureName,
+                    model.nonMaximumSuppression.confidenceThresholdInputFeatureName,
+                ],
+                [ 
+                    model.nonMaximumSuppression.confidenceOutputFeatureName,
+                    model.nonMaximumSuppression.coordinatesOutputFeatureName
+                ]);
+            return 'Non Maximum Suppression';
+        }
+        else if (model.visionFeaturePrint) {
+            const visionFeaturePrintParams = {
+                scene: model.visionFeaturePrint.scene
+            }
+            this._createNode(scope, group, 'visionFeaturePrint', null,
+                visionFeaturePrintParams,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            return 'Vision Feature Print';
+        }
+        else if (model.soundAnalysisPreprocessing) {
+            this._createNode(scope, group, 'soundAnalysisPreprocessing', null,
+                model.soundAnalysisPreprocessing,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            return 'Sound Analysis Preprocessing';
+        }
+        else if (model.kNearestNeighborsClassifier) {
+            this._createNode(scope, group, 'kNearestNeighborsClassifier', null,
+                model.kNearestNeighborsClassifier,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            this._updateClassifierOutput(group, model.kNearestNeighborsClassifier);
+            return 'kNearestNeighborsClassifier';
+        }
+        else if (model.customModel) {
+            this._createNode(scope, group, 'customModel', null,
+                { className: model.customModel.className, parameters: model.customModel.parameters },
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]);
+            return 'customModel';
+        }
+        throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 
     _createNode(scope, group, operator, name, data, inputs, outputs) {
-        inputs = inputs.map((input) => scope[input] ? scope[input].connection : input);
+        inputs = inputs.map((input) => scope[input] ? scope[input].argument : input);
         outputs = outputs.map((output) => {
             if (scope[output]) {
                 scope[output].counter++;
-                var next = output + '\n' + scope[output].counter.toString(); // custom connection id
-                scope[output].connection = next;
+                let next = output + '\n' + scope[output].counter.toString(); // custom argument id
+                scope[output].argument = next;
                 return next;
             }
             scope[output] = {
-                connection: output,
+                argument: output,
                 counter: 0
             };
             return output;
         });
 
-        var node = new coreml.Node(this._metadata, group, operator, name, data, inputs, outputs);
+        const node = new coreml.Node(this._metadata, group, operator, name, data, inputs, outputs);
         this._nodes.push(node);
         return node;
     }
 
     static _formatFeatureType(type) {
-        var result = '?';
+        let result = '?';
         if (type) {
             switch (type.Type) {
-                case 'multiArrayType':
-                    var shape = new coreml.TensorShape([]);
+                case 'multiArrayType': {
+                    let shape = new coreml.TensorShape([]);
                     if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
                         shape = new coreml.TensorShape(type.multiArrayType.shape);
                     }
-                    var dataType = '?';
+                    let dataType = '?';
                     switch (type.multiArrayType.dataType) {
                         case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
                             dataType = 'float32';
@@ -415,21 +459,27 @@ coreml.Graph = class {
                     }
                     result = new coreml.TensorType(dataType, shape);
                     break;
-                case 'stringType':
+                }
+                case 'stringType': {
                     result = new coreml.TensorType('string');
                     break;
-                case 'doubleType':
+                }
+                case 'doubleType': {
                     result = new coreml.TensorType('float64');
                     break;
-                case 'int64Type':
+                }
+                case 'int64Type': {
                     result = new coreml.TensorType('int64');
                     break;
-                case 'dictionaryType':
+                }
+                case 'dictionaryType': {
                     result = new coreml.MapType(type.dictionaryType.KeyType.replace('KeyType', ''), 'float64');
                     break;
-                case 'imageType':
+                }
+                case 'imageType': {
                     result = new coreml.ImageType(type.imageType.colorSpace, type.imageType.width, type.imageType.height);
                     break;
+                }
             }
             if (type.isOptional) {
                 result = new coreml.OptionalType(result);
@@ -443,11 +493,12 @@ coreml.Graph = class {
     }
 };
 
-coreml.Argument = class {
-    constructor(name, visible, connections) {
+coreml.Parameter = class {
+
+    constructor(name, visible, args) {
         this._name = name;
         this._visible = visible;
-        this._connections = connections;
+        this._arguments = args;
     }
 
     get name() {
@@ -458,12 +509,13 @@ coreml.Argument = class {
         return this._visible;
     }
 
-    get connections() {
-        return this._connections;
+    get arguments() {
+        return this._arguments;
     }
 };
 
-coreml.Connection = class {
+coreml.Argument = class {
+
     constructor(id, type, description, initializer) {
         this._id = id;
         this._type = type;
@@ -512,8 +564,8 @@ coreml.Node = class {
         this._attributes = [];
         this._initializers = [];
         if (data) {
-            var initializerMap = this._initialize(data);
-            for (var key of Object.keys(data)) {
+            const initializerMap = this._initialize(data);
+            for (let key of Object.keys(data)) {
                 if (!initializerMap[key]) {
                     this._attributes.push(new coreml.Attribute(this._metadata, this.operator, key, data[key]));
                 }
@@ -530,12 +582,12 @@ coreml.Node = class {
     }
 
     get category() {
-        var schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
-        var schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.getSchema(this.operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this.operator;
@@ -543,21 +595,21 @@ coreml.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (var input of schema.inputs) {
+                for (let input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (var output of schema.outputs) {
+                for (let output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
@@ -573,9 +625,9 @@ coreml.Node = class {
     }
 
     get inputs() {
-        var inputs = this._metadata.getInputs(this._operator, this._inputs).map((input) => {
-            return new coreml.Argument(input.name, true, input.connections.map((connection) => {
-                return new coreml.Connection(connection.id, connection.type, null, null);
+        const inputs = this._metadata.getInputs(this._operator, this._inputs).map((input) => {
+            return new coreml.Parameter(input.name, true, input.arguments.map((argument) => {
+                return new coreml.Argument(argument.id, argument.type, null, null);
             }));
         });
         return inputs.concat(this._initializers);
@@ -583,8 +635,8 @@ coreml.Node = class {
 
     get outputs() {
         return this._outputs.map((output, index) => {
-            var name = this._metadata.getOutputName(this._operator, index);
-            return new coreml.Argument(name, true, [ new coreml.Connection(output, null, null, null) ]);
+            let name = this._metadata.getOutputName(this._operator, index);
+            return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);
         });
     }
 
@@ -594,8 +646,8 @@ coreml.Node = class {
 
     _initialize(data) {
         switch (this._operator) {
-            case 'convolution':
-                var weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
+            case 'convolution': {
+                let weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
                 if (data.isDeconvolution) {
                     weightsShape[0] = data.kernelChannels;
                     weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
@@ -604,8 +656,8 @@ coreml.Node = class {
                 if (data.hasBias) {
                     this._initializer('Weights', 'bias', [ data.outputChannels ], data.bias);
                 }
-
                 return { 'weights': true, 'bias': data.hasBias };
+            }
             case 'innerProduct':
                 this._initializer('Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights);
                 if (data.hasBias) {
@@ -635,7 +687,7 @@ coreml.Node = class {
                 }
                 return { 'scale': true, 'bias': data.hasBias };
             case 'bias':
-                this._initializer('Weights', 'bias', data.shapeBias, data.bias);
+                this._initializer('Weights', 'bias', data.shape, data.bias);
                 return { 'bias': true };
             case 'simpleRecurrent':
                 this._initializer('Weights', 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix);
@@ -644,10 +696,10 @@ coreml.Node = class {
                     this._initializer('Weights', 'bias', [ data.outputVectorSize ], data.biasVector);
                 }
                 return { 'weightMatrix': true, 'recursionMatrix': true, 'biasVector': data.hasBiasVectors };
-            case 'gru':
-                var recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
-                var weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
-                var biasVectorShape = [ data.outputVectorSize ];
+            case 'gru': {
+                const recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
+                const weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
+                const biasVectorShape = [ data.outputVectorSize ];
                 this._initializer('Weights', 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix);
                 this._initializer('Weights', 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix);
                 this._initializer('Weights', 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix);
@@ -662,15 +714,17 @@ coreml.Node = class {
                 return {
                     'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true, 
                     'updateGateRecursionMatrix': true, 'resetGateRecursionMatrix': true, 'outputGateRecursionMatrix': true,
-                    'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors };
+                    'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors 
+                };
+            }
             case 'uniDirectionalLSTM':
-            case 'biDirectionalLSTM':
-                var count = (this._operator == 'uniDirectionalLSTM') ? 1 : 2;
-                var matrixShape = [ data.outputVectorSize, data.inputVectorSize ];
-                var vectorShape = [ data.outputVectorSize ];
-                for (var i = 0; i < count; i++) {
-                    var weights = count == 1 ? data.weightParams : data.weightParams[i];
-                    var suffix = (i == 0) ? '' : '_rev';
+            case 'biDirectionalLSTM': {
+                const count = (this._operator == 'uniDirectionalLSTM') ? 1 : 2;
+                const matrixShape = [ data.outputVectorSize, data.inputVectorSize ];
+                const vectorShape = [ data.outputVectorSize ];
+                for (let i = 0; i < count; i++) {
+                    const weights = count == 1 ? data.weightParams : data.weightParams[i];
+                    const suffix = (i == 0) ? '' : '_rev';
                     this._initializer('Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix);
                     this._initializer('Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix);
                     this._initializer('Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix);
@@ -692,6 +746,7 @@ coreml.Node = class {
                     }
                 }
                 return { 'weightParams': true };
+            }
             case 'dictVectorizer':
                 data.stringToIndex = this._convertVector(data.stringToIndex);
                 return {};
@@ -701,6 +756,9 @@ coreml.Node = class {
                 return { tokensOutputFeatureName: true, tokenTagsOutputFeatureName: true, tokenLengthsOutputFeatureName: true, tokenLocationsOutputFeatureName: true };
             case 'textClassifier':
                 data.modelParameterData = Array.from(data.modelParameterData);
+                data.stringClassLabels = this._convertVector(data.stringClassLabels);
+                return {};
+            case 'nonMaximumSuppression':
                 data.stringClassLabels = this._convertVector(data.stringClassLabels);
                 return {};
         }
@@ -715,14 +773,14 @@ coreml.Node = class {
     }
 
     _initializer(kind, name, shape, data) {
-        var initializer = new coreml.Tensor(kind, name, shape, data);
-        var connection = new coreml.Connection('', null, null, initializer);
-        var visible = true;
-        var schema = this._metadata.getInputSchema(this._operator, name);
-        if (schema && schema.hasOwnProperty('visible') && !schema.visible) {
+        const initializer = new coreml.Tensor(kind, name, shape, data);
+        const argument = new coreml.Argument('', null, null, initializer);
+        let visible = true;
+        const schema = this._metadata.getInputSchema(this._operator, name);
+        if (schema && Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
             visible = false;
         }
-        this._initializers.push(new coreml.Argument(name, visible, [ connection ]));
+        this._initializers.push(new coreml.Parameter(name, visible, [ argument ]));
     }
 };
 
@@ -731,14 +789,14 @@ coreml.Attribute = class {
     constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
-        var schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
             }
             if (this._type && coreml.proto) {
-                var type = coreml.proto;
-                var parts = this._type.split('.');
+                let type = coreml.proto;
+                let parts = this._type.split('.');
                 while (type && parts.length > 0) {
                     type = type[parts.shift()];
                 }
@@ -747,10 +805,10 @@ coreml.Attribute = class {
                 }
             }
 
-            if (schema.hasOwnProperty('visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (schema.hasOwnProperty('default')) {
+            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (Array.isArray(value)) {
                     value = value.map((item) => {
                         if (item && long.Long.isLong(item)) {
@@ -789,7 +847,7 @@ coreml.Tensor = class {
         this._kind = kind;
         this._name = name;
         this._data = null;
-        var dataType = '?';
+        let dataType = '?';
         if (data) {
             if (data.floatValue && data.floatValue.length > 0) {
                 this._data = data.floatValue;
@@ -831,8 +889,8 @@ coreml.Tensor = class {
             if (this._quantization.lookupTableQuantization && 
                 this._quantization.lookupTableQuantization.floatValue &&
                 this._quantization.lookupTableQuantization.floatValue.length > 0) {
-                var map = [];
-                for (var key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
+                let map = [];
+                for (let key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
                     map.push(key.toString() + ' = ' + this._quantization.lookupTableQuantization.floatValue[key].toString());
                 }
                 return map.join('; ');
@@ -847,7 +905,7 @@ coreml.Tensor = class {
     }
 
     get value() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return null;
         }
@@ -856,17 +914,17 @@ coreml.Tensor = class {
     }
 
     toString() {
-        var context = this._context();
+        let context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        var value = this._decode(context, 0);
+        let value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        var context = {};
+        let context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -901,10 +959,10 @@ coreml.Tensor = class {
     }
 
     _decode(context, dimension) {
-        var results = [];
-        var size = context.dimensions[dimension];
+        let results = [];
+        let size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
-            for (var i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -928,7 +986,7 @@ coreml.Tensor = class {
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
@@ -1035,16 +1093,17 @@ coreml.OptionalType = class {
 
 coreml.Metadata = class {
 
-    static open(host, callback) {
+    static open(host) {
         if (coreml.Metadata._metadata) {
-            callback(null, coreml.Metadata._metadata);
+            return Promise.resolve(coreml.Metadata._metadata);
         }
-        else {
-            host.request(null, 'coreml-metadata.json', 'utf-8', (err, data) => {
-                coreml.Metadata._metadata = new coreml.Metadata(data);
-                callback(null, coreml.Metadata._metadata);
-            });
-        }    
+        return host.request(null, 'coreml-metadata.json', 'utf-8').then((data) => {
+            coreml.Metadata._metadata = new coreml.Metadata(data);
+            return coreml.Metadata._metadata;
+        }).catch(() => {
+            coreml.Metadata._metadata = new coreml.Metadata(null);
+            return coreml.Metadata._metadata;
+        });
     }
 
     constructor(data) {
@@ -1052,9 +1111,9 @@ coreml.Metadata = class {
         this._attributeCache = {};
         this._inputCache = {};
         if (data) {
-            var items = JSON.parse(data);
+            let items = JSON.parse(data);
             if (items) {
-                for (var item of items) {
+                for (let item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -1068,12 +1127,12 @@ coreml.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        var map = this._attributeCache[operator];
+        let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (var attribute of schema.attributes) {
+                for (let attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -1083,12 +1142,12 @@ coreml.Metadata = class {
     }
 
     getInputSchema(operator, name) {
-        var map = this._inputCache[operator];
+        let map = this._inputCache[operator];
         if (!map) {
             map = {};
-            var schema = this.getSchema(operator);
+            const schema = this.getSchema(operator);
             if (schema && schema.inputs && schema.inputs.length > 0) {
-                for (var input of schema.inputs) {
+                for (let input of schema.inputs) {
                     map[input.name] = input;
                 }
             }
@@ -1098,16 +1157,16 @@ coreml.Metadata = class {
     }
 
     getInputs(operator, inputs) {
-        var results = [];
-        var schema = this._map[operator];
-        var index = 0;
+        let results = [];
+        const schema = this._map[operator];
+        let index = 0;
         while (index < inputs.length) {
-            var result = { connections: [] };
-            var count = 1;
-            var name = null;
+            let result = { arguments: [] };
+            let count = 1;
+            let name = null;
             if (schema && schema.inputs) {
                 if (index < schema.inputs.length) {
-                    var input = schema.inputs[index];
+                    let input = schema.inputs[index];
                     name = input.name;
                     if (schema.inputs[index].option == 'variadic') {
                         count = inputs.length - index;
@@ -1120,9 +1179,9 @@ coreml.Metadata = class {
                 }
             }
             result.name = name ? name : '(' + index.toString() + ')';
-            var array = inputs.slice(index, index + count);
-            for (var j = 0; j < array.length; j++) {
-                result.connections.push({ id: array[j] });
+            let array = inputs.slice(index, index + count);
+            for (let j = 0; j < array.length; j++) {
+                result.arguments.push({ id: array[j] });
             }
             index += count;
             results.push(result);
@@ -1131,13 +1190,13 @@ coreml.Metadata = class {
     }
 
     getOutputName(operator, index) {
-        var schema = this._map[operator];
+        const schema = this._map[operator];
         if (schema) {
-            var outputs = schema.outputs;
+            let outputs = schema.outputs;
             if (outputs && index < outputs.length) {
-                var output = outputs[index];
+                let output = outputs[index];
                 if (output) {
-                    var name = output.name;
+                    let name = output.name;
                     if (name) {
                         return name;
                     }
@@ -1154,7 +1213,7 @@ coreml.Metadata = class {
 coreml.Error = class extends Error {
     constructor(message) {
         super(message);
-        this.name = 'Error loading CoreML model.';
+        this.name = 'Error loading Core ML model.';
     }
 };
 

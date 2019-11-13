@@ -3,7 +3,7 @@
 .node line { stroke: #333; fill: none; stroke-width: 1px; }
 
 .node-item path { stroke-width: 0; stroke: #000; fill: #fff; }
-.node-item text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; font-weight: 600; text-rendering: geometricPrecision; }
+.node-item text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 11px; text-rendering: geometricPrecision; }
 
 .node-item-function path { fill: #fff; }
 .node-item-function text { fill: #000; }
@@ -35,6 +35,7 @@
 .node-item-operator-tensor path { fill: rgb(89, 66, 59); }
 .node-item-operator-transform path { fill: rgb(51, 85, 68); }
 .node-item-operator-data path { fill: rgb(85, 85, 85); }
+.node-item-operator-custom path { fill: rgb(128, 128, 128); }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }
@@ -49,7 +50,7 @@
 .node-item-undefined:hover path { fill: #fff; }
 
 .node-attribute:hover { cursor: hand; }
-.node-attribute text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 7px; font-weight: normal; text-rendering: geometricPrecision; }
+.node-attribute text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 9px; font-weight: normal; text-rendering: geometricPrecision; }
 .node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }
 .node-attribute:hover path { fill: #f6f6f6; }
 
@@ -61,7 +62,7 @@
 .graph-item-output:hover { cursor: hand; }
 .graph-item-output:hover path { fill: #fff; }
 
-.edge-label text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
+.edge-label text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 10px; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; }
 #arrowhead-vee { fill: #000; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
@@ -76,8 +77,8 @@
 @media (prefers-color-scheme: dark) {
 
     .edge-label text { fill: #b2b2b2; }
-    .edge-path { stroke: #666666; }
-    #arrowhead-vee { fill: #666666; }
+    .edge-path { stroke: #888888; }
+    #arrowhead-vee { fill: #888888; }
 
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
@@ -127,57 +128,5 @@
     .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.7); }
     .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.7); }
     .node-item-operator-data path { fill: rgba(85, 85, 85, 0.7); }
+    .node-item-operator-custom path { fill: rgb(64, 64, 64, 0.7); }
 }
-
-.dark-mode .edge-label text { fill: #b2b2b2; }
-.dark-mode .edge-path { stroke: #666666; }
-.dark-mode #arrowhead-vee { fill: #666666; }
-
-.dark-mode .node path { stroke: #1d1d1d; }
-.dark-mode .node line { stroke: #1d1d1d; }
-
-.dark-mode .select .node.border { stroke: #dfdfdf; }
-.dark-mode .select.edge-path { stroke: #dfdfdf; }
-
-.dark-mode .node-item-function path { fill: #404040; }
-.dark-mode .node-item-function text { fill: #dfdfdfdf; }
-.dark-mode .node-item-function:hover { cursor: hand; }
-.dark-mode .node-item-function:hover path { fill: #666666; }
-
-.dark-mode .node-item-operator path { fill: #303030; }
-.dark-mode .node-item-operator text { fill: #dfdfdf; }
-.dark-mode .node-item-operator:hover { cursor: hand; }
-.dark-mode .node-item-operator:hover path { fill: #808080; }
-.dark-mode .node-item-operator:hover text { fill: #dfdfdf; }
-
-.dark-mode .node-item path { stroke: #fff; }
-.dark-mode .node-item text { fill: #dfdfdf; }
-
-.dark-mode .node-attribute text { fill: #b2b2b2; }
-.dark-mode .node-attribute path { fill: #2d2d2d; }
-.dark-mode .node-attribute:hover path { fill: #666666; }
-
-.dark-mode .graph-item-input path { fill: #404040; }
-.dark-mode .graph-item-input:hover { cursor: hand; }
-.dark-mode .graph-item-input:hover path { fill: #666666; }
-
-.dark-mode .graph-item-output path { fill: #404040; }
-.dark-mode .graph-item-output:hover { cursor: hand; }
-.dark-mode .graph-item-output:hover path { fill: #666666; }
-
-.dark-mode .node-item-input path { fill: #404040; }
-.dark-mode .node-item-input:hover path { fill: #666666; }
-.dark-mode .node-item-constant path { fill: #4b4b4b; }
-.dark-mode .node-item-constant:hover path { fill: #666666; }
-
-.dark-mode .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.7); }
-.dark-mode .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
-.dark-mode .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
-.dark-mode .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
-.dark-mode .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
-.dark-mode .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.7); }
-.dark-mode .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.7); }
-.dark-mode .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.7); }
-.dark-mode .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.7); }
-.dark-mode .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.7); }
-.dark-mode .node-item-operator-data path { fill: rgba(85, 85, 85, 0.7); }

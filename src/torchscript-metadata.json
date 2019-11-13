@@ -1,0 +1,871 @@
+[
+  {
+    "name": "_convolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "transposed", "type": "boolean", "default": false },
+        { "name": "output_padding", "type": "int64[]", "default": 0 },
+        { "name": "groups", "type": "int64", "default": 1 },
+        { "name": "benchmark", "type": "boolean", "visible": false },
+        { "name": "deterministic", "type": "boolean", "visible": false },
+        { "name": "cudnn_enabled", "type": "boolean", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "conv2d",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "groups", "type": "int64", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "conv2d_relu",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "packed_weight" }
+      ],
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "groups", "type": "int64", "default": 1 },
+        { "name": "output_scale", "type": "float64" },
+        { "name": "output_zero_point", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "max_pool2d",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "kernel_size", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]", "default": 2 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "ceil_mode", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "max_pool1d_with_indices",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "kernel_size", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]" },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "ceil_mode", "type": "boolean", "default": false },
+        { "name": "return_indices", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output" },
+        { "name": "indices" }
+      ]
+    }
+  },
+  {
+    "name": "max_pool2d_with_indices",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "kernel_size", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]" },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 1 },
+        { "name": "ceil_mode", "type": "boolean", "default": false },
+        { "name": "return_indices", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output" },
+        { "name": "indices" }
+      ]
+    }
+  },
+  {
+    "name": "adaptive_avg_pool2d",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "output_size", "type": "int64[]", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "avg_pool1d",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "kernel_size", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]" },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "ceil_mode", "type": "boolean", "default": false },
+        { "name": "count_include_pad", "type": "boolean", "default": true },
+        { "name": "divisor_override" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "avg_pool2d",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "kernel_size", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]" },
+        { "name": "padding", "type": "int64[]" },
+        { "name": "ceil_mode", "type": "boolean", "default": false },
+        { "name": "count_include_pad", "type": "boolean", "default": true },
+        { "name": "divisor_override" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "batch_norm",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" },
+        { "name": "running_mean" },
+        { "name": "running_var" }
+      ],
+      "attributes": [
+        { "name": "training", "type": "boolean", "visible": false },
+        { "name": "momentum", "type": "float32", "default": 0.1 },
+        { "name": "eps", "type": "float32", "default": 1e-05 },
+        { "name": "cudnn_enabled", "type": "boolean", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "relu_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "relu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "hardtanh_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "min_value", "type": "float64" },
+        { "name": "max_value", "type": "float64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "sigmoid",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "threshold",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "threshold", "type": "float64", "default": 0 },
+        { "name": "value", "type": "float64", "default": 0 },
+        { "name": "inplace", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "threshold_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "threshold", "type": "float64" },
+        { "name": "value", "type": "float64" },
+        { "name": "inplace", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "log_softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64" },
+        { "name": "dtype", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "slice",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64", "default": 0 },
+        { "name": "start", "type": "int64", "default": 0 },
+        { "name": "end", "type": "int64", "default": 9223372036854775807 },
+        { "name": "step", "type": "int64", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "dropout",
+    "schema": {
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "p", "type": "float64", "default": 0.5 },
+        { "name": "train", "type": "boolean", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "dropout_",
+    "schema": {
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "p", "type": "float64", "default": 0.5 },
+        { "name": "train", "type": "boolean", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "addmm",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "mat" },
+        { "name": "mat1" },
+        { "name": "mat2" }
+      ],
+      "attributes": [
+        { "name": "alpha", "type": "float64", "default": 1 },
+        { "name": "beta", "type": "float64", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "add_",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "attributes": [
+        { "name": "alpha", "type": "float64", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "pow",
+    "schema": {
+      "attributes": [
+        { "name": "exponent", "type": "float64" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "mul_",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "add",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "attributes": [
+        { "name": "alpha", "type": "float64", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "sub",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "div",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "floordiv",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "sum",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64[]" },
+        { "name": "keepdim", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "mul",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "matmul",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "transpose",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim0", "type": "int64" },
+        { "name": "dim1", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "chunk",
+    "schema": {
+      "attributes": [
+        { "name": "chunks", "type": "int64" },
+        { "name": "dim", "type": "int64", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "size",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "view",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "size", "type": "int64[]", "visible": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "to",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dtype", "visible": false },
+        { "name": "non_blocking", "type": "boolean", "default": false },
+        { "name": "copy", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "reshape",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "shape", "type": "int64[]" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "select",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64" },
+        { "name": "index", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_pack_padded_sequence",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "lenghts" }
+      ],
+      "attributes": [
+        { "name": "batch_first", "type": "boolean" }
+      ],
+      "outputs": [
+      ]
+    }
+  },
+  {
+    "name": "repeat",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "repeats", "type": "int64[]" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "mean",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64[]" },
+        { "name": "keepdim", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "lstm",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "hx" },
+        { "name": "params" }
+      ],
+      "attributes": [
+        { "name": "has_biases", "type": "boolean" },
+        { "name": "num_layers", "type": "int64" },
+        { "name": "dropout", "type": "float64" },
+        { "name": "train", "type": "boolean" },
+        { "name": "bidirectional", "type": "boolean" },
+        { "name": "batch_first", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "contiguous",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "squeeze",
+    "schema": {
+      "category": "Transform",
+      "attributes": [
+        { "name": "dim", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "unsqueeze",
+    "schema": {
+      "category": "Transform",
+      "attributes": [
+        { "name": "dim", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "max",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "attributes": [
+        { "name": "dim_or_y", "type": "int64" },
+        { "name": "dim", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "cat",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs" }
+      ],
+      "attributes": [
+        { "name": "dim", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "expand_as",
+    "schema": {
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "other" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "permute",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "dims", "type": "int64[]" }
+      ],
+      "inputs": [
+        { "name": "inputs" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "embedding",
+    "schema": {
+      "category": "Transform",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" }
+      ],
+      "attributes": [
+        { "name": "padding_idx", "type": "int64" },
+        { "name": "scale_grad_by_freq", "type": "boolean", "default": false },
+        { "name": "sparse", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "flatten",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "start_dim", "type": "int64" },
+        { "name": "end_dim", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "inputs" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_pack_padded_sequence",
+    "schema": {
+      "attributes": [
+        { "name": "batch_first", "type": "boolean" }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "lengths" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_pad_packed_sequence",
+    "schema": {
+      "attributes": [
+        { "name": "batch_first", "type": "boolean" },
+        { "name": "padding_value", "type": "float32" },
+        { "name": "total_length", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "data" },
+        { "name": "batch_sizes" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "quantize_per_tensor",
+    "schema": {
+      "attributes": [
+        { "name": "scale", "type": "float32" },
+        { "name": "zero_point", "type": "float32" },
+        { "name": "dtype" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  }
+]

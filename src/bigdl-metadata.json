@@ -1,0 +1,104 @@
+[
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout"
+    }
+  },
+  {
+    "name": "Linear",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
+    }
+  },
+  {
+    "name": "NormalizeScale",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "w" }
+      ]
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Scale",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
+    }
+  },
+  {
+    "name": "SoftMax",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "SpatialBatchNormalization",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "SpatialConvolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
+    }
+  },
+  {
+    "name": "SpatialCrossMapLRN",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "SpatialDilatedConvolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputs" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ]
+    }
+  },
+  {
+    "name": "SpatialAveragePooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "SpatialMaxPooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "Transpose",
+    "schema": {
+      "category": "Shape"
+    }
+  }
+]

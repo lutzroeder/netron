@@ -5,77 +5,114 @@ var numpy = numpy || {};
 
 numpy.Array = class {
 
-    constructor(data, dataType, shape) {
-        this._data = data;
-        this._dataType = dataType;
-        this._shape = shape;
+    constructor(buffer) {
+        if (buffer) {
+            const reader = new numpy.Reader(buffer);
+            const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
+            if (!reader.bytes(6).every((v, i) => v == signature[i])) {
+                throw new numpy.Error('Invalid signature.');
+            }
+            const major = reader.byte();
+            const minor = reader.byte();
+            if (major !== 1 && minor !== 0) {
+                throw new numpy.Error("Invalid version '" + [ major, minor ].join('.') + "'.");
+            }
+            const header = JSON.parse(reader.string().trim().replace(/'/g, '"').replace("False", "false").replace("(", "[").replace(/,*\),*/g, "]"));
+            if (header.fortran_order) {
+                throw new numpy.Error("Fortran order is not supported.'");
+            }
+            if (!header.descr || header.descr.length < 2) {
+                throw new numpy.Error("Missing property 'descr'.");
+            }
+            if (!header.shape) {
+                throw new numpy.Error("Missing property 'shape'.");
+            }
+            this._shape = header.shape;
+            this._byteOrder = header.descr[0];
+            switch (this._byteOrder) {
+                case '|': {
+                    this._dataType = header.descr.substring(1);
+                    this._data = reader.bytes(reader.size - reader.position);
+                    break;
+                }
+                case '>':
+                case '<': {
+                    if (header.descr.length !== 3) {
+                        throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+                    }
+                    this._dataType = header.descr.substring(1);
+                    let size = parseInt(header.descr[2]);
+                    for (let dimension of this._shape) {
+                        size *= dimension;
+                    }
+                    this._data = reader.bytes(size);
+                    break;
+                }
+                default:
+                    throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+            }
+        }
+    }
+
+    get data() {
+        return this._data;
+    }
+
+    set data(value) {
+        this._data = value;
+    }
+
+    get dataType() {
+        return this._dataType;
+    }
+
+    set dataType(value) {
+        this._dataType = value;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    set shape(value) {
+        this._shape = value;
+    }
+
+    get byteOrder() {
+        return this._byteOrder;
+    }
+
+    set byteOrder(value) {
+        this._byteOrder = value;
     }
 
     toBuffer() {
 
-        var writer = new numpy.Writer();
+        const writer = new numpy.Writer();
 
-        writer.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); // '\\x93NUMPY'
-        writer.writeByte(1); // major
-        writer.writeByte(0); // minor
+        writer.bytes([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); // '\\x93NUMPY'
+        writer.byte(1); // major
+        writer.byte(0); // minor
 
-        var context = {};
-        context.itemSize = 1;
-        context.position = 0;
-        context.shape = this._shape;
-        context.descr = '';
-
-        switch (this._dataType) {
-            case 'float16':
-                context.itemSize = 2;
-                context.descr = '<f2';
-                break;
-            case 'float32':
-                context.itemSize = 4;
-                context.descr = '<f4';
-                break;
-            case 'float64':
-                context.itemSize = 8;
-                context.descr = '<f8';
-                break;
-            case 'int8':
-                context.itemSize = 1;
-                context.descr = '<i1';
-                break;
-            case 'int16':
-                context.itemSize = 2;
-                context.descr = '<i2';
-                break;
-            case 'int32':
-                context.itemSize = 4;
-                context.descr = '<i4';
-                break;
-            case 'int64':
-                context.itemSize = 8;
-                context.descr = '<i8';
-                break;
-            case 'byte':
-            case 'uint8':
-                context.itemSize = 1;
-                context.descr = '<u1';
-                break;
-            case 'uint16':
-                context.itemSize = 2;
-                context.descr = '<u2';
-                break;
-            case 'uint32':
-                context.itemSize = 4;
-                context.descr = '<u4';
-                break;
-            case 'uint64':
-                context.itemSize = 8;
-                context.descr = '<u8';
-                break;
-            default:
-                throw new numpy.Error("Unknown data type '" + this._dataType + "'.");
+        let context = {
+            itemSize: 1,
+            position: 0,
+            dataType: this._dataType,
+            byteOrder: this._byteOrder || '<',
+            shape: this._shape,
+            descr: '',
         }
 
-        var shape = '';
+        if (context.byteOrder !== '<' && context.byteOrder !== '>') {
+            throw new numpy.Error("Unknown byte order '" + this._byteOrder + "'.");
+        }
+        if (context.dataType.length !== 2 || (context.dataType[0] !== 'f' && context.dataType[0] !== 'i' && context.dataType[0] !== 'u')) {
+            throw new numpy.Error("Unsupported data type '" + this._dataType + "'.");
+        }
+
+        context.itemSize = parseInt(context.dataType[1], 10);
+
+        let shape = '';
         switch (this._shape.length) {
             case 0:
                 throw new numpy.Error('Invalid shape.');
@@ -87,78 +124,117 @@ numpy.Array = class {
                 break;
         }
 
-        var properties = [];
-        properties.push("'descr': '" + context.descr + "'");
-        properties.push("'fortran_order': False");
-        properties.push("'shape': " + shape);
-        var header = '{ ' + properties.join(', ') + ' }';
+        let properties = [
+            "'descr': '" + context.byteOrder + context.dataType + "'",
+            "'fortran_order': False",
+            "'shape': " + shape
+        ];
+        let header = '{ ' + properties.join(', ') + ' }';
         header += ' '.repeat(16 - ((header.length + 2 + 8 + 1) & 0x0f)) + '\n';
-        writer.writeUint16(header.length); // header size
-        writer.writeString(header);
+        writer.string(header);
 
-        var size = context.itemSize;
-        for (var dimension of this._shape) {
+        let size = context.itemSize;
+        for (let dimension of this._shape) {
             size *= dimension;
         }
 
         context.data = new Uint8Array(size);
         context.dataView = new DataView(context.data.buffer, context.data.byteOffset, size);
         numpy.Array._encodeDimension(context, this._data, 0);
-        writer.write(context.data);
+        writer.bytes(context.data);
 
         return writer.toBuffer();
     }
 
     static _encodeDimension(context, data, dimension) {
-        var size = context.shape[dimension];
+        const size = context.shape[dimension];
+        const littleEndian = context.byteOrder === '<';
         if (dimension == context.shape.length - 1) {
-            for (var i = 0; i < size; i++) {
-                switch (context.descr)
-                {
-                    case '<f2':
-                        context.dataView.setFloat16(context.position, data[i], true);
+            for (let i = 0; i < size; i++) {
+                switch (context.dataType) {
+                    case 'f2':
+                        context.dataView.setFloat16(context.position, data[i], littleEndian);
                         break;
-                    case '<f4':
-                        context.dataView.setFloat32(context.position, data[i], true);
+                    case 'f4':
+                        context.dataView.setFloat32(context.position, data[i], littleEndian);
                         break;
-                    case '<f8':
-                        context.dataView.setFloat64(context.position, data[i], true);
+                    case 'f8':
+                        context.dataView.setFloat64(context.position, data[i], littleEndian);
                         break;
-                    case '<i1':
-                        context.dataView.setInt8(context.position, data[i], true);
+                    case 'i1':
+                        context.dataView.setInt8(context.position, data[i], littleEndian);
                         break;
-                    case '<i2':
-                        context.dataView.setInt16(context.position, data[i], true);
+                    case 'i2':
+                        context.dataView.setInt16(context.position, data[i], littleEndian);
                         break;
-                    case '<i4':
-                        context.dataView.setInt32(context.position, data[i], true);
+                    case 'i4':
+                        context.dataView.setInt32(context.position, data[i], littleEndian);
                         break;
-                    case '<i8':
-                        context.data.set(data[i].toBytesLE(), context.position);
+                    case 'i8':
+                        context.data.set(data[i].toBytes(littleEndian), context.position);
                         break;
-                    case '<u1':
-                        context.dataView.setUint8(context.position, data[i], true);
+                    case 'u1':
+                        context.dataView.setUint8(context.position, data[i], littleEndian);
                         break;
-                    case '<u2':
-                        context.dataView.setUint16(context.position, data[i], true);
+                    case 'u2':
+                        context.dataView.setUint16(context.position, data[i], littleEndian);
                         break;
-                    case '<u4':
-                        context.dataView.setUint32(context.position, data[i], true);
+                    case 'u4':
+                        context.dataView.setUint32(context.position, data[i], littleEndian);
                         break;
-                    case '<u8':
-                        context.data.set(data[i].toBytesLE(), context.position);
+                    case 'u8':
+                        context.data.set(data[i].toBytes(littleEndian), context.position);
                         break;
                 }
                 context.position += context.itemSize;
             }
         }
         else {
-            for (var j = 0; j < size; j++) {
+            for (let j = 0; j < size; j++) {
                 numpy.Array._encodeDimension(context, data[j], dimension + 1);
             }
         }
     }
-};
+}
+
+numpy.Reader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._position = 0;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get size() {
+        return this._buffer.length;
+    }
+
+    byte() {
+        return this._buffer[this._position++];
+    }
+
+    bytes(size) {
+        const value = this._buffer.slice(this._position, this._position + size);
+        this._position += size;
+        return value;
+    }
+
+    uint16() {
+        return this.byte() | (this.byte() << 8);
+    }
+
+    string() {
+        const size = this.uint16();
+        let value = '';
+        for (let i = 0; i < size; i++) {
+            value += String.fromCharCode(this.byte());
+        }
+        return value;
+    }
+}
 
 numpy.Writer = class {
 
@@ -168,32 +244,33 @@ numpy.Writer = class {
         this._tail = null;
     }
 
-    writeByte(value) {
-        this.writeBytes([ value ]);
+    byte(value) {
+        this.bytes([ value ]);
     }
 
-    writeUint16(value) {
-        this.writeBytes([ value & 0xff, (value >> 8) & 0xff ]);
+    uint16(value) {
+        this.bytes([ value & 0xff, (value >> 8) & 0xff ]);
     }
 
-    writeBytes(values) {
-        var array = new Uint8Array(values.length);
-        for (var i = 0; i < values.length; i++) {
+    bytes(values) {
+        let array = new Uint8Array(values.length);
+        for (let i = 0; i < values.length; i++) {
             array[i] = values[i];
         }
-        this.write(array);
+        this._write(array);
     }
 
-    writeString(value) {
-        var array = new Uint8Array(value.length);
-        for (var i = 0; i < value.length; i++) {
+    string(value) {
+        this.uint16(value.length);
+        let array = new Uint8Array(value.length);
+        for (let i = 0; i < value.length; i++) {
             array[i] = value.charCodeAt(i);
         }
-        this.write(array);
+        this._write(array);
     }
 
-    write(array) {
-        var node = { buffer: array, next: null };
+    _write(array) {
+        let node = { buffer: array, next: null };
         if (this._tail) {
             this._tail.next = node;
         }
@@ -205,9 +282,9 @@ numpy.Writer = class {
     }
 
     toBuffer() {
-        var array = new Uint8Array(this._length);
-        var position = 0;
-        var head = this._head;
+        let array = new Uint8Array(this._length);
+        let position = 0;
+        let head = this._head;
         while (head != null) {
             array.set(head.buffer, position);
             position += head.buffer.length;

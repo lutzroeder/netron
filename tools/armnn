@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+src=${root}/src
+third_party=${root}/third_party
+tools=${root}/tools
+
+identifier=armnn
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync () {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${2}" ]; then
+        git -C "${third_party}/${2}" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --recursive ${1}
+    fi
+    if [ -n "${3}" ]; then
+        git -C "${third_party}/${2}" checkout --quiet ${3}
+    fi
+    git -C "${third_party}/${2}" submodule sync --quiet
+    git -C "${third_party}/${2}" submodule update --quiet --init --recursive
+}
+
+clean() {
+    bold "armnn clean"
+    rm -rf ${third_party}/armnn
+}
+
+sync() {
+    bold "armnn sync"
+    git_sync https://github.com/google/flatbuffers.git flatbuffers
+    git_sync https://github.com/ARM-software/armnn.git armnn master
+}
+
+install() {
+    bold "armnn install"
+    case "$(uname)" in
+        "Linux")
+            [ -n "$(which cmake)" ] || sudo apt install -y cmake
+            ;;
+        "Darwin")
+            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
+            ;;
+    esac
+    pushd "${third_party}/flatbuffers" > /dev/null
+    cmake -G "Unix Makefiles" . > /dev/null
+    make > /dev/null
+    popd > /dev/null
+}
+
+schema() {
+    bold "armnn schema"
+
+    ${third_party}/flatbuffers/flatc --no-js-exports --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    mv ./ArmnnSchema_generated.js ${src}/armnn-schema.js
+    cat <<EOT >> ${src}/armnn-schema.js
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+  module.exports = armnnSerializer;
+}
+EOT
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "install") install;;
+        "schema") schema;;
+    esac
+done

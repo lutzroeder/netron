@@ -5,17 +5,11 @@ set -e
 root=$(cd $(dirname ${0})/..; pwd)
 node_modules=${root}/node_modules
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=coremltools
-virtualenv=${root}/build/virtualenv/${identifier}
-
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -24,11 +18,12 @@ bold() {
 git_sync () {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -p
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -43,25 +38,26 @@ sync() {
 
 install() {
     bold "coreml install"
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || ${python} -m virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || python3 -m virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet ${third_party}/${identifier}
+    python3 -m pip install --quiet six numpy protobuf
+    python3 -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }
 
 schema() {
     bold "coreml schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r coreml -o ${src}/coreml-proto.js ${third_party}/${identifier}/mlmodel/format/Model.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r coreml -o ${src}/coreml-proto.js ${third_party}/${identifier}/mlmodel/format/Model.proto
     node ${tools}/update_pbjs.js array ${src}/coreml-proto.js floatValue float 2
 }
 
 convert() {
     bold "coreml convert"
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet onnx
-    ${python} -m pip install --quiet sklearn
-    ${python} ${tools}/coreml-script.py convert ${1}
+    python3 -m pip install --quiet onnx
+    python3 -m pip install --quiet sklearn
+    python3 ${tools}/coreml-script.py convert ${1}
     deactivate
 }
 

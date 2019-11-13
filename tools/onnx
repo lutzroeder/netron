@@ -10,13 +10,7 @@ third_party=${root}/third_party
 tools=${root}/tools
 
 identifier=onnx
-virtualenv=${build}/virtualenv/${identifier}
-
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -25,12 +19,12 @@ bold() {
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -p
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -58,20 +52,20 @@ install() {
             brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
             ;;
     esac
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet protobuf
+    python3 -m pip install --quiet protobuf
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
-    ${python} -m pip install --quiet ${third_party}/onnx
+    python3 -m pip install --quiet ${third_party}/onnx
     deactivate
 }
 
 schema() {
     bold "onnx schema"
     source ${virtualenv}/bin/activate
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx-proto.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r onnx -o ${src}/onnx-proto.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
     node ${tools}/update_pbjs.js array ${src}/onnx-proto.js float_data float 1
     node ${tools}/update_pbjs.js array ${src}/onnx-proto.js double_data double 1
     deactivate
@@ -81,7 +75,7 @@ metadata() {
     bold "onnx metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} onnx-script.py metadata
+    python3 onnx-script.py metadata
     popd > /dev/null
     deactivate
 }
@@ -89,22 +83,22 @@ metadata() {
 convert() {
     bold "onnx convert"
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet ${third_party}/onnxmltools
-    ${python} ${tools}/onnx-script.py convert ${1}
+    python3 -m pip install --quiet ${third_party}/onnxmltools
+    python3 ${tools}/onnx-script.py convert ${1}
     deactivate
 }
 
 infer() {
     bold "onnx infer"
     source ${virtualenv}/bin/activate
-    ${python} ${tools}/onnx-script.py infer ${1}
+    python3 ${tools}/onnx-script.py infer ${1}
     deactivate
 }
 
 optimize() {
     bold "onnx optimize"
     source ${virtualenv}/bin/activate
-    ${python} ${tools}/onnx-script.py optimize ${1}
+    python3 ${tools}/onnx-script.py optimize ${1}
     deactivate
 }
 

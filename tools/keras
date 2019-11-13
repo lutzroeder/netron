@@ -5,17 +5,11 @@ set -e
 root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
 test=${root}/test
-tools=${root}/tools
 third_party=${root}/third_party
-
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
+tools=${root}/tools
 
 identifier=keras
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -24,12 +18,12 @@ bold() {
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -p
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -45,11 +39,11 @@ sync() {
 
 install() {
     bold "keras install"
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet tensorflow
-    ${python} -m pip install --quiet ${third_party}/${identifier}
+    python3 -m pip install --quiet tensorflow
+    python3 -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }
 
@@ -57,7 +51,7 @@ metadata() {
     bold "keras metadata"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} keras-script.py metadata
+    python3 keras-script.py metadata
     popd > /dev/null
     deactivate
 }
@@ -66,20 +60,10 @@ zoo() {
     bold "keras zoo"
     source ${virtualenv}/bin/activate
     pushd ${tools} > /dev/null
-    ${python} keras-script.py zoo keras.applications.densenet.DenseNet121 ${test}/data/keras/DenseNet121.h5
-    ${python} keras-script.py zoo keras.applications.inception_resnet_v2.InceptionResNetV2 ${test}/data/keras/InceptionResNetV2.h5
-    ${python} keras-script.py zoo keras.applications.inception_v3.InceptionV3 ${test}/data/keras/InceptionV3.h5
-    ${python} keras-script.py zoo keras.applications.mobilenet_v2.MobileNetV2 ${test}/data/keras/MobileNetV2.h5
-    ${python} keras-script.py zoo keras.applications.nasnet.NASNetMobile ${test}/data/keras/NASNetMobile.h5
-    ${python} keras-script.py zoo keras.applications.resnet50.ResNet50 ${test}/data/keras/ResNet50.h5
-    ${python} keras-script.py zoo keras.applications.vgg16.VGG16 ${test}/data/keras/VGG16.h5
-    ${python} keras-script.py zoo keras.applications.vgg19.VGG19 ${test}/data/keras/VGG19.h5
-    ${python} keras-script.py zoo keras.applications.xception.Xception ${test}/data/keras/Xception.h5
-    rm -rf ~/.keras/models
+    python3 keras-script.py zoo
     popd > /dev/null
     deactivate
 }
-
 
 while [ "$#" != 0 ]; do
     command="$1" && shift

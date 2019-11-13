@@ -3,11 +3,11 @@
 
 var view = view || {};
 
-var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var protobuf = protobuf || require('protobufjs');
+var prototxt = prototxt || require('protobufjs/ext/prototxt');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -30,9 +30,6 @@ view.View = class {
         this._modelFactoryService = new view.ModelFactoryService(this._host);
         this._host.document.documentElement.style.overflow = 'hidden';
         this._host.document.body.scroll = 'no';
-        this._host.document.getElementById('model-properties-button').addEventListener('click', () => {
-            this.showModelProperties();
-        });
         this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
             this.zoomIn();
         });
@@ -40,10 +37,10 @@ view.View = class {
             this.zoomOut();
         });
         this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
-            this.preventZoom(e);
+            this._preventZoom(e);
         });
         this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
-            this.preventZoom(e);
+            this._preventZoom(e);
         });
         this._host.document.addEventListener('keydown', () => {
             this.clearSelection();
@@ -52,9 +49,21 @@ view.View = class {
             this._host.document.getElementById('graph-container').addEventListener('mousewheel', (e) => {
                 this._mouseWheelHandler(e);
             });
-            this._host.document.getElementById('graph').addEventListener('mousewheel', (e) => {
-                this._mouseWheelHandler(e);
+            this._host.document.getElementById('graph-container').addEventListener('scroll', (e) => {
+                this._scrollHandler(e);
             });
+            this._host.document.getElementById('graph-container').addEventListener('gesturestart', (e) => {
+                e.preventDefault();
+                this._gestureStartZoom = this._zoom;
+            }, false);
+            this._host.document.getElementById('graph-container').addEventListener('gesturechange', (e) => {
+                e.preventDefault();
+                this._updateZoom(this._gestureStartZoom * e.scale, e);
+            }, false);
+            this._host.document.getElementById('graph-container').addEventListener('gestureend', (e) => {
+                e.preventDefault();
+                this._updateZoom(this._gestureStartZoom * e.scale, e);
+            }, false);
         }
     }
     
@@ -68,11 +77,11 @@ view.View = class {
 
         this._sidebar.close();
 
-        var welcomeElement = this._host.document.getElementById('welcome');
-        var openFileButton = this._host.document.getElementById('open-file-button');
-        var spinnerElement = this._host.document.getElementById('spinner');
-        var graphElement = this._host.document.getElementById('graph');
-        var toolbarElement = this._host.document.getElementById('toolbar');
+        let welcomeElement = this._host.document.getElementById('welcome');
+        let openFileButton = this._host.document.getElementById('open-file-button');
+        let spinnerElement = this._host.document.getElementById('spinner');
+        let graphElement = this._host.document.getElementById('graph');
+        let toolbarElement = this._host.document.getElementById('toolbar');
     
         if (page == 'Welcome') {
             this._host.document.body.style.cursor = 'default';
@@ -126,8 +135,8 @@ view.View = class {
     find() {
         if (this._activeGraph) {
             this.clearSelection();
-            var graphElement = document.getElementById('graph');
-            var view = new sidebar.FindSidebar(graphElement, this._activeGraph);
+            let graphElement = document.getElementById('graph');
+            let view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -142,12 +151,7 @@ view.View = class {
 
     toggleAttributes() {
         this._showAttributes = !this._showAttributes;
-        this.show('Spinner');
-        this.updateGraph(this._model, this._activeGraph, (err) => {
-            if (err) {
-                this.error('Graph update failed.', err);
-            }
-        });
+        this._reload();
     }
 
     get showAttributes() {
@@ -156,12 +160,7 @@ view.View = class {
 
     toggleInitializers() {
         this._showInitializers = !this._showInitializers;
-        this.show('Spinner');
-        this.updateGraph(this._model, this._activeGraph, (err) => {
-            if (err) {
-                this.error('Graph update failed.', err);
-            }
-        });
+        this._reload();
     }
 
     get showInitializers() {
@@ -170,28 +169,34 @@ view.View = class {
 
     toggleNames() {
         this._showNames = !this._showNames;
-        this.show('Spinner');
-        this.updateGraph(this._model, this._activeGraph, (err) => {
-            if (err) {
-                this.error('Graph update failed.', err);
-            }
-        });
+        this._reload();
     }
 
     get showNames() {
         return this._showNames;
     }
 
+    _reload() {
+        this.show('Spinner');
+        if (this._model && this._activeGraph) {
+            this._updateGraph(this._model, this._activeGraph).catch((error) => {
+                if (error) {
+                    this.error('Graph update failed.', error);
+                }
+            });
+        }
+    }
+
+    _timeout(time) {
+        return new Promise((resolve) => {
+            setTimeout(() => { resolve(); }, time);
+        });
+    }
+
     zoomIn() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                if (this._zoom) {
-                    this._zoom = this._zoom * 1.05;
-                    if (this._zoom > 2) {
-                        this._zoom = 2;
-                    }
-                    this.applyZoom();
-                }
+                this._updateZoom(this._zoom * 1.05);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -204,13 +209,7 @@ view.View = class {
     zoomOut() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                if (this._zoom) {
-                    this._zoom = this._zoom * 0.95;
-                    if (this._zoom < 0.1) {
-                        this._zoom = 0.1;
-                    }
-                    this.applyZoom();
-                }
+                this._updateZoom(this._zoom * 0.95);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -223,10 +222,7 @@ view.View = class {
     resetZoom() { 
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                if (this._zoom) {
-                    this._zoom = 1;
-                    this.applyZoom();
-                }
+                this._updateZoom(1);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -236,59 +232,75 @@ view.View = class {
         }
     }
 
-    preventZoom(e) {
+    _preventZoom(e) {
         if (e.shiftKey || e.ctrlKey) {
             e.preventDefault();
         }
     }
 
-    applyZoom() {
-        var svgElement = this._host.document.getElementById('graph');
-        svgElement.setAttribute('style', 'zoom: ' + this._zoom + ';');
-        // svgElement.setAttribute('style', 'transform: scale(' + this._zoom + ',' + this._zoom + ')');
-        // svgElement.setAttribute('width', this._width * this._zoom);
-        // svgElement.setAttribute('height', this._height * this._zoom);
+    _updateZoom(zoom, e) {
+
+        let container = this._host.document.getElementById('graph-container');
+
+        let min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
+
+        zoom = Math.min(zoom, 2);
+        zoom = Math.max(min, zoom);
+
+        let scrollLeft = this._scrollLeft || container.scrollLeft;
+        let scrollTop = this._scrollTop || container.scrollTop;
+
+        let x = e ? e.pageX : (container.clientWidth / 2);
+        let y = e ? e.pageY : (container.clientHeight / 2);
+
+        x += scrollLeft;
+        y += scrollTop;
+
+        let graph = this._host.document.getElementById('graph');
+        graph.style.width = zoom * this._width;
+        graph.style.height = zoom * this._height
+
+        this._scrollLeft = ((x * zoom) / this._zoom) - (x - scrollLeft);
+        this._scrollTop = ((y * zoom) / this._zoom) - (y - scrollTop);
+        this._scrollLeft = Math.max(0, this._scrollLeft);
+        this._scrollTop = Math.max(0, this._scrollTop);
+        container.scrollLeft = this._scrollLeft;
+        container.scrollTop = this._scrollTop;
+
+        this._zoom = zoom;
     }
 
     _mouseWheelHandler(e) {
         if (e.shiftKey || e.ctrlKey) {
-            if (this._zoom) {
-                // var oldWidth = this._width * this._zoom;
-                // var oldHeight = this._height * this._zoom;
-                this._zoom = this._zoom + (e.wheelDelta * 1.0 / 6000.0);
-                if (this._zoom < 0.1) { this._zoom = 0.1; }
-                if (this._zoom > 2) { this._zoom = 2; }
-                this.applyZoom();
-
-                /* var svgElement = document.getElementById('graph');
-                va r newWidth = this._width * this._zoom;
-                var newHeight = this._height * this._zoom;
-                svgElement.setAttribute('width', newWidth);
-                svgElement.setAttribute('height', newHeight); */
-
-                // var dx = (oldWidth - newWidth) / 2;
-                // var dy = (oldHeight - newHeight) / 2;
-                // window.scrollBy(dx, dy);
-
-                e.preventDefault();
-            }
+            this._updateZoom(this._zoom + (e.wheelDelta * 1.0 / 4000.0), e);
+            e.preventDefault();
         }
     }
-    
+
+    _scrollHandler(e) {
+
+        if (this._scrollLeft && e.target.scrollLeft !== Math.floor(this._scrollLeft)) {
+            delete this._scrollLeft;
+        }
+        if (this._scrollTop && e.target.scrollTop !== Math.floor(this._scrollTop)) {
+            delete this._scrollTop;
+        }
+    }
+
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            var graphElement = this._host.document.getElementById('graph');
-            var graphRect = graphElement.getBoundingClientRect();
-            var x = 0;
-            var y = 0;
-            for (var element of selection) {
+            let graphElement = this._host.document.getElementById('graph');
+            let graphRect = graphElement.getBoundingClientRect();
+            let x = 0;
+            let y = 0;
+            for (let element of selection) {
                 element.classList.add('select');
                 this._selection.push(element);
-                var box = element.getBBox();
-                var ex = box.x + (box.width / 2);
-                var ey = box.y + (box.height / 2);
-                var transform = element.transform.baseVal.consolidate();
+                let box = element.getBBox();
+                let ex = box.x + (box.width / 2);
+                let ey = box.y + (box.height / 2);
+                let transform = element.transform.baseVal.consolidate();
                 if (transform) {
                     ex = transform.matrix.e;
                     ey = transform.matrix.f;
@@ -304,7 +316,7 @@ view.View = class {
 
     clearSelection() {
         while (this._selection.length > 0) {
-            var element = this._selection.pop();
+            let element = this._selection.pop();
             element.classList.remove('select');
         }
     }
@@ -320,101 +332,77 @@ view.View = class {
         return this._modelFactoryService.accept(file);
     }
 
-    openContext(context, callback) {
+    open(context) {
         this._host.event('Model', 'Open', 'Size', context.buffer.length);
         this._sidebar.close();
-        setTimeout(() => {
-            this._modelFactoryService.open(context, (err, model) => {
-                if (err) {
-                    callback(err);
+        return this._timeout(2).then(() => {
+            return this._modelFactoryService.open(context).then((model) => {
+                let format = model.format;
+                if (format) {
+                    format = format + (model.producer ? ' (' + model.producer + ')' : '');
+                    this._host.event('Model', 'Format', format);
                 }
-                else {
-                    var format = model.format;
-                    if (format) {
-                        format = format + (model.producer ? ' (' + model.producer + ')' : '');
-                        this._host.event('Model', 'Format', format);
-                    }
-
-                    setTimeout(() => {
-                        try {
-                            var graph = model.graphs.length > 0 ? model.graphs[0] : null;
-                            this.updateGraph(model, graph, (err, model) => {
-                                callback(err, model);
-                            });
-                        }
-                        catch (err) {
-                            callback(err, null);
-                            return;
-                        }
-                    }, 20);
-                }
+                return this._timeout(20).then(() => {
+                    let graph = model.graphs.length > 0 ? model.graphs[0] : null;
+                    return this._updateGraph(model, graph);
+                });
             });
-        }, 2);
+        });
     }
 
-    updateActiveGraph(name) {
+    _updateActiveGraph(name) {
         this._sidebar.close();
         if (this._model) {
-            var model = this._model;
-            var graph = model.graphs.filter(graph => name == graph.name).shift();
+            let model = this._model;
+            let graph = model.graphs.filter(graph => name == graph.name).shift();
             if (graph) {
                 this.show('Spinner');
-                setTimeout(() => {
-                    this.updateGraph(model, graph, (err /*, model */) => {
-                        if (err) {
-                            this.error('Graph update failed.', err);
+                this._timeout(200).then(() => {
+                    return this._updateGraph(model, graph).catch((error) => {
+                        if (error) {
+                            this.error('Graph update failed.', error);
                         }
                     });
-                }, 200);
+                });
             }
         }
     }
 
-    updateGraph(model, graph, callback) {
-        setTimeout(() => {
+    _updateGraph(model, graph) {
+        return this._timeout(100).then(() => {
             if (graph && graph != this._activeGraph) {
-                var nodes = graph.nodes;
+                let nodes = graph.nodes;
                 if (nodes.length > 1400) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);
-                        callback(null, null);
-                        return;
+                        return null;
                     }  
                 }
             }
-
-            this.renderGraph(graph, (err) => {
-                if (err) {
-                    this.renderGraph(this._activeGraph, (nestedError) => {
-                        if (nestedError) {
-                            this._model = null;
-                            this._activeGraph = null;
-                            this.show('Welcome');
-                        }
-                        else {
-                            this.show('Graph');
-                        }
-                        callback(err, this._model);
-                    });
-                }
-                else {
-                    this._model = model;
-                    this._activeGraph = graph;
+            return this.renderGraph(graph).then(() => {
+                this._model = model;
+                this._activeGraph = graph;
+                this.show('Graph');
+                return this._model;
+            }).catch((error) => {
+                this.renderGraph(this._activeGraph).then(() => {
                     this.show('Graph');
-                    callback(null, this._model);
-                }
+                    throw error;
+                }).catch(() => {
+                    throw error;
+                });
             });
-        }, 100);
+        });
     }
 
-    renderGraph(graph, callback) {
+    renderGraph(graph) {
         try {
             if (!graph) {
-                callback(null);
+                return Promise.resolve();
             }
             else {
-                var graphElement = this._host.document.getElementById('graph');
+                let graphElement = this._host.document.getElementById('graph');
                 while (graphElement.lastChild) {
                     graphElement.removeChild(graphElement.lastChild);
                 }
@@ -432,24 +420,24 @@ view.View = class {
                         break;
                 }
     
-                var groups = graph.groups;
+                let groups = graph.groups;
     
-                var graphOptions = {};
+                let graphOptions = {};
                 graphOptions.nodesep = 25;
-                graphOptions.ranksep = 30;
+                graphOptions.ranksep = 20;
 
-                var g = new dagre.graphlib.Graph({ compound: groups });
+                let g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
                 g.setDefaultEdgeLabel(() => { return {}; });
             
-                var nodeId = 0;
-                var edgeMap = {};
+                let nodeId = 0;
+                let edgeMap = {};
             
-                var clusterMap = {};
-                var clusterParentMap = {};
+                let clusterMap = {};
+                let clusterParentMap = {};
     
-                var id = new Date().getTime();
-                var nodes = graph.nodes;
+                let id = new Date().getTime();
+                let nodes = graph.nodes;
 
                 if (nodes.length > 1500) {
                     graphOptions.ranker = 'longest-path';
@@ -457,13 +445,12 @@ view.View = class {
 
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
-                var node;
                 if (groups) {
-                    for (node of nodes) {
+                    for (let node of nodes) {
                         if (node.group) {
-                            var path = node.group.split('/');
+                            let path = node.group.split('/');
                             while (path.length > 0) {
-                                var name = path.join('/');
+                                const name = path.join('/');
                                 path.pop();
                                 clusterParentMap[name] = path.join('/');
                             }
@@ -471,26 +458,21 @@ view.View = class {
                     }
                 }
 
-                var input;
-                var output;
-                var connection;
-                var tuple;
-
-                var self = this;
-                for (node of nodes) {
+                const self = this;
+                for (let node of nodes) {
     
-                    var element = new grapher.NodeElement(this._host.document);
+                    let element = new grapher.NodeElement(this._host.document);
 
-                    var addNode = function(element, node, edges) {
+                    const addNode = function(element, node, edges) {
 
-                        var header =  element.block('header');
-                        var styles = [ 'node-item-operator' ];
-                        var category = node.category;
+                        let header =  element.block('header');
+                        let styles = [ 'node-item-operator' ];
+                        const category = node.category;
                         if (category) {
                             styles.push('node-item-operator-' + category.toLowerCase());
                         }
-                        var content = self.showNames && node.name ? node.name : node.operator;
-                        var tooltip = self.showNames && node.name ? node.operator : node.name;
+                        const content = self.showNames && node.name ? node.name : node.operator;
+                        const tooltip = self.showNames && node.name ? node.operator : node.name;
                         header.add(null, styles, content, tooltip, () => { 
                             self.showNodeProperties(node, null);
                         });
@@ -501,50 +483,57 @@ view.View = class {
                             });
                         }
 
-                        var initializers = [];
-                        var hiddenInitializers = false;
+                        let initializers = [];
+                        let hiddenInitializers = false;
                         if (self._showInitializers) {
-                            for (var input of node.inputs) {
-                                if (input.visible && input.connections.length == 1 && input.connections[0].initializer != null) {
+                            for (let input of node.inputs) {
+                                if (input.visible && input.arguments.length == 1 && input.arguments[0].initializer != null) {
                                     initializers.push(input);
                                 }
-                                if (!input.visible && input.connections.some((connection) => connection.initializer != null)) {
+                                if ((!input.visible || input.arguments.length > 1) && 
+                                    input.arguments.some((argument) => argument.initializer != null)) {
                                     hiddenInitializers = true;
                                 }
                             }
                         }
-                        var attributes = [];
+                        let attributes = [];
                         if (self.showAttributes && node.attributes) {
                             attributes = node.attributes.filter((attribute) => attribute.visible);
                         }
                         if (initializers.length > 0 || hiddenInitializers || attributes.length > 0) {
-                            var block = element.block('list');
+                            let block = element.block('list');
                             block.handler = () => {
                                 self.showNodeProperties(node);
                             };
-                            for (var initializer of initializers) {
-                                var connection = initializer.connections[0];
-                                var type = connection.type;
-                                var shape = '';
-                                var separator = '';
-                                if (type && type.shape && type.shape.dimensions && type.shape.dimensions.hasOwnProperty('length')) {
-                                    shape = '\u3008' + type.shape.dimensions.join('\u00D7') + '\u3009';
-                                    if (type.shape.dimensions.length == 0 && connection.initializer) {
-                                        shape = connection.initializer.toString();
+                            for (let initializer of initializers) {
+                                const argument = initializer.arguments[0];
+                                const type = argument.type;
+                                let shape = '';
+                                let separator = '';
+                                if (type &&
+                                    type.shape && 
+                                    type.shape.dimensions && 
+                                    Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
+                                    shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
+                                    if (type.shape.dimensions.length == 0 && argument.initializer && !argument.initializer.state) {
+                                        shape = argument.initializer.toString();
+                                        if (shape && shape.length > 10) {
+                                            shape = shape.substring(0, 10) + '\u2026';
+                                        }
                                         separator = ' = ';
                                     }
                                 }
-                                block.add('initializer-' + connection.id, initializer.name, shape, type ? type.toString() : '', separator);
+                                block.add('initializer-' + argument.id, initializer.name, shape, type ? type.toString() : '', separator);
                             }
                             if (hiddenInitializers) {
-                                block.add(null, '\u3008' + '...' + '\u3009', '', null, '');
+                                block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
                             }
 
-                            for (var attribute of attributes) {
+                            for (let attribute of attributes) {
                                 if (attribute.visible) {
-                                    var attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
+                                    let attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
-                                        attributeValue = attributeValue.substring(0, 25) + '...';
+                                        attributeValue = attributeValue.substring(0, 25) + '\u2026';
                                     }
                                     block.add(null, attribute.name, attributeValue, attribute.type, ' = ');
                                 }
@@ -552,14 +541,14 @@ view.View = class {
                         }
 
                         if (edges) {
-                            var inputs = node.inputs;
-                            for (input of inputs) {
-                                for (connection of input.connections) {
-                                    if (connection.id != '' && !connection.initializer) {
-                                        var tuple = edgeMap[connection.id];
+                            const inputs = node.inputs;
+                            for (let input of inputs) {
+                                for (let argument of input.arguments) {
+                                    if (argument.id != '' && !argument.initializer) {
+                                        let tuple = edgeMap[argument.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
-                                            edgeMap[connection.id] = tuple;
+                                            edgeMap[argument.id] = tuple;
                                         }
                                         tuple.to.push({ 
                                             node: nodeId, 
@@ -568,25 +557,25 @@ view.View = class {
                                     }
                                 }
                             }
-                            var outputs = node.outputs;
+                            let outputs = node.outputs;
                             if (node.chain && node.chain.length > 0) {
-                                var chainOutputs = node.chain[node.chain.length - 1].outputs;
+                                const chainOutputs = node.chain[node.chain.length - 1].outputs;
                                 if (chainOutputs.length > 0) {
                                     outputs = chainOutputs;
                                 }
                             }
-                            for (output of outputs) {
-                                for (connection of output.connections) {
-                                    if (connection.id != '') {
-                                        tuple = edgeMap[connection.id];
+                            for (let output of outputs) {
+                                for (let argument of output.arguments) {
+                                    if (argument.id != '') {
+                                        let tuple = edgeMap[argument.id];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
-                                            edgeMap[connection.id] = tuple;
+                                            edgeMap[argument.id] = tuple;
                                         }
                                         tuple.from = { 
                                             node: nodeId,
                                             name: output.name,
-                                            type: connection.type
+                                            type: argument.type
                                         };
                                     }
                                 }
@@ -594,7 +583,7 @@ view.View = class {
                         }
     
                         if (node.chain && node.chain.length > 0) {
-                            for (var innerNode of node.chain) {
+                            for (let innerNode of node.chain) {
                                 addNode(element, innerNode, false);
                             }
                         }
@@ -607,8 +596,8 @@ view.View = class {
                     addNode(element, node, true);
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        for (var controlDependency of node.controlDependencies) {
-                            tuple = edgeMap[controlDependency];
+                        for (let controlDependency of node.controlDependencies) {
+                            let tuple = edgeMap[controlDependency];
                             if (!tuple) {
                                 tuple = { from: null, to: [] };
                                 edgeMap[controlDependency] = tuple;
@@ -621,7 +610,7 @@ view.View = class {
                         }
                     }
 
-                    var nodeName = node.name;
+                    const nodeName = node.name;
                     if (nodeName) {
                         g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + nodeName });
                     }
@@ -630,11 +619,11 @@ view.View = class {
                         id++;
                     }
             
-                    var createCluster = function(name) {
+                    const createCluster = function(name) {
                         if (!clusterMap[name]) {
                             g.setNode(name, { rx: 5, ry: 5});
                             clusterMap[name] = true;
-                            var parent = clusterParentMap[name];
+                            const parent = clusterParentMap[name];
                             if (parent) {
                                 createCluster(parent);
                                 g.setParent(name, parent);
@@ -643,13 +632,13 @@ view.View = class {
                     }
     
                     if (groups) {
-                        var groupName = node.group;
+                        let groupName = node.group;
                         if (groupName && groupName.length > 0) {
-                            if (!clusterParentMap.hasOwnProperty(groupName)) {
-                                var lastIndex = groupName.lastIndexOf('/');
+                            if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
+                                const lastIndex = groupName.lastIndexOf('/');
                                 if (lastIndex != -1) {
                                     groupName = groupName.substring(0, lastIndex);
-                                    if (!clusterParentMap.hasOwnProperty(groupName)) {
+                                    if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
                                         groupName = null;
                                     }
                                 }
@@ -667,67 +656,67 @@ view.View = class {
                     nodeId++;
                 }
 
-                for (input of graph.inputs) {
-                    for (connection of input.connections) {
-                        tuple = edgeMap[connection.id];
+                for (let input of graph.inputs) {
+                    for (let argument of input.arguments) {
+                        let tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[connection.id] = tuple;
+                            edgeMap[argument.id] = tuple;
                         }
                         tuple.from = { 
                             node: nodeId,
-                            type: connection.type
+                            type: argument.type
                         };
                     }
-                    var types = input.connections.map(connection => connection.type || '').join('\n');
-                    var inputName = input.name || '';
+                    let types = input.arguments.map((argument) => argument.type || '').join('\n');
+                    let inputName = input.name || '';
                     if (inputName.length > 16) {
                         inputName = inputName.split('/').pop();
                     }
     
-                    var inputElement = new grapher.NodeElement(this._host.document);
-                    var inputHeader = inputElement.block('header');
+                    let inputElement = new grapher.NodeElement(this._host.document);
+                    let inputHeader = inputElement.block('header');
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } ); 
                 }
             
-                for (output of graph.outputs) {
-                    for (connection of output.connections) {
-                        tuple = edgeMap[connection.id];
+                for (let output of graph.outputs) {
+                    for (let argument of output.arguments) {
+                        let tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[connection.id] = tuple;
+                            edgeMap[argument.id] = tuple;
                         }
                         tuple.to.push({ node: nodeId });
                     }
-                    var outputTypes = output.connections.map(connection => connection.type || '').join('\n');
-                    var outputName = output.name;
+                    let outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
+                    let outputName = output.name || '';
                     if (outputName.length > 16) {
                         outputName = outputName.split('/').pop();
                     }
             
-                    var outputElement = new grapher.NodeElement(this._host.document);
-                    var outputHeader = outputElement.block('header');
+                    let outputElement = new grapher.NodeElement(this._host.document);
+                    let outputHeader = outputElement.block('header');
                     outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: outputElement.format(graphElement) } ); 
                 }
 
-                for (var edge of Object.keys(edgeMap)) {
-                    tuple = edgeMap[edge];
+                for (let edge of Object.keys(edgeMap)) {
+                    let tuple = edgeMap[edge];
                     if (tuple.from != null) {
-                        for (var to of tuple.to) {
-                            var text = '';
-                            var type = tuple.from.type;
+                        for (let to of tuple.to) {
+                            let text = '';
+                            let type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
                                 text = type.shape.dimensions.join('\u00D7');
                             }
             
                             if (this._showNames) {
-                                text = edge.split('\n').shift(); // custom connection id
+                                text = edge.split('\n').shift(); // custom argument id
                             }
     
                             if (to.controlDependency) {
@@ -739,26 +728,26 @@ view.View = class {
                         }
                     }
                 }
-            
+
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-                var backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                let backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
-                if (this._host.environment('zoom') == 'scroll') {
+                if (this._host.environment('zoom') == 'd3') {
                     backgroundElement.setAttribute('width', '100%');
                     backgroundElement.setAttribute('height', '100%');
                 }
                 backgroundElement.setAttribute('fill', 'none');
                 backgroundElement.setAttribute('pointer-events', 'all');
                 graphElement.appendChild(backgroundElement);
-            
-                var originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                let originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
                 graphElement.appendChild(originElement);
             
+                let svg = null;
                 if (this._host.environment('zoom') == 'd3') {
-                    // Set up zoom support
-                    var svg = d3.select(graphElement);
+                    svg = d3.select(graphElement);
                     this._zoom = d3.zoom();
                     this._zoom(svg);
                     this._zoom.scaleExtent([0.1, 2]);
@@ -768,94 +757,92 @@ view.View = class {
                     this._zoom.transform(svg, d3.zoomIdentity);
                 }
 
-                setTimeout(() => {
-                    try {
-                        var graphRenderer = new grapher.Renderer(this._host.document, originElement);
-                        graphRenderer.render(g);
+                return this._timeout(20).then(() => {
 
-                        var inputElements = graphElement.getElementsByClassName('graph-input');
+                    let graphRenderer = new grapher.Renderer(this._host.document, originElement);
+                    graphRenderer.render(g);
 
-                        switch (this._host.environment('zoom')) {
-                            case 'scroll':
-                                var size = graphElement.getBBox();
-                                var graphMin = Math.min(size.width, size.height);
-                                var windowMin = Math.min(window.innerWidth, window.innerHeight);
-                                var delta = (Math.max(graphMin, windowMin) / 2.0) * 0.2;
-                                var width = Math.ceil(delta + size.width + delta);
-                                var height = Math.ceil(delta + size.height + delta);
-                                originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
-                                backgroundElement.setAttribute('width', width);
-                                backgroundElement.setAttribute('height', height);
-                                this._width = width;
-                                this._height = height;
-                                this._zoom = 1;
-                                graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                                graphElement.setAttribute('width', width / this._zoom);
-                                graphElement.setAttribute('height', height / this._zoom);
-                                if (inputElements && inputElements.length > 0) {
-                                    // Center view based on input elements
-                                    for (var j = 0; j < inputElements.length; j++) {
-                                        inputElements[j].scrollIntoView({ behavior: 'instant' });
-                                        break;
-                                    }
+                    let inputElements = graphElement.getElementsByClassName('graph-input');
+
+                    switch (this._host.environment('zoom')) {
+                        case 'scroll': {
+                            const size = graphElement.getBBox();
+                            let margin = 100;
+                            const width = Math.ceil(margin + size.width + margin);
+                            const height = Math.ceil(margin + size.height + margin);
+                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+                            backgroundElement.setAttribute('width', width);
+                            backgroundElement.setAttribute('height', height);
+                            this._width = width;
+                            this._height = height;
+                            this._zoom = 1;
+                            delete this._scrollLeft;
+                            delete this._scrollRight;
+                            graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+                            graphElement.setAttribute('width', width);
+                            graphElement.setAttribute('height', height);
+                            if (inputElements && inputElements.length > 0) {
+                                // Center view based on input elements
+                                for (let j = 0; j < inputElements.length; j++) {
+                                    inputElements[j].scrollIntoView({ behavior: 'instant' });
+                                    break;
                                 }
-                                else {
-                                    // this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
-                                }
-                                break;
-                            case 'd3':
-                                var svgSize = graphElement.getBoundingClientRect();
-                                if (inputElements && inputElements.length > 0) {
-                                    // Center view based on input elements
-                                    var xs = [];
-                                    var ys = [];
-                                    for (var i = 0; i < inputElements.length; i++) {
-                                        var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
-                                        xs.push(inputTransform.e);
-                                        ys.push(inputTransform.f);
-                                    }
-                                    var x = xs[0];
-                                    var y = ys[0];
-                                    if (ys.every(y => y == ys[0])) {
-                                        x = xs.reduce((a,b) => { return a + b; }) / xs.length;
-                                    }
-                                    this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
-                                }
-                                else {
-                                    this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
-                                }
-                                break;
+                            }
+                            else {
+                                // this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                            }
+                            break;
                         }
-                        callback(null);
+                        case 'd3': {
+                            const svgSize = graphElement.getBoundingClientRect();
+                            if (inputElements && inputElements.length > 0) {
+                                // Center view based on input elements
+                                let xs = [];
+                                let ys = [];
+                                for (let i = 0; i < inputElements.length; i++) {
+                                    let inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                                    xs.push(inputTransform.e);
+                                    ys.push(inputTransform.f);
+                                }
+                                let x = xs[0];
+                                let y = ys[0];
+                                if (ys.every(y => y == ys[0])) {
+                                    x = xs.reduce((a,b) => { return a + b; }) / xs.length;
+                                }
+                                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+                            }
+                            else {
+                                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                            }
+                            break;
+                        }
                     }
-                    catch (err) {
-                        callback(err);
-                    }
-                }, 20);
+                    return;
+                });
             }
         }
-        catch (err) {
-            callback(err);
+        catch (error) {
+            return Promise.reject(error);
         }
     }
 
     applyStyleSheet(element, name) {
-        var rules = [];
-        for (var i = 0; i < this._host.document.styleSheets.length; i++) {
-            var styleSheet = this._host.document.styleSheets[i];
+        let rules = [];
+        for (let i = 0; i < this._host.document.styleSheets.length; i++) {
+            let styleSheet = this._host.document.styleSheets[i];
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
                 rules = styleSheet.cssRules;
                 break;
             }
         }
-        var nodes = element.getElementsByTagName('*');
-        for (var j = 0; j < nodes.length; j++) {
-            var node = nodes[j];
-            for (var k = 0; k < rules.length; k++) {
-                var rule = rules[k];
+        let nodes = element.getElementsByTagName('*');
+        for (let j = 0; j < nodes.length; j++) {
+            let node = nodes[j];
+            for (let k = 0; k < rules.length; k++) {
+                let rule = rules[k];
                 if (node.matches(rule.selectorText)) {
-                    for (var l = 0; l < rule.style.length; l++) {
-                        var item = rule.style.item(l);
+                    for (let l = 0; l < rule.style.length; l++) {
+                        let item = rule.style.item(l);
                         node.style[item] = rule.style[item];
                     }
                 }
@@ -864,36 +851,36 @@ view.View = class {
     }
 
     export(file) {
-        var extension = '';
-        var lastIndex = file.lastIndexOf('.');
+        let extension = '';
+        let lastIndex = file.lastIndexOf('.');
         if (lastIndex != -1) {
             extension = file.substring(lastIndex + 1);
         }
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
-            var graphElement = this._host.document.getElementById('graph');
-            var exportElement = graphElement.cloneNode(true);
+            const graphElement = this._host.document.getElementById('graph');
+            const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
             exportElement.style.removeProperty('opacity');
             exportElement.style.removeProperty('display');
-            var backgroundElement = exportElement.querySelector('#background');
-            var originElement = exportElement.querySelector('#origin');
+            const backgroundElement = exportElement.querySelector('#background');
+            const originElement = exportElement.querySelector('#origin');
             originElement.setAttribute('transform', 'translate(0,0) scale(1)');
             backgroundElement.removeAttribute('width');
             backgroundElement.removeAttribute('height');
 
-            var parentElement = graphElement.parentElement;
+            const parentElement = graphElement.parentElement;
             parentElement.insertBefore(exportElement, graphElement);
-            var size = exportElement.getBBox();
+            const size = exportElement.getBBox();
             parentElement.removeChild(exportElement);
             parentElement.removeChild(graphElement);
             parentElement.appendChild(graphElement);
 
-            var delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
-            var width = Math.ceil(delta + size.width + delta);
-            var height = Math.ceil(delta + size.height + delta);
+            const delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
+            const width = Math.ceil(delta + size.width + delta);
+            const height = Math.ceil(delta + size.height + delta);
             originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
             exportElement.setAttribute('width', width);
             exportElement.setAttribute('height', height);
@@ -901,27 +888,36 @@ view.View = class {
             backgroundElement.setAttribute('height', height);
             backgroundElement.setAttribute('fill', '#fff');
     
-            var data = new XMLSerializer().serializeToString(exportElement);
+            const data = new XMLSerializer().serializeToString(exportElement);
     
             if (extension == 'svg') {
-                var blob = new Blob([ data ], { type: 'image/svg' });
+                const blob = new Blob([ data ], { type: 'image/svg' });
                 this._host.export(file, blob);
             }
     
             if (extension == 'png') {
-                var imageElement = new Image();
+                const imageElement = new Image();
                 imageElement.onload = () => {
-                    var max = Math.max(width, height);
-                    var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
-                    var canvas = this._host.document.createElement('canvas');
+                    const max = Math.max(width, height);
+                    const scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
+                    const canvas = this._host.document.createElement('canvas');
                     canvas.width = Math.ceil(width * scale);
                     canvas.height = Math.ceil(height * scale);
-                    var context = canvas.getContext('2d');
+                    const context = canvas.getContext('2d');
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
                     this._host.document.body.removeChild(imageElement);
                     canvas.toBlob((blob) => {
-                        this._host.export(file, blob);
+                        if (blob) {
+                            this._host.export(file, blob);
+                        }
+                        else {
+                            const err = new Error();
+                            err.name = 'Error exporting image.';
+                            err.message = 'Image may be too large to render as PNG.';
+                            this._host.exception(err, false);
+                            this._host.error(err.name, err.message);
+                        }
                     }, 'image/png');
                 };
                 imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
@@ -932,108 +928,70 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            var view = new sidebar.ModelSidebar(this._model, this._host);
-            view.on('update-active-graph', (sender, name) => {
-                this.updateActiveGraph(name);
+            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._activeGraph);
+            modelSidebar.on('update-active-graph', (sender, name) => {
+                this._updateActiveGraph(name);
             });
-            this._sidebar.open(view.render(), 'Model Properties');
+            this._sidebar.open(modelSidebar.render(), 'Model Properties');
         }
     }
     
     showNodeProperties(node, input) {
         if (node) {
-            var view = new sidebar.NodeSidebar(node, this._host);
-            view.on('show-documentation', (/* sender, e */) => {
+            const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
+            nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showOperatorDocumentation(node);
             });
-            view.on('export-tensor', (sender, tensor) => {
-                this._host.require('./numpy', (err, numpy) => {
-                    if (!err) {
-                        var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
-                        this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
-                            try {
-                                var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
-                                var blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
-                                this._host.export(file, blob);
-                            }
-                            catch (error) {
-                                this.error('Error saving NumPy tensor.', error);
-                            }
-                        });
-                    }
+            nodeSidebar.on('export-tensor', (sender, tensor) => {
+                this._host.require('./numpy').then((numpy) => {
+                    const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
+                    this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
+                        try {
+                            const dataTypeMap = new Map([
+                                [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ],
+                                [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
+                                [ 'uint8', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
+                                [ 'qint8', 'i1' ]
+                            ]);
+                            let array = new numpy.Array();
+                            array.shape = tensor.type.shape.dimensions;
+                            array.data = tensor.value;
+                            array.dataType = dataTypeMap.has(tensor.type.dataType) ? dataTypeMap.get(tensor.type.dataType) : tensor.type.dataType;
+                            const blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
+                            this._host.export(file, blob);
+                        }
+                        catch (error) {
+                            this.error('Error saving NumPy tensor.', error);
+                        }
+                    });
+                }).catch(() => {
                 });
             });
             if (input) {
-                view.toggleInput(input.name);
+                nodeSidebar.toggleInput(input.name);
             }
-            this._sidebar.open(view.render(), 'Node Properties');
+            this._sidebar.open(nodeSidebar.render(), 'Node Properties');
         }
     }
 
     showOperatorDocumentation(node) {
-        var documentation = node.documentation;
+        let documentation = node.documentation;
         if (documentation) {
-            var view = new sidebar.OperatorDocumentationSidebar(documentation);
-            view.on('navigate', (sender, e) => {
+            const documentationSidebar = new sidebar.OperatorDocumentationSidebar(documentation);
+            documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
-            this._sidebar.open(view.render(), 'Documentation');
+            this._sidebar.push(documentationSidebar.render(), 'Documentation');
         }
-    }
-
-    static formatAttributeValue(value, type) {
-        if (typeof value === 'function') {
-            return value();
-        }
-        if (typeof value === 'string' && type && type != 'string') {
-            return value;
-        }
-        if (value && long.Long.isLong(value)) {
-            return value.toString();
-        }
-        if (value && long.Long.isLong(value)) {
-            return value.toString();
-        }
-        if (Number.isNaN(value)) {
-            return 'NaN';
-        }
-        if (type == 'shape') {
-            return value.toString();
-        }
-        if (type == 'shape[]') {
-            return value.map((item) => item.toString()).join(', ');
-        }
-        if (type == 'graph') {
-            return value.toString();
-        }
-        if (type == 'graph[]') {
-            return value.map((item) => item.toString()).join(', ');
-        }
-        if (type == 'tensor') {
-            if (value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
-                return value.toString();
-            }
-            return '[...]';
-        }
-        if (Array.isArray(value)) {
-            return value.map((item) => {
-                if (item && long.Long.isLong(item)) {
-                    return item.toString();
-                }
-                if (Number.isNaN(item)) {
-                    return 'NaN';
-                }
-                return JSON.stringify(item);
-            }).join(', ');
-        }
-        return JSON.stringify(value);
     }
 };
 
 class ModelError extends Error {
-    constructor(message) {
+
+    constructor(message, telemetry) {
         super(message);
         this.name = 'Error loading model.'; 
+        this.telemetry = telemetry;
     }
 }
 
@@ -1041,11 +999,11 @@ class ModelContext {
 
     constructor(context) {
         this._context = context;
-        this._tags = {};
+        this._tags = new Map();
     }
 
-    request(file, encoding, callback) {
-        this._context.request(file, encoding, callback);
+    request(file, encoding) {
+        return this._context.request(file, encoding);
     }
 
     get identifier() {
@@ -1063,42 +1021,73 @@ class ModelContext {
         return this._text;
     }
 
+    get entries() {
+        if (!this._entries) {
+            this._entries = [];
+            let buffer = this.buffer;
+            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+                try {
+                    let archive = new zip.Archive(buffer);
+                    this._entries = archive.entries;
+                }
+                catch (error) {
+                    this._entries = [];
+                }
+            }
+        }
+        return this._entries;
+    }
+
     tags(extension) {
-        var tags = this._tags[extension];
+        let tags = this._tags.get(extension);
         if (!tags) {
-            tags = {};
+            tags = new Map();
             try {
-                var reader = null;
+                let reader = null;
                 switch (extension) {
-                    case 'pbtxt':
-                        reader = protobuf.TextReader.create(this.text);
+                    case 'pbtxt': {
+                        let b = this.buffer;
+                        const length = b.length;
+                        const signature = 
+                            (length >= 3 && b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) ||
+                            (length >= 4 && b[0] === 0x00 && b[1] === 0x00 && b[2] === 0xfe && b[3] === 0xff) ||
+                            (length >= 4 && b[0] === 0xff && b[1] === 0xfe && b[2] === 0x00 && b[3] === 0x00) ||
+                            (length >= 4 && b[0] === 0x84 && b[1] === 0x31 && b[2] === 0x95 && b[3] === 0x33) ||
+                            (length >= 2 && b[0] === 0xfe && b[1] === 0xff) ||
+                            (length >= 2 && b[0] === 0xff && b[1] === 0xfe);
+                        if (!signature && b.subarray(0, Math.min(1024, length)).some((c) => c < 7 || (c > 14 && c < 32))) {
+                            break;
+                        }
+                        reader = prototxt.TextReader.create(this.text);
                         reader.start(false);
                         while (!reader.end(false)) {
-                            var tag = reader.tag();
-                            tags[tag] = true;
+                            let tag = reader.tag();
+                            tags.set(tag, true);
                             reader.skip();
                         }
                         break;
-                    case 'pb':
+                    }
+                    case 'pb': {
                         reader = new protobuf.Reader.create(this.buffer);
                         while (reader.pos < reader.len) {
-                            var tagType = reader.uint32();
-                            tags[tagType >>> 3] = tagType & 7;
+                            const tagType = reader.uint32();
+                            tags.set(tagType >>> 3, tagType & 7);
                             try {
                                 reader.skipType(tagType & 7);
                             }
                             catch (err) {
-                                tags = {};
+                                tags = new Map();
                                 break;
                             }
                         }
                         break;
+                    }
                 }
             }
             catch (error) {
-                tags = {};
+                tags = new Map();
             }
-            this._tags[extension] = tags;
+            this._tags.set(extension, tags);
         }
         return tags;
     }
@@ -1109,11 +1098,11 @@ class ArchiveContext {
     constructor(entries, rootFolder, identifier, buffer) {
         this._entries = {};
         if (entries) {
-            for (var entry of entries) {
+            for (let entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
-                    var name = entry.name.substring(rootFolder.length);
+                    let name = entry.name.substring(rootFolder.length);
                     if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                        this._entries[name] = entry.substring(rootFolder.length);
+                        this._entries[name] = entry;
                     }
                 }
             }
@@ -1122,17 +1111,16 @@ class ArchiveContext {
         this._buffer = buffer;
     }
 
-    request(file, encoding, callback) {
-        var entry = this._entries[file];
+    request(file, encoding) {
+        let entry = this._entries[file];
         if (!entry) {
-            callback(new Error('File not found.'), null);
-            return;
+            return Promise.reject(new Error('File not found.'));
         }
-        var data = entry.data;
-        if (data != null) {
+        let data = entry.data;
+        if (encoding != null) {
             data = new TextDecoder(encoding).decode(data);
         }
-        callback(null, data);
+        return Promise.resolve(data);
     }
 
     get identifier() {
@@ -1145,6 +1133,7 @@ class ArchiveContext {
 }
 
 class ArchiveError extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading archive.';
@@ -1157,106 +1146,116 @@ view.ModelFactoryService = class {
         this._host = host;
         this._extensions = [];
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./mxnet', [ '.model', '.json' ]);
-        this.register('./keras', [ '.h5', '.keras', '.hdf5', '.json', '.model' ]);
+        this.register('./mxnet', [ '.mar', '.model', '.json', '.params' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.model' ]);
         this.register('./coreml', [ '.mlmodel' ]);
-        this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt' ]);
+        this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.t7', '.model', '.dms', '.pth.tar' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pkl', '.h5', '.t7', '.model', '.dms', '.pth.tar', '.ckpt', '.bin' ]);
         this.register('./torch', [ '.t7' ]);
-        this.register('./tflite', [ '.tflite', '.lite' ]);
-        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt' ]);
-        this.register('./sklearn', [ '.pkl', '.joblib' ]);
+        this.register('./torchscript', [ '.pt', '.pt1', '.pth' ]);
+        this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin' ]);
+        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.json' ]);
+        this.register('./sklearn', [ '.pkl', '.joblib', '.model' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./openvino', [ '.xml' ]);
-        this.register('./darknet', [ '.cfg' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
+        this.register('./armnn', [ '.armnn' ]);
+        this.register('./bigdl', [ '.model', '.bigdl' ]);
+        this.register('./darknet', [ '.cfg' ]);
+        this.register('./mnn', ['.mnn']);
+        this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
+        this.register('./openvino', [ '.xml' ]);
+        this.register('./flux', [ '.bson' ]);
+        this.register('./chainer', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
+        this.register('./dl4j', [ '.zip' ]);
+        this.register('./mlnet', [ '.zip' ]);
     }
 
     register(id, extensions) {
-        for (var extension of extensions) {
+        for (let extension of extensions) {
             this._extensions.push({ extension: extension, id: id });
         }
     }
  
-    open(context, callback) {
-        this._openArchive(context, (err, context) => {
-            if (err) {
-                callback(err, null);
-                return;
-            }
+    open(context) {
+        return this._openArchive(context).then((context) => {
             context = new ModelContext(context);
-            var extension = context.identifier.split('.').pop().toLowerCase();
-            var modules = this._filter(context);
+            let extension = context.identifier.split('.').pop().toLowerCase();
+            let modules = this._filter(context);
             if (modules.length == 0) {
-                callback(new ModelError("Unsupported file extension '." + extension + "'."), null);
-                return;
+                throw new ModelError("Unsupported file extension '." + extension + "'.");
             }
-            var errors = [];
-            var matches = 0;
-            var nextModule = () => {
+            let errors = [];
+            let match = false;
+            let nextModule = () => {
                 if (modules.length > 0) {
-                    var id = modules.shift();
-                    this._host.require(id, (err, module) => {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        }
+                    let id = modules.shift();
+                    return this._host.require(id).then((module) => {
                         if (!module.ModelFactory) {
-                            callback(new ModelError("Failed to load module '" + id + "'."), null);
-                            return;
+                            throw new ModelError("Failed to load module '" + id + "'.");
                         }
-                        var modelFactory = new module.ModelFactory(); 
+                        let modelFactory = new module.ModelFactory(); 
                         if (!modelFactory.match(context)) {
-                            nextModule();
-                            return;
+                            return nextModule();
                         }
-                        matches++;
-                        modelFactory.open(context, this._host, (err, model) => {
-                            if (err) {
-                                errors.push(err);
-                                nextModule();
-                                return;
-                            }
-                            callback(null, model);
-                            return;
+                        match++;
+                        return modelFactory.open(context, this._host).then((model) => {
+                            return model;
+                        }).catch((error) => {
+                            errors.push(error);
+                            return nextModule();
                         });
                     });
                 }
                 else {
-                    if (matches > 0) {
+                    if (match) {
                         if (errors.length == 1) {
-                            callback(errors[0], null);
-                            return;
+                            throw errors[0];
                         }
-                        callback(new ModelError(errors.map((err) => err.message).join('\n')), null);
-                        return;
+                        throw new ModelError(errors.map((err) => err.message).join('\n'));
                     }
-                    callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
-                    return;
+                    const knownUnsupportedIdentifiers = new Set([
+                        'natives_blob.bin', 
+                        'v8_context_snapshot.bin',
+                        'snapshot_blob.bin',
+                        'image_net_labels.json',
+                        'package.json',
+                        'models.json',
+                        'LICENSE.meta',
+                        'input_0.pb', 
+                        'output_0.pb',
+                        'face_label_map.pbtxt', 
+                        'hand_label_map.pbtxt',
+                        'imagenet_2012_challenge_label_map_proto.pbtxt', 
+                        'label_map.pbtxt',
+                        'labels_map.pbtxt',
+                        'labelmap.pbtxt',
+                        'mscoco_label_map.pbtxt',
+                        'mscoco_complete_label_map.pbtxt',
+                        'object-detection.pbtxt',
+                        'tf_label_map.pbtxt',
+                        'training_label_map.pbtxt'
+                    ]);
+                    throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'.", !knownUnsupportedIdentifiers.has(context.identifier));
                 }
             };
-            nextModule();
+            return nextModule();
         });
     }
 
-    _openArchive(context, callback) {
-        var extension;
-        var archive;
-        var entry;
-        var message;
-
-        var identifier = context.identifier;
-        var buffer = context.buffer;
+    _openArchive(context) {
+        let archive = null;
+        let extension;
+        let identifier = context.identifier;
+        let buffer = context.buffer;
 
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'gz' || extension == 'tgz') {
                 archive = new gzip.Archive(buffer);
                 if (archive.entries.length == 1) {
-                    entry = archive.entries[0];
+                    let entry = archive.entries[0];
                     if (entry.name) {
-                            
                         identifier = entry.name;
                     }
                     else {
@@ -1266,46 +1265,45 @@ view.ModelFactoryService = class {
                         }
                     }
                     buffer = entry.data;
-                    archive = null;
                 }
             }
         }
         catch (error) {
-            message = error && error.message ? error.message : error.toString();
+            let message = error && error.message ? error.message : error.toString();
             message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            callback(new ArchiveError(message + " in '" + identifier + "'."), null);
-            return;
+            return Promise.reject(new ArchiveError(message + " in '" + identifier + "'."));
         }
 
         try {
             extension = identifier.split('.').pop().toLowerCase();
             switch (extension) {
-                case 'tar':
+                case 'tar': {
                     // handle .pth.tar
-                    var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+                    const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
                     if (!buffer || buffer.length < 14 || buffer[0] != 0x80 || !torch.every((v, i) => v == buffer[i + 2])) {
                         archive = new tar.Archive(buffer);
                     }
                     break;
-                case 'zip':
+                }
+                case 'zip': {
                     archive = new zip.Archive(buffer);
                     break;
+                }
             }
         }
         catch (error) {
-            message = error && error.message ? error.message : error.toString();
+            let message = error && error.message ? error.message : error.toString();
             message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            callback(new ArchiveError(message + " in '" + identifier + "'."), null);
-            return;
+            return Promise.reject(new ArchiveError(message + " in '" + identifier + "'."));
+        }
+
+        if (!archive) {
+            return Promise.resolve(context);
         }
 
         try {
-            if (!archive) {
-                callback(null, context);
-                return;
-            }
-            var folders = {};
-            for (entry of archive.entries) {
+            let folders = {};
+            for (let entry of archive.entries) {
                 if (entry.name.indexOf('/') != -1) {
                     folders[entry.name.split('/').shift() + '/'] = true;
                 }
@@ -1316,101 +1314,90 @@ view.ModelFactoryService = class {
             if (extension == 'tar') {
                 delete folders['PaxHeader/'];
             }
-            var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
+            let rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
             rootFolder = rootFolder == '/' ? '' : rootFolder;
-            var matches = [];
-            var entries = archive.entries.slice();
-            var nextEntry = () => {
+            let matches = [];
+            let entries = archive.entries.slice();
+            const sourceContext = context;
+            const nextEntry = () => {
                 if (entries.length > 0) {
-                    var entry = entries.shift();
+                    const entry = entries.shift();
                     if (entry.name.startsWith(rootFolder)) {
-                        var identifier = entry.name.substring(rootFolder.length);
+                        const identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            var context = new ModelContext(new ArchiveContext(null, rootFolder, entry.name, entry.data));
-                            var modules = this._filter(context);
-                            var nextModule = () => {
+                            const context = new ModelContext(new ArchiveContext(null, rootFolder, entry.name, entry.data));
+                            let modules = this._filter(context);
+                            const nextModule = () => {
                                 if (modules.length > 0) {
-                                    var id = modules.shift();
-                                    this._host.require(id, (err, module) => {
-                                        if (err) {
-                                            callback(err, null);
-                                            return;
-                                        }
+                                    const id = modules.shift();
+                                    return this._host.require(id).then((module) => {
                                         if (!module.ModelFactory) {
-                                            callback(new ArchiveError("Failed to load module '" + id + "'.", null), null);
+                                            throw new ArchiveError("Failed to load module '" + id + "'.", null);
                                         }
-                                        var factory = new module.ModelFactory();
+                                        const factory = new module.ModelFactory();
                                         if (factory.match(context)) {
                                             matches.push(entry);
                                             modules = [];
                                         }
-                                        nextModule();
-                                        return;
+                                        return nextModule();
                                     });
                                 }
                                 else {
-                                    nextEntry();
-                                    return;
+                                    return nextEntry();
                                 }
                             };
-                            nextModule();
-                            return;
+                            return nextModule();
                         }
                     }
-                    nextEntry();
+                    return nextEntry();
                 }
                 else {
                     if (matches.length == 0) {
-                        callback(new ArchiveError('Root does not contain model file.'), null);
-                        return;
+                        return Promise.resolve(sourceContext);
+                        // return Promise.reject(new ArchiveError('Archive does not contain model file.'));
                     }
                     else if (matches.length > 1) {
-                        callback(new ArchiveError('Root contains multiple model files.'), null);
-                        return;
+                        if (matches.length == 2 &&
+                            matches.some((e) => e.name.endsWith('.params')) &&
+                            matches.some((e) => e.name.endsWith('-symbol.json'))) {
+                            matches = matches.filter((e) => e.name.endsWith('.params'));
+                        }
+                        else {
+                            return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
+                        }
                     }
-                    var match = matches[0];
-                    callback(null, new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
-                    return;
+                    const match = matches[0];
+                    return Promise.resolve(new ModelContext(new ArchiveContext(archive.entries, rootFolder, match.name, match.data)));
                 }
             };
-            nextEntry();
-            return;
+            return nextEntry();
         }
         catch (error) {
-            callback(new ArchiveError(error.message), null);
-            return;
+            return Promise.reject(new ArchiveError(error.message));
         }
     }
 
     accept(identifier) {
-        var extension = identifier.toLowerCase().split('.').pop();
-        var excludes = [
-            'blockmap', 'checkpoint', 'ckpt', 'dat', 'test', 'bytes', 'desktop', 'graph',
-            'index', 'data-00000-of-00001',
-            'exe', 'dll', 'bin', 'raw', 'msg',
-            'html', 'pdf', 'rtf', 'txt', 'md', 'svg', 'csv',
-            'xls', 'doc', 'ppt', 'xlsx', 'docx', 'pptx',
-            'jpeg', 'jpg', 'png', 'gif', 'ico', 'icns',
-            'js', 'py', 'pyc', 'ipynb',
-            'params', 'weights',
-            'mp3', 'mp4', 'mov',
-            'npy', 'npz',
-            'tmp'
-        ];
-        if (excludes.some((exclude) => exclude == extension)) {
-            return false;
+        identifier = identifier.toLowerCase();
+        for (let extension of this._extensions) {
+            if (identifier.endsWith(extension.extension)) {
+                return true;
+            }
         }
-        if (extension.startsWith('data-')) {
-            return false;
+        if (identifier.endsWith('.zip') ||
+            identifier.endsWith('.tar') ||
+            identifier.endsWith('.tar.gz') ||
+            identifier.endsWith('.tgz')) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     _filter(context) {
-        var moduleList = [];
-        var moduleMap = {};
-        var identifier = context.identifier.toLowerCase();
-        for (var extension of this._extensions) {
+        let moduleList = [];
+        let moduleMap = {};
+        const identifier = context.identifier.toLowerCase();
+        for (let extension of this._extensions) {
             if (identifier.endsWith(extension.extension)) {
                 if (!moduleMap[extension.id]) {
                     moduleList.push(extension.id);

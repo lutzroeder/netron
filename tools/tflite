@@ -5,17 +5,11 @@ set -e
 root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=tflite
-virtualenv=${build}/virtualenv/${identifier}
-
-if [ $(which python3) ]; then
-    python="python3"
-else
-    python="python"
-fi
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -24,11 +18,12 @@ bold() {
 git_sync () {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -q
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2}
     fi
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -44,7 +39,7 @@ sync() {
 }
 
 install() {
-    bold "flatbuffers install"
+    bold "tflite install"
     case "$(uname)" in
         "Linux")
             [ -n "$(which cmake)" ] || sudo apt install -y cmake
@@ -54,36 +49,31 @@ install() {
             ;;
     esac
     pushd "${third_party}/flatbuffers" > /dev/null
-    cmake -G "Unix Makefiles" .
-    make
+    cmake -G "Unix Makefiles" . > /dev/null
+    make > /dev/null
     popd > /dev/null
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || ${python} -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p ${python} ${virtualenv}
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
 }
 
 schema() {
     bold "tflite schema"
-    sed 's/namespace tflite;/namespace tflite_schema;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
+    sed 's/namespace tflite;/namespace TFLITE;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
     ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/tflite.schema.fbs
     rm ${tools}/tflite.schema.fbs
-    rm ${src}/tflite-schema.js
-    cat <<EOT >> ${src}/tflite-schema.js
-/* eslint 'indent': [ 'error', 2 ] */
-EOT
-    cat ./tflite.schema_generated.js >> ${src}/tflite-schema.js
+    mv ./tflite.schema_generated.js ${src}/tflite-schema.js
     cat <<EOT >> ${src}/tflite-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = tflite_schema;
+  module.exports = TFLITE;
 }
 EOT
-    rm ./tflite.schema_generated.js
 }
 
 visualize() {
     bold "tflite visualize"
     source ${virtualenv}/bin/activate
-    ${python} -m pip install --quiet tensorflow
-    ${python} ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
+    python3 -m pip install --quiet tensorflow
+    python3 ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
     deactivate
 }
 

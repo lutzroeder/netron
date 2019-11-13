@@ -2,7 +2,6 @@
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var grapher = grapher || {};
-
 var dagre = dagre || require('dagre');
 
 grapher.Renderer = class {
@@ -14,44 +13,42 @@ grapher.Renderer = class {
 
     render(graph) {
 
-        var svgClusterGroup = this.createElement('g');
+        let svgClusterGroup = this.createElement('g');
         svgClusterGroup.setAttribute('id', 'clusters');
         svgClusterGroup.setAttribute('class', 'clusters');
         this._svgElement.appendChild(svgClusterGroup);
 
-        var svgEdgePathGroup = this.createElement('g');
+        let svgEdgePathGroup = this.createElement('g');
         svgEdgePathGroup.setAttribute('id', 'edge-paths');
         svgEdgePathGroup.setAttribute('class', 'edge-paths');
         this._svgElement.appendChild(svgEdgePathGroup);
 
-        var svgEdgeLabelGroup = this.createElement('g');
+        let svgEdgeLabelGroup = this.createElement('g');
         svgEdgeLabelGroup.setAttribute('id', 'edge-labels');
         svgEdgeLabelGroup.setAttribute('class', 'edge-labels');
         this._svgElement.appendChild(svgEdgeLabelGroup);
 
-        var svgNodeGroup = this.createElement('g');
+        let svgNodeGroup = this.createElement('g');
         svgNodeGroup.setAttribute('id', 'nodes');
         svgNodeGroup.setAttribute('class', 'nodes');
         this._svgElement.appendChild(svgNodeGroup);
 
-        var nodeId;
-        var node;
-        for (nodeId of graph.nodes()) {
+        for (let nodeId of graph.nodes()) {
             if (graph.children(nodeId).length == 0) {
-                node = graph.node(nodeId);
-                var element = this.createElement('g');
+                let node = graph.node(nodeId);
+                let element = this.createElement('g');
                 if (node.id) {
                     element.setAttribute('id', node.id);
                 }
-                element.setAttribute('class', node.hasOwnProperty('class') ? ('node ' + node.class) : 'node');
+                element.setAttribute('class', Object.prototype.hasOwnProperty.call(node, 'class') ? ('node ' + node.class) : 'node');
                 element.style.opacity = 0;
-                var container = this.createElement('g');
+                let container = this.createElement('g');
                 container.appendChild(node.label);
                 element.appendChild(container);
                 svgNodeGroup.appendChild(element);
-                var nodeBox = node.label.getBBox();
-                var nodeX = - nodeBox.width / 2;
-                var nodeY = - nodeBox.height / 2;
+                let nodeBox = node.label.getBBox();
+                let nodeX = - nodeBox.width / 2;
+                let nodeY = - nodeBox.height / 2;
                 container.setAttribute('transform', 'translate(' + nodeX + ',' + nodeY + ')');
                 node.width = nodeBox.width;
                 node.height = nodeBox.height;
@@ -59,28 +56,26 @@ grapher.Renderer = class {
             }
         }
 
-        var edgeId;
-        var edge;
-        for (edgeId of graph.edges()) {
-            edge = graph.edge(edgeId);
+        for (let edgeId of graph.edges()) {
+            let edge = graph.edge(edgeId);
             if (edge.label) {
-                var tspan = this.createElement('tspan');
+                let tspan = this.createElement('tspan');
                 tspan.setAttribute('xml:space', 'preserve');
                 tspan.setAttribute('dy', '1em');
                 tspan.setAttribute('x', '1');
                 tspan.appendChild(this._document.createTextNode(edge.label));
-                var text = this.createElement('text');
+                let text = this.createElement('text');
                 text.appendChild(tspan);
-                var textContainer = this.createElement('g');
+                let textContainer = this.createElement('g');
                 textContainer.appendChild(text);
-                var labelElement = this.createElement('g');
+                let labelElement = this.createElement('g');
                 labelElement.style.opacity = 0;
                 labelElement.setAttribute('class', 'edge-label');
                 labelElement.appendChild(textContainer);
                 svgEdgeLabelGroup.appendChild(labelElement);
-                var edgeBox = textContainer.getBBox();
-                var edgeX = - edgeBox.width / 2;
-                var edgeY = - edgeBox.height / 2;
+                let edgeBox = textContainer.getBBox();
+                let edgeX = - edgeBox.width / 2;
+                let edgeY = - edgeBox.height / 2;
                 textContainer.setAttribute('transform', 'translate(' + edgeX + ',' + edgeY + ')');
                 edge.width = edgeBox.width;
                 edge.height = edgeBox.height;
@@ -90,17 +85,17 @@ grapher.Renderer = class {
 
         dagre.layout(graph);
 
-        for (nodeId of graph.nodes()) {
+        for (let nodeId of graph.nodes()) {
             if (graph.children(nodeId).length == 0) {
-                node = graph.node(nodeId);
+                let node = graph.node(nodeId);
                 node.element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
                 node.element.style.opacity = 1;
                 delete node.element;
             }
         }
 
-        for (edgeId of graph.edges()) {
-            edge = graph.edge(edgeId);
+        for (let edgeId of graph.edges()) {
+            let edge = graph.edge(edgeId);
             if (edge.labelElement) {
                 edge.labelElement.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
                 edge.labelElement.style.opacity = 1;
@@ -108,9 +103,9 @@ grapher.Renderer = class {
             }
         }
 
-        var edgePathGroupDefs = this.createElement('defs');
+        let edgePathGroupDefs = this.createElement('defs');
         svgEdgePathGroup.appendChild(edgePathGroupDefs);
-        var marker = this.createElement('marker');
+        let marker = this.createElement('marker');
         marker.setAttribute('id', 'arrowhead-vee');
         marker.setAttribute('viewBox', '0 0 10 10');
         marker.setAttribute('refX', 9);
@@ -120,17 +115,17 @@ grapher.Renderer = class {
         marker.setAttribute('markerHeight', 6);
         marker.setAttribute('orient', 'auto');
         edgePathGroupDefs.appendChild(marker);
-        var markerPath = this.createElement('path');
+        let markerPath = this.createElement('path');
         markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z');
         markerPath.style.setProperty('stroke-width', 1);
         markerPath.style.setProperty('stroke-dasharray', '1,0');
         marker.appendChild(markerPath);
 
-        for (edgeId of graph.edges()) {
-            edge = graph.edge(edgeId);
-            var edgePath = grapher.Renderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
-            var edgeElement = this.createElement('path');
-            edgeElement.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
+        for (let edgeId of graph.edges()) {
+            let edge = graph.edge(edgeId);
+            let edgePath = grapher.Renderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
+            let edgeElement = this.createElement('path');
+            edgeElement.setAttribute('class', Object.prototype.hasOwnProperty.call(edge, 'class') ? ('edge-path ' + edge.class) : 'edge-path');
             edgeElement.setAttribute('d', edgePath);
             edgeElement.setAttribute('marker-end', 'url(#arrowhead-vee)');
             if (edge.id) {
@@ -139,13 +134,13 @@ grapher.Renderer = class {
             svgEdgePathGroup.appendChild(edgeElement);
         }
 
-        for (nodeId of graph.nodes()) {
+        for (let nodeId of graph.nodes()) {
             if (graph.children(nodeId).length > 0) {
-                node = graph.node(nodeId);
-                var nodeElement = this.createElement('g');
+                let node = graph.node(nodeId);
+                let nodeElement = this.createElement('g');
                 nodeElement.setAttribute('class', 'cluster');
                 nodeElement.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-                var rect = this.createElement('rect');
+                let rect = this.createElement('rect');
                 rect.setAttribute('x', - node.width / 2);
                 rect.setAttribute('y', - node.height / 2 );
                 rect.setAttribute('width', node.width);
@@ -167,14 +162,14 @@ grapher.Renderer = class {
     }
 
     static _computeCurvePath(edge, tail, head) {
-        var points = edge.points.slice(1, edge.points.length - 1);
+        let points = edge.points.slice(1, edge.points.length - 1);
         points.unshift(grapher.Renderer.intersectRect(tail, points[0]));
         points.push(grapher.Renderer.intersectRect(head, points[points.length - 1]));
 
-        var path = new Path();
-        var curve = new Curve(path);
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
+        let path = new Path();
+        let curve = new Curve(path);
+        for (let i = 0; i < points.length; i++) {
+            let point = points[i];
             if (i == 0) {
                 curve.lineStart();
             }
@@ -188,14 +183,14 @@ grapher.Renderer = class {
     }
     
     static intersectRect(node, point) {
-        var x = node.x;
-        var y = node.y;
-        var dx = point.x - x;
-        var dy = point.y - y;
-        var w = node.width / 2;
-        var h = node.height / 2;
-        var sx;
-        var sy;
+        let x = node.x;
+        let y = node.y;
+        let dx = point.x - x;
+        let dy = point.y - y;
+        let w = node.width / 2;
+        let h = node.height / 2;
+        let sx;
+        let sy;
         if (Math.abs(dy) * w > Math.abs(dx) * h) {
             if (dy < 0) {
                 h = -h;
@@ -236,14 +231,14 @@ grapher.NodeElement = class {
     }
 
     format(contextElement) {
-        var rootElement = this.createElement('g');
+        let rootElement = this.createElement('g');
         contextElement.appendChild(rootElement);
 
-        var width = 0;
-        var height = 0;
-        var tops = [];
+        let width = 0;
+        let height = 0;
+        let tops = [];
 
-        for (var block of this._blocks) {
+        for (let block of this._blocks) {
             tops.push(height);
             block.layout(rootElement);
             if (width < block.width) {
@@ -252,12 +247,12 @@ grapher.NodeElement = class {
             height = height + block.height;
         }
 
-        for (var i = 0; i < this._blocks.length; i++) {
-            var top = tops.shift();
+        for (let i = 0; i < this._blocks.length; i++) {
+            let top = tops.shift();
             this._blocks[i].update(rootElement, top, width, i == 0, i == this._blocks.length - 1);
         }
 
-        var borderElement = this.createElement('path');
+        let borderElement = this.createElement('path');
         borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
         borderElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, height, true, true, true, true));
         rootElement.appendChild(borderElement);
@@ -267,7 +262,7 @@ grapher.NodeElement = class {
     }
 
     static roundedRect(x, y, width, height, r1, r2, r3, r4) {
-        var radius = 5;
+        let radius = 5;
         r1 = r1 ? radius : 0;
         r2 = r2 ? radius : 0;
         r3 = r3 ? radius : 0;
@@ -310,16 +305,16 @@ grapher.NodeElement.Header = class {
         this._width = 0;
         this._height = 0;
         this._elements = [];
-        var x = 0;
-        var y = 0;
-        for (var item of this._items) {
-            var yPadding = 4;
-            var xPadding = 7;
-            var element = this.createElement('g');
-            var classList = [ 'node-item' ];
+        let x = 0;
+        let y = 0;
+        for (let item of this._items) {
+            let yPadding = 4;
+            let xPadding = 7;
+            let element = this.createElement('g');
+            let classList = [ 'node-item' ];
             parentElement.appendChild(element);
-            var pathElement = this.createElement('path');
-            var textElement = this.createElement('text');
+            let pathElement = this.createElement('path');
+            let textElement = this.createElement('text');
             element.appendChild(pathElement);
             element.appendChild(textElement);
             if (item.classList) {
@@ -333,16 +328,16 @@ grapher.NodeElement.Header = class {
                 element.addEventListener('click', item.handler);
             }
             if (item.tooltip) {
-                var titleElement = this.createElement('title');
+                let titleElement = this.createElement('title');
                 titleElement.textContent = item.tooltip;
                 element.appendChild(titleElement);
             }
             if (item.content) {
                 textElement.textContent = item.content;
             }
-            var boundingBox = textElement.getBBox();
-            var width = boundingBox.width + xPadding + xPadding;
-            var height = boundingBox.height + yPadding + yPadding;
+            let boundingBox = textElement.getBBox();
+            let width = boundingBox.width + xPadding + xPadding;
+            let height = boundingBox.height + yPadding + yPadding;
             this._elements.push({
                 'group': element, 
                 'text': textElement,
@@ -371,9 +366,9 @@ grapher.NodeElement.Header = class {
 
     update(parentElement, top, width, first, last) {
 
-        var dx = width - this._width;
-        var i;
-        var element;
+        let dx = width - this._width;
+        let i;
+        let element;
 
         for (i = 0; i < this._elements.length; i++) {
             element = this._elements[i];
@@ -390,16 +385,16 @@ grapher.NodeElement.Header = class {
         for (i = 0; i < this._elements.length; i++) {
             element = this._elements[i];
             element.group.setAttribute('transform', 'translate(' + element.x + ',' + element.y + ')');
-            var r1 = i == 0 && first;
-            var r2 = i == this._elements.length - 1 && first;
-            var r3 = i == this._elements.length - 1 && last;
-            var r4 = i == 0 && last;
+            let r1 = i == 0 && first;
+            let r2 = i == this._elements.length - 1 && first;
+            let r3 = i == this._elements.length - 1 && last;
+            let r4 = i == 0 && last;
             element.path.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, element.width, element.height, r1, r2, r3, r4));
             element.text.setAttribute('x', 6);
             element.text.setAttribute('y', element.ty);
         }
 
-        var lineElement;
+        let lineElement;
         for (i = 0; i < this._elements.length; i++) {
             element = this._elements[i];
             if (i != 0) {
@@ -413,8 +408,7 @@ grapher.NodeElement.Header = class {
             }
         }
 
-        if (!first) 
-        {
+        if (!first) {
             lineElement = this.createElement('line');
             lineElement.setAttribute('class', 'node');
             lineElement.setAttribute('x1', 0);
@@ -452,8 +446,8 @@ grapher.NodeElement.List = class {
     layout(parentElement) {
         this._width = 0;
         this._height = 0;
-        var x = 0;
-        var y = 0;
+        let x = 0;
+        let y = 0;
         this._element = this.createElement('g');
         this._element.setAttribute('class', 'node-attribute');
         parentElement.appendChild(this._element);
@@ -464,29 +458,31 @@ grapher.NodeElement.List = class {
         this._element.appendChild(this._backgroundElement);
         this._element.setAttribute('transform', 'translate(' + x + ',' + y + ')');
         this._height += 3;
-        for (var item of this._items) {
-            var yPadding = 1;
-            var xPadding = 6;
-            var textElement = this.createElement('text');
+        for (let item of this._items) {
+            let yPadding = 1;
+            let xPadding = 6;
+            let textElement = this.createElement('text');
             if (item.id) {
                 textElement.setAttribute('id', item.id);
             }
             textElement.setAttribute('xml:space', 'preserve');
             this._element.appendChild(textElement);
             if (item.tooltip) {
-                var titleElement = this.createElement('title');
+                let titleElement = this.createElement('title');
                 titleElement.textContent = item.tooltip;
                 textElement.appendChild(titleElement);
             }
-            var textNameElement = this.createElement('tspan');
+            let textNameElement = this.createElement('tspan');
             textNameElement.textContent = item.name;
-            textNameElement.style.fontWeight = 'bold';
+            if (item.separator.trim() != '=') {
+                textNameElement.style.fontWeight = 'bold';
+            }
             textElement.appendChild(textNameElement);
-            var textValueElement = this.createElement('tspan');
+            let textValueElement = this.createElement('tspan');
             textValueElement.textContent = item.separator + item.value;
             textElement.appendChild(textValueElement);
-            var size = textElement.getBBox();
-            var width = xPadding + size.width + xPadding;
+            let size = textElement.getBBox();
+            let width = xPadding + size.width + xPadding;
             if (this._width < width) {
                 this._width = width;
             }
@@ -513,15 +509,14 @@ grapher.NodeElement.List = class {
 
         this._element.setAttribute('transform', 'translate(0,' + top + ')');
 
-        var r1 = first;
-        var r2 = first;
-        var r3 = last;
-        var r4 = last;
+        let r1 = first;
+        let r2 = first;
+        let r3 = last;
+        let r4 = last;
         this._backgroundElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
 
-        if (!first) 
-        {
-            var lineElement = this.createElement('line');
+        if (!first) {
+            let lineElement = this.createElement('line');
             lineElement.setAttribute('class', 'node');
             lineElement.setAttribute('x1', 0);
             lineElement.setAttribute('x2', width);

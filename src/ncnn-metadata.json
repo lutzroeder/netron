@@ -1,0 +1,667 @@
+[
+  {
+    "name": "AbsVal",
+    "schema": {
+      "operator": 0
+    }
+  },
+  {
+    "name": "ArgMax",
+    "schema": {
+      "operator": 1
+    }
+  },
+  {
+    "name": "BatchNorm",
+    "schema": {
+      "operator": 2,
+      "category": "Normalization",
+      "attributes": [
+        { "name": "channels", "type": "int32", "default": 0 },
+        { "name": "eps", "type": "float32", "default": 0 }
+      ]
+    }
+  },
+  { 
+    "name": "Bias",
+    "schema": {
+      "operator": 3,
+      "category": "Layer",
+      "attributes": [
+        { "name": "bias_data_size", "default": 0, "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "BNLL",
+    "schema": {
+      "operator": 4
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "operator": 5,
+      "category": "Tensor",
+      "attributes": [
+        { "name": "axis", "type": "int32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input", "option": "variadic" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Convolution",
+    "schema": {
+      "operator": 6,
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "type": "int32", "default": 0 },
+        { "name": "kernel_w", "type": "int32", "default": 0 },
+        { "name": "dilation_w", "type": "int32", "default": 1 },
+        { "name": "stride_w", "type": "int32", "default": 1 },
+        { "name": "pad_w", "type": "int32", "default": 0 },
+        { "name": "bias_term", "default": 0, "visible": false },
+        { "name": "weight_data_size", "type": "int32", "default": 0, "visible": false },
+        { "name": "group", "type": "int32", "default": 0 },
+        { "name": "int8_scale_term", "default": 0 },
+        { "name": "activation_type", "default": 0 },
+        { "name": "activation_params", "default": [] },
+        { "name": "kernel_h", "type": "int32", "default": 0 },
+        { "name": "dilation_h", "type": "int32", "default": 1 },
+        { "name": "stride_h", "type": "int32", "default": 1 },
+        { "name": "pad_h", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Crop",
+    "schema": {
+      "operator": 7,
+      "category": "Shape",
+      "attributes": [
+        { "name": "woffset", "default": 0 },
+        { "name": "hoffset", "default": 0 },
+        { "name": "coffset", "default": 0 },
+        { "name": "outw", "default": 0 },
+        { "name": "outh", "default": 0 },
+        { "name": "outc", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Deconvolution",
+    "schema": {
+      "operator": 8,
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "kernel_w", "default": 0 },
+        { "name": "dilation_w", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "bias_term", "default": 0, "visible": false },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "group", "default": 0 },
+        { "name": "int8_scale_term", "default": 0 },
+        { "name": "activation_type", "default": 0 },
+        { "name": "activation_params", "default": [] },
+        { "name": "kernel_h", "default": 0 },
+        { "name": "dilation_h", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "pad_h", "default": 0 }
+      ]
+    }
+  },
+  { 
+    "name": "Dropout",
+    "schema": {
+      "operator": 9,
+      "category": "Dropout",
+      "attributes": [
+        { "name": "scale", "type": "float32", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "Eltwise",
+    "schema": {
+      "operator": 10,
+      "attributes": [
+        { "name": "op_type", "default": 0 },
+        { "name": "coeffs", "default": [] }
+      ],
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "ELU",
+    "schema": {
+      "operator": 11
+    }
+  },
+  {
+    "name": "Embed",
+    "schema": {
+      "operator": 12,
+      "category": "Transform",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "input_dim", "default": 0 },
+        { "name": "bias_term", "default": 0 },
+        { "name": "weight_data_size", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "operator": 13
+    }
+  },
+  {
+    "name": "Flatten",
+    "schema": {
+      "operator": 14,
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "InnerProduct",
+    "schema": {
+      "operator": 15,
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "type": "int32", "default": 0 },
+        { "name": "bias_term", "default": 0, "visible": false },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "int8_scale_term", "default": 0, "id": "8" },
+        { "name": "activation_type", "default": 0, "id": "9" },
+        { "name": "activation_params", "default": 0, "id": "10" }
+      ]
+    }
+  },
+  {
+    "name": "Input",
+    "schema": {
+      "operator": 16
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "operator": 17
+    }
+  },
+  {
+    "name": "LRN",
+    "schema": {
+      "operator": 18,
+      "category": "Normalization",
+      "attributes": [
+        { "name": "region_type", "default": 0 },
+        { "name": "local_size", "default": 5 },
+        { "name": "alpha", "default": 1 },
+        { "name": "beta", "default": 0.75 },
+        { "name": "bias", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "operator": 19
+    }
+  },
+  {
+    "name": "MVN",
+    "schema": {
+      "operator": 20
+    }
+  },
+  {
+    "name": "Pooling",
+    "schema": {
+      "operator": 21,
+      "category": "Pool",
+      "attributes": [
+        { "name": "pooling_type", "default": 0 },
+        { "name": "kernel_w", "default": 0 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_left", "default": 0 },
+        { "name": "global_pooling", "default": 0 },
+        { "name": "pad_mode", "default": 0 },
+        { "name": "kernel_h", "default": 0, "id": 11 },
+        { "name": "stride_h", "default": 1, "id": 12 },
+        { "name": "pad_top",	"default": 0 , "id": 13 },
+        { "name": "pad_right",	"default": 0, "id": 14 },
+        { "name": "pad_bottom",	"default": 0, "id": 15 }
+      ]
+    }
+  },
+  {
+    "name": "Power",
+    "schema": {
+      "operator": 22
+    }
+  },
+  { 
+    "name": "PReLU",
+    "schema": {
+      "operator": 23,
+      "category": "Activation",
+      "attributes": [
+        { "name": "num_slope", "type": "int32", "default": 0, "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "Proposal",
+    "schema": {
+      "operator": 24
+    }
+  },
+  {
+    "name": "Reducation",
+    "schema": {
+      "operator": 25
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "operator": 26,
+      "category": "Activation",
+      "attributes": [
+        { "name": "slope", "type": "float32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "operator": 27,
+      "category": "Shape",
+      "attributes": [
+        { "name": "w", "default": -233 },
+        { "name": "h", "default": -233 },
+        { "name": "c", "default": -233 },
+        { "name": "permute", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "ROIPooling",
+    "schema": {
+      "operator": 28
+    }
+  },
+  {
+    "name": "Scale",
+    "schema": {
+      "operator": 29,
+      "category": "Layer",
+      "attributes": [
+        { "name": "scale_data_size", "default": 0, "visible": false },
+        { "name": "bias_term", "default": 0, "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "operator": 30,
+      "category": "Activation"
+    }
+  },
+  { 
+    "name": "Slice",
+    "schema": {
+      "operator": 31,
+      "category": "Tensor",
+      "attributes": [
+        { "name": "slices", "default": [] },
+        { "name": "axis", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Softmax",
+    "schema": {
+      "operator": 32,
+      "category": "Activation",
+      "attributes": [
+        { "name": "axis", "type": "int32", "default": 0 },
+        { "name": "fixbug0", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Split",
+    "schema": {
+      "operator": 33,
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "SPP",
+    "schema": {
+      "operator": 34,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "TanH",
+    "schema": {
+      "operator": 35,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Threshold",
+    "schema": {
+      "operator": 36
+    }
+  },
+  {
+    "name": "Tile",
+    "schema": {
+      "operator": 37
+    }
+  },
+  {
+    "name": "RNN",
+    "schema": {
+      "operator": 38,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "LSTM",
+    "schema": {
+      "operator": 39,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "BinaryOp",
+    "schema": {
+      "operator": 40,
+      "attributes": [
+        { "name": "op_type", "type": "int32", "default": 0 },
+        { "name": "with_scalar", "type": "int32", "default": 0 },
+        { "name": "b", "type": "float32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "UnaryOp",
+    "schema": {
+      "operator": 41
+    }
+  },
+  {
+    "name": "ConvolutionDepthWise",
+    "schema": {
+      "operator": 42,
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "kernel_w", "default": 0 },
+        { "name": "dilation_w", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "bias_term", "default": 0, "visible": false },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "group", "default": 0 },
+        { "name": "int8_scale_term", "default": 0 },
+        { "name": "activation_type", "default": 0 },
+        { "name": "activation_params", "default": [] },
+        { "name": "kernel_h", "default": 0 },
+        { "name": "dilation_h", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "pad_h", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Padding",
+    "schema": {
+      "operator": 43
+    }
+  },
+  {
+    "name": "Squeeze",
+    "schema": {
+      "operator": 44
+    }
+  },
+  {
+    "name": "ExpandDims",
+    "schema": {
+      "operator": 45
+    }
+  },
+  {
+    "name": "Normalize",
+    "schema": {
+      "operator": 46
+    }
+  },
+  {
+    "name": "Permute",
+    "schema": {
+      "operator": 47,
+      "category": "Shape",
+      "attributes": [
+        { "name": "order_type", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "PriorBox",
+    "schema": {
+      "operator": 48,
+      "attributes": [
+        { "name": "min_sizes", "default": [] },
+        { "name": "max_sizes", "default": [] },
+        { "name": "aspect_ratios", "default": [] },
+        { "name": "varainces0", "type": "float32", "default": 0 },
+        { "name": "varainces1", "type": "float32", "default": 0 },
+        { "name": "varainces2", "type": "float32", "default": 0 },
+        { "name": "varainces3", "type": "float32", "default": 0 },
+        { "name": "flip", "default": 1 },
+        { "name": "clip", "default": 0 },
+        { "name": "image_width", "default": 0 },
+        { "name": "image_height", "default": 0 },
+        { "name": "step_width", "default": -233 },
+        { "name": "step_height", "default": -233 },
+        { "name": "offset", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "DetectionOutput",
+    "schema": {
+      "operator": 49,
+      "attributes": [
+        { "name": "num_class", "default": 0 },
+        { "name": "nms_threshold", "default": 0.05 },
+        { "name": "nms_top_k", "default": 300 },
+        { "name": "keep_top_k", "default": 100 },
+        { "name": "confidence_threshold", "default": 0.5 },
+        { "name": "varainces0", "default": 0.1 },
+        { "name": "varainces1", "default": 0.1 },
+        { "name": "varainces2", "default": 0.2 },
+        { "name": "varainces3", "default": 0.2 }
+      ]
+    }
+  },
+  {
+    "name": "Interp",
+    "schema": {
+      "operator": 50
+    }
+  },
+  {
+    "name": "DeconvolutionDepthWise",
+    "schema": {
+      "operator": 51,
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "kernel_w", "default": 0 },
+        { "name": "dilation_w", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "bias_term", "default": 0, "visible": false },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "group", "default": 0 },
+        { "name": "int8_scale_term", "default": 0 },
+        { "name": "activation_type", "default": 0 },
+        { "name": "activation_params", "default": [] },
+        { "name": "kernel_h", "default": 0 },
+        { "name": "dilation_h", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "pad_h", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "ShuffleChannel",
+    "schema": {
+      "operator": 52,
+      "attributes": [
+        { "name": "group", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "InstanceNorm",
+    "schema": {
+      "operator": 53
+    }
+  },
+  {
+    "name": "Clip",
+    "schema": {
+      "operator": 54
+    }
+  },
+  {
+    "name": "Reorg",
+    "schema": {
+      "operator": 55
+    }
+  },
+  {
+    "name": "YoloDetectionOutput",
+    "schema": {
+      "operator": 56,
+      "attributes": [
+        { "name": "num_class", "type": "int32", "default": 20 },
+        { "name": "num_box", "type": "int32", "default": 5 },
+        { "name": "confidence_threshold", "type": "float32", "default": 0.01 },
+        { "name": "nms_threshold", "type": "float32", "default": 0.45 },
+        { "name": "biases" }
+      ],
+      "inputs": [
+        { "name": "rects" },
+        { "name": "scores" }
+      ]
+    }
+  },
+  {
+    "name": "Quantize",
+    "schema": {
+      "operator": 57
+    }
+  },
+  {
+    "name": "Dequantize",
+    "schema": {
+      "operator": 58
+    }
+  },
+  {
+    "name": "Yolov3DetectionOutput",
+    "schema": {
+      "operator": 59,
+      "attributes": [
+        { "name": "num_class", "type": "int32", "default": 20 },
+        { "name": "num_box", "type": "int32", "default": 5 },
+        { "name": "confidence_threshold", "type": "float32", "default": 0.01 },
+        { "name": "nms_threshold", "type": "float32", "default": 0.45 },
+        { "name": "biases", "type": "float32[]" },
+        { "name": "mask", "type": "float32[]" },
+        { "name": "anchors_scale", "type": "float32[]" }
+      ],
+      "inputs": [
+        { "name": "rects" },
+        { "name": "scores" }
+      ]
+    }
+  },
+  {
+    "name": "PSROIPooling",
+    "schema": {
+      "operator": 60
+    }
+  },
+  {
+    "name": "ROIAlign",
+    "schema": {
+      "operator": 61
+    }
+  },
+  {
+    "name": "Packing",
+    "schema": {
+      "operator": 62
+    }
+  },
+  {
+    "name": "Requantize",
+    "schema": {
+      "operator": 63
+    }
+  },
+  {
+    "name": "Cast",
+    "schema": {
+      "operator": 64
+    }
+  },
+  {
+    "name": "HardSigmoid",
+    "schema": {
+      "operator": 65,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "SELU",
+    "schema": {
+      "operator": 66,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "ReLU6",
+    "schema": {
+      "category": "Activation"
+    }
+  }
+]

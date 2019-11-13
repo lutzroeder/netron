@@ -17,26 +17,8 @@ node_dependencies = [
         'node_modules/pako/dist/pako.min.js',
         'node_modules/long/dist/long.js',
         'node_modules/protobufjs/dist/protobuf.min.js',
-        'node_modules/flatbuffers/js/flatbuffers.js',
-        'node_modules/npm-font-open-sans/open-sans.css' ]),
-    ( 'netron/fonts/Regular', [
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.eot',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.svg',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.ttf',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.woff',
-        'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.woff2' ]),
-    ( 'netron/fonts/Semibold', [
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.eot',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.svg',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.ttf',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.woff',
-        'node_modules/npm-font-open-sans/fonts/Semibold/OpenSans-Semibold.woff2' ]),
-    ( 'netron/fonts/Bold', [
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.eot',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.svg',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.ttf',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.woff',
-        'node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.woff2' ])
+        'node_modules/protobufjs/ext/prototxt/prototxt.js',
+        'node_modules/flatbuffers/js/flatbuffers.js' ] )
 ]
 
 class build(distutils.command.build.build):
@@ -47,10 +29,7 @@ class build(distutils.command.build.build):
     def finalize_options(self):
         distutils.command.build.build.finalize_options(self)
     def run(self):
-        if self.version:
-            build_py.version = True;
-        else:
-            build_py.version = False;
+        build_py.version = bool(self.version)
         return distutils.command.build.build.run(self)
 
 class build_py(setuptools.command.build_py.build_py):
@@ -61,14 +40,13 @@ class build_py(setuptools.command.build_py.build_py):
     def finalize_options(self):
         setuptools.command.build_py.build_py.finalize_options(self)
     def run(self):
-        result = setuptools.command.build_py.build_py.run(self)
+        setuptools.command.build_py.build_py.run(self)
         for target, files in node_dependencies:
             target = os.path.join(self.build_lib, target)
             if not os.path.exists(target):
                 os.makedirs(target)
             for file in files:
                 self.copy_file(file, target)
-        return result
     def build_module(self, module, module_file, package):
         setuptools.command.build_py.build_py.build_module(self, module, module_file, package)
         if build_py.version and module == '__version__':
@@ -88,9 +66,9 @@ setuptools.setup(
     version=package_version(),
     description="Viewer for neural network, deep learning and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning and machine learning models.\n\n' +
-                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`, `.prototxt`), **PyTorch** (`.pth`), **Torch** (`.t7`), **CNTK** (`.model`, `.cntk`), **PaddlePaddle** (`__model__`), **Darknet** (`.cfg`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
+                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **MXNet** (`.model`, `-symbol.json`), NCNN (`.param`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **ArmNN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer**, (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Darknet** (`.cfg`), **Deeplearning4j** (`.zip`), **PaddlePaddle** (`__model__`), **ML.NET** (`.zip`), MNN (`.mnn`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`).',
     keywords=[
-        'onnx', 'keras', 'tensorflow', 'coreml', 'mxnet', 'caffe', 'caffe2',
+        'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'mnn' 'openvino', 'darknet', 'paddlepaddle', 'chainer',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',
         'visualizer', 'viewer'
     ],
@@ -108,23 +86,34 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'favicon.ico', 'icon.png',
-            'numpy.js', 'base.js', 'zip.js', 'tar.js', 'gzip.js',
-            'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
+            'base.js', 
+            'numpy.js', 'pickle.js', 'hdf5.js', 'bson.js',
+            'zip.js', 'tar.js', 'gzip.js',
+            'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',
+            'bigdl.js', 'bigdl-metadata.json', 'bigdl-proto.js',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
+            'chainer.js',
             'cntk.js', 'cntk-metadata.json', 'cntk-proto.js',
             'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
             'darknet.js', 'darknet-metadata.json',
-            'keras.js', 'keras-metadata.json', 'hdf5.js',
+            'dl4j.js', 'dl4j-metadata.json',
+            'flux.js', 'flux-metadata.json',
+            'keras.js', 'keras-metadata.json',
+            'mlnet.js', 'mlnet-metadata.json',
+            'mnn.js', 'mnn-metadata.json', 'mnn-schema.js',
             'mxnet.js', 'mxnet-metadata.json',
+            'ncnn.js', 'ncnn-metadata.json',
+            'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
             'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
-            'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
+            'pytorch.js', 'pytorch-metadata.json',
             'sklearn.js', 'sklearn-metadata.json',
             'tf.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite.js', 'tflite-metadata.json', 'tflite-schema.js', 
             'torch.js', 'torch-metadata.json',
-            'view-browser.html', 'view-browser.js',
+            'torchscript.js', 'torchscript-metadata.json', 'python.js',
+            'index.html', 'index.js',
             'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',
             'view.js', 'view.css',

@@ -7,17 +7,17 @@ const electron = require('electron');
 const fs = require('fs');
 const process = require('process');
 const path = require('path');
-const protobuf = require('protobufjs'); // eslint-disable-line no-unused-vars
 const view = require('./view');
+
+global.protobuf = require('protobufjs');
 
 host.ElectronHost = class {
 
     constructor() {
         if (electron.remote.app.isPackaged) {
-            this._telemetry = require('universal-analytics')('UA-54146-13');
+            this._telemetry = require('universal-analytics')('UA-54146-13', electron.remote.getGlobal('global').userId);
         }
 
-        this._name = electron.remote.app.getName();
         this._version = electron.remote.app.getVersion();
 
         process.on('uncaughtException', (err) => {
@@ -27,29 +27,11 @@ host.ElectronHost = class {
             throw new Error('window.eval() not supported.');
         };
 
-        this._updateTheme();
-        if (electron.remote.systemPreferences.subscribeNotification) {
-            electron.remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => this._updateTheme());
-        }
-        document.body.style.opacity = 1;
+        this.document.body.style.opacity = 1;
     }
 
     get document() {
         return window.document;
-    }
-
-    _updateTheme() {
-        if (electron.remote.systemPreferences.isDarkMode &&
-            electron.remote.systemPreferences.isDarkMode()) {
-            document.body.classList.add('dark-mode');
-        }
-        else {
-            document.body.classList.remove('dark-mode');
-        }
-    }
-
-    get name() {
-        return this._name;
     }
 
     get version() {
@@ -95,22 +77,25 @@ host.ElectronHost = class {
             this._update('show-names', this._view.showNames);
         });
         electron.ipcRenderer.on('zoom-in', () => {
-            document.getElementById('zoom-in-button').click();
+            this.document.getElementById('zoom-in-button').click();
         });
         electron.ipcRenderer.on('zoom-out', () => {
-            document.getElementById('zoom-out-button').click();
+            this.document.getElementById('zoom-out-button').click();
         });
         electron.ipcRenderer.on('reset-zoom', () => {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {
-            document.getElementById('model-properties-button').click();
+            this.document.getElementById('menu-button').click();
         });
         electron.ipcRenderer.on('find', () => {
             this._view.find();
         });
+        this.document.getElementById('menu-button').addEventListener('click', () => {
+            this._view.showModelProperties();
+        });
 
-        var openFileButton = document.getElementById('open-file-button');
+        var openFileButton = this.document.getElementById('open-file-button');
         if (openFileButton) {
             openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', () => {
@@ -118,13 +103,13 @@ host.ElectronHost = class {
             });
         }
 
-        document.addEventListener('dragover', (e) => {
+        this.document.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
-        document.addEventListener('drop', (e) => {
+        this.document.addEventListener('drop', (e) => {
             e.preventDefault();
         });
-        document.body.addEventListener('drop', (e) => { 
+        this.document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
             var files = [];
             for (var i = 0; i < e.dataTransfer.files.length; i++) {
@@ -154,7 +139,7 @@ host.ElectronHost = class {
             message: message,
             detail: detail,
         };
-        electron.remote.dialog.showMessageBox(owner, options);
+        electron.remote.dialog.showMessageBoxSync(owner, options);
     }
 
     confirm(message, detail) {
@@ -167,16 +152,16 @@ host.ElectronHost = class {
             defaultId: 0,
             cancelId: 1
         };
-        var result = electron.remote.dialog.showMessageBox(owner, options);
+        var result = electron.remote.dialog.showMessageBoxSync(owner, options);
         return result == 0;
     }
 
-    require(id, callback) {
+    require(id) {
         try {
-            callback(null, require(id));
+            return Promise.resolve(require(id));
         }
-        catch (err) {
-            callback(err, null);
+        catch (error) {
+            return Promise.reject(error);
         }
     }
 
@@ -188,11 +173,10 @@ host.ElectronHost = class {
             buttonLabel: 'Export',
             filters: [ { name: name, extensions: [ extension ] } ]
         };
-        electron.remote.dialog.showSaveDialog(owner, showSaveDialogOptions, (filename) => {
-            if (filename) {
-                callback(filename);
-            }
-        });
+        const selectedFile = electron.remote.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
+        if (selectedFile) {
+            callback(selectedFile);
+        }
     }
 
     export(file, blob) {
@@ -203,29 +187,46 @@ host.ElectronHost = class {
             fs.writeFile(file, data, encoding, (err) => {
                 if (err) {
                     this.exception(err, false);
-                    this.error('Export write failure.', err);
+                    this.error('Error writing file.', err.message);
                 }
             });
         };
-        reader.readAsArrayBuffer(blob);
+
+        var err = null;
+        if (!blob) {
+            err = new Error("Export blob is '" + JSON.stringify(blob) + "'.");
+        }
+        else if (!(blob instanceof Blob)) {
+            err = new Error("Export blob type is '" + (typeof blob) + "'.");
+        }
+
+        if (err) {
+            this.exception(err, false);
+            this.error('Error exporting image.', err.message);
+        }
+        else {
+            reader.readAsArrayBuffer(blob);
+        }
     }
 
-    request(base, file, encoding, callback) {
-        var pathname = path.join(base || __dirname, file);
-        fs.exists(pathname, (exists) => {
-            if (!exists) {
-                callback(new Error('File not found.'), null);
-            }
-            else {
-                fs.readFile(pathname, encoding, (err, data) => {
-                    if (err) {
-                        callback(err, null);
-                    }
-                    else {
-                        callback(null, data);
-                    }
-                });
-            }
+    request(base, file, encoding) {
+        return new Promise((resolve, reject) => {
+            var pathname = path.join(base || __dirname, file);
+            fs.exists(pathname, (exists) => {
+                if (!exists) {
+                    reject(new Error("File not found '" + file + "'."));
+                }
+                else {
+                    fs.readFile(pathname, encoding, (err, data) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(data);
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -233,13 +234,13 @@ host.ElectronHost = class {
         electron.shell.openExternal(url);
     }
 
-    exception(err, fatal) {
-        if (this._telemetry) {
+    exception(error, fatal) {
+        if (this._telemetry && error && error.telemetry !== false) {
             try {
                 var description = [];
-                description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
-                if (err.stack) {
-                    var match = err.stack.match(/\n {4}at (.*)\((.*)\)/);
+                description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
+                if (error.stack) {
+                    var match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                     if (match) {
                         description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
                     }
@@ -291,65 +292,52 @@ host.ElectronHost = class {
     _openFile(file) {
         if (file) {
             this._view.show('Spinner');
-            this._readFile(file, (err, buffer) => {
-                if (err) {
-                    this.exception(err, false);
-                    this._view.show(null);
-                    this.error('Error while reading file.', err.message);
-                    this._update('path', null);
-                    return;
-                }
+            this._readFile(file).then((buffer) => {
                 var context = new ElectonContext(this, path.dirname(file), path.basename(file), buffer);
-                this._view.openContext(context, (err, model) => {
+                this._view.open(context).then((model) => {
                     this._view.show(null);
-                    if (err) {
-                        this.exception(err, false);
-                        this.error(err.name, err.message);
-                        this._update('path', null);
-                    }
                     if (model) {
                         this._update('path', file);
                     }
                     this._update('show-attributes', this._view.showAttributes);
                     this._update('show-initializers', this._view.showInitializers);
                     this._update('show-names', this._view.showNames);
+                }).catch((error) => {
+                    if (error) {
+                        this._view.show(null);
+                        this.exception(error, false);
+                        this.error(error.name, error.message);
+                        this._update('path', null);
+                    }
+                    this._update('show-attributes', this._view.showAttributes);
+                    this._update('show-initializers', this._view.showInitializers);
+                    this._update('show-names', this._view.showNames);
                 });
+            }).catch((error) => {
+                this.exception(error, false);
+                this._view.show(null);
+                this.error('Error while reading file.', error.message);
+                this._update('path', null);
             });
         }
     }
 
-    _readFile(file, callback) {
-        fs.exists(file, (exists) => {
-            if (!exists) {
-                callback(new Error('The file \'' + file + '\' does not exist.'), null);
-                return;
-            }
-            fs.stat(file, (err, stats) => {
-                if (err) {
-                    callback(err, null);
-                    return;
+    _readFile(file) {
+        return new Promise((resolve, reject) => {
+            fs.exists(file, (exists) => {
+                if (!exists) {
+                    reject(new Error('The file \'' + file + '\' does not exist.'));
                 }
-                fs.open(file, 'r', (err, fd) => {
-                    if (err) {
-                        callback(err, null);
-                        return;
-                    }
-                    var size = stats.size;
-                    var buffer = new Uint8Array(size);
-                    fs.read(fd, buffer, 0, size, 0, (err, bytesRead, buffer) => {
+                else {
+                    fs.readFile(file, null, (err, buffer) => {
                         if (err) {
-                            callback(err, null);
-                            return;
+                            reject(err);
                         }
-                        fs.close(fd, (err) => {
-                            if (err) {
-                                callback(err, null);
-                                return;
-                            }
-                            callback(null, buffer);
-                        });
+                        else {
+                            resolve(buffer);
+                        }
                     });
-                });
+                }
             });
         });
     }
@@ -368,10 +356,8 @@ class ElectonContext {
         this._buffer = buffer;
     }
 
-    request(file, encoding, callback) {
-        this._host.request(this._folder, file, encoding, (err, buffer) => {
-            callback(err, buffer);
-        });
+    request(file, encoding) {
+        return this._host.request(this._folder, file, encoding);
     }
 
     get identifier() {

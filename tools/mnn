@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+src=${root}/src
+third_party=${root}/third_party
+tools=${root}/tools
+
+identifier=mnn
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
+    fi
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
+}
+
+clean() {
+    bold "mnn clean"
+    rm -rf ${third_party}/${identifier}
+}
+
+sync() {
+    bold "mnn sync"
+    git_sync flatbuffers https://github.com/google/flatbuffers.git
+    git_sync mnn https://github.com/alibaba/MNN.git
+}
+
+install() {
+    bold "mnn install"
+    case "$(uname)" in
+        "Linux")
+            [ -n "$(which cmake)" ] || sudo apt install -y cmake
+            ;;
+        "Darwin")
+            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
+            ;;
+    esac
+    pushd "${third_party}/flatbuffers" > /dev/null
+    cmake -G "Unix Makefiles" . > /dev/null
+    make > /dev/null
+    popd > /dev/null
+}
+
+schema() {
+    bold "mnn schema"
+    ${third_party}/flatbuffers/flatc --no-js-exports --gen-all -o ${tools}/. --js ${third_party}/mnn/schema/default/MNN.fbs
+    mv ${tools}/MNN_generated.js ${src}/mnn-schema.js
+    cat <<EOT >> ${src}/mnn-schema.js
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+  module.exports = MNN;
+}
+EOT
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "install") install;;
+        "schema") schema;;
+    esac
+done

@@ -6,6 +6,12 @@
     }
   },
   {
+    "name": "LinearNoBias",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
     "name": "SpatialConvolution",
     "schema": {
       "category": "Layer",
@@ -26,6 +32,12 @@
         { "name": "bwmode", "visible": false },
         { "name": "bdmode", "visible": false }
       ]
+    }
+  },
+  {
+    "name": "VolumetricConvolution",
+    "schema": {
+      "category": "Layer"
     }
   },
   {
@@ -119,6 +131,17 @@
     }
   },
   {
+    "name": "VolumetricBatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "affine", "default": true },
+        { "name": "momentum", "default": 0.1 },
+        { "name": "eps", "default": 0.00001 }
+      ]
+    }
+  },
+  {
     "name": "SpatialAveragePooling",
     "schema": {
       "category": "Pool",
@@ -132,6 +155,12 @@
     }
   },
   {
+    "name": "VolumetricAveragePooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
     "name": "SpatialMaxPooling",
     "schema": {
       "category": "Pool",
@@ -141,6 +170,15 @@
         { "name": "pad", "default": [ 0, 0 ] },
         { "name": "iheight", "visible": false },
         { "name": "iwidth", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "VolumetricMaxPooling",
+    "schema": {
+      "category": "Pool",
+      "attributes": [ 
+        { "name": "ceil_mode", "default": false }
       ]
     }
   },
@@ -270,6 +308,14 @@
   },
   {
     "name": "Normalize",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "Normalize2",
     "schema": {
       "category": "Normalization",
       "attributes": [

@@ -354,6 +354,19 @@
     }
   },
   {
+    "name": "SliceChannel",
+    "schema": {
+      "inputs": [
+        {
+          "name": "inputs"
+        }
+      ],
+      "outputs": [
+        { "name": "outputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
     "name": "_Plus",
     "schema": {
       "inputs": [
@@ -371,13 +384,35 @@
     "name": "elemwise_add",
     "schema": {
       "inputs": [
-        {
-          "name": "inputs",
-          "option": "variadic"
-        }
+        { "name": "lhs" },
+        { "name": "rhs" }
       ],
       "outputs": [
-        { "name": "output" }
+        { "name": "out" }
+      ]
+    }
+  },
+  {
+    "name": "elemwise_sub",
+    "schema": {
+      "inputs": [
+        { "name": "lhs" },
+        { "name": "rhs" }
+      ],
+      "outputs": [
+        { "name": "out" }
+      ]
+    }
+  },
+  {
+    "name": "elemwise_div",
+    "schema": {
+      "inputs": [
+        { "name": "lhs" },
+        { "name": "rhs" }
+      ],
+      "outputs": [
+        { "name": "out" }
       ]
     }
   },
@@ -552,6 +587,20 @@
     }
   },
   {
+    "name": "_rminus_scalar",
+    "schema": {
+      "attributes": [
+        { "name": "scalar", "type": "float32" }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "_mul_scalar",
     "schema": {
       "attributes": [
@@ -573,7 +622,7 @@
         { "name": "rhs" }
       ],
       "outputs": [
-        { "name": "output" }
+        { "name": "out" }
       ]
     }
   },
@@ -585,7 +634,19 @@
         { "name": "rhs" }
       ],
       "outputs": [
-        { "name": "output" }
+        { "name": "out" }
+      ]
+    }
+  },
+  {
+    "name": "broadcast_div",
+    "schema": {
+      "inputs": [
+        { "name": "lhs" },
+        { "name": "rhs" }
+      ],
+      "outputs": [
+        { "name": "out" }
       ]
     }
   },
@@ -732,6 +793,72 @@
   },
   {
     "name": "transpose",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "sum",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "square",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "sqrt",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "mean",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "log",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "_plus_scalar",
     "schema": {
       "inputs": [
         { "name": "input" }

@@ -4,16 +4,8 @@ set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
-
-if [ $(which python3) ] && [ $(which pip3) ]; then
-    python="python3"
-    pip="pip3"
-else
-    python="python"
-    pip="pip"
-fi
+tools=${root}/tools
 
 identifier=mxnet
 
@@ -24,12 +16,12 @@ bold() {
 git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch --quiet -p
-        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "${third_party}" submodule update --quiet --init
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -45,7 +37,7 @@ sync() {
 
 metadata() {
     bold "mxnet metadata"
-    # ${python} mxnet-script.py
+    # python3 mxnet-script.py
 }
 
 while [ "$#" != 0 ]; do

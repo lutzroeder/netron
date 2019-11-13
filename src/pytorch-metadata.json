@@ -230,6 +230,20 @@
     }
   },
   {
+    "name": "Softmax2d",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "Softplus",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "Tanh",
     "schema": {
       "category": "Activation",
@@ -282,6 +296,14 @@
   },
   {
     "name": "ELU",
+    "schema": {
+      "attributes": [],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "GLU",
     "schema": {
       "attributes": [],
       "category": "Activation",
@@ -481,7 +503,8 @@
           "name": "running_var"
         },
         {
-          "name": "num_batches_tracked"
+          "name": "num_batches_tracked",
+          "visible": false
         }
       ],
       "package": "torch.nn.modules.batchnorm"
@@ -749,6 +772,26 @@
     "name": "InstanceNorm3d",
     "schema": {
       "package": "torch.nn.modules.instancenorm"
+    }
+  },
+  {
+    "name": "CrossMapLRN2d",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.0001,
+          "name": "alpha"
+        },
+        {
+          "default": 0.75,
+          "name": "beta"
+        },
+        {
+          "default": 1,
+          "name": "k"
+        }
+      ],
+      "category": "Normalization"
     }
   }
 ]

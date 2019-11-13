@@ -2,19 +2,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<!-- meta -->
 <title>Netron</title>
-<link rel="stylesheet" type="text/css" href="open-sans.css">
 <link rel="stylesheet" type="text/css" href="view-grapher.css">
 <link rel="stylesheet" type="text/css" href="view-sidebar.css">
 <link rel="stylesheet" type="text/css" href="view.css">
-<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-<link rel="icon" type="image/png" href="icon.png" />
-<link rel="apple-touch-icon" type="image/png" href="icon.png" />
-<link rel="apple-touch-icon-precomposed" type="image/png" href="icon.png" />
-<link rel="fluid-icon" type="image/png" href="icon.png" />
 </head>
-<body>
+<body style="opacity: 0;">
 <div id="welcome" class="background" style="display: block">
     <a class="center logo" href="https://github.com/lutzroeder/netron" target="_blank">
         <svg xmlns="http://www.w3.org/2000/svg" class="logo absolute" width="128" height="128" viewbox="0 0 1024 1024">
@@ -69,17 +62,16 @@
         </svg>
     </a>
     <button id="open-file-button" class="center" style="top: 200px; width: 125px; opacity: 0;">Open Model...</button>
-    <input type="file" id="open-file-dialog" style="display:none" multiple="false" accept=".onnx, .pb, .meta, .tflite, .keras, .h5, .hdf5, .json, .model, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
-    <div style="font-weight: 600; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
 </div>
-<div id="graph-container" style="overflow: scroll; width: 100%; height: 100%">
+<div id="graph-container" class="graph-container" style="overflow: scroll; width: 100%; height: 100%">
     <svg id="graph" class="graph" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
 <div id="toolbar" class="toolbar" style="position: absolute; top: 10px; left: 10px; display: none;">
-    <button id="model-properties-button" title="Model Properties">
+    <button id="menu-button" class="toolbar-button" title="Model Properties">
         <svg class="icon" viewbox="0 0 100 100">
             <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
             <line class="border" x1="30" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
@@ -91,7 +83,7 @@
             <line class="stroke" x1="30" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
         </svg>
     </button>
-    <button id="zoom-in-button" title="Zoom In">
+    <button id="zoom-in-button" class="toolbar-button" title="Zoom In">
         <svg class="icon" viewbox="0 0 100 100">
             <circle class="border" cx="50" cy="50" r="35" stroke-width="8" stroke="#fff"></circle>
             <line class="border" x1="50" y1="38" x2="50" y2="62" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
@@ -103,7 +95,7 @@
             <line class="stroke" x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square"></line>
         </svg>
     </button>
-    <button id="zoom-out-button" title="Zoom Out">
+    <button id="zoom-out-button" class="toolbar-button" title="Zoom Out">
         <svg class="icon" viewbox="0 0 100 100">
             <circle class="border" cx="50" cy="50" r="35" stroke-width="8" stroke="#fff"></circle>
             <line class="border" x1="38" y1="50" x2="62" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
@@ -114,28 +106,7 @@
         </svg>
     </button>
 </div>
-<div id="sidebar" class="sidebar">
-    <h1 id="sidebar-title" class="sidebar-title"></h1>
-    <a href="javascript:void(0)" id="sidebar-closebutton" class="sidebar-closebutton">&times;</a>
-    <div id="sidebar-content" class="sidebar-content">
-    </div>
-</div>
-<script type="text/javascript" src="https://www.google-analytics.com/analytics.js" async></script>
-<script type="text/javascript" src="d3.min.js"></script>
-<script type="text/javascript" src="dagre.min.js"></script>
-<script type="text/javascript" src="protobuf.min.js"></script>
-<script type="text/javascript" src="flatbuffers.js"></script>
-<script type="text/javascript" src="handlebars.min.js"></script>
-<script type="text/javascript" src="marked.min.js"></script>
-<script type="text/javascript" src="pako.min.js"></script>
-<script type="text/javascript" src="long.js"></script>
-<script type="text/javascript" src="base.js"></script>
-<script type="text/javascript" src="zip.js"></script>
-<script type="text/javascript" src="gzip.js"></script>
-<script type="text/javascript" src="tar.js"></script>
-<script type="text/javascript" src="view-grapher.js"></script>
-<script type="text/javascript" src="view-sidebar.js"></script>
-<script type="text/javascript" src="view.js"></script>
-<script type="text/javascript" src="view-browser.js"></script>
+<div id="sidebar" class="sidebar"></div>
+<script type="text/javascript">require('./electron');</script>
 </body>
 </html>

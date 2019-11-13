@@ -1,0 +1,84 @@
+[
+  {
+    "name": "ImageLoaderTransform",
+    "schema": {
+      "description": "Load images from files.",
+      "attributes": [
+        { "name": "ImageFolder", "type": "string", "description": "Folder where to search for images" }
+      ]
+    }
+  },
+  {
+    "name": "ImageScalerTransform",
+    "schema": {
+      "description": "Scales an image to specified dimensions using one of the three scale types: isotropic with padding, isotropic with cropping or anisotropic. In case of isotropic padding, transparent color is used to pad resulting image.",
+      "attributes": [
+        { "name": "Width" },
+        { "name": "Height" },
+        { "name": "Resizing", "type": "ImageResizingTransformer.ResizingKind" },
+        { "name": "Anchor", "type": "ImageResizingTransformer.Anchor" }
+      ]
+    }
+  },
+  {
+    "name": "ImagePixelExtractor",
+    "schema": {
+      "description": "Scales an image to specified dimensions using one of the three scale types: isotropic with padding, isotropic with cropping or anisotropic. In case of isotropic padding, transparent color is used to pad resulting image.",
+      "attributes": [
+        { "name": "ColorsToExtract", "type": "ImagePixelExtractingTransformer.ColorBits" },
+        { "name": "OrderOfExtraction", "type": "ImagePixelExtractingTransformer.ColorsOrder" },
+        { "name": "Planes", "type": "uint8" },
+        { "name": "OutputAsFloatArray", "type": "boolean" },
+        { "name": "OffsetImage", "type": "float32" },
+        { "name": "ScaleImage", "type": "float32" },
+        { "name": "InterleavePixelColors", "type": "boolean" }
+      ]
+    }
+  },
+  {
+    "name": "TensorFlowTransform",
+    "schema": {
+      "description": "Transforms the data using the TensorFlow model.",
+      "attributes": [
+        { "name": "IsFrozen", "type": "boolean" },
+        { "name": "AddBatchDimensionInput", "type": "boolean" }
+      ]
+    }
+  },
+  {
+    "name": "TextNormalizerTransform",
+    "schema": {
+      "description": "A text normalization transform that allows normalizing text case, removing diacritical marks, punctuation marks and/or numbers. The transform operates on text input as well as vector of tokens/text (vector of ReadOnlyMemory).",
+      "attributes": [
+        { "name": "CaseMode", "type": "TextNormalizingTransformer.CaseMode" },
+        { "name": "KeepDiacritics", "type": "boolean" },
+        { "name": "KeepPunctuations", "type": "boolean" },
+        { "name": "KeepNumbers", "type": "boolean" }
+      ]
+    }
+  },
+  {
+    "name": "CharToken",
+    "schema": {
+      "description": "Character-oriented tokenizer where text is considered a sequence of characters.",
+      "attributes": [
+        { "name": "UseMarkerChars", "type": "boolean" },
+        { "name": "IsSeparatorStartEnd", "type": "boolean" }
+      ]
+    }
+  },
+  {
+    "name": "ConcatTransform",
+    "schema": {
+      "category": "Tensor",
+      "description": "Concatenates one or more columns of the same item type."
+    }
+  },
+  {
+    "name": "CopyTransform",
+    "schema": {
+      "category": "Tensor",
+      "description": "Duplicates columns from the dataset."
+    }
+  }
+]

@@ -36,7 +36,7 @@ def update_description(schema, lines):
             lines[i] = lines[i].lstrip(' ')
         schema['description'] = '\n'.join(lines)
 
-def update_attribute(schema, name, description, type, option, default):
+def update_attribute(schema, name, description, attribute_type, option, default):
     attribute = None
     if not 'attributes' in schema:
         schema['attributes'] = []
@@ -49,35 +49,37 @@ def update_attribute(schema, name, description, type, option, default):
         attribute['name'] = name
         schema['attributes'].append(attribute)
     attribute['description'] = description
-    if type:
-        attribute['type'] = type
+    if attribute_type:
+        attribute['type'] = attribute_type
     if option:
         attribute['option'] = option
     if default:
-        if type == 'float32':
+        if attribute_type == 'float32':
             if default != "'auto'":
                 attribute['default'] = float(default)
             else:
                 attribute['default'] = default.strip("'").strip('"')
-        elif type == 'int32':
+        elif attribute_type == 'int32':
             if default == 'None':
                 attribute['default'] = None
             elif default == "'auto'" or default == '"auto"':
                 attribute['default'] = default.strip("'").strip('"')
             else:
                 attribute['default'] = int(default)
-        elif type == 'string':
+        elif attribute_type == 'string':
             attribute['default'] = default.strip("'").strip('"')
-        elif type == 'boolean':
+        elif attribute_type == 'boolean':
             if default == 'True':
                 attribute['default'] = True
             elif default == 'False':
                 attribute['default'] = False
+            elif default == "'auto'":
+                attribute['default'] = default.strip("'").strip('"')
             else:
                 raise Exception("Unknown boolean default value '" + str(default) + "'.")
         else:
-            if type:
-                raise Exception("Unknown default type '" + type + "'.")
+            if attribute_type:
+                raise Exception("Unknown default type '" + attribute_type + "'.")
             else:
                 if default == 'None':
                     attribute['default'] = None
@@ -95,7 +97,7 @@ def update_attributes(schema, lines):
             raise Exception("Expected ':' in parameter.")
         name = line[0:colon].strip(' ')
         line = line[colon + 1:].strip(' ')
-        type = None
+        attribute_type = None
         type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32' }
         skip_map = {
             "'sigmoid' or 'isotonic'",
@@ -108,6 +110,8 @@ def update_attributes(schema, lines):
             "{'word', 'char'} or callable",
             "string, {'word', 'char'} or callable",
             'int, float, None or string',
+            "int, float, None or str",
+            "int or None, optional (default=None)",
             "'l1', 'l2' or None, optional",
             "{'strict', 'ignore', 'replace'} (default='strict')",
             "{'ascii', 'unicode', None} (default=None)",
@@ -115,7 +119,9 @@ def update_attributes(schema, lines):
             "tuple (min_n, max_n) (default=(1, 1))",
             "float in range [0.0, 1.0] or int (default=1.0)",
             "float in range [0.0, 1.0] or int (default=1)",
-            "'l1', 'l2' or None, optional (default='l2')"
+            "'l1', 'l2' or None, optional (default='l2')",
+            "{'scale', 'auto'} or float, optional (default='scale')",
+            "str {'auto', 'full', 'arpack', 'randomized'}",
         }
         if line in skip_map:
             line = ''
@@ -126,7 +132,7 @@ def update_attributes(schema, lines):
                 end = line.find('},')
                 if end == -1:
                     raise Exception("Expected '}' in parameter.")
-                # type = line[0:end + 1]
+                # attribute_type = line[0:end + 1]
                 line = line[end + 2:].strip(' ')
         elif line.startswith("'"):
             while line.startswith("'"):
@@ -135,7 +141,7 @@ def update_attributes(schema, lines):
                     raise Exception("Expected \' in parameter.")
                 line = line[end + 2:].strip(' ')
         elif line in type_map:
-            type = line
+            attribute_type = line
             line = ''
         elif line.startswith('int, RandomState instance or None,'):
             line = line[len('int, RandomState instance or None,'):]
@@ -144,7 +150,7 @@ def update_attributes(schema, lines):
         else:
             space = line.find(' {')
             if space != -1 and line[0:space] in type_map and line[space:].find('}') != -1:
-                type = line[0:space]
+                attribute_type = line[0:space]
                 end = line[space:].find('}')
                 line = line[space+end+1:]
             else:
@@ -153,16 +159,16 @@ def update_attributes(schema, lines):
                     comma = line.find(' (')
                     if comma == -1:
                         raise Exception("Expected ',' in parameter.")
-                type = line[0:comma]
+                attribute_type = line[0:comma]
                 line = line[comma + 1:].strip(' ')
-        if type in type_map:
-            type = type_map[type]
+        if attribute_type in type_map:
+            attribute_type = type_map[attribute_type]
         else:
-            type = None
+            attribute_type = None
         # elif type == "{dict, 'balanced'}":
-        #    type = 'map'
+        #    v = 'map'
         # else:
-        #    raise Exception("Unknown attribute type '" + type + "'.")
+        #    raise Exception("Unknown attribute type '" + attribute_type + "'.")
         option = None
         default = None
         while len(line.strip(' ')) > 0:
@@ -198,7 +204,7 @@ def update_attributes(schema, lines):
             attribute_lines.append(lines[index].lstrip(' '))
             index = index + 1
         description = '\n'.join(attribute_lines)
-        update_attribute(schema, name, description, type, option, default)
+        update_attribute(schema, name, description, attribute_type, option, default)
 
 for entry in json_root:
     name = entry['name']

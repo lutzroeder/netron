@@ -1,0 +1,477 @@
+[
+  {
+    "name": "InputLayer",
+    "schema": {
+      "category": "Tensor",
+      "bindings": [
+	{ "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+      ]
+    }
+  },
+  {
+    "name": "OutputLayer",
+    "schema": {
+      "category": "Tensor",
+      "bindings": [
+	{ "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+      ]
+    }
+  },
+  {
+    "name": "Pooling2dLayer",
+    "schema": {
+      "category": "Pool",
+      "attributes": [
+        { "name": "type", "type": "string", "src": "poolType", "src_type": "PoolingAlgorithm"},
+        { "name": "padding", "type": "string", "src": ["padTop", "padRight", "padBottom", "padLeft"] },
+        { "name": "width", "type": "string", "src": "poolWidth" },
+        { "name": "height", "type": "string", "src": "poolHeight" },
+        { "name": "stride", "type": "string", "src": ["strideX", "strideY"] },
+        { "name": "outputShapeRounding", "type": "string", "src": "outputShapeRounding", "src_type": "OutputShapeRounding"},
+        { "name": "paddingMethod", "type": "string", "src": "paddingMethod", "src_type": "PaddingMethod"},
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "ReshapeLayer",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "targetShape", "type": "string", "src": "targetShape" }
+      ]
+    }
+  },
+  {
+    "name": "SoftmaxLayer",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        { "name": "beta", "type": "float", "src": "beta" }
+      ]
+    }
+  },
+  {
+    "name": "Convolution2dLayer",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "weight", "src": "weights" },
+        { "name": "bias", "src": "biases" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "string", "src": ["padTop", "padRight", "padBottom", "padLeft"] },
+        { "name": "stride", "type": "string", "src": ["strideX", "strideY"] },
+        { "name": "dilation", "type": "string", "src": ["dilationX", "dilationY"] },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "DepthwiseConvolution2dLayer",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "weight", "src": "weights" },
+        { "name": "bias", "src": "biases" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "string", "src": ["padTop", "padRight", "padBottom", "padLeft"] },
+        { "name": "stride", "type": "string", "src": ["strideX", "strideY"] },
+        { "name": "dilation", "type": "string", "src": ["dilationX", "dilationY"] },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "ActivationLayer",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        { "name": "function", "type": "string", "src": "activationFunction", "src_type": "ActivationFunction" },
+        { "name": "a", "type": "float", "src": "a" },
+        { "name": "b", "type": "float", "src": "b" }
+      ]
+    }
+  },
+  {
+    "name": "PermuteLayer",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "dimMappings", "type": "string", "src": "dimMappings" }
+      ]
+    }
+  },
+  {
+    "name": "FullyConnectedLayer",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "weights", "src": "weights" },
+        { "name": "biases", "src": "biases" }
+      ],
+      "attributes": [
+        { "name": "transposeWeightsMatrix", "type": "bool", "src": "transposeWeightsMatrix" }
+      ]
+    }
+  },
+  {
+    "name": "ConstantLayer",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input", "src": "input" }
+      ]
+    }
+  },
+  {
+    "name": "SpaceToBatchNdLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "blockShape", "type": "string", "src": "blockShape" },
+        { "name": "padList", "type": "string", "src": "padList" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "BatchToSpaceNdLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "blockShape", "type": "string", "src": "blockShape" },
+        { "name": "crops", "type": "string", "src": "crops" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "DivisionLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "MinimumLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "EqualLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "MaximumLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "NormalizationLayer",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "normChannelType", "type": "string", "src": "normChannelType", "src_type": "NormalizationAlgorithmChannel" },
+        { "name": "normMethodType", "type": "string", "src": "normMethodType", "src_type": "NormalizationAlgorithmMethod" },
+        { "name": "normSize", "type": "uint", "src": "normSize" },
+        { "name": "alpha", "type": "float", "src": "alpha" },
+        { "name": "beta", "type": "float", "src": "beta" },
+        { "name": "k", "type": "float", "src": "k" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "PadLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "padList", "type": "uint", "src": "padList" },
+        { "name": "padValue", "type": "float", "src": "padValue" }
+      ]
+    }
+  },
+  {
+    "name": "RsqrtLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "FloorLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "BatchNormalizationLayer",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "mean", "src": "mean" },
+        { "name": "variance", "src": "variance" },
+        { "name": "beta", "src": "beta" },
+        { "name": "gamma", "src": "gamma" }
+      ],
+      "attributes": [
+        { "name": "eps", "type": "float", "src": "eps" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "GreaterLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "ResizeBilinearLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "targetWidth", "type": "uint", "src": "targetWidth" },
+        { "name": "targetHeight", "type": "uint", "src": "targetHeight" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "SubtractionLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "StridedSliceLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "begin", "type": "int", "src": "begin" },
+        { "name": "end", "type": "int", "src": "end" },
+        { "name": "stride", "type": "int", "src": "stride" },
+        { "name": "beginMask", "type": "int", "src": "beginMask" },
+        { "name": "endMask", "type": "int", "src": "endMask" },
+        { "name": "shrinkAxisMask", "type": "int", "src": "shrinkAxisMask" },
+        { "name": "ellipsisMask", "type": "int", "src": "ellipsisMask" },
+        { "name": "newAxisMask", "type": "int", "src": "newAxisMask" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "GatherLayer",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "MeanLayer",
+    "schema": {
+      "attributes": [
+        { "name": "axis", "type": "uint", "src": "axis" },
+        { "name": "keepDims", "type": "bool", "src": "keepDims" }
+      ]
+    }
+  },
+  {
+    "name": "MergerLayer",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "L2NormalizationLayer",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "eps", "type": "float", "src": "eps" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "SplitterLayer",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        { "name": "concatAxis", "type": "uint", "src": "concatAxis" },
+        { "name": "numViews", "type": "uint", "src": "numViewes" },
+        { "name": "numDimensions", "type": "uint", "src": "numDimensions" }
+      ]
+    }
+  },
+  {
+    "name": "DetectionPostProcessLayer",
+    "schema": {
+      "category": "Custom",
+      "attributes": [
+        { "name": "maxDetections", "type": "uint", "src": "maxDetections" },
+        { "name": "maxClassesPerDetection", "type": "uint", "src": "maxClassesPerDetection" },
+        { "name": "detectionsPerClass", "type": "uint", "src": "detectionsPerClass" },
+        { "name": "nmsScoreThreshold", "type": "float", "src": "nmsScoreThreshold" },
+        { "name": "numIouThreshold", "type": "float", "src": "nmsIouThreshold" },
+        { "name": "numClasses", "type": "uint", "src": "numClasses" },
+        { "name": "useRegularNms", "type": "bool", "src": "useRegularNms" },
+        { "name": "scaleX", "type": "float", "src": "scaleX" },
+        { "name": "scaleY", "type": "float", "src": "scaleY" },
+        { "name": "scaleW", "type": "float", "src": "scaleW" },
+        { "name": "scaleH", "type": "float", "src": "scaleH" }
+      ]
+    }
+  },
+  {
+    "name": "LstmLayer",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputToForgetWeights1", "src": "inputToForgetWeights1" },
+        { "name": "inputToCellWeights1", "src": "inputToCellWeights1" },
+        { "name": "inputToOutputWeights1", "src": "inputToOutputWeights1" },
+        { "name": "recurrentToForgetWeights1", "src": "recurrentToForgetWeights1" },
+        { "name": "recurrentToCellWeights1", "src": "recurrentToCellWeights1" },
+        { "name": "recurrentToOutputWeights1", "src": "recurrentToOutputWeights1" },
+        { "name": "forgetGateBias1", "src": "forgetGateBias1" },
+        { "name": "cellBias1", "src": "cellBias1" },
+        { "name": "outputGateBias1", "src": "outputGateBias1" },
+        { "name": "inputToInputWeights1", "src": "inputToInputWeights1" },
+        { "name": "recurrentToInputWeights1", "src": "recurrentToInputWeights1" },
+        { "name": "cellToInputWeights1", "src": "cellToInputWeights1" },
+        { "name": "inputGateBias1", "src": "inputGateBias1" },
+        { "name": "projectionWeights1", "src": "projectionWeights1" },
+        { "name": "projectionBias1", "src": "projectionBias1" },
+        { "name": "cellToForgetWeights1", "src": "cellToForgetWeights1" },
+        { "name": "cellToOutputWeights1", "src": "cellToOutputWeights1" },
+        { "name": "inputLayerNormWeights1", "src": "inputLayerNormWeights1" },
+        { "name": "forgetLayerNormWeights1", "src": "forgetLayerNormWeights1" },
+        { "name": "cellLayerNormWeights1", "src": "cellLayerNormWeights1" },
+        { "name": "outputLayerNormWeights1", "src": "outputLayerNormWeights1" }
+      ],
+      "attributes": [
+        { "name": "activationFunc", "type": "uint", "src": "activationFunc" },
+        { "name": "clippingThresCell", "type": "float", "src": "clippingThresCell" },
+        { "name": "clippingThresProj", "type": "float", "src": "clippingThresProj" },
+        { "name": "cifgEnabled", "type": "bool", "src": "cifgEnabled" },
+        { "name": "peepholeEnabled", "type": "bool", "src": "peepholeEnabled" },
+        { "name": "projectionEnabled", "type": "bool", "src": "projectionEnabled" },
+        { "name": "layerNormEnabled", "type": "bool", "src": "layerNormEnabled" }
+      ]
+    }
+  },
+  {
+    "name": "QuantizeLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "DequantizeLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "MergeLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "SwitchLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "ConcatLayer",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        { "name": "concatAxis", "type": "uint", "src": "concatAxis" },
+        { "name": "numViews", "type": "uint", "src": "numViewes" },
+        { "name": "numDimensions", "type": "uint", "src": "numDimensions" }
+      ]
+    }
+  },
+  {
+    "name": "SpaceToDepthLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "blockSize", "type": "uint", "src": "blockSize" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "PreluLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "TransposeConvolution2dLayer",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "weight", "src": "weights" },
+        { "name": "bias", "src": "biases" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "string", "src": ["padTop", "padRight", "padBottom", "padLeft"] },
+        { "name": "stride", "type": "string", "src": ["strideX", "strideY"] },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "ResizeLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "targetWidth", "type": "uint", "src": "targetWidth" },
+        { "name": "targetHeight", "type": "uint", "src": "targetHeight" },
+        { "name": "method", "type": "string", "src": "method", "src_type": "ResizeMethod" },
+        { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
+      ]
+    }
+  },
+  {
+    "name": "StackLayer",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "axis", "type": "uint", "src": "axis" },
+        { "name": "numInputs", "type": "uint", "src": "numInputs" },
+        { "name": "inputShape", "type": "uint", "src": "inputShape" }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedLstmLayer",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "inputToInputWeights1", "src": "inputToInputWeights1" },
+        { "name": "inputToForgetWeights1", "src": "inputToForgetWeights1" },
+        { "name": "inputToCellWeights1", "src": "inputToCellWeights1" },
+        { "name": "inputToOutputWeights1", "src": "inputToOutputWeights1" },
+        { "name": "recurrentToInputWeights1", "src": "recurrentToInputWeights1" },
+        { "name": "recurrentToForgetWeights1", "src": "recurrentToForgetWeights1" },
+        { "name": "recurrentToCellWeights1", "src": "recurrentToCellWeights1" },
+        { "name": "recurrentToOutputWeights1", "src": "recurrentToOutputWeights1" },
+        { "name": "inputGateBias1", "src": "inputGateBias1" },
+        { "name": "forgetGateBias1", "src": "forgetGateBias1" },
+        { "name": "cellBias1", "src": "cellBias1" },
+        { "name": "outputGateBias1", "src": "outputGateBias1" }
+      ]
+    }
+  }
+]

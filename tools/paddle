@@ -5,11 +5,11 @@ set -e
 root=$(cd $(dirname ${0})/..; pwd)
 node_modules=${root}/node_modules
 src=${root}/src
-tools=${root}/tools
 third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=paddle
-virtualenv=${root}/build/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/${identifier}
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -18,11 +18,12 @@ bold() {
 git_sync () {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" fetch -p --quiet
-        git -C "${third_party}/${1}" reset --quiet --hard origin/$(git -C "${third_party}/${1}" rev-parse --abbrev-ref HEAD)
+        git -C "${third_party}/${1}" pull --quiet --prune
     else
         git -C "${third_party}" clone --quiet --recursive ${2} ${1}
     fi
+    git -C "${third_party}/${1}" submodule sync --quiet
+    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
@@ -37,7 +38,7 @@ sync() {
 
 schema() {
     bold "paddle schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r paddle -o ${src}/paddle-proto.js ${third_party}/${identifier}/paddle/fluid/framework/framework.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r paddle -o ${src}/paddle-proto.js ${third_party}/${identifier}/paddle/fluid/framework/framework.proto
 }
 
 while [ "$#" != 0 ]; do

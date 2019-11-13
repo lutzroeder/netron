@@ -3,10 +3,7 @@
 
 build: clean lint build_python build_electron
 
-publish: clean lint publish_github_electron publish_pip publish_github_pages publish_cask
-
-pull:
-	git pull --rebase --prune
+publish: clean lint publish_github_electron publish_python publish_github_pages publish_cask
 
 install:
 	rm -rf ./node_modules
@@ -24,17 +21,39 @@ reset:
 
 update:
 	@[ -d node_modules ] || npm install
-	./tools/update
+	@./tools/armnn sync install schema
+	@./tools/bigdl sync schema
+	@./tools/caffe sync schema
+	@./tools/coreml sync install schema
+	@./tools/chainer sync
+	@./tools/cntk sync schema
+	@./tools/darknet sync
+	@./tools/dl4j sync
+	@./tools/keras sync install metadata
+	@./tools/mnn sync install schema
+	@./tools/mlnet sync metadata
+	@./tools/mxnet sync metadata
+	@./tools/ncnn sync
+	@./tools/onnx sync install schema metadata
+	@./tools/paddle sync schema
+	@./tools/pytorch sync install schema metadata
+	@./tools/sklearn sync install metadata
+	@./tools/tf sync install schema metadata
+	@./tools/tflite sync install schema
+	@./tools/torch sync
 
 build_python:
 	@[ -d node_modules ] || npm install
-	rm -rf ./build/python
-	python ./setup.py build --version
+	python3 ./setup.py build --version
 
 build_electron:
 	@[ -d node_modules ] || npm install
 	npx electron-builder install-app-deps
-	npx electron-builder --mac --linux --win
+	npx electron-builder --mac
+	npx electron-builder --win
+	npx electron-builder --linux deb
+	npx electron-builder --linux appimage
+	npx electron-builder --linux snap
 
 lint:
 	@[ -d node_modules ] || npm install
@@ -48,30 +67,30 @@ start:
 	@[ -d node_modules ] || npm install
 	npx electron .
 
-publish_pip:
+publish_python:
 	@[ -d node_modules ] || npm install
-	rm -rf ./build/python
-	python ./setup.py build --version bdist_wheel
-	python -m pip install --user keyring
-	python -m pip install --user twine
-	twine upload build/python/dist/*
+	python3 ./setup.py build --version bdist_wheel
+	python3 -m pip install --user keyring
+	python3 -m pip install --user twine
+	twine upload build/dist/*
 
 publish_github_electron:
 	@[ -d node_modules ] || npm install
 	npx electron-builder install-app-deps
-	npx electron-builder --mac --linux --win --publish always
+	npx electron-builder --mac --publish always
+	npx electron-builder --win --publish always
+	npx electron-builder --linux deb --publish always
+	npx electron-builder --linux appimage --publish always
+	npx electron-builder --linux snap --publish always
 
 publish_github_pages:
 	@[ -d node_modules ] || npm install
-	python ./setup.py build --version
+	python3 ./setup.py build --version
 	rm -rf ./build/gh-pages
 	git clone git@github.com:lutzroeder/netron.git ./build/gh-pages --branch gh-pages
 	rm -rf ./build/gh-pages/*
-	cp -R ./build/python/lib/netron/* ./build/gh-pages/
-	rm -rf ./build/gh-pages/*.py
-	rm -rf ./build/gh-pages/*.pyc
-	rm -rf ./build/gh-pages/netron
-	mv ./build/gh-pages/view-browser.html ./build/gh-pages/index.html
+	cp -R ./build/lib/netron/* ./build/gh-pages/
+	rm -rf ./build/gh-pages/*.py*
 	@export PACKAGE_VERSION=`node -pe "require('./package.json').version"`; \
 	sed -i -e "s/<!-- meta -->/<meta name='version' content='$$PACKAGE_VERSION' \/>/g" ./build/gh-pages/index.html
 	git -C ./build/gh-pages add --all

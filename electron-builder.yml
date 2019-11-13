@@ -4,79 +4,85 @@ files:
   - 'src/**/*'
 directories:
   buildResources: setup
-  output: ./build/electron
+  output: ./build
 fileAssociations:
-  - name: "ONNX Model"
-    ext: onnx
-  - name: "TensorFlow Lite Model"
-    ext: tflite
-  - name: "Keras Model"
-    ext: h5
-  - name: "Keras Model"
-    ext: keras
-  - name: "CoreML Model"
-    ext: mlmodel
-  - name: "MXNet Model"
-    ext: model
-  - name: "CNTK Model"
-    ext: model
+  - name: "Arm NN Model"
+    ext: armnn
   - name: "CNTK Model"
     ext: cmf
   - name: "CNTK Model"
     ext: dnn
-  - name: "Caffe Model"
-    ext: caffemodel
+  - name: "Keras Model"
+    ext: h5
+  - name: "Keras Model"
+    ext: hd5
+  - name: "Keras Model"
+    ext: hdf5
+  - name: "Keras Model"
+    ext: keras
+  - name: "TensorFlow Lite Model"
+    ext: lite
+  - name: "MXNet Model"
+    ext: mar
   - name: "TensorFlow Meta Graph"
     ext: meta
-  - name: "TensorFlow Graph"
-    ext: pb
-  - name: "TensorFlow Saved Model"
-    ext: pb
+  - name: "Core ML Model"
+    ext: mlmodel
+  - name: "MNN Model"
+    ext: mnn
+  - name: "Model"
+    ext: model
   - name: "ONNX Model"
+    ext: onnx
+  - name: "Protocol Buffer"
     ext: pb
-  - name: "Caffe2 Model"
-    ext: pb
-  - name: "TensorFlow Graph"
+  - name: "Text Protocol Buffer"
     ext: pbtxt
-  - name: "TensorFlow Saved Model"
-    ext: pbtxt
-  - name: "ONNX Model"
-    ext: pbtxt
-  - name: "Caffe2 Model"
-    ext: pbtxt
-  - name: "Caffe Model"
-    ext: pbtxt
-  - name: "TensorFlow Graph"
-    ext: prototxt
-  - name: "TensorFlow Saved Model"
-    ext: prototxt
-  - name: "ONNX Model"
-    ext: prototxt
-  - name: "Caffe2 Model"
+  - name: "Text Protocol Buffer"
     ext: prototxt
   - name: "Caffe Model"
-    ext: prototxt
+    ext: caffemodel
+  - name: "NCNN Model"
+    ext: param
   - name: "PyTorch Model"
     ext: pth
+  - name: "PyTorch Model"
+    ext: pt
   - name: "Torch Model"
     ext: t7
+  - name: "TensorFlow Lite Model"
+    ext: tflite
+  - name: "TensorFlow Lite Model"
+    ext: tfl
+afterSign: "setup/notarize.js"
 publish:
   - provider: github
     releaseType: release
 mac:
   category: public.app-category.developer-tools
+  darkModeSupport: true
+  hardenedRuntime: true
+  gatekeeperAssess: false
   target: 
   - dmg
   - zip
-  extendInfo:
-    NSRequiresAquaSystemAppearance: false
 linux:
   target:
   - AppImage
   - deb
+  - snap
+snap:
+  plugs:
+  - default
+  - removable-media
+  publish:
+  - provider: snapStore
+    channels:
+    - stable
 win:
   target:
   - nsis
+  verifyUpdateCodeSignature: false
 dmg:
   iconSize: 160
   contents:

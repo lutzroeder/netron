@@ -163,7 +163,7 @@
       "category": "Normalization",
       "attributes": [
         { "name": "local_size", "type": "uint32", "default": 5 },
-        { "name": "alpha", "type": "float32", "default": 1 },
+        { "name": "alpha", "type": "float32", "default": 0.0001 },
         { "name": "beta", "type": "float32", "default": 0.75 }
       ],
       "inputs": [
@@ -420,8 +420,11 @@
       "attributes": [
         { "name": "axis", "default": 1 }
       ],
+      "inputs": [
+        { "name": "input" }
+      ],
       "outputs": [
-        { "name": "outputs", "option": "variadic" }
+        { "name": "output", "option": "variadic" }
       ]
     }
   },
@@ -454,11 +457,20 @@
     "schema": {
       "category": "Layer",
       "inputs": [
-        { "name": "data" },
-        { "name": "clip" }
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "h_0" },
+        { "name": "c_0" }
       ],
       "outputs": [
-        { "name": "output" }
+        { "name": "output" },
+        { "name": "h_T" },
+        { "name": "c_T" }
+      ],
+      "attributes": [
+        { "name": "weight_filler", "visible": false },
+        { "name": "bias_filler", "visible": false },
+        { "name": "num_output", "visible": false }
       ]
     }
   },
@@ -471,6 +483,37 @@
       ],
       "outputs": [
         { "name": "reshaped" }
+      ]
+    }
+  },
+  {
+    "name": "ColorConv",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Permute",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Parameter",
+    "schema": {
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },

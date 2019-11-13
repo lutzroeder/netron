@@ -11,8 +11,13 @@
     },
     "rules": {
         "indent": [ "error", 4 ],
-        "linebreak-style": [ "error", "unix" ]
+        "linebreak-style": [ "error", "unix" ],
+        "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ]
     },
+    "overrides": [
+      { "files": ["src/*-proto.js"], "rules": { "brace-style": "off" } },
+      { "files": ["src/*-schema.js"], "rules": { "indent": "off" } }
+    ],
     "globals": {
         "protobuf": "readonly"
     }
