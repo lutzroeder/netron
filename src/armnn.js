@@ -356,9 +356,9 @@ armnn.Argument = class {
         this._type = new armnn.TensorType(info);
         this._initializer = initializer ? new armnn.Tensor(info, initializer) : null;
 
-        if (this._type.dataType.startsWith('q')) {
-            this._scale = tensorInfo.quantizationScale();
-            this._zeroPoint = tensorInfo.quantizationOffset();
+        if (this._type.dataType.startsWith('q') && info) {
+            this._scale = info.quantizationScale();
+            this._zeroPoint = info.quantizationOffset();
         }
     }
 
@@ -479,12 +479,12 @@ armnn.Tensor = class {
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'qint8':
-                        results.push(context.data.getInt8(context.index));
+                    case 'quint8':
+                        results.push(context.data.getUint8(context.index));
                         context.index += 1;
                         context.count++;
                         break;
-                    case 'quint16':
+                    case 'qint16':
                         results.push(context.data.getInt16(context.index, true));
                         context.index += 2;
                         context.count++;
@@ -528,10 +528,10 @@ armnn.TensorType = class {
         switch (dataType) {
             case 0: this._dataType = 'float16'; break;
             case 1: this._dataType = 'float32'; break;
-            case 2: this._dataType = 'qint8'; break;
+            case 2: this._dataType = 'quint8'; break;
             case 3: this._dataType = 'int32'; break;
             case 4: this._dataType = 'boolean'; break;
-            case 5: this._dataType = 'quint16'; break;
+            case 5: this._dataType = 'qint16'; break;
             default: throw new armnn.Error("Unknown data type '" + dataType + "'.");
         }
 
