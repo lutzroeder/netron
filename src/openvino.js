@@ -106,11 +106,11 @@ openvino.Graph = class {
             switch (operator) {
                 case 'Input': {
                     let args = [];
-                    const precision = layer.getAttribute('precision');
                     const name = layer.getAttribute('name') || '';
                     const id = layer.getAttribute('id');
                     for (let outputElement of openvino.Node.children(layer, 'output')) {
                         for (let portElement of openvino.Node.children(outputElement, 'port')) {
+                            const precision = portElement.getAttribute('precision');
                             args.push(this._argument(id, precision, portElement, null));
                         }
                     }
