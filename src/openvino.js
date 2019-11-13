@@ -107,11 +107,14 @@ openvino.Graph = class {
                 case 'Input': {
                     let args = [];
                     const name = layer.getAttribute('name') || '';
+                    // precision is a part of OpenVINO IR layers of IR v6 and earlier
+                    // in IR v7 and newer the port is no longer an attribute of the layer but of each output port
+                    const precision = layer.getAttribute('precision');
                     const id = layer.getAttribute('id');
                     for (let outputElement of openvino.Node.children(layer, 'output')) {
                         for (let portElement of openvino.Node.children(outputElement, 'port')) {
-                            const precision = portElement.getAttribute('precision');
-                            args.push(this._argument(id, precision, portElement, null));
+                            const portPrecision = portElement.getAttribute('precision') || precision;
+                            args.push(this._argument(id, portPrecision, portElement, null));
                         }
                     }
                     this._inputs.push(new openvino.Parameter(name, args));
