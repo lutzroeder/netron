@@ -869,6 +869,7 @@ openvino.TensorType = class {
             case 'U32':  this._dataType = 'uint32'; break;
             case 'U64':  this._dataType = 'uint64'; break;
             case null:  this._dataType = '?'; break;
+            case '':  this._dataType = '?'; break;
             default: throw new openvino.Error("Unknown precision '" + precision + "'.");
         }
         this._shape = shape;
