@@ -4202,14 +4202,6 @@
   },
   {
     "type":   "tf",
-    "target": "efficientnet-b3.ckpt.meta",
-    "source": "https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/efficientnet-b3.tar.gz[efficientnet-b3/model.ckpt.meta]",
-    "render": "skip",
-    "format": "TensorFlow MetaGraph",
-    "link":   "https://github.com/tensorflow/tpu/tree/master/models/official/efficientnet"
-  },
-  {
-    "type":   "tf",
     "target": "exDeepFM-criteo.meta",
     "source": "https://raw.githubusercontent.com/Leavingseason/xDeepFM/master/exdeepfm/checkpoint/epoch_0.meta",
     "format": "TensorFlow MetaGraph",
