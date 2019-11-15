@@ -117,7 +117,14 @@ openvino.Graph = class {
                             args.push(this._argument(id, portPrecision, portElement, null));
                         }
                     }
-                    this._inputs.push(new openvino.Parameter(name, args));
+                    // IR input is not just a placeholder, it is conceptually the legitimate layer
+                    // in order not to break compatibility with the overall approach
+                    // with openvino.Parameter for inputs and openvino.Node for outputs
+                    // input openvino.Node would be stored as an optional attribute of openvino.Parameter
+                    const inputNode = new openvino.Node(this, metadata, bin, layer, edgeMap);
+                    const inputParameter = new openvino.Parameter(name, args);
+                    inputParameter._realNode = inputNode;
+                    this._inputs.push(inputParameter);
                     break;
                 }
                 default:
@@ -126,7 +133,7 @@ openvino.Graph = class {
             }
         }
 
-        this._replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges);
+        this._replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges, edgeMap);
         delete this._arguments;
 
         // Validation
@@ -190,7 +197,7 @@ openvino.Graph = class {
         return argument;
     }
 
-    _replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges) {
+    _replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges, edgeMap) {
         const tiNodes = layers.filter((node) => node.getAttribute('type') === 'TensorIterator');
         for (let singleTensorIteratorNode of tiNodes) {
             const singleTensorIteratorNodeId = singleTensorIteratorNode.getAttribute("id");
@@ -285,9 +292,12 @@ openvino.Graph = class {
                         }
                         else {
                             // TODO: no tensor information in the new argument - passed as null for now
-                            nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length+1).toString(), [
+                            const inputNode = new openvino.Node(this, metadata, bin, singleTensorIteratorNode, edgeMap);
+                            const inputParameter = new openvino.Parameter((nestedNode._inputs.length+1).toString(), [
                                 new openvino.Argument(newId, null, null)
-                            ]));
+                            ]);
+                            inputParameter._realNode = inputNode;
+                            nestedNode._inputs.push(inputParameter);
                         }
                     }
                 }
@@ -563,6 +573,7 @@ openvino.Parameter = class {
     constructor(name, args) {
         this._name = name;
         this._arguments = args;
+        this._realNode = null;
     }
 
     get name() {
