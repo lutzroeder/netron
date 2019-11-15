@@ -3683,6 +3683,13 @@
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
+    "type":   "openvino",
+    "target": "2019_multiple_ti.xml",
+    "source": "https://github.com/lutzroeder/netron/files/3846426/ir.xml.zip[2019_multiple_ti.xml]",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/openvinotoolkit"
+  },
+  {
     "type":   "paddle",
     "target": "PyramidBox_WiderFace.tar.gz",
     "source": "http://paddlemodels.bj.bcebos.com/PyramidBox_WiderFace.tar.gz",
