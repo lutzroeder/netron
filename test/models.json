@@ -4983,22 +4983,8 @@
   },
   {
     "type":   "torch",
-    "target": "resnet-34.t7",
-    "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-34.t7",
-    "format": "Torch v7",
-    "link":   "https://github.com/facebook/fb.resnet.torch"
-  },
-  {
-    "type":   "torch",
     "target": "resnet-50.t7",
     "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-50.t7",
-    "format": "Torch v7",
-    "link":   "https://github.com/facebook/fb.resnet.torch"
-  },
-  {
-    "type":   "torch",
-    "target": "resnet-200.t7",
-    "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-200.t7",
     "format": "Torch v7",
     "link":   "https://github.com/facebook/fb.resnet.torch"
   },
