@@ -3655,6 +3655,13 @@
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
+     "type":   "openvino",
+     "target": "2019_R7_netron_issue372.xml",
+     "source": "https://github.com/lutzroeder/netron/files/3846426/ir.xml.zip[ir.xml]",
+     "format": "OpenVINO IR",
+     "link":   "https://github.com/lutzroeder/netron/issues/372"
+   },
+   {
     "type":   "openvino",
     "target": "2019_with_pad_simple.xml",
     "source": "https://github.com/lutzroeder/netron/files/2871673/with_pad_simple.xml.zip[with_pad_simple.xml]",

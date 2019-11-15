@@ -117,7 +117,14 @@ openvino.Graph = class {
                             args.push(this._argument(id, portPrecision, portElement, null));
                         }
                     }
-                    this._inputs.push(new openvino.Parameter(name, args));
+                    // IR input is not just a placeholder, it is conceptually the legitimate layer
+                    // in order not to break compatibility with the overall approach
+                    // with openvino.Parameter for inputs and openvino.Node for outputs
+                    // input openvino.Node would be stored as an optional attribute of openvino.Parameter
+                    const inputNode = new openvino.Node(this, metadata, bin, layer, edgeMap);
+                    const inputParameter = new openvino.Parameter(name, args);
+                    inputParameter._realNode = inputNode;
+                    this._inputs.push(inputParameter);
                     break;
                 }
                 default:
@@ -126,7 +133,7 @@ openvino.Graph = class {
             }
         }
 
-        this._replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges);
+        this._replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges, edgeMap);
         delete this._arguments;
 
         // Validation
@@ -149,8 +156,11 @@ openvino.Graph = class {
             }
             return acc;
         }, []);
+
         if (nodesWithNonExistentInputs.length !== 0){
-            throw new openvino.Error('Graph contains more than one connected component.');
+            const layerNames = nodesWithNonExistentInputs.map((n) => n.name).join(',');
+            const message = `Graph seems to contain ${nodesWithNonExistentInputs.length} connected components. Not connected layers: ${layerNames}`;
+            throw new openvino.Error(message);
         }
     }
 
@@ -187,10 +197,11 @@ openvino.Graph = class {
         return argument;
     }
 
-    _replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges) {
+    _replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges, edgeMap) {
         const tiNodes = layers.filter((node) => node.getAttribute('type') === 'TensorIterator');
         for (let singleTensorIteratorNode of tiNodes) {
             const singleTensorIteratorNodeId = singleTensorIteratorNode.getAttribute("id");
+            const tiNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNodeId}`);
             const body = openvino.Node.children(singleTensorIteratorNode, 'body')[0];
             const layersContainer = openvino.Node.children(body, 'layers')[0];
             const edgesContainer = openvino.Node.children(body, 'edges')[0];
@@ -245,24 +256,49 @@ openvino.Graph = class {
                 for (let candidate_edge of candidate_edges) {
                     const parentLayerID = candidate_edge.getAttribute('from-layer');
                     const parentPortID = candidate_edge.getAttribute('from-port');
-                    if (!nestedNode._inputs){
-                        throw new openvino.Error(`Tensor Iterator node with name ${nestedNode._name} does not have inputs.`);
-                    }
-                    const newId = `${parentLayerID}:${parentPortID}`;
-                    const inputWithoutId = nestedNode._inputs.find((input) => {
-                        return Boolean(input._arguments.find((argument) => !argument._id));
-                    });
-                    if (inputWithoutId) {
-                        const argumentWithoutId = inputWithoutId._arguments.find((argument) => !argument._id);
-                        if (argumentWithoutId){
-                            argumentWithoutId._id = newId;
-                        } 
-                    }
+                    
+                    const parentNode = this._nodes.find((n) => n._id === `${parentLayerID}`);
+                    if (!parentNode) {
+                        // its parent is a TensorIterator that was removed on the previous cycle
+                        // information is still present in the inputs of the current TensorIterator node
+                        const potentialParentInput = tiNode._inputs.find((tiInput) => tiInput._name === 'input');
+                        if (!potentialParentInput) {
+                            return;
+                        }
+                        const inputWithoutId = nestedNode._inputs.find((input) => {
+                            return Boolean(input._arguments.find((argument) => !argument._id));
+                        });
+                        if (inputWithoutId) {
+                            const argumentWithoutId = inputWithoutId._arguments.find((argument) => !argument._id);
+                            if (argumentWithoutId){
+                                argumentWithoutId._id = potentialParentInput.arguments[0].id;
+                            } 
+                        }
+                    } 
                     else {
-                        // TODO: no tensor information in the new argument - passed as null for now
-                        nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length+1).toString(), [
-                            new openvino.Argument(newId, null, null)
-                        ]));
+                        if (!nestedNode._inputs){
+                            throw new openvino.Error(`Tensor Iterator node with name ${nestedNode._name} does not have inputs.`);
+                        }
+                        
+                        const newId = `${parentLayerID}:${parentPortID}`;
+                        const inputWithoutId = nestedNode._inputs.find((input) => {
+                            return Boolean(input._arguments.find((argument) => !argument._id));
+                        });
+                        if (inputWithoutId) {
+                            const argumentWithoutId = inputWithoutId._arguments.find((argument) => !argument._id);
+                            if (argumentWithoutId){
+                                argumentWithoutId._id = newId;
+                            } 
+                        }
+                        else {
+                            // TODO: no tensor information in the new argument - passed as null for now
+                            const inputNode = new openvino.Node(this, metadata, bin, singleTensorIteratorNode, edgeMap);
+                            const inputParameter = new openvino.Parameter((nestedNode._inputs.length+1).toString(), [
+                                new openvino.Argument(newId, null, null)
+                            ]);
+                            inputParameter._realNode = inputNode;
+                            nestedNode._inputs.push(inputParameter);
+                        }
                     }
                 }
             }
@@ -292,7 +328,8 @@ openvino.Graph = class {
                     }
                 }
             }
-            this._nodes = this._nodes.filter((node) => node._type !== 'TensorIterator');
+
+            this._nodes = this._nodes.filter((node) => node.id !== singleTensorIteratorNode.id);
         }
     }
 
@@ -536,6 +573,7 @@ openvino.Parameter = class {
     constructor(name, args) {
         this._name = name;
         this._arguments = args;
+        this._realNode = null;
     }
 
     get name() {
@@ -842,6 +880,7 @@ openvino.TensorType = class {
             case 'U32':  this._dataType = 'uint32'; break;
             case 'U64':  this._dataType = 'uint64'; break;
             case null:  this._dataType = '?'; break;
+            case '':  this._dataType = '?'; break;
             default: throw new openvino.Error("Unknown precision '" + precision + "'.");
         }
         this._shape = shape;
