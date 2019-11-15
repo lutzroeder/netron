@@ -167,6 +167,8 @@ def metadata():
     for operator_name in caffe2.python.core._GetRegisteredOperators():
         op_schema = caffe2.python.workspace.C.OpSchema.get(operator_name)
         if op_schema:
+            if operator_name == 'Crash':
+                continue
             if operator_name in schema_map:
                 schema = schema_map[operator_name]
             else:

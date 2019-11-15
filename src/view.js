@@ -951,7 +951,8 @@ view.View = class {
                                 [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ],
                                 [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
                                 [ 'uint8', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
-                                [ 'qint8', 'i1' ]
+                                [ 'qint8', 'i1' ], [ 'qint16', 'i2' ],
+                                [ 'quint8', 'u1' ], [ 'quint16', 'u2' ]
                             ]);
                             let array = new numpy.Array();
                             array.shape = tensor.type.shape.dimensions;
