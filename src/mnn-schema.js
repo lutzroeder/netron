@@ -548,6 +548,7 @@ MNN.OpType = {
   Convolution3D: 113,
   MatrixBandPart: 114,
   GatherND: 115,
+  DetectionPostProcess: 116,
   MaxLayerCount: 128,
   ConvertTensor: 129,
   PLUGIN: 256,
@@ -689,6 +690,7 @@ MNN.OpTypeName = {
   '113': 'Convolution3D',
   '114': 'MatrixBandPart',
   '115': 'GatherND',
+  '116': 'DetectionPostProcess',
   '128': 'MaxLayerCount',
   '129': 'ConvertTensor',
   '256': 'PLUGIN',
@@ -795,7 +797,8 @@ MNN.OpParameter = {
   Extra: 78,
   Pool3D: 79,
   Convolution3D: 80,
-  ELU: 81
+  ELU: 81,
+  DetectionPostProcessParam: 82
 };
 
 /**
@@ -883,7 +886,8 @@ MNN.OpParameterName = {
   '78': 'Extra',
   '79': 'Pool3D',
   '80': 'Convolution3D',
-  '81': 'ELU'
+  '81': 'ELU',
+  '82': 'DetectionPostProcessParam'
 };
 
 /**
@@ -12455,6 +12459,257 @@ MNN.ReverseSequenceParam.createReverseSequenceParam = function(builder, batchDim
   MNN.ReverseSequenceParam.addBatchDim(builder, batchDim);
   MNN.ReverseSequenceParam.addSeqDim(builder, seqDim);
   return MNN.ReverseSequenceParam.endReverseSequenceParam(builder);
+}
+
+/**
+ * @constructor
+ */
+MNN.DetectionPostProcessParam = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {MNN.DetectionPostProcessParam}
+ */
+MNN.DetectionPostProcessParam.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.DetectionPostProcessParam=} obj
+ * @returns {MNN.DetectionPostProcessParam}
+ */
+MNN.DetectionPostProcessParam.getRootAsDetectionPostProcessParam = function(bb, obj) {
+  return (obj || new MNN.DetectionPostProcessParam).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.DetectionPostProcessParam=} obj
+ * @returns {MNN.DetectionPostProcessParam}
+ */
+MNN.DetectionPostProcessParam.getSizePrefixedRootAsDetectionPostProcessParam = function(bb, obj) {
+  return (obj || new MNN.DetectionPostProcessParam).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.maxDetections = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.maxClassesPerDetection = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.detectionsPerClass = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.nmsScoreThreshold = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.iouThreshold = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.numClasses = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {boolean}
+ */
+MNN.DetectionPostProcessParam.prototype.useRegularNMS = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.centerSizeEncoding = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.DetectionPostProcessParam.prototype.centerSizeEncodingLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Float32Array}
+ */
+MNN.DetectionPostProcessParam.prototype.centerSizeEncodingArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+MNN.DetectionPostProcessParam.startDetectionPostProcessParam = function(builder) {
+  builder.startObject(8);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} maxDetections
+ */
+MNN.DetectionPostProcessParam.addMaxDetections = function(builder, maxDetections) {
+  builder.addFieldInt32(0, maxDetections, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} maxClassesPerDetection
+ */
+MNN.DetectionPostProcessParam.addMaxClassesPerDetection = function(builder, maxClassesPerDetection) {
+  builder.addFieldInt32(1, maxClassesPerDetection, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} detectionsPerClass
+ */
+MNN.DetectionPostProcessParam.addDetectionsPerClass = function(builder, detectionsPerClass) {
+  builder.addFieldInt32(2, detectionsPerClass, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} nmsScoreThreshold
+ */
+MNN.DetectionPostProcessParam.addNmsScoreThreshold = function(builder, nmsScoreThreshold) {
+  builder.addFieldFloat32(3, nmsScoreThreshold, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} iouThreshold
+ */
+MNN.DetectionPostProcessParam.addIouThreshold = function(builder, iouThreshold) {
+  builder.addFieldFloat32(4, iouThreshold, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numClasses
+ */
+MNN.DetectionPostProcessParam.addNumClasses = function(builder, numClasses) {
+  builder.addFieldInt32(5, numClasses, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} useRegularNMS
+ */
+MNN.DetectionPostProcessParam.addUseRegularNMS = function(builder, useRegularNMS) {
+  builder.addFieldInt8(6, +useRegularNMS, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} centerSizeEncodingOffset
+ */
+MNN.DetectionPostProcessParam.addCenterSizeEncoding = function(builder, centerSizeEncodingOffset) {
+  builder.addFieldOffset(7, centerSizeEncodingOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.DetectionPostProcessParam.createCenterSizeEncodingVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addFloat32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.DetectionPostProcessParam.startCenterSizeEncodingVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+MNN.DetectionPostProcessParam.endDetectionPostProcessParam = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} maxDetections
+ * @param {number} maxClassesPerDetection
+ * @param {number} detectionsPerClass
+ * @param {number} nmsScoreThreshold
+ * @param {number} iouThreshold
+ * @param {number} numClasses
+ * @param {boolean} useRegularNMS
+ * @param {flatbuffers.Offset} centerSizeEncodingOffset
+ * @returns {flatbuffers.Offset}
+ */
+MNN.DetectionPostProcessParam.createDetectionPostProcessParam = function(builder, maxDetections, maxClassesPerDetection, detectionsPerClass, nmsScoreThreshold, iouThreshold, numClasses, useRegularNMS, centerSizeEncodingOffset) {
+  MNN.DetectionPostProcessParam.startDetectionPostProcessParam(builder);
+  MNN.DetectionPostProcessParam.addMaxDetections(builder, maxDetections);
+  MNN.DetectionPostProcessParam.addMaxClassesPerDetection(builder, maxClassesPerDetection);
+  MNN.DetectionPostProcessParam.addDetectionsPerClass(builder, detectionsPerClass);
+  MNN.DetectionPostProcessParam.addNmsScoreThreshold(builder, nmsScoreThreshold);
+  MNN.DetectionPostProcessParam.addIouThreshold(builder, iouThreshold);
+  MNN.DetectionPostProcessParam.addNumClasses(builder, numClasses);
+  MNN.DetectionPostProcessParam.addUseRegularNMS(builder, useRegularNMS);
+  MNN.DetectionPostProcessParam.addCenterSizeEncoding(builder, centerSizeEncodingOffset);
+  return MNN.DetectionPostProcessParam.endDetectionPostProcessParam(builder);
 }
 
 /**
