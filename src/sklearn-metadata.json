@@ -43,7 +43,7 @@
   {
     "name": "LabelEncoder",
     "schema": {
-      "description": "Encode target labels with value between 0 and n_classes-1.\n\nThis transformer should be used to encode target values, *i.e.* `y`, and\nnot the input `X`.\n\nRead more in the :ref:`User Guide <preprocessing_targets>`.\n",
+      "description": "Encode target labels with value between 0 and n_classes-1.\n\nThis transformer should be used to encode target values, *i.e.* `y`, and\nnot the input `X`.\n\nRead more in the :ref:`User Guide <preprocessing_targets>`.\n\n.. versionadded:: 0.12\n",
       "package": "sklearn.preprocessing"
     }
   },
@@ -895,7 +895,7 @@
         },
         {
           "default": false,
-          "description": "If True, all non-zero term counts are set to 1. This does not mean\noutputs will have only 0/1 values, only that the tf term in tf-idf\nis binary. (Set idf and normalization to False to get 0/1 outputs.)\n",
+          "description": "If True, all non-zero term counts are set to 1. This does not mean\noutputs will have only 0/1 values, only that the tf term in tf-idf\nis binary. (Set idf and normalization to False to get 0/1 outputs).\n",
           "name": "binary",
           "type": "boolean"
         },
@@ -906,7 +906,7 @@
           "option": "optional"
         },
         {
-          "description": "Each output row will have unit norm, either:\n* 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n* 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`\n",
+          "description": "Each output row will have unit norm, either:\n* 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n* 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
           "name": "norm"
         },
         {

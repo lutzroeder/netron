@@ -122,7 +122,13 @@ def update_attributes(schema, lines):
             "'l1', 'l2' or None, optional (default='l2')",
             "{'scale', 'auto'} or float, optional (default='scale')",
             "str {'auto', 'full', 'arpack', 'randomized'}",
+            "str {'filename', 'file', 'content'}",
+            "str, {'word', 'char', 'char_wb'} or callable",
+            "str {'english'}, list, or None (default=None)",
+            "{'scale', 'auto'} or float, optional (default='scale')"
         }
+        if line == 'str':
+            line = 'string'
         if line in skip_map:
             line = ''
         elif line.startswith('{'):
