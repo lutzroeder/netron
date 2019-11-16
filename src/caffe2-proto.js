@@ -855,6 +855,165 @@
             return TensorShapes;
         })();
     
+        caffe2.TensorBoundShape = (function() {
+    
+            function TensorBoundShape(properties) {
+                this.dim_type = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TensorBoundShape.prototype.shape = null;
+            TensorBoundShape.prototype.dim_type = $util.emptyArray;
+            TensorBoundShape.prototype.name = "";
+    
+            TensorBoundShape.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe2.TensorBoundShape();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.shape = $root.caffe2.TensorShape.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        if (!(message.dim_type && message.dim_type.length))
+                            message.dim_type = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.dim_type.push(reader.int32());
+                        } else
+                            message.dim_type.push(reader.int32());
+                        break;
+                    case 3:
+                        message.name = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorBoundShape.decodeText = function decodeText(reader) {
+                var message = new $root.caffe2.TensorBoundShape();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "shape":
+                        message.shape = $root.caffe2.TensorShape.decodeText(reader, true);
+                        break;
+                    case "dim_type":
+                        if (!(message.dim_type && message.dim_type.length))
+                            message.dim_type = [];
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.dim_type.push(reader.enum($root.caffe2.TensorBoundShape.DimType));
+                                reader.next();
+                            }
+                        else
+                            message.dim_type.push(reader.enum($root.caffe2.TensorBoundShape.DimType));
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorBoundShape.DimType = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "UNKNOWN"] = 0;
+                values[valuesById[1] = "CONSTANT"] = 1;
+                values[valuesById[2] = "BATCH"] = 2;
+                values[valuesById[3] = "BATCH_OF_FEATURE_MAX"] = 3;
+                values[valuesById[4] = "BATCH_OF_FEATURE_MAX_DEFAULT"] = 4;
+                values[valuesById[5] = "FEATURE_MAX"] = 5;
+                values[valuesById[6] = "FEATURE_MAX_DEFAULT"] = 6;
+                return values;
+            })();
+    
+            return TensorBoundShape;
+        })();
+    
+        caffe2.TensorBoundShapes = (function() {
+    
+            function TensorBoundShapes(properties) {
+                this.shapes = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TensorBoundShapes.prototype.shapes = $util.emptyArray;
+            TensorBoundShapes.prototype.max_batch_size = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            TensorBoundShapes.prototype.max_feature_len = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+            TensorBoundShapes.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe2.TensorBoundShapes();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.shapes && message.shapes.length))
+                            message.shapes = [];
+                        message.shapes.push($root.caffe2.TensorBoundShape.decode(reader, reader.uint32()));
+                        break;
+                    case 2:
+                        message.max_batch_size = reader.int64();
+                        break;
+                    case 3:
+                        message.max_feature_len = reader.int64();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorBoundShapes.decodeText = function decodeText(reader) {
+                var message = new $root.caffe2.TensorBoundShapes();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "shapes":
+                        if (!(message.shapes && message.shapes.length))
+                            message.shapes = [];
+                        message.shapes.push($root.caffe2.TensorBoundShape.decodeText(reader, true));
+                        break;
+                    case "max_batch_size":
+                        message.max_batch_size = reader.int64();
+                        break;
+                    case "max_feature_len":
+                        message.max_feature_len = reader.int64();
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return TensorBoundShapes;
+        })();
+    
         caffe2.Argument = (function() {
     
             function Argument(properties) {
