@@ -253,13 +253,6 @@
   },
   {
     "type":   "caffe",
-    "target": "EmotiW_VGG_S.caffemodel",
-    "source": "https://drive.google.com/uc?export=download&id=0BydFau0VP3XSNVYtWnNPMU1TOGM",
-    "format": "Caffe v2",
-    "link":   "https://gist.github.com/GilLevi/54aee1b8b0397721aa4b"
-  },
-  {
-    "type":   "caffe",
     "target": "faster_rcnn_train_test_21cls.pt",
     "source": "https://github.com/sanghoon/pva-faster-rcnn/raw/master/models/pvanet/pva9.1/faster_rcnn_train_test_21cls.pt?raw=true",
     "format": "Caffe v2",
@@ -299,18 +292,6 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fcn-16s.prototxt",
     "format": "Caffe v1",
     "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "fcn8s-heavy-pascal.caffemodel",
-    "source": "http://dl.caffe.berkeleyvision.org/fcn8s-heavy-pascal.caffemodel",
-    "format": "Caffe v2"
-  },
-  {
-    "type":   "caffe",
-    "target": "fcn16s-heavy-pascal.caffemodel",
-    "source": "http://dl.caffe.berkeleyvision.org/fcn16s-heavy-pascal.caffemodel",
-    "format": "Caffe v2"
   },
   {
     "type":   "caffe",
@@ -514,12 +495,6 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/nin.prototxt",
     "format": "Caffe v1",
     "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "pascalcontext-fcn32s-heavy.caffemodel",
-    "source": "http://dl.caffe.berkeleyvision.org/pascalcontext-fcn32s-heavy.caffemodel",
-    "format": "Caffe v2"
   },
   {
     "type":   "caffe",
@@ -730,13 +705,6 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/vgg-16.prototxt",
     "format": "Caffe v1",
     "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "VGG_CNN_M_2048.caffemodel",
-    "source": "http://www.robots.ox.ac.uk/~vgg/software/deep_eval/releases/bvlc/VGG_CNN_M_2048.caffemodel",
-    "format": "Caffe v1",
-    "link":   "https://github.com/natanielruiz/net-archive"
   },
   {
     "type":   "caffe",
