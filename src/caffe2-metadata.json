@@ -13515,9 +13515,14 @@
           "description": "Default 1e-5",
           "name": "epsilon",
           "option": "optional"
+        },
+        {
+          "description": "Default false",
+          "name": "enableRAdam",
+          "option": "optional"
         }
       ],
-      "description": "\n\n    Computes the Adam Update for the sparse case.\n    Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the dense\n    Adam on (param, moment1[indices], momemnt2[indices], lr, iter) and returns\n    (new_param, new_moment1, new_moment2) as in dense case\n\n    ",
+      "description": "\n\n    Computes the Adam Update for the sparse case.\n    Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the dense\n    Adam on (param, moment1[indices], momemnt2[indices], lr, iter) and returns\n    (new_param, new_moment1, new_moment2) as in dense case.\n    Adam can be customized as Rectified Adam (RAdam) by setting enableRAdam = true.\n\n    ",
       "inputs": [
         {
           "description": "Parameters to be updated",
