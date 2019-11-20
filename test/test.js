@@ -52,7 +52,8 @@ global.TextDecoder = class {
     }
 };
 
-const type = process.argv.length > 2 ? process.argv[2] : null;
+let filter = process.argv.length > 2 ? process.argv[2] : null;
+const type = filter ? filter.split('/').shift() : '';
 const dataFolder = __dirname + '/data';
 let items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
@@ -562,12 +563,17 @@ function next() {
         next();
         return;
     }
-    if (process.stdout.clearLine) {
-        process.stdout.clearLine();
-    }
     const targets = item.target.split(',');
     const target = targets[0];
     const folder = dataFolder + '/' + item.type;
+    const name = item.type + '/' + target;
+    if (filter && !name.startsWith(filter)) {
+        next();
+        return;
+    }
+    if (process.stdout.clearLine) {
+        process.stdout.clearLine();
+    }
     process.stdout.write(item.type + '/' + target + '\n');
 
     let promise = null;

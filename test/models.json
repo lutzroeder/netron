@@ -3761,6 +3761,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "mask_rcnn_r50_fpn_1x_20181010-069fa190.pth",
+    "source": "https://s3.ap-northeast-2.amazonaws.com/open-mmlab/mmdetection/models/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth",
+    "format": "PyTorch",
+    "link":   "https://github.com/open-mmlab/mmdetection/blob/master/docs/MODEL_ZOO.md"
+  },
+  {
+    "type":   "pytorch",
     "target": "mobilenet_v2.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
@@ -3967,6 +3974,13 @@
     "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_variational_autoencoder.pth]",
     "format": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "type":   "pytorch",
+    "target": "vgg-cifar10.pth.tar",
+    "source": "http://www.cs.unc.edu/~cyfu/cifar10/model_best.pth.tar",
+    "format": "PyTorch",
+    "link":   "https://github.com/chengyangfu/pytorch-vgg-cifar10"
   },
   {
     "type":   "pytorch",
