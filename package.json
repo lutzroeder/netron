@@ -28,7 +28,7 @@
         "universal-analytics": "0.4.20"
     },
     "devDependencies": {
-        "electron": "7.1.1",
+        "electron": "7.1.2",
         "electron-builder": "21.2.0",
         "electron-notarize": "0.2.0",
         "eslint": "6.6.0",
