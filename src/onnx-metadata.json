@@ -550,16 +550,32 @@
           "summary": "default_axes_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims,\n    select_last_index=True)\n\n# result: [[1, 1]]\nresult = argmax_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmax_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_random_select_last_index')",
+          "summary": "default_axes_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0], [1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_random')",
           "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_random_select_last_index')",
+          "summary": "keepdims_select_last_index"
         },
         {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0], [1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_random')",
           "summary": "negative_axis_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_random_select_last_index')",
+          "summary": "negative_axis_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0, 1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_random')",
           "summary": "no_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1, 1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_random_select_last_index')",
+          "summary": "no_keepdims_select_last_index"
         }
       ],
       "inputs": [
@@ -621,7 +637,7 @@
           "type": "int64"
         }
       ],
-      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -629,16 +645,32 @@
           "summary": "default_axes_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims,\n    select_last_index=True)\n\n# result: [[1, 1]]\nresult = argmax_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmax_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_random_select_last_index')",
+          "summary": "default_axes_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0], [1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_random')",
           "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_random_select_last_index')",
+          "summary": "keepdims_select_last_index"
         },
         {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0], [1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_random')",
           "summary": "negative_axis_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_random_select_last_index')",
+          "summary": "negative_axis_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0, 1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_random')",
           "summary": "no_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1, 1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_random_select_last_index')",
+          "summary": "no_keepdims_select_last_index"
         }
       ],
       "inputs": [
@@ -660,6 +692,107 @@
         }
       ],
       "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to all numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ArgMax",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The axis in which to compute the arg indices. Accepted range is [-r, r-1] where r = rank(data).",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
+          "name": "keepdims",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Whether to select the last index or the first index if the {name} appears in multiple indices, default is False (first index).",
+          "name": "select_last_index",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nIf select_last_index is True (default False), the index of the last occurence of the max \nis selected if the max appears more than once in the input. Otherwise the index of the \nfirst occurence is selected.\nThe type of the output tensor is integer.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# result: [[1], [1]]\nresult = argmax_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmax_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims,\n    select_last_index=True)\n\n# result: [[1, 1]]\nresult = argmax_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmax_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_random_select_last_index')",
+          "summary": "default_axes_keepdims_select_last_index"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0], [1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_random')",
+          "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_random_select_last_index')",
+          "summary": "keepdims_select_last_index"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0], [1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_random')",
+          "summary": "negative_axis_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_negative_axis_keepdims_random_select_last_index')",
+          "summary": "negative_axis_keepdims_select_last_index"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0, 1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_random')",
+          "summary": "no_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1, 1]]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmax_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_random_select_last_index')",
+          "summary": "no_keepdims_select_last_index"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "An input tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Reduced output tensor with integer data type.",
+          "name": "reduced",
+          "type": "tensor(int64)"
+        }
+      ],
+      "since_version": 12,
       "support_level": "common",
       "type_constraints": [
         {
@@ -708,16 +841,32 @@
           "summary": "default_axes_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims,\n    select_last_index=True)\n\n# result: [[0, 0]]\nresult = argmin_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random_select_last_index')",
+          "summary": "default_axes_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
           "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random_select_last_index')",
+          "summary": "keepdims_select_last_index"
         },
         {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random')",
           "summary": "negative_axis_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random_select_last_index')",
+          "summary": "negative_axis_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
           "summary": "no_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1, 0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random_select_last_index')",
+          "summary": "no_keepdims_select_last_index"
         }
       ],
       "inputs": [
@@ -779,7 +928,7 @@
           "type": "int64"
         }
       ],
-      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -787,16 +936,32 @@
           "summary": "default_axes_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims,\n    select_last_index=True)\n\n# result: [[0, 0]]\nresult = argmin_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random_select_last_index')",
+          "summary": "default_axes_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
           "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random_select_last_index')",
+          "summary": "keepdims_select_last_index"
         },
         {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random')",
           "summary": "negative_axis_keepdims"
         },
         {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random_select_last_index')",
+          "summary": "negative_axis_keepdims_select_last_index"
+        },
+        {
           "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
           "summary": "no_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1, 0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random_select_last_index')",
+          "summary": "no_keepdims_select_last_index"
         }
       ],
       "inputs": [
@@ -818,6 +983,107 @@
         }
       ],
       "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to all numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ArgMin",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The axis in which to compute the arg indices. Accepted range is [-r, r-1] where r = rank(data).",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
+          "name": "keepdims",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Whether to select the last index or the first index if the {name} appears in multiple indices, default is False (first index).",
+          "name": "select_last_index",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nIf select_last_index is True (default False), the index of the last occurence of the min \nis selected if the min appears more than once in the input. Otherwise the index of the \nfirst occurence is selected.\nThe type of the output tensor is integer.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# The content of result is : [[0], [0]]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims,\n    select_last_index=True)\n\n# result: [[0, 0]]\nresult = argmin_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy_select_last_index(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random_select_last_index')",
+          "summary": "default_axes_keepdims_select_last_index"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
+          "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random_select_last_index')",
+          "summary": "keepdims_select_last_index"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random')",
+          "summary": "negative_axis_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = -1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1], [0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 3, 1]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_negative_axis_keepdims_random_select_last_index')",
+          "summary": "negative_axis_keepdims_select_last_index"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# The content of result is : [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
+          "summary": "no_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 2], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims,\n    select_last_index=True)\n# result: [[1, 0]]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example_select_last_index')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy_select_last_index(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random_select_last_index')",
+          "summary": "no_keepdims_select_last_index"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "An input tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Reduced output tensor with integer data type.",
+          "name": "reduced",
+          "type": "tensor(int64)"
+        }
+      ],
+      "since_version": 12,
       "support_level": "common",
       "type_constraints": [
         {
