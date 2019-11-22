@@ -283,6 +283,7 @@ torch.Node = class {
                 delete module.addBuffer;
                 break;
             case 'nn.Normalize':
+            case 'nn.Normalize2':
                 delete module.addBuffer;
                 delete module.normp;
                 delete module.norm;
@@ -340,6 +341,9 @@ torch.Node = class {
                 delete module.forwardnodes;
                 delete module.backwardnodes;
                 break;
+            case 'nn.StereoJoin':
+                delete module.output_L;
+                break;
         }
         this._attributes = [];
         if (module.__type__) {
@@ -364,14 +368,14 @@ torch.Node = class {
             }
         }
         this._inputs = [];
-        if (inputs.length == 0) {
+        if (inputs.length == 0 && this._name) {
             inputs.push(new torch.Argument(this._name + ':in', null, null));
         }
         this._inputs.push(new torch.Parameter('input', true, inputs));
-        this._outputs = [];
-        if (outputs.length == 0) {
+        if (outputs.length == 0 && this._name) {
             outputs.push(new torch.Argument(this._name, null, null));
         }
+        this._outputs = [];
         this._outputs.push(new torch.Parameter('output', true, outputs));
         initializers = initializers.filter((argument) => {
             if (argument.name == 'weight') {
@@ -576,7 +580,7 @@ torch.Tensor = class {
 torch.TensorType = class {
 
     constructor(tensor) {
-        this._dataType = tensor.storage ? tensor.storage.dataType : '?';
+        this._dataType = tensor.dataType;
         this._shape = new torch.TensorShape(tensor.size);
     }
 
@@ -799,20 +803,20 @@ torch.T7Reader = class {
         this._registry['nngraph.Node'] = function(reader) { reader.nn(this); };
         this._registry['graph.Edge'] = function(reader) { reader.nn(this); };
         this._registry['graph.Graph'] = function(reader) { reader.nn(this); };
-        this._registry['torch.ByteTensor'] = function(reader) { reader.tensor(this); };
-        this._registry['torch.CharTensor'] = function(reader) { reader.tensor(this); };
-        this._registry['torch.ShortTensor'] = function(reader) { reader.tensor(this); };
-        this._registry['torch.IntTensor'] = function(reader) { reader.tensor(this); };
-        this._registry['torch.LongTensor'] = function(reader) { reader.tensor(this); };
-        this._registry['torch.FloatTensor'] = function(reader) { reader.tensor(this); };
-        this._registry['torch.DoubleTensor'] = function(reader) { reader.tensor(this); };
-        this._registry['torch.CudaByteTensor'] = function(reader) {reader.tensor(this); };
-        this._registry['torch.CudaCharTensor'] = function(reader) {reader.tensor(this); };
-        this._registry['torch.CudaShortTensor'] = function(reader) {reader.tensor(this); };
-        this._registry['torch.CudaIntTensor'] = function(reader) {reader.tensor(this); };
-        this._registry['torch.CudaLongTensor'] = function(reader) {reader.tensor(this); };
-        this._registry['torch.CudaTensor'] = function(reader) {reader.tensor(this); };
-        this._registry['torch.CudaDoubleTensor'] = function(reader) {reader.tensor(this); };
+        this._registry['torch.ByteTensor'] = function(reader) { reader.tensor(this, 'uint8'); };
+        this._registry['torch.CharTensor'] = function(reader) { reader.tensor(this, 'int8'); };
+        this._registry['torch.ShortTensor'] = function(reader) { reader.tensor(this, 'int16'); };
+        this._registry['torch.IntTensor'] = function(reader) { reader.tensor(this, 'int32'); };
+        this._registry['torch.LongTensor'] = function(reader) { reader.tensor(this, 'int64'); };
+        this._registry['torch.FloatTensor'] = function(reader) { reader.tensor(this, 'float32'); };
+        this._registry['torch.DoubleTensor'] = function(reader) { reader.tensor(this, 'float64'); };
+        this._registry['torch.CudaByteTensor'] = function(reader) { reader.tensor(this, 'uint8'); };
+        this._registry['torch.CudaCharTensor'] = function(reader) { reader.tensor(this, 'int8'); };
+        this._registry['torch.CudaShortTensor'] = function(reader) { reader.tensor(this, 'int16'); };
+        this._registry['torch.CudaIntTensor'] = function(reader) { reader.tensor(this, 'int32'); };
+        this._registry['torch.CudaLongTensor'] = function(reader) { reader.tensor(this, 'int64'); };
+        this._registry['torch.CudaTensor'] = function(reader) { reader.tensor(this, 'float32'); };
+        this._registry['torch.CudaDoubleTensor'] = function(reader) { reader.tensor(this, 'float64'); };
         this._registry['torch.ByteStorage'] = function(reader) { reader.storage(this, 'uint8', 1); };
         this._registry['torch.CharStorage'] = function(reader) { reader.storage(this, 'int8', 1); };
         this._registry['torch.ShortStorage'] = function(reader) { reader.storage(this, 'int16', 2); };
@@ -985,8 +989,9 @@ torch.T7Reader = class {
         }
     }
 
-    tensor(obj) {
+    tensor(obj, dataType) {
         let dim = this.int32();
+        obj.dataType = dataType;
         obj.size = this.int64s(dim);
         obj.stride = this.int64s(dim);
         obj.storage_offset = this.int64() - 1;
@@ -997,7 +1002,7 @@ torch.T7Reader = class {
         obj.dataType = dataType;
         obj.itemSize = itemSize;
         obj.size = this.int64();
-        obj.reader = this._reader.storage(obj.size, obj.itemSize);
+        obj.reader = this._reader.storage(obj.size, obj.itemSize, dataType);
         obj.reset = function() {
             this.reader.reset();
         };
@@ -1213,8 +1218,18 @@ torch.TextReader = class {
         return text;
     }
 
-    storage(size /*, itemSize */) {
-        let data = size > 0 ? this.line(Number.MAX_SAFE_INTEGER) : new Uint8Array(0);
+    storage(size, itemSize, dataType) {
+        if (size <= 0) {
+            throw new torch.Error("Unsupported storage size '" + size + "'.");
+        }
+        if (dataType === 'uint8') {
+            const start = this._position;
+            this._position += size;
+            const bytes = this._buffer.slice(start, this._position);
+            this.line(0);
+            return new torch.BinaryReader(bytes);
+        }
+        const data = this.line(Number.MAX_SAFE_INTEGER);
         return new torch.TextReader(data, 0x20);
     }
 };
