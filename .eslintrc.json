@@ -10,9 +10,9 @@
         "sourceType": "module"
     },
     "rules": {
+        "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
         "indent": [ "error", 4 ],
-        "linebreak-style": [ "error", "unix" ],
-        "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ]
+        "linebreak-style": [ "error", "unix" ]
     },
     "overrides": [
       { "files": ["src/*-proto.js"], "rules": { "brace-style": "off" } },
