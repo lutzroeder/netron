@@ -54,7 +54,7 @@ caffe.ModelFactory = class {
                     const tags = context.tags('pbtxt');
                     if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                         try {
-                            let reader = prototxt.TextReader.create(context.text);
+                            const reader = prototxt.TextReader.create(context.text);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe.proto.SolverParameter) {
                                     message[tag] = this.skip();
@@ -62,7 +62,7 @@ caffe.ModelFactory = class {
                                 }
                                 throw new Error("Unknown field '" + tag + "'" + this.location());
                             };
-                            let solver = caffe.proto.SolverParameter.decodeText(reader);
+                            const solver = caffe.proto.SolverParameter.decodeText(reader);
                             if (solver.net_param) {
                                 return this._openNetParameter(metadata, solver.net_param, host);
                             }
@@ -95,7 +95,7 @@ caffe.ModelFactory = class {
 
     _openNetParameterBuffer(metadata, identifier, buffer, host, resolve, reject) {
         try {
-            let netParameter = caffe.proto.NetParameter.decode(buffer);
+            const netParameter = caffe.proto.NetParameter.decode(buffer);
             return this._openNetParameter(metadata, netParameter, host, resolve, reject);
         }
         catch (error) {
@@ -107,7 +107,7 @@ caffe.ModelFactory = class {
         try {
             let reader = prototxt.TextReader.create(text);
             reader.field = function(tag, message) {
-                let type = message.constructor.name;
+                const type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
                     message[tag] = caffe.ModelFactory._decodeText(reader);
                     return;
@@ -127,9 +127,9 @@ caffe.ModelFactory = class {
                 throw new Error("Unknown field '" + tag + "'" + this.location());
             };
             reader.enum = function(type) {
-                let token = this.read();
+                const token = this.read();
                 if (!Object.prototype.hasOwnProperty.call(type, token)) {
-                    let value = Number.parseInt(token, 10);
+                    const value = Number.parseInt(token, 10);
                     if (!Number.isNaN(token - value)) {
                         return value;
                     }
@@ -137,7 +137,7 @@ caffe.ModelFactory = class {
                 }
                 return type[token];
             };
-            let netParameter = caffe.proto.NetParameter.decodeText(reader);
+            const netParameter = caffe.proto.NetParameter.decodeText(reader);
             return this._openNetParameter(metadata, netParameter, host);
         }
         catch (error) {
@@ -300,7 +300,7 @@ caffe.Graph = class {
                     if (layer.input.length == 0 && layer.output.length == 1 &&
                         layer.input_param && layer.input_param.shape &&
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
-                        let type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
+                        const type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
                         this._inputs.push(new caffe.Parameter(layer.output[0], [ new caffe.Argument(layer.output[0], type) ]));
                         layer = null;
                     }
@@ -317,13 +317,12 @@ caffe.Graph = class {
             }
         }
 
-        let input;
         if (net.input && net.input.length > 0) {
             index = 0;
-            for (input of net.input) {
+            for (let input of net.input) {
                 let inputType = null;
                 if (net.input_shape && index < net.input_shape.length) {
-                    let blobShape = net.input_shape[index];
+                    const blobShape = net.input_shape[index];
                     if (blobShape && blobShape.dim) {
                         inputType = new caffe.TensorType(null, new caffe.TensorShape(blobShape.dim));
                     }
@@ -337,7 +336,7 @@ caffe.Graph = class {
         }
 
         for (let layer of nodes) {
-            let node = new caffe.Node(metadata, layer, version);
+            const node = new caffe.Node(metadata, layer, version);
             if (layer.chain && layer.chain.length > 0) {
                 for (let chain of layer.chain) {
                     node.chain.push(new caffe.Node(metadata, chain, version));
@@ -434,9 +433,9 @@ caffe.Node = class {
                 else {
                     if (!caffe.Node._operatorMap) {
                         caffe.Node._operatorMap = {};
-                        let known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
+                        const known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
                         for (let key of Object.keys(caffe.proto.V1LayerParameter.LayerType)) {
-                            let index = caffe.proto.V1LayerParameter.LayerType[key];
+                            const index = caffe.proto.V1LayerParameter.LayerType[key];
                             caffe.Node._operatorMap[index] = key.split('_').map((item) => {
                                 return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
                             }).join('');
@@ -467,15 +466,15 @@ caffe.Node = class {
             case 2:
                 for (let layer_kind of Object.keys(layer)) {
                     if (layer_kind.endsWith('_param') || layer_kind == 'transform_param') {
-                        let param = layer[layer_kind];
+                        const param = layer[layer_kind];
                         let type = this._type;
                         if (type == 'Deconvolution') {
                             type = 'Convolution';
                         }
-                        let prototype = Object.getPrototypeOf(param);
+                        const prototype = Object.getPrototypeOf(param);
                         for (let name of Object.keys(param)) {
-                            let defaultValue = prototype[name];
-                            let value = param[name];
+                            const defaultValue = prototype[name];
+                            const value = param[name];
                             if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
                                 this._attributes.push(new caffe.Attribute(this._metadata, this.operator, name, value));
                             }
@@ -599,7 +598,7 @@ caffe.Attribute = class {
                 this._visible = false;
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                let defaultValue = schema.default;
+                const defaultValue = schema.default;
                 if (this._value == defaultValue) {
                     this._visible = false;
                 }
@@ -693,7 +692,7 @@ caffe.Tensor = class {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
@@ -712,7 +711,7 @@ caffe.Tensor = class {
 
     _decode(context, dimension) {
         let results = [];
-        let size = context.dimensions[dimension];
+        const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
