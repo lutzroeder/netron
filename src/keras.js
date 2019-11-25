@@ -57,8 +57,8 @@ keras.ModelFactory = class {
                     case 'h5':
                     case 'hd5':
                     case 'hdf5':
-                    case 'model':
-                        var file = new hdf5.File(context.buffer);
+                    case 'model': {
+                        const file = new hdf5.File(context.buffer);
                         rootGroup = file.rootGroup;
                         if (!rootGroup.attribute('model_config') && !rootGroup.attribute('layer_names')) {
                             throw new keras.Error("File format is not Keras HDF5.");
@@ -70,7 +70,8 @@ keras.ModelFactory = class {
                         version = rootGroup.attribute('keras_version') || '';
                         format = format + (version ? (' v' + version) : '');
                         break;
-                    case 'json':
+                    }
+                    case 'json': {
                         model_config = JSON.parse(context.text);
                         if (model_config.keras_version) {
                             version = model_config.keras_version;
@@ -92,6 +93,7 @@ keras.ModelFactory = class {
                             model_config = model_config.model_config;
                         }
                         break;
+                    }
                 }
             }
             catch (error) {
@@ -279,12 +281,12 @@ keras.Graph = class {
         if (group) {
             this._groups = true;
         }
-        let nodeMap = {};
+        let nodeMap = new Map();
         if (config.layers) {
             for (let layer of config.layers) {
                 if (layer.name) {
-                    if (!nodeMap[layer.name]) {
-                        nodeMap[layer.name] = layer;
+                    if (!nodeMap.has(layer.name)) {
+                        nodeMap.set(layer.name, layer);
                         layer._inputs = [];
                         layer._outputs = [];
                     }
@@ -295,7 +297,7 @@ keras.Graph = class {
                     for (let inbound_node of layer.inbound_nodes) {
                         for (let inbound_connection of inbound_node) {
                             let inputName = inbound_connection[0];
-                            let inputNode = nodeMap[inputName];
+                            let inputNode = nodeMap.get(inputName);
                             if (inputNode) {
                                 let inputIndex = inbound_connection[2];
                                 if (inputIndex != 0) {
@@ -303,7 +305,7 @@ keras.Graph = class {
                                 }
                                 while (inputIndex >= inputNode._outputs.length) {
                                     inputNode._outputs.push('');
-                                }     
+                                }
                                 inputNode._outputs[inputIndex] = inputName;
                             }
                             layer._inputs.push(inputName);
@@ -318,20 +320,17 @@ keras.Graph = class {
                 let input_layer = input_layers[i];
                 let name = input_layer[0];
                 let type = null;
-                let node = nodeMap[name];
+                let node = nodeMap.get(name);
                 if (node && node.class_name == 'InputLayer') {
                     type = this._getInputType(node);
-                    delete nodeMap[name];
+                    nodeMap.delete(name);
                 }
                 if (inputs && i < inputs.length) {
                     if (config.layers) {
                         for (let layer of config.layers) {
                             if (layer._inputs) {
                                 layer._inputs = layer._inputs.map((input) => {
-                                    if (input == name) {
-                                        return inputs[i];
-                                    }
-                                    return input;
+                                    return input === name ? inputs[i] : input;
                                 });
                             }
                         }
@@ -342,14 +341,16 @@ keras.Graph = class {
                 }
             }
         }
+        let inputMap = new Map();
         let output_layers = config.output_layers;
         if (output_layers) {
             for (let j = 0; j < output_layers.length; j++) {
                 let output_layer = output_layers[j];
                 let outputName = output_layer[0];
-                let outputNode = nodeMap[outputName];
+                let outputNode = nodeMap.get(outputName);
                 let addGraphOutput = true;
                 if (outputs && j < outputs.length) {
+                    inputMap.set(outputName, outputs[j]);
                     outputName = outputs[j];
                     addGraphOutput = false;
                 }
@@ -371,8 +372,8 @@ keras.Graph = class {
 
         if (config.layers) {
             for (let layer of config.layers) {
-                if (nodeMap[layer.name]) {
-                    this._loadNode(layer, layer._inputs, layer._outputs, weights, group);
+                if (nodeMap.has(layer.name)) {
+                    this._loadNode(layer, layer._inputs, layer._outputs, weights, group, inputMap);
                 }
             }
         }
@@ -422,7 +423,7 @@ keras.Graph = class {
         }
     }
 
-    _loadNode(layer, inputs, outputs, weights, group) {
+    _loadNode(layer, inputs, outputs, weights, group, inputMap) {
         let class_name = layer.class_name;
         switch (class_name) {
             case 'Sequential':
@@ -432,6 +433,7 @@ keras.Graph = class {
                 this._loadModel(layer.config, weights, layer.name, inputs, outputs);
                 break;
             default:
+                inputs = inputs.map((input) => inputMap && inputMap.has(input) ? inputMap.get(input) : input);
                 this._nodes.push(new keras.Node(this._metadata, class_name, layer.config, inputs, outputs, group, weights));
                 break;
         }
