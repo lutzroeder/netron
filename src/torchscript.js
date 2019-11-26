@@ -1397,7 +1397,7 @@ torchscript.Container = class {
 
     _apply(method, obj, args) {
         args = Array.prototype.slice.call(args);
-        var locals = {};
+        let locals = {};
         for (let parameter of method.parameters) {
             if (parameter.name == 'self') {
                 locals['self'] = obj;
