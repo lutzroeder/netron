@@ -1246,8 +1246,8 @@ python.Tokenizer = class {
             case ';':
             case '?':
                 return { type: c, value: c };
-            default:
-                var number = this._number();
+            default: {
+                const number = this._number();
                 if (number) {
                     return number;
                 }
@@ -1259,15 +1259,16 @@ python.Tokenizer = class {
                     let text = this._text.substring(this._position, end);
                     return { type: text, value: text };
                 }
-                var identifier = this._identifier();
+                const identifier = this._identifier();
                 if (identifier) {
                     return identifier;
                 }
-                var operator = this._operator();
+                const operator = this._operator();
                 if (operator) {
                     return operator;
                 }
                 break;
+            }
         }
         if (c === '.') {
             return { type: c, value: c };
