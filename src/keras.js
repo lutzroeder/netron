@@ -571,8 +571,8 @@ keras.Node = class {
             }
             else {
                 switch (operator) {
-                    case 'Bidirectional':
-                        var innerIndex = inputIndex;
+                    case 'Bidirectional': {
+                        let innerIndex = inputIndex;
                         if (innerSchema && innerSchema.inputs) {
                             if (innerIndex < innerSchema.inputs.length) {
                                 inputName = 'forward_' + innerSchema.inputs[innerIndex].name;
@@ -586,6 +586,7 @@ keras.Node = class {
                         }
                         visible = false;
                         break;
+                    }
                     case 'TimeDistributed':
                         if (innerSchema && innerSchema.inputs && inputIndex < innerSchema.inputs.length) {
                             inputName = innerSchema.inputs[inputIndex].name;
@@ -598,7 +599,7 @@ keras.Node = class {
                 return new keras.Argument(id, null, initializers[id]);
             });
             if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
-                let parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
+                const parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
                 const inputName1 = parts.pop();
                 const inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
                 const inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
@@ -789,8 +790,8 @@ keras.Attribute = class {
             case '[object Date]':
             case '[object Boolean]':
                 return +a === +b;
-            case '[object Array]':
-                var length = a.length;
+            case '[object Array]': {
+                let length = a.length;
                 if (length !== b.length) {
                     return false;
                 }
@@ -800,6 +801,7 @@ keras.Attribute = class {
                     }
                 }
                 return true;
+            }
         }
 
         let keys = Object.keys(a);
