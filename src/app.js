@@ -234,6 +234,9 @@ class Application {
             return;
         }
         const autoUpdater = updater.autoUpdater;
+        if (autoUpdater.app && autoUpdater.app.appUpdateConfigPath && !fs.existsSync(autoUpdater.app.appUpdateConfigPath)) {
+            return;
+        }
         const promise = autoUpdater.checkForUpdates();
         if (promise) {
             promise.catch((error) => {
