@@ -1181,7 +1181,8 @@ view.ModelFactoryService = class {
     open(context) {
         return this._openArchive(context).then((context) => {
             context = new ModelContext(context);
-            let extension = context.identifier.split('.').pop().toLowerCase();
+            const identifier = context.identifier;
+            const extension = identifier.split('.').pop().toLowerCase();
             let modules = this._filter(context);
             if (modules.length == 0) {
                 throw new ModelError("Unsupported file extension '." + extension + "'.");
@@ -1225,20 +1226,18 @@ view.ModelFactoryService = class {
                         'LICENSE.meta',
                         'input_0.pb', 
                         'output_0.pb',
-                        'face_label_map.pbtxt', 
-                        'hand_label_map.pbtxt',
-                        'imagenet_2012_challenge_label_map_proto.pbtxt', 
-                        'label_map.pbtxt',
-                        'labels_map.pbtxt',
-                        'labelmap.pbtxt',
-                        'mscoco_label_map.pbtxt',
-                        'mscoco_complete_label_map.pbtxt',
                         'object-detection.pbtxt',
-                        'tf_label_map.pbtxt',
-                        'training_label_map.pbtxt',
-                        'veh_label_map.pbtxt'
                     ]);
-                    throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'.", !knownUnsupportedIdentifiers.has(context.identifier));
+                    let skip = knownUnsupportedIdentifiers.has(identifier);
+                    if (!skip && extension === 'pbtxt') {
+                        if (identifier.includes('label_map') || identifier.includes('labels_map') || identifier.includes('labelmap')) {
+                            const tags = context.tags('pbtxt');
+                            if (tags.size === 1 && tags.has('item')) {
+                                skip = true;
+                            }
+                        }
+                    }
+                    throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + identifier + "'.", !skip);
                 }
             };
             return nextModule();
