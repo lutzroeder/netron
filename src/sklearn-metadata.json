@@ -578,7 +578,7 @@
           "option": "optional"
         }
       ],
-      "description": "Regression based on k-nearest neighbors.\n\nThe target is predicted by local interpolation of the targets\nassociated of the nearest neighbors in the training set.\n\nRead more in the :ref:`User Guide <regression>`.\n",
+      "description": "Regression based on k-nearest neighbors.\n\nThe target is predicted by local interpolation of the targets\nassociated of the nearest neighbors in the training set.\n\nRead more in the :ref:`User Guide <regression>`.\n\n.. versionadded:: 0.9\n",
       "package": "sklearn.neighbors"
     }
   },
