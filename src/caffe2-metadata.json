@@ -2952,6 +2952,11 @@
           "description": "Scale along height dimension",
           "name": "height_scale",
           "option": "optional"
+        },
+        {
+          "description": "Output dimensions (HxW). If specified this takes precedence over scale values.",
+          "name": "output_size",
+          "option": "optional"
         }
       ],
       "description": "\nResizes the spatial dimensions of the input using nearest neighbor\ninterpolation. The `width_scale` and `height_scale` arguments\ncontrol the size of the output, which is given by:\noutput_width = floor(input_width * width_scale)\noutput_height = floor(output_height * height_scale)\n",
