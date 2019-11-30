@@ -141,9 +141,9 @@ keras.Model = class {
             if (model_weights_group) {
                 model_weights_group = new keras.Group(model_weights_group);
                 let layer_names = model_weights_group.attribute('layer_names');
-                let layer_names_map = {};
+                let layer_names_map = new Set();
                 for (let layer_name of layer_names) {
-                    layer_names_map[layer_name] = true;
+                    layer_names_map.add(layer_name);
                 }
                 for (let layer_name of layer_names) {
                     let layer_weights = model_weights_group.group(layer_name);
@@ -155,22 +155,35 @@ keras.Model = class {
                                 if (group) {
                                     let variable = group.value;
                                     if (variable) {
-                                        let parts = weight_name.split('/');
-                                        parts.pop();
-                                        let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.data, '');
-                                        let match = false;
-                                        while (parts.length > 0) {
-                                            let name = parts.join('/');
-                                            if (layer_names_map[name]) {
-                                                match = true;
+                                        if (model_config) {
+                                            let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.data, '');
+                                            let parts = weight_name.split('/');
+                                            parts.pop();
+                                            let match = false;
+                                            while (parts.length > 0) {
+                                                let name = parts.join('/');
+                                                if (layer_names_map.has(name)) {
+                                                    match = true;
+                                                }
+                                                weights[name] = weights[name] || [];
+                                                weights[name].push(initializer);
+                                                parts.shift();
                                             }
+                                            if (!match) {
+                                                weights[layer_name] = weights[layer_name] || [];
+                                                weights[layer_name].push(initializer);
+                                            }
+                                        }
+                                        else {
+                                            if (!weight_name.startsWith(layer_name + '/')) {
+                                                weight_name = layer_name + '/' + weight_name; 
+                                            }
+                                            let initializer = new keras.Tensor(weight_name, variable.type, variable.shape, variable.littleEndian, variable.data, '');
+                                            let parts = weight_name.split('/');
+                                            parts.pop();
+                                            let name = parts.join('/');
                                             weights[name] = weights[name] || [];
                                             weights[name].push(initializer);
-                                            parts.shift();
-                                        }
-                                        if (!match) {
-                                            weights[layer_name] = weights[layer_name] || [];
-                                            weights[layer_name].push(initializer);
                                         }
                                     }
                                 }
@@ -251,7 +264,8 @@ keras.Graph = class {
         else if (weights) {
             for (let layer of Object.keys(weights)) {
                 if (weights[layer].length <= 6) {
-                    this._nodes.push(new keras.Node(metadata, 'Weights', { name: layer }, [], [], false, weights))
+                    const node = new keras.Node(metadata, 'Weights', { name: layer }, [], [], false, weights);
+                    this._nodes.push(node)
                 }
             }
         }
@@ -426,16 +440,20 @@ keras.Graph = class {
     _loadNode(layer, inputs, outputs, weights, group, inputMap) {
         let class_name = layer.class_name;
         switch (class_name) {
-            case 'Sequential':
+            case 'Sequential': {
                 this._loadSequential(layer.config, weights, layer.name, inputs, outputs);
                 break;
-            case 'Model':
+            }
+            case 'Model': {
                 this._loadModel(layer.config, weights, layer.name, inputs, outputs);
                 break;
-            default:
+            }
+            default: {
                 inputs = inputs.map((input) => inputMap && inputMap.has(input) ? inputMap.get(input) : input);
-                this._nodes.push(new keras.Node(this._metadata, class_name, layer.config, inputs, outputs, group, weights));
+                const node = new keras.Node(this._metadata, class_name, layer.config, inputs, outputs, group, weights);
+                this._nodes.push(node);
                 break;
+            }
         }
     }
 
