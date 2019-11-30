@@ -13,25 +13,21 @@ bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "ncnn clean"
-    rm -rf ${third_party}/${identifier}
+    rm -rf "${third_party}/${identifier}"
 }
 
 sync() {
     bold "ncnn sync"
-    git_sync ncnn https://github.com/Tencent/ncnn.git
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/ncnn" ]; then
+        git -C "${third_party}/ncnn" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --recursive https://github.com/Tencent/ncnn.git ncnn
+    fi
+    git -C "${third_party}/ncnn" submodule sync --quiet
+    git -C "${third_party}/ncnn" submodule update --quiet --init --recursive
 }
 
 while [ "$#" != 0 ]; do
