@@ -262,25 +262,20 @@ caffe.Graph = class {
             index++;
         }
 
-        // Graph Outputs
-        let used = new Set();
+        // Graph Inputs
+        let usedOutputs = new Set();
+        for (let layer of layers) {
+            for (let output of layer.output) {
+                usedOutputs.add(output);
+            }
+        }
+        let unusedInputs = [];
         for (let layer of layers) {
             for (let input of layer.input) {
-                used.add(input);
-            }
-        }
-        let outputTops = [];
-        for (let layer of layers) {
-            if (layer.input.length > 0) {
-                for (let output of layer.output) {
-                    if (!used.has(output)) {
-                        outputTops.push(output);
-                    }
+                if (!usedOutputs.has(input)) {
+                    unusedInputs.push(input);
                 }
             }
-        }
-        for (let outputTop of outputTops) {
-            this._outputs.push(new caffe.Parameter(outputTop, [ new caffe.Argument(outputTop, null) ]));
         }
 
         let nodes = [];
@@ -343,6 +338,12 @@ caffe.Graph = class {
                 }
             }
             this._nodes.push(node);
+        }
+
+        if (this._inputs.length === 0 && unusedInputs.length === 1) {
+            this._inputs.push(new caffe.Parameter(unusedInputs[0], [
+                new caffe.Argument(unusedInputs[0], null)
+            ]));
         }
     }
 
