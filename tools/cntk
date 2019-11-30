@@ -14,25 +14,21 @@ bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "cntk clean"
-    rm -rf ${third_party}/cntk
+    rm -rf "${third_party}/cntk"
 }
 
 sync() {
     bold "cntk sync"
-    git_sync cntk https://github.com/Microsoft/CNTK.git
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/cntk" ]; then
+        git -C "${third_party}/cntk" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --recursive https://github.com/Microsoft/CNTK.git cntk
+    fi
+    git -C "${third_party}/cntk" submodule sync --quiet
+    git -C "${third_party}/cntk" submodule update --quiet --init --recursive
 }
 
 schema() {
