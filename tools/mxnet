@@ -7,32 +7,25 @@ src=${root}/src
 third_party=${root}/third_party
 tools=${root}/tools
 
-identifier=mxnet
-
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "mxnet clean"
-    rm -rf ${virtualenv}
-    rm -rf ${third_party}/${identifier}
+    rm -rf "${third_party}/mxnet"
 }
 
 sync() {
     bold "mxnet sync"
-    git_sync mxnet https://github.com/apache/incubator-mxnet.git
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/mxnet" ]; then
+        git -C "${third_party}/mxnet" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --recursive https://github.com/apache/incubator-mxnet.git mxnet
+    fi
+    git -C "${third_party}/mxnet" submodule sync --quiet
+    git -C "${third_party}/mxnet" submodule update --quiet --init --recursive
 }
 
 metadata() {
