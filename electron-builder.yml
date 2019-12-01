@@ -69,7 +69,6 @@ mac:
 linux:
   target:
   - AppImage
-  - deb
   - snap
 snap:
   plugs:
