@@ -14,69 +14,73 @@ tf.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'meta') {
-            const tags = context.tags('pb');
-            if (tags.size === 0) {
+        switch (extension) {
+            case 'meta': {
+                const tags = context.tags('pb');
+                if (tags.size !== 0) {
+                    return true;
+                }
                 return false;
             }
-            return true;
-        }
-        if (extension == 'pb') {
-            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-                return false;
-            }
-            if (identifier == 'tfhub_module.pb') {
-                const buffer = context.buffer;
-                if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
+            case 'pb': {
+                if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                     return false;
                 }
+                if (identifier == 'tfhub_module.pb') {
+                    const buffer = context.buffer;
+                    if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
+                        return false;
+                    }
+                }
+                const tags = context.tags('pb');
+                if (tags.size === 0) {
+                    const tags = context.tags('pbtxt');
+                    if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
+                        return false;
+                    }
+                    if (tags.has('input_stream') || tags.has('output_stream')) {
+                        return false;
+                    }
+                }
+                else {
+                    // ignore input_0.pb, output_0.pb
+                    if (tags.has(1) && tags.get(1) === 0 && 
+                        tags.has(2) && tags.get(2) === 0 && 
+                        tags.has(9) && tags.get(9) === 2) {
+                        return false;
+                    }
+                    if (Array.from(tags.values()).some((v) => v === 5)) {
+                        return false;
+                    }
+                }
+                return true;    
             }
-            const tags = context.tags('pb');
-            if (tags.size === 0) {
+            case 'pbtxt':
+            case 'prototxt': {
+                if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                    identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+                    return false;
+                }
                 const tags = context.tags('pbtxt');
-                if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
-                    return false;
-                }
                 if (tags.has('input_stream') || tags.has('output_stream')) {
                     return false;
                 }
-            }
-            else {
-                // ignore input_0.pb, output_0.pb
-                if (tags.has(1) && tags.get(1) === 0 && 
-                    tags.has(2) && tags.get(2) === 0 && 
-                    tags.has(9) && tags.get(9) === 2) {
+                if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
                     return false;
                 }
-                if (Array.from(tags.values()).some((v) => v === 5)) {
-                    return false;
+                return true;
+            }
+            case 'json': {
+                try {
+                    const root = JSON.parse(context.text);
+                    if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
+                        return true;
+                    }
                 }
-            }
-            return true;
-        }
-        if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-                return false;
-            }
-            const tags = context.tags('pbtxt');
-            if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
-                return false;
-            }
-            if (tags.has('input_stream') || tags.has('output_stream')) {
-                return false;
-            }
-            return true;
-        }
-        if (extension == 'json') {
-            try {
-                const root = JSON.parse(context.text);
-                if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
-                    return true;
+                catch (err) {
+                    // continue regardless of error
                 }
-            }
-            catch (err) {
-                // continue regardless of error
+                return false;
             }
         }
         return false;
@@ -85,8 +89,6 @@ tf.ModelFactory = class {
     open(context, host) { 
         return host.require('./tf-proto').then(() => {
             tf.proto = protobuf.roots.tf.tensorflow;
-            let graph_def = null;
-            let meta_graph = null;
             let saved_model = null;
             let format = null;
             let producer = null;
@@ -112,7 +114,7 @@ tf.ModelFactory = class {
                     else if (tags.has('graph_def')) {
                         try {
                             if (!saved_model) {
-                                meta_graph = tf.proto.MetaGraphDef.decodeText(prototxt.TextReader.create(context.text));
+                                const meta_graph = tf.proto.MetaGraphDef.decodeText(prototxt.TextReader.create(context.text));
                                 saved_model = new tf.proto.SavedModel();
                                 saved_model.meta_graphs.push(meta_graph);
                                 format = 'TensorFlow MetaGraph';
@@ -124,8 +126,8 @@ tf.ModelFactory = class {
                     }
                     else if (tags.has('node')) {
                         try {
-                            graph_def = tf.proto.GraphDef.decodeText(prototxt.TextReader.create(context.text));
-                            meta_graph = new tf.proto.MetaGraphDef();
+                            const graph_def = tf.proto.GraphDef.decodeText(prototxt.TextReader.create(context.text));
+                            let meta_graph = new tf.proto.MetaGraphDef();
                             meta_graph.graph_def = graph_def;
                             saved_model = new tf.proto.SavedModel();
                             saved_model.meta_graphs.push(meta_graph);
@@ -154,7 +156,7 @@ tf.ModelFactory = class {
                     }
                     try {
                         if (!saved_model && extension == 'meta') {
-                            meta_graph = tf.proto.MetaGraphDef.decode(context.buffer);
+                            const meta_graph = tf.proto.MetaGraphDef.decode(context.buffer);
                             saved_model = new tf.proto.SavedModel();
                             saved_model.meta_graphs.push(meta_graph);
                             format = 'TensorFlow MetaGraph';
@@ -165,8 +167,8 @@ tf.ModelFactory = class {
                     }
                     try {
                         if (!saved_model) {
-                            graph_def = tf.proto.GraphDef.decode(context.buffer);
-                            meta_graph = new tf.proto.MetaGraphDef();
+                            const graph_def = tf.proto.GraphDef.decode(context.buffer);
+                            let meta_graph = new tf.proto.MetaGraphDef();
                             meta_graph.graph_def = graph_def;
                             saved_model = new tf.proto.SavedModel();
                             saved_model.meta_graphs.push(meta_graph);
@@ -187,8 +189,8 @@ tf.ModelFactory = class {
             else {
                 try {
                     const root = JSON.parse(context.text);
-                    graph_def = new tf.proto.GraphDef();
-                    meta_graph = new tf.proto.MetaGraphDef();
+                    let graph_def = new tf.proto.GraphDef();
+                    let meta_graph = new tf.proto.MetaGraphDef();
                     meta_graph.graph_def = graph_def;
                     saved_model = new tf.proto.SavedModel();
                     saved_model.meta_graphs.push(meta_graph);

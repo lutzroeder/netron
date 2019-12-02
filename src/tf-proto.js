@@ -5379,6 +5379,289 @@
             return TypeSpecProto;
         })();
     
+        tensorflow.BundleHeaderProto = (function() {
+    
+            function BundleHeaderProto(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            BundleHeaderProto.prototype.num_shards = 0;
+            BundleHeaderProto.prototype.endianness = 0;
+            BundleHeaderProto.prototype.version = null;
+    
+            BundleHeaderProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.BundleHeaderProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.num_shards = reader.int32();
+                        break;
+                    case 2:
+                        message.endianness = reader.int32();
+                        break;
+                    case 3:
+                        message.version = $root.tensorflow.VersionDef.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BundleHeaderProto.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.BundleHeaderProto();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_shards":
+                        message.num_shards = reader.int32();
+                        break;
+                    case "endianness":
+                        message.endianness = reader.enum($root.tensorflow.BundleHeaderProto.Endianness);
+                        break;
+                    case "version":
+                        message.version = $root.tensorflow.VersionDef.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BundleHeaderProto.Endianness = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "LITTLE"] = 0;
+                values[valuesById[1] = "BIG"] = 1;
+                return values;
+            })();
+    
+            return BundleHeaderProto;
+        })();
+    
+        tensorflow.BundleEntryProto = (function() {
+    
+            function BundleEntryProto(properties) {
+                this.slices = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            BundleEntryProto.prototype.dtype = 0;
+            BundleEntryProto.prototype.shape = null;
+            BundleEntryProto.prototype.shard_id = 0;
+            BundleEntryProto.prototype.offset = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            BundleEntryProto.prototype.size = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            BundleEntryProto.prototype.crc32c = 0;
+            BundleEntryProto.prototype.slices = $util.emptyArray;
+    
+            BundleEntryProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.BundleEntryProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.dtype = reader.int32();
+                        break;
+                    case 2:
+                        message.shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.shard_id = reader.int32();
+                        break;
+                    case 4:
+                        message.offset = reader.int64();
+                        break;
+                    case 5:
+                        message.size = reader.int64();
+                        break;
+                    case 6:
+                        message.crc32c = reader.fixed32();
+                        break;
+                    case 7:
+                        if (!(message.slices && message.slices.length))
+                            message.slices = [];
+                        message.slices.push($root.tensorflow.TensorSliceProto.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BundleEntryProto.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.BundleEntryProto();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dtype":
+                        message.dtype = reader.enum($root.tensorflow.DataType);
+                        break;
+                    case "shape":
+                        message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    case "shard_id":
+                        message.shard_id = reader.int32();
+                        break;
+                    case "offset":
+                        message.offset = reader.int64();
+                        break;
+                    case "size":
+                        message.size = reader.int64();
+                        break;
+                    case "crc32c":
+                        message.crc32c = reader.fixed32();
+                        break;
+                    case "slices":
+                        if (!(message.slices && message.slices.length))
+                            message.slices = [];
+                        message.slices.push($root.tensorflow.TensorSliceProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return BundleEntryProto;
+        })();
+    
+        tensorflow.TensorSliceProto = (function() {
+    
+            function TensorSliceProto(properties) {
+                this.extent = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TensorSliceProto.prototype.extent = $util.emptyArray;
+    
+            TensorSliceProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TensorSliceProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.extent && message.extent.length))
+                            message.extent = [];
+                        message.extent.push($root.tensorflow.TensorSliceProto.Extent.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorSliceProto.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.TensorSliceProto();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "extent":
+                        if (!(message.extent && message.extent.length))
+                            message.extent = [];
+                        message.extent.push($root.tensorflow.TensorSliceProto.Extent.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorSliceProto.Extent = (function() {
+    
+                function Extent(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Extent.prototype.start = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                Extent.prototype.length = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                var $oneOfFields;
+    
+                Object.defineProperty(Extent.prototype, "has_length", {
+                    get: $util.oneOfGetter($oneOfFields = ["length"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Extent.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.TensorSliceProto.Extent();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.start = reader.int64();
+                            break;
+                        case 2:
+                            message.length = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                Extent.decodeText = function decodeText(reader) {
+                    var message = new $root.tensorflow.TensorSliceProto.Extent();
+                    reader.start();
+                    while (!reader.end()) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "start":
+                            message.start = reader.int64();
+                            break;
+                        case "length":
+                            message.length = reader.int64();
+                            break;
+                        default:
+                            reader.field(tag, message);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return Extent;
+            })();
+    
+            return TensorSliceProto;
+        })();
+    
         return tensorflow;
     })();
     
