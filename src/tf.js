@@ -207,22 +207,39 @@ tf.ModelFactory = class {
             }
 
             return tf.Metadata.open(host).then((metadata) => {
-                try {
-                    return new tf.Model(metadata, saved_model, format, producer);
+
+                if (saved_model.meta_graphs.length === 1 &&
+                    saved_model.meta_graphs[0].object_graph_def &&
+                    saved_model.meta_graphs[0].object_graph_def.nodes &&
+                    saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
+                    return tf.Variables.open(context).then((variables) => {
+                        return this._openModel(identifier, host, metadata, saved_model, format, producer, variables);
+                    }).catch((error) => {
+                        host.exception(error, false);
+                        return this._openModel(identifier, host, metadata, saved_model, format, producer, null);
+                    });
                 }
-                catch (error) {
-                    host.exception(error, false);
-                    throw new tf.Error(error.message);
-                }
+                return this._openModel(identifier, host, metadata, saved_model, format, producer, null);
             });
         });
+    }
+
+    _openModel(identifier, host, metadata, saved_model, format, producer, variables) {
+        try {
+            return new tf.Model(metadata, saved_model, format, producer, variables);
+        }
+        catch (error) {
+            host.exception(error, false);
+            let message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            throw new tf.Error(message + " in '" + identifier + "'.");
+        }
     }
 };
 
 tf.Model = class {
 
-    constructor(metadata, model, format, producer) {
-        this._model = model;
+    constructor(metadata, model, format, producer /*, variables */) {
         this._format = format;
         this._producer = producer || '';
         this._graphs = [];
@@ -247,12 +264,11 @@ tf.Model = class {
         while (pending_graphs.length > 0) {
             let g = pending_graphs.shift();
             visited_graph.push(g);
-            for (let f of g.functions)
+            for (let f of g.functions) {
                 pending_graphs.push(f);
+            }
         }
         this._graphs = visited_graph;
-
-        this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
     }
 
     get format() {
@@ -1290,6 +1306,153 @@ tf.TensorShape = class {
         return '?';
     }
 };
+
+tf.Variables = class {
+
+    static open(context) {
+        return context.request('variables/variables.index', null).then((buffer) => {
+            let variableIndex = new tf.Variables.Index(buffer);
+            let promises = [];
+            for (let i = 0; i < variableIndex.numShards; i++) {
+                const shardIndex = ('0000' + i).slice(-5);
+                const shardCount = ('0000' + variableIndex.numShards).slice(-5);
+                const name = 'variables/variables.data-' + shardIndex + '-of-' + shardCount;
+                promises.push(context.request(name, null));
+            }
+            return Promise.all(promises).then((/* shards */) => {
+                return variableIndex;
+            });
+        });
+    }
+}
+
+tf.Variables.Index = class {
+
+    constructor(buffer) {
+        this._map = new Map();
+        if (buffer.length <= 48) {
+            throw new tf.Error('Invalid index file size.');
+        }
+        let reader = new tf.Variables.BinaryReader(buffer);
+        reader.seek(-8);
+        const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
+        if (!reader.bytes(8).every((value, index) => value === signature[index])) {
+            throw new tf.Error('Invalid table signature.');
+        }
+        reader.seek(-48);
+        reader.varint64(); // metaindex offset
+        reader.varint64(); // metaindex size
+        const indexOffset = reader.varint64();
+        const indexSize = reader.varint64();
+        reader.seek(indexOffset);
+        let indexData = reader.bytes(indexSize);
+        let indexCompression = reader.byte();
+        if (indexCompression !== 0) { // kNoCompression
+            throw new Error("Unsupported block compression '" + indexCompression + "'.");
+        }
+        let indexReader = new tf.Variables.BinaryReader(indexData);
+        indexReader.seek(-4);
+        const numRestarts = indexReader.int32();
+        indexReader.seek(-4 - (4 * numRestarts));
+        let restartOffsets = [];
+        for (let i = 0; i < numRestarts; i++) {
+            restartOffsets.push(indexReader.int32());
+        }
+        const textDecoder = new TextDecoder();
+        for (let i = 0; i < numRestarts; i++) {
+            indexReader.seek(restartOffsets[i]);
+            indexReader.varint32(); // index shared size
+            const indexNonSharedSize = indexReader.varint32();
+            const indexValueSize = indexReader.varint32();
+            indexReader.skip(indexNonSharedSize);
+            let indexValueReader = new tf.Variables.BinaryReader(indexReader.bytes(indexValueSize));
+            reader.seek(indexValueReader.varint64());
+            let blockReader = new tf.Variables.BinaryReader(reader.bytes(indexValueReader.varint64()));
+            let key = '';
+            while (!blockReader.end()) {
+                const sharedSize = blockReader.varint32();
+                const nonSharedSize = blockReader.varint32();
+                const valueSize = blockReader.varint32();
+                if (sharedSize === 0 && nonSharedSize === 0 && valueSize === 0) {
+                    break;
+                }
+                key = key.substring(0, sharedSize);
+                key = key + textDecoder.decode(blockReader.bytes(nonSharedSize));
+                const value = blockReader.bytes(valueSize);
+                const entry = key === "" ?
+                    tf.proto.BundleHeaderProto.decode(value) :
+                    tf.proto.BundleEntryProto.decode(value);
+                this._map.set(key, entry);
+            }
+        }
+        const header = this._map.get('');
+        if (!header) {
+            throw new tf.Error('Bundle header not available.');
+        }
+        this._numShards = header.num_shards;
+    }
+
+    get numShards() {
+        return this._numShards;
+    }
+}
+
+tf.Variables.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._position = 0;
+    }
+
+    seek(offset) {
+        this._position = offset >= 0 ? offset : this._buffer.length + offset;
+    }
+
+    end() {
+        return this._position >= this._buffer.length;
+    }
+
+    skip(size) {
+        this._position += size;
+    }
+
+    bytes(size) {
+        const data = this._buffer.subarray(this._position, this._position + size);
+        this._position += size;
+        return data;
+    }
+
+    byte() {
+        return this._buffer[this._position++];
+    }
+
+    int32() {
+        let i0 = this._buffer[this._position++];
+        let i1 = this._buffer[this._position++];
+        let i2 = this._buffer[this._position++];
+        let i3 = this._buffer[this._position++];
+        return i0 | i1 << 8 | i2 << 16 | i3 << 24;
+    }
+
+    varint32() {
+        return this.varint64();
+    }
+
+    varint64() {
+        let result = 0;
+        for (let shift = 0; shift <= 63; shift += 7) {
+            let byte = this._buffer[this._position++];
+            if (byte & 128) {
+                result |= (byte & 127) << shift;
+            }
+            else {
+                result |= byte << shift;
+                break;
+            }
+        }
+        return result;
+    }
+}
 
 tf.GraphMetadata = class {
 
