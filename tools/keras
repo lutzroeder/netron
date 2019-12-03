@@ -42,7 +42,7 @@ install() {
     [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
     [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    python3 -m pip install --quiet tensorflow
+    python3 -m pip install --quiet --upgrade tensorflow
     python3 -m pip install --quiet ${third_party}/${identifier}
     deactivate
 }

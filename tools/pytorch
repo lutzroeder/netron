@@ -45,10 +45,10 @@ install() {
     [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
     [ -d "${virtualenv}" ] || python3 -m virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
-    python3 -m pip install --quiet future protobuf numpy scikit-build scipy
-    python3 -m pip install --quiet ninja pyyaml mkl mkl-include setuptools cmake cffi six typing
-    python3 -m pip install --quiet --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
-    python3 -m pip install --quiet --pre torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    python3 -m pip install --quiet --upgrade future protobuf numpy scikit-build scipy
+    python3 -m pip install --quiet --upgrade ninja pyyaml mkl mkl-include setuptools cmake cffi six typing
+    python3 -m pip install --quiet --pre --upgrade torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    python3 -m pip install --quiet --pre --upgrade torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
 }
 
