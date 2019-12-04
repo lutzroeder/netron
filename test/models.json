@@ -3998,13 +3998,6 @@
     "status": "script"
   },
   {
-    "type":   "pytorch",
-    "target": "yolov3-tiny.pt",
-    "source": "https://drive.google.com/uc?export=download&id=1qKSgejNeNczgNNiCn9ZF_o55GFk1DjY_",
-    "format": "PyTorch",
-    "link":   "https://github.com/satrajit-chatterjee/yolov3"
-  },
-  {
     "type":   "sklearn",
     "target": "binarizer.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.pkl]",
