@@ -5158,7 +5158,7 @@
     "type":   "torchscript",
     "target": "mobilenet_v2.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
-    "error":  "Method 'forward' not found in 'mobilenet_v2.pt'.",
+    "error":  "Unknown statement in 'mobilenet_v2.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5231,7 +5231,7 @@
     "type":   "torchscript",
     "target": "resnet18.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
-    "error":  "Method 'forward' not found in 'resnet18.pt'.",
+    "error":  "Unknown statement in 'resnet18.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5248,7 +5248,6 @@
     "target": "resnet50.pt",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'resnet50.pt'.",
-    "error":  "Method 'forward' not found in 'resnet50.pt'.",
     "format": "TorchScript v1",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -5264,7 +5263,7 @@
     "type":   "torchscript",
     "target": "shufflenet_v2_x1_0.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "error":  "Method 'forward' not found in 'shufflenet_v2_x1_0.pt'.",
+    "error":  "Unknown statement in 'shufflenet_v2_x1_0.pt'.",
     "render": "skip",
     "script": [ "${root}/tools/pytorch", "sync install zoo" ],
     "status": "script"
