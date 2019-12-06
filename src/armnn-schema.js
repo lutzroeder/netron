@@ -26,16 +26,16 @@ armnnSerializer.ActivationFunction = {
  * @enum {string}
  */
 armnnSerializer.ActivationFunctionName = {
-  '0': 'Sigmoid',
-  '1': 'TanH',
-  '2': 'Linear',
-  '3': 'ReLu',
-  '4': 'BoundedReLu',
-  '5': 'SoftReLu',
-  '6': 'LeakyReLu',
-  '7': 'Abs',
-  '8': 'Sqrt',
-  '9': 'Square'
+  0: 'Sigmoid',
+  1: 'TanH',
+  2: 'Linear',
+  3: 'ReLu',
+  4: 'BoundedReLu',
+  5: 'SoftReLu',
+  6: 'LeakyReLu',
+  7: 'Abs',
+  8: 'Sqrt',
+  9: 'Square'
 };
 
 /**
@@ -50,8 +50,8 @@ armnnSerializer.ArgMinMaxFunction = {
  * @enum {string}
  */
 armnnSerializer.ArgMinMaxFunctionName = {
-  '0': 'Min',
-  '1': 'Max'
+  0: 'Min',
+  1: 'Max'
 };
 
 /**
@@ -70,12 +70,12 @@ armnnSerializer.DataType = {
  * @enum {string}
  */
 armnnSerializer.DataTypeName = {
-  '0': 'Float16',
-  '1': 'Float32',
-  '2': 'QuantisedAsymm8',
-  '3': 'Signed32',
-  '4': 'Boolean',
-  '5': 'QuantisedSymm16'
+  0: 'Float16',
+  1: 'Float32',
+  2: 'QuantisedAsymm8',
+  3: 'Signed32',
+  4: 'Boolean',
+  5: 'QuantisedSymm16'
 };
 
 /**
@@ -90,8 +90,8 @@ armnnSerializer.DataLayout = {
  * @enum {string}
  */
 armnnSerializer.DataLayoutName = {
-  '0': 'NHWC',
-  '1': 'NCHW'
+  0: 'NHWC',
+  1: 'NCHW'
 };
 
 /**
@@ -106,8 +106,8 @@ armnnSerializer.ResizeMethod = {
  * @enum {string}
  */
 armnnSerializer.ResizeMethodName = {
-  '0': 'NearestNeighbor',
-  '1': 'Bilinear'
+  0: 'NearestNeighbor',
+  1: 'Bilinear'
 };
 
 /**
@@ -125,11 +125,11 @@ armnnSerializer.ConstTensorData = {
  * @enum {string}
  */
 armnnSerializer.ConstTensorDataName = {
-  '0': 'NONE',
-  '1': 'ByteData',
-  '2': 'ShortData',
-  '3': 'IntData',
-  '4': 'LongData'
+  0: 'NONE',
+  1: 'ByteData',
+  2: 'ShortData',
+  3: 'IntData',
+  4: 'LongData'
 };
 
 /**
@@ -196,60 +196,60 @@ armnnSerializer.LayerType = {
  * @enum {string}
  */
 armnnSerializer.LayerTypeName = {
-  '0': 'Addition',
-  '1': 'Input',
-  '2': 'Multiplication',
-  '3': 'Output',
-  '4': 'Pooling2d',
-  '5': 'Reshape',
-  '6': 'Softmax',
-  '7': 'Convolution2d',
-  '8': 'DepthwiseConvolution2d',
-  '9': 'Activation',
-  '10': 'Permute',
-  '11': 'FullyConnected',
-  '12': 'Constant',
-  '13': 'SpaceToBatchNd',
-  '14': 'BatchToSpaceNd',
-  '15': 'Division',
-  '16': 'Minimum',
-  '17': 'Equal',
-  '18': 'Maximum',
-  '19': 'Normalization',
-  '20': 'Pad',
-  '21': 'Rsqrt',
-  '22': 'Floor',
-  '23': 'BatchNormalization',
-  '24': 'Greater',
-  '25': 'ResizeBilinear',
-  '26': 'Subtraction',
-  '27': 'StridedSlice',
-  '28': 'Gather',
-  '29': 'Mean',
-  '30': 'Merger',
-  '31': 'L2Normalization',
-  '32': 'Splitter',
-  '33': 'DetectionPostProcess',
-  '34': 'Lstm',
-  '35': 'Quantize',
-  '36': 'Dequantize',
-  '37': 'Merge',
-  '38': 'Switch',
-  '39': 'Concat',
-  '40': 'SpaceToDepth',
-  '41': 'Prelu',
-  '42': 'TransposeConvolution2d',
-  '43': 'Resize',
-  '44': 'Stack',
-  '45': 'QuantizedLstm',
-  '46': 'Abs',
-  '47': 'ArgMinMax',
-  '48': 'Slice',
-  '49': 'DepthToSpace',
-  '50': 'InstanceNormalization',
-  '51': 'LogSoftmax',
-  '52': 'Comparison',
-  '53': 'StandIn'
+  0: 'Addition',
+  1: 'Input',
+  2: 'Multiplication',
+  3: 'Output',
+  4: 'Pooling2d',
+  5: 'Reshape',
+  6: 'Softmax',
+  7: 'Convolution2d',
+  8: 'DepthwiseConvolution2d',
+  9: 'Activation',
+  10: 'Permute',
+  11: 'FullyConnected',
+  12: 'Constant',
+  13: 'SpaceToBatchNd',
+  14: 'BatchToSpaceNd',
+  15: 'Division',
+  16: 'Minimum',
+  17: 'Equal',
+  18: 'Maximum',
+  19: 'Normalization',
+  20: 'Pad',
+  21: 'Rsqrt',
+  22: 'Floor',
+  23: 'BatchNormalization',
+  24: 'Greater',
+  25: 'ResizeBilinear',
+  26: 'Subtraction',
+  27: 'StridedSlice',
+  28: 'Gather',
+  29: 'Mean',
+  30: 'Merger',
+  31: 'L2Normalization',
+  32: 'Splitter',
+  33: 'DetectionPostProcess',
+  34: 'Lstm',
+  35: 'Quantize',
+  36: 'Dequantize',
+  37: 'Merge',
+  38: 'Switch',
+  39: 'Concat',
+  40: 'SpaceToDepth',
+  41: 'Prelu',
+  42: 'TransposeConvolution2d',
+  43: 'Resize',
+  44: 'Stack',
+  45: 'QuantizedLstm',
+  46: 'Abs',
+  47: 'ArgMinMax',
+  48: 'Slice',
+  49: 'DepthToSpace',
+  50: 'InstanceNormalization',
+  51: 'LogSoftmax',
+  52: 'Comparison',
+  53: 'StandIn'
 };
 
 /**
@@ -268,12 +268,12 @@ armnnSerializer.ComparisonOperation = {
  * @enum {string}
  */
 armnnSerializer.ComparisonOperationName = {
-  '0': 'Equal',
-  '1': 'Greater',
-  '2': 'GreaterOrEqual',
-  '3': 'Less',
-  '4': 'LessOrEqual',
-  '5': 'NotEqual'
+  0: 'Equal',
+  1: 'Greater',
+  2: 'GreaterOrEqual',
+  3: 'Less',
+  4: 'LessOrEqual',
+  5: 'NotEqual'
 };
 
 /**
@@ -289,9 +289,9 @@ armnnSerializer.PoolingAlgorithm = {
  * @enum {string}
  */
 armnnSerializer.PoolingAlgorithmName = {
-  '0': 'Max',
-  '1': 'Average',
-  '2': 'L2'
+  0: 'Max',
+  1: 'Average',
+  2: 'L2'
 };
 
 /**
@@ -306,8 +306,8 @@ armnnSerializer.OutputShapeRounding = {
  * @enum {string}
  */
 armnnSerializer.OutputShapeRoundingName = {
-  '0': 'Floor',
-  '1': 'Ceiling'
+  0: 'Floor',
+  1: 'Ceiling'
 };
 
 /**
@@ -322,8 +322,8 @@ armnnSerializer.PaddingMethod = {
  * @enum {string}
  */
 armnnSerializer.PaddingMethodName = {
-  '0': 'IgnoreValue',
-  '1': 'Exclude'
+  0: 'IgnoreValue',
+  1: 'Exclude'
 };
 
 /**
@@ -338,8 +338,8 @@ armnnSerializer.NormalizationAlgorithmChannel = {
  * @enum {string}
  */
 armnnSerializer.NormalizationAlgorithmChannelName = {
-  '0': 'Across',
-  '1': 'Within'
+  0: 'Across',
+  1: 'Within'
 };
 
 /**
@@ -354,8 +354,8 @@ armnnSerializer.NormalizationAlgorithmMethod = {
  * @enum {string}
  */
 armnnSerializer.NormalizationAlgorithmMethodName = {
-  '0': 'LocalBrightness',
-  '1': 'LocalContrast'
+  0: 'LocalBrightness',
+  1: 'LocalContrast'
 };
 
 /**
@@ -423,61 +423,61 @@ armnnSerializer.Layer = {
  * @enum {string}
  */
 armnnSerializer.LayerName = {
-  '0': 'NONE',
-  '1': 'ActivationLayer',
-  '2': 'AdditionLayer',
-  '3': 'BatchToSpaceNdLayer',
-  '4': 'BatchNormalizationLayer',
-  '5': 'ConstantLayer',
-  '6': 'Convolution2dLayer',
-  '7': 'DepthwiseConvolution2dLayer',
-  '8': 'FullyConnectedLayer',
-  '9': 'InputLayer',
-  '10': 'MultiplicationLayer',
-  '11': 'OutputLayer',
-  '12': 'PermuteLayer',
-  '13': 'Pooling2dLayer',
-  '14': 'ReshapeLayer',
-  '15': 'SoftmaxLayer',
-  '16': 'SpaceToBatchNdLayer',
-  '17': 'DivisionLayer',
-  '18': 'MinimumLayer',
-  '19': 'EqualLayer',
-  '20': 'MaximumLayer',
-  '21': 'NormalizationLayer',
-  '22': 'PadLayer',
-  '23': 'RsqrtLayer',
-  '24': 'FloorLayer',
-  '25': 'GreaterLayer',
-  '26': 'ResizeBilinearLayer',
-  '27': 'SubtractionLayer',
-  '28': 'StridedSliceLayer',
-  '29': 'GatherLayer',
-  '30': 'MeanLayer',
-  '31': 'MergerLayer',
-  '32': 'L2NormalizationLayer',
-  '33': 'SplitterLayer',
-  '34': 'DetectionPostProcessLayer',
-  '35': 'LstmLayer',
-  '36': 'QuantizedLstmLayer',
-  '37': 'QuantizeLayer',
-  '38': 'DequantizeLayer',
-  '39': 'MergeLayer',
-  '40': 'SwitchLayer',
-  '41': 'ConcatLayer',
-  '42': 'SpaceToDepthLayer',
-  '43': 'PreluLayer',
-  '44': 'TransposeConvolution2dLayer',
-  '45': 'ResizeLayer',
-  '46': 'StackLayer',
-  '47': 'AbsLayer',
-  '48': 'ArgMinMaxLayer',
-  '49': 'SliceLayer',
-  '50': 'DepthToSpaceLayer',
-  '51': 'InstanceNormalizationLayer',
-  '52': 'LogSoftmaxLayer',
-  '53': 'ComparisonLayer',
-  '54': 'StandInLayer'
+  0: 'NONE',
+  1: 'ActivationLayer',
+  2: 'AdditionLayer',
+  3: 'BatchToSpaceNdLayer',
+  4: 'BatchNormalizationLayer',
+  5: 'ConstantLayer',
+  6: 'Convolution2dLayer',
+  7: 'DepthwiseConvolution2dLayer',
+  8: 'FullyConnectedLayer',
+  9: 'InputLayer',
+  10: 'MultiplicationLayer',
+  11: 'OutputLayer',
+  12: 'PermuteLayer',
+  13: 'Pooling2dLayer',
+  14: 'ReshapeLayer',
+  15: 'SoftmaxLayer',
+  16: 'SpaceToBatchNdLayer',
+  17: 'DivisionLayer',
+  18: 'MinimumLayer',
+  19: 'EqualLayer',
+  20: 'MaximumLayer',
+  21: 'NormalizationLayer',
+  22: 'PadLayer',
+  23: 'RsqrtLayer',
+  24: 'FloorLayer',
+  25: 'GreaterLayer',
+  26: 'ResizeBilinearLayer',
+  27: 'SubtractionLayer',
+  28: 'StridedSliceLayer',
+  29: 'GatherLayer',
+  30: 'MeanLayer',
+  31: 'MergerLayer',
+  32: 'L2NormalizationLayer',
+  33: 'SplitterLayer',
+  34: 'DetectionPostProcessLayer',
+  35: 'LstmLayer',
+  36: 'QuantizedLstmLayer',
+  37: 'QuantizeLayer',
+  38: 'DequantizeLayer',
+  39: 'MergeLayer',
+  40: 'SwitchLayer',
+  41: 'ConcatLayer',
+  42: 'SpaceToDepthLayer',
+  43: 'PreluLayer',
+  44: 'TransposeConvolution2dLayer',
+  45: 'ResizeLayer',
+  46: 'StackLayer',
+  47: 'AbsLayer',
+  48: 'ArgMinMaxLayer',
+  49: 'SliceLayer',
+  50: 'DepthToSpaceLayer',
+  51: 'InstanceNormalizationLayer',
+  52: 'LogSoftmaxLayer',
+  53: 'ComparisonLayer',
+  54: 'StandInLayer'
 };
 
 /**
@@ -512,15 +512,6 @@ armnnSerializer.TensorInfo.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.TensorInfo}
  */
 armnnSerializer.TensorInfo.getRootAsTensorInfo = function(bb, obj) {
-  return (obj || new armnnSerializer.TensorInfo).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.TensorInfo=} obj
- * @returns {armnnSerializer.TensorInfo}
- */
-armnnSerializer.TensorInfo.getSizePrefixedRootAsTensorInfo = function(bb, obj) {
   return (obj || new armnnSerializer.TensorInfo).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -748,15 +739,6 @@ armnnSerializer.ByteData.getRootAsByteData = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ByteData=} obj
- * @returns {armnnSerializer.ByteData}
- */
-armnnSerializer.ByteData.getSizePrefixedRootAsByteData = function(bb, obj) {
-  return (obj || new armnnSerializer.ByteData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {number} index
  * @returns {number}
  */
@@ -869,15 +851,6 @@ armnnSerializer.ShortData.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ShortData}
  */
 armnnSerializer.ShortData.getRootAsShortData = function(bb, obj) {
-  return (obj || new armnnSerializer.ShortData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ShortData=} obj
- * @returns {armnnSerializer.ShortData}
- */
-armnnSerializer.ShortData.getSizePrefixedRootAsShortData = function(bb, obj) {
   return (obj || new armnnSerializer.ShortData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -998,15 +971,6 @@ armnnSerializer.IntData.getRootAsIntData = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.IntData=} obj
- * @returns {armnnSerializer.IntData}
- */
-armnnSerializer.IntData.getSizePrefixedRootAsIntData = function(bb, obj) {
-  return (obj || new armnnSerializer.IntData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {number} index
  * @returns {number}
  */
@@ -1123,15 +1087,6 @@ armnnSerializer.LongData.getRootAsLongData = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.LongData=} obj
- * @returns {armnnSerializer.LongData}
- */
-armnnSerializer.LongData.getSizePrefixedRootAsLongData = function(bb, obj) {
-  return (obj || new armnnSerializer.LongData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {number} index
  * @returns {flatbuffers.Long}
  */
@@ -1236,15 +1191,6 @@ armnnSerializer.ConstTensor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ConstTensor}
  */
 armnnSerializer.ConstTensor.getRootAsConstTensor = function(bb, obj) {
-  return (obj || new armnnSerializer.ConstTensor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor}
- */
-armnnSerializer.ConstTensor.getSizePrefixedRootAsConstTensor = function(bb, obj) {
   return (obj || new armnnSerializer.ConstTensor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -1365,15 +1311,6 @@ armnnSerializer.InputSlot.getRootAsInputSlot = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.InputSlot=} obj
- * @returns {armnnSerializer.InputSlot}
- */
-armnnSerializer.InputSlot.getSizePrefixedRootAsInputSlot = function(bb, obj) {
-  return (obj || new armnnSerializer.InputSlot).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {number}
  */
 armnnSerializer.InputSlot.prototype.index = function() {
@@ -1471,15 +1408,6 @@ armnnSerializer.OutputSlot.getRootAsOutputSlot = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.OutputSlot=} obj
- * @returns {armnnSerializer.OutputSlot}
- */
-armnnSerializer.OutputSlot.getSizePrefixedRootAsOutputSlot = function(bb, obj) {
-  return (obj || new armnnSerializer.OutputSlot).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {number}
  */
 armnnSerializer.OutputSlot.prototype.index = function() {
@@ -1573,15 +1501,6 @@ armnnSerializer.LayerBase.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.LayerBase}
  */
 armnnSerializer.LayerBase.getRootAsLayerBase = function(bb, obj) {
-  return (obj || new armnnSerializer.LayerBase).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.LayerBase=} obj
- * @returns {armnnSerializer.LayerBase}
- */
-armnnSerializer.LayerBase.getSizePrefixedRootAsLayerBase = function(bb, obj) {
   return (obj || new armnnSerializer.LayerBase).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -1799,15 +1718,6 @@ armnnSerializer.BindableLayerBase.getRootAsBindableLayerBase = function(bb, obj)
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.BindableLayerBase=} obj
- * @returns {armnnSerializer.BindableLayerBase}
- */
-armnnSerializer.BindableLayerBase.getSizePrefixedRootAsBindableLayerBase = function(bb, obj) {
-  return (obj || new armnnSerializer.BindableLayerBase).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -1905,15 +1815,6 @@ armnnSerializer.AbsLayer.getRootAsAbsLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.AbsLayer=} obj
- * @returns {armnnSerializer.AbsLayer}
- */
-armnnSerializer.AbsLayer.getSizePrefixedRootAsAbsLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.AbsLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -1989,15 +1890,6 @@ armnnSerializer.ActivationLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ActivationLayer}
  */
 armnnSerializer.ActivationLayer.getRootAsActivationLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ActivationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ActivationLayer=} obj
- * @returns {armnnSerializer.ActivationLayer}
- */
-armnnSerializer.ActivationLayer.getSizePrefixedRootAsActivationLayer = function(bb, obj) {
   return (obj || new armnnSerializer.ActivationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2096,15 +1988,6 @@ armnnSerializer.ActivationDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ActivationDescriptor}
  */
 armnnSerializer.ActivationDescriptor.getRootAsActivationDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.ActivationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ActivationDescriptor=} obj
- * @returns {armnnSerializer.ActivationDescriptor}
- */
-armnnSerializer.ActivationDescriptor.getSizePrefixedRootAsActivationDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.ActivationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2223,15 +2106,6 @@ armnnSerializer.AdditionLayer.getRootAsAdditionLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.AdditionLayer=} obj
- * @returns {armnnSerializer.AdditionLayer}
- */
-armnnSerializer.AdditionLayer.getSizePrefixedRootAsAdditionLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.AdditionLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -2307,15 +2181,6 @@ armnnSerializer.ArgMinMaxLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ArgMinMaxLayer}
  */
 armnnSerializer.ArgMinMaxLayer.getRootAsArgMinMaxLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ArgMinMaxLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ArgMinMaxLayer=} obj
- * @returns {armnnSerializer.ArgMinMaxLayer}
- */
-armnnSerializer.ArgMinMaxLayer.getSizePrefixedRootAsArgMinMaxLayer = function(bb, obj) {
   return (obj || new armnnSerializer.ArgMinMaxLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2418,15 +2283,6 @@ armnnSerializer.ArgMinMaxDescriptor.getRootAsArgMinMaxDescriptor = function(bb, 
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ArgMinMaxDescriptor=} obj
- * @returns {armnnSerializer.ArgMinMaxDescriptor}
- */
-armnnSerializer.ArgMinMaxDescriptor.getSizePrefixedRootAsArgMinMaxDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.ArgMinMaxDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {armnnSerializer.ArgMinMaxFunction}
  */
 armnnSerializer.ArgMinMaxDescriptor.prototype.argMinMaxFunction = function() {
@@ -2523,15 +2379,6 @@ armnnSerializer.ComparisonDescriptor.getRootAsComparisonDescriptor = function(bb
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ComparisonDescriptor=} obj
- * @returns {armnnSerializer.ComparisonDescriptor}
- */
-armnnSerializer.ComparisonDescriptor.getSizePrefixedRootAsComparisonDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.ComparisonDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {armnnSerializer.ComparisonOperation}
  */
 armnnSerializer.ComparisonDescriptor.prototype.operation = function() {
@@ -2606,15 +2453,6 @@ armnnSerializer.ComparisonLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ComparisonLayer}
  */
 armnnSerializer.ComparisonLayer.getRootAsComparisonLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ComparisonLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ComparisonLayer=} obj
- * @returns {armnnSerializer.ComparisonLayer}
- */
-armnnSerializer.ComparisonLayer.getSizePrefixedRootAsComparisonLayer = function(bb, obj) {
   return (obj || new armnnSerializer.ComparisonLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2717,15 +2555,6 @@ armnnSerializer.ConstantLayer.getRootAsConstantLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ConstantLayer=} obj
- * @returns {armnnSerializer.ConstantLayer}
- */
-armnnSerializer.ConstantLayer.getSizePrefixedRootAsConstantLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ConstantLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -2820,15 +2649,6 @@ armnnSerializer.Convolution2dLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.Convolution2dLayer}
  */
 armnnSerializer.Convolution2dLayer.getRootAsConvolution2dLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.Convolution2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.Convolution2dLayer=} obj
- * @returns {armnnSerializer.Convolution2dLayer}
- */
-armnnSerializer.Convolution2dLayer.getSizePrefixedRootAsConvolution2dLayer = function(bb, obj) {
   return (obj || new armnnSerializer.Convolution2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2965,15 +2785,6 @@ armnnSerializer.Convolution2dDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.Convolution2dDescriptor}
  */
 armnnSerializer.Convolution2dDescriptor.getRootAsConvolution2dDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.Convolution2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.Convolution2dDescriptor=} obj
- * @returns {armnnSerializer.Convolution2dDescriptor}
- */
-armnnSerializer.Convolution2dDescriptor.getSizePrefixedRootAsConvolution2dDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.Convolution2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -3218,15 +3029,6 @@ armnnSerializer.DepthToSpaceLayer.getRootAsDepthToSpaceLayer = function(bb, obj)
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DepthToSpaceLayer=} obj
- * @returns {armnnSerializer.DepthToSpaceLayer}
- */
-armnnSerializer.DepthToSpaceLayer.getSizePrefixedRootAsDepthToSpaceLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.DepthToSpaceLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -3321,15 +3123,6 @@ armnnSerializer.DepthToSpaceDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.DepthToSpaceDescriptor}
  */
 armnnSerializer.DepthToSpaceDescriptor.getRootAsDepthToSpaceDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.DepthToSpaceDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DepthToSpaceDescriptor=} obj
- * @returns {armnnSerializer.DepthToSpaceDescriptor}
- */
-armnnSerializer.DepthToSpaceDescriptor.getSizePrefixedRootAsDepthToSpaceDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.DepthToSpaceDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -3430,15 +3223,6 @@ armnnSerializer.DivisionLayer.getRootAsDivisionLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DivisionLayer=} obj
- * @returns {armnnSerializer.DivisionLayer}
- */
-armnnSerializer.DivisionLayer.getSizePrefixedRootAsDivisionLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.DivisionLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -3516,15 +3300,6 @@ armnnSerializer.EqualLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.EqualLayer}
  */
 armnnSerializer.EqualLayer.getRootAsEqualLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.EqualLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.EqualLayer=} obj
- * @returns {armnnSerializer.EqualLayer}
- */
-armnnSerializer.EqualLayer.getSizePrefixedRootAsEqualLayer = function(bb, obj) {
   return (obj || new armnnSerializer.EqualLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -3608,15 +3383,6 @@ armnnSerializer.FloorLayer.getRootAsFloorLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.FloorLayer=} obj
- * @returns {armnnSerializer.FloorLayer}
- */
-armnnSerializer.FloorLayer.getSizePrefixedRootAsFloorLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.FloorLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -3692,15 +3458,6 @@ armnnSerializer.FullyConnectedLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.FullyConnectedLayer}
  */
 armnnSerializer.FullyConnectedLayer.getRootAsFullyConnectedLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.FullyConnectedLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.FullyConnectedLayer=} obj
- * @returns {armnnSerializer.FullyConnectedLayer}
- */
-armnnSerializer.FullyConnectedLayer.getSizePrefixedRootAsFullyConnectedLayer = function(bb, obj) {
   return (obj || new armnnSerializer.FullyConnectedLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -3841,15 +3598,6 @@ armnnSerializer.FullyConnectedDescriptor.getRootAsFullyConnectedDescriptor = fun
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.FullyConnectedDescriptor=} obj
- * @returns {armnnSerializer.FullyConnectedDescriptor}
- */
-armnnSerializer.FullyConnectedDescriptor.getSizePrefixedRootAsFullyConnectedDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.FullyConnectedDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {boolean}
  */
 armnnSerializer.FullyConnectedDescriptor.prototype.biasEnabled = function() {
@@ -3946,15 +3694,6 @@ armnnSerializer.GatherLayer.getRootAsGatherLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.GatherLayer=} obj
- * @returns {armnnSerializer.GatherLayer}
- */
-armnnSerializer.GatherLayer.getSizePrefixedRootAsGatherLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.GatherLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -4032,15 +3771,6 @@ armnnSerializer.GreaterLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.GreaterLayer}
  */
 armnnSerializer.GreaterLayer.getRootAsGreaterLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.GreaterLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.GreaterLayer=} obj
- * @returns {armnnSerializer.GreaterLayer}
- */
-armnnSerializer.GreaterLayer.getSizePrefixedRootAsGreaterLayer = function(bb, obj) {
   return (obj || new armnnSerializer.GreaterLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -4124,15 +3854,6 @@ armnnSerializer.InputLayer.getRootAsInputLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.InputLayer=} obj
- * @returns {armnnSerializer.InputLayer}
- */
-armnnSerializer.InputLayer.getSizePrefixedRootAsInputLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.InputLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.BindableLayerBase=} obj
  * @returns {armnnSerializer.BindableLayerBase|null}
  */
@@ -4208,15 +3929,6 @@ armnnSerializer.InstanceNormalizationLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.InstanceNormalizationLayer}
  */
 armnnSerializer.InstanceNormalizationLayer.getRootAsInstanceNormalizationLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.InstanceNormalizationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.InstanceNormalizationLayer=} obj
- * @returns {armnnSerializer.InstanceNormalizationLayer}
- */
-armnnSerializer.InstanceNormalizationLayer.getSizePrefixedRootAsInstanceNormalizationLayer = function(bb, obj) {
   return (obj || new armnnSerializer.InstanceNormalizationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -4315,15 +4027,6 @@ armnnSerializer.InstanceNormalizationDescriptor.prototype.__init = function(i, b
  * @returns {armnnSerializer.InstanceNormalizationDescriptor}
  */
 armnnSerializer.InstanceNormalizationDescriptor.getRootAsInstanceNormalizationDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.InstanceNormalizationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.InstanceNormalizationDescriptor=} obj
- * @returns {armnnSerializer.InstanceNormalizationDescriptor}
- */
-armnnSerializer.InstanceNormalizationDescriptor.getSizePrefixedRootAsInstanceNormalizationDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.InstanceNormalizationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -4460,15 +4163,6 @@ armnnSerializer.LogSoftmaxLayer.getRootAsLogSoftmaxLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.LogSoftmaxLayer=} obj
- * @returns {armnnSerializer.LogSoftmaxLayer}
- */
-armnnSerializer.LogSoftmaxLayer.getSizePrefixedRootAsLogSoftmaxLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.LogSoftmaxLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -4567,15 +4261,6 @@ armnnSerializer.LogSoftmaxDescriptor.getRootAsLogSoftmaxDescriptor = function(bb
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.LogSoftmaxDescriptor=} obj
- * @returns {armnnSerializer.LogSoftmaxDescriptor}
- */
-armnnSerializer.LogSoftmaxDescriptor.getSizePrefixedRootAsLogSoftmaxDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.LogSoftmaxDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {number}
  */
 armnnSerializer.LogSoftmaxDescriptor.prototype.beta = function() {
@@ -4668,15 +4353,6 @@ armnnSerializer.L2NormalizationLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.L2NormalizationLayer}
  */
 armnnSerializer.L2NormalizationLayer.getRootAsL2NormalizationLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.L2NormalizationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.L2NormalizationLayer=} obj
- * @returns {armnnSerializer.L2NormalizationLayer}
- */
-armnnSerializer.L2NormalizationLayer.getSizePrefixedRootAsL2NormalizationLayer = function(bb, obj) {
   return (obj || new armnnSerializer.L2NormalizationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -4779,15 +4455,6 @@ armnnSerializer.L2NormalizationDescriptor.getRootAsL2NormalizationDescriptor = f
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.L2NormalizationDescriptor=} obj
- * @returns {armnnSerializer.L2NormalizationDescriptor}
- */
-armnnSerializer.L2NormalizationDescriptor.getSizePrefixedRootAsL2NormalizationDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.L2NormalizationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {armnnSerializer.DataLayout}
  */
 armnnSerializer.L2NormalizationDescriptor.prototype.dataLayout = function() {
@@ -4884,15 +4551,6 @@ armnnSerializer.MinimumLayer.getRootAsMinimumLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.MinimumLayer=} obj
- * @returns {armnnSerializer.MinimumLayer}
- */
-armnnSerializer.MinimumLayer.getSizePrefixedRootAsMinimumLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.MinimumLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -4968,15 +4626,6 @@ armnnSerializer.MaximumLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.MaximumLayer}
  */
 armnnSerializer.MaximumLayer.getRootAsMaximumLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.MaximumLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.MaximumLayer=} obj
- * @returns {armnnSerializer.MaximumLayer}
- */
-armnnSerializer.MaximumLayer.getSizePrefixedRootAsMaximumLayer = function(bb, obj) {
   return (obj || new armnnSerializer.MaximumLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -5060,15 +4709,6 @@ armnnSerializer.MultiplicationLayer.getRootAsMultiplicationLayer = function(bb, 
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.MultiplicationLayer=} obj
- * @returns {armnnSerializer.MultiplicationLayer}
- */
-armnnSerializer.MultiplicationLayer.getSizePrefixedRootAsMultiplicationLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.MultiplicationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -5144,15 +4784,6 @@ armnnSerializer.Pooling2dLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.Pooling2dLayer}
  */
 armnnSerializer.Pooling2dLayer.getRootAsPooling2dLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.Pooling2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.Pooling2dLayer=} obj
- * @returns {armnnSerializer.Pooling2dLayer}
- */
-armnnSerializer.Pooling2dLayer.getSizePrefixedRootAsPooling2dLayer = function(bb, obj) {
   return (obj || new armnnSerializer.Pooling2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -5251,15 +4882,6 @@ armnnSerializer.Pooling2dDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.Pooling2dDescriptor}
  */
 armnnSerializer.Pooling2dDescriptor.getRootAsPooling2dDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.Pooling2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.Pooling2dDescriptor=} obj
- * @returns {armnnSerializer.Pooling2dDescriptor}
- */
-armnnSerializer.Pooling2dDescriptor.getSizePrefixedRootAsPooling2dDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.Pooling2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -5540,15 +5162,6 @@ armnnSerializer.QuantizeLayer.getRootAsQuantizeLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.QuantizeLayer=} obj
- * @returns {armnnSerializer.QuantizeLayer}
- */
-armnnSerializer.QuantizeLayer.getSizePrefixedRootAsQuantizeLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.QuantizeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -5624,15 +5237,6 @@ armnnSerializer.SoftmaxLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.SoftmaxLayer}
  */
 armnnSerializer.SoftmaxLayer.getRootAsSoftmaxLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.SoftmaxLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SoftmaxLayer=} obj
- * @returns {armnnSerializer.SoftmaxLayer}
- */
-armnnSerializer.SoftmaxLayer.getSizePrefixedRootAsSoftmaxLayer = function(bb, obj) {
   return (obj || new armnnSerializer.SoftmaxLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -5735,15 +5339,6 @@ armnnSerializer.SoftmaxDescriptor.getRootAsSoftmaxDescriptor = function(bb, obj)
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SoftmaxDescriptor=} obj
- * @returns {armnnSerializer.SoftmaxDescriptor}
- */
-armnnSerializer.SoftmaxDescriptor.getSizePrefixedRootAsSoftmaxDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.SoftmaxDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {number}
  */
 armnnSerializer.SoftmaxDescriptor.prototype.beta = function() {
@@ -5818,15 +5413,6 @@ armnnSerializer.DepthwiseConvolution2dLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.DepthwiseConvolution2dLayer}
  */
 armnnSerializer.DepthwiseConvolution2dLayer.getRootAsDepthwiseConvolution2dLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.DepthwiseConvolution2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DepthwiseConvolution2dLayer=} obj
- * @returns {armnnSerializer.DepthwiseConvolution2dLayer}
- */
-armnnSerializer.DepthwiseConvolution2dLayer.getSizePrefixedRootAsDepthwiseConvolution2dLayer = function(bb, obj) {
   return (obj || new armnnSerializer.DepthwiseConvolution2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -5963,15 +5549,6 @@ armnnSerializer.DepthwiseConvolution2dDescriptor.prototype.__init = function(i, 
  * @returns {armnnSerializer.DepthwiseConvolution2dDescriptor}
  */
 armnnSerializer.DepthwiseConvolution2dDescriptor.getRootAsDepthwiseConvolution2dDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.DepthwiseConvolution2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DepthwiseConvolution2dDescriptor=} obj
- * @returns {armnnSerializer.DepthwiseConvolution2dDescriptor}
- */
-armnnSerializer.DepthwiseConvolution2dDescriptor.getSizePrefixedRootAsDepthwiseConvolution2dDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.DepthwiseConvolution2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -6216,15 +5793,6 @@ armnnSerializer.OutputLayer.getRootAsOutputLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.OutputLayer=} obj
- * @returns {armnnSerializer.OutputLayer}
- */
-armnnSerializer.OutputLayer.getSizePrefixedRootAsOutputLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.OutputLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.BindableLayerBase=} obj
  * @returns {armnnSerializer.BindableLayerBase|null}
  */
@@ -6300,15 +5868,6 @@ armnnSerializer.ReshapeLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ReshapeLayer}
  */
 armnnSerializer.ReshapeLayer.getRootAsReshapeLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ReshapeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ReshapeLayer=} obj
- * @returns {armnnSerializer.ReshapeLayer}
- */
-armnnSerializer.ReshapeLayer.getSizePrefixedRootAsReshapeLayer = function(bb, obj) {
   return (obj || new armnnSerializer.ReshapeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -6407,15 +5966,6 @@ armnnSerializer.ReshapeDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ReshapeDescriptor}
  */
 armnnSerializer.ReshapeDescriptor.getRootAsReshapeDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.ReshapeDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ReshapeDescriptor=} obj
- * @returns {armnnSerializer.ReshapeDescriptor}
- */
-armnnSerializer.ReshapeDescriptor.getSizePrefixedRootAsReshapeDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.ReshapeDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -6536,15 +6086,6 @@ armnnSerializer.PermuteLayer.getRootAsPermuteLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.PermuteLayer=} obj
- * @returns {armnnSerializer.PermuteLayer}
- */
-armnnSerializer.PermuteLayer.getSizePrefixedRootAsPermuteLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.PermuteLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -6639,15 +6180,6 @@ armnnSerializer.PermuteDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.PermuteDescriptor}
  */
 armnnSerializer.PermuteDescriptor.getRootAsPermuteDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.PermuteDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.PermuteDescriptor=} obj
- * @returns {armnnSerializer.PermuteDescriptor}
- */
-armnnSerializer.PermuteDescriptor.getSizePrefixedRootAsPermuteDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.PermuteDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -6768,15 +6300,6 @@ armnnSerializer.SpaceToBatchNdLayer.getRootAsSpaceToBatchNdLayer = function(bb, 
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SpaceToBatchNdLayer=} obj
- * @returns {armnnSerializer.SpaceToBatchNdLayer}
- */
-armnnSerializer.SpaceToBatchNdLayer.getSizePrefixedRootAsSpaceToBatchNdLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.SpaceToBatchNdLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -6871,15 +6394,6 @@ armnnSerializer.SpaceToBatchNdDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.SpaceToBatchNdDescriptor}
  */
 armnnSerializer.SpaceToBatchNdDescriptor.getRootAsSpaceToBatchNdDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.SpaceToBatchNdDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SpaceToBatchNdDescriptor=} obj
- * @returns {armnnSerializer.SpaceToBatchNdDescriptor}
- */
-armnnSerializer.SpaceToBatchNdDescriptor.getSizePrefixedRootAsSpaceToBatchNdDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.SpaceToBatchNdDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -7074,15 +6588,6 @@ armnnSerializer.SpaceToDepthLayer.getRootAsSpaceToDepthLayer = function(bb, obj)
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SpaceToDepthLayer=} obj
- * @returns {armnnSerializer.SpaceToDepthLayer}
- */
-armnnSerializer.SpaceToDepthLayer.getSizePrefixedRootAsSpaceToDepthLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.SpaceToDepthLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -7177,15 +6682,6 @@ armnnSerializer.SpaceToDepthDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.SpaceToDepthDescriptor}
  */
 armnnSerializer.SpaceToDepthDescriptor.getRootAsSpaceToDepthDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.SpaceToDepthDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SpaceToDepthDescriptor=} obj
- * @returns {armnnSerializer.SpaceToDepthDescriptor}
- */
-armnnSerializer.SpaceToDepthDescriptor.getSizePrefixedRootAsSpaceToDepthDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.SpaceToDepthDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -7286,15 +6782,6 @@ armnnSerializer.SubtractionLayer.getRootAsSubtractionLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SubtractionLayer=} obj
- * @returns {armnnSerializer.SubtractionLayer}
- */
-armnnSerializer.SubtractionLayer.getSizePrefixedRootAsSubtractionLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.SubtractionLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -7370,15 +6857,6 @@ armnnSerializer.BatchToSpaceNdLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.BatchToSpaceNdLayer}
  */
 armnnSerializer.BatchToSpaceNdLayer.getRootAsBatchToSpaceNdLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.BatchToSpaceNdLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.BatchToSpaceNdLayer=} obj
- * @returns {armnnSerializer.BatchToSpaceNdLayer}
- */
-armnnSerializer.BatchToSpaceNdLayer.getSizePrefixedRootAsBatchToSpaceNdLayer = function(bb, obj) {
   return (obj || new armnnSerializer.BatchToSpaceNdLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -7477,15 +6955,6 @@ armnnSerializer.BatchToSpaceNdDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.BatchToSpaceNdDescriptor}
  */
 armnnSerializer.BatchToSpaceNdDescriptor.getRootAsBatchToSpaceNdDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.BatchToSpaceNdDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.BatchToSpaceNdDescriptor=} obj
- * @returns {armnnSerializer.BatchToSpaceNdDescriptor}
- */
-armnnSerializer.BatchToSpaceNdDescriptor.getSizePrefixedRootAsBatchToSpaceNdDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.BatchToSpaceNdDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -7680,15 +7149,6 @@ armnnSerializer.NormalizationLayer.getRootAsNormalizationLayer = function(bb, ob
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.NormalizationLayer=} obj
- * @returns {armnnSerializer.NormalizationLayer}
- */
-armnnSerializer.NormalizationLayer.getSizePrefixedRootAsNormalizationLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.NormalizationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -7783,15 +7243,6 @@ armnnSerializer.NormalizationDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.NormalizationDescriptor}
  */
 armnnSerializer.NormalizationDescriptor.getRootAsNormalizationDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.NormalizationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.NormalizationDescriptor=} obj
- * @returns {armnnSerializer.NormalizationDescriptor}
- */
-armnnSerializer.NormalizationDescriptor.getSizePrefixedRootAsNormalizationDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.NormalizationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -7982,15 +7433,6 @@ armnnSerializer.MeanLayer.getRootAsMeanLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.MeanLayer=} obj
- * @returns {armnnSerializer.MeanLayer}
- */
-armnnSerializer.MeanLayer.getSizePrefixedRootAsMeanLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.MeanLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -8085,15 +7527,6 @@ armnnSerializer.MeanDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.MeanDescriptor}
  */
 armnnSerializer.MeanDescriptor.getRootAsMeanDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.MeanDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.MeanDescriptor=} obj
- * @returns {armnnSerializer.MeanDescriptor}
- */
-armnnSerializer.MeanDescriptor.getSizePrefixedRootAsMeanDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.MeanDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -8232,15 +7665,6 @@ armnnSerializer.PadLayer.getRootAsPadLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.PadLayer=} obj
- * @returns {armnnSerializer.PadLayer}
- */
-armnnSerializer.PadLayer.getSizePrefixedRootAsPadLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.PadLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -8335,15 +7759,6 @@ armnnSerializer.PadDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.PadDescriptor}
  */
 armnnSerializer.PadDescriptor.getRootAsPadDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.PadDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.PadDescriptor=} obj
- * @returns {armnnSerializer.PadDescriptor}
- */
-armnnSerializer.PadDescriptor.getSizePrefixedRootAsPadDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.PadDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -8482,15 +7897,6 @@ armnnSerializer.RsqrtLayer.getRootAsRsqrtLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.RsqrtLayer=} obj
- * @returns {armnnSerializer.RsqrtLayer}
- */
-armnnSerializer.RsqrtLayer.getSizePrefixedRootAsRsqrtLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.RsqrtLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -8566,15 +7972,6 @@ armnnSerializer.BatchNormalizationLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.BatchNormalizationLayer}
  */
 armnnSerializer.BatchNormalizationLayer.getRootAsBatchNormalizationLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.BatchNormalizationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.BatchNormalizationLayer=} obj
- * @returns {armnnSerializer.BatchNormalizationLayer}
- */
-armnnSerializer.BatchNormalizationLayer.getSizePrefixedRootAsBatchNormalizationLayer = function(bb, obj) {
   return (obj || new armnnSerializer.BatchNormalizationLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -8753,15 +8150,6 @@ armnnSerializer.BatchNormalizationDescriptor.getRootAsBatchNormalizationDescript
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.BatchNormalizationDescriptor=} obj
- * @returns {armnnSerializer.BatchNormalizationDescriptor}
- */
-armnnSerializer.BatchNormalizationDescriptor.getSizePrefixedRootAsBatchNormalizationDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.BatchNormalizationDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {number}
  */
 armnnSerializer.BatchNormalizationDescriptor.prototype.eps = function() {
@@ -8860,15 +8248,6 @@ armnnSerializer.ResizeBilinearLayer.getRootAsResizeBilinearLayer = function(bb, 
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ResizeBilinearLayer=} obj
- * @returns {armnnSerializer.ResizeBilinearLayer}
- */
-armnnSerializer.ResizeBilinearLayer.getSizePrefixedRootAsResizeBilinearLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ResizeBilinearLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -8963,15 +8342,6 @@ armnnSerializer.ResizeBilinearDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ResizeBilinearDescriptor}
  */
 armnnSerializer.ResizeBilinearDescriptor.getRootAsResizeBilinearDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.ResizeBilinearDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ResizeBilinearDescriptor=} obj
- * @returns {armnnSerializer.ResizeBilinearDescriptor}
- */
-armnnSerializer.ResizeBilinearDescriptor.getSizePrefixedRootAsResizeBilinearDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.ResizeBilinearDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -9090,15 +8460,6 @@ armnnSerializer.SliceLayer.getRootAsSliceLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SliceLayer=} obj
- * @returns {armnnSerializer.SliceLayer}
- */
-armnnSerializer.SliceLayer.getSizePrefixedRootAsSliceLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.SliceLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -9193,15 +8554,6 @@ armnnSerializer.SliceDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.SliceDescriptor}
  */
 armnnSerializer.SliceDescriptor.getRootAsSliceDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.SliceDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SliceDescriptor=} obj
- * @returns {armnnSerializer.SliceDescriptor}
- */
-armnnSerializer.SliceDescriptor.getSizePrefixedRootAsSliceDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.SliceDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -9378,15 +8730,6 @@ armnnSerializer.StridedSliceLayer.getRootAsStridedSliceLayer = function(bb, obj)
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.StridedSliceLayer=} obj
- * @returns {armnnSerializer.StridedSliceLayer}
- */
-armnnSerializer.StridedSliceLayer.getSizePrefixedRootAsStridedSliceLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.StridedSliceLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -9481,15 +8824,6 @@ armnnSerializer.StridedSliceDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.StridedSliceDescriptor}
  */
 armnnSerializer.StridedSliceDescriptor.getRootAsStridedSliceDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.StridedSliceDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.StridedSliceDescriptor=} obj
- * @returns {armnnSerializer.StridedSliceDescriptor}
- */
-armnnSerializer.StridedSliceDescriptor.getSizePrefixedRootAsStridedSliceDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.StridedSliceDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -9830,15 +9164,6 @@ armnnSerializer.ConcatLayer.getRootAsConcatLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ConcatLayer=} obj
- * @returns {armnnSerializer.ConcatLayer}
- */
-armnnSerializer.ConcatLayer.getSizePrefixedRootAsConcatLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ConcatLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -9939,15 +9264,6 @@ armnnSerializer.MergerLayer.getRootAsMergerLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.MergerLayer=} obj
- * @returns {armnnSerializer.MergerLayer}
- */
-armnnSerializer.MergerLayer.getSizePrefixedRootAsMergerLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.MergerLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -10042,15 +9358,6 @@ armnnSerializer.UintVector.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.UintVector}
  */
 armnnSerializer.UintVector.getRootAsUintVector = function(bb, obj) {
-  return (obj || new armnnSerializer.UintVector).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.UintVector=} obj
- * @returns {armnnSerializer.UintVector}
- */
-armnnSerializer.UintVector.getSizePrefixedRootAsUintVector = function(bb, obj) {
   return (obj || new armnnSerializer.UintVector).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -10167,15 +9474,6 @@ armnnSerializer.OriginsDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.OriginsDescriptor}
  */
 armnnSerializer.OriginsDescriptor.getRootAsOriginsDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.OriginsDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.OriginsDescriptor=} obj
- * @returns {armnnSerializer.OriginsDescriptor}
- */
-armnnSerializer.OriginsDescriptor.getSizePrefixedRootAsOriginsDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.OriginsDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -10343,15 +9641,6 @@ armnnSerializer.ViewsDescriptor.getRootAsViewsDescriptor = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ViewsDescriptor=} obj
- * @returns {armnnSerializer.ViewsDescriptor}
- */
-armnnSerializer.ViewsDescriptor.getSizePrefixedRootAsViewsDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.ViewsDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.OriginsDescriptor=} obj
  * @returns {armnnSerializer.OriginsDescriptor|null}
  */
@@ -10480,15 +9769,6 @@ armnnSerializer.SplitterLayer.getRootAsSplitterLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SplitterLayer=} obj
- * @returns {armnnSerializer.SplitterLayer}
- */
-armnnSerializer.SplitterLayer.getSizePrefixedRootAsSplitterLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.SplitterLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -10583,15 +9863,6 @@ armnnSerializer.DetectionPostProcessLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.DetectionPostProcessLayer}
  */
 armnnSerializer.DetectionPostProcessLayer.getRootAsDetectionPostProcessLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.DetectionPostProcessLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DetectionPostProcessLayer=} obj
- * @returns {armnnSerializer.DetectionPostProcessLayer}
- */
-armnnSerializer.DetectionPostProcessLayer.getSizePrefixedRootAsDetectionPostProcessLayer = function(bb, obj) {
   return (obj || new armnnSerializer.DetectionPostProcessLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -10709,15 +9980,6 @@ armnnSerializer.DetectionPostProcessDescriptor.prototype.__init = function(i, bb
  * @returns {armnnSerializer.DetectionPostProcessDescriptor}
  */
 armnnSerializer.DetectionPostProcessDescriptor.getRootAsDetectionPostProcessDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.DetectionPostProcessDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DetectionPostProcessDescriptor=} obj
- * @returns {armnnSerializer.DetectionPostProcessDescriptor}
- */
-armnnSerializer.DetectionPostProcessDescriptor.getSizePrefixedRootAsDetectionPostProcessDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.DetectionPostProcessDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -10976,15 +10238,6 @@ armnnSerializer.LstmInputParams.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.LstmInputParams}
  */
 armnnSerializer.LstmInputParams.getRootAsLstmInputParams = function(bb, obj) {
-  return (obj || new armnnSerializer.LstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.LstmInputParams=} obj
- * @returns {armnnSerializer.LstmInputParams}
- */
-armnnSerializer.LstmInputParams.getSizePrefixedRootAsLstmInputParams = function(bb, obj) {
   return (obj || new armnnSerializer.LstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -11448,15 +10701,6 @@ armnnSerializer.QuantizedLstmInputParams.getRootAsQuantizedLstmInputParams = fun
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.QuantizedLstmInputParams=} obj
- * @returns {armnnSerializer.QuantizedLstmInputParams}
- */
-armnnSerializer.QuantizedLstmInputParams.getSizePrefixedRootAsQuantizedLstmInputParams = function(bb, obj) {
-  return (obj || new armnnSerializer.QuantizedLstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.ConstTensor=} obj
  * @returns {armnnSerializer.ConstTensor|null}
  */
@@ -11745,15 +10989,6 @@ armnnSerializer.LstmDescriptor.getRootAsLstmDescriptor = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.LstmDescriptor=} obj
- * @returns {armnnSerializer.LstmDescriptor}
- */
-armnnSerializer.LstmDescriptor.getSizePrefixedRootAsLstmDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.LstmDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {number}
  */
 armnnSerializer.LstmDescriptor.prototype.activationFunc = function() {
@@ -11940,15 +11175,6 @@ armnnSerializer.LstmLayer.getRootAsLstmLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.LstmLayer=} obj
- * @returns {armnnSerializer.LstmLayer}
- */
-armnnSerializer.LstmLayer.getSizePrefixedRootAsLstmLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.LstmLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -12066,15 +11292,6 @@ armnnSerializer.QuantizedLstmLayer.getRootAsQuantizedLstmLayer = function(bb, ob
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.QuantizedLstmLayer=} obj
- * @returns {armnnSerializer.QuantizedLstmLayer}
- */
-armnnSerializer.QuantizedLstmLayer.getSizePrefixedRootAsQuantizedLstmLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.QuantizedLstmLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -12173,15 +11390,6 @@ armnnSerializer.DequantizeLayer.getRootAsDequantizeLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.DequantizeLayer=} obj
- * @returns {armnnSerializer.DequantizeLayer}
- */
-armnnSerializer.DequantizeLayer.getSizePrefixedRootAsDequantizeLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.DequantizeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -12257,15 +11465,6 @@ armnnSerializer.MergeLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.MergeLayer}
  */
 armnnSerializer.MergeLayer.getRootAsMergeLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.MergeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.MergeLayer=} obj
- * @returns {armnnSerializer.MergeLayer}
- */
-armnnSerializer.MergeLayer.getSizePrefixedRootAsMergeLayer = function(bb, obj) {
   return (obj || new armnnSerializer.MergeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -12349,15 +11548,6 @@ armnnSerializer.SwitchLayer.getRootAsSwitchLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SwitchLayer=} obj
- * @returns {armnnSerializer.SwitchLayer}
- */
-armnnSerializer.SwitchLayer.getSizePrefixedRootAsSwitchLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.SwitchLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -12437,15 +11627,6 @@ armnnSerializer.PreluLayer.getRootAsPreluLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.PreluLayer=} obj
- * @returns {armnnSerializer.PreluLayer}
- */
-armnnSerializer.PreluLayer.getSizePrefixedRootAsPreluLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.PreluLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -12521,15 +11702,6 @@ armnnSerializer.TransposeConvolution2dLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.TransposeConvolution2dLayer}
  */
 armnnSerializer.TransposeConvolution2dLayer.getRootAsTransposeConvolution2dLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.TransposeConvolution2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.TransposeConvolution2dLayer=} obj
- * @returns {armnnSerializer.TransposeConvolution2dLayer}
- */
-armnnSerializer.TransposeConvolution2dLayer.getSizePrefixedRootAsTransposeConvolution2dLayer = function(bb, obj) {
   return (obj || new armnnSerializer.TransposeConvolution2dLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -12666,15 +11838,6 @@ armnnSerializer.TransposeConvolution2dDescriptor.prototype.__init = function(i, 
  * @returns {armnnSerializer.TransposeConvolution2dDescriptor}
  */
 armnnSerializer.TransposeConvolution2dDescriptor.getRootAsTransposeConvolution2dDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.TransposeConvolution2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.TransposeConvolution2dDescriptor=} obj
- * @returns {armnnSerializer.TransposeConvolution2dDescriptor}
- */
-armnnSerializer.TransposeConvolution2dDescriptor.getSizePrefixedRootAsTransposeConvolution2dDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.TransposeConvolution2dDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -12883,15 +12046,6 @@ armnnSerializer.ResizeLayer.getRootAsResizeLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ResizeLayer=} obj
- * @returns {armnnSerializer.ResizeLayer}
- */
-armnnSerializer.ResizeLayer.getSizePrefixedRootAsResizeLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.ResizeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -12986,15 +12140,6 @@ armnnSerializer.ResizeDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.ResizeDescriptor}
  */
 armnnSerializer.ResizeDescriptor.getRootAsResizeDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.ResizeDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.ResizeDescriptor=} obj
- * @returns {armnnSerializer.ResizeDescriptor}
- */
-armnnSerializer.ResizeDescriptor.getSizePrefixedRootAsResizeDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.ResizeDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -13131,15 +12276,6 @@ armnnSerializer.StackLayer.getRootAsStackLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.StackLayer=} obj
- * @returns {armnnSerializer.StackLayer}
- */
-armnnSerializer.StackLayer.getSizePrefixedRootAsStackLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.StackLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @param {armnnSerializer.LayerBase=} obj
  * @returns {armnnSerializer.LayerBase|null}
  */
@@ -13234,15 +12370,6 @@ armnnSerializer.StackDescriptor.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.StackDescriptor}
  */
 armnnSerializer.StackDescriptor.getRootAsStackDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.StackDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.StackDescriptor=} obj
- * @returns {armnnSerializer.StackDescriptor}
- */
-armnnSerializer.StackDescriptor.getSizePrefixedRootAsStackDescriptor = function(bb, obj) {
   return (obj || new armnnSerializer.StackDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -13399,15 +12526,6 @@ armnnSerializer.StandInDescriptor.getRootAsStandInDescriptor = function(bb, obj)
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.StandInDescriptor=} obj
- * @returns {armnnSerializer.StandInDescriptor}
- */
-armnnSerializer.StandInDescriptor.getSizePrefixedRootAsStandInDescriptor = function(bb, obj) {
-  return (obj || new armnnSerializer.StandInDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {number}
  */
 armnnSerializer.StandInDescriptor.prototype.numInputs = function() {
@@ -13500,15 +12618,6 @@ armnnSerializer.StandInLayer.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.StandInLayer}
  */
 armnnSerializer.StandInLayer.getRootAsStandInLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.StandInLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.StandInLayer=} obj
- * @returns {armnnSerializer.StandInLayer}
- */
-armnnSerializer.StandInLayer.getSizePrefixedRootAsStandInLayer = function(bb, obj) {
   return (obj || new armnnSerializer.StandInLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -13611,15 +12720,6 @@ armnnSerializer.AnyLayer.getRootAsAnyLayer = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.AnyLayer=} obj
- * @returns {armnnSerializer.AnyLayer}
- */
-armnnSerializer.AnyLayer.getSizePrefixedRootAsAnyLayer = function(bb, obj) {
-  return (obj || new armnnSerializer.AnyLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * @returns {armnnSerializer.Layer}
  */
 armnnSerializer.AnyLayer.prototype.layerType = function() {
@@ -13713,15 +12813,6 @@ armnnSerializer.SerializedGraph.prototype.__init = function(i, bb) {
  * @returns {armnnSerializer.SerializedGraph}
  */
 armnnSerializer.SerializedGraph.getRootAsSerializedGraph = function(bb, obj) {
-  return (obj || new armnnSerializer.SerializedGraph).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.SerializedGraph=} obj
- * @returns {armnnSerializer.SerializedGraph}
- */
-armnnSerializer.SerializedGraph.getSizePrefixedRootAsSerializedGraph = function(bb, obj) {
   return (obj || new armnnSerializer.SerializedGraph).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -13910,14 +13001,6 @@ armnnSerializer.SerializedGraph.endSerializedGraph = function(builder) {
  */
 armnnSerializer.SerializedGraph.finishSerializedGraphBuffer = function(builder, offset) {
   builder.finish(offset, 'ARMN');
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} offset
- */
-armnnSerializer.SerializedGraph.finishSizePrefixedSerializedGraphBuffer = function(builder, offset) {
-  builder.finish(offset, 'ARMN', true);
 };
 
 /**

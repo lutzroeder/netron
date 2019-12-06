@@ -14,20 +14,6 @@ bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync () {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${2}" ]; then
-        git -C "${third_party}/${2}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${1}
-    fi
-    if [ -n "${3}" ]; then
-        git -C "${third_party}/${2}" checkout --quiet ${3}
-    fi
-    git -C "${third_party}/${2}" submodule sync --quiet
-    git -C "${third_party}/${2}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "armnn clean"
     rm -rf ${third_party}/armnn
@@ -35,30 +21,42 @@ clean() {
 
 sync() {
     bold "armnn sync"
-    git_sync https://github.com/google/flatbuffers.git flatbuffers
-    git_sync https://github.com/ARM-software/armnn.git armnn master
-}
-
-install() {
-    bold "armnn install"
-    case "$(uname)" in
-        "Linux")
-            [ -n "$(which cmake)" ] || sudo apt install -y cmake
-            ;;
-        "Darwin")
-            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
-            ;;
-    esac
-    pushd "${third_party}/flatbuffers" > /dev/null
-    cmake -G "Unix Makefiles" . > /dev/null
-    make > /dev/null
-    popd > /dev/null
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/armnn" ]; then
+        git -C "${third_party}/armnn" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --branch master --recursive https://github.com/ARM-software/armnn.git
+    fi
+    git -C "${third_party}/armnn" submodule sync --quiet
+    git -C "${third_party}/armnn" submodule update --quiet --init --recursive
 }
 
 schema() {
     bold "armnn schema"
-
-    ${third_party}/flatbuffers/flatc --no-js-exports --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    case "${OSTYPE}" in
+        linux*)
+            FLATC_VERSION=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            FLATC_DIR=$(dirname $(mktemp -u))/flatbuffers/${FLATC_VERSION}
+            if [ ! -f "${FLATC_DIR}/flatc" ]; then
+                mkdir -p "${FLATC_DIR}"
+                pushd "${FLATC_DIR}" > /dev/null
+                curl -sL https://github.com/google/flatbuffers/archive/${FLATC_VERSION}.tar.gz | tar zx --strip-components 1
+                cmake -G "Unix Makefiles" . &> /dev/null
+                make > /dev/null
+                popd > /dev/null
+            fi
+            FLATC=${FLATC_DIR}/flatc
+            ;;
+        darwin*)
+            brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
+            FLATC=flatc
+            ;;
+        msys*)
+            echo "msys flatc not supported" 1>&2
+            exit 1
+            ;;
+    esac
+    ${FLATC} --no-js-exports --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
     mv ./ArmnnSchema_generated.js ${src}/armnn-schema.js
     cat <<EOT >> ${src}/armnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
@@ -72,7 +70,6 @@ while [ "$#" != 0 ]; do
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
-        "install") install;;
         "schema") schema;;
     esac
 done

@@ -15,17 +15,6 @@ bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync () {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "tflite clean"
     rm -rf ${virtualenv}
@@ -34,32 +23,43 @@ clean() {
 
 sync() {
     bold "tflite sync"
-    git_sync flatbuffers https://github.com/google/flatbuffers.git
-    git_sync tensorflow https://github.com/tensorflow/tensorflow.git
-}
-
-install() {
-    bold "tflite install"
-    case "$(uname)" in
-        "Linux")
-            [ -n "$(which cmake)" ] || sudo apt install -y cmake
-            ;;
-        "Darwin")
-            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
-            ;;
-    esac
-    pushd "${third_party}/flatbuffers" > /dev/null
-    cmake -G "Unix Makefiles" . > /dev/null
-    make > /dev/null
-    popd > /dev/null
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/tensorflow" ]; then
+        git -C "${third_party}/tensorflow" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --recursive https://github.com/tensorflow/tensorflow.git
+    fi
+    git -C "${third_party}/tensorflow" submodule sync --quiet
+    git -C "${third_party}/tensorflow" submodule update --quiet --init --recursive
 }
 
 schema() {
     bold "tflite schema"
+    case "${OSTYPE}" in
+        linux*)
+            FLATC_VERSION=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            FLATC_DIR=$(dirname $(mktemp -u))/flatbuffers/${FLATC_VERSION}
+            if [ ! -f "${FLATC_DIR}/flatc" ]; then
+                mkdir -p "${FLATC_DIR}"
+                pushd "${FLATC_DIR}" > /dev/null
+                curl -sL https://github.com/google/flatbuffers/archive/${FLATC_VERSION}.tar.gz | tar zx --strip-components 1
+                cmake -G "Unix Makefiles" . &> /dev/null
+                make > /dev/null
+                popd > /dev/null
+            fi
+            FLATC=${FLATC_DIR}/flatc
+            ;;
+        darwin*)
+            brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
+            FLATC=flatc
+            ;;
+        msys*)
+            echo "msys flatc not supported" 1>&2
+            exit 1
+            ;;
+    esac
     sed 's/namespace tflite;/namespace TFLITE;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
-    ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/tflite.schema.fbs
+    ${FLATC} --no-js-exports --js ${tools}/tflite.schema.fbs
     rm ${tools}/tflite.schema.fbs
     mv ./tflite.schema_generated.js ${src}/tflite-schema.js
     cat <<EOT >> ${src}/tflite-schema.js
@@ -71,6 +71,8 @@ EOT
 
 visualize() {
     bold "tflite visualize"
+    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
+    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
     python3 -m pip install --quiet tensorflow
     python3 ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@

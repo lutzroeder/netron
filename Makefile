@@ -21,7 +21,7 @@ reset:
 
 update:
 	@[ -d node_modules ] || npm install
-	@./tools/armnn sync install schema
+	@./tools/armnn sync schema
 	@./tools/bigdl sync schema
 	@./tools/caffe sync schema
 	@./tools/coreml sync install schema
@@ -39,7 +39,7 @@ update:
 	@./tools/pytorch sync install schema metadata
 	@./tools/sklearn sync install metadata
 	@./tools/tf sync install schema metadata
-	@./tools/tflite sync install schema
+	@./tools/tflite sync schema
 	@./tools/torch sync
 
 build_python:
