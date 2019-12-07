@@ -52,8 +52,16 @@ schema() {
             FLATC=flatc
             ;;
         msys*)
-            echo "msys flatc not supported" 1>&2
-            exit 1
+            FLATC_VERSION=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            FLATC_DIR=$(dirname $(mktemp -u))/flatbuffers/${FLATC_VERSION}
+            if [ ! -f "${FLATC_DIR}/flatc.exe" ]; then
+                mkdir -p "${FLATC_DIR}"
+                pushd "${FLATC_DIR}" > /dev/null
+                curl -sL -O https://github.com/google/flatbuffers/releases/download/${FLATC_VERSION}/flatc_windows_exe.zip
+                unzip flatc_windows_exe.zip
+                popd > /dev/null
+            fi
+            FLATC=${FLATC_DIR}/flatc.exe
             ;;
     esac
     ${FLATC} --no-js-exports --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
@@ -63,6 +71,11 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
   module.exports = armnnSerializer;
 }
 EOT
+    case "${OSTYPE}" in
+        msys*)
+            unix2dos --quiet --newfile ${src}/armnn-schema.js ${src}/armnn-schema.js
+            ;;
+    esac
 }
 
 while [ "$#" != 0 ]; do
