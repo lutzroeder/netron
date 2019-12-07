@@ -8,33 +8,28 @@ test=${root}/test
 third_party=${root}/third_party
 tools=${root}/tools
 
-identifier=keras
-virtualenv=${third_party}/virtualenv/${identifier}
+virtualenv=${third_party}/virtualenv/keras
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "keras clean"
     rm -rf ${virtualenv}
-    rm -rf ${third_party}/${identifier}
+    rm -rf ${third_party}/keras
 }
 
 sync() {
     bold "keras sync"
-    git_sync keras https://github.com/keras-team/keras.git
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/keras" ]; then
+        git -C "${third_party}/keras" pull --quiet --prune
+    else
+        git -C "${third_party}" clone --quiet --recursive https://github.com/keras-team/keras.git
+    fi
+    git -C "${third_party}/keras" submodule sync --quiet
+    git -C "${third_party}/keras" submodule update --quiet --init --recursive
 }
 
 install() {
@@ -43,7 +38,7 @@ install() {
     [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
     source ${virtualenv}/bin/activate
     python3 -m pip install --quiet --upgrade tensorflow
-    python3 -m pip install --quiet ${third_party}/${identifier}
+    python3 -m pip install --quiet ${third_party}/keras
     deactivate
 }
 
