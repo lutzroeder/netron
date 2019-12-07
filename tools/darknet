@@ -32,7 +32,7 @@ clean() {
 
 sync() {
     bold "darknet sync"
-    git_sync darknet https://github.com/pjreddie/darknet.git
+    git_sync darknet https://github.com/AlexeyAB/darknet.git
 }
 
 while [ "$#" != 0 ]; do
