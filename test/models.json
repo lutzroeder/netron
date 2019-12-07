@@ -1840,6 +1840,13 @@
   },
   {
     "type":   "darknet",
+    "target": "csresnext50-panet-spp.cfg",
+    "source": "https://raw.githubusercontent.com/WongKinYiu/CrossStagePartialNetworks/master/cfg/csresnext50-panet-spp.cfg",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
+  },
+  {
+    "type":   "darknet",
     "target": "darknet_invalid_file.cfg",
     "source": "https://github.com/lutzroeder/netron/files/3219696/darknet_invalid_file.cfg.zip[darknet_invalid_file.cfg]",
     "error":  "Invalid cfg 'xxxx' at line 4 in 'darknet_invalid_file.cfg'.",
@@ -1851,6 +1858,20 @@
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg,https://pjreddie.com/media/files/darknet53_448.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "enet-coco.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/enet-coco.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
+  },
+  {
+    "type":   "darknet",
+    "target": "mixnet_m_gpu.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/3935529/mixnet_m_gpu.cfg.txt",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
   },
   {
     "type":   "darknet",
@@ -1872,6 +1893,13 @@
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/rnn.cfg,https://pjreddie.com/media/files/grrm.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "mixnet_m_gpu.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/3935529/mixnet_m_gpu.cfg.txt",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
   },
   {
     "type":   "darknet",
