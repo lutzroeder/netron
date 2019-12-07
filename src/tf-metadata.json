@@ -10633,6 +10633,54 @@
     }
   },
   {
+    "name": "CheckNumericsV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Prefix of the error message.",
+          "name": "message",
+          "type": "string"
+        }
+      ],
+      "description": "When run, reports an `InvalidArgument` error if `tensor` has any values\nthat are not a number (NaN) or infinity (Inf). Otherwise, passes `tensor` as-is.\nUnlike CheckNumerics (V1), CheckNumericsV2 distinguishes -Inf and +Inf in the\nerrors it throws.",
+      "inputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Checks a tensor for NaN, -Inf and +Inf values."
+    }
+  },
+  {
     "name": "Cholesky",
     "schema": {
       "attributes": [
@@ -15758,6 +15806,25 @@
     "schema": {
       "attributes": [
         {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "Optional. The type of the output. Can be float32 or float64 (default: float32).",
+          "name": "output_dtype",
+          "type": "type"
+        },
+        {
           "name": "T",
           "type": "type"
         },
@@ -15785,7 +15852,7 @@
       "outputs": [
         {
           "name": "output",
-          "type": 1
+          "typeAttr": "output_dtype"
         }
       ],
       "summary": "Debug Numeric Summary V2 Op."
@@ -29594,17 +29661,19 @@
     "schema": {
       "inputs": [
         {
+          "description": "A `Tensor` of type `bool`.",
           "name": "x",
           "type": 10
         }
       ],
       "outputs": [
         {
+          "description": "A `Tensor` of type `bool` with the same shape as `x`. The logical negation of `x`.",
           "name": "y",
           "type": 10
         }
       ],
-      "summary": "Returns the truth value of NOT x element-wise."
+      "summary": "Returns the truth value of `NOT x` element-wise."
     }
   },
   {
@@ -30964,6 +31033,55 @@
     }
   },
   {
+    "name": "MatrixDiagPartV3",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            "LEFT_RIGHT",
+            "RIGHT_LEFT",
+            "LEFT_LEFT",
+            "RIGHT_RIGHT"
+          ],
+          "default": "RIGHT_LEFT",
+          "description": "Some diagonals are shorter than `max_diag_len` and need to be padded. `align` is\na string specifying how superdiagonals and subdiagonals should be aligned,\nrespectively. There are four possible alignments: \"RIGHT_LEFT\" (default),\n\"LEFT_RIGHT\", \"LEFT_LEFT\", and \"RIGHT_RIGHT\". \"RIGHT_LEFT\" aligns superdiagonals\nto the right (left-pads the row) and subdiagonals to the left (right-pads the\nrow). It is the packing format LAPACK uses. cuSPARSE uses \"LEFT_RIGHT\", which is\nthe opposite alignment.",
+          "name": "align",
+          "type": "string"
+        }
+      ],
+      "description": "Returns a tensor with the `k[0]`-th to `k[1]`-th diagonals of the batched\n`input`.\n\nAssume `input` has `r` dimensions `[I, J, ..., L, M, N]`.\nLet `max_diag_len` be the maximum length among all diagonals to be extracted,\n`max_diag_len = min(M + min(k[1], 0), N + min(-k[0], 0))`\nLet `num_diags` be the number of diagonals to extract,\n`num_diags = k[1] - k[0] + 1`.\n\nIf `num_diags == 1`, the output tensor is of rank `r - 1` with shape\n`[I, J, ..., L, max_diag_len]` and values:\n\n```\ndiagonal[i, j, ..., l, n]\n  = input[i, j, ..., l, n+y, n+x] ; if 0 <= n+y < M and 0 <= n+x < N,\n    padding_value                 ; otherwise.\n```\nwhere `y = max(-k[1], 0)`, `x = max(k[1], 0)`.\n\nOtherwise, the output tensor has rank `r` with dimensions\n`[I, J, ..., L, num_diags, max_diag_len]` with values:\n\n```\ndiagonal[i, j, ..., l, m, n]\n  = input[i, j, ..., l, n+y, n+x] ; if 0 <= n+y < M and 0 <= n+x < N,\n    padding_value                 ; otherwise.\n```\nwhere `d = k[1] - m`, `y = max(-d, 0) - offset`, and `x = max(d, 0) - offset`.\n\n`offset` is zero except when the alignment of the diagonal is to the right.\n```\noffset = max_diag_len - diag_len(d) ; if (`align` in {RIGHT_LEFT, RIGHT_RIGHT}\n                                           and `d >= 0`) or\n                                         (`align` in {LEFT_RIGHT, RIGHT_RIGHT}\n                                           and `d <= 0`)\n         0                          ; otherwise\n```\nwhere `diag_len(d) = min(cols - max(d, 0), rows + min(d, 0))`.\n\nThe input must be at least a matrix.\n\nFor example:\n\n```\ninput = np.array([[[1, 2, 3, 4],  # Input shape: (2, 3, 4)\n                   [5, 6, 7, 8],\n                   [9, 8, 7, 6]],\n                  [[5, 4, 3, 2],\n                   [1, 2, 3, 4],\n                   [5, 6, 7, 8]]])\n\n# A main diagonal from each batch.\ntf.matrix_diag_part(input) ==> [[1, 6, 7],  # Output shape: (2, 3)\n                                [5, 2, 7]]\n\n# A superdiagonal from each batch.\ntf.matrix_diag_part(input, k = 1)\n  ==> [[2, 7, 6],  # Output shape: (2, 3)\n       [4, 3, 8]]\n\n# A band from each batch.\ntf.matrix_diag_part(input, k = (-1, 2))\n  ==> [[[0, 3, 8],  # Output shape: (2, 4, 3)\n        [2, 7, 6],\n        [1, 6, 7],\n        [5, 8, 0]],\n       [[0, 3, 4],\n        [4, 3, 8],\n        [5, 2, 7],\n        [1, 6, 0]]]\n\n# LEFT_RIGHT alignment.\ntf.matrix_diag_part(input, k = (-1, 2), align=\"LEFT_RIGHT\")\n  ==> [[[3, 8, 0],  # Output shape: (2, 4, 3)\n        [2, 7, 6],\n        [1, 6, 7],\n        [0, 5, 8]],\n       [[3, 4, 0],\n        [4, 3, 8],\n        [5, 2, 7],\n        [0, 1, 6]]]\n\n# max_diag_len can be shorter than the main diagonal.\ntf.matrix_diag_part(input, k = (-2, -1))\n  ==> [[[5, 8],\n        [9, 0]],\n       [[1, 6],\n        [5, 0]]]\n\n# padding_value = 9\ntf.matrix_diag_part(input, k = (1, 3), padding_value = 9)\n  ==> [[[9, 9, 4],  # Output shape: (2, 3, 3)\n        [9, 3, 8],\n        [2, 7, 6]],\n       [[9, 9, 2],\n        [9, 3, 4],\n        [4, 3, 8]]]\n\n```",
+      "inputs": [
+        {
+          "description": "Rank `r` tensor where `r >= 2`.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Diagonal offset(s). Positive value means superdiagonal, 0 refers to the main\ndiagonal, and negative value means subdiagonals. `k` can be a single integer\n(for a single diagonal) or a pair of integers specifying the low and high ends\nof a matrix band. `k[0]` must not be larger than `k[1]`.",
+          "name": "k",
+          "type": 3
+        },
+        {
+          "description": "The value to fill the area outside the specified diagonal band with.\nDefault is 0.",
+          "name": "padding_value",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The extracted diagonal(s).",
+          "name": "diagonal",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the batched diagonal part of a batched tensor."
+    }
+  },
+  {
     "name": "MatrixDiagV2",
     "schema": {
       "attributes": [
@@ -30973,6 +31091,65 @@
         }
       ],
       "description": "Returns a tensor with the contents in `diagonal` as `k[0]`-th to `k[1]`-th\ndiagonals of a matrix, with everything else padded with `padding`. `num_rows`\nand `num_cols` specify the dimension of the innermost matrix of the output. If\nboth are not specified, the op assumes the innermost matrix is square and infers\nits size from `k` and the innermost dimension of `diagonal`. If only one of them\nis specified, the op assumes the unspecified value is the smallest possible\nbased on other criteria.\n\nLet `diagonal` have `r` dimensions `[I, J, ..., L, M, N]`. The output tensor has\nrank `r+1` with shape `[I, J, ..., L, M, num_rows, num_cols]` when only one\ndiagonal is given (`k` is an integer or `k[0] == k[1]`). Otherwise, it has rank\n`r` with shape `[I, J, ..., L, num_rows, num_cols]`.\n\nThe second innermost dimension of `diagonal` has double meaning.\nWhen `k` is scalar or `k[0] == k[1]`, `M` is part of the batch size\n[I, J, ..., M], and the output tensor is:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, n-max(d_upper, 0)] ; if n - m == d_upper\n    padding_value                             ; otherwise\n```\n\nOtherwise, `M` is treated as the number of diagonals for the matrix in the\nsame batch (`M = k[1]-k[0]+1`), and the output tensor is:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, diag_index, index_in_diag] ; if k[0] <= d <= k[1]\n    padding_value                                     ; otherwise\n```\nwhere `d = n - m`, `diag_index = k[1] - d`, and `index_in_diag = n - max(d, 0)`.\n\nFor example:\n\n```\n# The main diagonal.\ndiagonal = np.array([[1, 2, 3, 4],            # Input shape: (2, 4)\n                     [5, 6, 7, 8]])\ntf.matrix_diag(diagonal) ==> [[[1, 0, 0, 0],  # Output shape: (2, 4, 4)\n                               [0, 2, 0, 0],\n                               [0, 0, 3, 0],\n                               [0, 0, 0, 4]],\n                              [[5, 0, 0, 0],\n                               [0, 6, 0, 0],\n                               [0, 0, 7, 0],\n                               [0, 0, 0, 8]]]\n\n# A superdiagonal (per batch).\ndiagonal = np.array([[1, 2, 3],  # Input shape: (2, 3)\n                     [4, 5, 6]])\ntf.matrix_diag(diagonal, k = 1)\n  ==> [[[0, 1, 0, 0],  # Output shape: (2, 4, 4)\n        [0, 0, 2, 0],\n        [0, 0, 0, 3],\n        [0, 0, 0, 0]],\n       [[0, 4, 0, 0],\n        [0, 0, 5, 0],\n        [0, 0, 0, 6],\n        [0, 0, 0, 0]]]\n\n# A band of diagonals.\ndiagonals = np.array([[[1, 2, 3],  # Input shape: (2, 2, 3)\n                       [4, 5, 0]],\n                      [[6, 7, 9],\n                       [9, 1, 0]]])\ntf.matrix_diag(diagonals, k = (-1, 0))\n  ==> [[[1, 0, 0],  # Output shape: (2, 3, 3)\n        [4, 2, 0],\n        [0, 5, 3]],\n       [[6, 0, 0],\n        [9, 7, 0],\n        [0, 1, 9]]]\n\n# Rectangular matrix.\ndiagonal = np.array([1, 2])  # Input shape: (2)\ntf.matrix_diag(diagonal, k = -1, num_rows = 3, num_cols = 4)\n  ==> [[0, 0, 0, 0],  # Output shape: (3, 4)\n       [1, 0, 0, 0],\n       [0, 2, 0, 0]]\n\n# Rectangular matrix with inferred num_cols and padding_value = 9.\ntf.matrix_diag(diagonal, k = -1, num_rows = 3, padding_value = 9)\n  ==> [[9, 9],  # Output shape: (3, 2)\n       [1, 9],\n       [9, 2]]\n```",
+      "inputs": [
+        {
+          "description": "Rank `r`, where `r >= 1`",
+          "name": "diagonal",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Diagonal offset(s). Positive value means superdiagonal, 0 refers to the main\ndiagonal, and negative value means subdiagonals. `k` can be a single integer\n(for a single diagonal) or a pair of integers specifying the low and high ends\nof a matrix band. `k[0]` must not be larger than `k[1]`.",
+          "name": "k",
+          "type": 3
+        },
+        {
+          "description": "The number of rows of the output matrix. If it is not provided, the op assumes\nthe output matrix is a square matrix and infers the matrix size from k and the\ninnermost dimension of `diagonal`.",
+          "name": "num_rows",
+          "type": 3
+        },
+        {
+          "description": "The number of columns of the output matrix. If it is not provided, the op\nassumes the output matrix is a square matrix and infers the matrix size from\nk and the innermost dimension of `diagonal`.",
+          "name": "num_cols",
+          "type": 3
+        },
+        {
+          "description": "The number to fill the area outside the specified diagonal band with.\nDefault is 0.",
+          "name": "padding_value",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Has rank `r+1` when `k` is an integer or `k[0] == k[1]`, rank `r` otherwise.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns a batched diagonal tensor with given batched diagonal values."
+    }
+  },
+  {
+    "name": "MatrixDiagV3",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            "LEFT_RIGHT",
+            "RIGHT_LEFT",
+            "LEFT_LEFT",
+            "RIGHT_RIGHT"
+          ],
+          "default": "RIGHT_LEFT",
+          "description": "Some diagonals are shorter than `max_diag_len` and need to be padded. `align` is\na string specifying how superdiagonals and subdiagonals should be aligned,\nrespectively. There are four possible alignments: \"RIGHT_LEFT\" (default),\n\"LEFT_RIGHT\", \"LEFT_LEFT\", and \"RIGHT_RIGHT\". \"RIGHT_LEFT\" aligns superdiagonals\nto the right (left-pads the row) and subdiagonals to the left (right-pads the\nrow). It is the packing format LAPACK uses. cuSPARSE uses \"LEFT_RIGHT\", which is\nthe opposite alignment.",
+          "name": "align",
+          "type": "string"
+        }
+      ],
+      "description": "Returns a tensor with the contents in `diagonal` as `k[0]`-th to `k[1]`-th\ndiagonals of a matrix, with everything else padded with `padding`. `num_rows`\nand `num_cols` specify the dimension of the innermost matrix of the output. If\nboth are not specified, the op assumes the innermost matrix is square and infers\nits size from `k` and the innermost dimension of `diagonal`. If only one of them\nis specified, the op assumes the unspecified value is the smallest possible\nbased on other criteria.\n\nLet `diagonal` have `r` dimensions `[I, J, ..., L, M, N]`. The output tensor has\nrank `r+1` with shape `[I, J, ..., L, M, num_rows, num_cols]` when only one\ndiagonal is given (`k` is an integer or `k[0] == k[1]`). Otherwise, it has rank\n`r` with shape `[I, J, ..., L, num_rows, num_cols]`.\n\nThe second innermost dimension of `diagonal` has double meaning.\nWhen `k` is scalar or `k[0] == k[1]`, `M` is part of the batch size\n[I, J, ..., M], and the output tensor is:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, n-max(d_upper, 0)] ; if n - m == d_upper\n    padding_value                             ; otherwise\n```\n\nOtherwise, `M` is treated as the number of diagonals for the matrix in the\nsame batch (`M = k[1]-k[0]+1`), and the output tensor is:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, diag_index, index_in_diag] ; if k[0] <= d <= k[1]\n    padding_value                                     ; otherwise\n```\nwhere `d = n - m`, `diag_index = [k] - d`, and\n`index_in_diag = n - max(d, 0) + offset`.\n\n`offset` is zero except when the alignment of the diagonal is to the right.\n```\noffset = max_diag_len - diag_len(d) ; if (`align` in {RIGHT_LEFT, RIGHT_RIGHT}\n                                           and `d >= 0`) or\n                                         (`align` in {LEFT_RIGHT, RIGHT_RIGHT}\n                                           and `d <= 0`)\n         0                          ; otherwise\n```\nwhere `diag_len(d) = min(cols - max(d, 0), rows + min(d, 0))`.\n\nFor example:\n\n```\n# The main diagonal.\ndiagonal = np.array([[1, 2, 3, 4],            # Input shape: (2, 4)\n                     [5, 6, 7, 8]])\ntf.matrix_diag(diagonal) ==> [[[1, 0, 0, 0],  # Output shape: (2, 4, 4)\n                               [0, 2, 0, 0],\n                               [0, 0, 3, 0],\n                               [0, 0, 0, 4]],\n                              [[5, 0, 0, 0],\n                               [0, 6, 0, 0],\n                               [0, 0, 7, 0],\n                               [0, 0, 0, 8]]]\n\n# A superdiagonal (per batch).\ndiagonal = np.array([[1, 2, 3],  # Input shape: (2, 3)\n                     [4, 5, 6]])\ntf.matrix_diag(diagonal, k = 1)\n  ==> [[[0, 1, 0, 0],  # Output shape: (2, 4, 4)\n        [0, 0, 2, 0],\n        [0, 0, 0, 3],\n        [0, 0, 0, 0]],\n       [[0, 4, 0, 0],\n        [0, 0, 5, 0],\n        [0, 0, 0, 6],\n        [0, 0, 0, 0]]]\n\n# A tridiagonal band (per batch).\ndiagonals = np.array([[[0, 8, 9],  # Input shape: (2, 2, 3)\n                       [1, 2, 3],\n                       [4, 5, 0]],\n                      [[0, 2, 3],\n                       [6, 7, 9],\n                       [9, 1, 0]]])\ntf.matrix_diag(diagonals, k = (-1, 1))\n  ==> [[[1, 8, 0],  # Output shape: (2, 3, 3)\n        [4, 2, 9],\n        [0, 5, 3]],\n       [[6, 2, 0],\n        [9, 7, 3],\n        [0, 1, 9]]]\n\n# LEFT_RIGHT alignment.\ndiagonals = np.array([[[8, 9, 0],  # Input shape: (2, 2, 3)\n                       [1, 2, 3],\n                       [0, 4, 5]],\n                      [[2, 3, 0],\n                       [6, 7, 9],\n                       [0, 9, 1]]])\ntf.matrix_diag(diagonals, k = (-1, 1), align=\"LEFT_RIGHT\")\n  ==> [[[1, 8, 0],  # Output shape: (2, 3, 3)\n        [4, 2, 9],\n        [0, 5, 3]],\n       [[6, 2, 0],\n        [9, 7, 3],\n        [0, 1, 9]]]\n\n# Rectangular matrix.\ndiagonal = np.array([1, 2])  # Input shape: (2)\ntf.matrix_diag(diagonal, k = -1, num_rows = 3, num_cols = 4)\n  ==> [[0, 0, 0, 0],  # Output shape: (3, 4)\n       [1, 0, 0, 0],\n       [0, 2, 0, 0]]\n\n# Rectangular matrix with inferred num_cols and padding_value = 9.\ntf.matrix_diag(diagonal, k = -1, num_rows = 3, padding_value = 9)\n  ==> [[9, 9],  # Output shape: (3, 2)\n       [1, 9],\n       [9, 2]]\n\n```",
       "inputs": [
         {
           "description": "Rank `r`, where `r >= 1`",
@@ -31189,6 +31366,55 @@
         }
       ],
       "description": "Given `input` and `diagonal`, this operation returns a tensor with the\nsame shape and values as `input`, except for the specified diagonals of the\ninnermost matrices. These will be overwritten by the values in `diagonal`.\n\n`input` has `r+1` dimensions `[I, J, ..., L, M, N]`. When `k` is scalar or\n`k[0] == k[1]`, `diagonal` has `r` dimensions `[I, J, ..., L, max_diag_len]`.\nOtherwise, it has `r+1` dimensions `[I, J, ..., L, num_diags, max_diag_len]`.\n`num_diags` is the number of diagonals, `num_diags = k[1] - k[0] + 1`.\n`max_diag_len` is the longest diagonal in the range `[k[0], k[1]]`,\n`max_diag_len = min(M + min(k[1], 0), N + min(-k[0], 0))`\n\nThe output is a tensor of rank `k+1` with dimensions `[I, J, ..., L, M, N]`.\nIf `k` is scalar or `k[0] == k[1]`:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, n-max(k[1], 0)] ; if n - m == k[1]\n    input[i, j, ..., l, m, n]              ; otherwise\n```\n\nOtherwise,\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, diag_index, index_in_diag] ; if k[0] <= d <= k[1]\n    input[i, j, ..., l, m, n]                         ; otherwise\n```\nwhere `d = n - m`, `diag_index = k[1] - d`, and `index_in_diag = n - max(d, 0)`.\n\nFor example:\n\n```\n# The main diagonal.\ninput = np.array([[[7, 7, 7, 7],              # Input shape: (2, 3, 4)\n                   [7, 7, 7, 7],\n                   [7, 7, 7, 7]],\n                  [[7, 7, 7, 7],\n                   [7, 7, 7, 7],\n                   [7, 7, 7, 7]]])\ndiagonal = np.array([[1, 2, 3],               # Diagonal shape: (2, 3)\n                     [4, 5, 6]])\ntf.matrix_set_diag(diagonal) ==> [[[1, 7, 7, 7],  # Output shape: (2, 3, 4)\n                                   [7, 2, 7, 7],\n                                   [7, 7, 3, 7]],\n                                  [[4, 7, 7, 7],\n                                   [7, 5, 7, 7],\n                                   [7, 7, 6, 7]]]\n\n# A superdiagonal (per batch).\ntf.matrix_set_diag(diagonal, k = 1)\n  ==> [[[7, 1, 7, 7],  # Output shape: (2, 3, 4)\n        [7, 7, 2, 7],\n        [7, 7, 7, 3]],\n       [[7, 4, 7, 7],\n        [7, 7, 5, 7],\n        [7, 7, 7, 6]]]\n\n# A band of diagonals.\ndiagonals = np.array([[[1, 2, 3],  # Diagonal shape: (2, 2, 3)\n                       [4, 5, 0]],\n                      [[6, 1, 2],\n                       [3, 4, 0]]])\ntf.matrix_set_diag(diagonals, k = (-1, 0))\n  ==> [[[1, 7, 7, 7],  # Output shape: (2, 3, 4)\n        [4, 2, 7, 7],\n        [0, 5, 3, 7]],\n       [[6, 7, 7, 7],\n        [3, 1, 7, 7],\n        [7, 4, 2, 7]]]\n\n```",
+      "inputs": [
+        {
+          "description": "Rank `r+1`, where `r >= 1`.",
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Rank `r` when `k` is an integer or `k[0] == k[1]`. Otherwise, it has rank `r+1`.\n`k >= 1`.",
+          "name": "diagonal",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Diagonal offset(s). Positive value means superdiagonal, 0 refers to the main\ndiagonal, and negative value means subdiagonals. `k` can be a single integer\n(for a single diagonal) or a pair of integers specifying the low and high ends\nof a matrix band. `k[0]` must not be larger than `k[1]`.",
+          "name": "k",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Rank `r+1`, with `output.shape = input.shape`.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns a batched matrix tensor with new batched diagonal values."
+    }
+  },
+  {
+    "name": "MatrixSetDiagV3",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            "LEFT_RIGHT",
+            "RIGHT_LEFT",
+            "LEFT_LEFT",
+            "RIGHT_RIGHT"
+          ],
+          "default": "RIGHT_LEFT",
+          "description": "Some diagonals are shorter than `max_diag_len` and need to be padded. `align` is\na string specifying how superdiagonals and subdiagonals should be aligned,\nrespectively. There are four possible alignments: \"RIGHT_LEFT\" (default),\n\"LEFT_RIGHT\", \"LEFT_LEFT\", and \"RIGHT_RIGHT\". \"RIGHT_LEFT\" aligns superdiagonals\nto the right (left-pads the row) and subdiagonals to the left (right-pads the\nrow). It is the packing format LAPACK uses. cuSPARSE uses \"LEFT_RIGHT\", which is\nthe opposite alignment.",
+          "name": "align",
+          "type": "string"
+        }
+      ],
+      "description": "Given `input` and `diagonal`, this operation returns a tensor with the\nsame shape and values as `input`, except for the specified diagonals of the\ninnermost matrices. These will be overwritten by the values in `diagonal`.\n\n`input` has `r+1` dimensions `[I, J, ..., L, M, N]`. When `k` is scalar or\n`k[0] == k[1]`, `diagonal` has `r` dimensions `[I, J, ..., L, max_diag_len]`.\nOtherwise, it has `r+1` dimensions `[I, J, ..., L, num_diags, max_diag_len]`.\n`num_diags` is the number of diagonals, `num_diags = k[1] - k[0] + 1`.\n`max_diag_len` is the longest diagonal in the range `[k[0], k[1]]`,\n`max_diag_len = min(M + min(k[1], 0), N + min(-k[0], 0))`\n\nThe output is a tensor of rank `k+1` with dimensions `[I, J, ..., L, M, N]`.\nIf `k` is scalar or `k[0] == k[1]`:\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, n-max(k[1], 0)] ; if n - m == k[1]\n    input[i, j, ..., l, m, n]              ; otherwise\n```\n\nOtherwise,\n\n```\noutput[i, j, ..., l, m, n]\n  = diagonal[i, j, ..., l, diag_index, index_in_diag] ; if k[0] <= d <= k[1]\n    input[i, j, ..., l, m, n]                         ; otherwise\n```\nwhere `d = n - m`, `diag_index = k[1] - d`, and\n`index_in_diag = n - max(d, 0) + offset`.\n\n`offset` is zero except when the alignment of the diagonal is to the right.\n```\noffset = max_diag_len - diag_len(d) ; if (`align` in {RIGHT_LEFT, RIGHT_RIGHT}\n                                           and `d >= 0`) or\n                                         (`align` in {LEFT_RIGHT, RIGHT_RIGHT}\n                                           and `d <= 0`)\n         0                          ; otherwise\n```\nwhere `diag_len(d) = min(cols - max(d, 0), rows + min(d, 0))`.\n\nFor example:\n\n```\n# The main diagonal.\ninput = np.array([[[7, 7, 7, 7],              # Input shape: (2, 3, 4)\n                   [7, 7, 7, 7],\n                   [7, 7, 7, 7]],\n                  [[7, 7, 7, 7],\n                   [7, 7, 7, 7],\n                   [7, 7, 7, 7]]])\ndiagonal = np.array([[1, 2, 3],               # Diagonal shape: (2, 3)\n                     [4, 5, 6]])\ntf.matrix_set_diag(input, diagonal)\n  ==> [[[1, 7, 7, 7],  # Output shape: (2, 3, 4)\n        [7, 2, 7, 7],\n        [7, 7, 3, 7]],\n       [[4, 7, 7, 7],\n        [7, 5, 7, 7],\n        [7, 7, 6, 7]]]\n\n# A superdiagonal (per batch).\ntf.matrix_set_diag(input, diagonal, k = 1)\n  ==> [[[7, 1, 7, 7],  # Output shape: (2, 3, 4)\n        [7, 7, 2, 7],\n        [7, 7, 7, 3]],\n       [[7, 4, 7, 7],\n        [7, 7, 5, 7],\n        [7, 7, 7, 6]]]\n\n# A band of diagonals.\ndiagonals = np.array([[[0, 9, 1],  # Diagonal shape: (2, 4, 3)\n                       [6, 5, 8],\n                       [1, 2, 3],\n                       [4, 5, 0]],\n                      [[0, 1, 2],\n                       [5, 6, 4],\n                       [6, 1, 2],\n                       [3, 4, 0]]])\ntf.matrix_set_diag(input, diagonals, k = (-1, 2))\n  ==> [[[1, 6, 9, 7],  # Output shape: (2, 3, 4)\n        [4, 2, 5, 1],\n        [7, 5, 3, 8]],\n       [[6, 5, 1, 7],\n        [3, 1, 6, 2],\n        [7, 4, 2, 4]]]\n\n# LEFT_RIGHT alignment.\ndiagonals = np.array([[[9, 1, 0],  # Diagonal shape: (2, 4, 3)\n                       [6, 5, 8],\n                       [1, 2, 3],\n                       [0, 4, 5]],\n                      [[1, 2, 0],\n                       [5, 6, 4],\n                       [6, 1, 2],\n                       [0, 3, 4]]])\ntf.matrix_set_diag(input, diagonals, k = (-1, 2), align=\"LEFT_RIGHT\")\n  ==> [[[1, 6, 9, 7],  # Output shape: (2, 3, 4)\n        [4, 2, 5, 1],\n        [7, 5, 3, 8]],\n       [[6, 5, 1, 7],\n        [3, 1, 6, 2],\n        [7, 4, 2, 4]]]\n\n```",
       "inputs": [
         {
           "description": "Rank `r+1`, where `r >= 1`.",
@@ -42884,6 +43110,11 @@
           "description": "List of dilation values.",
           "name": "dilations",
           "type": "int64[]"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
+          "type": "int64[]"
         }
       ],
       "inputs": [
@@ -43069,6 +43300,11 @@
           ],
           "description": "List of dilation values.",
           "name": "dilations",
+          "type": "int64[]"
+        },
+        {
+          "default": [],
+          "name": "padding_list",
           "type": "int64[]"
         }
       ],
@@ -43952,6 +44188,180 @@
         }
       ],
       "summary": "Perform a quantized matrix multiplication of  `a` by the matrix `b` with bias\nadd and relu and requantize fusion."
+    }
+  },
+  {
+    "name": "QuantizedMatMulWithBiasAndRequantize",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 13
+            }
+          ],
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 15
+            },
+            {
+              "type": "type",
+              "value": 16
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 12
+          },
+          "name": "Toutput",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "allowedValues": [
+            "MIN_FIRST",
+            "SCALED"
+          ],
+          "default": "MIN_FIRST",
+          "name": "input_quant_mode",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "typeAttr": "T1"
+        },
+        {
+          "name": "b",
+          "typeAttr": "T2"
+        },
+        {
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "name": "min_a",
+          "type": 1
+        },
+        {
+          "name": "max_a",
+          "type": 1
+        },
+        {
+          "name": "min_b",
+          "type": 1
+        },
+        {
+          "name": "max_b",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "typeAttr": "Toutput"
+        },
+        {
+          "name": "min_out",
+          "type": 1
+        },
+        {
+          "name": "max_out",
+          "type": 1
+        }
+      ]
     }
   },
   {
@@ -69320,10 +69730,10 @@
           "type": "string"
         }
       ],
-      "description": "Computes the length of each string given in the input tensor.",
+      "description": "Computes the length of each string given in the input tensor.\n\n>>> strings = tf.constant(['Hello','TensorFlow', '\\U0001F642'])\n>>> tf.strings.length(strings).numpy() # default counts bytes\narray([ 5, 10, 4], dtype=int32)\n>>> tf.strings.length(strings, unit=\"UTF8_CHAR\").numpy()\narray([ 5, 10, 1], dtype=int32)\n",
       "inputs": [
         {
-          "description": "The string for which to compute the length.",
+          "description": "The strings for which to compute the length for each element.",
           "name": "input",
           "type": 7
         }
@@ -70442,6 +70852,7 @@
           "type": "int64"
         }
       ],
+      "description": "This operation holds a replicated input to a `tpu.replicate()` computation subgraph.\nEach replicated input has the same shape and type alongside the output.\n\nFor example:\n```\n%a = \"tf.opA\"()\n%b = \"tf.opB\"()\n%replicated_input = \"tf.TPUReplicatedInput\"(%a, %b)\n%computation = \"tf.Computation\"(%replicated_input)\n```\nThe above computation has a replicated input of two replicas.",
       "inputs": [
         {
           "name": "inputs",
@@ -70472,6 +70883,7 @@
           "type": "type"
         }
       ],
+      "description": "This operation holds a replicated output from a `tpu.replicate()` computation subgraph.\nEach replicated output has the same shape and type alongside the input.\n\nFor example:\n```\n%computation = \"tf.Computation\"()\n%replicated_output:2 = \"tf.TPUReplicatedOutput\"(%computation)\n```\nThe above computation has a replicated output of two replicas.",
       "inputs": [
         {
           "name": "input",
@@ -70485,7 +70897,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Connects outputs of an N-way replicated computation to N outputs."
+      "summary": "Connects N outputs from an N-way replicated TPU computation."
     }
   },
   {
