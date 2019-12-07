@@ -24,7 +24,7 @@ update:
 	@./tools/armnn sync schema
 	@./tools/bigdl sync schema
 	@./tools/caffe sync schema
-	@./tools/coreml sync install schema
+	@./tools/coreml sync schema
 	@./tools/chainer sync
 	@./tools/cntk sync schema
 	@./tools/darknet sync
