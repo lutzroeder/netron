@@ -13982,7 +13982,7 @@
           "type": "int64[]"
         }
       ],
-      "description": "The convolution operator consumes a quantized input tensor, its scale and zero point,\na quantized filter, its scale and zero point, and output's scale and zero point,\nand computes the quantized output. Each scale and zero-point pair must have same shape.\nIt means they must be either scalars (per tensor) or 1-D tensors (per output channel).\nEach input or output and its related zero point must have same type.\n",
+      "description": "The convolution operator consumes a quantized input tensor, its scale and zero point,\na quantized filter, its scale and zero point, and output's scale and zero point,\nand computes the quantized output. Each scale and zero-point pair must have same shape.\nIt means they must be either scalars (per tensor) or 1-D tensors (per output channel).\nEach input or output and its related zero point must have same type.\nWhen bias is present it must be quantized using scale = input scale * weight scale and \nzero point as 0.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -14032,7 +14032,7 @@
           "type": "T3"
         },
         {
-          "description": "Optional 1D bias to be added to the convolution, has size of M.",
+          "description": "Optional 1D bias to be added to the convolution, has size of M. Bias must be quantized using scale = x_scale * w_scale and zero_point = 0",
           "name": "B",
           "option": "optional",
           "type": "T4"
