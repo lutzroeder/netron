@@ -17,25 +17,33 @@ darknet.ModelFactory = class {
     open(context, host) {
         return darknet.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier;
-            try {
-                const reader = new darknet.CfgReader(context.text);
-                const cfg = reader.read();
-                return new darknet.Model(metadata, cfg);
-            }
-            catch (error) {
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new darknet.Error(message + " in '" + identifier + "'.");
-            }
+            const parts = identifier.split('.');
+            parts.pop();
+            const basename = parts.join('.');
+            return context.request(basename + '.weights', null).then((weights) => {
+                return this._openModel(metadata, identifier, context.text, weights);
+            }).catch(() => {
+                return this._openModel(metadata, identifier, context.text, null);
+            });
         });
+    }
+    _openModel( metadata, identifier, cfg, weights) {
+        try {
+            return new darknet.Model(metadata, cfg, weights);
+        }
+        catch (error) {
+            let message = error && error.message ? error.message : error.toString();
+            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+            throw new darknet.Error(message + " in '" + identifier + "'.");
+        }
     }
 };
 
 darknet.Model = class {
 
-    constructor(metadata, cfg) {
+    constructor(metadata, cfg, weights) {
         this._graphs = [];
-        this._graphs.push(new darknet.Graph(metadata, cfg));
+        this._graphs.push(new darknet.Graph(metadata, cfg, weights));
     }
 
     get format() {
@@ -49,45 +57,105 @@ darknet.Model = class {
 
 darknet.Graph = class {
     
-    constructor(metadata, cfg) {
+    constructor(metadata, cfg, weights) {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
 
-        if (cfg.length === 0) {
+        // read_cfg
+        let sections = [];
+        let section = null;
+        let lines = cfg.split('\n');
+        let nu = 0;
+        while (lines.length > 0) {
+            nu++;
+            let line = lines.shift();
+            line = line.replace(/\s/g, '');
+            if (line.length > 0) {
+                switch (line[0]) {
+                    case '#':
+                    case ';':
+                        break;
+                    case '[': {
+                        section = {};
+                        section.type = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
+                        section.options = {};
+                        sections.push(section);
+                        break;
+                    }
+                    default: {
+                        if (section) {
+                            let property = line.split('=');
+                            if (property.length != 2) {
+                                throw new darknet.Error("Invalid cfg '" + line + "' at line " + nu.toString() + ".");
+                            }
+                            let key = property[0].trim();
+                            let value = property[1].trim();
+                            section.options[key] = value;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (let section of sections) {
+            section.values = {};
+            const schema = metadata.getSchema(section.type);
+            if (schema && schema.attributes) {
+                for (let attribute of schema.attributes) {
+                    if (attribute.name) {
+                        if (section.options[attribute.name] !== undefined) {
+                            switch (attribute.type) {
+                                case 'int32':
+                                    section.values[attribute.name] = parseInt(section.options[attribute.name], 10);
+                                    break;
+                                case 'float32':
+                                    section.values[attribute.name] = parseFloat(section.options[attribute.name]);
+                                    break;
+                                case 'string':
+                                    section.values[attribute.name] = section.options[attribute.name];
+                                    break;
+                            }
+                        }
+                        else if (attribute.default !== undefined) {
+                            section.values[attribute.name] = attribute.default
+                        }
+                    }
+                }
+            }
+        }
+
+        if (sections.length === 0) {
             throw new darknet.Error('Config file has no sections.');
         }
 
-        let net = cfg.shift();
-        if (net.__type__ !== 'net' && net.__type__ !== 'network') {
+        let net = sections.shift();
+        if (net.type !== 'net' && net.type !== 'network') {
             throw new darknet.Error('First section must be [net] or [network].');
         }
 
-        net.width = net.width ? Number.parseInt(net.width, 10) : 0;
-        net.height = net.height ? Number.parseInt(net.height, 10) : 0;
-        net.channels = net.channels ? Number.parseInt(net.channels, 10) : 0;
+        const inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.values.width, net.values.height, net.values.channels ]));
 
-        const inputType = new darknet.TensorType('float32', new darknet.TensorShape([ net.width, net.height, net.channels ]));
-
-        const input = 'input';
-        this._inputs.push(new darknet.Parameter(input, true, [
-            new darknet.Argument(input, inputType, null)
+        const inputName = 'input';
+        this._inputs.push(new darknet.Parameter(inputName, true, [
+            new darknet.Argument(inputName, inputType, null)
         ]));
 
-        for (let i = 0; i < cfg.length; i++) {
-            cfg[i]._outputs = [ i.toString() ];
+        for (let i = 0; i < sections.length; i++) {
+            sections[i]._outputs = [ i.toString() ];
         }
 
-        let inputs = [ 'input' ];
-        for (let i = 0; i < cfg.length; i++) {
-            const layer = cfg[i];
+        let inputs = [ inputName ];
+        for (let i = 0; i < sections.length; i++) {
+            const layer = sections[i];
             layer._inputs = inputs;
             inputs = [ i.toString() ];
-            switch (layer.__type__) {
+            switch (layer.type) {
                 case 'shortcut': {
-                    let from = Number.parseInt(layer.from, 10);
+                    let from = Number.parseInt(layer.options.from, 10);
                     from = (from >= 0) ? from : (i + from);
-                    const shortcut = cfg[from];
+                    const shortcut = sections[from];
                     if (shortcut) {
                         layer._inputs.push(shortcut._outputs[0]);
                     }
@@ -95,10 +163,10 @@ darknet.Graph = class {
                 }
                 case 'route': {
                     layer._inputs = [];
-                    const routes = layer.layers.split(',').map((route) => Number.parseInt(route.trim(), 10));
+                    const routes = layer.options.layers.split(',').map((route) => Number.parseInt(route.trim(), 10));
                     for (let j = 0; j < routes.length; j++) {
                         const index = (routes[j] < 0) ? i + routes[j] : routes[j];
-                        const route = cfg[index];
+                        const route = sections[index];
                         if (route) {
                             layer._inputs.push(route._outputs[0]);
                         }
@@ -107,12 +175,12 @@ darknet.Graph = class {
                 }
             }
         }
-        for (let i = 0; i < cfg.length; i++) {
-            this._nodes.push(new darknet.Node(metadata, net, cfg[i], i.toString()));
+        for (let i = 0; i < sections.length; i++) {
+            this._nodes.push(new darknet.Node(metadata, net, sections[i], i.toString()));
         }
 
-        if (cfg.length > 0) {
-            const lastLayer = cfg[cfg.length - 1];
+        if (sections.length > 0) {
+            const lastLayer = sections[sections.length - 1];
             for (let i = 0; i < lastLayer._outputs.length; i++) {
                 this._outputs.push(new darknet.Parameter('output' + (i > 1 ? i.toString() : ''), true, [
                     new darknet.Argument(lastLayer._outputs[i], null, null)
@@ -184,7 +252,7 @@ darknet.Node = class {
     constructor(metadata, net, layer, name) {
         this._name = name;
         this._metadata = metadata;
-        this._operator = layer.__type__;
+        this._operator = layer.type;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
@@ -199,31 +267,27 @@ darknet.Node = class {
                 return new darknet.Argument(output, null, null);
             })));
         }
-        switch (layer.__type__) {
+        switch (layer.type) {
             case 'convolutional':
             case 'deconvolutional':
-                layer.filters = layer.filters ? Number.parseInt(layer.filters, 10) : 1;
-                layer.size = layer.size ? Number.parseInt(layer.size, 10) : 1;
-                this._initializer('biases', [ layer.filters ]);
-                this._initializer('weights', [ net.channels, layer.size, layer.size, layer.filters ]);
-                this._batch_normalize(metadata, net, layer, layer.filters);
-                this._activation(metadata, layer, 'logistic');
+                this._initializer('biases', [ layer.values.filters ]);
+                this._initializer('weights', [ net.values.channels, layer.values.size, layer.values.size, layer.values.filters ]);
+                this._batch_normalize(metadata, net, layer, layer.values.filters);
+                this._activation(metadata, net, layer, 'logistic');
                 break;
             case 'connected':
-                layer.output = layer.output ? Number.parseInt(layer.output, 10) : 1; 
-                this._initializer('biases', [ layer.output ]);
+                this._initializer('biases', [ layer.values.output ]);
                 this._initializer('weights');
-                this._batch_normalize(metadata, net, layer, layer.output);
-                this._activation(metadata, layer, 'logistic');
+                this._batch_normalize(metadata, net, layer, layer.values.output);
+                this._activation(metadata, net, layer);
                 break;
             case 'crnn':
                 this._batch_normalize(metadata, net, layer);
-                this._activation(metadata, layer, "logistic");
+                this._activation(metadata, net, layer);
                 break;
             case 'rnn':
-                layer.output = layer.output ? Number.parseInt(layer.output, 10) : 1; 
-                this._batch_normalize(metadata, net, layer, layer.output);
-                this._activation(metadata, layer, "logistic");
+                this._batch_normalize(metadata, net, layer, layer.values.output);
+                this._activation(metadata, net, layer);
                 break;
             case 'gru':
                 this._batch_normalize(metadata, net, layer);
@@ -232,27 +296,25 @@ darknet.Node = class {
                 this._batch_normalize(metadata, net, layer);
                 break;
             case 'shortcut':
-                this._activation(metadata, net, layer, "linear");
+                this._activation(metadata, net, layer);
                 break;
             case 'batch_normalize':
-                this._initializer('scale', [ layer.size ]);
-                this._initializer('mean', [ layer.size ]);
-                this._initializer('variance', [ layer.size ]);
+                this._initializer('scale', [ layer.values.size ]);
+                this._initializer('mean', [ layer.values.size ]);
+                this._initializer('variance', [ layer.values.size ]);
                 break;
         }
 
-        switch (layer.__type__) {
+        switch (layer.type) {
             case 'shortcut':
-                delete layer.from;
+                delete layer.options.from;
                 break;
             case 'route':
-                delete layer.layers;
+                delete layer.options.layers;
                 break;
         }
-        for (let key of Object.keys(layer)) {
-            if (key != '__type__' && key != '_inputs' && key != '_outputs') {
-                this._attributes.push(new darknet.Attribute(metadata, this._operator, key, layer[key]));
-            }
+        for (let key of Object.keys(layer.options)) {
+            this._attributes.push(new darknet.Attribute(metadata, this._operator, key, layer.options[key]));
         }
     }
 
@@ -297,17 +359,20 @@ darknet.Node = class {
     }
 
     _batch_normalize(metadata, net, layer, size) {
-        if (layer.batch_normalize == "1") {
-            const batch_normalize_layer = { __type__: 'batch_normalize', _inputs: [], _outputs: [], size: size || 0 };
-            this._chain.push(new darknet.Node(metadata, net, batch_normalize_layer, this._name + ':batch_normalize'));
-            delete layer.batch_normalize;
+        if (layer.values.batch_normalize === 1) {
+            const batch_normalize_layer = { type: 'batch_normalize', options: {}, values: { size: size || 0 }, _inputs: [], _outputs: [] };
+            this._chain.push(new darknet.Node(metadata, net, batch_normalize_layer, ''));
         }
+        delete layer.options.batch_normalize;
     }
 
-    _activation(metadata, net, layer, defaultValue) {
-        if (layer.activation && layer.activation != defaultValue) {
-            this._chain.push(new darknet.Node(metadata, net, { __type__: layer.activation, _inputs: [], _outputs: [] }, this._name + ':activation'));
-            delete layer.activation;
+    _activation(metadata, net, layer) {
+        const attributeSchema = metadata.getAttributeSchema(layer.type, 'activation');
+        if (attributeSchema) {
+            if (layer.options.activation !== attributeSchema.default) {
+                this._chain.push(new darknet.Node(metadata, net, { type: layer.options.activation, options: {}, values: {}, _inputs: [], _outputs: [] }, ''));
+            }
+            delete layer.options.activation;
         }
     }
 };
@@ -317,27 +382,19 @@ darknet.Attribute = class {
     constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
-
-        const intValue = Number.parseInt(this._value, 10);
-        if (!Number.isNaN(this._value - intValue)) {
-            this._value = intValue;
-        }
-        else {
-            const floatValue = Number.parseFloat(this._value);
-            if (!Number.isNaN(this._value - floatValue)) {
-                this._value = floatValue;
-            }
-        }
-
         const schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
-            if (schema.type == 'boolean') {
-                switch (this._value) {
-                    case 0: this._value = false; break;
-                    case 1: this._value = true; break;
+            this._type = schema.type || '';
+            switch (this._type) {
+                case 'int32': {
+                    this._value = parseInt(this._value, 10);
+                    break;
+                }
+                case 'float32': {
+                    this._value = parseFloat(this._value);
+                    break;
                 }
             }
-
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
             }
@@ -351,6 +408,10 @@ darknet.Attribute = class {
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get value() {
@@ -407,7 +468,7 @@ darknet.TensorType = class {
     }
 
     toString() {
-        return (this.dataType || '?') + this._shape.toString();
+        return (this._dataType || '?') + this._shape.toString();
     }
 };
 
@@ -479,48 +540,6 @@ darknet.Metadata = class {
             this._attributeCache.set(operator, map);
         }
         return map.get(name) || null;
-    }
-};
-
-darknet.CfgReader = class {
-
-    constructor(text) {
-        this._lines = text.split('\n');
-        this._line = 0;
-    }
-
-    read() {
-        let options = [];
-        let section = null;
-        while (this._line < this._lines.length) {
-            let line = this._lines[this._line];
-            line = line.replace(/\s/g, '');
-            if (line.length > 0) {
-                switch (line[0]) {
-                    case '#':
-                    case ';':
-                        break;
-                    case '[':
-                        section = {};
-                        section.__type__ = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
-                        options.push(section);
-                        break;
-                    default:
-                        if (section) {
-                            let property = line.split('=');
-                            if (property.length != 2) {
-                                throw new darknet.Error("Invalid cfg '" + line + "' at line " + (this._line + 1).toString() + ".");
-                            }
-                            let key = property[0].trim();
-                            let value = property[1].trim();
-                            section[key] = value;
-                        }
-                        break;
-                }
-            }
-            this._line++;
-        }
-        return options;
     }
 };
 
