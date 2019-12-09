@@ -10,7 +10,7 @@ import re
 import sys
 
 def metadata():
-    json_file = '../src/pytorch-metadata.json'
+    json_file = os.path.join(os.path.dirname(__file__), '../src/pytorch-metadata.json')
     json_data = open(json_file).read()
     json_root = json.loads(json_data)
 

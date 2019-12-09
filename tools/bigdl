@@ -1,47 +1,36 @@
 #!/bin/bash
 
 set -e
-
-root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
-node_modules=${root}/node_modules
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=bigdl
-virtualenv=${third_party}/virtualenv/${identifier}
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "bigdl clean"
-    rm -rf ${virtualenv}
-    rm -rf ${third_party}/${identifier}
-    rm -rf ${third_party}/onnxmltools
+    rm -rf ./third_party/bigdl
 }
 
 sync() {
     bold "bigdl sync"
-    git_sync bigdl https://github.com/intel-analytics/BigDL.git
+    mkdir -p "./third_party"
+    if [ -d "./third_party/bigdl" ]; then
+        git -C "./third_party/bigdl" pull --quiet --prune
+    else
+        git -C "./third_party" clone --quiet --recursive https://github.com/intel-analytics/BigDL.git bigdl
+    fi
+    git -C "./third_party/bigdl" submodule sync --quiet
+    git -C "./third_party/bigdl" submodule update --quiet --init --recursive
 }
 
 schema() {
     bold "bigdl schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r bigdl -o ${src}/bigdl-proto.js ${third_party}/${identifier}/spark/dl/src/main/resources/serialization/bigdl.proto
+    [[ $(file ./src/bigdl-proto.js) =~ CRLF ]] && crlf=1
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r bigdl -o ./src/bigdl-proto.js ./third_party/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/bigdl-proto.js ./src/bigdl-proto.js
+    fi
 }
 
 while [ "$#" != 0 ]; do

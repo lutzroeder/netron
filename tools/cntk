@@ -1,12 +1,7 @@
 #!/bin/bash
 
 set -e
-
-root=$(cd $(dirname ${0})/..; pwd)
-node_modules=${root}/node_modules
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -14,25 +9,29 @@ bold() {
 
 clean() {
     bold "cntk clean"
-    rm -rf "${third_party}/cntk"
+    rm -rf "./third_party/cntk"
 }
 
 sync() {
     bold "cntk sync"
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/cntk" ]; then
-        git -C "${third_party}/cntk" pull --quiet --prune
+    mkdir -p "./third_party"
+    if [ -d "./third_party/cntk" ]; then
+        git -C "./third_party/cntk" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --recursive https://github.com/Microsoft/CNTK.git cntk
+        git -C "./third_party" clone --quiet --recursive https://github.com/Microsoft/CNTK.git cntk
     fi
-    git -C "${third_party}/cntk" submodule sync --quiet
-    git -C "${third_party}/cntk" submodule update --quiet --init --recursive
+    git -C "./third_party/cntk" submodule sync --quiet
+    git -C "./third_party/cntk" submodule update --quiet --init --recursive
 }
 
 schema() {
     bold "cntk schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r cntk -o ${src}/cntk-proto.js ${third_party}/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
-    node ${tools}/update_pbjs.js array ${src}/cntk-proto.js value float 1
+    [[ $(file ./src/cntk-proto.js) =~ CRLF ]] && crlf=1
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r cntk -o ./src/cntk-proto.js ./third_party/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
+    node ./tools/update_pbjs.js array ./src/cntk-proto.js value float 1
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/cntk-proto.js ./src/cntk-proto.js
+    fi
 }
 
 while [ "$#" != 0 ]; do

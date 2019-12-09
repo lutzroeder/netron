@@ -9,10 +9,10 @@ import re
 import sys
 
 def metadata():
-    json_file = '../src/mlnet-metadata.json'
+    json_file = os.path.join(os.path.dirname(__file__), '../src/mlnet-metadata.json')
     json_data = open(json_file).read()
     json_root = json.loads(json_data)
-    manifest_file = '../third_party/mlnet/test/BaselineOutput/Common/EntryPoints/core_manifest.json'
+    manifest_file = os.path.join(os.path.dirname(__file__), '../third_party/mlnet/test/BaselineOutput/Common/EntryPoints/core_manifest.json')
     manifest_data = open(manifest_file).read()
     manifest_root = json.loads(manifest_data)
     schema_map = {}

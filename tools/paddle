@@ -1,44 +1,34 @@
 #!/bin/bash
 
 set -e
-
-root=$(cd $(dirname ${0})/..; pwd)
-node_modules=${root}/node_modules
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=paddle
-virtualenv=${third_party}/virtualenv/${identifier}
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync () {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "paddle clean"
-    rm -rf ${third_party}/paddle
+    rm -rf ./third_party/paddle
 }
 
 sync() {
     bold "paddle sync"
-    git_sync paddle https://github.com/PaddlePaddle/Paddle.git
+    mkdir -p "./third_party"
+    if [ -d "./third_party/paddle" ]; then
+        git -C "./third_party/paddle" pull --quiet --prune
+    else
+        git -C "./third_party" clone --quiet --recursive https://github.com/PaddlePaddle/Paddle.git paddle
+    fi
 }
 
 schema() {
     bold "paddle schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r paddle -o ${src}/paddle-proto.js ${third_party}/${identifier}/paddle/fluid/framework/framework.proto
+    [[ $(file ./src/paddle-proto.js) =~ CRLF ]] && crlf=1
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r paddle -o ./src/paddle-proto.js ./third_party/paddle/paddle/fluid/framework/framework.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/paddle-proto.js ./src/paddle-proto.js
+    fi
 }
 
 while [ "$#" != 0 ]; do
@@ -46,7 +36,6 @@ while [ "$#" != 0 ]; do
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
-        "install") install;;
         "schema") schema;;
     esac
 done

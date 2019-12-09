@@ -1,33 +1,24 @@
 #!/bin/bash
 
 set -e
-
-root=$(cd $(dirname ${0})/..; pwd)
-node_modules=${root}/node_modules
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=darknet
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
 git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
+    mkdir -p "./third_party"
+    if [ -d "./third_party/${1}" ]; then
+        git -C "./third_party/${1}" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
+        git -C "./third_party" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
     bold "darknet clean"
-    rm -rf ${third_party}/${identifier}
+    rm -rf ./third_party/darknet
 }
 
 sync() {

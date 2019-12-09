@@ -1,45 +1,34 @@
 #!/bin/bash
 
 set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-root=$(cd $(dirname ${0})/..; pwd)
-node_modules=${root}/node_modules
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=mlnet
+[[ "$(python3 --version 2> /dev/null)" =~ "Python 3" ]] && python=python3 || python=python
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "mlnet clean"
-    rm -rf ${third_party}/mlnet
+    rm -rf ./third_party/mlnet
 }
 
 sync() {
     bold "mlnet sync"
-    git_sync mlnet https://github.com/dotnet/machinelearning.git
+    mkdir -p "./third_party"
+    if [ -d "./third_party/mlnet" ]; then
+        git -C "./third_party/mlnet" pull --quiet --prune
+    else
+        git -C "./third_party" clone --quiet --recursive https://github.com/dotnet/machinelearning.git mlnet
+    fi
+    git -C "./third_party/mlnet" submodule sync --quiet
+    git -C "./third_party/mlnet" submodule update --quiet --init --recursive
 }
 
 metadata() {
     bold "mlnet metadata"
-    pushd ${tools} > /dev/null
-    python3 mlnet-script.py metadata
-    popd > /dev/null
+    ${python} ./tools/mlnet-script.py metadata
 }
 
 while [ "$#" != 0 ]; do

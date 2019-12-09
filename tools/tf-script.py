@@ -190,10 +190,9 @@ def metadata():
             return convert_shape(attr_value.shape)
         raise Exception()
 
-    api_def_map = read_api_def_map('../third_party/tensorflow/tensorflow/core/api_def/base_api')
-
-    input_file = '../third_party/tensorflow/tensorflow/core/ops/ops.pbtxt'
-
+    tensorflow_repo_dir = os.path.join(os.path.dirname(__file__), '../third_party/tensorflow')
+    api_def_map = read_api_def_map(os.path.join(tensorflow_repo_dir, 'tensorflow/core/api_def/base_api'))
+    input_file = os.path.join(tensorflow_repo_dir, 'tensorflow/core/ops/ops.pbtxt')
     ops_list = op_def_pb2.OpList()
     with open(input_file) as input_handle:
         text_format.Merge(input_handle.read(), ops_list)
@@ -291,7 +290,7 @@ def metadata():
             'schema': json_schema 
         })
 
-    json_file = '../src/tf-metadata.json'
+    json_file = os.path.join(os.path.dirname(__file__), '../src/tf-metadata.json')
     with io.open(json_file, 'w', newline='') as fout:
         json_data = json.dumps(json_root, sort_keys=True, indent=2)
         for line in json_data.splitlines():

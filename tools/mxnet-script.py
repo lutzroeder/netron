@@ -8,7 +8,7 @@ import pydoc
 import re
 import sys
 
-json_file = '../src/mxnet-metadata.json'
+json_file = os.path.join(os.path.dirname(__file__), '../src/mxnet-metadata.json')
 json_data = open(json_file).read()
 json_root = json.loads(json_data)
 
