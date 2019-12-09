@@ -70,7 +70,7 @@ schema() {
             flatc=${flatc_dir}/flatc.exe
             ;;
     esac
-    [[ $(file ./src/tflite-schema.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
     sed 's/namespace tflite;/namespace TFLITE;/g' < ./third_party/tensorflow/tensorflow/lite/schema/schema.fbs > ./tools/tflite.schema.fbs
     ${flatc} --no-js-exports --js ./tools/tflite.schema.fbs
     rm ./tools/tflite.schema.fbs

@@ -25,7 +25,7 @@ sync() {
 
 schema() {
     bold "caffe schema"
-    [[ $(file ./src/caffe-proto.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/caffe-proto.js) ]] && crlf=1
     sed 's/required float min = 1;/optional float min = 1;/g;s/required float max = 2;/optional float max = 2;/g' < ./third_party/caffe/src/caffe/proto/caffe.proto >./tools/caffe.proto
     npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe -o ./src/caffe-proto.js ./tools/caffe.proto
     rm ./tools/caffe.proto

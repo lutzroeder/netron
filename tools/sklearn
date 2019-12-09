@@ -58,7 +58,7 @@ install() {
 
 metadata() {
     bold "sklearn metadata"
-    [[ $(file ./src/sklearn-metadata.json) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/sklearn-metadata.json) ]] && crlf=1
     venv
     ${python} ./tools/sklearn-script.py
     deactivate

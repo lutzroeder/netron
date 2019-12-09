@@ -67,7 +67,7 @@ install() {
 
 schema() {
     bold "onnx schema"
-    [[ $(file ./src/onnx-proto.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/onnx-proto.js) ]] && crlf=1
     npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r onnx -o ./src/onnx-proto.js ./third_party/onnx/onnx/onnx-ml.proto ./third_party/onnx/onnx/onnx-operators-ml.proto
     node ./tools/update_pbjs.js array ./src/onnx-proto.js float_data float 1
     node ./tools/update_pbjs.js array ./src/onnx-proto.js double_data double 1
@@ -78,9 +78,13 @@ schema() {
 
 metadata() {
     bold "onnx metadata"
+    [[ $(grep -U $'\x0D' ./src/onnx-metadata.json) ]] && crlf=1
     venv
     ${python} ./tools/onnx-script.py metadata
     deactivate
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/onnx-metadata.json ./src/onnx-metadata.json
+    fi
 }
 
 convert() {

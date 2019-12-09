@@ -54,7 +54,7 @@ install() {
 
 schema() {
     bold "caffe2 schema"
-    [[ $(file ./src/caffe2-proto.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/caffe2-proto.js) ]] && crlf=1
     npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe2 -o ./src/caffe2-proto.js ./third_party/pytorch/caffe2/proto/caffe2.proto
     node ./tools/update_pbjs.js enumeration ./src/caffe2-proto.js floats float 1
     if [[ -n ${crlf} ]]; then
@@ -63,7 +63,7 @@ schema() {
 }
 
 metadata() {
-    [[ $(file ./src/pytorch-metadata.json) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/pytorch-metadata.json) ]] && crlf=1
     venv
     bold "pytorch metadata"
     ${python} ./tools/pytorch-script.py metadata

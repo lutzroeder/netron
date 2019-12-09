@@ -55,7 +55,7 @@ schema() {
             flatc=${flatc_dir}/flatc.exe
             ;;
     esac
-    [[ $(file ./src/armnn-schema.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/armnn-schema.js) ]] && crlf=1
     ${flatc} --no-js-exports -o ./tools/. --js ./third_party/armnn/src/armnnSerializer/ArmnnSchema.fbs
     mv ./tools/ArmnnSchema_generated.js ./src/armnn-schema.js
     cat <<EOT >> ./src/armnn-schema.js

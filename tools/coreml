@@ -38,7 +38,7 @@ sync() {
 
 schema() {
     bold "coreml schema"
-    [[ $(file ./src/coreml-proto.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/coreml-proto.js) ]] && crlf=1
     npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r coreml -o ./src/coreml-proto.js ./third_party/coremltools/mlmodel/format/Model.proto
     node ./tools/update_pbjs.js array ./src/coreml-proto.js floatValue float 2
     if [[ -n ${crlf} ]]; then

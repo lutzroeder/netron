@@ -26,7 +26,7 @@ sync() {
 
 schema() {
     bold "cntk schema"
-    [[ $(file ./src/cntk-proto.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/cntk-proto.js) ]] && crlf=1
     npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r cntk -o ./src/cntk-proto.js ./third_party/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
     node ./tools/update_pbjs.js array ./src/cntk-proto.js value float 1
     if [[ -n ${crlf} ]]; then

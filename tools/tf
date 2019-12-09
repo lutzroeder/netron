@@ -46,7 +46,7 @@ install() {
 
 schema() {
     bold "tf schema"
-    [[ $(file ./src/tf-proto.js) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/tf-proto.js) ]] && crlf=1
     npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ./src/tf-proto.js \
         ./third_party/tensorflow/tensorflow/core/protobuf/saved_model.proto \
         ./third_party/tensorflow/tensorflow/core/protobuf/meta_graph.proto \
@@ -74,7 +74,7 @@ schema() {
 
 metadata() {
     bold "tf metadata"
-    [[ $(file ./src/tf-metadata.json) =~ CRLF ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]] && crlf=1
     venv
     case "${OSTYPE}" in
         linux*)
@@ -88,7 +88,7 @@ metadata() {
         msys*)
             protoc_version=$(curl -s https://api.github.com/repos/protocolbuffers/protobuf/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"' | cut -f 2 -d v)
             protoc_dir=$(dirname $(mktemp -u))/protobuf/v${protoc_version}
-            if [ ! -f "${protoc_dir}/bin/flatc" ]; then
+            if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
                 mkdir -p "${protoc_dir}"
                 pushd "${protoc_dir}" > /dev/null
                 curl -sL -O https://github.com/protocolbuffers/protobuf/releases/download/v${protoc_version}/protoc-${protoc_version}-win32.zip
