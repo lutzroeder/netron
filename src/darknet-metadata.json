@@ -10,6 +10,13 @@
         { "name": "groups", "default": 1 },
         { "name": "padding", "default": 0 },
         { "name": "pad", "type": "boolean", "default": false },
+        { "name": "dilation", "default": 1 },
+        { "name": "share_index", "default": -1 },
+        { "name": "binary", "type": "boolean", "default": false },
+        { "name": "xnor", "type": "boolean", "default": false },
+        { "name": "bin_output", "type": "boolean", "default": false },
+        { "name": "flipped", "type": "boolean", "default": false },
+        { "name": "dot", "type": "boolean", "default": false },
         { "name": "batch_normalize", "type": "boolean", "default": false },
         { "name": "activation", "default": "logistic" }
       ]
@@ -26,6 +33,20 @@
         { "name": "padding", "default": 0 },
         { "name": "pad", "type": "boolean", "default": false },
         { "name": "batch_normalize", "type": "boolean", "default": false },
+        { "name": "activation", "default": "logistic" }
+      ]
+    }
+  },
+  {
+    "name": "local",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "filters", "visible": false, "default": 1 },
+        { "name": "size", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "padding", "default": 0 },
+        { "name": "pad", "type": "boolean", "default": false },
         { "name": "activation", "default": "logistic" }
       ]
     }
@@ -60,7 +81,8 @@
       "category": "Layer",
       "attributes": [
         { "name": "output", "visible": false, "default": 1 },
-        { "name": "activation", "default": "logistic" }
+        { "name": "activation", "default": "logistic" },
+        { "name": "batch_normalize", "type": "boolean", "default": false }
       ]
     }
   },
@@ -69,7 +91,11 @@
     "schema": {
         "category": "Activation",
         "attributes": [
-          { "name": "groups", "default": 1 }
+          { "name": "groups", "default": 1 },
+          { "name": "temperature", "default": 1 },
+          { "name": "tree", "type": "string", "default": 0 },
+          { "name": "spatial", "default": 0 },
+          { "name": "noloss", "default": 0 }
         ]
     }
   },
@@ -88,7 +114,28 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "output", "visible": false, "default": 1 }
+        { "name": "output", "visible": false, "default": 1 },
+        { "name": "batch_normalize", "type": "boolean", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "conv_lstm",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "batch_normalize", "type": "boolean", "default": false },
+        { "name": "activation", "default": "LINEAR" },
+        { "name": "size", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "groups", "default": 1 },
+        { "name": "padding", "default": 0 },
+        { "name": "pad", "type": "boolean", "default": false },
+        { "name": "xnor", "type": "boolean", "default": false },
+        { "name": "shortcut", "default": 0 },
+        { "name": "output", "default": 1 },
+        { "name": "state_constrain", "default": 16 },
+        { "name": "peephole", "default": 0 }
       ]
     }
   },
@@ -99,6 +146,12 @@
       "attributes": [
         { "name": "batch_normalize", "type": "boolean", "default": false },
         { "name": "activation", "default": "logistic" },
+        { "name": "dilation", "default": 1 },
+        { "name": "padding", "default": 0 },
+        { "name": "pad", "type": "boolean", "default": false },
+        { "name": "groups", "default": 1 },
+        { "name": "xnor", "type": "boolean", "default": false },
+        { "name": "shortcut", "default": 0 },
         { "name": "output_filters", "default": 1 },
         { "name": "hidden_filters", "default": 1 }
       ]
@@ -111,6 +164,11 @@
       "attributes": [
         { "name": "output", "visible": false },
         { "name": "hidden", "visible": false },
+        { "name": "activation", "default": "logistic" },
+        { "name": "groups", "default": 1 },
+        { "name": "xnor", "type": "boolean", "default": false },
+        { "name": "shortcut", "default": 0 },
+        { "name": "logistic", "default": 0 },
         { "name": "batch_normalize", "type": "boolean", "default": false }
       ]
     }
@@ -215,11 +273,19 @@
       "attributes": [
         { "name": "classes", "default": 20 },
         { "name": "num", "default": 1 },
+        { "name": "mask", "type": "string", "default": 0 },
         { "name": "jitter", "default": 0.2 },
+        { "name": "scale_x_y", "default": 1 },
+        { "name": "iou_normalizer", "default": 0.75 },
+        { "name": "cls_normalizer", "default": 1 },
+        { "name": "iou_loss", "type": "string", "default": "mse" },
+        { "name": "focal_loss", "default": 0 },
         { "name": "max", "default": 90 },
         { "name": "ignore_thresh", "default": 0.5 },
         { "name": "truth_thresh", "default": 1 },
-        { "name": "random", "default": 0 }
+        { "name": "random", "default": 0 },
+        { "name": "map", "type": "string", "default": 0 },
+        { "name": "anchors", "type": "string", "default": 0 }
       ]
     }
   }
