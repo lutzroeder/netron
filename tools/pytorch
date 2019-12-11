@@ -49,7 +49,7 @@ sync() {
 install() {
     bold "pytorch install"
     venv
-    ${python} -m pip install --quiet --upgrade future protobuf
+    ${python} -m pip install --quiet --upgrade future protobuf scipy
     ${python} -m pip install --quiet --pre --upgrade torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     ${python} -m pip install --quiet --pre --upgrade torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
