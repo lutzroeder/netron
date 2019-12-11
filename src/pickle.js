@@ -479,49 +479,52 @@ pickle.Reader = class {
     }
 
     byte() {
-        let value = this._dataView.getUint8(this._position);
-        this._position++;
-        return value;
+        const position = this._position;
+        this.seek(1);
+        return this._dataView.getUint8(position);
     }
 
     bytes(length) {
-        let data = this._buffer.subarray(this._position, this._position + length);
-        this._position += length;
-        return data;
+        const position = this._position;
+        this.seek(length);
+        return this._buffer.subarray(position, this._position);
     }
 
     uint16() {
-        let value = this._dataView.getUint16(this._position, true);
-        this._position += 2;
-        return value;
+        const position = this.position;
+        this.seek(2);
+        return this._dataView.getUint16(position, true);
     }
 
     int32() {
-        let value = this._dataView.getInt32(this._position, true);
-        this._position += 4;
-        return value;
+        const position = this.position;
+        this.seek(4);
+        return this._dataView.getInt32(position, true);
     }
 
     uint32() {
-        let value = this._dataView.getUint32(this._position, true);
-        this._position += 4;
-        return value;
+        const position = this.position;
+        this.seek(4);
+        return this._dataView.getUint32(position, true);
     }
 
     float32() {
-        let value = this._dataView.getFloat32(this._position, true);
-        this._position += 4;
-        return value;
+        const position = this.position;
+        this.seek(4);
+        return this._dataView.getFloat32(position, true);
     }
 
     float64() {
-        let value = this._dataView.getFloat64(this._position, false);
-        this._position += 8;
-        return value;
+        const position = this.position;
+        this.seek(8);
+        return this._dataView.getFloat64(position, true);
     }
 
     seek(offset) {
         this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new pickle.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     string(size, encoding) {
