@@ -3846,7 +3846,7 @@
           "type": "type"
         },
         {
-          "default": 9.999999747378752e-06,
+          "default": 1e-05,
           "name": "tolerance",
           "type": "float32"
         }
@@ -23195,7 +23195,7 @@
           "type": "type"
         },
         {
-          "default": 9.999999747378752e-05,
+          "default": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float32"
@@ -23292,7 +23292,7 @@
           "type": "type"
         },
         {
-          "default": 9.999999747378752e-05,
+          "default": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float32"
@@ -23407,7 +23407,7 @@
           "type": "type"
         },
         {
-          "default": 9.999999747378752e-05,
+          "default": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float32"
@@ -23522,7 +23522,7 @@
           "type": "type"
         },
         {
-          "default": 9.999999747378752e-05,
+          "default": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float32"
@@ -23642,7 +23642,7 @@
           "type": "type"
         },
         {
-          "default": 9.999999747378752e-05,
+          "default": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float32"
@@ -23757,7 +23757,7 @@
           "type": "type"
         },
         {
-          "default": 9.999999747378752e-05,
+          "default": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float32"
@@ -27884,7 +27884,7 @@
     "schema": {
       "attributes": [
         {
-          "default": 0.20000000298023224,
+          "default": 0.2,
           "name": "alpha",
           "type": "float32"
         },
@@ -27935,7 +27935,7 @@
     "schema": {
       "attributes": [
         {
-          "default": 0.20000000298023224,
+          "default": 0.2,
           "name": "alpha",
           "type": "float32"
         },
@@ -34427,7 +34427,7 @@
           "type": "int64"
         },
         {
-          "default": 0.800000011920929,
+          "default": 0.8,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float32"
@@ -34499,7 +34499,7 @@
           "type": "int64"
         },
         {
-          "default": 0.800000011920929,
+          "default": 0.8,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float32"
@@ -39941,7 +39941,7 @@
           "type": "int64"
         },
         {
-          "default": 0.009999999776482582,
+          "default": 0.01,
           "name": "ensure_minimum_range",
           "type": "float32"
         }
@@ -43424,13 +43424,13 @@
           "type": "float32"
         },
         {
-          "default": 9.999999747378752e-06,
+          "default": 1e-05,
           "description": "A small float number to avoid dividing by 0.",
           "name": "variance_epsilon",
           "type": "float32"
         },
         {
-          "default": 0.0010000000474974513,
+          "default": 0.001,
           "description": "Minimum value of `y_max - y_min`",
           "name": "min_separation",
           "type": "float32"
@@ -50625,7 +50625,7 @@
           "type": "boolean"
         }
       ],
-      "description": "$$lr_t := \\text{learning\\_rate} * \\sqrt{1 - beta_2^t} / (1 - beta_1^t)$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+      "description": "$$\\text{lr}_t := \\mathrm{learning_rate} * \\sqrt{1 - \\beta_2^t} / (1 - \\beta_1^t)$$\n$$m_t := \\beta_1 * m_{t-1} + (1 - \\beta_1) * g$$\\\n$$v_t := \\beta_2 * v_{t-1} + (1 - \\beta_2) * g * g$$\n$$\\text{variable} := \\text{variable} - \\text{lr}_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -50766,7 +50766,7 @@
           "type": "boolean"
         }
       ],
-      "description": "$$lr_t := \\text{learning\\_rate} * \\sqrt{1 - beta_2^t} / (1 - beta_1^t)$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$vhat_t := max{vhat_{t-1}, v_t}$$\n$$variable := variable - lr_t * m_t / (\\sqrt{vhat_t} + \\epsilon)$$",
+      "description": "$$\\text{lr}_t := \\mathrm{learning_rate} * \\sqrt{1 - \\beta_2^t} / (1 - \\beta_1^t)$$\n$$m_t := \\beta_1 * m_{t-1} + (1 - \\beta_1) * g$$\n$$v_t := \\beta_2 * v_{t-1} + (1 - \\beta_2) * g * g$$\n$$\\hat{v}_t := max{\\hat{v}_{t-1}, v_t}$$\n$$\\text{variable} := \\text{variable} - \\text{lr}_t * m_t / (\\sqrt{\\hat{v}_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -51550,7 +51550,7 @@
           "type": "boolean"
         }
       ],
-      "description": "want to use Nesterov momentum.\n\naccum = accum * momentum - lr * grad\nvar += accum",
+      "description": "Set use_nesterov = True if you want to use Nesterov momentum.\n\naccum = accum * momentum - lr * grad\nvar += accum",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -51578,7 +51578,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Update '*var' according to the momentum scheme. Set use_nesterov = True if you"
+      "summary": "Update '*var' according to the momentum scheme."
     }
   },
   {
@@ -56816,7 +56816,7 @@
           "type": "int64"
         },
         {
-          "default": 0.10000000149011612,
+          "default": 0.1,
           "description": "The cropped area of the image must contain at least this\nfraction of any bounding box supplied. The value of this parameter should be\nnon-negative. In the case of 0, the cropped area does not need to overlap\nany of the bounding boxes supplied.",
           "name": "min_object_covered",
           "type": "float32"
@@ -56824,7 +56824,7 @@
         {
           "default": [
             0.75,
-            1.3300000429153442
+            1.33
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -56832,7 +56832,7 @@
         },
         {
           "default": [
-            0.05000000074505806,
+            0.05,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -56930,7 +56930,7 @@
         {
           "default": [
             0.75,
-            1.3300000429153442
+            1.33
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -56938,7 +56938,7 @@
         },
         {
           "default": [
-            0.05000000074505806,
+            0.05,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -60861,7 +60861,7 @@
           "type": "int64"
         },
         {
-          "default": 0.0010000000474974513,
+          "default": 0.001,
           "description": "Threshold for word occurrence. Words that appear with higher\nfrequency will be randomly down-sampled. Set to 0 to disable.",
           "name": "subsample",
           "type": "float32"

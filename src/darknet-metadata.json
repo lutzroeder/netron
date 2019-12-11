@@ -4,14 +4,14 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "filters", "visible": false, "default": 1 },
-        { "name": "size", "default": 1 },
-        { "name": "stride", "default": 1 },
-        { "name": "groups", "default": 1 },
-        { "name": "padding", "default": 0 },
-        { "name": "pad", "type": "boolean", "default": false },
-        { "name": "batch_normalize", "type": "boolean", "default": false },
-        { "name": "activation", "default": "logistic" }
+        { "name": "filters", "type": "int32", "visible": false, "default": 1 },
+        { "name": "size", "type": "int32", "default": 1 },
+        { "name": "stride", "type": "int32", "default": 1 },
+        { "name": "groups", "type": "int32", "default": 1 },
+        { "name": "padding", "type": "int32", "default": 0 },
+        { "name": "pad", "type": "int32", "default": 0 },
+        { "name": "batch_normalize", "type": "int32", "default": 0 },
+        { "name": "activation", "type": "string", "default": "logistic" }
       ]
     }
   },
@@ -20,13 +20,13 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "filters", "visible": false, "default": 1 },
-        { "name": "size", "default": 1 },
-        { "name": "stride", "default": 1 },
-        { "name": "padding", "default": 0 },
-        { "name": "pad", "type": "boolean", "default": false },
-        { "name": "batch_normalize", "type": "boolean", "default": false },
-        { "name": "activation", "default": "logistic" }
+        { "name": "filters", "type": "int32", "visible": false, "default": 1 },
+        { "name": "size", "type": "int32", "default": 1 },
+        { "name": "stride", "type": "int32", "default": 1 },
+        { "name": "padding", "type": "int32", "default": 0 },
+        { "name": "pad", "type": "int32", "default": 0 },
+        { "name": "batch_normalize", "type": "int32", "default": 0 },
+        { "name": "activation", "type": "string", "default": "logistic" }
       ]
     }
   },
@@ -35,7 +35,7 @@
     "schema": {
       "category": "Dropout",
       "attributes": [
-        { "name": "probability", "default": 0.5 }
+        { "name": "probability", "type": "float32", "default": 0.5 }
       ]
     }
   },
@@ -44,7 +44,7 @@
     "schema": {
       "category": "Pool",
       "attributes": [
-        { "name": "stride", "default": 1 }
+        { "name": "stride", "type": "int32", "default": 1 }
       ]
     }
   },
@@ -59,8 +59,8 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "output", "visible": false, "default": 1 },
-        { "name": "activation", "default": "logistic" }
+        { "name": "output", "type": "int32", "visible": false, "default": 1 },
+        { "name": "activation", "type": "string", "default": "logistic" }
       ]
     }
   },
@@ -69,7 +69,7 @@
     "schema": {
         "category": "Activation",
         "attributes": [
-          { "name": "groups", "default": 1 }
+          { "name": "groups", "type": "int32", "default": 1 }
         ]
     }
   },
@@ -78,8 +78,8 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "output", "visible": false, "default": 1 },
-        { "name": "batch_normalize", "type": "boolean", "default": false }
+        { "name": "output", "type": "int32", "visible": false, "default": 1 },
+        { "name": "batch_normalize", "type": "int32", "default": 0 }
       ]
     }
   },
@@ -88,7 +88,7 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "output", "visible": false, "default": 1 }
+        { "name": "output", "type": "int32", "visible": false, "default": 1 }
       ]
     }
   },
@@ -97,10 +97,10 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "batch_normalize", "type": "boolean", "default": false },
+        { "name": "batch_normalize", "type": "int32", "default": 0 },
         { "name": "activation", "default": "logistic" },
-        { "name": "output_filters", "default": 1 },
-        { "name": "hidden_filters", "default": 1 }
+        { "name": "output_filters", "type": "int32", "default": 1 },
+        { "name": "hidden_filters", "type": "int32", "default": 1 }
       ]
     }
   },
@@ -109,9 +109,10 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "output", "visible": false },
-        { "name": "hidden", "visible": false },
-        { "name": "batch_normalize", "type": "boolean", "default": false }
+        { "name": "output", "type": "int32", "visible": false },
+        { "name": "hidden", "type": "int32", "visible": false },
+        { "name": "batch_normalize", "type": "int32", "default": 0 },
+        { "name": "activation", "type": "string", "default": "logistic" }
       ]
     }
   },
@@ -120,10 +121,10 @@
     "schema": {
       "category": "Shape",
       "attributes": [
-        { "name": "flip", "type": "boolean" },
-        { "name": "exposure", "default": 1 },
-        { "name": "saturation", "default": 1 },
-        { "name": "angle", "default": 0 }
+        { "name": "flip", "type": "int32", "default": 0 },
+        { "name": "exposure", "type": "float32", "default": 1 },
+        { "name": "saturation", "type": "float32", "default": 1 },
+        { "name": "angle", "type": "float32", "default": 0 }
       ]
     }
   },
@@ -132,9 +133,9 @@
     "schema": {
       "attributes": [
         { "name": "stride", "default": 1 },
-        { "name": "reverse", "type": "boolean", "default": false },
-        { "name": "flatten", "type": "boolean", "default": false },
-        { "name": "extra", "type": "boolean", "default": false }
+        { "name": "reverse", "type": "int32", "default": 0 },
+        { "name": "flatten", "type": "int32", "default": 0 },
+        { "name": "extra", "type": "int32", "default": 0 }
       ]
     }
   },
@@ -143,7 +144,8 @@
     "schema": {
       "category": "Tensor",
       "attributes": [
-        { "name": "activation", "default": "linear" }
+        { "name": "from", "type": "int32" },
+        { "name": "activation", "type": "string", "default": "linear" }
       ]
     }
   },
@@ -158,17 +160,20 @@
     "schema": {
       "category": "Normalization",
       "attributes": [
-        { "name": "alpha", "default": 0.0001 },
-        { "name": "beta", "default": 0.75 },
-        { "name": "kappa", "default": 1 },
-        { "name": "size", "default": 1 }
+        { "name": "alpha", "type": "float32", "default": 0.0001 },
+        { "name": "beta", "type": "float32", "default": 0.75 },
+        { "name": "kappa", "type": "float32", "default": 1 },
+        { "name": "size", "type": "int32", "default": 1 }
       ]
     }
   },
   {
     "name": "route",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "attributes": [
+        { "name": "layers", "type": "string" }
+      ]
     }
   },
   {
@@ -205,7 +210,7 @@
     "name": "upsample",
     "schema": {
       "attributes": [
-        { "name": "stride", "default": 2 }
+        { "name": "stride", "type": "int32", "default": 2 }
       ]
     }
   },
@@ -213,13 +218,47 @@
     "name": "yolo",
     "schema": {
       "attributes": [
-        { "name": "classes", "default": 20 },
-        { "name": "num", "default": 1 },
-        { "name": "jitter", "default": 0.2 },
-        { "name": "max", "default": 90 },
-        { "name": "ignore_thresh", "default": 0.5 },
-        { "name": "truth_thresh", "default": 1 },
-        { "name": "random", "default": 0 }
+        { "name": "classes", "type": "int32", "default": 20 },
+        { "name": "num", "type": "int32", "default": 1 },
+        { "name": "jitter", "type": "float32", "default": 0.2 },
+        { "name": "max", "type": "int32", "default": 90 },
+        { "name": "ignore_thresh", "type": "float32", "default": 0.5 },
+        { "name": "truth_thresh", "type": "float32", "default": 1 },
+        { "name": "random", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "net",
+    "schema": {
+      "attributes": [
+        { "name": "batch", "type": "int32", "default": 1 },
+        { "name": "learning_rate", "type": "float32", "default": 0.001 },
+        { "name": "momentum", "type": "float32", "default": 0.9 },
+        { "name": "decay", "type": "float32", "default": 0.0001 },
+        { "name": "subdivisions", "type": "int32", "default": 1 },
+        { "name": "time_steps", "type": "int32", "default": 1 },
+        { "name": "notruth", "type": "int32", "default": 0 },
+        { "name": "random", "type": "int32", "default": 0 },
+        { "name": "adam", "type": "int32", "default": 0 },
+        { "name": "B1", "type": "int32", "default": 0.9 },
+        { "name": "B2", "type": "int32", "default": 0.999 },
+        { "name": "eps", "type": "int32", "default": 0.0000001 },
+        { "name": "height", "type": "int32", "default": 0 },
+        { "name": "width", "type": "int32", "default": 0 },
+        { "name": "channels", "type": "int32", "default": 0 },
+        { "name": "inputs", "type": "int32" },
+        { "name": "max_crop", "type": "int32" },
+        { "name": "min_crop", "type": "int32" },
+        { "name": "max_ratio", "type": "int32" },
+        { "name": "min_ratio", "type": "int32" },
+        { "name": "center", "type": "int32", "default": 0 },
+        { "name": "clip", "type": "int32", "default": 0 },
+        { "name": "angle", "type": "float32", "default": 0 },
+        { "name": "aspect", "type": "float32", "default": 1 },
+        { "name": "saturation", "type": "float32", "default": 1 },
+        { "name": "exposure", "type": "float32", "default": 1 },
+        { "name": "hue", "type": "float32", "default": 0 }
       ]
     }
   }

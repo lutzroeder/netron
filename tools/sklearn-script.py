@@ -4,11 +4,12 @@ from __future__ import print_function
 
 import io
 import json
+import os
 import pydoc
 import re
 import sys
 
-json_file = '../src/sklearn-metadata.json'
+json_file = os.path.join(os.path.dirname(__file__), '../src/sklearn-metadata.json')
 json_data = open(json_file).read()
 json_root = json.loads(json_data)
 

@@ -988,8 +988,17 @@ tf.Attribute = class {
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (!Array.isArray(this._value) || Array.isArray(schema.default) || this._value.length === schema.default.length) {
-                    let valueText = tf.GraphMetadata._formatAttributeValue(this._value);
-                    let defaultValueText = tf.GraphMetadata._formatAttributeValue(schema.default);
+                    let value = this._value;
+                    let defaultValue = schema.default;
+                    if (this._type === 'float32') {
+                        let temp = new Float32Array(1);
+                        temp[0] = value;
+                        value = temp[0];
+                        temp[0] = defaultValue;
+                        defaultValue = temp[0];
+                    }
+                    let valueText = tf.GraphMetadata._formatAttributeValue(value);
+                    let defaultValueText = tf.GraphMetadata._formatAttributeValue(defaultValue);
                     if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {
                         this._visible = false;
                     }

@@ -1,62 +1,66 @@
 #!/bin/bash
 
 set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
-test=${root}/test
-third_party=${root}/third_party
-tools=${root}/tools
-
-virtualenv=${third_party}/virtualenv/keras
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
+venv() {
+    venv_dir=./third_party/venv/keras
+    [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
+    case "${OSTYPE}" in
+        msys*) source ${venv_dir}/Scripts/activate ;;
+        *) source ${venv_dir}/bin/activate ;;
+    esac
+    ${python} -m pip install --quiet --upgrade pip
+}
+
 clean() {
     bold "keras clean"
-    rm -rf ${virtualenv}
-    rm -rf ${third_party}/keras
+    rm -rf "./third_party/venv/keras"
+    rm -rf "./third_party/keras"
 }
 
 sync() {
     bold "keras sync"
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/keras" ]; then
-        git -C "${third_party}/keras" pull --quiet --prune
+    mkdir -p "./third_party"
+    if [ -d "./third_party/keras" ]; then
+        git -C "./third_party/keras" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --recursive https://github.com/keras-team/keras.git
+        git -C "./third_party" clone --quiet --recursive https://github.com/keras-team/keras.git
     fi
-    git -C "${third_party}/keras" submodule sync --quiet
-    git -C "${third_party}/keras" submodule update --quiet --init --recursive
+    git -C "./third_party/keras" submodule sync --quiet
+    git -C "./third_party/keras" submodule update --quiet --init --recursive
 }
 
 install() {
     bold "keras install"
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
-    source ${virtualenv}/bin/activate
-    python3 -m pip install --quiet --upgrade tensorflow
-    python3 -m pip install --quiet ${third_party}/keras
+    venv
+    ${python} -m pip install --quiet --upgrade tensorflow
+    ${python} -m pip install --quiet ./third_party/keras
     deactivate
 }
 
 metadata() {
     bold "keras metadata"
-    source ${virtualenv}/bin/activate
-    pushd ${tools} > /dev/null
-    python3 keras-script.py metadata
-    popd > /dev/null
+    venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ${python} ./tools/keras-script.py metadata
     deactivate
 }
 
 zoo() {
     bold "keras zoo"
-    source ${virtualenv}/bin/activate
-    pushd ${tools} > /dev/null
-    python3 keras-script.py zoo
-    popd > /dev/null
+    venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ${python} ./tools/keras-script.py zoo
     deactivate
 }
 

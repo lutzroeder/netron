@@ -1840,6 +1840,13 @@
   },
   {
     "type":   "darknet",
+    "target": "csresnext50-panet-spp.cfg",
+    "source": "https://raw.githubusercontent.com/WongKinYiu/CrossStagePartialNetworks/master/cfg/csresnext50-panet-spp.cfg",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
+  },
+  {
+    "type":   "darknet",
     "target": "darknet_invalid_file.cfg",
     "source": "https://github.com/lutzroeder/netron/files/3219696/darknet_invalid_file.cfg.zip[darknet_invalid_file.cfg]",
     "error":  "Invalid cfg 'xxxx' at line 4 in 'darknet_invalid_file.cfg'.",
@@ -1851,6 +1858,20 @@
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg,https://pjreddie.com/media/files/darknet53_448.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
+  },
+  {
+    "type":   "darknet",
+    "target": "enet-coco.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/enet-coco.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
+  },
+  {
+    "type":   "darknet",
+    "target": "mixnet_m_gpu.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/3935529/mixnet_m_gpu.cfg.txt",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
   },
   {
     "type":   "darknet",
@@ -1872,6 +1893,13 @@
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/rnn.cfg,https://pjreddie.com/media/files/grrm.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "mixnet_m_gpu.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/3935529/mixnet_m_gpu.cfg.txt",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/381"
   },
   {
     "type":   "darknet",
@@ -2017,7 +2045,7 @@
     "type":   "keras",
     "target": "DenseNet121.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "script": [ "./tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -2045,14 +2073,14 @@
     "type":   "keras",
     "target": "InceptionResNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "script": [ "./tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
     "type":   "keras",
     "target": "InceptionV3.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "script": [ "./tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -2115,14 +2143,14 @@
     "type":   "keras",
     "target": "MobileNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "script": [ "./tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
     "type":   "keras",
     "target": "NASNetMobile.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "script": [ "./tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -2198,7 +2226,7 @@
     "type":   "keras",
     "target": "VGG16.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "${root}/tools/keras", "sync install zoo" ],
+    "script": [ "./tools/keras", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -2789,13 +2817,6 @@
   },
   {
     "type":   "onnx",
-    "target": "bvlc_alexnet_opset_9.shape.onnx",
-    "status": "script",
-    "script": [ "${root}/tools/onnx", "sync install infer ${root}/test/data/onnx/bvlc_alexnet_opset_9.onnx" ],
-    "format": "ONNX v3"
-  },
-  {
-    "type":   "onnx",
     "target": "bvlc_googlenet_opset_9.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_googlenet.tar.gz[bvlc_googlenet/model.onnx]",
     "link":   "https://github.com/onnx/models/tree/master/bvlc_googlenet"
@@ -3064,7 +3085,14 @@
     "target": "squeezenet1.1.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
     "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/squeezenet"
+  },
+  {
+    "type":   "onnx",
+    "target": "squeezenet1.1_shape.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/3935903/squeezenet1.1_shape.onnx.zip[squeezenet1.1_shape.onnx]",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -3689,7 +3717,7 @@
     "type":   "pytorch",
     "target": "alexnet.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -3730,14 +3758,14 @@
     "type":   "pytorch",
     "target": "densenet161.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "type":   "pytorch",
     "target": "densenet121.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -3749,7 +3777,7 @@
     "type":   "pytorch",
     "target": "inception_v3.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -3763,7 +3791,7 @@
     "type":   "pytorch",
     "target": "mobilenet_v2.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -3810,7 +3838,7 @@
     "type":   "pytorch",
     "target": "resnet18.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -3852,14 +3880,14 @@
     "type":   "pytorch",
     "target": "resnet50.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "type":   "pytorch",
     "target": "resnet50.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -3897,7 +3925,7 @@
     "type":   "pytorch",
     "target": "squeezenet1_0.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -3985,7 +4013,7 @@
     "type":   "pytorch",
     "target": "vgg11_bn.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "format": "PyTorch",
     "status": "script"
   },
@@ -3993,7 +4021,7 @@
     "type":   "pytorch",
     "target": "vgg16.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "format": "PyTorch",
     "status": "script"
   },
@@ -5043,7 +5071,7 @@
   {
     "type":   "torchscript",
     "target": "alexnet.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v2",
     "error":  "Unknown statement in 'alexnet.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5051,7 +5079,7 @@
   {
     "type":   "torchscript",
     "target": "alexnet_traced.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "format": "TorchScript v2",
     "error":  "Unknown statement in 'alexnet_traced.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5098,7 +5126,7 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "error":  "Unknown statement in 'densenet121.pt'.",
     "render": "skip",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -5107,13 +5135,13 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "render": "skip",
     "error":  "Unknown function argument in 'densenet121_traced.pt'.",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
     "type":   "torchscript",
     "target": "inception_v3.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'inception_v3.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5121,7 +5149,7 @@
   {
     "type":   "torchscript",
     "target": "inception_v3_traced.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'inception_v3_traced.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5164,7 +5192,7 @@
   {
     "type":   "torchscript",
     "target": "mobilenet_v2.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'mobilenet_v2.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5172,7 +5200,7 @@
   {
     "type":   "torchscript",
     "target": "mobilenet_v2_traced.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown function argument in 'mobilenet_v2_traced.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5230,7 +5258,7 @@
   {
     "type":   "torchscript",
     "target": "resnet18.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'resnet18.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5238,7 +5266,7 @@
   {
     "type":   "torchscript",
     "target": "resnet18_traced.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'resnet18_traced.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5246,7 +5274,7 @@
   {
     "type":   "torchscript",
     "target": "resnet50.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'resnet50.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5254,7 +5282,7 @@
   {
     "type":   "torchscript",
     "target": "resnet50_traced.pt",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "error":  "Unknown statement in 'resnet50_traced.pt'.",
     "format": "TorchScript v2",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -5266,7 +5294,7 @@
     "format": "TorchScript v2",
     "error":  "Unknown statement in 'shufflenet_v2_x1_0.pt'.",
     "render": "skip",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -5275,7 +5303,7 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "format": "TorchScript v2",
     "error":  "Unknown statement in 'squeezenet1_1.pt'.",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -5284,7 +5312,7 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "format": "TorchScript v2",
     "error":  "Unknown statement in 'squeezenet1_1_traced.pt'.",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -5314,7 +5342,7 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "format": "TorchScript v2",
     "error":  "Unknown statement in 'vgg16.pt'.",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   },
   {
@@ -5323,7 +5351,7 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "format": "TorchScript v2",
     "error":  "Unknown statement in 'vgg16_traced.pt'.",
-    "script": [ "${root}/tools/pytorch", "sync install zoo" ],
+    "script": [ "./tools/pytorch", "sync install zoo" ],
     "status": "script"
   }
 ]

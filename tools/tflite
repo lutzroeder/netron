@@ -1,81 +1,99 @@
 #!/bin/bash
 
 set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=tflite
-virtualenv=${third_party}/virtualenv/${identifier}
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
+venv() {
+    venv_dir=./third_party/venv/tflite
+    [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
+    case "${OSTYPE}" in
+        msys*) source ${venv_dir}/Scripts/activate;;
+        *) source ${venv_dir}/bin/activate;;
+    esac
+    ${python} -m pip install --quiet --upgrade pip
+}
+
 clean() {
     bold "tflite clean"
-    rm -rf ${virtualenv}
-    rm -rf ${third_party}/tensorflow
+    rm -rf ./third_party/venv/tflite
+    rm -rf ./third_party/tensorflow
 }
 
 sync() {
     bold "tflite sync"
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/tensorflow" ]; then
-        git -C "${third_party}/tensorflow" pull --quiet --prune
+    mkdir -p "./third_party"
+    if [ -d "./third_party/tensorflow" ]; then
+        git -C "./third_party/tensorflow" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --recursive https://github.com/tensorflow/tensorflow.git
+        git -C "./third_party" clone --quiet --recursive https://github.com/tensorflow/tensorflow.git
     fi
-    git -C "${third_party}/tensorflow" submodule sync --quiet
-    git -C "${third_party}/tensorflow" submodule update --quiet --init --recursive
+    git -C "./third_party/tensorflow" submodule sync --quiet
+    git -C "./third_party/tensorflow" submodule update --quiet --init --recursive
 }
 
 schema() {
     bold "tflite schema"
     case "${OSTYPE}" in
         linux*)
-            FLATC_VERSION=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            FLATC_DIR=$(dirname $(mktemp -u))/flatbuffers/${FLATC_VERSION}
-            if [ ! -f "${FLATC_DIR}/flatc" ]; then
-                mkdir -p "${FLATC_DIR}"
-                pushd "${FLATC_DIR}" > /dev/null
-                curl -sL https://github.com/google/flatbuffers/archive/${FLATC_VERSION}.tar.gz | tar zx --strip-components 1
+            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            flatc_dir=$(dirname $(mktemp -u))/flatbuffers/${flatc_version}
+            if [ ! -f "${flatc_dir}/flatc" ]; then
+                mkdir -p "${flatc_dir}"
+                pushd "${flatc_dir}" > /dev/null
+                curl -sL https://github.com/google/flatbuffers/archive/${flatc_version}.tar.gz | tar zx --strip-components 1
                 cmake -G "Unix Makefiles" . &> /dev/null
                 make > /dev/null
                 popd > /dev/null
             fi
-            FLATC=${FLATC_DIR}/flatc
+            flatc=${flatc_dir}/flatc
             ;;
         darwin*)
             brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
-            FLATC=flatc
+            flatc=flatc
             ;;
         msys*)
-            echo "msys flatc not supported" 1>&2
-            exit 1
+            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            flatc_dir=$(dirname $(mktemp -u))/flatbuffers/${flatc_version}
+            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
+                mkdir -p "${flatc_dir}"
+                pushd "${flatc_dir}" > /dev/null
+                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows_exe.zip
+                unzip flatc_windows_exe.zip > /dev/null
+                popd > /dev/null
+            fi
+            flatc=${flatc_dir}/flatc.exe
             ;;
     esac
-    sed 's/namespace tflite;/namespace TFLITE;/g' <${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs >${tools}/tflite.schema.fbs
-    ${FLATC} --no-js-exports --js ${tools}/tflite.schema.fbs
-    rm ${tools}/tflite.schema.fbs
-    mv ./tflite.schema_generated.js ${src}/tflite-schema.js
-    cat <<EOT >> ${src}/tflite-schema.js
+    [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
+    sed 's/namespace tflite;/namespace TFLITE;/g' < ./third_party/tensorflow/tensorflow/lite/schema/schema.fbs > ./tools/tflite.schema.fbs
+    ${flatc} --no-js-exports --js ./tools/tflite.schema.fbs
+    rm ./tools/tflite.schema.fbs
+    mv ./tflite.schema_generated.js ./src/tflite-schema.js
+    cat <<EOT >> ./src/tflite-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
   module.exports = TFLITE;
 }
 EOT
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/tflite-schema.js ./src/tflite-schema.js
+    fi
 }
 
 visualize() {
     bold "tflite visualize"
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
-    source ${virtualenv}/bin/activate
-    python3 -m pip install --quiet tensorflow
-    python3 ${third_party}/tensorflow/tensorflow/lite/tools/visualize.py $@
+    venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ${python} -m pip install --quiet tensorflow
+    ${python} ./third_party/tensorflow/tensorflow/lite/tools/visualize.py $@
     deactivate
 }
 
