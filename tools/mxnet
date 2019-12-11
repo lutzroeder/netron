@@ -1,11 +1,7 @@
 #!/bin/bash
 
 set -e
-
-root=$(cd $(dirname ${0})/..; pwd)
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -13,24 +9,24 @@ bold() {
 
 clean() {
     bold "mxnet clean"
-    rm -rf "${third_party}/mxnet"
+    rm -rf "./third_party/mxnet"
 }
 
 sync() {
     bold "mxnet sync"
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/mxnet" ]; then
-        git -C "${third_party}/mxnet" pull --quiet --prune
+    mkdir -p "./third_party"
+    if [ -d "./third_party/mxnet" ]; then
+        git -C "./third_party/mxnet" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --recursive https://github.com/apache/incubator-mxnet.git mxnet
+        git -C "./third_party" clone --quiet --recursive https://github.com/apache/incubator-mxnet.git mxnet
     fi
-    git -C "${third_party}/mxnet" submodule sync --quiet
-    git -C "${third_party}/mxnet" submodule update --quiet --init --recursive
+    git -C "./third_party/mxnet" submodule sync --quiet
+    git -C "./third_party/mxnet" submodule update --quiet --init --recursive
 }
 
 metadata() {
     bold "mxnet metadata"
-    # python3 mxnet-script.py
+    # python3 ./tools/mxnet-script.py
 }
 
 while [ "$#" != 0 ]; do

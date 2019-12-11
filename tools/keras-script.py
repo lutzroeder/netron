@@ -285,7 +285,7 @@ def update_output(schema, description):
         entry['description'] = description
 
 def metadata():
-    json_file = '../src/keras-metadata.json'
+    json_file = os.path.join(os.path.dirname(__file__), '../src/keras-metadata.json')
     json_data = open(json_file).read()
     json_root = json.loads(json_data)
 

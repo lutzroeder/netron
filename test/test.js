@@ -410,6 +410,9 @@ function script(folder, targets, command, args) {
     return new Promise((resolve, reject) => {
         try {
             console.log('  ' + command + ' ' + args);
+            if (process.platform === 'win32' && process.env.SHELL) {
+                process.env.COMSPEC = process.env.SHELL;
+            }
             child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
             resolve();
         }
@@ -579,8 +582,8 @@ function next() {
     let promise = null;
     if (item.script) {
         const root = path.dirname(__dirname);
-        const command = item.script[0].replace('${root}', root);
-        const args = item.script[1].replace('${root}', root);
+        const command = path.resolve(root, item.script[0]);
+        const args = item.script[1];
         promise = script(folder, targets, command, args);
     }
     else {

@@ -196,7 +196,8 @@ TFLITE.BuiltinOperator = {
   WHILE: 119,
   NON_MAX_SUPPRESSION_V4: 120,
   NON_MAX_SUPPRESSION_V5: 121,
-  SCATTER_ND: 122
+  SCATTER_ND: 122,
+  SELECT_V2: 123
 };
 
 /**
@@ -325,7 +326,8 @@ TFLITE.BuiltinOperatorName = {
   119: 'WHILE',
   120: 'NON_MAX_SUPPRESSION_V4',
   121: 'NON_MAX_SUPPRESSION_V5',
-  122: 'SCATTER_ND'
+  122: 'SCATTER_ND',
+  123: 'SELECT_V2'
 };
 
 /**
@@ -429,7 +431,8 @@ TFLITE.BuiltinOptions = {
   DepthToSpaceOptions: 94,
   NonMaxSuppressionV4Options: 95,
   NonMaxSuppressionV5Options: 96,
-  ScatterNdOptions: 97
+  ScatterNdOptions: 97,
+  SelectV2Options: 98
 };
 
 /**
@@ -533,7 +536,8 @@ TFLITE.BuiltinOptionsName = {
   94: 'DepthToSpaceOptions',
   95: 'NonMaxSuppressionV4Options',
   96: 'NonMaxSuppressionV5Options',
-  97: 'ScatterNdOptions'
+  97: 'ScatterNdOptions',
+  98: 'SelectV2Options'
 };
 
 /**
@@ -9655,6 +9659,66 @@ TFLITE.ScatterNdOptions.endScatterNdOptions = function(builder) {
 TFLITE.ScatterNdOptions.createScatterNdOptions = function(builder) {
   TFLITE.ScatterNdOptions.startScatterNdOptions(builder);
   return TFLITE.ScatterNdOptions.endScatterNdOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+TFLITE.SelectV2Options = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.SelectV2Options}
+ */
+TFLITE.SelectV2Options.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.SelectV2Options=} obj
+ * @returns {TFLITE.SelectV2Options}
+ */
+TFLITE.SelectV2Options.getRootAsSelectV2Options = function(bb, obj) {
+  return (obj || new TFLITE.SelectV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.SelectV2Options.startSelectV2Options = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.SelectV2Options.endSelectV2Options = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.SelectV2Options.createSelectV2Options = function(builder) {
+  TFLITE.SelectV2Options.startSelectV2Options(builder);
+  return TFLITE.SelectV2Options.endSelectV2Options(builder);
 }
 
 /**

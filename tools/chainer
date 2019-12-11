@@ -1,39 +1,25 @@
 #!/bin/bash
 
 set -e
-
-root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
-test=${root}/test
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=chainer
-virtualenv=${third_party}/virtualenv/${identifier}
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
-}
-
 clean() {
     bold "chainer clean"
-    rm -rf ${third_party}/${identifier}
+    rm -rf ./chainer
 }
 
 sync() {
     bold "chainer sync"
-    git_sync chainer https://github.com/chainer/chainer.git
+    mkdir -p "./third_party"
+    if [ -d "./third_party/chainer" ]; then
+        git -C "./third_party/chainer" pull --quiet --prune
+    else
+        git -C "./third_party" clone --quiet --recursive https://github.com/chainer/chainer.git
+    fi
 }
 
 while [ "$#" != 0 ]; do

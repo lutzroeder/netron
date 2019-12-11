@@ -1,14 +1,7 @@
 #!/bin/bash
 
 set -e
-
-root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=armnn
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -16,53 +9,63 @@ bold() {
 
 clean() {
     bold "armnn clean"
-    rm -rf ${third_party}/armnn
+    rm -rf ./third_party/armnn
 }
 
 sync() {
     bold "armnn sync"
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/armnn" ]; then
-        git -C "${third_party}/armnn" pull --quiet --prune
+    mkdir -p "./third_party"
+    if [ -d "./third_party/armnn" ]; then
+        git -C "./third_party/armnn" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --branch master --recursive https://github.com/ARM-software/armnn.git
+        git -C "./third_party" clone --quiet --branch master --recursive https://github.com/ARM-software/armnn.git
     fi
-    git -C "${third_party}/armnn" submodule sync --quiet
-    git -C "${third_party}/armnn" submodule update --quiet --init --recursive
 }
 
 schema() {
     bold "armnn schema"
     case "${OSTYPE}" in
         linux*)
-            FLATC_VERSION=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            FLATC_DIR=$(dirname $(mktemp -u))/flatbuffers/${FLATC_VERSION}
-            if [ ! -f "${FLATC_DIR}/flatc" ]; then
-                mkdir -p "${FLATC_DIR}"
-                pushd "${FLATC_DIR}" > /dev/null
-                curl -sL https://github.com/google/flatbuffers/archive/${FLATC_VERSION}.tar.gz | tar zx --strip-components 1
+            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            flatc_dir=$(dirname $(mktemp -u))/flatbuffers/${flatc_version}
+            if [ ! -f "${flatc_dir}/flatc" ]; then
+                mkdir -p "${flatc_dir}"
+                pushd "${flatc_dir}" > /dev/null
+                curl -sL https://github.com/google/flatbuffers/archive/${flatc_version}.tar.gz | tar zx --strip-components 1
                 cmake -G "Unix Makefiles" . &> /dev/null
                 make > /dev/null
                 popd > /dev/null
             fi
-            FLATC=${FLATC_DIR}/flatc
+            flatc=${flatc_dir}/flatc
             ;;
         darwin*)
             brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
-            FLATC=flatc
+            flatc=flatc
             ;;
         msys*)
-            echo "msys flatc not supported" 1>&2
-            exit 1
+            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            flatc_dir=$(dirname $(mktemp -u))/flatbuffers/${flatc_version}
+            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
+                mkdir -p "${flatc_dir}"
+                pushd "${flatc_dir}" > /dev/null
+                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows_exe.zip
+                unzip flatc_windows_exe.zip > /dev/null
+                popd > /dev/null
+            fi
+            flatc=${flatc_dir}/flatc.exe
             ;;
     esac
-    ${FLATC} --no-js-exports --js ${third_party}/armnn/src/armnnSerializer/ArmnnSchema.fbs
-    mv ./ArmnnSchema_generated.js ${src}/armnn-schema.js
-    cat <<EOT >> ${src}/armnn-schema.js
+    [[ $(grep -U $'\x0D' ./src/armnn-schema.js) ]] && crlf=1
+    ${flatc} --no-js-exports -o ./tools/. --js ./third_party/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    mv ./tools/ArmnnSchema_generated.js ./src/armnn-schema.js
+    cat <<EOT >> ./src/armnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
   module.exports = armnnSerializer;
 }
 EOT
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/armnn-schema.js ./src/armnn-schema.js
+    fi
 }
 
 while [ "$#" != 0 ]; do

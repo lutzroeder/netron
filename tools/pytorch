@@ -1,37 +1,43 @@
 #!/bin/bash
 
 set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
-node_modules=${root}/node_modules
-src=${root}/src
-test=${root}/test
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=pytorch
-virtualenv=${third_party}/virtualenv/${identifier}
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
+venv() {
+    venv_dir=./third_party/venv/pytorch
+    [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
+    case "${OSTYPE}" in
+        msys*) source ${venv_dir}/Scripts/activate;;
+        *) source ${venv_dir}/bin/activate;;
+    esac
+    ${python} -m pip install --quiet --upgrade pip
+}
+
 git_sync() {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
+    mkdir -p "./third_party"
+    if [ -d "./third_party/${1}" ]; then
+        git -C "./third_party/${1}" pull --quiet --prune
     else
-        git -C "${third_party}" clone --quiet --recursive ${2} ${1}
+        git -C "./third_party" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
+    git -C "./third_party/${1}" submodule sync --quiet
+    git -C "./third_party/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
     bold "pytorch clean"
-    rm -rf ${virtualenv}
-    rm -rf ${third_party}/${identifier}
+    rm -rf ./third_party/venv/pytorch
+    rm -rf ./third_party/pytorch
+    rm -rf ./third_party/torchvision
 }
 
 sync() {
@@ -42,39 +48,43 @@ sync() {
 
 install() {
     bold "pytorch install"
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || python3 -m virtualenv --quiet -p python3 ${virtualenv}
-    source ${virtualenv}/bin/activate
-    python3 -m pip install --quiet --upgrade future protobuf numpy scikit-build scipy
-    python3 -m pip install --quiet --upgrade ninja pyyaml mkl mkl-include setuptools cmake cffi six typing
-    python3 -m pip install --quiet --pre --upgrade torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
-    python3 -m pip install --quiet --pre --upgrade torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    venv
+    ${python} -m pip install --quiet --upgrade future protobuf scipy
+    ${python} -m pip install --quiet --pre --upgrade torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    ${python} -m pip install --quiet --pre --upgrade torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
 }
 
 schema() {
     bold "caffe2 schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe2 -o ${src}/caffe2-proto.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
-    node ${tools}/update_pbjs.js enumeration ${src}/caffe2-proto.js floats float 1
+    [[ $(grep -U $'\x0D' ./src/caffe2-proto.js) ]] && crlf=1
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe2 -o ./src/caffe2-proto.js ./third_party/pytorch/caffe2/proto/caffe2.proto
+    node ./tools/update_pbjs.js enumeration ./src/caffe2-proto.js floats float 1
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/caffe2-proto.js ./src/caffe2-proto.js
+    fi
 }
 
 metadata() {
-    source ${virtualenv}/bin/activate
-    pushd ${tools} > /dev/null
+    [[ $(grep -U $'\x0D' ./src/pytorch-metadata.json) ]] && crlf=1
+    venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     bold "pytorch metadata"
-    python3 pytorch-script.py metadata
+    ${python} ./tools/pytorch-script.py metadata
     bold "caffe2 metadata"
-    python3 caffe2-script.py metadata
-    popd > /dev/null
+    ${python} ./tools/caffe2-script.py metadata
     deactivate
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/pytorch-metadata.json ./src/pytorch-metadata.json
+        unix2dos --quiet --newfile ./src/caffe2-metadata.json ./src/caffe2-metadata.json
+    fi
 }
 
 zoo() {
     bold "pytorch zoo"
-    source ${virtualenv}/bin/activate
-    pushd ${tools} > /dev/null
-    python3 pytorch-script.py zoo
-    popd > /dev/null
+    venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ${python} ./tools/pytorch-script.py zoo
     deactivate
 }
 

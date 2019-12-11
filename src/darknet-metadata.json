@@ -207,9 +207,9 @@
       "category": "Shape",
       "attributes": [
         { "name": "stride", "default": 1 },
-        { "name": "reverse", "type": "boolean", "default": false },
-        { "name": "flatten", "type": "boolean", "default": false },
-        { "name": "extra", "type": "boolean", "default": false }
+        { "name": "reverse", "type": "int32", "default": 0 },
+        { "name": "flatten", "type": "int32", "default": 0 },
+        { "name": "extra", "type": "int32", "default": 0 }
       ]
     }
   },

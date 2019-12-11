@@ -1,102 +1,123 @@
 #!/bin/bash
 
 set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
-node_modules=${root}/node_modules
-src=${root}/src
-third_party=${root}/third_party
-tools=${root}/tools
-
-identifier=tensorflow
-virtualenv=${third_party}/virtualenv/${identifier}
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-git_sync () {
-    mkdir -p "${third_party}"
-    if [ -d "${third_party}/${1}" ]; then
-        git -C "${third_party}/${1}" pull --quiet --prune
-    else
-        git -C "${third_party}" clone --quiet --recursive ${2}
-    fi
-    git -C "${third_party}/${1}" submodule sync --quiet
-    git -C "${third_party}/${1}" submodule update --quiet --init --recursive
+venv() {
+    venv_dir=./third_party/venv/tensorflow
+    [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
+    case "${OSTYPE}" in
+        msys*) source ${venv_dir}/Scripts/activate;;
+        *) source ${venv_dir}/bin/activate;;
+    esac
+    ${python} -m pip install --quiet --upgrade pip
 }
 
 clean() {
     bold "tf clean"
-    rm -rf ${virtualenv}
-    rm -rf ${third_party}/${identifier}
+    rm -rf "./third_party/venv/tensorflow"
+    rm -rf "./third_party/tensorflow"
 }
 
 sync() {
     bold "tf sync"
-    git_sync tensorflow https://github.com/tensorflow/tensorflow.git
+    mkdir -p "./third_party"
+    if [ -d "./third_party/tensorflow" ]; then
+        git -C "./third_party/tensorflow" pull --quiet --prune
+    else
+        git -C "./third_party" clone --quiet --recursive https://github.com/tensorflow/tensorflow.git
+    fi
+    git -C "./third_party/tensorflow" submodule sync --quiet
+    git -C "./third_party/tensorflow" submodule update --quiet --init --recursive
 }
 
 install() {
     bold "tf install"
-    case "$(uname)" in
-        "Linux")
-            [ -n "$(which protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
-            ;;
-        "Darwin")
-            brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
-            ;;
-    esac
-    [ -n "$(python3 -m pip list --format columns --disable-pip-version-check | grep -w virtualenv)" ] || python3 -m pip install --force-reinstall --user --quiet virtualenv
-    [ -d "${virtualenv}" ] || virtualenv --quiet -p python3 ${virtualenv}
-    source ${virtualenv}/bin/activate
-    python3 -m pip install --quiet --upgrade protobuf
+    venv
+    ${python} -m pip install --quiet --upgrade protobuf
     deactivate
 }
 
 schema() {
     bold "tf schema"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ${src}/tf-proto.js \
-        ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
-        ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
-        ${third_party}/${identifier}/tensorflow/core/protobuf/saver.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/graph.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/op_def.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/tensor_shape.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/types.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/node_def.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/versions.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/function.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/variable.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
-        ${third_party}/${identifier}/tensorflow/core/protobuf/saved_object_graph.proto \
-        ${third_party}/${identifier}/tensorflow/core/protobuf/trackable_object_graph.proto \
-        ${third_party}/${identifier}/tensorflow/core/protobuf/struct.proto \
-        ${third_party}/${identifier}/tensorflow/core/protobuf/tensor_bundle.proto \
-        ${third_party}/${identifier}/tensorflow/core/framework/tensor_slice.proto
+    [[ $(grep -U $'\x0D' ./src/tf-proto.js) ]] && crlf=1
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ./src/tf-proto.js \
+        ./third_party/tensorflow/tensorflow/core/protobuf/saved_model.proto \
+        ./third_party/tensorflow/tensorflow/core/protobuf/meta_graph.proto \
+        ./third_party/tensorflow/tensorflow/core/protobuf/saver.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/graph.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/op_def.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/tensor_shape.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/types.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/node_def.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/versions.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/function.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/attr_value.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/tensor.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/variable.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/resource_handle.proto \
+        ./third_party/tensorflow/tensorflow/core/protobuf/saved_object_graph.proto \
+        ./third_party/tensorflow/tensorflow/core/protobuf/trackable_object_graph.proto \
+        ./third_party/tensorflow/tensorflow/core/protobuf/struct.proto \
+        ./third_party/tensorflow/tensorflow/core/protobuf/tensor_bundle.proto \
+        ./third_party/tensorflow/tensorflow/core/framework/tensor_slice.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/tf-proto.js ./src/tf-proto.js
+    fi
 }
 
 metadata() {
     bold "tf metadata"
-    source ${virtualenv}/bin/activate
-    pushd ${tools} > /dev/null
-    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/types.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/tensor_shape.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/api_def.proto --python_out=${tools}
-    protoc --proto_path ${third_party}/${identifier} ${third_party}/${identifier}/tensorflow/core/framework/op_def.proto --python_out=${tools}
-    touch ${tools}/tensorflow/__init__.py
-    touch ${tools}/tensorflow/core/__init__.py
-    touch ${tools}/tensorflow/core/framework/__init__.py
-    python3 tf-script.py metadata
-    rm -rf ${tools}/tensorflow
-    popd > /dev/null
+    [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]] && crlf=1
+    venv
+    case "${OSTYPE}" in
+        linux*)
+            [ -n "$(which protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
+            protoc=protoc
+            ;;
+        darwin*)
+            brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
+            protoc=protoc
+            ;;
+        msys*)
+            protoc_version=$(curl -s https://api.github.com/repos/protocolbuffers/protobuf/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"' | cut -f 2 -d v)
+            protoc_dir=$(dirname $(mktemp -u))/protobuf/v${protoc_version}
+            if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
+                mkdir -p "${protoc_dir}"
+                pushd "${protoc_dir}" > /dev/null
+                curl -sL -O https://github.com/protocolbuffers/protobuf/releases/download/v${protoc_version}/protoc-${protoc_version}-win32.zip
+                unzip protoc-${protoc_version}-win32.zip > /dev/null
+                popd > /dev/null
+            fi
+            protoc=${protoc_dir}/bin/protoc
+            ;;
+    esac
+    ${protoc} --proto_path ./third_party/tensorflow ./third_party/tensorflow/tensorflow/core/framework/attr_value.proto --python_out=./tools
+    ${protoc} --proto_path ./third_party/tensorflow ./third_party/tensorflow/tensorflow/core/framework/tensor.proto --python_out=./tools
+    ${protoc} --proto_path ./third_party/tensorflow ./third_party/tensorflow/tensorflow/core/framework/types.proto --python_out=./tools
+    ${protoc} --proto_path ./third_party/tensorflow ./third_party/tensorflow/tensorflow/core/framework/tensor_shape.proto --python_out=./tools
+    ${protoc} --proto_path ./third_party/tensorflow ./third_party/tensorflow/tensorflow/core/framework/resource_handle.proto --python_out=./tools
+    ${protoc} --proto_path ./third_party/tensorflow ./third_party/tensorflow/tensorflow/core/framework/api_def.proto --python_out=./tools
+    ${protoc} --proto_path ./third_party/tensorflow ./third_party/tensorflow/tensorflow/core/framework/op_def.proto --python_out=./tools
+    touch ./tools/tensorflow/__init__.py
+    touch ./tools/tensorflow/core/__init__.py
+    touch ./tools/tensorflow/core/framework/__init__.py
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ${python} ./tools/tf-script.py metadata
+    rm -rf ./tools/tensorflow
     deactivate
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/tf-metadata.json ./src/tf-metadata.json
+    fi
 }
 
 while [ "$#" != 0 ]; do
