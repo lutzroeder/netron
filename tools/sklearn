@@ -3,7 +3,10 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-[[ "$(python3 --version 2> /dev/null)" =~ "Python 3" ]] && python=python3 || python=python
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -60,6 +63,7 @@ metadata() {
     bold "sklearn metadata"
     [[ $(grep -U $'\x0D' ./src/sklearn-metadata.json) ]] && crlf=1
     venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/sklearn-script.py
     deactivate
     if [[ -n ${crlf} ]]; then

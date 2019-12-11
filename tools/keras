@@ -3,7 +3,10 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-[[ "$(python3 --version 2> /dev/null)" =~ "Python 3" ]] && python=python3 || python=python
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -48,6 +51,7 @@ install() {
 metadata() {
     bold "keras metadata"
     venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/keras-script.py metadata
     deactivate
 }
@@ -55,6 +59,7 @@ metadata() {
 zoo() {
     bold "keras zoo"
     venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/keras-script.py zoo
     deactivate
 }

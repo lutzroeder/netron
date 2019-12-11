@@ -3,7 +3,10 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-[[ "$(python3 --version 2> /dev/null)" =~ "Python 3" ]] && python=python3 || python=python
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
@@ -108,6 +111,7 @@ metadata() {
     touch ./tools/tensorflow/__init__.py
     touch ./tools/tensorflow/core/__init__.py
     touch ./tools/tensorflow/core/framework/__init__.py
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/tf-script.py metadata
     rm -rf ./tools/tensorflow
     deactivate

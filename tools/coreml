@@ -3,7 +3,10 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-[[ "$(python3 --version 2> /dev/null)" =~ "Python 3" ]] && python=python3 || python=python
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python=python3;;
+esac
 
 venv() {
     venv_dir=./third_party/venv/coremltools
