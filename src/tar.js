@@ -23,9 +23,8 @@ tar.Archive = class {
 tar.Entry = class {
 
     constructor(reader) {
-        const position = reader.position;
         const header = reader.bytes(512);
-        reader.position = position;
+        reader.seek(-512);
         let sum = 0;
         for (let i = 0; i < header.length; i++) {
             sum += (i >= 148 && i < 156) ? 32 : header[i];
@@ -64,12 +63,11 @@ tar.Reader = class {
         this._end = buffer.length;
     }
 
-    get position() {
-        return this._position;
-    }
-
-    set position(value) {
-        this._position = value;
+    seek(offset) {
+        this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new tar.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     peek() {
@@ -87,12 +85,9 @@ tar.Reader = class {
     }
 
     bytes(size) {
-        if (this._position + size > this._end) {
-            throw new tar.Error('Data not available.');
-        }
-        const data = this._buffer.subarray(this._position, this._position + size);
-        this._position += size;
-        return data;
+        const position = this._position;
+        this.seek(size);
+        return this._buffer.subarray(position, this._position);
     }
 
     string(size) {
