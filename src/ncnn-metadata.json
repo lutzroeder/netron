@@ -82,7 +82,7 @@
     "name": "Crop",
     "schema": {
       "operator": 7,
-      "category": "Shape",
+      "category": "Data",
       "attributes": [
         { "name": "woffset", "default": 0 },
         { "name": "hoffset", "default": 0 },
@@ -306,7 +306,7 @@
     "name": "Scale",
     "schema": {
       "operator": 29,
-      "category": "Layer",
+      "category": "Data",
       "attributes": [
         { "name": "scale_data_size", "default": 0, "visible": false },
         { "name": "bias_term", "default": 0, "visible": false }
