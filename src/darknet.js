@@ -57,7 +57,7 @@ darknet.Model = class {
 
 darknet.Graph = class {
     
-    constructor(metadata, cfg, weights) {
+    constructor(metadata, cfg /* weights */) {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -510,12 +510,15 @@ darknet.Metadata = class {
 
     constructor(data) {
         this._map = new Map();
-        this._attributeCache = new Map();
+        this._attributeMap = new Map();
         if (data) {
             const items = JSON.parse(data);
             if (items) {
                 for (let item of items) {
-                    if (item.name && item.schema) {
+                    if (item && item.name && item.schema) {
+                        if (this._map.has(item.name)) {
+                            throw new darknet.Error("Duplicate metadata key '" + item.name + "'.");
+                        }
                         this._map.set(item.name, item.schema);
                     }
                 }
@@ -528,18 +531,17 @@ darknet.Metadata = class {
     }
 
     getAttributeSchema(operator, name) {
-        let map = this._attributeCache.get(operator);
-        if (!map) {
-            map = new Map();
-            let schema = this.getSchema(operator);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
+        const key = operator + ':' + name;
+        if (!this._attributeMap.has(key)) {
+            this._attributeMap.set(key, null);
+            const schema = this.getSchema(operator);
+            if (schema && schema.attributes) {
                 for (let attribute of schema.attributes) {
-                    map.set(attribute.name, attribute);
+                    this._attributeMap.set(operator + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache.set(operator, map);
         }
-        return map.get(name) || null;
+        return this._attributeMap.get(key);
     }
 };
 
