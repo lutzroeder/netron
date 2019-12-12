@@ -282,13 +282,19 @@
     }
   },
   {
+    "name": "logistic",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "relu",
     "schema": {
       "category": "Activation"
     }
   },
   {
-    "name": "leaky",
+    "name": "relie",
     "schema": {
       "category": "Activation"
     }
@@ -300,7 +306,61 @@
     }
   },
   {
-    "name": "logistic",
+    "name": "ramp",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "tanh",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "plse",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "leaky",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "elu",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "loggy",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "stair",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "hardtan",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "lhtan",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "selu",
     "schema": {
       "category": "Activation"
     }
@@ -312,7 +372,19 @@
     }
   },
   {
-    "name": "ramp",
+    "name": "mish",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "norm_chan",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "norm_chan_softmax",
     "schema": {
       "category": "Activation"
     }
@@ -337,25 +409,25 @@
         { "name": "num", "default": 1 },
         { "name": "mask", "type": "string", "default": 0 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
-        { "name": "classfix", "default": 0 },
-        { "name": "absolute", "default": 0 },
+        { "name": "classfix", "type": "int32", "default": 0 },
         { "name": "coord_scale", "type": "float32", "default": 1 },
         { "name": "object_scale", "type": "float32", "default": 1 },
         { "name": "noobject_scale", "type": "float32", "default": 1 },
         { "name": "mask_scale", "type": "float32", "default": 1 },
         { "name": "class_scale", "type": "float32", "default": 1 },
-        { "name": "bias_match", "default": 0 },
-        { "name": "log", "default": 0 },
-        { "name": "sqrt", "default": 0 },
-        { "name": "focal_loss", "default": 0 },
+        { "name": "bias_match", "type": "boolean", "default": false },
+        { "name": "focal_loss", "type": "int32", "default": 0 },
         { "name": "max", "type": "int32", "default": 90 },
-        { "name": "softmax", "default": 0 },
-        { "name": "rescore", "default": 0 },
+        { "name": "softmax", "type": "boolean", "default": false },
+        { "name": "rescore", "type": "boolean", "default": false },
         { "name": "thresh", "type": "float32", "default": 0.5 },
-        { "name": "random", "default": 0 },
+        { "name": "random", "type": "boolean", "default": false },
         { "name": "map", "type": "string", "default": 0 },
         { "name": "tree", "type": "string", "default": 0 },
-        { "name": "anchors", "type": "string", "default": 0 }
+        { "name": "anchors", "type": "string", "default": 0 },
+        { "name": "absolute", "default": 0 },
+        { "name": "log", "default": 0 },
+        { "name": "sqrt", "default": 0 }
       ]
     }
   },
@@ -365,21 +437,21 @@
       "category": "Layer",
       "attributes": [
         { "name": "classes", "type": "int32", "default": 1 },
-        { "name": "coord", "default": 1 },
+        { "name": "coord", "type": "int32", "default": 1 },
         { "name": "num", "type": "int32", "default": 1 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
         { "name": "coord_scale", "type": "float32", "default": 1 },
         { "name": "object_scale", "type": "float32", "default": 1 },
         { "name": "noobject_scale", "type": "float32", "default": 1 },
         { "name": "class_scale", "type": "float32", "default": 1 },
-        { "name": "forced", "default": 0 },
-        { "name": "side", "default": 7 },
-        { "name": "softmax", "default": 0 },
-        { "name": "sqrt", "default": 0 },
-        { "name": "max", "default": 30 },
-        { "name": "rescore", "default": 0 },
-        { "name": "random", "default": 0 },
-        { "name": "reorg", "default": 0 }
+        { "name": "forced", "type": "boolean", "default": false },
+        { "name": "side", "type": "int32", "default": 7 },
+        { "name": "softmax", "type": "boolean", "default": false },
+        { "name": "sqrt", "type": "boolean", "default": false },
+        { "name": "max", "type": "int32", "default": 30 },
+        { "name": "rescore", "type": "boolean", "default": false },
+        { "name": "random", "type": "boolean", "default": false },
+        { "name": "reorg", "type": "boolean", "default": false }
       ]
     }
   },
