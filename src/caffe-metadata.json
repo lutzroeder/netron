@@ -114,7 +114,7 @@
   {
     "name": "Scale",
     "schema": {
-      "category": "Layer",
+      "category": "Data",
       "inputs": [
         { "name": "input" },
         { "name": "scale" },
@@ -346,7 +346,7 @@
   {
     "name": "Crop",
     "schema": {
-      "category": "Shape",
+      "category": "Data",
       "inputs": [
         { "name": "data" },
         { "name": "size" }
