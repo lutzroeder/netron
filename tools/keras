@@ -13,7 +13,7 @@ bold() {
 }
 
 venv() {
-    venv_dir=./third_party/venv/keras
+    venv_dir=./third_party/env/keras
     [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
     case "${OSTYPE}" in
         msys*) source ${venv_dir}/Scripts/activate ;;
@@ -24,27 +24,27 @@ venv() {
 
 clean() {
     bold "keras clean"
-    rm -rf "./third_party/venv/keras"
-    rm -rf "./third_party/keras"
+    rm -rf "./third_party/env/keras"
+    rm -rf "./third_party/src/keras"
 }
 
 sync() {
     bold "keras sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/keras" ]; then
-        git -C "./third_party/keras" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/keras" ]; then
+        git -C "./third_party/src/keras" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive https://github.com/keras-team/keras.git
+        git -C "./third_party/src" clone --quiet --recursive https://github.com/keras-team/keras.git
     fi
-    git -C "./third_party/keras" submodule sync --quiet
-    git -C "./third_party/keras" submodule update --quiet --init --recursive
+    git -C "./third_party/src/keras" submodule sync --quiet
+    git -C "./third_party/src/keras" submodule update --quiet --init --recursive
 }
 
 install() {
     bold "keras install"
     venv
     ${python} -m pip install --quiet --upgrade tensorflow
-    ${python} -m pip install --quiet ./third_party/keras
+    ${python} -m pip install --quiet ./third_party/src/keras
     deactivate
 }
 

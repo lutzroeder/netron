@@ -9,7 +9,7 @@ case "${OSTYPE}" in
 esac
 
 venv() {
-    venv_dir=./third_party/venv/coremltools
+    venv_dir=./third_party/env/coremltools
     [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
     case "${venv_dir}" in
         msys*) source ${venv_dir}/Scripts/activate;;
@@ -24,17 +24,17 @@ bold() {
 
 clean() {
     bold "coreml clean"
-    rm -rf ./third_party/venv/coremltools
-    rm -rf ./third_party/coremltools
+    rm -rf "./third_party/src/env/coremltools"
+    rm -rf "./third_party/src/coremltools"
 }
 
 sync() {
     bold "coreml sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/coremltools" ]; then
-        git -C "./third_party/coremltools" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/coremltools" ]; then
+        git -C "./third_party/src/coremltools" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive https://github.com/apple/coremltools.git
+        git -C "./third_party/src" clone --quiet --recursive https://github.com/apple/coremltools.git
     fi
     popd > /dev/null
 }
@@ -42,7 +42,7 @@ sync() {
 schema() {
     bold "coreml schema"
     [[ $(grep -U $'\x0D' ./src/coreml-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r coreml -o ./src/coreml-proto.js ./third_party/coremltools/mlmodel/format/Model.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r coreml -o ./src/coreml-proto.js ./third_party/src/coremltools/mlmodel/format/Model.proto
     node ./tools/update_pbjs.js array ./src/coreml-proto.js floatValue float 2
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/coreml-proto.js ./src/coreml-proto.js
@@ -53,7 +53,7 @@ convert() {
     bold "coreml convert"
     venv
     ${python} -m pip install --quiet --upgrade six numpy protobuf
-    ${python} -m pip install --quiet ./third_party/coremltools
+    ${python} -m pip install --quiet ./third_party/src/coremltools
     ${python} -m pip install --quiet onnx
     ${python} -m pip install --quiet sklearn
     ${python} ./tools/coreml-script.py convert ${1}

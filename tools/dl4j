@@ -13,16 +13,16 @@ bold() {
 
 clean() {
     bold "deeplearning4j clean"
-    rm -rf "./third_party/dl4j"
+    rm -rf "./third_party/src/dl4j"
 }
 
 sync() {
     bold "deeplearning4j sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/dl4j" ]; then
-        git -C "./third_party/dl4j" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/dl4j" ]; then
+        git -C "./third_party/src/dl4j" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive https://github.com/eclipse/deeplearning4j.git dl4j
+        git -C "./third_party/src" clone --quiet --recursive https://github.com/eclipse/deeplearning4j.git dl4j
     fi
 }
 

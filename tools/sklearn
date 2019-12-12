@@ -13,7 +13,7 @@ bold() {
 }
 
 venv() {
-    venv_dir=./third_party/venv/scikit-learn
+    venv_dir=./third_party/env/scikit-learn
     [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
     case "${OSTYPE}" in
         msys*) source ${venv_dir}/Scripts/activate;;
@@ -23,23 +23,23 @@ venv() {
 }
 
 git_sync() {
-    mkdir -p "./third_party"
-    if [ -d "./third_party/${1}" ]; then
-        git -C "./third_party/${1}" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/${1}" ]; then
+        git -C "./third_party/src/${1}" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive ${2} ${1}
+        git -C "./third_party/src" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "./third_party/${1}" submodule sync --quiet
-    git -C "./third_party/${1}" submodule update --quiet --init --recursive
+    git -C "./third_party/src/${1}" submodule sync --quiet
+    git -C "./third_party/src/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
     bold "sklearn clean"
-    rm -rf ./third_party/venv/scikit-learn
-    rm -rf ./third_party/numpy
-    rm -rf ./third_party/scikit-learn
-    rm -rf ./third_party/lightgbm
-    rm -rf ./third_party/xgboost
+    rm -rf "./third_party/env/scikit-learn"
+    rm -rf "./third_party/src/numpy"
+    rm -rf "./third_party/src/scikit-learn"
+    rm -rf "./third_party/src/lightgbm"
+    rm -rf "./third_party/src/xgboost"
 }
 
 sync() {
@@ -55,7 +55,7 @@ install() {
     venv
     ${python} -m pip install --quiet six cython pytest flake8 numpy scipy pylint astroid isort
     ${python} -m pip install --quiet --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
-    # ${python} -m pip install --quiet ./third_party/scikit-learn
+    # ${python} -m pip install --quiet ./third_party/src/scikit-learn
     deactivate
 }
 

@@ -9,16 +9,16 @@ bold() {
 
 clean() {
     bold "chainer clean"
-    rm -rf ./chainer
+    rm -rf "./third_party/src/chainer"
 }
 
 sync() {
     bold "chainer sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/chainer" ]; then
-        git -C "./third_party/chainer" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/chainer" ]; then
+        git -C "./third_party/src/chainer" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive https://github.com/chainer/chainer.git
+        git -C "./third_party/src" clone --quiet --recursive https://github.com/chainer/chainer.git
     fi
 }
 

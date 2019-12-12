@@ -13,7 +13,7 @@ bold() {
 }
 
 venv() {
-    venv_dir=./third_party/venv/pytorch
+    venv_dir=./third_party/env/pytorch
     [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
     case "${OSTYPE}" in
         msys*) source ${venv_dir}/Scripts/activate;;
@@ -23,21 +23,21 @@ venv() {
 }
 
 git_sync() {
-    mkdir -p "./third_party"
-    if [ -d "./third_party/${1}" ]; then
-        git -C "./third_party/${1}" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/${1}" ]; then
+        git -C "./third_party/src/${1}" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive ${2} ${1}
+        git -C "./third_party/src" clone --quiet --recursive ${2} ${1}
     fi
-    git -C "./third_party/${1}" submodule sync --quiet
-    git -C "./third_party/${1}" submodule update --quiet --init --recursive
+    git -C "./third_party/src/${1}" submodule sync --quiet
+    git -C "./third_party/src/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
     bold "pytorch clean"
-    rm -rf ./third_party/venv/pytorch
-    rm -rf ./third_party/pytorch
-    rm -rf ./third_party/torchvision
+    rm -rf "./third_party/env/pytorch"
+    rm -rf "./third_party/src/pytorch"
+    rm -rf "./third_party/src/torchvision"
 }
 
 sync() {
@@ -58,7 +58,7 @@ install() {
 schema() {
     bold "caffe2 schema"
     [[ $(grep -U $'\x0D' ./src/caffe2-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe2 -o ./src/caffe2-proto.js ./third_party/pytorch/caffe2/proto/caffe2.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe2 -o ./src/caffe2-proto.js ./third_party/src/pytorch/caffe2/proto/caffe2.proto
     node ./tools/update_pbjs.js enumeration ./src/caffe2-proto.js floats float 1
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/caffe2-proto.js ./src/caffe2-proto.js

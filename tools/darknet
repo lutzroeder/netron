@@ -9,16 +9,16 @@ bold() {
 
 clean() {
     bold "darknet clean"
-    rm -rf ./third_party/darknet
+    rm -rf "./third_party/src/darknet"
 }
 
 sync() {
     bold "darknet sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/darknet" ]; then
-        git -C "./third_party/darknet" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/darknet" ]; then
+        git -C "./third_party/src/darknet" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive https://github.com/pjreddie/darknet.git
+        git -C "./third_party/src" clone --quiet --recursive https://github.com/pjreddie/darknet.git
     fi
 }
 

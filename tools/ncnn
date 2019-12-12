@@ -9,16 +9,16 @@ bold() {
 
 clean() {
     bold "ncnn clean"
-    rm -rf "./third_party/ncnn"
+    rm -rf "./third_party/src/ncnn"
 }
 
 sync() {
     bold "ncnn sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/ncnn" ]; then
-        git -C "./third_party/ncnn" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/ncnn" ]; then
+        git -C "./third_party/src/ncnn" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive https://github.com/Tencent/ncnn.git ncnn
+        git -C "./third_party/src" clone --quiet --recursive https://github.com/Tencent/ncnn.git ncnn
     fi
 }
 

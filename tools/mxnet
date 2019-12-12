@@ -9,19 +9,19 @@ bold() {
 
 clean() {
     bold "mxnet clean"
-    rm -rf "./third_party/mxnet"
+    rm -rf "./third_party/src/mxnet"
 }
 
 sync() {
     bold "mxnet sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/mxnet" ]; then
-        git -C "./third_party/mxnet" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/mxnet" ]; then
+        git -C "./third_party/src/mxnet" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive https://github.com/apache/incubator-mxnet.git mxnet
+        git -C "./third_party/src" clone --quiet --recursive https://github.com/apache/incubator-mxnet.git mxnet
     fi
-    git -C "./third_party/mxnet" submodule sync --quiet
-    git -C "./third_party/mxnet" submodule update --quiet --init --recursive
+    git -C "./third_party/src/mxnet" submodule sync --quiet
+    git -C "./third_party/src/mxnet" submodule update --quiet --init --recursive
 }
 
 metadata() {

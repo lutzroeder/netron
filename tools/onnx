@@ -15,7 +15,7 @@ bold() {
 }
 
 venv() {
-    venv_dir=./third_party/venv/onnx
+    venv_dir=./third_party/env/onnx
     [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
     case "${OSTYPE}" in
         msys*) source ${venv_dir}/Scripts/activate;;
@@ -25,21 +25,21 @@ venv() {
 }
 
 git_sync() {
-    mkdir -p "./third_party"
-    if [ -d "./third_party/${1}" ]; then
-        git -C "./third_party/${1}" pull --quiet --prune
+    mkdir -p "./third_party/src"
+    if [ -d "./third_party/src/${1}" ]; then
+        git -C "./third_party/src/${1}" pull --quiet --prune
     else
-        git -C "./third_party" clone --quiet --recursive ${2}
+        git -C "./third_party/src" clone --quiet --recursive ${2}
     fi
-    git -C "./third_party/${1}" submodule sync --quiet
-    git -C "./third_party/${1}" submodule update --quiet --init --recursive
+    git -C "./third_party/src/${1}" submodule sync --quiet
+    git -C "./third_party/src/${1}" submodule update --quiet --init --recursive
 }
 
 clean() {
     bold "onnx clean"
-    rm -rf ./third_party/venv/onnx
-    rm -rf ./third_party/onnx
-    rm -rf ./third_party/onnxmltools
+    rm -rf "./third_party/env/onnx"
+    rm -rf "./third_party/src/onnx"
+    rm -rf "./third_party/src/onnxmltools"
 }
 
 sync() {
@@ -67,14 +67,14 @@ install() {
     ${python} -m pip install --quiet --upgrade ${protobuf}
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
-    ${python} -m pip install --quiet ./third_party/onnx
+    ${python} -m pip install --quiet "./third_party/src/onnx"
     deactivate
 }
 
 schema() {
     bold "onnx schema"
     [[ $(grep -U $'\x0D' ./src/onnx-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r onnx -o ./src/onnx-proto.js ./third_party/onnx/onnx/onnx-ml.proto ./third_party/onnx/onnx/onnx-operators-ml.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r onnx -o ./src/onnx-proto.js ./third_party/src/onnx/onnx/onnx-ml.proto ./third_party/src/onnx/onnx/onnx-operators-ml.proto
     node ./tools/update_pbjs.js array ./src/onnx-proto.js float_data float 1
     node ./tools/update_pbjs.js array ./src/onnx-proto.js double_data double 1
     if [[ -n ${crlf} ]]; then
@@ -97,7 +97,7 @@ metadata() {
 convert() {
     bold "onnx convert"
     venv
-    ${python} -m pip install --quiet ./third_party/onnxmltools
+    ${python} -m pip install --quiet ./third_party/src/onnxmltools
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/onnx-script.py convert ${1}
     deactivate
