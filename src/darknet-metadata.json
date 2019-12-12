@@ -309,6 +309,12 @@
       "category": "Activation"
     }
   },
+  {	
+    "name": "swish",	
+    "schema": {	
+      "category": "Activation"	
+    }	
+  },
   {
     "name": "ramp",
     "schema": {
