@@ -260,7 +260,7 @@
   {
     "name": "crop",
     "schema": {
-      "category": "Shape",
+      "category": "Data",
       "description": "A layer that crops the spatial dimensions of an input. If two inputs are provided, the shape of the second input is used as the reference shape.",
       "inputs": [
         { "name": "x1" },
@@ -375,6 +375,7 @@
   {
     "name": "upsample",
     "schema": {
+      "category": "Data",
       "description": "A layer that scales up spatial dimensions. It supports two modes: nearest neighbour (default) and bilinear."
     }
   },
