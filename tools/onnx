@@ -50,18 +50,21 @@ sync() {
 
 install() {
     bold "onnx install"
-    case "$(uname)" in
-        "Linux")
+    case "${OSTYPE}" in
+        linux*)
             [ -n "$(which cmake)" ] || sudo apt install -y cmake
             [ -n "$(which protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
+            protobuf=protobuf
             ;;
-        "Darwin")
+        darwin*)
             brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
-            brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
+            brew list protobuf@3.7 > /dev/null 2>&1 || brew install protobuf@3.7 > /dev/null
+            export PATH=/usr/local/opt/protobuf@3.7/bin:${PATH}
+            protobuf="protobuf==3.7.1"
             ;;
     esac
     venv
-    ${python} -m pip install --quiet --upgrade protobuf
+    ${python} -m pip install --quiet --upgrade ${protobuf}
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
     ${python} -m pip install --quiet ./third_party/onnx
