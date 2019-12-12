@@ -22155,6 +22155,7 @@
           "type": "float32"
         }
       ],
+      "category": "Data",
       "description": "Upsample the input tensor.\nThe width and height of the output tensor are:\n  output_width = floor(input_width * width_scale),\n  output_height = floor(input_height * height_scale).\nExample:\n  Given `data` tensor, width_scale, height_scale, mode,\n  Upsample the input 4-D tensor in nearest mode:\n  data = [[[\n      [1, 2],\n      [3, 4]\n  ]]]\n  width_scale = 2\n  height_scale = 2\n  mode = \"nearest\"\n  output = [[[\n      [1, 1, 2, 2],\n      [1, 1, 2, 2],\n      [3, 3, 4, 4],\n      [3, 3, 4, 4]\n  ]]]\n",
       "domain": "ai.onnx",
       "examples": [
@@ -22217,6 +22218,7 @@
           "type": "float32[]"
         }
       ],
+      "category": "Data",
       "description": "Upsample the input tensor.\nEach dimension value of the output tensor is:\n  output_dimension = floor(input_dimension * scale).\n",
       "domain": "ai.onnx",
       "examples": [
@@ -22282,6 +22284,7 @@
           "type": "string"
         }
       ],
+      "category": "Data",
       "description": "Upsample the input tensor.\nEach dimension value of the output tensor is:\n  output_dimension = floor(input_dimension * scale).\n",
       "domain": "ai.onnx",
       "examples": [
@@ -22352,6 +22355,7 @@
           "type": "string"
         }
       ],
+      "category": "Data",
       "description": "Upsample the input tensor.\nEach dimension value of the output tensor is:\n  output_dimension = floor(input_dimension * scale).\n",
       "domain": "ai.onnx",
       "examples": [

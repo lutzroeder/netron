@@ -74,6 +74,7 @@ categories = {
 
     'ImageScaler': 'Data',
     'Crop': 'Data',
+    'Upsample': 'Data',
 
     'Gather': 'Transform',
     'Unsqueeze': 'Transform',
