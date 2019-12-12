@@ -192,6 +192,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.feature_selection.variance_threshold.VarianceThreshold'] = function() {};
                 constructorTable['sklearn.impute._base.SimpleImputer'] = function() {};
                 constructorTable['sklearn.impute.SimpleImputer'] = function() {};
+                constructorTable['sklearn.linear_model._base.LinearRegression'] = function() {};
                 constructorTable['sklearn.linear_model.base.LinearRegression'] = function() {};
                 constructorTable['sklearn.linear_model.sgd_fast.Hinge'] = function() {};
                 constructorTable['sklearn.linear_model.LogisticRegression'] = function() {};
