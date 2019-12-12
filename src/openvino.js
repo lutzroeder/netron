@@ -622,6 +622,7 @@ openvino.Attribute = class {
         const schema = metadata.getAttributeSchema(node.operator, name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
+                this._type = schema.type;
                 switch (schema.type) {
                     case 'boolean':
                         switch (value) {
@@ -714,6 +715,10 @@ openvino.Attribute = class {
 
     get value() {
         return this._value;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get visible() {
@@ -936,16 +941,17 @@ openvino.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
+        this._map = new Map();
+        this._attributeMap = new Map();
         if (data) {
             let items = JSON.parse(data);
             if (items) {
                 for (let item of items) {
-                    if (item.name && item.schema) {
-                        const name = item.name;
-                        const schema = item.schema;
-                        this._map[name] = schema;
+                    if (item && item.name && item.schema) {
+                        if (this._map.has(item.name)) {
+                            throw new openvino.Error("Duplicate metadata key '" + item.name + "'.");
+                        }
+                        this._map.set(item.name, item.schema);
                     }
                 }
             }
@@ -953,22 +959,21 @@ openvino.Metadata = class {
     }
 
     getSchema(operator) {
-        return this._map[operator];
+        return this._map.get(operator) || null;
     }
 
     getAttributeSchema(operator, name) {
-        let map = this._attributeCache[operator];
-        if (!map) {
-            map = {};
+        const key = operator + ':' + name;
+        if (!this._attributeMap.has(key)) {
+            this._attributeMap.set(key, null);
             const schema = this.getSchema(operator);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
+            if (schema && schema.attributes) {
                 for (let attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+                    this._attributeMap.set(operator + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[operator] = map;
         }
-        return map[name] || null;
+        return this._attributeMap.get(key);
     }
 };
 
