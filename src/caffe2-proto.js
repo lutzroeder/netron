@@ -353,6 +353,7 @@
                 values[valuesById[10] = "INT64"] = 10;
                 values[valuesById[12] = "FLOAT16"] = 12;
                 values[valuesById[13] = "DOUBLE"] = 13;
+                values[valuesById[14] = "ZERO_COLLISION_HASH"] = 14;
                 return values;
             })();
     
