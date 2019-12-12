@@ -107,7 +107,7 @@
     "name": "Crop",
     "schema": {
       "operator": 14,
-      "category": "Shape"
+      "category": "Data"
     }
   },
   {
