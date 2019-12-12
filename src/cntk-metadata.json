@@ -889,7 +889,7 @@
     "name": "Crop",
     "schema": {
       "operator": 84,
-      "category": "Shape"
+      "category": "Data"
     }
   },
   {
