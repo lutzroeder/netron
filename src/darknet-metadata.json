@@ -6,7 +6,7 @@
       "attributes": [
         { "name": "filters", "type": "int32", "visible": false, "default": 1 },
         { "name": "size", "type": "int32", "default": 1 },
-        { "name": "stride", "type": "int32", "default": 1 },
+        { "name": "stride", "type": "int32", "defaudropblock_size_rellt": 1 },
         { "name": "groups", "type": "int32", "default": 1 },
         { "name": "padding", "type": "int32", "default": 0 },
         { "name": "pad", "type": "boolean", "default": false },
@@ -56,7 +56,10 @@
     "schema": {
       "category": "Dropout",
       "attributes": [
-        { "name": "probability", "type": "float32", "default": 0.5 }
+        { "name": "probability", "type": "float32", "default": 0.5 },
+        { "name": "dropblock", "type": "boolean", "default": false },
+        { "name": "dropblock_size_rel", "type": "float32", "default": 0 },
+        { "name": "dropblock_size_abs ", "type": "int32", "default": 7 },
       ]
     }
   },
@@ -72,7 +75,7 @@
         { "name": "padding", "type": "int32", "default": 0, "description": "TODO: same default as size-1, don't know how to do it..."  },
         { "name": "maxpool_depth", "type": "int32", "default": 0 },
         { "name": "out_channels", "default": 1 },
-        { "name": "antialiasing", "type": "int32", "default": 0 }
+        { "name": "antialiasing", "type": "boolean", "default": false }
       ]
     }
   },
@@ -80,11 +83,6 @@
     "name": "avgpool",
     "schema": {
       "category": "Pool",
-      "attributes": [
-        { "name": "probability", "type": "float32", "default": 0.2 },
-        { "name": "dropblock", "type": "boolean", "default": false },
-        { "name": "dropblock_size", "type": "float32", "default": 0.5 }
-      ]
     }
   },
   {
@@ -106,8 +104,8 @@
           { "name": "groups", "type": "int32", "default": 1 },
           { "name": "temperature", "type": "float32", "default": 1 },
           { "name": "tree", "type": "string", "default": 0 },
-          { "name": "spatial", "default": 0 },
-          { "name": "noloss", "default": 0 }
+          { "name": "spatial", "type": "boolean", "default": false },
+          { "name": "noloss", "type": "boolean", "default": false }
         ]
     }
   },
@@ -138,16 +136,17 @@
       "attributes": [
         { "name": "batch_normalize", "type": "boolean", "default": false },
         { "name": "activation", "type": "string", "default": "linear", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU, SWISH, MISH" },
-        { "name": "size", "type": "int32", "default": 1 },
+        { "name": "size", "type": "int32", "default": 3 },
         { "name": "stride", "type": "int32", "default": 1 },
+        { "name": "dilation", "default": 1 },
         { "name": "groups", "type": "int32", "default": 1 },
         { "name": "padding", "type": "int32", "default": 0 },
         { "name": "pad", "type": "boolean", "default": false },
         { "name": "xnor", "type": "boolean", "default": false },
         { "name": "shortcut", "default": 0 },
         { "name": "output", "type": "int32", "default": 1 },
-        { "name": "state_constrain", "type": "int32", "default": 16 },
-        { "name": "peephole", "default": 0 }
+        { "name": "state_constrain", "type": "int32", "default": 16, "description": "TODO: the real default is params.time_steps * 32 but I don't know how to enter it here"},
+        { "name": "peephole", "boolean", "default": false }
       ]
     }
   },
@@ -175,7 +174,7 @@
       "category": "Layer",
       "attributes": [
         { "name": "output", "type": "int32", "visible": false },
-        { "name": "hidden", "visible": false },
+        { "name": "hidden", "visible": false, "default": 1 },
         { "name": "activation", "type": "string", "default": "logistic", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU, SWISH, MISH" },
         { "name": "groups", "type": "int32", "default": 1 },
         { "name": "xnor", "type": "boolean", "default": false },
@@ -207,9 +206,7 @@
       "category": "Shape",
       "attributes": [
         { "name": "stride", "default": 1 },
-        { "name": "reverse", "type": "int32", "default": 0 },
-        { "name": "flatten", "type": "int32", "default": 0 },
-        { "name": "extra", "type": "int32", "default": 0 }
+        { "name": "reverse", "type": "boolean", "default": false }
       ]
     }
   },
@@ -241,7 +238,6 @@
       "category": "Tensor",
       "attributes": [
         { "name": "activation", "type": "string", "default": "linear", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU" },
-        { "name": "scale_wh", "default": 0 },
         { "name": "from", "description": "This params link the layer to another one, the index of the layer is either positive in which case it's a direct address, if negative it's relative to the layer position" }
       ]
     }
@@ -326,7 +322,7 @@
     "schema": {
       "category": "Shape",
       "attributes": [
-        { "name": "stride", "default": 2 },
+        { "name": "stride", "type": "int32", "default": 2 },
         { "name": "scale", "type": "float32", "default": 1 }
       ]
     }
@@ -401,12 +397,12 @@
         { "name": "iou_normalizer", "type": "float32", "default": 0.75 },
         { "name": "cls_normalizer", "type": "float32", "default": 1 },
         { "name": "iou_loss", "type": "string", "default": "mse", "description": "options are: mse, giou, diou, and ciou"},
-        { "name": "focal_loss", "default": 0 },
-        { "name": "max", "default": 90 },
+        { "name": "focal_loss", "type": "int32", "default": 0 },
+        { "name": "max", "type": "int32", "default": 90 },
         { "name": "ignore_thresh", "type": "float32", "default": 0.5 },
         { "name": "truth_thresh", "type": "float32", "default": 1 },
         { "name": "iou_thresh", "type": "float32", "default": 1 , "description": "recommended to use iou_thresh=0.213" },
-        { "name": "random", "default": 0 },
+        { "name": "random", "type": "boolean", "default": false },
         { "name": "map", "type": "string", "default": 0 },
         { "name": "nms_kind", "type": "string", "default": "default",  "description": "options are: greedynms, diounms, cornersnms, or defaultnms" },
         { "name": "anchors", "type": "string", "default": 0 }
@@ -418,8 +414,8 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "classes", "default": 20 },
-        { "name": "num", "default": 1 },
+        { "name": "classes", "type": "int32", "default": 20 },
+        { "name": "num", "type": "int32", "default": 1 },
         { "name": "mask", "type": "string", "default": 0 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
         { "name": "label_smooth_eps", "type": "float32", "default": 0 },
@@ -428,7 +424,6 @@
         { "name": "iou_normalizer", "type": "float32", "default": 0.75 },
         { "name": "cls_normalizer", "type": "float32", "default": 1 },
         { "name": "iou_loss", "type": "string", "default": "mse", "description": "options are: mse, giou, diou, and ciou" },
-        { "name": "focal_loss", "default": 0 },
         { "name": "max", "default": 90 },
         { "name": "ignore_thresh", "type": "float32", "default": 0.5 },
         { "name": "truth_thresh", "default": 1 },
