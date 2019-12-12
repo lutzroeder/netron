@@ -14,19 +14,17 @@ bold() {
 
 clean() {
     bold "mlnet clean"
-    rm -rf ./third_party/mlnet
+    rm -rf "./third_party/src/mlnet"
 }
 
 sync() {
     bold "mlnet sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/mlnet" ]; then
-        git -C "./third_party/mlnet" pull --quiet --prune
-    else
-        git -C "./third_party" clone --quiet --recursive https://github.com/dotnet/machinelearning.git mlnet
-    fi
-    git -C "./third_party/mlnet" submodule sync --quiet
-    git -C "./third_party/mlnet" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/mlnet" ] || git clone --quiet --recursive https://github.com/dotnet/machinelearning.git "./third_party/src/mlnet"
+    pushd "./third_party/src/mlnet" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 metadata() {

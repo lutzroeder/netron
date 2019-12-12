@@ -9,25 +9,33 @@ bold() {
 
 clean() {
     bold "cntk clean"
-    rm -rf "./third_party/cntk"
+    rm -rf "./third_party/src/cntk"
 }
 
 sync() {
     bold "cntk sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/cntk" ]; then
-        git -C "./third_party/cntk" pull --quiet --prune
-    else
-        git -C "./third_party" clone --quiet --recursive https://github.com/Microsoft/CNTK.git cntk
-    fi
-    git -C "./third_party/cntk" submodule sync --quiet
-    git -C "./third_party/cntk" submodule update --quiet --init --recursive
+    case ${OSTYPE} in
+        linux*|darwin*)
+            [ -d "./third_party/src/cntk" ] || git clone --quiet --recursive https://github.com/Microsoft/CNTK.git "./third_party/src/cntk"
+            pushd "./third_party/src/cntk" > /dev/null
+            git pull --quiet --prune
+            git submodule sync --quiet
+            git submodule update --quiet --init --recursive
+            popd > /dev/null
+        ;;
+        *)
+            [ -d "./third_party/src/cntk" ] || git clone --quiet https://github.com/Microsoft/CNTK.git "./third_party/src/cntk"
+            pushd "./third_party/src/cntk" > /dev/null
+            git pull --quiet --prune
+            popd > /dev/null
+        ;;
+    esac
 }
 
 schema() {
     bold "cntk schema"
     [[ $(grep -U $'\x0D' ./src/cntk-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r cntk -o ./src/cntk-proto.js ./third_party/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r cntk -o ./src/cntk-proto.js ./third_party/src/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
     node ./tools/update_pbjs.js array ./src/cntk-proto.js value float 1
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/cntk-proto.js ./src/cntk-proto.js

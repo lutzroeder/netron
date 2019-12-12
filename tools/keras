@@ -13,7 +13,7 @@ bold() {
 }
 
 venv() {
-    venv_dir=./third_party/venv/keras
+    venv_dir=./third_party/env/keras
     [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
     case "${OSTYPE}" in
         msys*) source ${venv_dir}/Scripts/activate ;;
@@ -24,36 +24,36 @@ venv() {
 
 clean() {
     bold "keras clean"
-    rm -rf "./third_party/venv/keras"
-    rm -rf "./third_party/keras"
+    rm -rf "./third_party/env/keras"
+    rm -rf "./third_party/src/keras"
 }
 
 sync() {
     bold "keras sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/keras" ]; then
-        git -C "./third_party/keras" pull --quiet --prune
-    else
-        git -C "./third_party" clone --quiet --recursive https://github.com/keras-team/keras.git
-    fi
-    git -C "./third_party/keras" submodule sync --quiet
-    git -C "./third_party/keras" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/keras" ] || git clone --quiet https://github.com/keras-team/keras.git "./third_party/src/keras"
+    pushd "./third_party/src/keras" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 install() {
     bold "keras install"
     venv
     ${python} -m pip install --quiet --upgrade tensorflow
-    ${python} -m pip install --quiet ./third_party/keras
+    ${python} -m pip install --quiet ./third_party/src/keras
     deactivate
 }
 
 metadata() {
     bold "keras metadata"
+    [[ $(grep -U $'\x0D' ./src/keras-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/keras-script.py metadata
     deactivate
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/keras-metadata.json ./src/keras-metadata.json
+    fi
 }
 
 zoo() {

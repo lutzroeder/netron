@@ -9,17 +9,15 @@ bold() {
 
 clean() {
     bold "armnn clean"
-    rm -rf ./third_party/armnn
+    rm -rf ./third_party/src/armnn
 }
 
 sync() {
     bold "armnn sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/armnn" ]; then
-        git -C "./third_party/armnn" pull --quiet --prune
-    else
-        git -C "./third_party" clone --quiet --branch master --recursive https://github.com/ARM-software/armnn.git
-    fi
+    [ -d "./third_party/src/armnn" ] || git clone --quiet --branch master https://github.com/ARM-software/armnn.git "./third_party/src/armnn"
+    pushd "./third_party/src/armnn" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 schema() {
@@ -27,7 +25,7 @@ schema() {
     case "${OSTYPE}" in
         linux*)
             flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=$(dirname $(mktemp -u))/flatbuffers/${flatc_version}
+            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
             if [ ! -f "${flatc_dir}/flatc" ]; then
                 mkdir -p "${flatc_dir}"
                 pushd "${flatc_dir}" > /dev/null
@@ -44,7 +42,7 @@ schema() {
             ;;
         msys*)
             flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=$(dirname $(mktemp -u))/flatbuffers/${flatc_version}
+            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
             if [ ! -f "${flatc_dir}/flatc.exe" ]; then
                 mkdir -p "${flatc_dir}"
                 pushd "${flatc_dir}" > /dev/null
@@ -56,7 +54,7 @@ schema() {
             ;;
     esac
     [[ $(grep -U $'\x0D' ./src/armnn-schema.js) ]] && crlf=1
-    ${flatc} --no-js-exports -o ./tools/. --js ./third_party/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    ${flatc} --no-js-exports -o ./tools/. --js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
     mv ./tools/ArmnnSchema_generated.js ./src/armnn-schema.js
     cat <<EOT >> ./src/armnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {

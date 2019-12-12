@@ -9,25 +9,23 @@ bold() {
 
 clean() {
     bold "bigdl clean"
-    rm -rf ./third_party/bigdl
+    rm -rf ./third_party/src/bigdl
 }
 
 sync() {
     bold "bigdl sync"
-    mkdir -p "./third_party"
-    if [ -d "./third_party/bigdl" ]; then
-        git -C "./third_party/bigdl" pull --quiet --prune
-    else
-        git -C "./third_party" clone --quiet --recursive https://github.com/intel-analytics/BigDL.git bigdl
-    fi
-    git -C "./third_party/bigdl" submodule sync --quiet
-    git -C "./third_party/bigdl" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/bigdl" ] || git clone --quiet --recursive https://github.com/intel-analytics/BigDL.git "./third_party/src/bigdl"
+    pushd "./third_party/src/bigdl" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 schema() {
     bold "bigdl schema"
     [[ $(grep -U $'\x0D' ./src/bigdl-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r bigdl -o ./src/bigdl-proto.js ./third_party/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r bigdl -o ./src/bigdl-proto.js ./third_party/src/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/bigdl-proto.js ./src/bigdl-proto.js
     fi
