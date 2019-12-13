@@ -16,7 +16,7 @@
         { "name": "xnor", "type": "int32", "default": 0 },
         { "name": "bin_output", "type": "int32", "default": 0 },
         { "name": "flipped", "type": "int32", "default": 0 },
-        { "name": "dot", "type": "int32", "default": 0 },
+        { "name": "dot", "type": "float32", "default": 0 },
         { "name": "batch_normalize", "type": "int32", "default": 0 },
         { "name": "activation", "type": "string", "default": "logistic", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU, SWISH, MISH" }
       ]
@@ -56,7 +56,10 @@
     "schema": {
       "category": "Dropout",
       "attributes": [
-        { "name": "probability", "type": "float32", "default": 0.5 }
+        { "name": "probability", "type": "float32", "default": 0.5 },
+        { "name": "dropblock", "type": "int32", "default": 0 },
+        { "name": "dropblock_size_rel", "type": "float32", "default": 0 },
+        { "name": "dropblock_size_abs ", "type": "int32", "default": 7 }
       ]
     }
   },
@@ -79,12 +82,7 @@
   {
     "name": "avgpool",
     "schema": {
-      "category": "Pool",
-      "attributes": [
-        { "name": "probability", "type": "float32", "default": 0.2 },
-        { "name": "dropblock", "type": "int32", "default": 0 },
-        { "name": "dropblock_size", "type": "float32", "default": 0.5 }
-      ]
+      "category": "Pool"
     }
   },
   {
@@ -104,10 +102,10 @@
         "category": "Activation",
         "attributes": [
           { "name": "groups", "type": "int32", "default": 1 },
-          { "name": "temperature", "default": 1 },
+          { "name": "temperature", "type": "float32", "default": 1 },
           { "name": "tree", "type": "string", "default": 0 },
-          { "name": "spatial", "default": 0 },
-          { "name": "noloss", "default": 0 }
+          { "name": "spatial", "type": "int32", "default": 0 },
+          { "name": "noloss", "type": "int32", "default": 0 }
         ]
     }
   },
@@ -138,16 +136,17 @@
       "attributes": [
         { "name": "batch_normalize", "type": "int32", "default": 0 },
         { "name": "activation", "type": "string", "default": "linear", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU, SWISH, MISH" },
-        { "name": "size", "type": "int32", "default": 1 },
+        { "name": "size", "type": "int32", "default": 3 },
         { "name": "stride", "type": "int32", "default": 1 },
+        { "name": "dilation", "default": 1 },
         { "name": "groups", "type": "int32", "default": 1 },
         { "name": "padding", "type": "int32", "default": 0 },
         { "name": "pad", "type": "int32", "default": 0 },
         { "name": "xnor", "type": "int32", "default": 0 },
         { "name": "shortcut", "default": 0 },
         { "name": "output", "type": "int32", "default": 1 },
-        { "name": "state_constrain", "type": "int32", "default": 16 },
-        { "name": "peephole", "default": 0 }
+        { "name": "state_constrain", "type": "int32", "default": 16, "description": "TODO: the real default is params.time_steps * 32 but I don't know how to enter it here"},
+        { "name": "peephole", "type": "int32", "default": 0 }
       ]
     }
   },
@@ -175,7 +174,7 @@
       "category": "Layer",
       "attributes": [
         { "name": "output", "type": "int32", "visible": false },
-        { "name": "hidden", "visible": false },
+        { "name": "hidden", "visible": false, "default": 1 },
         { "name": "activation", "type": "string", "default": "logistic", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU, SWISH, MISH" },
         { "name": "groups", "type": "int32", "default": 1 },
         { "name": "xnor", "type": "int32", "default": 0 },
@@ -188,7 +187,7 @@
   {
     "name": "crop",
     "schema": {
-      "category": "Data",
+      "category": "Shape",
       "attributes": [
         { "name": "crop_height", "default": 1 },
         { "name": "crop_width", "default": 1 },
@@ -197,7 +196,7 @@
         { "name": "saturation", "type": "float32", "default": 1 },
         { "name": "angle", "type": "float32", "default": 0 },
         { "name": "noadjust", "default": 0 },
-        { "name": "shift", "default": 0 }
+        { "name": "shift", "type": "float32", "default": 0 }
       ]
     }
   },
@@ -207,9 +206,7 @@
       "category": "Shape",
       "attributes": [
         { "name": "stride", "default": 1 },
-        { "name": "reverse", "type": "int32", "default": 0 },
-        { "name": "flatten", "type": "int32", "default": 0 },
-        { "name": "extra", "type": "int32", "default": 0 }
+        { "name": "reverse", "type": "int32", "default": 0 }
       ]
     }
   },
@@ -220,7 +217,7 @@
       "attributes": [
         { "name": "activation", "type": "string", "default": "logistic", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU, SWISH, MISH" },
         { "name": "assisted_excitation", "default": 0 },
-        { "name": "from", "description": "TODO there is a 'from' parameter that I didn't quite understood yet" }
+        { "name": "from", "description": "This params link the layer to another one, the index of the layer is either positive in which case it's a direct address, if negative it's relative to the layer position" }
       ]
     }
   },
@@ -231,7 +228,7 @@
       "attributes": [
         { "name": "activation", "type": "string", "default": "linear", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU" },
         { "name": "scale_wh", "default": 0 },
-        { "name": "from", "description": "TODO there is a 'from' parameter that I didn't quite understood yet" }
+        { "name": "from", "description": "This params link the layer to another one, the index of the layer is either positive in which case it's a direct address, if negative it's relative to the layer position" }
       ]
     }
   },
@@ -241,8 +238,7 @@
       "category": "Tensor",
       "attributes": [
         { "name": "activation", "type": "string", "default": "linear", "description": "options are: LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU" },
-        { "name": "scale_wh", "default": 0 },
-        { "name": "from", "description": "TODO there is a 'from' parameter that I didn't quite understood yet" }
+        { "name": "from", "description": "This params link the layer to another one, the index of the layer is either positive in which case it's a direct address, if negative it's relative to the layer position" }
       ]
     }
   },
@@ -270,8 +266,8 @@
       "category": "Activation",
       "attributes": [
         { "name": "type", "type": "string", "default": "sse" },
-        { "name": "scale", "default": 1 },
-        { "name": "ratio", "default": 0 }
+        { "name": "scale", "type": "float32", "default": 1 },
+        { "name": "ratio", "type": "float32", "default": 0 }
       ]
     }
   },
@@ -286,13 +282,19 @@
     }
   },
   {
+    "name": "logistic",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "relu",
     "schema": {
       "category": "Activation"
     }
   },
   {
-    "name": "leaky",
+    "name": "relie",
     "schema": {
       "category": "Activation"
     }
@@ -304,7 +306,61 @@
     }
   },
   {
-    "name": "logistic",
+    "name": "ramp",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "tanh",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "plse",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "leaky",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "elu",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "loggy",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "stair",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "hardtan",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "lhtan",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "selu",
     "schema": {
       "category": "Activation"
     }
@@ -316,7 +372,19 @@
     }
   },
   {
-    "name": "ramp",
+    "name": "mish",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "norm_chan",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "norm_chan_softmax",
     "schema": {
       "category": "Activation"
     }
@@ -326,8 +394,8 @@
     "schema": {
       "category": "Shape",
       "attributes": [
-        { "name": "stride", "default": 2 },
-        { "name": "scale", "default": 1 }
+        { "name": "stride", "type": "int32", "default": 2 },
+        { "name": "scale", "type": "float32", "default": 1 }
       ]
     }
   },
@@ -341,25 +409,25 @@
         { "name": "num", "default": 1 },
         { "name": "mask", "type": "string", "default": 0 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
-        { "name": "classfix", "default": 0 },
-        { "name": "absolute", "default": 0 },
-        { "name": "coord_scale", "default": 1 },
-        { "name": "object_scale", "default": 1 },
-        { "name": "noobject_scale", "default": 1 },
-        { "name": "mask_scale", "default": 1 },
-        { "name": "class_scale", "default": 1 },
-        { "name": "bias_match", "default": 0 },
-        { "name": "log", "default": 0 },
-        { "name": "sqrt", "default": 0 },
-        { "name": "focal_loss", "default": 0 },
+        { "name": "classfix", "type": "int32", "default": 0 },
+        { "name": "coord_scale", "type": "float32", "default": 1 },
+        { "name": "object_scale", "type": "float32", "default": 1 },
+        { "name": "noobject_scale", "type": "float32", "default": 1 },
+        { "name": "mask_scale", "type": "float32", "default": 1 },
+        { "name": "class_scale", "type": "float32", "default": 1 },
+        { "name": "bias_match", "type": "int32", "default": 0 },
+        { "name": "focal_loss", "type": "int32", "default": 0 },
         { "name": "max", "type": "int32", "default": 90 },
-        { "name": "softmax", "default": 0 },
-        { "name": "rescore", "default": 0 },
+        { "name": "softmax", "type": "int32", "default": 0 },
+        { "name": "rescore", "type": "int32", "default": 0 },
         { "name": "thresh", "type": "float32", "default": 0.5 },
-        { "name": "random", "default": 0 },
+        { "name": "random", "type": "int32", "default": 0 },
         { "name": "map", "type": "string", "default": 0 },
         { "name": "tree", "type": "string", "default": 0 },
-        { "name": "anchors", "type": "string", "default": 0 }
+        { "name": "anchors", "type": "string", "default": 0 },
+        { "name": "absolute", "default": 0 },
+        { "name": "log", "default": 0 },
+        { "name": "sqrt", "default": 0 }
       ]
     }
   },
@@ -369,21 +437,21 @@
       "category": "Layer",
       "attributes": [
         { "name": "classes", "type": "int32", "default": 1 },
-        { "name": "coord", "default": 1 },
+        { "name": "coord", "type": "int32", "default": 1 },
         { "name": "num", "type": "int32", "default": 1 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
-        { "name": "coord_scale", "default": 1 },
-        { "name": "object_scale", "default": 1 },
-        { "name": "noobject_scale", "default": 1 },
-        { "name": "class_scale", "default": 1 },
-        { "name": "forced", "default": 0 },
-        { "name": "side", "default": 7 },
-        { "name": "softmax", "default": 0 },
-        { "name": "sqrt", "default": 0 },
-        { "name": "max", "default": 30 },
-        { "name": "rescore", "default": 0 },
-        { "name": "random", "default": 0 },
-        { "name": "reorg", "default": 0 }
+        { "name": "coord_scale", "type": "float32", "default": 1 },
+        { "name": "object_scale", "type": "float32", "default": 1 },
+        { "name": "noobject_scale", "type": "float32", "default": 1 },
+        { "name": "class_scale", "type": "float32", "default": 1 },
+        { "name": "forced", "type": "int32", "default": 0 },
+        { "name": "side", "type": "int32", "default": 7 },
+        { "name": "softmax", "type": "int32", "default": 0 },
+        { "name": "sqrt", "type": "int32", "default": 0 },
+        { "name": "max", "type": "int32", "default": 30 },
+        { "name": "rescore", "type": "int32", "default": 0 },
+        { "name": "random", "type": "int32", "default": 0 },
+        { "name": "reorg", "type": "int32", "default": 0 }
       ]
     }
   },
@@ -396,17 +464,17 @@
         { "name": "num", "type": "int32", "default": 1 },
         { "name": "mask", "type": "string", "default": 0 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
-        { "name": "label_smooth_eps", "default": 0 },
+        { "name": "label_smooth_eps", "type": "float32", "default": 0 },
         { "name": "scale_x_y", "type": "float32", "default": 1 },
         { "name": "iou_normalizer", "type": "float32", "default": 0.75 },
-        { "name": "cls_normalizer", "default": 1 },
+        { "name": "cls_normalizer", "type": "float32", "default": 1 },
         { "name": "iou_loss", "type": "string", "default": "mse", "description": "options are: mse, giou, diou, and ciou"},
-        { "name": "focal_loss", "default": 0 },
-        { "name": "max", "default": 90 },
+        { "name": "focal_loss", "type": "int32", "default": 0 },
+        { "name": "max", "type": "int32", "default": 90 },
         { "name": "ignore_thresh", "type": "float32", "default": 0.5 },
         { "name": "truth_thresh", "type": "float32", "default": 1 },
         { "name": "iou_thresh", "type": "float32", "default": 1 , "description": "recommended to use iou_thresh=0.213" },
-        { "name": "random", "default": 0 },
+        { "name": "random", "type": "int32", "default": 0 },
         { "name": "map", "type": "string", "default": 0 },
         { "name": "nms_kind", "type": "string", "default": "default",  "description": "options are: greedynms, diounms, cornersnms, or defaultnms" },
         { "name": "anchors", "type": "string", "default": 0 }
@@ -418,8 +486,8 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "classes", "default": 20 },
-        { "name": "num", "default": 1 },
+        { "name": "classes", "type": "int32", "default": 20 },
+        { "name": "num", "type": "int32", "default": 1 },
         { "name": "mask", "type": "string", "default": 0 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
         { "name": "label_smooth_eps", "type": "float32", "default": 0 },
@@ -428,7 +496,6 @@
         { "name": "iou_normalizer", "type": "float32", "default": 0.75 },
         { "name": "cls_normalizer", "type": "float32", "default": 1 },
         { "name": "iou_loss", "type": "string", "default": "mse", "description": "options are: mse, giou, diou, and ciou" },
-        { "name": "focal_loss", "default": 0 },
         { "name": "max", "default": 90 },
         { "name": "ignore_thresh", "type": "float32", "default": 0.5 },
         { "name": "truth_thresh", "default": 1 },
@@ -447,32 +514,45 @@
     "schema": {
       "attributes": [
         { "name": "batch", "type": "int32", "default": 1 },
+        { "name": "max_batches", "type": "int32", "default": 0, "description": "Limits the maximum number of iterations" },
         { "name": "learning_rate", "type": "float32", "default": 0.001 },
         { "name": "momentum", "type": "float32", "default": 0.9 },
         { "name": "decay", "type": "float32", "default": 0.0001 },
-        { "name": "subdivisions", "type": "int32", "default": 1 },
+        { "name": "subdivisions", "type": "int32", "default": 1, "description": "In concert with batch property, this greatly affect memory usage, minimal working number is recommended" },
         { "name": "time_steps", "type": "int32", "default": 1 },
         { "name": "notruth", "type": "int32", "default": 0 },
         { "name": "random", "type": "int32", "default": 0 },
         { "name": "adam", "type": "int32", "default": 0 },
-        { "name": "B1", "type": "int32", "default": 0.9 },
-        { "name": "B2", "type": "int32", "default": 0.999 },
-        { "name": "eps", "type": "int32", "default": 0.0000001 },
+        { "name": "B1", "type": "float32", "default": 0.9 },
+        { "name": "B2", "type": "float32", "default": 0.999 },
+        { "name": "eps", "type": "float32", "default": 0.0000001 },
         { "name": "height", "type": "int32", "default": 0 },
         { "name": "width", "type": "int32", "default": 0 },
         { "name": "channels", "type": "int32", "default": 0 },
-        { "name": "inputs", "type": "int32" },
-        { "name": "max_crop", "type": "int32" },
-        { "name": "min_crop", "type": "int32" },
-        { "name": "max_ratio", "type": "int32" },
-        { "name": "min_ratio", "type": "int32" },
+        { "name": "inputs", "type": "int32", "description":"TODO: default is h*w*c, don't know how to do it..." },
+        { "name": "max_crop", "type": "int32", "description":"TODO: default is w*2, don't know how to do it..."  },
+        { "name": "min_crop", "type": "int32", "description":"TODO: default is w, don't know how to do it..."  },
+        { "name": "max_ratio", "type": "float32" },
+        { "name": "min_ratio", "type": "float32" },
         { "name": "center", "type": "int32", "default": 0 },
         { "name": "clip", "type": "int32", "default": 0 },
         { "name": "angle", "type": "float32", "default": 0 },
         { "name": "aspect", "type": "float32", "default": 1 },
         { "name": "saturation", "type": "float32", "default": 1 },
         { "name": "exposure", "type": "float32", "default": 1 },
-        { "name": "hue", "type": "float32", "default": 0 }
+        { "name": "hue", "type": "float32", "default": 0 },
+        { "name": "power", "type": "float32", "default": 4 },
+        { "name": "flip", "type": "int32", "default": 1, "description": "Enables augmentation method: horizontal flip"},
+        { "name": "blur", "type": "int32", "default": 0, "description": "Enables augmentation method: backgound blurring" },
+        { "name": "mixup", "type": "int32", "default": 0, "description": "Enables augmentation method: images mixup"},
+        { "name": "cutmix", "type": "int32", "default": 0, "description": "Enables augmentation method: images cutmix" },
+        { "name": "mosaic", "type": "int32", "default": 0, "description": "Enables augmentation method: images mosaicing" },
+        { "name": "letter_box", "type": "int32", "default": 0, "description": "Enables letter-box resizing (keeping the aspect ratio)" },
+        { "name": "policy", "type": "string", "default": "constant" },
+        { "name": "burn_in", "type": "int32", "default": 0, "description": "Is used for MAP calculation: permit a minimal number of iteration before first MAP check" },
+        { "name": "letter_box", "type": "int32", "default": 0 },
+        { "name": "optimized_memory", "type": "int32", "default": 0 , "description": "can offload memory from GPU into CPU at the cost of speed, 3 options are possible please look at: https://github.com/AlexeyAB/darknet/issues/4386"},
+        { "name": "workspace_size_limit_MB", "type": "float32", "default": 1024 }
       ]
     }
   }
