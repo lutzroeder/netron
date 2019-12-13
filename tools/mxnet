@@ -14,14 +14,12 @@ clean() {
 
 sync() {
     bold "mxnet sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/mxnet" ]; then
-        git -C "./third_party/src/mxnet" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/apache/incubator-mxnet.git mxnet
-    fi
-    git -C "./third_party/src/mxnet" submodule sync --quiet
-    git -C "./third_party/src/mxnet" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/mxnet" ] || git clone --quiet --recursive https://github.com/apache/incubator-mxnet.git "./third_party/src/mxnet"
+    pushd "./third_party/src/mxnet" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 metadata() {

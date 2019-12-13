@@ -50625,7 +50625,7 @@
           "type": "boolean"
         }
       ],
-      "description": "$$\\text{lr}_t := \\mathrm{learning_rate} * \\sqrt{1 - \\beta_2^t} / (1 - \\beta_1^t)$$\n$$m_t := \\beta_1 * m_{t-1} + (1 - \\beta_1) * g$$\\\n$$v_t := \\beta_2 * v_{t-1} + (1 - \\beta_2) * g * g$$\n$$\\text{variable} := \\text{variable} - \\text{lr}_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+      "description": "$$\\text{lr}_t := \\mathrm{learning_rate} * \\sqrt{1 - \\beta_2^t} / (1 - \\beta_1^t)$$\n$$m_t := \\beta_1 * m_{t-1} + (1 - \\beta_1) * g$$\n$$v_t := \\beta_2 * v_{t-1} + (1 - \\beta_2) * g * g$$\n$$\\text{variable} := \\text{variable} - \\text{lr}_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",

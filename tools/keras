@@ -30,14 +30,10 @@ clean() {
 
 sync() {
     bold "keras sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/keras" ]; then
-        git -C "./third_party/src/keras" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/keras-team/keras.git
-    fi
-    git -C "./third_party/src/keras" submodule sync --quiet
-    git -C "./third_party/src/keras" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/keras" ] || git clone --quiet https://github.com/keras-team/keras.git "./third_party/src/keras"
+    pushd "./third_party/src/keras" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 install() {
@@ -50,10 +46,14 @@ install() {
 
 metadata() {
     bold "keras metadata"
+    [[ $(grep -U $'\x0D' ./src/keras-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/keras-script.py metadata
     deactivate
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/keras-metadata.json ./src/keras-metadata.json
+    fi
 }
 
 zoo() {

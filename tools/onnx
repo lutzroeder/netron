@@ -25,14 +25,12 @@ venv() {
 }
 
 git_sync() {
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/${1}" ]; then
-        git -C "./third_party/src/${1}" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive ${2}
-    fi
-    git -C "./third_party/src/${1}" submodule sync --quiet
-    git -C "./third_party/src/${1}" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/${1}" ] || git clone --quiet --recursive ${2} "./third_party/src/${1}"
+    pushd "./third_party/src/${1}" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 clean() {
@@ -61,6 +59,10 @@ install() {
             brew list protobuf@3.7 > /dev/null 2>&1 || brew install protobuf@3.7 > /dev/null
             export PATH=/usr/local/opt/protobuf@3.7/bin:${PATH}
             protobuf="protobuf==3.7.1"
+            ;;
+        msys*)
+            [ -n "$(which protoc)" ] || choco install --yes protoc --version=3.8.0
+            protobuf="protobuf==3.8.0"
             ;;
     esac
     venv

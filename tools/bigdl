@@ -14,14 +14,12 @@ clean() {
 
 sync() {
     bold "bigdl sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/bigdl" ]; then
-        git -C "./third_party/src/bigdl" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/intel-analytics/BigDL.git bigdl
-    fi
-    git -C "./third_party/src/bigdl" submodule sync --quiet
-    git -C "./third_party/src/bigdl" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/bigdl" ] || git clone --quiet --recursive https://github.com/intel-analytics/BigDL.git "./third_party/src/bigdl"
+    pushd "./third_party/src/bigdl" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 schema() {

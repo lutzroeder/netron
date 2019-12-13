@@ -2194,6 +2194,7 @@
             function FunctionDef(properties) {
                 this.attr = {};
                 this.arg_attr = {};
+                this.resource_arg_unique_id = {};
                 this.node_def = [];
                 this.ret = {};
                 this.control_ret = {};
@@ -2206,6 +2207,7 @@
             FunctionDef.prototype.signature = null;
             FunctionDef.prototype.attr = $util.emptyObject;
             FunctionDef.prototype.arg_attr = $util.emptyObject;
+            FunctionDef.prototype.resource_arg_unique_id = $util.emptyObject;
             FunctionDef.prototype.node_def = $util.emptyArray;
             FunctionDef.prototype.ret = $util.emptyObject;
             FunctionDef.prototype.control_ret = $util.emptyObject;
@@ -2235,6 +2237,14 @@
                         key = reader.uint32();
                         reader.pos++;
                         message.arg_attr[key] = $root.tensorflow.FunctionDef.ArgAttrs.decode(reader, reader.uint32());
+                        break;
+                    case 8:
+                        reader.skip().pos++;
+                        if (message.resource_arg_unique_id === $util.emptyObject)
+                            message.resource_arg_unique_id = {};
+                        key = reader.uint32();
+                        reader.pos++;
+                        message.resource_arg_unique_id[key] = reader.uint32();
                         break;
                     case 3:
                         if (!(message.node_def && message.node_def.length))
@@ -2307,6 +2317,23 @@
                                 break;
                             }
                         message.arg_attr[key] = value;
+                        break;
+                    case "resource_arg_unique_id":
+                        if (message.resource_arg_unique_id === $util.emptyObject)
+                            message.resource_arg_unique_id = {};
+                        reader.start();
+                        key = 0;
+                        value = 0;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.uint32();
+                                break;
+                            case "value":
+                                value = reader.uint32();
+                                break;
+                            }
+                        message.resource_arg_unique_id[key] = value;
                         break;
                     case "node_def":
                         if (!(message.node_def && message.node_def.length))

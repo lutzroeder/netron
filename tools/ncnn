@@ -14,12 +14,10 @@ clean() {
 
 sync() {
     bold "ncnn sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/ncnn" ]; then
-        git -C "./third_party/src/ncnn" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/Tencent/ncnn.git ncnn
-    fi
+    [ -d "./third_party/src/ncnn" ] || git clone --quiet https://github.com/Tencent/ncnn.git "./third_party/src/ncnn"
+    pushd "./third_party/src/ncnn" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 while [ "$#" != 0 ]; do

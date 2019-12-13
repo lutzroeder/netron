@@ -14,12 +14,12 @@ clean() {
 
 sync() {
     bold "paddle sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/paddle" ]; then
-        git -C "./third_party/src/paddle" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/PaddlePaddle/Paddle.git paddle
-    fi
+    [ -d "./third_party/src/paddle" ] || git clone --quiet --recursive https://github.com/PaddlePaddle/Paddle.git "./third_party/src/paddle"
+    pushd "./third_party/src/paddle" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 schema() {

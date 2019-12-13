@@ -15,12 +15,10 @@ clean() {
 
 sync() {
     bold "caffe sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/caffe" ]; then
-        git -C "./third_party/src/caffe" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/BVLC/caffe.git
-    fi
+    [ -d "./third_party/src/caffe" ] || git clone --quiet https://github.com/BVLC/caffe.git "./third_party/src/caffe"
+    pushd "./third_party/src/caffe" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 schema() {

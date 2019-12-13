@@ -23,14 +23,12 @@ venv() {
 }
 
 git_sync() {
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/${1}" ]; then
-        git -C "./third_party/src/${1}" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive ${2} ${1}
-    fi
-    git -C "./third_party/src/${1}" submodule sync --quiet
-    git -C "./third_party/src/${1}" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/${1}" ] || git clone --quiet --recursive ${2} "./third_party/src/${1}"
+    pushd "./third_party/src/${1}" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 clean() {

@@ -30,14 +30,12 @@ clean() {
 
 sync() {
     bold "tf sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/tensorflow" ]; then
-        git -C "./third_party/src/tensorflow" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/tensorflow/tensorflow.git
-    fi
-    git -C "./third_party/src/tensorflow" submodule sync --quiet
-    git -C "./third_party/src/tensorflow" submodule update --quiet --init --recursive
+    [ -d "./third_party/src/tensorflow" ] || git clone --quiet --recursive https://github.com/tensorflow/tensorflow.git "./third_party/src/tensorflow"
+    pushd "./third_party/src/tensorflow" > /dev/null
+    git pull --quiet --prune
+    git submodule sync --quiet
+    git submodule update --quiet --init --recursive
+    popd > /dev/null
 }
 
 install() {

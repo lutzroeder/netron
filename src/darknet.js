@@ -3,6 +3,7 @@
 
 var darknet = darknet || {};
 var base = base || require('./base');
+var marked = marked || require('marked');
 
 darknet.ModelFactory = class {
 
@@ -152,7 +153,9 @@ darknet.Graph = class {
             layer._inputs = inputs;
             inputs = [ i.toString() ];
             switch (layer.type) {
-                case 'shortcut': {
+                case 'shortcut':
+                case 'sam':
+                case 'scale_channels': {
                     let from = Number.parseInt(layer.options.from, 10);
                     from = (from >= 0) ? from : (i + from);
                     const shortcut = sections[from];
@@ -327,6 +330,43 @@ darknet.Node = class {
     }
 
     get documentation() {
+        let schema = this._metadata.getSchema(this._operator);
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this._operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                for (let attribute of schema.attributes) {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                }
+            }
+            if (schema.inputs) {
+                for (let input of schema.inputs) {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                }
+            }
+            if (schema.outputs) {
+                for (let output of schema.outputs) {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                }
+            }
+            if (schema.references) {
+                for (let reference of schema.references) {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                }
+            }
+            return schema;
+        }
         return '';
     }
 

@@ -30,12 +30,9 @@ clean() {
 
 sync() {
     bold "coreml sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/coremltools" ]; then
-        git -C "./third_party/src/coremltools" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/apple/coremltools.git
-    fi
+    [ -d "./third_party/src/coremltools" ] || git clone --quiet https://github.com/apple/coremltools.git "./third_party/src/coremltools"
+    pushd "./third_party/src/coremltools" > /dev/null
+    git pull --quiet --prune
     popd > /dev/null
 }
 

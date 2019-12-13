@@ -18,12 +18,10 @@ clean() {
 
 sync() {
     bold "deeplearning4j sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/dl4j" ]; then
-        git -C "./third_party/src/dl4j" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/eclipse/deeplearning4j.git dl4j
-    fi
+    [ -d "./third_party/src/dl4j" ] || git clone --quiet https://github.com/eclipse/deeplearning4j.git "./third_party/src/dl4j"
+    pushd "./third_party/src/dl4j" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 while [ "$#" != 0 ]; do

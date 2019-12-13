@@ -14,12 +14,10 @@ clean() {
 
 sync() {
     bold "mnn sync"
-    mkdir -p "./third_party/src"
-    if [ -d "./third_party/src/mnn" ]; then
-        git -C "./third_party/src/mnn" pull --quiet --prune
-    else
-        git -C "./third_party/src" clone --quiet --recursive https://github.com/alibaba/MNN.git mnn
-    fi
+    [ -d "./third_party/src/mnn" ] || git clone --quiet https://github.com/alibaba/MNN.git "./third_party/src/mnn"
+    pushd "./third_party/src/mnn" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 schema() {
