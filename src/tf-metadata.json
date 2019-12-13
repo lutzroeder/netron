@@ -3193,7 +3193,7 @@
           "type": "boolean"
         }
       ],
-      "description": "want to use Nesterov momentum.\n\naccum = accum * momentum + grad\nvar -= lr * accum",
+      "description": "Set use_nesterov = True if you want to use Nesterov momentum.\n\naccum = accum * momentum + grad\nvar -= lr * accum",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -3231,7 +3231,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Update '*var' according to the momentum scheme. Set use_nesterov = True if you"
+      "summary": "Update '*var' according to the momentum scheme."
     }
   },
   {
@@ -50625,7 +50625,7 @@
           "type": "boolean"
         }
       ],
-      "description": "$$\\text{lr}_t := \\mathrm{learning_rate} * \\sqrt{1 - \\beta_2^t} / (1 - \\beta_1^t)$$\n$$m_t := \\beta_1 * m_{t-1} + (1 - \\beta_1) * g$$\\\n$$v_t := \\beta_2 * v_{t-1} + (1 - \\beta_2) * g * g$$\n$$\\text{variable} := \\text{variable} - \\text{lr}_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+      "description": "$$\\text{lr}_t := \\mathrm{learning_rate} * \\sqrt{1 - \\beta_2^t} / (1 - \\beta_1^t)$$\n$$m_t := \\beta_1 * m_{t-1} + (1 - \\beta_1) * g$$\n$$v_t := \\beta_2 * v_{t-1} + (1 - \\beta_2) * g * g$$\n$$\\text{variable} := \\text{variable} - \\text{lr}_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
