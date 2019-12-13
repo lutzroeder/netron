@@ -409,11 +409,14 @@ function script(folder, targets, command, args) {
     }
     return new Promise((resolve, reject) => {
         try {
-            console.log('  ' + command + ' ' + args);
+            const comspec = process.env.COMSPEC;
             if (process.platform === 'win32' && process.env.SHELL) {
                 process.env.COMSPEC = process.env.SHELL;
+                command = '/' + command.split(':').join('').split('\\').join('/');
             }
+            console.log('  ' + command + ' ' + args);
             child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
+            process.env.COMSPEC = comspec;
             resolve();
         }
         catch (error) {
