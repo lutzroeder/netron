@@ -11,10 +11,10 @@ install:
 	npm install
 
 clean:
-	rm -rf ./build
+	rm -rf ./dist
 
 reset:
-	rm -rf ./build
+	rm -rf ./dist
 	rm -rf ./node_modules
 	rm -rf ./third_party
 	rm -rf ./package-lock.json
@@ -86,16 +86,16 @@ publish_github_electron:
 publish_github_pages:
 	@[ -d node_modules ] || npm install
 	python3 ./setup.py build --version
-	rm -rf ./build/gh-pages
-	git clone git@github.com:lutzroeder/netron.git ./build/gh-pages --branch gh-pages
-	rm -rf ./build/gh-pages/*
-	cp -R ./build/lib/netron/* ./build/gh-pages/
-	rm -rf ./build/gh-pages/*.py*
+	rm -rf ./dist/gh-pages
+	git clone git@github.com:lutzroeder/netron.git ./dist/gh-pages --branch gh-pages
+	rm -rf ./dist/gh-pages/*
+	cp -R ./dist/lib/netron/* ./dist/gh-pages/
+	rm -rf ./dist/gh-pages/*.py*
 	@export PACKAGE_VERSION=`node -pe "require('./package.json').version"`; \
-	sed -i -e "s/<!-- meta -->/<meta name='version' content='$$PACKAGE_VERSION' \/>/g" ./build/gh-pages/index.html
-	git -C ./build/gh-pages add --all
-	git -C ./build/gh-pages commit --amend --no-edit
-	git -C ./build/gh-pages push --force origin gh-pages
+	sed -i -e "s/<!-- meta -->/<meta name='version' content='$$PACKAGE_VERSION' \/>/g" ./dist/gh-pages/index.html
+	git -C ./dist/gh-pages add --all
+	git -C ./dist/gh-pages commit --amend --no-edit
+	git -C ./dist/gh-pages push --force origin gh-pages
 
 publish_cask:
 	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d ''

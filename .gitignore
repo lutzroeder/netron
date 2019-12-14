@@ -2,7 +2,7 @@
 .DS_Store?
 .nyc_output/*
 converage/*
-build/*
+dist/*
 node_modules/*
 third_party/*
 test/data/*

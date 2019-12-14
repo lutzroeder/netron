@@ -15,7 +15,7 @@ npx electron ./
 
 To debug the Electron app use [Visual Studio Code](https://code.visualstudio.com) and install the [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) extension. Open the `./netron` root folder and press `F5`. To attach the debugger to a render process select the `Debug` tab and `Debug Renderer Process` before launching.
 
-To build Electron release binaries to the `./build` folder run:
+To build Electron release binaries to the `./dist` folder run:
 
 ```bash
 npx electron-builder --mac --linux --win

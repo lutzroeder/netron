@@ -3,8 +3,7 @@ productName: Netron
 files:
   - 'src/**/*'
 directories:
-  buildResources: setup
-  output: ./build
+  buildResources: ./setup
 fileAssociations:
   - name: "Arm NN Model"
     ext: armnn
@@ -54,7 +53,7 @@ fileAssociations:
     ext: tflite
   - name: "TensorFlow Lite Model"
     ext: tfl
-afterSign: "setup/notarize.js"
+afterSign: "./setup/notarize.js"
 publish:
   - provider: github
     releaseType: release
