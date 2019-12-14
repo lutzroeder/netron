@@ -4783,6 +4783,13 @@
   },
   {
     "type":   "tflite",
+    "target": "netron_issue_386.tflite",
+    "source": "https://github.com/lutzroeder/netron/files/3963415/netron_issue_386.zip[netron_issue_386.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/386"
+  },
+  {
+    "type":   "tflite",
     "target": "pose_estimation_for_mobile.tflite",
     "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.tflite?raw=true",
     "format": "TensorFlow Lite v3",

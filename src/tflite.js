@@ -113,8 +113,9 @@ tflite.Graph = class {
             const tensor = graph.tensors(i);
             let initializer = null;
             const buffer = model.buffers(tensor.buffer());
-            if (buffer.dataLength() > 0) {
-                initializer = new tflite.Tensor(tensor, buffer);
+            const is_variable = tensor.isVariable();
+            if (buffer.dataLength() > 0 || is_variable) {
+                initializer = new tflite.Tensor(tensor, buffer, is_variable);
             }
             args.push(new tflite.Argument(tensor, i, initializer));
             names.push(tensor.name());
@@ -486,10 +487,15 @@ tflite.Argument = class {
 
 tflite.Tensor = class {
 
-    constructor(tensor, buffer) {
+    constructor(tensor, buffer, is_variable) {
         this._name = tensor.name();
         this._type = new tflite.TensorType(tensor);
         this._data = buffer.dataLength() > 0 ? buffer.dataArray() : null;
+        this._is_variable = is_variable;
+    }
+
+    get kind() {
+        return this._is_variable ? 'Variable' : '';
     }
 
     get name() {
