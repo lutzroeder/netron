@@ -34,27 +34,17 @@ schema() {
                 make > /dev/null
                 popd > /dev/null
             fi
-            flatc=${flatc_dir}/flatc
+            export PATH=${flatc_dir}/flatc:${PATH}
             ;;
         darwin*)
             brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
-            flatc=flatc
             ;;
         msys*)
-            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
-            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
-                mkdir -p "${flatc_dir}"
-                pushd "${flatc_dir}" > /dev/null
-                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows_exe.zip
-                unzip flatc_windows_exe.zip > /dev/null
-                popd > /dev/null
-            fi
-            flatc=${flatc_dir}/flatc.exe
+            [ -x "$(command -v flatc)" ] || $(choco install flatc) > /dev/null
             ;;
     esac
     [[ $(grep -U $'\x0D' ./src/armnn-schema.js) ]] && crlf=1
-    ${flatc} --no-js-exports -o ./tools/. --js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    flatc --no-js-exports -o ./tools/. --js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
     mv ./tools/ArmnnSchema_generated.js ./src/armnn-schema.js
     cat <<EOT >> ./src/armnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {

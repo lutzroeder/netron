@@ -79,7 +79,7 @@ metadata() {
     venv
     case "${OSTYPE}" in
         linux*)
-            [ -n "$(which protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
+            [ -x "$(command -v protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
             protoc=protoc
             ;;
         darwin*)

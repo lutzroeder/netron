@@ -52,28 +52,18 @@ schema() {
                 make > /dev/null
                 popd > /dev/null
             fi
-            flatc=${flatc_dir}/flatc
+            export PATH=${flatc_dir}/flatc:${PATH}
             ;;
         darwin*)
             brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
-            flatc=flatc
             ;;
         msys*)
-            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
-            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
-                mkdir -p "${flatc_dir}"
-                pushd "${flatc_dir}" > /dev/null
-                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows_exe.zip
-                unzip flatc_windows_exe.zip > /dev/null
-                popd > /dev/null
-            fi
-            flatc=${flatc_dir}/flatc.exe
+            [ -x "$(command -v flatc)" ] || $(choco install flatc) > /dev/null
             ;;
     esac
     [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
     sed 's/namespace tflite;/namespace TFLITE;/g' < ./third_party/src/tensorflow/tensorflow/lite/schema/schema.fbs > ./tools/tflite.schema.fbs
-    ${flatc} --no-js-exports --js ./tools/tflite.schema.fbs
+    flatc --no-js-exports --js ./tools/tflite.schema.fbs
     rm ./tools/tflite.schema.fbs
     mv ./tflite.schema_generated.js ./src/tflite-schema.js
     cat <<EOT >> ./src/tflite-schema.js

@@ -50,8 +50,8 @@ install() {
     bold "onnx install"
     case "${OSTYPE}" in
         linux*)
-            [ -n "$(which cmake)" ] || sudo apt install -y cmake
-            [ -n "$(which protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
+            [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
+            [ -x "$(command -v protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
             protobuf=protobuf
             ;;
         darwin*)
@@ -61,8 +61,19 @@ install() {
             protobuf="protobuf==3.7.1"
             ;;
         msys*)
-            [ -n "$(which protoc)" ] || choco install --yes protoc --version=3.8.0
-            protobuf="protobuf==3.8.0"
+            # [ -x "$(command -v protoc)" ] || $(choco install --yes protoc --version=3.8.0) > /dev/null
+            protoc_version=3.8.0
+            protoc_dir=./third_party/bin/protobuf/v${protoc_version}
+            if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
+                mkdir -p "${protoc_dir}"
+                pushd "${protoc_dir}" > /dev/null
+                curl -sL -O https://github.com/protocolbuffers/protobuf/releases/download/v${protoc_version}/protoc-${protoc_version}-win32.zip
+                unzip protoc-${protoc_version}-win32.zip > /dev/null
+                rm protoc-${protoc_version}-win32.zip
+                popd > /dev/null
+            fi
+            export PATH=${protoc_dir}/bin:${PATH}
+            protobuf="protobuf==${protoc_version}"
             ;;
     esac
     venv
