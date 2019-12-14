@@ -123,7 +123,7 @@ tflite.Graph = class {
             const node = graph.operators(j);
             const opcodeIndex = node.opcodeIndex();
             const operator = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : { name: '(' + opcodeIndex.toString() + ')' };
-            this._nodes.push(new tflite.Node(metadata, node, operator, j.toString(), args));
+            this._nodes.push(new tflite.Node(metadata, node, operator, args));
         }
         for (let k = 0; k < graph.inputsLength(); k++) {
             const inputIndex = graph.inputs(k);
@@ -158,10 +158,9 @@ tflite.Graph = class {
 
 tflite.Node = class {
 
-    constructor(metadata, node, operator, name, args) {
+    constructor(metadata, node, operator, args) {
         this._metadata = metadata;
         this._operator = operator;
-        this._name = name;
         this._inputs = [];
         this._outputs = [];
         if (node) {
@@ -269,7 +268,7 @@ tflite.Node = class {
                                         value = activationFunctionMap[value];
                                     }
                                     this._chain = [];
-                                    this._chain.push(new tflite.Node(metadata, null, { name: value }, '', []));
+                                    this._chain.push(new tflite.Node(metadata, null, { name: value }, []));
                                 }
                             }
                             this._attributes.push(attribute);
@@ -285,7 +284,7 @@ tflite.Node = class {
     }
 
     get name() {
-        return this._name;
+        return '';
     }
 
     get domain() {
