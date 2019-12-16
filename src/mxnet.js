@@ -223,7 +223,7 @@ mxnet.ModelFactory = class {
                         if (name.startsWith('arg:') || name.startsWith('aux:')) {
                             name = key.substring(4);
                         }
-                        parameters[name] = stream.arrays[key];
+                        parameters['ssd0_' + name] = stream.arrays[key];
                     }
                 }
                 catch (error) {
@@ -256,9 +256,10 @@ mxnet.ModelFactory = class {
                 else {
                     for (let i = 0; i < token.length; i++) {
                         const c = token.charAt(i);
-                        if (c < '0' || c > '9') {
-                            return null;
+                        if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+                            continue;
                         }
+                        return null;
                     }
                 }
                 return dashes.join('-');
