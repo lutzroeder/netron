@@ -1834,7 +1834,7 @@
   {
     "type":   "darknet",
     "target": "alexnet.cfg,alexnet.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg,https://pjreddie.com/media/files/alexnet.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/alexnet.cfg?raw=true,https://pjreddie.com/media/files/alexnet.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
@@ -1855,7 +1855,7 @@
   {
     "type":   "darknet",
     "target": "darknet53_448.cfg,darknet53_448.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg,https://pjreddie.com/media/files/darknet53_448.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/darknet53_448.cfg?raw=true,https://pjreddie.com/media/files/darknet53_448.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
@@ -1868,6 +1868,13 @@
   },
   {
     "type":   "darknet",
+    "target": "lstm.train.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/lstm.train.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
     "target": "mixnet_m_gpu.cfg",
     "source": "https://github.com/lutzroeder/netron/files/3935529/mixnet_m_gpu.cfg.txt",
     "format": "Darknet",
@@ -1875,22 +1882,36 @@
   },
   {
     "type":   "darknet",
+    "target": "msr_50.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/msr_50.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
     "target": "go.cfg,go.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/go.cfg,https://pjreddie.com/media/files/go.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/go.cfg?raw=true,https://pjreddie.com/media/files/go.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/darkgo-go-in-darknet"
   },
   {
     "type":   "darknet",
+    "target": "gru.cfg",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/gru.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet"
+  },
+  {
+    "type":   "darknet",
     "target": "jnet-conv.cfg,jnet-conv.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/jnet-conv.cfg?raw=true,https://pjreddie.com/media/files/jnet-conv.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/nightmare"
   },
   {
     "type":   "darknet",
     "target": "grrm.cfg,grrm.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/rnn.cfg,https://pjreddie.com/media/files/grrm.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/rnn.cfg?raw=true,https://pjreddie.com/media/files/grrm.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
   },
@@ -1904,23 +1925,65 @@
   {
     "type":   "darknet",
     "target": "resnet18.cfg,resnet18.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet18.cfg,https://pjreddie.com/media/files/resnet18.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/resnet18.cfg?raw=true,https://pjreddie.com/media/files/resnet18.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
   {
     "type":   "darknet",
     "target": "resnet152.cfg,resnet152.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet152.cfg,https://pjreddie.com/media/files/resnet152.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/resnet152.cfg?raw=true,https://pjreddie.com/media/files/resnet152.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
   {
     "type":   "darknet",
+    "target": "tiny.cfg,tiny.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/tiny.cfg?raw=true,https://pjreddie.com/media/files/tiny.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/tiny-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolo-coco.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov1/yolo-coco.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolo-voc.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo-voc.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolo.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolo9000.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo9000.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
     "target": "yolov3-spp.cfg,yolov3-spp.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/yolov3-spp.cfg?raw=true,https://pjreddie.com/media/files/yolov3-spp.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/yolo"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolov3-tiny_occlusion_track.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov3-tiny_occlusion_track.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
   },
   {
     "type":   "dl4j",

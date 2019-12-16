@@ -14,7 +14,7 @@ clean() {
 
 sync() {
     bold "darknet sync"
-    [ -d "./third_party/src/darknet" ] || git clone --quiet https://github.com/pjreddie/darknet.git "./third_party/src/darknet"
+    [ -d "./third_party/src/darknet" ] || git clone --quiet https://github.com/AlexeyAB/darknet.git "./third_party/src/darknet"
     pushd "./third_party/src/darknet" > /dev/null
     git pull --quiet --prune
     popd > /dev/null
