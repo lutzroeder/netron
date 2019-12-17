@@ -411,37 +411,6 @@ darknet.Graph = class {
                 params.inputs = layer.outputs;
             }
             params.arguments = section.outputs;
-
-            const batch_normalize = option_find_int(section.options, 'batch_normalize', 0);
-            if (batch_normalize) {
-                let size = -1;
-                switch (section.type) {
-                    case 'convolutional': {
-                        size = option_find_int(options, 'filters', 1);
-                        break;
-                    }
-                    case 'crnn':
-                    case 'gru':
-                    case 'rnn':
-                    case 'lstm':
-                    case 'connected': {
-                        size = option_find_int(options, 'output', 1);
-                        break;
-                    }
-                }
-                if (size < 0) {
-                    throw new darknet.Error("Invalid batch_normalize size for '" + section.type + "'.");
-                }
-                let chain = {};
-                chain.type = 'batch_normalize';
-                chain.tensors = [
-                    { name: 'scale', shape: [ size ] },
-                    { name: 'mean', shape: [ size ] },
-                    { name: 'variance', shape: [ size ] }
-                ];
-                section.chain = section.chain || [];
-                section.chain.push(chain);
-            }
     
             const defaultActivation = section.type === 'shortcut' ? 'linear' : 'logistic';
             const activation = option_find_str(section.options, 'activation', defaultActivation);
