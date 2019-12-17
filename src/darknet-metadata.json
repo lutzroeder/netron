@@ -243,12 +243,6 @@
     }
   },
   {
-    "name": "batch_normalize",
-    "schema": {
-      "category": "Normalization"
-    }
-  },
-  {
     "name": "normalization",
     "schema": {
       "category": "Normalization",
