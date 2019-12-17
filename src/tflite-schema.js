@@ -197,7 +197,8 @@ TFLITE.BuiltinOperator = {
   NON_MAX_SUPPRESSION_V4: 120,
   NON_MAX_SUPPRESSION_V5: 121,
   SCATTER_ND: 122,
-  SELECT_V2: 123
+  SELECT_V2: 123,
+  DENSIFY: 124
 };
 
 /**
@@ -327,7 +328,8 @@ TFLITE.BuiltinOperatorName = {
   120: 'NON_MAX_SUPPRESSION_V4',
   121: 'NON_MAX_SUPPRESSION_V5',
   122: 'SCATTER_ND',
-  123: 'SELECT_V2'
+  123: 'SELECT_V2',
+  124: 'DENSIFY'
 };
 
 /**
@@ -432,7 +434,8 @@ TFLITE.BuiltinOptions = {
   NonMaxSuppressionV4Options: 95,
   NonMaxSuppressionV5Options: 96,
   ScatterNdOptions: 97,
-  SelectV2Options: 98
+  SelectV2Options: 98,
+  DensifyOptions: 99
 };
 
 /**
@@ -537,7 +540,8 @@ TFLITE.BuiltinOptionsName = {
   95: 'NonMaxSuppressionV4Options',
   96: 'NonMaxSuppressionV5Options',
   97: 'ScatterNdOptions',
-  98: 'SelectV2Options'
+  98: 'SelectV2Options',
+  99: 'DensifyOptions'
 };
 
 /**
@@ -9719,6 +9723,66 @@ TFLITE.SelectV2Options.endSelectV2Options = function(builder) {
 TFLITE.SelectV2Options.createSelectV2Options = function(builder) {
   TFLITE.SelectV2Options.startSelectV2Options(builder);
   return TFLITE.SelectV2Options.endSelectV2Options(builder);
+}
+
+/**
+ * @constructor
+ */
+TFLITE.DensifyOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.DensifyOptions}
+ */
+TFLITE.DensifyOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.DensifyOptions=} obj
+ * @returns {TFLITE.DensifyOptions}
+ */
+TFLITE.DensifyOptions.getRootAsDensifyOptions = function(bb, obj) {
+  return (obj || new TFLITE.DensifyOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.DensifyOptions.startDensifyOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.DensifyOptions.endDensifyOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.DensifyOptions.createDensifyOptions = function(builder) {
+  TFLITE.DensifyOptions.startDensifyOptions(builder);
+  return TFLITE.DensifyOptions.endDensifyOptions(builder);
 }
 
 /**
