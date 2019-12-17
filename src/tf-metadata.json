@@ -4278,7 +4278,7 @@
           "type": "type"
         }
       ],
-      "description": "The `tf.math.asin` operation returns the inverse of `tf.math.sin`, such that\nif `y = tf.math.sin(x)` then, `x = tf.math.asin(y)`.\n\n**Note**: The output of `tf.math.asin` will lie within the invertible range \nof sine, i.e [-pi/2, pi/2].\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.sin(x) # [0.8659266, 0.7068252]\n\ntf.math.asin(y) # [1.047, 0.785] = x\n```\n",
+      "description": "The `tf.math.asin` operation returns the inverse of `tf.math.sin`, such that\nif `y = tf.math.sin(x)` then, `x = tf.math.asin(y)`.\n\n**Note**: The output of `tf.math.asin` will lie within the invertible range\nof sine, i.e [-pi/2, pi/2].\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.sin(x) # [0.8659266, 0.7068252]\n\ntf.math.asin(y) # [1.047, 0.785] = x\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -4802,7 +4802,7 @@
           "type": "type"
         }
       ],
-      "description": "The `tf.math.atan` operation returns the inverse of `tf.math.tan`, such that\nif `y = tf.math.tan(x)` then, `x = tf.math.atan(y)`.\n\n**Note**: The output of `tf.math.atan` will lie within the invertible range \nof tan, i.e (-pi/2, pi/2).\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.tan(x) # [1.731261, 0.99920404]\n\ntf.math.atan(y) # [1.047, 0.785] = x\n```\n",
+      "description": "The `tf.math.atan` operation returns the inverse of `tf.math.tan`, such that\nif `y = tf.math.tan(x)` then, `x = tf.math.atan(y)`.\n\n**Note**: The output of `tf.math.atan` will lie within the invertible range\nof tan, i.e (-pi/2, pi/2).\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.tan(x) # [1.731261, 0.99920404]\n\ntf.math.atan(y) # [1.047, 0.785] = x\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -4937,7 +4937,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Spectrograms are a standard way of representing audio information as a series of\nslices of frequency information, one slice for each window of time. By joining\nthese together into a sequence, they form a distinctive fingerprint of the sound\nover time.\n\nThis op expects to receive audio data as an input, stored as floats in the range\n-1 to 1, together with a window width in samples, and a stride specifying how\nfar to move the window between slices. From this it generates a three\ndimensional output. The first dimension is for the channels in the input, so a\nstereo audio input would have two here for example. The second dimension is time, \nwith successive frequency slices. The third dimension has an amplitude value for \neach frequency during that time slice.\n\nThis means the layout when converted and saved as an image is rotated 90 degrees\nclockwise from a typical spectrogram. Time is descending down the Y axis, and\nthe frequency decreases from left to right.\n\nEach value in the result represents the square root of the sum of the real and\nimaginary parts of an FFT on the current window of samples. In this way, the\nlowest dimension represents the power of each frequency in the current window,\nand adjacent windows are concatenated in the next dimension.\n\nTo get a more intuitive and visual look at what this operation does, you can run\ntensorflow/examples/wav_to_spectrogram to read in an audio file and save out the\nresulting spectrogram as a PNG image.",
+      "description": "Spectrograms are a standard way of representing audio information as a series of\nslices of frequency information, one slice for each window of time. By joining\nthese together into a sequence, they form a distinctive fingerprint of the sound\nover time.\n\nThis op expects to receive audio data as an input, stored as floats in the range\n-1 to 1, together with a window width in samples, and a stride specifying how\nfar to move the window between slices. From this it generates a three\ndimensional output. The first dimension is for the channels in the input, so a\nstereo audio input would have two here for example. The second dimension is time,\nwith successive frequency slices. The third dimension has an amplitude value for\neach frequency during that time slice.\n\nThis means the layout when converted and saved as an image is rotated 90 degrees\nclockwise from a typical spectrogram. Time is descending down the Y axis, and\nthe frequency decreases from left to right.\n\nEach value in the result represents the square root of the sum of the real and\nimaginary parts of an FFT on the current window of samples. In this way, the\nlowest dimension represents the power of each frequency in the current window,\nand adjacent windows are concatenated in the next dimension.\n\nTo get a more intuitive and visual look at what this operation does, you can run\ntensorflow/examples/wav_to_spectrogram to read in an audio file and save out the\nresulting spectrogram as a PNG image.",
       "inputs": [
         {
           "description": "Float representation of audio data.",
@@ -8395,7 +8395,7 @@
           "type": "type"
         }
       ],
-      "description": "This is equivalent to applying LSTMBlockCell in a loop, like so:\n\n```python\nfor x1 in unpack(x):\n  i1, cs1, f1, o1, ci1, co1, h1 = LSTMBlock(\n    x1, cs_prev, h_prev, w, wci, wcf, wco, b)\n  cs_prev = cs1\n  h_prev = h1\n  i.append(i1)\n  cs.append(cs1)\n  f.append(f1)\n  o.append(o1)\n  ci.append(ci1)\n  co.append(co1)\n  h.append(h1)\nreturn pack(i), pack(cs), pack(f), pack(o), pack(ci), pack(ch), pack(h)\n\nNote that unlike LSTMBlockCell (and BlockLSTM) which uses ICFO gate layout, \nthis op uses IFCO. So in order for the following snippet to be equivalent\nall gate-related outputs should be reordered.\n```",
+      "description": "This is equivalent to applying LSTMBlockCell in a loop, like so:\n\n```python\nfor x1 in unpack(x):\n  i1, cs1, f1, o1, ci1, co1, h1 = LSTMBlock(\n    x1, cs_prev, h_prev, w, wci, wcf, wco, b)\n  cs_prev = cs1\n  h_prev = h1\n  i.append(i1)\n  cs.append(cs1)\n  f.append(f1)\n  o.append(o1)\n  ci.append(ci1)\n  co.append(co1)\n  h.append(h1)\nreturn pack(i), pack(cs), pack(f), pack(o), pack(ci), pack(ch), pack(h)\n\nNote that unlike LSTMBlockCell (and BlockLSTM) which uses ICFO gate layout,\nthis op uses IFCO. So in order for the following snippet to be equivalent\nall gate-related outputs should be reordered.\n```",
       "inputs": [
         {
           "description": "Maximum time length actually used by this input. Outputs are padded\nwith zeros beyond this length.",
@@ -8908,7 +8908,7 @@
           "type": "int64"
         }
       ],
-      "description": "It traverses all the trees and computes debug metrics for individual examples, \nsuch as getting split feature ids and logits after each split along the decision\npath used to compute directional feature contributions.",
+      "description": "It traverses all the trees and computes debug metrics for individual examples,\nsuch as getting split feature ids and logits after each split along the decision\npath used to compute directional feature contributions.",
       "inputs": [
         {
           "name": "tree_ensemble_handle",
@@ -8941,7 +8941,7 @@
           "type": "int64"
         }
       ],
-      "description": "An op that outputs a list of quantile summaries of a quantile stream resource.\nEach summary Tensor is rank 2, containing summaries (value, weight, min_rank, \nmax_rank) for a single feature.",
+      "description": "An op that outputs a list of quantile summaries of a quantile stream resource.\nEach summary Tensor is rank 2, containing summaries (value, weight, min_rank,\nmax_rank) for a single feature.",
       "inputs": [
         {
           "description": "resource handle referring to a QuantileStreamResource.",
@@ -11401,7 +11401,7 @@
       "description": "This operation performs non_max_suppression on the inputs per batch, across\nall classes.\nPrunes away boxes that have high intersection-over-union (IOU) overlap\nwith previously selected boxes.  Bounding boxes are supplied as\n[y1, x1, y2, x2], where (y1, x1) and (y2, x2) are the coordinates of any\ndiagonal pair of box corners and the coordinates can be provided as normalized\n(i.e., lying in the interval [0, 1]) or absolute.  Note that this algorithm\nis agnostic to where the origin is in the coordinate system. Also note that\nthis algorithm is invariant to orthogonal transformations and translations\nof the coordinate system; thus translating or reflections of the coordinate\nsystem result in the same boxes being selected by the algorithm.\nThe output of this operation is the final boxes, scores and classes tensor\nreturned after performing non_max_suppression.",
       "inputs": [
         {
-          "description": "A 4-D float tensor of shape `[batch_size, num_boxes, q, 4]`. If `q` is 1 then \nsame boxes are used for all classes otherwise, if `q` is equal to number of \nclasses, class-specific boxes are used.",
+          "description": "A 4-D float tensor of shape `[batch_size, num_boxes, q, 4]`. If `q` is 1 then\nsame boxes are used for all classes otherwise, if `q` is equal to number of\nclasses, class-specific boxes are used.",
           "name": "boxes",
           "type": 1
         },
@@ -11411,7 +11411,7 @@
           "type": 1
         },
         {
-          "description": "A scalar integer tensor representing the maximum number of \nboxes to be selected by non max suppression per class",
+          "description": "A scalar integer tensor representing the maximum number of\nboxes to be selected by non max suppression per class",
           "name": "max_output_size_per_class",
           "type": 3
         },
@@ -11433,17 +11433,17 @@
       ],
       "outputs": [
         {
-          "description": "A [batch_size, max_detections, 4] float32 tensor \ncontaining the non-max suppressed boxes.",
+          "description": "A [batch_size, max_detections, 4] float32 tensor\ncontaining the non-max suppressed boxes.",
           "name": "nmsed_boxes",
           "type": 1
         },
         {
-          "description": "A [batch_size, max_detections] float32 tensor \ncontaining the scores for the boxes.",
+          "description": "A [batch_size, max_detections] float32 tensor\ncontaining the scores for the boxes.",
           "name": "nmsed_scores",
           "type": 1
         },
         {
-          "description": "A [batch_size, max_detections] float32 tensor \ncontaining the classes for the boxes.",
+          "description": "A [batch_size, max_detections] float32 tensor\ncontaining the classes for the boxes.",
           "name": "nmsed_classes",
           "type": 1
         },
@@ -18415,7 +18415,7 @@
           "type": "type"
         }
       ],
-      "description": "Implements generalized Tensor contraction and reduction. Each input Tensor must\nhave a corresponding input subscript appearing in the comma-separated left-hand\nside of the equation. The right-hand side of the equation consists of the\noutput subscript. The input subscripts and the output subscript should consist\nof zero or more named axis labels and at most one ellipsis (`...`).\n\nThe named axis labels may be any single character other than those having\nspecial meaning, namely `,.->`. The behavior of this Op is undefined if it\nreceives an ill-formatted equation; since the validation is done at\ngraph-building time, we omit format validation checks at runtime.\n\nNote: This Op is *not* intended to be called by the user; instead users should\ncall `tf.einsum` directly. It is a hidden Op used by `tf.einsum`.\n\nOperations are applied to the input(s) according to the following rules:\n\n (a) Generalized Diagonals: For input dimensions corresponding to axis labels\n     appearing more than once in the same input subscript, we take the\n     generalized (`k`-dimensional) diagonal.\n     For example, in the equation `iii->i` with input shape `[3, 3, 3]`, the\n     generalized diagonal would consist of `3` elements at indices `(0, 0, 0)`,\n     `(1, 1, 1)` and `(2, 2, 2)` to create a Tensor of shape `[3]`.\n\n (b) Reduction: Axes corresponding to labels appearing only in one input\n     subscript but not in the output subscript are summed over prior to Tensor\n     contraction.\n     For example, in the equation `ab,bc->b`, the axis labels `a` and `c` are\n     the reduction axis labels.\n\n (c) Batch Dimensions: Axes corresponding to labels appearing in each of the\n     input subscripts and also in the output subscript make up the batch\n     dimensions in Tensor contraction. Unnamed axis labels corresponding to\n     ellipsis (`...`) also correspond to batch dimensions.\n     For example, for the equation denoting batch matrix multiplication,\n     `bij,bjk->bik`, the axis label `b` corresponds to a batch dimension.\n\n (d) Contraction: In case of binary einsum, axes corresponding to labels\n     appearing in two different inputs (and not in the output) are contracted\n     against each other.\n     Considering the batch matrix multiplication equation again\n     (`bij,bjk->bik`), the contracted axis label is `j`.\n\n (e) Expand Diagonal: If the output subcripts contain repeated (explicit) axis\n     labels, the opposite operation of (a) is applied. For example, in the\n     equation `i->iii`, and input shape `[3]`, the output of shape `[3, 3, 3]`\n     are all zeros, except for the (generalized) diagonal which is populated\n     with values from the input.\n     Note: This operation is not supported by `np.einsum` or `tf.einsum`; it is\n     provided to enable computing the symbolic gradient of `tf.einsum`.\n\nThe output subcripts must contain only labels appearing in at least one of the\ninput subscripts. Furthermore, all dimensions mapping to the same axis label\nmust be equal.\n\nAny of the input and output subscripts may contain at most a single ellipsis\n(`...`). These ellipsis are mapped against dimensions not corresponding to any\nnamed axis label. If two inputs contain ellipsis, then they are broadcasted\naccording to standard NumPy broadcasting\n[rules](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html).\n\nThe broadcasted dimensions are placed in the corresponding location of the\nellipsis in the output subscript. If the broadcasted dimensions are non-empty\nand the output subcripts do not contain ellipsis, then an InvalidArgument error\nis raised.\n\n@compatibility(numpy)\nSimilar to [`numpy.einsum`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.einsum.html).\n\nComparison with `numpy.einsum`:\n\n * This Op only supports unary and binary forms of `numpy.einsum`.\n * This Op does not support implicit form. (i.e. equations without `->`).\n * This Op also supports repeated indices in the output subscript, which is not\n   supported by `numpy.einsum`.\n@end_compatibility\n",
+      "description": "Implements generalized Tensor contraction and reduction. Each input Tensor must\nhave a corresponding input subscript appearing in the comma-separated left-hand\nside of the equation. The right-hand side of the equation consists of the\noutput subscript. The input subscripts and the output subscript should consist\nof zero or more named axis labels and at most one ellipsis (`...`).\n\nThe named axis labels may be any single character other than those having\nspecial meaning, namely `,.->`. The behavior of this Op is undefined if it\nreceives an ill-formatted equation; since the validation is done at\ngraph-building time, we omit format validation checks at runtime.\n\nNote: This Op is *not* intended to be called by the user; instead users should\ncall `tf.einsum` directly. It is a hidden Op used by `tf.einsum`.\n\nOperations are applied to the input(s) according to the following rules:\n\n (a) Generalized Diagonals: For input dimensions corresponding to axis labels\n     appearing more than once in the same input subscript, we take the\n     generalized (`k`-dimensional) diagonal.\n     For example, in the equation `iii->i` with input shape `[3, 3, 3]`, the\n     generalized diagonal would consist of `3` elements at indices `(0, 0, 0)`,\n     `(1, 1, 1)` and `(2, 2, 2)` to create a Tensor of shape `[3]`.\n\n (b) Reduction: Axes corresponding to labels appearing only in one input\n     subscript but not in the output subscript are summed over prior to Tensor\n     contraction.\n     For example, in the equation `ab,bc->b`, the axis labels `a` and `c` are\n     the reduction axis labels.\n\n (c) Batch Dimensions: Axes corresponding to labels appearing in each of the\n     input subscripts and also in the output subscript make up the batch\n     dimensions in Tensor contraction. Unnamed axis labels corresponding to\n     ellipsis (`...`) also correspond to batch dimensions.\n     For example, for the equation denoting batch matrix multiplication,\n     `bij,bjk->bik`, the axis label `b` corresponds to a batch dimension.\n\n (d) Contraction: In case of binary einsum, axes corresponding to labels\n     appearing in two different inputs (and not in the output) are contracted\n     against each other.\n     Considering the batch matrix multiplication equation again\n     (`bij,bjk->bik`), the contracted axis label is `j`.\n\n (e) Expand Diagonal: If the output subscripts contain repeated (explicit) axis\n     labels, the opposite operation of (a) is applied. For example, in the\n     equation `i->iii`, and input shape `[3]`, the output of shape `[3, 3, 3]`\n     are all zeros, except for the (generalized) diagonal which is populated\n     with values from the input.\n     Note: This operation is not supported by `np.einsum` or `tf.einsum`; it is\n     provided to enable computing the symbolic gradient of `tf.einsum`.\n\nThe output subscripts must contain only labels appearing in at least one of the\ninput subscripts. Furthermore, all dimensions mapping to the same axis label\nmust be equal.\n\nAny of the input and output subscripts may contain at most a single ellipsis\n(`...`). These ellipsis are mapped against dimensions not corresponding to any\nnamed axis label. If two inputs contain ellipsis, then they are broadcasted\naccording to standard NumPy broadcasting\n[rules](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html).\n\nThe broadcasted dimensions are placed in the corresponding location of the\nellipsis in the output subscript. If the broadcasted dimensions are non-empty\nand the output subscripts do not contain ellipsis, then an InvalidArgument error\nis raised.\n\n@compatibility(numpy)\nSimilar to [`numpy.einsum`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.einsum.html).\n\nComparison with `numpy.einsum`:\n\n * This Op only supports unary and binary forms of `numpy.einsum`.\n * This Op does not support implicit form. (i.e. equations without `->`).\n * This Op also supports repeated indices in the output subscript, which is not\n   supported by `numpy.einsum`.\n@end_compatibility\n",
       "inputs": [
         {
           "description": "List of 1 or 2 Tensors.",
@@ -28099,7 +28099,7 @@
           "type": "type"
         }
       ],
-      "description": "If `y` is negative, or greater than or equal to the width of `x` in bits the\nresult is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  left_shift_result = bitwise_ops.left_shift(lhs, rhs)\n  \n  print(left_shift_result)\n\n# This will print:\n# tf.Tensor([ -32   -5 -128    0], shape=(4,), dtype=int8)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int16)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int32)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.left_shift(lhs, rhs)\n# <tf.Tensor: shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
+      "description": "If `y` is negative, or greater than or equal to the width of `x` in bits the\nresult is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n\n  left_shift_result = bitwise_ops.left_shift(lhs, rhs)\n\n  print(left_shift_result)\n\n# This will print:\n# tf.Tensor([ -32   -5 -128    0], shape=(4,), dtype=int8)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int16)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int32)\n# tf.Tensor([   -32     -5   -384 -28672], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.left_shift(lhs, rhs)\n# <tf.Tensor: shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -30103,7 +30103,7 @@
           "type": "type"
         }
       ],
-      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='left')`.\n\nThe result is not a global index to the entire \n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = LowerBound(sorted_sequence, values)\n\n  result == [[1, 2, 2],\n             [0, 1, 5]]",
+      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='left')`.\n\nThe result is not a global index to the entire\n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = LowerBound(sorted_sequence, values)\n\n  result == [[1, 2, 2],\n             [0, 1, 5]]",
       "inputs": [
         {
           "description": "2-D Tensor where each row is ordered.",
@@ -31538,7 +31538,7 @@
           "type": "boolean"
         }
       ],
-      "description": "`matrix` is a tensor of shape `[..., M, N]` whose inner-most 2 dimensions\nform real or complex matrices of size `[M, N]`. `Rhs` is a tensor of the same\ntype as `matrix` and shape `[..., M, K]`.\nThe output is a tensor shape `[..., N, K]` where each output matrix solves\neach of the equations\n`matrix[..., :, :]` * `output[..., :, :]` = `rhs[..., :, :]`\nin the least squares sense.\n\nWe use the following notation for (complex) matrix and right-hand sides\nin the batch:\n\n`matrix`=\\\\(A \\in \\mathbb{C}^{m \\times n}\\\\),\n`rhs`=\\\\(B  \\in \\mathbb{C}^{m \\times k}\\\\),\n`output`=\\\\(X  \\in \\mathbb{C}^{n \\times k}\\\\),\n`l2_regularizer`=\\\\(\\lambda \\in \\mathbb{R}\\\\).\n\nIf `fast` is `True`, then the solution is computed by solving the normal\nequations using Cholesky decomposition. Specifically, if \\\\(m \\ge n\\\\) then\n\\\\(X = (A^H A + \\lambda I)^{-1} A^H B\\\\), which solves the least-squares\nproblem \\\\(X = \\mathrm{argmin}_{Z \\in \\Re^{n \\times k} } ||A Z - B||_F^2 + \\lambda ||Z||_F^2\\\\). \nIf \\\\(m \\lt n\\\\) then `output` is computed as\n\\\\(X = A^H (A A^H + \\lambda I)^{-1} B\\\\), which (for \\\\(\\lambda = 0\\\\)) is the\nminimum-norm solution to the under-determined linear system, i.e.\n\\\\(X = \\mathrm{argmin}_{Z \\in \\mathbb{C}^{n \\times k} } ||Z||_F^2 \\\\),\nsubject to \\\\(A Z = B\\\\). Notice that the fast path is only numerically stable\nwhen \\\\(A\\\\) is numerically full rank and has a condition number\n\\\\(\\mathrm{cond}(A) \\lt \\frac{1}{\\sqrt{\\epsilon_{mach} } }\\\\) or \\\\(\\lambda\\\\) is\nsufficiently large.\n\nIf `fast` is `False` an algorithm based on the numerically robust complete\northogonal decomposition is used. This computes the minimum-norm\nleast-squares solution, even when \\\\(A\\\\) is rank deficient. This path is\ntypically 6-7 times slower than the fast path. If `fast` is `False` then\n`l2_regularizer` is ignored.",
+      "description": "`matrix` is a tensor of shape `[..., M, N]` whose inner-most 2 dimensions\nform real or complex matrices of size `[M, N]`. `Rhs` is a tensor of the same\ntype as `matrix` and shape `[..., M, K]`.\nThe output is a tensor shape `[..., N, K]` where each output matrix solves\neach of the equations\n`matrix[..., :, :]` * `output[..., :, :]` = `rhs[..., :, :]`\nin the least squares sense.\n\nWe use the following notation for (complex) matrix and right-hand sides\nin the batch:\n\n`matrix`=\\\\(A \\in \\mathbb{C}^{m \\times n}\\\\),\n`rhs`=\\\\(B  \\in \\mathbb{C}^{m \\times k}\\\\),\n`output`=\\\\(X  \\in \\mathbb{C}^{n \\times k}\\\\),\n`l2_regularizer`=\\\\(\\lambda \\in \\mathbb{R}\\\\).\n\nIf `fast` is `True`, then the solution is computed by solving the normal\nequations using Cholesky decomposition. Specifically, if \\\\(m \\ge n\\\\) then\n\\\\(X = (A^H A + \\lambda I)^{-1} A^H B\\\\), which solves the least-squares\nproblem \\\\(X = \\mathrm{argmin}_{Z \\in \\Re^{n \\times k} } ||A Z - B||_F^2 + \\lambda ||Z||_F^2\\\\).\nIf \\\\(m \\lt n\\\\) then `output` is computed as\n\\\\(X = A^H (A A^H + \\lambda I)^{-1} B\\\\), which (for \\\\(\\lambda = 0\\\\)) is the\nminimum-norm solution to the under-determined linear system, i.e.\n\\\\(X = \\mathrm{argmin}_{Z \\in \\mathbb{C}^{n \\times k} } ||Z||_F^2 \\\\),\nsubject to \\\\(A Z = B\\\\). Notice that the fast path is only numerically stable\nwhen \\\\(A\\\\) is numerically full rank and has a condition number\n\\\\(\\mathrm{cond}(A) \\lt \\frac{1}{\\sqrt{\\epsilon_{mach} } }\\\\) or \\\\(\\lambda\\\\) is\nsufficiently large.\n\nIf `fast` is `False` an algorithm based on the numerically robust complete\northogonal decomposition is used. This computes the minimum-norm\nleast-squares solution, even when \\\\(A\\\\) is rank deficient. This path is\ntypically 6-7 times slower than the fast path. If `fast` is `False` then\n`l2_regularizer` is ignored.",
       "inputs": [
         {
           "description": "Shape is `[..., M, N]`.",
@@ -31597,7 +31597,7 @@
           "type": "type"
         }
       ],
-      "description": "matmul(sqrtm(A), sqrtm(A)) = A\n\nThe input matrix should be invertible. If the input matrix is real, it should\nhave no eigenvalues which are real and negative (pairs of complex conjugate\neigenvalues are allowed).\n\nThe matrix square root is computed by first reducing the matrix to \nquasi-triangular form with the real Schur decomposition. The square root \nof the quasi-triangular matrix is then computed directly. Details of \nthe algorithm can be found in: Nicholas J. Higham, \"Computing real \nsquare roots of a real matrix\", Linear Algebra Appl., 1987.\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the matrix square root for all input submatrices `[..., :, :]`.",
+      "description": "matmul(sqrtm(A), sqrtm(A)) = A\n\nThe input matrix should be invertible. If the input matrix is real, it should\nhave no eigenvalues which are real and negative (pairs of complex conjugate\neigenvalues are allowed).\n\nThe matrix square root is computed by first reducing the matrix to\nquasi-triangular form with the real Schur decomposition. The square root\nof the quasi-triangular matrix is then computed directly. Details of\nthe algorithm can be found in: Nicholas J. Higham, \"Computing real\nsquare roots of a real matrix\", Linear Algebra Appl., 1987.\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the matrix square root for all input submatrices `[..., :, :]`.",
       "inputs": [
         {
           "description": "Shape is `[..., M, M]`.",
@@ -37060,7 +37060,7 @@
           "type": "shape[]"
         }
       ],
-      "description": "The resulting dataset is similar to the `InterleaveDataset`, with the exception\nthat if retrieving the next value from a dataset would cause the requester to\nblock, it will skip that input dataset. This dataset is especially useful\nwhen loading data from a variable-latency datastores (e.g. HDFS, GCS), as it\nallows the training step to proceed so long as some data is available.\n\n!! WARNING !! If the `sloppy` parameter is set to `True`, the operation of this\ndataset will not be deterministic!\n\nThis dataset has been superseded by `ParallelInterleaveDatasetV2`.  New code\nshould use `ParallelInterleaveDatasetV2`. \n\nThe Python API `tf.data.experimental.parallel_interleave` creates instances of\nthis op. `tf.data.experimental.parallel_interleave` is a deprecated API.",
+      "description": "The resulting dataset is similar to the `InterleaveDataset`, with the exception\nthat if retrieving the next value from a dataset would cause the requester to\nblock, it will skip that input dataset. This dataset is especially useful\nwhen loading data from a variable-latency datastores (e.g. HDFS, GCS), as it\nallows the training step to proceed so long as some data is available.\n\n!! WARNING !! If the `sloppy` parameter is set to `True`, the operation of this\ndataset will not be deterministic!\n\nThis dataset has been superseded by `ParallelInterleaveDatasetV2`.  New code\nshould use `ParallelInterleaveDatasetV2`.\n\nThe Python API `tf.data.experimental.parallel_interleave` creates instances of\nthis op. `tf.data.experimental.parallel_interleave` is a deprecated API.",
       "inputs": [
         {
           "description": "Dataset that produces a stream of arguments for the function `f`.",
@@ -37068,12 +37068,12 @@
           "type": 21
         },
         {
-          "description": "Additional arguments to pass to `f` beyond those produced by `input_dataset`.\nEvaluated once when the dataset is instantiated. ",
+          "description": "Additional arguments to pass to `f` beyond those produced by `input_dataset`.\nEvaluated once when the dataset is instantiated.",
           "name": "other_arguments",
           "typeListAttr": "Targuments"
         },
         {
-          "description": "Number of datasets (each created by applying `f` to the elements of\n`input_dataset`) among which the `ParallelInterleaveDataset` will cycle in a \nround-robin fashion.",
+          "description": "Number of datasets (each created by applying `f` to the elements of\n`input_dataset`) among which the `ParallelInterleaveDataset` will cycle in a\nround-robin fashion.",
           "name": "cycle_length",
           "type": 9
         },
@@ -37138,7 +37138,7 @@
           "type": "boolean"
         }
       ],
-      "description": "The resulting dataset is similar to the `InterleaveDataset`, except that the\ndataset will fetch records from the interleaved datasets in parallel.\n\nThe `tf.data` Python API creates instances of this op from\n`Dataset.interleave()` when the `num_parallel_calls` parameter of that method\nis set to any value other than `None`.\n\nBy default, the output of this dataset will be deterministic, which may result\nin the dataset blocking if the next data item to be returned isn't available.\nIn order to avoid head-of-line blocking, one can set the \n`experimental_deterministic` parameter of `tf.data.Options` to `False`,\nwhich can improve performance at the expense of non-determinism.",
+      "description": "The resulting dataset is similar to the `InterleaveDataset`, except that the\ndataset will fetch records from the interleaved datasets in parallel.\n\nThe `tf.data` Python API creates instances of this op from\n`Dataset.interleave()` when the `num_parallel_calls` parameter of that method\nis set to any value other than `None`.\n\nBy default, the output of this dataset will be deterministic, which may result\nin the dataset blocking if the next data item to be returned isn't available.\nIn order to avoid head-of-line blocking, one can set the\n`experimental_deterministic` parameter of `tf.data.Options` to `False`,\nwhich can improve performance at the expense of non-determinism.",
       "inputs": [
         {
           "description": "Dataset that produces a stream of arguments for the function `f`.",
@@ -37161,7 +37161,7 @@
           "type": 9
         },
         {
-          "description": "Determines the number of threads that should be used for fetching data from\ninput datasets in parallel. The Python API `tf.data.experimental.AUTOTUNE` \nconstant can be used to indicate that the level of parallelism should be autotuned.",
+          "description": "Determines the number of threads that should be used for fetching data from\ninput datasets in parallel. The Python API `tf.data.experimental.AUTOTUNE`\nconstant can be used to indicate that the level of parallelism should be autotuned.",
           "name": "num_parallel_calls",
           "type": 9
         }
@@ -41234,7 +41234,7 @@
               "value": 16
             }
           ],
-          "description": "The quantized type of input tensor that needs to be converted. ",
+          "description": "The quantized type of input tensor that needs to be converted.",
           "name": "Tinput",
           "type": "type"
         },
@@ -41261,7 +41261,7 @@
               "value": 16
             }
           ],
-          "description": "The quantized type of filter tensor that needs to be converted. ",
+          "description": "The quantized type of filter tensor that needs to be converted.",
           "name": "Tfilter",
           "type": "type"
         },
@@ -46287,7 +46287,7 @@
           "type": "shape[]"
         }
       ],
-      "description": "Creates a Dataset that returns a stream of uniformly distributed\npseudorandom 64-bit signed integers.\n\nIn the TensorFlow Python API, you can instantiate this dataset via the \nclass `tf.data.experimental.RandomDataset`.\n\nInstances of this dataset are also created as a result of the\n`hoist_random_uniform` static optimization. Whether this optimization is\nperformed is determined by the `experimental_optimization.hoist_random_uniform`\noption of `tf.data.Options`.",
+      "description": "Creates a Dataset that returns a stream of uniformly distributed\npseudorandom 64-bit signed integers.\n\nIn the TensorFlow Python API, you can instantiate this dataset via the\nclass `tf.data.experimental.RandomDataset`.\n\nInstances of this dataset are also created as a result of the\n`hoist_random_uniform` static optimization. Whether this optimization is\nperformed is determined by the `experimental_optimization.hoist_random_uniform`\noption of `tf.data.Options`.",
       "inputs": [
         {
           "description": "A scalar seed for the random number generator. If either seed or\nseed2 is set to be non-zero, the random number generator is seeded\nby the given seed.  Otherwise, a random seed is used.",
@@ -48850,12 +48850,12 @@
             "type": "type",
             "value": 13
           },
-          "description": "The quantized type of input tensor that needs to be converted. ",
+          "description": "The quantized type of input tensor that needs to be converted.",
           "name": "T",
           "type": "type"
         },
         {
-          "description": "The maximum value of the output that needs to be clipped.\nExample: set this to 6 for Relu6. ",
+          "description": "The maximum value of the output that needs to be clipped.\nExample: set this to 6 for Relu6.",
           "name": "clip_value_max",
           "type": "float32"
         }
@@ -49028,7 +49028,7 @@
             "type": "type",
             "value": 13
           },
-          "description": "The quantized type of input tensor that needs to be converted. ",
+          "description": "The quantized type of input tensor that needs to be converted.",
           "name": "T",
           "type": "type"
         },
@@ -56406,7 +56406,7 @@
           "type": "type"
         }
       ],
-      "description": "Performs a logical shift for unsigned integer types, and an arithmetic shift\nfor signed integer types.\n\nIf `y` is negative, or greater than or equal to than the width of `x` in bits\nthe result is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n  \n  right_shift_result = bitwise_ops.right_shift(lhs, rhs)\n  \n  print(right_shift_result)\n  \n# This will print:\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int8)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int16)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int32)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.right_shift(lhs, rhs)\n# <tf.Tensor: shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
+      "description": "Performs a logical shift for unsigned integer types, and an arithmetic shift\nfor signed integer types.\n\nIf `y` is negative, or greater than or equal to than the width of `x` in bits\nthe result is implementation defined.\n\nExample:\n\n```python\nimport tensorflow as tf\nfrom tensorflow.python.ops import bitwise_ops\nimport numpy as np\ndtype_list = [tf.int8, tf.int16, tf.int32, tf.int64]\n\nfor dtype in dtype_list:\n  lhs = tf.constant([-1, -5, -3, -14], dtype=dtype)\n  rhs = tf.constant([5, 0, 7, 11], dtype=dtype)\n\n  right_shift_result = bitwise_ops.right_shift(lhs, rhs)\n\n  print(right_shift_result)\n\n# This will print:\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int8)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int16)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int32)\n# tf.Tensor([-1 -5 -1 -1], shape=(4,), dtype=int64)\n\nlhs = np.array([-2, 64, 101, 32], dtype=np.int8)\nrhs = np.array([-1, -5, -3, -14], dtype=np.int8)\nbitwise_ops.right_shift(lhs, rhs)\n# <tf.Tensor: shape=(4,), dtype=int8, numpy=array([ -2,  64, 101,  32], dtype=int8)>\n```\n",
       "inputs": [
         {
           "name": "x",
@@ -56472,7 +56472,7 @@
   {
     "name": "RngSkip",
     "schema": {
-      "description": "The state of the RNG after\n`rng_skip(n)` will be the same as that after `stateful_uniform([n])`\n(or any other distribution). The actual increment added to the\ncounter is an unspecified implementation detail.  ",
+      "description": "The state of the RNG after\n`rng_skip(n)` will be the same as that after `stateful_uniform([n])`\n(or any other distribution). The actual increment added to the\ncounter is an unspecified implementation detail.",
       "inputs": [
         {
           "description": "The handle of the resource variable that stores the state of the RNG.",
@@ -57018,7 +57018,7 @@
           "type": 21
         },
         {
-          "description": "A scalar representing the sample rate. Each element of `input_dataset` is \nretained with this probability, independent of all other elements.",
+          "description": "A scalar representing the sample rate. Each element of `input_dataset` is\nretained with this probability, independent of all other elements.",
           "name": "rate",
           "type": 1
         },
@@ -68542,7 +68542,7 @@
           "type": "type"
         }
       ],
-      "description": "The generated values are uniform integers covering the whole range of `dtype`. ",
+      "description": "The generated values are uniform integers covering the whole range of `dtype`.",
       "inputs": [
         {
           "description": "The handle of the resource variable that stores the state of the RNG.",
@@ -72776,7 +72776,7 @@
           "type": "type"
         }
       ],
-      "description": "Each row in the produced Tensor corresponds to the element in the TensorList\nspecified by the given index (see `tf.gather`).  \n\ninput_handle: The input tensor list.\nindices: The indices used to index into the list.\nvalues: The tensor.",
+      "description": "Each row in the produced Tensor corresponds to the element in the TensorList\nspecified by the given index (see `tf.gather`).\n\ninput_handle: The input tensor list.\nindices: The indices used to index into the list.\nvalues: The tensor.",
       "inputs": [
         {
           "name": "input_handle",
@@ -73028,7 +73028,7 @@
           "type": "type"
         }
       ],
-      "description": "Each member of the TensorList corresponds to one row of the input tensor,\nspecified by the given index (see `tf.gather`).\n\ntensor: The input tensor.\nindices: The indices used to index into the list.\nelement_shape: The shape of the elements in the list (can be less specified than\n  the shape of the tensor).  \noutput_handle: The TensorList.",
+      "description": "Each member of the TensorList corresponds to one row of the input tensor,\nspecified by the given index (see `tf.gather`).\n\ntensor: The input tensor.\nindices: The indices used to index into the list.\nelement_shape: The shape of the elements in the list (can be less specified than\n  the shape of the tensor).\noutput_handle: The TensorList.",
       "inputs": [
         {
           "name": "tensor",
@@ -75067,7 +75067,7 @@
           "type": "type"
         }
       ],
-      "description": "This operation returns a tensor `y` containing all of the unique elements of `x`\nsorted in the same order that they occur in `x`; `x` does not need to be sorted.\nThis operation also returns a tensor `idx` the same size as `x` that contains \nthe index of each value of `x` in the unique output `y`. In other words:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nExamples:\n\n```\n# tensor 'x' is [1, 1, 2, 4, 4, 4, 7, 8, 8]\ny, idx = unique(x)\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\n```\n\n```\n# tensor 'x' is [4, 5, 1, 2, 3, 3, 4, 5]\ny, idx = unique(x)\ny ==> [4, 5, 1, 2, 3]\nidx ==> [0, 1, 2, 3, 4, 4, 0, 1]\n```",
+      "description": "This operation returns a tensor `y` containing all of the unique elements of `x`\nsorted in the same order that they occur in `x`; `x` does not need to be sorted.\nThis operation also returns a tensor `idx` the same size as `x` that contains\nthe index of each value of `x` in the unique output `y`. In other words:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nExamples:\n\n```\n# tensor 'x' is [1, 1, 2, 4, 4, 4, 7, 8, 8]\ny, idx = unique(x)\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\n```\n\n```\n# tensor 'x' is [4, 5, 1, 2, 3, 3, 4, 5]\ny, idx = unique(x)\ny ==> [4, 5, 1, 2, 3]\nidx ==> [0, 1, 2, 3, 4, 4, 0, 1]\n```",
       "inputs": [
         {
           "description": "1-D.",
@@ -76075,7 +76075,7 @@
           "type": "type"
         }
       ],
-      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='right')`.\n\nThe result is not a global index to the entire \n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = UpperBound(sorted_sequence, values)\n\n  result == [[1, 2, 4],\n             [0, 2, 5]]",
+      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='right')`.\n\nThe result is not a global index to the entire\n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = UpperBound(sorted_sequence, values)\n\n  result == [[1, 2, 4],\n             [0, 2, 5]]",
       "inputs": [
         {
           "description": "2-D Tensor where each row is ordered.",
@@ -77093,7 +77093,7 @@
           "type": "int64"
         }
       ],
-      "description": "The elements of the resulting dataset are created by zipping corresponding \nelements from each of the input datasets.\n\nThe size of the resulting dataset will match the size of the smallest input\ndataset, and no error will be raised if input datasets have different sizes.",
+      "description": "The elements of the resulting dataset are created by zipping corresponding\nelements from each of the input datasets.\n\nThe size of the resulting dataset will match the size of the smallest input\ndataset, and no error will be raised if input datasets have different sizes.",
       "inputs": [
         {
           "description": "List of `N` variant Tensors representing datasets to be zipped together.",
