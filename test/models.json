@@ -1882,13 +1882,6 @@
   },
   {
     "type":   "darknet",
-    "target": "msr_50.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/msr_50.cfg?raw=true",
-    "format": "Darknet",
-    "link":   "https://github.com/AlexeyAB/darknet"
-  },
-  {
-    "type":   "darknet",
     "target": "go.cfg,go.weights",
     "source": "https://github.com/pjreddie/darknet/blob/master/cfg/go.cfg?raw=true,https://pjreddie.com/media/files/go.weights",
     "format": "Darknet",
