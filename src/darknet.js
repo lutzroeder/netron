@@ -300,13 +300,21 @@ darknet.Graph = class {
                         break;
                     }
                     case 'yolo': {
-                        const w = params.w;
-                        const h = params.h;
                         const classes = option_find_int(options, 'classes', 20);
                         const n = option_find_int(options, 'num', 1);
-                        layer.out_h = h;
-                        layer.out_w = w;
+                        layer.out_h = params.h;
+                        layer.out_w = params.w;
                         layer.out_c = n * (classes + 4 + 1);
+                        layer.outputs = layer.out_h * layer.out_w * layer.out_c;
+                        section.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        break;
+                    }
+                    case 'Gaussian_yolo': {
+                        const classes = option_find_int(options, 'classes', 20);
+                        const n = option_find_int(options, 'num', 1);
+                        layer.out_h = params.h;
+                        layer.out_w = params.w;
+                        layer.out_c = n * (classes + 8 + 1);
                         layer.outputs = layer.out_h * layer.out_w * layer.out_c;
                         section.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
                         break;

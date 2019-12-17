@@ -1868,6 +1868,13 @@
   },
   {
     "type":   "darknet",
+    "target": "Gaussian_yolov3_BDD.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/Gaussian_yolov3_BDD.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
     "target": "lstm.train.cfg",
     "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/lstm.train.cfg?raw=true",
     "format": "Darknet",
