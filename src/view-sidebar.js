@@ -1106,8 +1106,8 @@ sidebar.FindSidebar = class {
 
             let name = node.name;
             let operator = node.operator;
-            if (!nodeMatches.has(name) &&
-                ((name && name.toLowerCase().indexOf(text) != -1) ||
+            if (!nodeMatches.has(name) && name &&
+                ((name.toLowerCase().indexOf(text) != -1) ||
                 (operator && operator.toLowerCase().indexOf(text) != -1))) {
                 let nameItem = this._host.document.createElement('li');
                 nameItem.innerText = '\u25A2 ' + node.name;
