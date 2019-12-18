@@ -17012,5 +17012,66 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "BatchPermutation",
+    "schema": {
+      "description": "\nBatch permutation of an input tensor X given input indices. First dimension of\nX equals batch size N. The indices stores a be permutation of N.\nThe output Y is a tensor of same shape as X, with data re-ordered according to\nthe indices within the batch size.\n\nExample of batch permutation on a 2-D tensor with batch size 4:\n  X = [\n    [1, 5, 2, 3, 4, 6, 0],\n    [4, 3, 3, 5, 2, 3, 1],\n    [2, 2, 3, 6, 0, 0, 1],\n    [0, 0, 1, 1, 2, 2, 3]\n  ]\n  indices = [2, 0, 1, 3]\n  Y = [\n    [2, 2, 3, 6, 0, 0, 1],\n    [1, 5, 2, 3, 4, 6, 0],\n    [4, 3, 3, 5, 2, 3, 1],\n    [0, 0, 1, 1, 2, 2, 3]\n  ]\n\nExample of batch permutation on a 3-D tensor with batch size 4:\n  X = [\n    [[1, 5, 2], [3, 4, 6, 0]],\n    [[4, 3, 3], [5, 2, 3, 1]],\n    [[2, 2, 3], [6, 0, 0, 1]],\n    [[0, 0, 1], [1, 2, 2, 3]]\n  ]\n  indices = [2, 0, 1, 3]\n  Y = [\n    [[2, 2, 3], [6, 0, 0, 1]],\n    [[1, 5, 2], [3, 4, 6, 0]],\n    [[4, 3, 3], [5, 2, 3, 1]],\n    [[0, 0, 1], [1, 2, 2, 3]]\n  ]\n",
+      "inputs": [
+        {
+          "description": "Input tensor, where 1st dimension equals batch size",
+          "name": "X"
+        },
+        {
+          "description": "Input indices of batch to permute",
+          "name": "indices"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Output permuted tensor",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "BatchPermutationGradient",
+    "schema": {
+      "description": null,
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "AliasWithName",
+    "schema": {
+      "attributes": [
+        {
+          "description": "name of the aliasing",
+          "name": "name",
+          "option": "optional"
+        },
+        {
+          "description": "weather or not to alias forward or backward",
+          "name": "is_backward",
+          "option": "optional"
+        }
+      ],
+      "description": "\nSimilar with AliasOp, storing the alias name as operator argument.\n",
+      "inputs": [
+        {
+          "description": "Input tensor whose storage will be shared.",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Tensor of same shape as input, sharing its storage.",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
