@@ -1841,7 +1841,7 @@
   {
     "type":   "darknet",
     "target": "csresnext50-panet-spp.cfg",
-    "source": "https://raw.githubusercontent.com/WongKinYiu/CrossStagePartialNetworks/master/cfg/csresnext50-panet-spp.cfg",
+    "source": "https://github.com/WongKinYiu/CrossStagePartialNetworks/blob/master/cfg/csresnext50-panet-spp.cfg?raw=true",
     "format": "Darknet",
     "link":   "https://github.com/lutzroeder/netron/issues/381"
   },
@@ -1875,20 +1875,6 @@
   },
   {
     "type":   "darknet",
-    "target": "lstm.train.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/lstm.train.cfg?raw=true",
-    "format": "Darknet",
-    "link":   "https://github.com/AlexeyAB/darknet"
-  },
-  {
-    "type":   "darknet",
-    "target": "mixnet_m_gpu.cfg",
-    "source": "https://github.com/lutzroeder/netron/files/3935529/mixnet_m_gpu.cfg.txt",
-    "format": "Darknet",
-    "link":   "https://github.com/lutzroeder/netron/issues/381"
-  },
-  {
-    "type":   "darknet",
     "target": "go.cfg,go.weights",
     "source": "https://github.com/pjreddie/darknet/blob/master/cfg/go.cfg?raw=true,https://pjreddie.com/media/files/go.weights",
     "format": "Darknet",
@@ -1896,8 +1882,15 @@
   },
   {
     "type":   "darknet",
-    "target": "gru.cfg",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/gru.cfg?raw=true",
+    "target": "grrm.cfg,grrm.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/rnn.cfg?raw=true,https://pjreddie.com/media/files/grrm.weights",
+    "format": "Darknet",
+    "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "gru.cfg,gru.weights",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/gru.cfg?raw=true",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet"
   },
@@ -1910,10 +1903,10 @@
   },
   {
     "type":   "darknet",
-    "target": "grrm.cfg,grrm.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/rnn.cfg?raw=true,https://pjreddie.com/media/files/grrm.weights",
+    "target": "lstm.train.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/lstm.train.cfg?raw=true",
     "format": "Darknet",
-    "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
+    "link":   "https://github.com/AlexeyAB/darknet"
   },
   {
     "type":   "darknet",
@@ -1966,10 +1959,10 @@
   },
   {
     "type":   "darknet",
-    "target": "yolo9000.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo9000.cfg?raw=true",
+    "target": "yolov3-openimages.cfg,yolov3-openimages.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/yolov3-openimages.cfg?raw=true,https://pjreddie.com/media/files/yolov3-openimages.weights",
     "format": "Darknet",
-    "link":   "https://github.com/AlexeyAB/darknet"
+    "link":   "https://pjreddie.com/darknet/yolo"
   },
   {
     "type":   "darknet",
@@ -1982,6 +1975,13 @@
     "type":   "darknet",
     "target": "yolov3-tiny_occlusion_track.cfg",
     "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov3-tiny_occlusion_track.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
+    "target": "yolo9000.cfg",
+    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo9000.cfg?raw=true",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },

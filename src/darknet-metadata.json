@@ -245,7 +245,7 @@
     }
   },
   {
-    "name": "batch_normalize",
+    "name": "batchnorm",
     "schema": {
       "category": "Normalization"
     }
