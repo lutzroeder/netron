@@ -981,12 +981,12 @@ darknet.Weights = class {
         this._position = 0;
         const major = this.int32();
         const minor = this.int32();
-        this.int32(); // revision
+        const revision = this.int32();
         this._seen = ((major * 10 + minor) >= 2) ? this.int64() : this.int32();
-        // const transpose = (major > 1000) || (minor > 1000);
-        // if (transpose) {
-        //     debugger;
-        // }
+        const transpose = (major > 1000) || (minor > 1000);
+        if (transpose) {
+            throw new darknet.Error("Unsupported transpose weights file version '" + [ major, minor, revision ].join('.') + "'.");
+        }
     }
 
     int32() {
