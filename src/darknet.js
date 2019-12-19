@@ -87,12 +87,12 @@ darknet.Graph = class {
                     }
                     default: {
                         if (!section || line[0] < 0x20 || line[0] > 0x7E) {
-                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trimStart().trimEnd() + "' at line " + nu.toString() + ".");
+                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + nu.toString() + ".");
                         }
                         if (section) {
                             let property = line.split('=');
                             if (property.length != 2) {
-                                throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trimStart().trimEnd() + "' at line " + nu.toString() + ".");
+                                throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + nu.toString() + ".");
                             }
                             let key = property[0].trim();
                             let value = property[1].trim();
