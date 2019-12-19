@@ -59889,6 +59889,13 @@
   {
     "name": "SerializeIterator",
     "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "external_state_policy",
+          "type": "int64"
+        }
+      ],
       "inputs": [
         {
           "description": "A handle to an iterator resource.",
@@ -61131,6 +61138,16 @@
           "default": 0,
           "name": "seed2",
           "type": "int64"
+        },
+        {
+          "default": "auto",
+          "name": "mode",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "snapshot_name",
+          "type": "string"
         }
       ],
       "description": "This dataset attempts to determine whether a valid snapshot exists at the\n`snapshot_path`, and reads from the snapshot in lieu of using `input_dataset`.\nIf not, it will run the preprocessing pipeline as usual, and write out a\nsnapshot of the data processed for future use.",
