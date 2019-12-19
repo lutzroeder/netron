@@ -102,13 +102,12 @@ ncnn.ModelFactory = class {
 ncnn.Model = class {
 
     constructor(metadata, param, bin) {
-        this._format = 'NCNN'
         this._graphs = [];
         this._graphs.push(new ncnn.Graph(metadata, param, bin));
     }
 
     get format() {
-        return this._format;
+        return 'ncnn';
     }
 
     get graphs() {
@@ -143,7 +142,7 @@ ncnn.Graph = class {
     }
 
     _param(metadata, param) {
-        let lines = param.split('\n');
+        let lines = param.split(/\r?\n/);
         const signature = lines.shift();
         if (signature !== '7767517') {
             throw new ncnn.Error('Invalid signature.')

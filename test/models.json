@@ -2727,121 +2727,128 @@
   },
   {
     "type":   "ncnn",
-    "target": "centerface/centerface.param,centerface/centerface.bin",
+    "target": "centerface.param,centerface.bin",
     "source": "https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param?raw=true,https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin?raw=true",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://github.com/MirrorYuChen/ncnn_example"
   },
   {
     "type":   "ncnn",
-    "target": "darknet_yolov2/darknet_yolov2.cfg.ncnn,darknet_yolov2/darknet_yolov2.weights.ncnn",
+    "target": "darknet_yolov2.cfg.ncnn,darknet_yolov2.weights.ncnn",
     "source": "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.weights.ncnn",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://github.com/00liujj/gen-ncnn-models"
   },
   {
     "type":   "ncnn",
-    "target": "frozen_pb/frozen.pb.cfg.ncnn,frozen_pb/frozen.pb.weights.ncnn",
+    "target": "frozen.pb.cfg.ncnn,frozen.pb.weights.ncnn",
     "source": "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.weights.ncnn",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://github.com/00liujj/gen-ncnn-models"
   },
   {
     "type":   "ncnn",
-    "target": "googlenet/googlenet.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/googlenet.param",
-    "format": "NCNN",
+    "target": "googlenet.param",
+    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/googlenet.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "mnet-opt/mnet-opt.param,mnet-opt/mnet-opt.bin",
+    "target": "mnet-opt.param,mnet-opt.bin",
     "source": "https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.param?raw=true,https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.bin?raw=true",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://github.com/MirrorYuChen/ncnn_example"
   },
   {
     "type":   "ncnn",
-    "target": "mobilefacenet/mobilefacenet.bin,mobilefacenet/mobilefacenet.param",
+    "target": "mobilefacenet.bin,mobilefacenet.param",
     "source": "https://github.com/GRAYKEY/mobilefacenet_ncnn/blob/master/models/mobilefacenet.bin?raw=true,https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.param",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://github.com/GRAYKEY/mobilefacenet_ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "mobilenetv2_yolov3/mobilenetv2_yolov3.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenetv2_yolov3.param",
-    "format": "NCNN",
+    "target": "mobilenetv2_yolov3.param",
+    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/mobilenetv2_yolov3.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "Mobilenetssd/MobileNetSSD_deploy.param.bin,Mobilenetssd/MobileNetSSD_deploy.bin",
+    "target": "MobileNetSSD_deploy.param.bin,MobileNetSSD_deploy.bin",
     "source": "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/blob/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin?raw=true,https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/blob/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin?raw=true",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd"
   },
   {
     "type":   "ncnn",
-    "target": "ncnn_yolo2/ncnn_yolo2_det3.bin,ncnn_yolo2/ncnn_yolo2_det3.param",
-    "source": "https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.bin,https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.param",
-    "format": "NCNN",
+    "target": "ncnn_yolo2_det3.bin,ncnn_yolo2_det3.param",
+    "source": "https://github.com/kyo055/ncnn_yolo2/blob/master/models/det3.bin?raw=true,https://github.com/kyo055/ncnn_yolo2/blob/master/models/det3.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/kyo055/ncnn_yolo2"
   },
   {
     "type":   "ncnn",
-    "target": "proxylessnasnet/proxylessnasnet.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/proxylessnasnet.param",
-    "format": "NCNN",
+    "target": "netron_issue_397.param",
+    "source": "https://github.com/lutzroeder/netron/files/3981934/det.txt",
+    "format": "ncnn",
+    "link":   "https://github.com/lutzroeder/netron/issues/397"
+  },
+  {
+    "type":   "ncnn",
+    "target": "proxylessnasnet.param",
+    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/proxylessnasnet.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "resnet18_int8/resnet18_int8.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/resnet18_int8.param",
-    "format": "NCNN",
+    "target": "resnet18_int8.param",
+    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/resnet18_int8.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "shufflenet/shufflenet.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/shufflenet.param",
-    "format": "NCNN",
+    "target": "shufflenet.param",
+    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/shufflenet.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "squeezenet/squeezenet.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/squeezenet.param",
-    "format": "NCNN",
+    "target": "squeezenet.param",
+    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/squeezenet.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "squeezenet_ssd_faces_ncnn/faces_wider_squeezenet.param,squeezenet_ssd_faces_ncnn/faces_wider_squeezenet.bin",
+    "target": "faces_wider_squeezenet.param,faces_wider_squeezenet.bin",
     "source": "https://deepdetect.com/models/init/embedded/images/detection/squeezenet_ssd_faces_ncnn.tar.gz[faces_wider_squeezenet.param,faces_wider_squeezenet.bin]",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://www.deepdetect.com/models/faces_embedded_ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "squeezenet_v1.1/squeezenet_v1.1.param.bin,squeezenet_v1.1/squeezenet_v1.1.bin",
+    "target": "squeezenet_v1.1.param.bin,squeezenet_v1.1.bin",
     "source": "https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.param.bin?raw=true,https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.bin?raw=true",
-    "format": "NCNN",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "squeezenet_v1.1_no_param/squeezenet_v1.1.bin",
+    "target": "squeezenet_v1.1.bin",
     "source": "https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.bin?raw=true",
     "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
-    "target": "vgg16/vgg16.param",
-    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/vgg16.param",
-    "format": "NCNN",
+    "target": "vgg16.param",
+    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/vgg16.param?raw=true",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
