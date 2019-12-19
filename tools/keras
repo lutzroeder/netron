@@ -13,13 +13,13 @@ bold() {
 }
 
 venv() {
-    venv_dir=./third_party/env/keras
-    [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
+    env_dir=./third_party/env/keras
+    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
-        msys*) source ${venv_dir}/Scripts/activate ;;
-        *) source ${venv_dir}/bin/activate ;;
+        msys*) source ${env_dir}/Scripts/activate;;
+        *) source ${env_dir}/bin/activate;;
     esac
-    ${python} -m pip install --quiet --upgrade pip
+    ${python} -m pip install --quiet --upgrade pip setuptools
 }
 
 clean() {
@@ -38,6 +38,9 @@ sync() {
 
 install() {
     bold "keras install"
+    case "${OSTYPE}" in
+        msys*) [ ! -z "$(choco list --local-only --exacty --limit-output vcredist140)" ] || $(choco install -yes vcredist140) > /dev/null;;
+    esac
     venv
     ${python} -m pip install --quiet --upgrade tensorflow
     ${python} -m pip install --quiet ./third_party/src/keras
