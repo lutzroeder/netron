@@ -61173,6 +61173,58 @@
     }
   },
   {
+    "name": "SobolSample",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 2
+          },
+          "description": "The type of the sample. One of: `float32` or `float64`.",
+          "name": "dtype",
+          "type": "type"
+        }
+      ],
+      "description": "Creates a Sobol sequence with `num_results` samples. Each sample has dimension\n`dim`. Skips the first `skip` samples.",
+      "inputs": [
+        {
+          "description": "Positive scalar `Tensor` representing each sample's dimension.",
+          "name": "dim",
+          "type": 3
+        },
+        {
+          "description": "Positive scalar `Tensor` of dtype int32. The number of Sobol points to return\nin the output.",
+          "name": "num_results",
+          "type": 3
+        },
+        {
+          "description": "Positive scalar `Tensor` of dtype int32. The number of initial points of the\nSobol sequence to skip.",
+          "name": "skip",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "`Tensor` of samples from Sobol sequence with `shape` [num_results, dim].",
+          "name": "samples",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Generates points from the Sobol sequence."
+    }
+  },
+  {
     "name": "Softmax",
     "schema": {
       "attributes": [
