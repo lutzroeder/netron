@@ -13,11 +13,11 @@ bold() {
 }
 
 venv() {
-    venv_dir=./third_party/env/scikit-learn
-    [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
+    env_dir=./third_party/env/scikit-learn
+    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
-        msys*) source ${venv_dir}/Scripts/activate;;
-        *) source ${venv_dir}/bin/activate;;
+        msys*) source ${env_dir}/Scripts/activate;;
+        *) source ${env_dir}/bin/activate;;
     esac
     ${python} -m pip install --quiet --upgrade pip
 }

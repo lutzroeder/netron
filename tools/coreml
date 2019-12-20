@@ -9,11 +9,11 @@ case "${OSTYPE}" in
 esac
 
 venv() {
-    venv_dir=./third_party/env/coremltools
-    [ -d "${venv_dir}" ] || ${python} -m venv ${venv_dir}
-    case "${venv_dir}" in
-        msys*) source ${venv_dir}/Scripts/activate;;
-        *) source ${venv_dir}/bin/activate;;
+    env_dir=./third_party/env/coremltools
+    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
+    case "${env_dir}" in
+        msys*) source ${env_dir}/Scripts/activate;;
+        *) source ${env_dir}/bin/activate;;
     esac
     ${python} -m pip install --quiet --upgrade pip
 }
