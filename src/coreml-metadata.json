@@ -491,5 +491,20 @@
       "category": "Normalization",
       "description": "A layer that performs mean variance normalization, along axis = -3."
     }
+  },
+  {
+    "name": "itemSimilarityRecommender",
+    "schema": {
+      "inputs": [
+        { "name": "item" },
+        { "name": "numRecommendations" },
+        { "name": "itemRestriction" },
+        { "name": "itemExclusion" }
+      ],
+      "outputs": [
+        { "name": "recommendedItemList" },
+        { "name": "recommendedItemScore" }
+      ]
+    }
   }
 ]

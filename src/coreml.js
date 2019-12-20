@@ -405,6 +405,17 @@ coreml.Graph = class {
             this._updateClassifierOutput(group, model.kNearestNeighborsClassifier);
             return 'kNearestNeighborsClassifier';
         }
+        else if (model.itemSimilarityRecommender) {
+            const itemSimilarityRecommenderParams = {
+                itemStringIds: model.itemSimilarityRecommender.itemStringIds.vector,
+                itemItemSimilarities: model.itemSimilarityRecommender.itemItemSimilarities
+            }
+            this._createNode(scope, group, 'itemSimilarityRecommender', null,
+                itemSimilarityRecommenderParams,
+                model.description.input.map((feature) => feature.name),
+                model.description.output.map((feature) => feature.name));
+            return 'itemSimilarityRecommender'
+        }
         else if (model.customModel) {
             this._createNode(scope, group, 'customModel', null,
                 { className: model.customModel.className, parameters: model.customModel.parameters },

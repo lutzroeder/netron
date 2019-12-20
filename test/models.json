@@ -1612,6 +1612,13 @@
   },
   {
     "type":   "coreml",
+    "target": "MovieRecommender.mlmodel",
+    "source": "https://github.com/anupamchugh/iowncode/blob/master/CoreMLRecommender/CoreMLRecommender/MovieRecommender.mlmodel?raw=true",
+    "format": "Core ML v4",
+    "link":   "https://github.com/anupamchugh/iowncode/tree/master/CoreMLRecommender"
+  },
+  {
+    "type":   "coreml",
     "target": "NamesDT.mlmodel",
     "source": "https://github.com/cocoa-ai/NamesCoreMLDemo/raw/master/Names/Resources/NamesDT.mlmodel",
     "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
