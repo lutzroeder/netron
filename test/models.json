@@ -1924,6 +1924,13 @@
   },
   {
     "type":   "darknet",
+    "target": "ocr.cfg",
+    "source": "https://github.com/chineseocr/darknet-ocr/blob/master/models/ocr.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/chineseocr/darknet-ocr"
+  },
+  {
+    "type":   "darknet",
     "target": "resnet18.cfg,resnet18.weights",
     "source": "https://github.com/pjreddie/darknet/blob/master/cfg/resnet18.cfg?raw=true,https://pjreddie.com/media/files/resnet18.weights",
     "format": "Darknet",

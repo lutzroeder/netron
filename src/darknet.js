@@ -139,13 +139,13 @@ darknet.Graph = class {
             layer.out_w = Math.floor((w + 2 * padding - size) / stride_x) + 1;
             layer.out_h = Math.floor((h + 2 * padding - size) / stride_y) + 1;
             layer.out_c = n;
-            layer.out = layer.out_h * layer.out_w * layer.out_c;
+            layer.out = layer.out_w * layer.out_h * layer.out_c;
             layer.weights.push(load_weights(prefix + 'biases', [ n ], prefix === ''));
             if (batch_normalize) {
                 load_batch_normalize_weights(layer, prefix, n);
             }
             layer.weights.push(load_weights(prefix + 'weights', [ Math.floor(c / groups), n, size, size ], prefix === ''));
-            layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_h, layer.out_w, layer.out_c ]));
+            layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
         }
 
         const make_connected_layer = (layer, prefix, inputs, outputs, batch_normalize) => {
