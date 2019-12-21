@@ -52,18 +52,36 @@ install() {
         linux*)
             [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
             [ -x "$(command -v protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
+            protobuf=protobuf
             ;;
         darwin*)
             brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
             brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
+            protobuf=protobuf
             ;;
         msys*)
-            [ -x "$(command -v protoc)" ] || $(choco install --yes protoc) > /dev/null
-            [ -x "$(command -v cmake)" ] || $(choco install --yes cmake) > /dev/null
+            [ ! -z "$(choco list --local-only --exacty --limit-output visualstudio2017-workload-vctools)" ] || $(choco install -yes visualstudio2017-workload-vctools) > /dev/null
+            protoc_version=3.9.x
+            protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
+            programfiles_x86_dir=$(env | grep "^ProgramFiles(x86)=" | cut -d '=' -f 2)
+            cmake_dir="${programfiles_x86_dir}\Microsoft Visual Studio\2017\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
+            msbuild_dir="${programfiles_x86_dir}\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+            if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
+                rm -rf ${protoc_dir}
+                git clone --quiet --branch ${protoc_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
+                pushd "${protoc_dir}/src/cmake" > /dev/null
+                "${cmake_dir}\cmake.exe" -G "Visual Studio 15 2017 Win64" -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX="..\.." > /dev/null
+                "${msbuild_dir}\MSBuild.exe" protobuf.sln //m //p:Configuration=Release > /dev/null
+                "${msbuild_dir}\MSBuild.exe" INSTALL.vcxproj //p:Configuration=Release > /dev/null
+                popd > /dev/null
+            fi
+            export PATH="${protoc_dir}\bin":"$(cygpath -u "${cmake_dir}")":${PATH}
+            export USE_MSVC_STATIC_RUNTIME=0
+            protobuf="protobuf==3.9.2"
             ;;
     esac
     venv
-    ${python} -m pip install --quiet --upgrade protobuf
+    ${python} -m pip install --quiet --upgrade ${protobuf}
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
     ${python} -m pip install --quiet "./third_party/src/onnx"
