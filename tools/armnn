@@ -34,7 +34,7 @@ schema() {
                 make > /dev/null
                 popd > /dev/null
             fi
-            export PATH=${flatc_dir}/flatc:${PATH}
+            export PATH=${flatc_dir}:${PATH}
             ;;
         darwin*)
             brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
