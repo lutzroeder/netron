@@ -1320,15 +1320,17 @@ tf.Variables = class {
 
     static open(context) {
         return context.request('variables/variables.index', null).then((buffer) => {
-            let variableIndex = new tf.Variables.Index(buffer);
+            const variableIndex = new tf.Variables.Index(buffer);
+            const numShards = variableIndex.header.num_shards;
             let promises = [];
-            for (let i = 0; i < variableIndex.numShards; i++) {
+            for (let i = 0; i < numShards; i++) {
                 const shardIndex = ('0000' + i).slice(-5);
-                const shardCount = ('0000' + variableIndex.numShards).slice(-5);
+                const shardCount = ('0000' + numShards).slice(-5);
                 const name = 'variables/variables.data-' + shardIndex + '-of-' + shardCount;
                 promises.push(context.request(name, null));
             }
-            return Promise.all(promises).then((/* shards */) => {
+            return Promise.all(promises).then((shards) => {
+                variableIndex.initialize(shards);
                 return variableIndex;
             });
         });
@@ -1338,7 +1340,8 @@ tf.Variables = class {
 tf.Variables.Index = class {
 
     constructor(buffer) {
-        this._map = new Map();
+        this._entries = new Map();
+        this._buffers = new Map();
         if (buffer.length <= 48) {
             throw new tf.Error('Invalid index file size.');
         }
@@ -1388,21 +1391,43 @@ tf.Variables.Index = class {
                 key = key.substring(0, sharedSize);
                 key = key + textDecoder.decode(blockReader.bytes(nonSharedSize));
                 const value = blockReader.bytes(valueSize);
-                const entry = key === "" ?
-                    tf.proto.BundleHeaderProto.decode(value) :
-                    tf.proto.BundleEntryProto.decode(value);
-                this._map.set(key, entry);
+                if (key === '') {
+                    this._header = tf.proto.BundleHeaderProto.decode(value);
+                }
+                else {
+                    const entry = tf.proto.BundleEntryProto.decode(value);
+                    this._entries.set(key, entry);
+                }
             }
         }
-        const header = this._map.get('');
-        if (!header) {
+        if (!this._header) {
             throw new tf.Error('Bundle header not available.');
         }
-        this._numShards = header.num_shards;
     }
 
-    get numShards() {
-        return this._numShards;
+    get header() {
+        return this._header;
+    }
+
+    entry(name) {
+        return this._entries.get(name);
+    }
+
+    data(name) {
+        return this._buffers.get(name);
+    }
+
+    initialize(shards) {
+        if (shards.length > 0) {
+            let data = shards.shift();
+            while (shards.length > 0) {
+                data = data.concat(shards.shift());
+            }
+            this._entries.forEach((entry, key) => {
+                const buffer = data.subarray(entry.offset.toNumber(), entry.size.toNumber());
+                this._buffers.set(key, buffer);
+            });
+        }
     }
 }
 
