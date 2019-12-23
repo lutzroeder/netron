@@ -21504,7 +21504,7 @@
           "type": "int64[]"
         }
       ],
-      "category": "Shape",
+      "category": "Transform",
       "description": "Transpose the input tensor similar to numpy.transpose. For example, when\nperm=(1, 0, 2), given an input tensor of shape (1, 2, 3), the output shape\nwill be (2, 1, 3).\n",
       "domain": "ai.onnx",
       "examples": [
