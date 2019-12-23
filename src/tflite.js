@@ -360,20 +360,14 @@ tflite.Attribute = class {
             if (this._type == 'shape') {
                 this._value = new tflite.TensorShape(value);
             }
-            else if (this._type && tflite.schema) {
-                const type = tflite.schema[this._type];
-                if (type) {
-                    tflite.Attribute._reverseMap = tflite.Attribute._reverseMap || {};
-                    let reverse = tflite.Attribute._reverseMap[this._type];
-                    if (!reverse) {
-                        reverse = {};
-                        for (let key of Object.keys(type)) {
-                            reverse[type[key.toString()]] = key;
-                        }
-                        tflite.Attribute._reverseMap[this._type] = reverse;
+            else if (this._type) {
+                switch (this._type) {
+                    case 'TensorType': {
+                        this._value = tflite.Utility.dataType(this._value);
+                        break;
                     }
-                    if (Object.prototype.hasOwnProperty.call(reverse, this._value)) {
-                        this._value = reverse[this._value];
+                    default: {
+                        this._value = tflite.Utility.enum(this._type, this._value);
                     }
                 }
             }
@@ -639,13 +633,7 @@ tflite.Tensor = class {
 tflite.TensorType = class {
 
     constructor(tensor) {
-        if (!tflite.TensorType._tensorTypeMap) {
-            tflite.TensorType._tensorTypeMap = tflite.TensorType._tensorTypeMap || {};
-            for (let key of Object.keys(tflite.schema.TensorType)) {
-                tflite.TensorType._tensorTypeMap[tflite.schema.TensorType[key].toString()] = key.toLowerCase();
-            }
-        }
-        this._dataType = tflite.TensorType._tensorTypeMap[tensor.type().toString()] || '?';
+        this._dataType = tflite.Utility.dataType(tensor.type());
         let dimensions = [];
         const shapeLength = tensor.shapeLength();
         if (shapeLength > 0) {
@@ -741,6 +729,43 @@ tflite.Metadata = class {
         return null;
     }
 };
+
+tflite.Utility = class {
+
+    static dataType(type) {
+        if (!tflite.Utility._tensorTypeMap) {
+            tflite.Utility._tensorTypeMap = new Map();
+            for (let name of Object.keys(tflite.schema.TensorType)) {
+                tflite.Utility._tensorTypeMap.set(tflite.schema.TensorType[name], name.toLowerCase());
+            }
+            tflite.Utility._tensorTypeMap.set(6, 'boolean');
+        }
+        return tflite.Utility._tensorTypeMap.has(type) ? tflite.Utility._tensorTypeMap.get(type) : '?';
+    }
+
+    static enum(type, value) {
+        if (type && tflite.schema && tflite.schema[type]) {
+            if (!tflite.Utility._enumTypeMap) {
+                tflite.Utility._enumTypeMap = new Map();
+            }
+            let typeMap = tflite.Utility._enumTypeMap.get(type);
+            if (!typeMap) {
+                typeMap = new Map();
+                const enumType = tflite.schema[type];
+                if (enumType) {
+                    for (let key of Object.keys(enumType)) {
+                        typeMap.set(enumType[key], key);
+                    }
+                }
+                tflite.Utility._enumTypeMap.set(type, typeMap);
+            }
+            if (typeMap.has(value)) {
+                return typeMap.get(value);
+            }
+        }
+        return value;
+    }
+}
 
 tflite.Error = class extends Error {
 
