@@ -4,7 +4,7 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "filters", "type": "int32", "visible": false, "default": 1 },
+        { "name": "filters", "type": "int32", "default": 1 },
         { "name": "size", "type": "int32", "default": 1 },
         { "name": "stride", "type": "int32", "default": 1 },
         { "name": "stride_x", "type": "int32", "default": -1 },
