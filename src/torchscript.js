@@ -1128,6 +1128,7 @@ torchscript.Container = class {
                     [ 'FLOAT', 'Float' ],
                     [ 'FLOAT16', 'Half' ],
                     [ 'DOUBLE', 'Double' ],
+                    [ 'INT8', 'Char' ],
                     [ 'INT32', 'Int' ],
                     [ 'INT64', 'Long' ]
                 ]);
