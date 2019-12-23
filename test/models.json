@@ -1987,6 +1987,13 @@
   },
   {
     "type":   "darknet",
+    "target": "yolov3-tiny.cfg,yolov3-tiny.weights",
+    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/yolov3-tiny.cfg?raw=true,https://pjreddie.com/media/files/yolov3-tiny.weights",
+    "format": "Darknet",
+    "link":   "https://github.com/AlexeyAB/darknet"
+  },
+  {
+    "type":   "darknet",
     "target": "yolov3-tiny_occlusion_track.cfg",
     "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov3-tiny_occlusion_track.cfg?raw=true",
     "format": "Darknet",
