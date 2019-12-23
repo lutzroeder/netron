@@ -571,5 +571,32 @@
         { "name": "idx_out_type", "type": "TensorType", "default": "int32" }
       ]
     }
+  },
+  {
+    "name": "Slice",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" },
+        { "name": "begin" },
+        { "name": "size" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Transpose",
+    "schema": {
+      "category": "Transform",
+      "inputs": [
+        { "name": "input" },
+        { "name": "perm" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]
