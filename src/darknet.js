@@ -90,12 +90,12 @@ darknet.Graph = class {
                             throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + nu.toString() + ".");
                         }
                         if (section) {
-                            let property = line.split('=');
-                            if (property.length != 2) {
+                            const index = line.indexOf('=');
+                            if (index < 0) {
                                 throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + nu.toString() + ".");
                             }
-                            let key = property[0].trim();
-                            let value = property[1].trim();
+                            const key = line.substring(0, index);
+                            const value = line.substring(index + 1);
                             section.options[key] = value;
                         }
                         break;
