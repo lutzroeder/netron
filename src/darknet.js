@@ -214,7 +214,7 @@ darknet.Graph = class {
                 case 'route': {
                     layer.inputs = [];
                     layer.layers = [];
-                    const routes = options.layers.split(',').map((route) => Number.parseInt(route.trim(), 10));
+                    const routes = options.layers ? options.layers.split(',').map((route) => Number.parseInt(route.trim(), 10)) : [];
                     for (let j = 0; j < routes.length; j++) {
                         const index = (routes[j] < 0) ? i + routes[j] : routes[j];
                         const route = sections[index].layer;
