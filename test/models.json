@@ -3113,7 +3113,7 @@
     "type":   "onnx",
     "target": "optional_1.onnx",
     "source": "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/optional_1.onnx",
-    "format": "ONNX v0",
+    "format": "ONNX v3",
     "link":   "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
   {
@@ -4934,6 +4934,13 @@
     "target": "speech_tts_model_2017_11_14.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_tts_model_2017_11_14.tflite",
     "format": "TensorFlow Lite v3"
+  },
+  {
+    "type":   "tflite",
+    "target": "text_classification.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/text_classification/text_classification.tflite",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/models/text_classification/overview.md"
   },
   {
     "type":   "tflite",
