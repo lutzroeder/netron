@@ -317,13 +317,15 @@ openvino.Graph = class {
                     if (!child._inputs || (child._inputs && child._inputs.length === 0)){
                         continue;
                     }
-                    for (let child_input of child._inputs) {
-                        for (let argument of child_input._arguments) {
-                            if (!argument._id || (argument._id && argument._id.split(':')[0] !== singleTensorIteratorNodeId)) {
-                                continue;
+                    if (nestedNode._outputs && nestedNode._outputs[0]) {
+                        for (let child_input of child._inputs) {
+                            for (let argument of child_input._arguments) {
+                                if (!argument._id || (argument._id && argument._id.split(':')[0] !== singleTensorIteratorNodeId)) {
+                                    continue;
+                                }
+                                const myPort = nestedNode._outputs[0]._arguments[0]._id.split(':')[1];
+                                argument._id = `${nestedNode.id}:${myPort}`;
                             }
-                            const myPort = nestedNode._outputs[0]._arguments[0]._id.split(':')[1];
-                            argument._id = `${nestedNode.id}:${myPort}`;
                         }
                     }
                 }
