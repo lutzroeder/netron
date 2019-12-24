@@ -562,7 +562,7 @@ darknet.Graph = class {
                                 layer.out_c = 0;
                             }
                         }
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_h, layer.out_w, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
                         break;
                     }
                     case 'shortcut': {
@@ -606,6 +606,7 @@ darknet.Graph = class {
                 params.w = layer.out_w;
                 params.c = layer.out_c;
                 params.inputs = layer.out;
+                params.last = section;
             }
             params.arguments = layer.outputs;
         }

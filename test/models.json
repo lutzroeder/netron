@@ -1875,6 +1875,13 @@
   },
   {
     "type":   "darknet",
+    "target": "face_small_3.cfg",
+    "source": "https://github.com/zlmo/Face-Detection/blob/master/cfg/face_small_3.cfg?raw=true",
+    "format": "Darknet",
+    "link":   "https://github.com/zlmo/Face-Detection"
+  },
+  {
+    "type":   "darknet",
     "target": "Gaussian_yolov3_BDD.cfg",
     "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/Gaussian_yolov3_BDD.cfg?raw=true",
     "format": "Darknet",
