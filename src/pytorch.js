@@ -714,13 +714,17 @@ pytorch.ModelFactory = class {
     }
 
     static _convertStateDictList(list) {
-        if (!list || !Array.isArray(list) || 
-            !list.every((item) => item && item.key && pytorch.ModelFactory._isTensor(item.value))) {
+        if (!list || 
+            !Array.isArray(list) || 
+            !list.every((item) => item && item.key && (item.value === null || pytorch.ModelFactory._isTensor(item.value)))) {
             return null;
         }
         let state_dict = [];
         let state_map = {};
         for (let item of list) {
+            if (item.value === null) {
+                continue;
+            }
             const split = item.key.split('.');
             if (split.length < 2) {
                 return null;
