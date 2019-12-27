@@ -197,7 +197,11 @@ MNN.BinaryOpOperation = {
   SquaredDifference: 14,
   EQUAL: 15,
   LESS_EQUAL: 16,
-  FLOORMOD: 17
+  FLOORMOD: 17,
+  MOD: 19,
+  ATAN2: 20,
+  LOGICALOR: 21,
+  NOTEQUAL: 22
 };
 
 /**
@@ -221,7 +225,11 @@ MNN.BinaryOpOperationName = {
   14: 'SquaredDifference',
   15: 'EQUAL',
   16: 'LESS_EQUAL',
-  17: 'FLOORMOD'
+  17: 'FLOORMOD',
+  19: 'MOD',
+  20: 'ATAN2',
+  21: 'LOGICALOR',
+  22: 'NOTEQUAL'
 };
 
 /**
@@ -274,7 +282,19 @@ MNN.UnaryOpOperation = {
   ACOS: 13,
   ATAN: 14,
   RECIPROCAL: 15,
-  LOG1P: 16
+  LOG1P: 16,
+  BNLL: 17,
+  ACOSH: 18,
+  SINH: 19,
+  ASINH: 20,
+  ATANH: 21,
+  SIGN: 22,
+  ROUND: 23,
+  COSH: 24,
+  ERF: 25,
+  ERFC: 26,
+  ERFINV: 27,
+  EXPM1: 28
 };
 
 /**
@@ -297,7 +317,19 @@ MNN.UnaryOpOperationName = {
   13: 'ACOS',
   14: 'ATAN',
   15: 'RECIPROCAL',
-  16: 'LOG1P'
+  16: 'LOG1P',
+  17: 'BNLL',
+  18: 'ACOSH',
+  19: 'SINH',
+  20: 'ASINH',
+  21: 'ATANH',
+  22: 'SIGN',
+  23: 'ROUND',
+  24: 'COSH',
+  25: 'ERF',
+  26: 'ERFC',
+  27: 'ERFINV',
+  28: 'EXPM1'
 };
 
 /**
@@ -314,6 +346,24 @@ MNN.CropAndResizeMethod = {
 MNN.CropAndResizeMethodName = {
   0: 'BILINEAR',
   1: 'NEAREST'
+};
+
+/**
+ * @enum {number}
+ */
+MNN.PadValueMode = {
+  CONSTANT: 0,
+  REFLECT: 1,
+  SYMMETRIC: 2
+};
+
+/**
+ * @enum {string}
+ */
+MNN.PadValueModeName = {
+  0: 'CONSTANT',
+  1: 'REFLECT',
+  2: 'SYMMETRIC'
 };
 
 /**
@@ -436,7 +486,7 @@ MNN.OpType = {
   QuantizedAdd: 1,
   ArgMax: 2,
   AsString: 3,
-  BatchNorm: 4,
+  InstanceNorm: 4,
   BatchToSpaceND: 5,
   Bias: 6,
   BinaryOp: 7,
@@ -549,8 +599,15 @@ MNN.OpType = {
   MatrixBandPart: 114,
   GatherND: 115,
   DetectionPostProcess: 116,
+  UnravelIndex: 117,
+  ScatterNd: 118,
+  OneHot: 119,
+  BroadcastTo: 120,
+  Dilation2D: 121,
   MaxLayerCount: 128,
   ConvertTensor: 129,
+  ArgMin: 130,
+  LinSpace: 131,
   PLUGIN: 256,
   Select: 257,
   ZerosLike: 258,
@@ -561,6 +618,8 @@ MNN.OpType = {
   PoolGrad: 263,
   SoftmaxGrad: 264,
   Conv2DBackPropFilter: 265,
+  TrainableParam: 266,
+  BatchNorm: 267,
   Extra: 512,
   ConvInt8: 513,
   Int8ToFloat: 514,
@@ -578,7 +637,7 @@ MNN.OpTypeName = {
   1: 'QuantizedAdd',
   2: 'ArgMax',
   3: 'AsString',
-  4: 'BatchNorm',
+  4: 'InstanceNorm',
   5: 'BatchToSpaceND',
   6: 'Bias',
   7: 'BinaryOp',
@@ -691,8 +750,15 @@ MNN.OpTypeName = {
   114: 'MatrixBandPart',
   115: 'GatherND',
   116: 'DetectionPostProcess',
+  117: 'UnravelIndex',
+  118: 'ScatterNd',
+  119: 'OneHot',
+  120: 'BroadcastTo',
+  121: 'Dilation2D',
   128: 'MaxLayerCount',
   129: 'ConvertTensor',
+  130: 'ArgMin',
+  131: 'LinSpace',
   256: 'PLUGIN',
   257: 'Select',
   258: 'ZerosLike',
@@ -703,6 +769,8 @@ MNN.OpTypeName = {
   263: 'PoolGrad',
   264: 'SoftmaxGrad',
   265: 'Conv2DBackPropFilter',
+  266: 'TrainableParam',
+  267: 'BatchNorm',
   512: 'Extra',
   513: 'ConvInt8',
   514: 'Int8ToFloat',
@@ -798,7 +866,9 @@ MNN.OpParameter = {
   Pool3D: 79,
   Convolution3D: 80,
   ELU: 81,
-  DetectionPostProcessParam: 82
+  DetectionPostProcessParam: 82,
+  OneHotParam: 83,
+  PadParam: 84
 };
 
 /**
@@ -887,7 +957,9 @@ MNN.OpParameterName = {
   79: 'Pool3D',
   80: 'Convolution3D',
   81: 'ELU',
-  82: 'DetectionPostProcessParam'
+  82: 'DetectionPostProcessParam',
+  83: 'OneHotParam',
+  84: 'PadParam'
 };
 
 /**
@@ -910,6 +982,22 @@ MNN.ForwardTypeName = {
   2: 'OPENCL',
   3: 'OPENGLES',
   4: 'VULKAN'
+};
+
+/**
+ * @enum {number}
+ */
+MNN.Usage = {
+  INFERENCE: 0,
+  TRAIN: 1
+};
+
+/**
+ * @enum {string}
+ */
+MNN.UsageName = {
+  0: 'INFERENCE',
+  1: 'TRAIN'
 };
 
 /**
@@ -12103,6 +12191,180 @@ MNN.DetectionPostProcessParam.createDetectionPostProcessParam = function(builder
 /**
  * @constructor
  */
+MNN.OneHotParam = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {MNN.OneHotParam}
+ */
+MNN.OneHotParam.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.OneHotParam=} obj
+ * @returns {MNN.OneHotParam}
+ */
+MNN.OneHotParam.getRootAsOneHotParam = function(bb, obj) {
+  return (obj || new MNN.OneHotParam).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {MNN.DataType}
+ */
+MNN.OneHotParam.prototype.dType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {MNN.DataType} */ (this.bb.readInt32(this.bb_pos + offset)) : MNN.DataType.DT_FLOAT;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.OneHotParam.prototype.axis = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : -1;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+MNN.OneHotParam.startOneHotParam = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {MNN.DataType} dType
+ */
+MNN.OneHotParam.addDType = function(builder, dType) {
+  builder.addFieldInt32(0, dType, MNN.DataType.DT_FLOAT);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ */
+MNN.OneHotParam.addAxis = function(builder, axis) {
+  builder.addFieldInt32(1, axis, -1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+MNN.OneHotParam.endOneHotParam = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {MNN.DataType} dType
+ * @param {number} axis
+ * @returns {flatbuffers.Offset}
+ */
+MNN.OneHotParam.createOneHotParam = function(builder, dType, axis) {
+  MNN.OneHotParam.startOneHotParam(builder);
+  MNN.OneHotParam.addDType(builder, dType);
+  MNN.OneHotParam.addAxis(builder, axis);
+  return MNN.OneHotParam.endOneHotParam(builder);
+}
+
+/**
+ * @constructor
+ */
+MNN.PadParam = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {MNN.PadParam}
+ */
+MNN.PadParam.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {MNN.PadParam=} obj
+ * @returns {MNN.PadParam}
+ */
+MNN.PadParam.getRootAsPadParam = function(bb, obj) {
+  return (obj || new MNN.PadParam).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {MNN.PadValueMode}
+ */
+MNN.PadParam.prototype.mode = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {MNN.PadValueMode} */ (this.bb.readInt8(this.bb_pos + offset)) : MNN.PadValueMode.CONSTANT;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+MNN.PadParam.startPadParam = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {MNN.PadValueMode} mode
+ */
+MNN.PadParam.addMode = function(builder, mode) {
+  builder.addFieldInt8(0, mode, MNN.PadValueMode.CONSTANT);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+MNN.PadParam.endPadParam = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {MNN.PadValueMode} mode
+ * @returns {flatbuffers.Offset}
+ */
+MNN.PadParam.createPadParam = function(builder, mode) {
+  MNN.PadParam.startPadParam(builder);
+  MNN.PadParam.addMode(builder, mode);
+  return MNN.PadParam.endPadParam(builder);
+}
+
+/**
+ * @constructor
+ */
 MNN.QuantizedParam = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -16719,10 +16981,18 @@ MNN.Net.prototype.tensorNumber = function() {
 };
 
 /**
+ * @returns {MNN.Usage}
+ */
+MNN.Net.prototype.usage = function() {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? /** @type {MNN.Usage} */ (this.bb.readInt8(this.bb_pos + offset)) : MNN.Usage.INFERENCE;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 MNN.Net.startNet = function(builder) {
-  builder.startObject(9);
+  builder.startObject(10);
 };
 
 /**
@@ -16883,6 +17153,14 @@ MNN.Net.addTensorNumber = function(builder, tensorNumber) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {MNN.Usage} usage
+ */
+MNN.Net.addUsage = function(builder, usage) {
+  builder.addFieldInt8(9, usage, MNN.Usage.INFERENCE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 MNN.Net.endNet = function(builder) {
@@ -16909,9 +17187,10 @@ MNN.Net.finishNetBuffer = function(builder, offset) {
  * @param {MNN.NetSource} sourceType
  * @param {flatbuffers.Offset} tensorNameOffset
  * @param {number} tensorNumber
+ * @param {MNN.Usage} usage
  * @returns {flatbuffers.Offset}
  */
-MNN.Net.createNet = function(builder, bizCodeOffset, extraTensorDescribeOffset, gpulibraryOffset, oplistsOffset, outputNameOffset, preferForwardType, sourceType, tensorNameOffset, tensorNumber) {
+MNN.Net.createNet = function(builder, bizCodeOffset, extraTensorDescribeOffset, gpulibraryOffset, oplistsOffset, outputNameOffset, preferForwardType, sourceType, tensorNameOffset, tensorNumber, usage) {
   MNN.Net.startNet(builder);
   MNN.Net.addBizCode(builder, bizCodeOffset);
   MNN.Net.addExtraTensorDescribe(builder, extraTensorDescribeOffset);
@@ -16922,6 +17201,7 @@ MNN.Net.createNet = function(builder, bizCodeOffset, extraTensorDescribeOffset, 
   MNN.Net.addSourceType(builder, sourceType);
   MNN.Net.addTensorName(builder, tensorNameOffset);
   MNN.Net.addTensorNumber(builder, tensorNumber);
+  MNN.Net.addUsage(builder, usage);
   return MNN.Net.endNet(builder);
 }
 
