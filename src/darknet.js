@@ -68,9 +68,9 @@ darknet.Graph = class {
         let sections = [];
         let section = null;
         let lines = cfg.split('\n');
-        let nu = 0;
+        let lineNumber = 0;
         while (lines.length > 0) {
-            nu++;
+            lineNumber++;
             const text = lines.shift();
             const line = text.replace(/\s/g, '');
             if (line.length > 0) {
@@ -80,6 +80,7 @@ darknet.Graph = class {
                         break;
                     case '[': {
                         section = {};
+                        section.line = lineNumber;
                         section.type = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
                         section.options = {};
                         sections.push(section);
@@ -87,12 +88,12 @@ darknet.Graph = class {
                     }
                     default: {
                         if (!section || line[0] < 0x20 || line[0] > 0x7E) {
-                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + nu.toString() + ".");
+                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + lineNumber.toString() + ".");
                         }
                         if (section) {
                             const index = line.indexOf('=');
                             if (index < 0) {
-                                throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + nu.toString() + ".");
+                                throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + lineNumber.toString() + ".");
                             }
                             const key = line.substring(0, index);
                             const value = line.substring(index + 1);
@@ -188,6 +189,7 @@ darknet.Graph = class {
         let infer = true;
         for (let i = 0; i < sections.length; i++) {
             let section = sections[i];
+            section.name = i.toString();
             section.chain = [];
             section.layer = {};
             let options = section.options;
@@ -229,6 +231,7 @@ darknet.Graph = class {
             }
             if (infer) {
                 switch (section.type) {
+                    case 'conv':
                     case 'convolutional':
                     case 'deconvolutional': {
                         const shape = layer.inputs[0].type.shape.dimensions;
@@ -304,19 +307,45 @@ darknet.Graph = class {
                         layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.ouputs ]));
                         break;
                     }
+                    case 'max':
                     case 'maxpool': {
                         const shape = layer.inputs[0].type.shape.dimensions;
                         if (shape[0] !== params.w || shape[1] !== params.h || shape[2] !== params.c) {
                             throw new darknet.Error('Layer before maxpool layer must output image.');
                         }
+                        const antialiasing = option_find_int(options, 'antialiasing', 0);
                         const stride = option_find_int(options, 'stride', 1);
+                        const blur_stride_x = option_find_int(options, 'stride_x', stride);
+                        const blur_stride_y = option_find_int(options, 'stride_y', stride);
+                        const stride_x = antialiasing ? 1 : blur_stride_x;
+                        const stride_y = antialiasing ? 1 : blur_stride_y;
                         const size = option_find_int(options, 'size', stride);
                         const padding = option_find_int(options, 'padding', size - 1);
-                        layer.out_w = Math.floor((params.w + padding - size) / stride) + 1;
-                        layer.out_h = Math.floor((params.h + padding - size) / stride) + 1;
-                        layer.out_c = params.c;
+                        const out_channels = option_find_int(options, 'out_channels', 1);
+                        const maxpool_depth = option_find_int(options, 'maxpool_depth', 0);
+                        if (maxpool_depth) {
+                            layer.out_c = out_channels;
+                            layer.out_w = params.w;
+                            layer.out_h = params.h;
+                        }
+                        else {
+                            layer.out_w = Math.floor((params.w + padding - size) / stride_x) + 1;
+                            layer.out_h = Math.floor((params.h + padding - size) / stride_y) + 1;
+                            layer.out_c = params.c;
+                        }
+                        if (antialiasing) {
+                            const blur_size = antialiasing === 2 ? 2 : 3;
+                            const blur_pad = antialiasing === 2 ? 0 : Math.floor(blur_size / 3);
+                            layer.input_layer = { weights: [], outputs: layer.outputs };
+                            make_convolutional_layer(layer.input_layer, '', layer.out_h, layer.out_w, layer.out_c, layer.out_c, layer.out_c, blur_size, blur_stride_x, blur_stride_y, blur_pad, 0);
+                            layer.out_w = layer.input_layer.out_w;
+                            layer.out_h = layer.input_layer.out_h;
+                            layer.out_c = layer.input_layer.out_c;
+                        }
+                        else {
+                            layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        }
                         layer.out = layer.out_w * layer.out_h * layer.out_c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
                         break;
                     }
                     case 'avgpool': {
@@ -612,7 +641,7 @@ darknet.Graph = class {
         }
 
         for (let i = 0; i < sections.length; i++) {
-            this._nodes.push(new darknet.Node(metadata, net, sections[i], i.toString()));
+            this._nodes.push(new darknet.Node(metadata, net, sections[i]));
         }
 
         /* if (sections.length > 0) {
@@ -699,8 +728,8 @@ darknet.Argument = class {
 
 darknet.Node = class {
 
-    constructor(metadata, net, section, name) {
-        this._name = name;
+    constructor(metadata, net, section) {
+        this._name = (section.name || '') + (section.line !== undefined ? '@' + section.line.toString() : '');
         this._metadata = metadata;
         this._operator = section.type;
         this._attributes = [];
@@ -953,7 +982,7 @@ darknet.TensorType = class {
 darknet.TensorShape = class {
 
     constructor(dimensions) {
-        if (dimensions.some((dimension) => !dimension || dimension < 0)) {
+        if (dimensions.some((dimension) => dimension === 0 || dimension === undefined || isNaN(dimension))) {
             throw new darknet.Error('Invalid tensor shape.');
         }
         this._dimensions = dimensions;

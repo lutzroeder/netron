@@ -1980,6 +1980,13 @@
   },
   {
     "type":   "darknet",
+    "target": "yolo_v3_tiny_pan3_aa_ae_mixup_scale_giou.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/4006371/yolo_v3_tiny_pan3_aa_ae_mixup_scale_giou.cfg.zip[yolo_v3_tiny_pan3_aa_ae_mixup_scale_giou.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/277"
+  },
+  {
+    "type":   "darknet",
     "target": "yolov3-openimages.cfg,yolov3-openimages.weights",
     "source": "https://github.com/pjreddie/darknet/blob/master/cfg/yolov3-openimages.cfg?raw=true,https://pjreddie.com/media/files/yolov3-openimages.weights",
     "format": "Darknet",
