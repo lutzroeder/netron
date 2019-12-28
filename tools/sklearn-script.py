@@ -37,7 +37,7 @@ def update_description(schema, lines):
             lines[i] = lines[i].lstrip(' ')
         schema['description'] = '\n'.join(lines)
 
-def update_attribute(schema, name, description, attribute_type, option, default):
+def update_attribute(schema, name, description, attribute_type, option, default_value):
     attribute = None
     if not 'attributes' in schema:
         schema['attributes'] = []
@@ -54,38 +54,40 @@ def update_attribute(schema, name, description, attribute_type, option, default)
         attribute['type'] = attribute_type
     if option:
         attribute['option'] = option
-    if default:
+    if default_value:
         if attribute_type == 'float32':
-            if default != "'auto'":
-                attribute['default'] = float(default)
-            else:
-                attribute['default'] = default.strip("'").strip('"')
-        elif attribute_type == 'int32':
-            if default == 'None':
+            if default_value == 'None':
                 attribute['default'] = None
-            elif default == "'auto'" or default == '"auto"':
-                attribute['default'] = default.strip("'").strip('"')
+            elif default_value != "'auto'":
+                attribute['default'] = float(default_value)
             else:
-                attribute['default'] = int(default)
+                attribute['default'] = default_value.strip("'").strip('"')
+        elif attribute_type == 'int32':
+            if default_value == 'None':
+                attribute['default'] = None
+            elif default_value == "'auto'" or default_value == '"auto"':
+                attribute['default'] = default_value.strip("'").strip('"')
+            else:
+                attribute['default'] = int(default_value)
         elif attribute_type == 'string':
-            attribute['default'] = default.strip("'").strip('"')
+            attribute['default'] = default_value.strip("'").strip('"')
         elif attribute_type == 'boolean':
-            if default == 'True':
+            if default_value == 'True':
                 attribute['default'] = True
-            elif default == 'False':
+            elif default_value == 'False':
                 attribute['default'] = False
-            elif default == "'auto'":
-                attribute['default'] = default.strip("'").strip('"')
+            elif default_value == "'auto'":
+                attribute['default'] = default_value.strip("'").strip('"')
             else:
-                raise Exception("Unknown boolean default value '" + str(default) + "'.")
+                raise Exception("Unknown boolean default value '" + str(default_value) + "'.")
         else:
             if attribute_type:
                 raise Exception("Unknown default type '" + attribute_type + "'.")
             else:
-                if default == 'None':
+                if default_value == 'None':
                     attribute['default'] = None
                 else:
-                    attribute['default'] = default.strip("'")
+                    attribute['default'] = default_value.strip("'")
 
 def update_attributes(schema, lines):
     index = 0;

@@ -357,13 +357,15 @@
           "default": null,
           "description": "Number of CPU cores used when parallelizing over classes if\nmulti_class='ovr'\". This parameter is ignored when the ``solver`` is\nset to 'liblinear' regardless of whether 'multi_class' is specified or\nnot. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`\ncontext. ``-1`` means using all processors.\nSee :term:`Glossary <n_jobs>` for more details.\n",
           "name": "n_jobs",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         },
         {
           "default": null,
           "description": "The Elastic-Net mixing parameter, with ``0 <= l1_ratio <= 1``. Only\nused if ``penalty='elasticnet'`. Setting ``l1_ratio=0`` is equivalent\nto using ``penalty='l2'``, while setting ``l1_ratio=1`` is equivalent\nto using ``penalty='l1'``. For ``0 < l1_ratio <1``, the penalty is a\ncombination of L1 and L2.\n",
           "name": "l1_ratio",
-          "option": "optional"
+          "option": "optional",
+          "type": "float32"
         }
       ],
       "description": "\nLogistic Regression (aka logit, MaxEnt) classifier.\n\nIn the multiclass case, the training algorithm uses the one-vs-rest (OvR)\nscheme if the 'multi_class' option is set to 'ovr', and uses the\ncross-entropy loss if the 'multi_class' option is set to 'multinomial'.\n(Currently the 'multinomial' option is supported only by the 'lbfgs',\n'sag', 'saga' and 'newton-cg' solvers.)\n\nThis class implements regularized logistic regression using the\n'liblinear' library, 'newton-cg', 'sag', 'saga' and 'lbfgs' solvers. **Note\nthat regularization is applied by default**. It can handle both dense\nand sparse input. Use C-ordered arrays or CSR matrices containing 64-bit\nfloats for optimal performance; any other input format will be converted\n(and copied).\n\nThe 'newton-cg', 'sag', and 'lbfgs' solvers support only L2 regularization\nwith primal formulation, or no regularization. The 'liblinear' solver\nsupports both L1 and L2 regularization, with a dual formulation only for\nthe L2 penalty. The Elastic-Net regularization is only supported by the\n'saga' solver.\n\nRead more in the :ref:`User Guide <logistic_regression>`.\n",
