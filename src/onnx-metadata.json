@@ -15717,6 +15717,83 @@
     }
   },
   {
+    "name": "ReduceMax",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
+          "name": "axes",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
+          "name": "keepdims",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ReduceMax',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n[[[60.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_default_axes_keepdim_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceMax',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[20., 2.]\n# [40., 2.]\n# [60., 2.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMax',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[20., 2.]]\n# [[40., 2.]]\n# [[60., 2.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_keepdims_random')",
+          "summary": "keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [-2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMax',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n#[[[20., 2.]]\n# [[40., 2.]]\n# [[60., 2.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_negative_axes_keepdims_random')",
+          "summary": "negative_axes_keepdims"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "An input tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Reduced output tensor.",
+          "name": "reduced",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(uint8)",
+            "tensor(int8)"
+          ],
+          "description": "Constrain input and output types to high-precision and 8 bit numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "ReduceMean",
     "schema": {
       "attributes": [
@@ -16011,6 +16088,83 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to high-precision numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ReduceMin",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
+          "name": "axes",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
+          "name": "keepdims",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMin',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.minimum.reduce(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[1.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceMin',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMin', inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_keepdims_random')",
+          "summary": "keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [-2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMin', inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n#[[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_negative_axes_keepdims_random')",
+          "summary": "negative_axes_keepdims"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "An input tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Reduced output tensor.",
+          "name": "reduced",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(uint8)",
+            "tensor(int8)"
+          ],
+          "description": "Constrain input and output types to high-precision and 8 bit numeric tensors.",
           "type_param_str": "T"
         }
       ]
