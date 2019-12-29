@@ -91,9 +91,8 @@ torchscript.Graph = class {
 
         this._name = container.name;
 
-        let context = null;
         try {
-            context = new torchscript.GraphContext(container);
+            container.trace();
         }
         catch (error) {
             let message = error && error.message ? error.message : error.toString();
@@ -132,18 +131,18 @@ torchscript.Graph = class {
             }
         }
 
-        if (context) {
-            for (let input of context.inputs) {
+        if (container.nodes.length > 0) {
+            for (let input of container.inputs) {
                 this._inputs.push(new torchscript.Parameter(input, true, [
                     new torchscript.Argument(input, null, null)
                 ]));
             }
-            for (let output of context.outputs) {
+            for (let output of container.outputs) {
                 this._outputs.push(new torchscript.Parameter(output, true, [
                     new torchscript.Argument(output, null, null)
                 ]));
             }
-            for (let node of context.nodes) {
+            for (let node of container.nodes) {
                 this._nodes.push(new torchscript.Node(metadata, container, null, node));
             }
         }
@@ -1324,6 +1323,7 @@ torchscript.Container = class {
         return this._types.get(name);
     }
 
+    /*
     trace(obj, method) {
         let args = [];
         this._tensors = new Set();
@@ -1337,7 +1337,7 @@ torchscript.Container = class {
         this._tensors = null;
     }
 
-    _trace(name /*, args */) {
+    _trace(name, args) {
         let namespace = 'torch.';
         if (name.startsWith(namespace)) {
             switch (name) {
@@ -1374,6 +1374,7 @@ torchscript.Container = class {
         }
         throw new torchscript.Error("Unknown symbol '" + name + "'.");
     }
+    */
 
     _invoke(name, args) {
         if (this._functionTable.has(name)) {
@@ -1585,83 +1586,6 @@ torchscript.Container = class {
         }
         throw new torchscript.Error("Unknown expression '" + JSON.stringify(expression) + "'.");
     }
-}
-
-torchscript.GraphContext = class {
-
-    constructor(container) {
-
-        this._container = container;
-
-        this._data = container.data;
-
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
-
-        this._moduleMap = new Map();
-        this._state = {};
-
-        let statements = container.body;
-        let method = statements.find((statement) => statement.type == 'def' && statement.name == 'forward');
-        if (!method) {
-            throw new torchscript.Error("Method 'forward' not found.");
-        }
-
-        // container.trace(this.data, method);
-
-        this._body = method.body.statements;
-        let methodParameters = method.parameters;
-        if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
-            methodParameters.shift();
-        }
-        for (let parameter of methodParameters) {
-            this._parameter(parameter);
-        }
-
-        if (this._body.length >= 2) {
-            // x = ...
-            // return x
-            let returnStatement = this._body[this._body.length - 1];
-            let assignStatement = this._body[this._body.length - 2];
-            if (returnStatement.type === 'return' && 
-                returnStatement.expression.type === 'id' &&
-                assignStatement.type === '=' &&
-                assignStatement.target.type === 'id' &&
-                assignStatement.target.value === returnStatement.expression.value) {
-                returnStatement.expression = assignStatement.expression;
-                this._body.pop();
-                this._body.pop();
-                this._body.push(returnStatement);
-            }
-        }
-
-        while (this._body.length > 0) {
-            let statement = this._body.shift();
-            if (this._conditionStatement(statement)) {
-                continue;
-            }
-            if (this._assignStatement(statement)) {
-                continue;
-            }
-            if (this._argumentStatement(statement)) {
-                continue;
-            }
-            if (this._nodeStatement(statement)) {
-                continue;
-            }
-            if (this._returnStatement(statement)) {
-                continue;
-            }
-            if (statement.type === 'pass') {
-                continue;
-            }
-            if (this._isCall(statement, 'torch.warn', [ {}, {} ])) {
-                continue;
-            }
-            throw new torchscript.Error("Unknown statement.");
-        }
-    }
 
     get inputs() {
         return this._inputs;
@@ -1848,11 +1772,11 @@ torchscript.GraphContext = class {
                         argumentExpression.member.value.startsWith('c')) {
                         const constantId = [ argumentExpression.target.value, argumentExpression.member.value ].join('.');
                         const constantIndex = parseInt(argumentExpression.member.value.substring(1), 10);
-                        const constants = this._container.constants;
+                        const constants = this.constants;
                         if (!constants || constantIndex >= constants.length) {
                             throw new torchscript.Error("Invalid constant '" + constantId + "'.");
                         }
-                        const constantTensor = new torchscript.Tensor(this._container.constants[constantIndex]);
+                        const constantTensor = new torchscript.Tensor(constants[constantIndex]);
                         inputs.push([ { id: constantId, initializer: constantTensor } ]);
                         args.shift();
                         continue;
@@ -2069,7 +1993,7 @@ torchscript.GraphContext = class {
                 // _14190 = __torch__.torchvision.models.inception.InceptionOutputs(x219, aux)
                 if (expression.type == 'call') {
                     const className = torchscript.Utility.target(expression.target);
-                    const tuple = this._container.type(className);
+                    const tuple = this.type(className);
                     if (tuple && tuple.base && tuple.base.length > 0 &&
                         tuple.base[0].type === 'id' && tuple.base[0].value === 'NamedTuple') {
                         this._state[target.value] = { type: 'tuple', value: expression.arguments };
@@ -2147,7 +2071,7 @@ torchscript.GraphContext = class {
         }
         if (expression.type == 'id') {
             if (expression.value == 'self') {
-                return this._data;
+                return this.data;
             }
             const moduleName = expression.value;
             if (this._moduleMap.has(moduleName)) {
@@ -2444,6 +2368,76 @@ torchscript.GraphContext = class {
             }
         }
         return null;
+    }
+
+    trace() {
+
+        this._inputs = [];
+        this._outputs = [];
+        this._nodes = [];
+
+        this._moduleMap = new Map();
+        this._state = {};
+
+        let statements = this.body;
+        let method = statements.find((statement) => statement.type == 'def' && statement.name == 'forward');
+        if (!method) {
+            throw new torchscript.Error("Method 'forward' not found.");
+        }
+
+        // container.trace(this.data, method);
+
+        this._body = method.body.statements;
+        let methodParameters = method.parameters;
+        if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
+            methodParameters.shift();
+        }
+        for (let parameter of methodParameters) {
+            this._parameter(parameter);
+        }
+
+        if (this._body.length >= 2) {
+            // x = ...
+            // return x
+            let returnStatement = this._body[this._body.length - 1];
+            let assignStatement = this._body[this._body.length - 2];
+            if (returnStatement.type === 'return' && 
+                returnStatement.expression.type === 'id' &&
+                assignStatement.type === '=' &&
+                assignStatement.target.type === 'id' &&
+                assignStatement.target.value === returnStatement.expression.value) {
+                returnStatement.expression = assignStatement.expression;
+                this._body.pop();
+                this._body.pop();
+                this._body.push(returnStatement);
+            }
+        }
+
+        while (this._body.length > 0) {
+            let statement = this._body.shift();
+            if (this._conditionStatement(statement)) {
+                continue;
+            }
+            if (this._assignStatement(statement)) {
+                continue;
+            }
+            if (this._argumentStatement(statement)) {
+                continue;
+            }
+            if (this._nodeStatement(statement)) {
+                continue;
+            }
+            if (this._returnStatement(statement)) {
+                continue;
+            }
+            if (statement.type === 'pass') {
+                continue;
+            }
+            if (this._isCall(statement, 'torch.warn', [ {}, {} ])) {
+                continue;
+            }
+            throw new torchscript.Error("Unknown statement.");
+        }
     }
 }
 
