@@ -498,6 +498,13 @@
   },
   {
     "type":   "caffe",
+    "target": "ORION_extended_trainval.prototxt",
+    "source": "https://github.com/lmb-freiburg/orion/blob/master/net_archs/modelnet10/ORION_extended_trainval.prototxt?raw=true",
+    "format": "Caffe v2",
+    "link":   "https://github.com/lmb-freiburg/orion"
+  },
+  {
+    "type":   "caffe",
     "target": "panoramic_object_detection_deploy_crop.prototxt.prototxt",
     "source": "https://raw.githubusercontent.com/gdlg/panoramic-object-detection/master/examples/inference/deploy_crop.prototxt",
     "format": "Caffe v2",
