@@ -1232,7 +1232,7 @@ view.ModelFactoryService = class {
                     if (!skip && extension === 'pbtxt') {
                         if (identifier.includes('label_map') || identifier.includes('labels_map') || identifier.includes('labelmap')) {
                             const tags = context.tags('pbtxt');
-                            if (tags.size === 1 && tags.has('item')) {
+                            if (tags.size === 1 && (tags.has('item') || tags.has('entry'))) {
                                 skip = true;
                             }
                         }
