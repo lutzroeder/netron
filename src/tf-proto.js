@@ -5689,6 +5689,261 @@
             return TensorSliceProto;
         })();
     
+        tensorflow.SavedSliceMeta = (function() {
+    
+            function SavedSliceMeta(properties) {
+                this.slice = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedSliceMeta.prototype.name = "";
+            SavedSliceMeta.prototype.shape = null;
+            SavedSliceMeta.prototype.type = 0;
+            SavedSliceMeta.prototype.slice = $util.emptyArray;
+    
+            SavedSliceMeta.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedSliceMeta();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.name = reader.string();
+                        break;
+                    case 2:
+                        message.shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.type = reader.int32();
+                        break;
+                    case 4:
+                        if (!(message.slice && message.slice.length))
+                            message.slice = [];
+                        message.slice.push($root.tensorflow.TensorSliceProto.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedSliceMeta.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.SavedSliceMeta();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "shape":
+                        message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    case "type":
+                        message.type = reader.enum($root.tensorflow.DataType);
+                        break;
+                    case "slice":
+                        if (!(message.slice && message.slice.length))
+                            message.slice = [];
+                        message.slice.push($root.tensorflow.TensorSliceProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return SavedSliceMeta;
+        })();
+    
+        tensorflow.SavedTensorSliceMeta = (function() {
+    
+            function SavedTensorSliceMeta(properties) {
+                this.tensor = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedTensorSliceMeta.prototype.tensor = $util.emptyArray;
+            SavedTensorSliceMeta.prototype.versions = null;
+    
+            SavedTensorSliceMeta.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedTensorSliceMeta();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.tensor && message.tensor.length))
+                            message.tensor = [];
+                        message.tensor.push($root.tensorflow.SavedSliceMeta.decode(reader, reader.uint32()));
+                        break;
+                    case 2:
+                        message.versions = $root.tensorflow.VersionDef.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedTensorSliceMeta.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.SavedTensorSliceMeta();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "tensor":
+                        if (!(message.tensor && message.tensor.length))
+                            message.tensor = [];
+                        message.tensor.push($root.tensorflow.SavedSliceMeta.decodeText(reader, true));
+                        break;
+                    case "versions":
+                        message.versions = $root.tensorflow.VersionDef.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return SavedTensorSliceMeta;
+        })();
+    
+        tensorflow.SavedSlice = (function() {
+    
+            function SavedSlice(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedSlice.prototype.name = "";
+            SavedSlice.prototype.slice = null;
+            SavedSlice.prototype.data = null;
+    
+            SavedSlice.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedSlice();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.name = reader.string();
+                        break;
+                    case 2:
+                        message.slice = $root.tensorflow.TensorSliceProto.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        message.data = $root.tensorflow.TensorProto.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedSlice.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.SavedSlice();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "slice":
+                        message.slice = $root.tensorflow.TensorSliceProto.decodeText(reader, true);
+                        break;
+                    case "data":
+                        message.data = $root.tensorflow.TensorProto.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return SavedSlice;
+        })();
+    
+        tensorflow.SavedTensorSlices = (function() {
+    
+            function SavedTensorSlices(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SavedTensorSlices.prototype.meta = null;
+            SavedTensorSlices.prototype.data = null;
+    
+            SavedTensorSlices.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedTensorSlices();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.meta = $root.tensorflow.SavedTensorSliceMeta.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        message.data = $root.tensorflow.SavedSlice.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SavedTensorSlices.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.SavedTensorSlices();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "meta":
+                        message.meta = $root.tensorflow.SavedTensorSliceMeta.decodeText(reader, true);
+                        break;
+                    case "data":
+                        message.data = $root.tensorflow.SavedSlice.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return SavedTensorSlices;
+        })();
+    
         return tensorflow;
     })();
     

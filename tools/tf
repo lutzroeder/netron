@@ -67,7 +67,8 @@ schema() {
         ./third_party/src/tensorflow/tensorflow/core/protobuf/trackable_object_graph.proto \
         ./third_party/src/tensorflow/tensorflow/core/protobuf/struct.proto \
         ./third_party/src/tensorflow/tensorflow/core/protobuf/tensor_bundle.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/tensor_slice.proto
+        ./third_party/src/tensorflow/tensorflow/core/framework/tensor_slice.proto \
+        ./third_party/src/tensorflow/tensorflow/core/util/saved_tensor_slice.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/tf-proto.js ./src/tf-proto.js
     fi

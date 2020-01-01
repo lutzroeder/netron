@@ -4629,6 +4629,14 @@
   },
   {
     "type":   "tf",
+    "target": "resnet_v1_50.ckpt",
+    "source": "https://github.com/serre-lab/deeplabcut_mgh/blob/master/deeplabcut/pose_estimation_tensorflow/models/pretrained/resnet_v1_50.ckpt?raw=true",
+    "error":  "Unsupported file content for extension '.ckpt' in 'resnet_v1_50.ckpt'.",
+    "format": "TensorFlow Bundle v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/405"
+  },
+  {
+    "type":   "tf",
     "target": "resnet_v1_101.pb",
     "source": "https://deepdetect.com/models/tf/resnet_v1_101/resnet_v1_101.pb",
     "format": "TensorFlow Graph",
