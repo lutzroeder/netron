@@ -4608,6 +4608,13 @@
   },
   {
     "type":   "tf",
+    "target": "netron_issue_405.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4017943/netron_issue_405.zip",
+    "format": "TensorFlow Tensor Bundle v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/405"
+  },
+  {
+    "type":   "tf",
     "target": "pose_estimation_for_mobile.pb",
     "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.pb?raw=true",
     "format": "TensorFlow Graph",
@@ -4631,8 +4638,7 @@
     "type":   "tf",
     "target": "resnet_v1_50.ckpt",
     "source": "https://github.com/serre-lab/deeplabcut_mgh/blob/master/deeplabcut/pose_estimation_tensorflow/models/pretrained/resnet_v1_50.ckpt?raw=true",
-    "error":  "Unsupported file content for extension '.ckpt' in 'resnet_v1_50.ckpt'.",
-    "format": "TensorFlow Bundle v1",
+    "format": "TensorFlow Tensor Bundle v1",
     "link":   "https://github.com/lutzroeder/netron/issues/405"
   },
   {

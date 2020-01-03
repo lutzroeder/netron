@@ -109,8 +109,7 @@ tf.ModelFactory = class {
             switch (extension) {
                 case 'ckpt':
                 case 'index': {
-                    new tf.Variables.Index(context.buffer, context.identifier);
-                    throw new tf.Error('TensorFlow checkpoint not supported.');
+                    return tf.ModelFactory._openBundle(context, host);
                 }
                 case 'json': {
                     try {
@@ -231,21 +230,24 @@ tf.ModelFactory = class {
                     saved_model.meta_graphs[0].object_graph_def &&
                     saved_model.meta_graphs[0].object_graph_def.nodes &&
                     saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
-                    return tf.Variables.open(context).then((variables) => {
-                        return this._openModel(identifier, host, metadata, saved_model, format, producer, variables);
+                    const identifier = 'variables/variables.index';
+                    return context.request(identifier, null).then((buffer) => {
+                        return tf.TensorBundle.open(buffer, identifier, context).then((bundle) => {
+                            return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, bundle);
+                        });
                     }).catch((error) => {
                         host.exception(error, false);
-                        return this._openModel(identifier, host, metadata, saved_model, format, producer, null);
-                    });
+                        return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, null);
+                    })
                 }
-                return this._openModel(identifier, host, metadata, saved_model, format, producer, null);
+                return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, null);
             });
         });
     }
 
-    _openModel(identifier, host, metadata, saved_model, format, producer, variables) {
+    static _openModel(identifier, host, metadata, saved_model, format, producer, bundle) {
         try {
-            return new tf.Model(metadata, saved_model, format, producer, variables);
+            return new tf.Model(metadata, saved_model, format, producer, bundle);
         }
         catch (error) {
             host.exception(error, false);
@@ -254,40 +256,59 @@ tf.ModelFactory = class {
             throw new tf.Error(message + " in '" + identifier + "'.");
         }
     }
+
+    static _openBundle(context, host) {
+        return tf.Metadata.open(host).then((metadata) => {
+            const identifier = context.identifier;
+            return tf.TensorBundle.open(context.buffer, identifier, context).then((bundle) => {
+                return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
+            }).catch((error) => {
+                host.exception(error, false);
+                let message = error && error.message ? error.message : error.toString();
+                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                throw new tf.Error(message + " in '" + identifier + "'.");
+            });
+        });
+    }
 };
 
 tf.Model = class {
 
-    constructor(metadata, model, format, producer /*, variables */) {
+    constructor(metadata, model, format, producer, bundle) {
         this._format = format;
         this._producer = producer || '';
         this._graphs = [];
-        for (let i = 0; i < model.meta_graphs.length; i++) {
-            const metaGraph = model.meta_graphs[i];
-            let name = null;
-            if (metaGraph.any_info) {
-                name = metaGraph.any_info.toString();
+        if (model) {
+            for (let i = 0; i < model.meta_graphs.length; i++) {
+                const metaGraph = model.meta_graphs[i];
+                let name = null;
+                if (metaGraph.any_info) {
+                    name = metaGraph.any_info.toString();
+                }
+                else if (model.meta_graphs.length > 1) {
+                    name = i.toString();
+                }
+                else {
+                    name = '-';
+                }
+                this._graphs.push(new tf.Graph(metadata, metaGraph, name, bundle));
             }
-            else if (model.meta_graphs.length > 1) {
-                name = i.toString();
+            // Recursively add all subgraphs.
+            let visited_graph = [];
+            let pending_graphs = [...this._graphs];
+            while (pending_graphs.length > 0) {
+                let g = pending_graphs.shift();
+                visited_graph.push(g);
+                for (let f of g.functions) {
+                    pending_graphs.push(f);
+                }
             }
-            else {
-                name = '-';
-            }
-            this._graphs.push(new tf.Graph(metadata, metaGraph, name));
+            this._graphs = visited_graph;
+        }
+        else {
+            this._graphs.push(new tf.Graph(metadata, null, '', bundle))
         }
 
-        // Recursively add all subgraphs.
-        let visited_graph = [];
-        let pending_graphs = [...this._graphs];
-        while (pending_graphs.length > 0) {
-            let g = pending_graphs.shift();
-            visited_graph.push(g);
-            for (let f of g.functions) {
-                pending_graphs.push(f);
-            }
-        }
-        this._graphs = visited_graph;
     }
 
     get format() {
@@ -309,17 +330,17 @@ tf.Model = class {
 
 tf.Graph = class {
 
-    constructor(metadata, metaGraph, name) {
-        this._metaGraph = metaGraph;
+    constructor(metadata, metaGraph, name, bundle) {
+        this._metadata = metadata;
         this._version = null;
-        this._metadata = new tf.GraphMetadata(metadata, metaGraph.meta_info_def);
         this._name = name;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
         this._functions = [];
 
-        if (metaGraph.graph_def) {
+        if (metaGraph && metaGraph.graph_def) {
+            this._metadata = new tf.GraphMetadata(metadata, metaGraph.meta_info_def);
             const graph = metaGraph.graph_def;
             if (graph.versions) {
                 this._version = 'v' + graph.versions.producer.toString();
@@ -424,7 +445,7 @@ tf.Graph = class {
                 for (let node of nodes) {
                     let id = node.name;
                     if (!initializers[id] && !inputMap[id] /* && node.op != 'NoOp' */) {
-                        this._nodes.push(new tf.Node(this, node, initializers));
+                        this._nodes.push(new tf.Node(this, node, node.op, node.name, initializers, null));
                     }
                 }
             }
@@ -434,6 +455,35 @@ tf.Graph = class {
                 for (let func of funcs) {
                     this._functions.push(new tf.Function(this, func, this._metadata));
                 }
+            }
+        }
+        else if (bundle) {
+            let nodeNames = [];
+            let nodeMap = new Map();
+            for (let tensor of bundle.tensors) {
+                let parts = tensor.name.split('/');
+                if (bundle.format === 2) {
+                    if (tensor.name === '_CHECKPOINTABLE_OBJECT_GRAPH' || 
+                        tensor.name.startsWith('optimizer/') ||
+                        tensor.name.startsWith('keras_api/metrics/') ||
+                        tensor.name.indexOf('.OPTIMIZER_SLOT') !== -1) {
+                        continue;
+                    }
+                    if (tensor.name.endsWith('/.ATTRIBUTES/VARIABLE_VALUE')) {
+                        parts.pop();
+                        parts.pop();
+                    }
+                }
+                let tensorName = parts.pop();
+                let nodeName = parts.join('/');
+                if (!nodeMap.has(nodeName)) {
+                    nodeNames.push(nodeName);
+                    nodeMap.set(nodeName, []);
+                }
+                nodeMap.get(nodeName).push({ name: tensorName, tensor: tensor });
+            }
+            for (let nodeName of nodeNames) {
+                this._nodes.push(new tf.Node(this, null, 'Node', nodeName, null, nodeMap.get(nodeName)));
             }
         }
     }
@@ -657,7 +707,7 @@ tf.Function = class {
 
             for (let node of nodes) {
                 if (!initializers[node.name])
-                    this._nodes.push(new tf.Node(this, node, initializers));
+                    this._nodes.push(new tf.Node(this, node, node.op, node.name, initializers, null));
             }
         }
     }
@@ -718,86 +768,91 @@ tf.Function = class {
 
 tf.Node = class {
 
-    constructor(graph, node, initializers) {
+    constructor(graph, node, op, name, initializers, tensors) {
         this._graph = graph;
-        this._operator = node.op;
-        this._name = node.name;
-        if (Object.prototype.hasOwnProperty.call(node, 'device')) {
-            this._device = node.device;
-        }
-        const metadata = graph.metadata;
+        this._operator = op;
+        this._name = name;
         this._attributes = [];
-        if (node.attr) {
-            for (let attributeName of Object.keys(node.attr)) {
-                this._attributes.push(new tf.Attribute(attributeName, node.attr[attributeName], this._operator, metadata));
-            }
-        }
-
-        const schema = metadata.getSchema(node.op);
-
         this._inputs = [];
-        let inputIndex = 0;
-        let inputs = node.input.filter(input => !input.startsWith('^'));
-        if (schema && schema.inputs) {
-            for (let input of schema.inputs) {
-                let inputCount = 1;
-                if (input.numberAttr) {
-                    let inputNumber = node.attr[input.numberAttr];
-                    if (inputNumber && inputNumber.i) {
-                        inputCount = inputNumber.i;
-                    }
-                }
-                else if (input.typeListAttr) {
-                    let inputTypeListAttr = node.attr[input.typeListAttr];
-                    if (inputTypeListAttr && inputTypeListAttr.list && inputTypeListAttr.list.type) {
-                        inputCount = inputTypeListAttr.list.type.length;
-                    }
-                }
-                let inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
-                    return new tf.Argument(id, null, initializers[id]);
-                });
-                this._inputs.push(new tf.Parameter(input.name, inputConnections));
-                inputIndex += inputCount;
-            }
-        }
-        this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
-            return new tf.Parameter((inputIndex + index).toString(), [ 
-                new tf.Argument(input, null, initializers[input])
-            ]);
-        }));
-
         this._outputs = [];
-        let outputIndex = 0;
-        let outputs = node.output;
-        if (schema && schema.outputs) {
-            for (let output of schema.outputs) {
-                let outputCount = 1;
-                if (output.numberAttr) {
-                    let outputNumber = node.attr[output.numberAttr];
-                    if (outputNumber && outputNumber.i) {
-                        outputCount = outputNumber.i;
-                    }
+        if (node) {
+            if (Object.prototype.hasOwnProperty.call(node, 'device')) {
+                this._device = node.device;
+            }
+            const metadata = graph.metadata;
+            if (node.attr) {
+                for (let attributeName of Object.keys(node.attr)) {
+                    this._attributes.push(new tf.Attribute(attributeName, node.attr[attributeName], this._operator, metadata));
                 }
-                else if (output.typeListAttr) {
-                    let outputTypeListAttr = node.attr[output.typeListAttr];
-                    if (outputTypeListAttr && outputTypeListAttr.list && outputTypeListAttr.list.type) {
-                        outputCount = outputTypeListAttr.list.type.length;
+            }
+            const schema = metadata.getSchema(this._operator);
+            let inputIndex = 0;
+            let inputs = node.input.filter(input => !input.startsWith('^'));
+            if (schema && schema.inputs) {
+                for (let input of schema.inputs) {
+                    let inputCount = 1;
+                    if (input.numberAttr) {
+                        let inputNumber = node.attr[input.numberAttr];
+                        if (inputNumber && inputNumber.i) {
+                            inputCount = inputNumber.i;
+                        }
                     }
+                    else if (input.typeListAttr) {
+                        let inputTypeListAttr = node.attr[input.typeListAttr];
+                        if (inputTypeListAttr && inputTypeListAttr.list && inputTypeListAttr.list.type) {
+                            inputCount = inputTypeListAttr.list.type.length;
+                        }
+                    }
+                    let inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+                        return new tf.Argument(id, null, initializers[id]);
+                    });
+                    this._inputs.push(new tf.Parameter(input.name, inputConnections));
+                    inputIndex += inputCount;
                 }
-                let outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
-                    return new tf.Argument(id, null, null);
-                });
-                this._outputs.push(new tf.Parameter(output.name, outputConnections));
-                outputIndex += outputCount;
+            }
+            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+                return new tf.Parameter((inputIndex + index).toString(), [ 
+                    new tf.Argument(input, null, initializers[input])
+                ]);
+            }));
+            let outputIndex = 0;
+            let outputs = node.output;
+            if (schema && schema.outputs) {
+                for (let output of schema.outputs) {
+                    let outputCount = 1;
+                    if (output.numberAttr) {
+                        let outputNumber = node.attr[output.numberAttr];
+                        if (outputNumber && outputNumber.i) {
+                            outputCount = outputNumber.i;
+                        }
+                    }
+                    else if (output.typeListAttr) {
+                        let outputTypeListAttr = node.attr[output.typeListAttr];
+                        if (outputTypeListAttr && outputTypeListAttr.list && outputTypeListAttr.list.type) {
+                            outputCount = outputTypeListAttr.list.type.length;
+                        }
+                    }
+                    let outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
+                        return new tf.Argument(id, null, null);
+                    });
+                    this._outputs.push(new tf.Parameter(output.name, outputConnections));
+                    outputIndex += outputCount;
+                }
+            }
+            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+                return new tf.Parameter((outputIndex + index).toString(), [
+                    new tf.Argument(output, null, null)
+                ]);
+            }));
+            this._controlDependencies = node.controlDependencies;
+        }
+        else if (tensors) {
+            for (let tensor of tensors) {
+                this._inputs.push(new tf.Parameter(tensor.name, [
+                    new tf.Argument('', null, tensor.tensor)
+                ]));
             }
         }
-        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
-            return new tf.Parameter((outputIndex + index).toString(), [
-                new tf.Argument(output, null, null)
-            ]);
-        }));
-
-        this._controlDependencies = node.controlDependencies;
     }
 
     get operator() {
@@ -1335,37 +1390,14 @@ tf.TensorShape = class {
     }
 };
 
-tf.Variables = class {
+tf.TensorBundle = class {
 
-    static open(context) {
-        return context.request('variables/variables.index', null).then((buffer) => {
-            const variableIndex = new tf.Variables.Index(buffer);
-            const numShards = variableIndex.header.num_shards;
-            let promises = [];
-            for (let i = 0; i < numShards; i++) {
-                const shardIndex = ('0000' + i).slice(-5);
-                const shardCount = ('0000' + numShards).slice(-5);
-                const name = 'variables/variables.data-' + shardIndex + '-of-' + shardCount;
-                promises.push(context.request(name, null));
-            }
-            return Promise.all(promises).then((shards) => {
-                variableIndex.initialize(shards);
-                return variableIndex;
-            });
-        });
-    }
-}
-
-tf.Variables.Index = class {
-
-    constructor(buffer, identifier) {
-        this._format = identifier && !identifier.toLowerCase().endsWith('.index') ? 1 : 2;
-        this._entries = new Map();
-        this._buffers = new Map();
+    static open(buffer, identifier, context) {
+        const format = !identifier.toLowerCase().endsWith('.index') ? 1 : 2;
         if (buffer.length <= 48) {
             throw new tf.Error('Invalid index file size.');
         }
-        let reader = new tf.Variables.BinaryReader(buffer);
+        let reader = new tf.TensorBundle.BinaryReader(buffer);
         reader.seek(-8);
         const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
         if (!reader.bytes(8).every((value, index) => value === signature[index])) {
@@ -1382,7 +1414,7 @@ tf.Variables.Index = class {
         if (indexCompression !== 0) { // kNoCompression
             throw new Error("Unsupported block compression '" + indexCompression + "'.");
         }
-        let indexReader = new tf.Variables.BinaryReader(indexData);
+        let indexReader = new tf.TensorBundle.BinaryReader(indexData);
         indexReader.seek(-4);
         const numRestarts = indexReader.int32();
         indexReader.seek(-4 - (4 * numRestarts));
@@ -1390,18 +1422,17 @@ tf.Variables.Index = class {
         for (let i = 0; i < numRestarts; i++) {
             restartOffsets.push(indexReader.int32());
         }
-        let header = null;
-        let entries = new Map();
         const textDecoder = new TextDecoder();
+        let entries = new Map();
         for (let i = 0; i < numRestarts; i++) {
             indexReader.seek(restartOffsets[i]);
             indexReader.varint32(); // index shared size
             const indexNonSharedSize = indexReader.varint32();
             const indexValueSize = indexReader.varint32();
             indexReader.skip(indexNonSharedSize);
-            let indexValueReader = new tf.Variables.BinaryReader(indexReader.bytes(indexValueSize));
+            let indexValueReader = new tf.TensorBundle.BinaryReader(indexReader.bytes(indexValueSize));
             reader.seek(indexValueReader.varint64());
-            let blockReader = new tf.Variables.BinaryReader(reader.bytes(indexValueReader.varint64()));
+            let blockReader = new tf.TensorBundle.BinaryReader(reader.bytes(indexValueReader.varint64()));
             let key = '';
             while (!blockReader.end()) {
                 const sharedSize = blockReader.varint32();
@@ -1413,48 +1444,63 @@ tf.Variables.Index = class {
                 key = key.substring(0, sharedSize);
                 key = key + textDecoder.decode(blockReader.bytes(nonSharedSize));
                 const value = blockReader.bytes(valueSize);
-                switch (this._format) {
-                    case 1: {
-                        if (key === '') {
-                            header = tf.proto.SavedTensorSlices.decode(value);
-                        }
-                        else {
-                            entries.set(key, tf.proto.SavedTensorSlices.decode(value));
-                        }
-                        break;
-                    }
-                    case 2: {
-                        if (key === '') {
-                            header = tf.proto.BundleHeaderProto.decode(value);
-                        }
-                        else {
-                            entries.set(key, tf.proto.BundleEntryProto.decode(value));
-                        }
-                        break;
+                entries.set(key, value);
+            }
+        }
+        if (!entries.has('')) {
+            throw new tf.Error('Bundle header not available.');
+        }
+        if (format === 1) {
+            return Promise.resolve(new tf.TensorBundle(format, entries, []));
+        }
+        const header = tf.proto.BundleHeaderProto.decode(entries.get(''));
+        const numShards = header.num_shards;
+        let promises = [];
+        for (let i = 0; i < numShards; i++) {
+            const shardIndex = ('0000' + i).slice(-5);
+            const shardCount = ('0000' + numShards).slice(-5);
+            const filename = identifier.split('.');
+            filename.pop();
+            const basename = filename.join('.');
+            const name = basename + '.data-' + shardIndex + '-of-' + shardCount;
+            promises.push(context.request(name, null));
+        }
+        return Promise.all(promises).then((shards) => {
+            return new tf.TensorBundle(format, entries, shards);
+        });
+    }
+
+    constructor(format, entries, shards) {
+        this._format = format; 
+        this._tensors = [];
+        switch (format) {
+            case 1: {
+                const header = tf.proto.SavedTensorSlices.decode(entries.get(''));
+                for (let meta of header.meta.tensor) {
+                    if (meta.name !== 'global_step') {
+                        let tensor = new tf.proto.TensorProto();
+                        tensor.dtype = meta.type;
+                        tensor.tensor_shape = meta.shape;
+                        this._tensors.push(new tf.Tensor(tensor, meta.name, 'Tensor'));
                     }
                 }
+                break;
             }
-        }
-
-        if (this._format === 1) {
-            /*
-            let tensors = new Map();
-            for (let meta of header.meta.tensor) {
-                let tensor = {};
-                tensor.name = meta.name;
-                tensor.shape = meta.shape;
-                tensor.dype = meta.type;
-                tensors.set(tensor.name, tensor);
+            case 2: {
+                entries.forEach((value, name) => {
+                    if (name !== '') {
+                        const entry = tf.proto.BundleEntryProto.decode(value);
+                        let tensor = new tf.proto.TensorProto();
+                        tensor.dtype = entry.dtype;
+                        tensor.tensor_shape = entry.shape;
+                        const offset = entry.offset.toNumber();
+                        const size = entry.size.toNumber();
+                        tensor.tensor_content = shards[entry.shard_id].slice(offset, offset + size);
+                        this._tensors.push(new tf.Tensor(tensor, name, 'Tensor'));
+                    }
+                });
+                break;
             }
-            */
-        }
-        if (this._format === 2) {
-            this._header = header;
-            this._entries = entries;
-        }
-
-        if (!this._header) {
-            throw new tf.Error('Bundle header not available.');
         }
     }
 
@@ -1462,33 +1508,12 @@ tf.Variables.Index = class {
         return this._format;
     }
 
-    get header() {
-        return this._header;
-    }
-
-    entry(name) {
-        return this._entries.get(name);
-    }
-
-    data(name) {
-        return this._buffers.get(name);
-    }
-
-    initialize(shards) {
-        if (shards.length > 0) {
-            let data = shards.shift();
-            while (shards.length > 0) {
-                data = data.concat(shards.shift());
-            }
-            this._entries.forEach((entry, key) => {
-                const buffer = data.subarray(entry.offset.toNumber(), entry.size.toNumber());
-                this._buffers.set(key, buffer);
-            });
-        }
+    get tensors() {
+        return this._tensors;
     }
 }
 
-tf.Variables.BinaryReader = class {
+tf.TensorBundle.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
