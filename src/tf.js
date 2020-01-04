@@ -480,7 +480,7 @@ tf.Graph = class {
                     nodeNames.push(nodeName);
                     nodeMap.set(nodeName, []);
                 }
-                nodeMap.get(nodeName).push({ name: tensorName, tensor: tensor });
+                nodeMap.get(nodeName).push({ name: tensorName, value: tensor });
             }
             for (let nodeName of nodeNames) {
                 this._nodes.push(new tf.Node(this, null, 'Node', nodeName, null, nodeMap.get(nodeName)));
@@ -849,7 +849,7 @@ tf.Node = class {
         else if (tensors) {
             for (let tensor of tensors) {
                 this._inputs.push(new tf.Parameter(tensor.name, [
-                    new tf.Argument('', null, tensor.tensor)
+                    new tf.Argument(tensor.value.name, null, tensor.value)
                 ]));
             }
         }
@@ -1112,12 +1112,10 @@ tf.Attribute = class {
 tf.Tensor = class {
 
     constructor(tensor, name, kind) {
-        this._tensor = tensor;
+        this._type = new tf.TensorType(tensor.dtype, tensor.tensor_shape || tensor.tensorShape);
         this._name = name;
-        if (kind) {
-            this._kind = kind;
-        }
-        this._type = new tf.TensorType(this._tensor.dtype, this._tensor.tensor_shape || this._tensor.tensorShape);
+        this._kind = kind || null;
+        this._tensor = tensor;
     }
 
     get name() {
@@ -1129,7 +1127,7 @@ tf.Tensor = class {
     }
 
     get kind() {
-        return this._kind || null;
+        return this._kind;
     }
 
     set kind(value) {
@@ -1481,7 +1479,7 @@ tf.TensorBundle = class {
                         let tensor = new tf.proto.TensorProto();
                         tensor.dtype = meta.type;
                         tensor.tensor_shape = meta.shape;
-                        this._tensors.push(new tf.Tensor(tensor, meta.name, 'Tensor'));
+                        this._tensors.push(new tf.Tensor(tensor, meta.name, null));
                     }
                 }
                 break;
@@ -1496,7 +1494,7 @@ tf.TensorBundle = class {
                         const offset = entry.offset.toNumber();
                         const size = entry.size.toNumber();
                         tensor.tensor_content = shards[entry.shard_id].slice(offset, offset + size);
-                        this._tensors.push(new tf.Tensor(tensor, name, 'Tensor'));
+                        this._tensors.push(new tf.Tensor(tensor, name, null));
                     }
                 });
                 break;
