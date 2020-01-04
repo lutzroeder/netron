@@ -731,6 +731,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "content",
           "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
           "name": "input",
           "type": "string"
@@ -742,10 +743,12 @@
           "type": "string"
         },
         {
+          "default": "strict",
           "description": "Instruction on what to do if a byte sequence is given to analyze that\ncontains characters not of the given `encoding`. By default, it is\n'strict', meaning that a UnicodeDecodeError will be raised. Other\nvalues are 'ignore' and 'replace'.\n",
           "name": "decode_error"
         },
         {
+          "default": null,
           "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
           "name": "strip_accents"
         },
@@ -756,16 +759,20 @@
           "type": "boolean"
         },
         {
+          "default": null,
           "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer is not callable``.\n",
           "name": "preprocessor"
         },
         {
+          "default": null,
           "description": "Override the string tokenization step while preserving the\npreprocessing and n-grams generation steps.\nOnly applies if ``analyzer == 'word'``.\n",
           "name": "tokenizer"
         },
         {
+          "default": "None",
           "description": "If 'english', a built-in stop word list for English is used.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
-          "name": "stop_words"
+          "name": "stop_words",
+          "type": "string"
         },
         {
           "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp select tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n",
@@ -778,8 +785,10 @@
           "name": "ngram_range"
         },
         {
+          "default": "word",
           "description": "Whether the feature should be made of word n-gram or character\nn-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n\n.. versionchanged:: 0.21\n\nSince v0.21, if ``input`` is ``filename`` or ``file``, the data is\nfirst read from the file and then passed to the given callable\nanalyzer.\n",
-          "name": "analyzer"
+          "name": "analyzer",
+          "type": "string"
         },
         {
           "default": "1.0",
@@ -794,9 +803,11 @@
         {
           "default": null,
           "description": "If not None, build a vocabulary that only consider the top\nmax_features ordered by term frequency across the corpus.\n\nThis parameter is ignored if vocabulary is not None.\n",
-          "name": "max_features"
+          "name": "max_features",
+          "type": "int32"
         },
         {
+          "default": null,
           "description": "Either a Mapping (e.g., a dict) where keys are terms and values are\nindices in the feature matrix, or an iterable over terms. If not\ngiven, a vocabulary is determined from the input documents. Indices\nin the mapping should not be repeated and should not have any gap\nbetween 0 and the largest index.\n",
           "name": "vocabulary",
           "option": "optional"
@@ -808,6 +819,7 @@
           "type": "boolean"
         },
         {
+          "default": "np.int64",
           "description": "Type of the matrix returned by fit_transform() or transform().\n",
           "name": "dtype",
           "option": "optional"
@@ -822,6 +834,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "content",
           "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
           "name": "input",
           "type": "string"
@@ -833,10 +846,12 @@
           "type": "string"
         },
         {
+          "default": "strict",
           "description": "Instruction on what to do if a byte sequence is given to analyze that\ncontains characters not of the given `encoding`. By default, it is\n'strict', meaning that a UnicodeDecodeError will be raised. Other\nvalues are 'ignore' and 'replace'.\n",
           "name": "decode_error"
         },
         {
+          "default": null,
           "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
           "name": "strip_accents"
         },
@@ -861,6 +876,7 @@
           "name": "analyzer"
         },
         {
+          "default": null,
           "description": "If a string, it is passed to _check_stop_list and the appropriate stop\nlist is returned. 'english' is currently the only supported string\nvalue.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
           "name": "stop_words"
         },
@@ -876,18 +892,19 @@
         },
         {
           "default": "1.0",
-          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly higher than the given threshold (corpus-specific\nstop words).\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly higher than the given threshold (corpus-specific\nstop words).\nIf float in range [0.0, 1.0], the parameter represents a proportion of\ndocuments, integer absolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
           "name": "max_df"
         },
         {
           "default": "1",
-          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly lower than the given threshold. This value is also\ncalled cut-off in the literature.\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly lower than the given threshold. This value is also\ncalled cut-off in the literature.\nIf float in range of [0.0, 1.0], the parameter represents a proportion\nof documents, integer absolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
           "name": "min_df"
         },
         {
           "default": null,
           "description": "If not None, build a vocabulary that only consider the top\nmax_features ordered by term frequency across the corpus.\n\nThis parameter is ignored if vocabulary is not None.\n",
-          "name": "max_features"
+          "name": "max_features",
+          "type": "int32"
         },
         {
           "default": null,
@@ -908,6 +925,7 @@
           "option": "optional"
         },
         {
+          "default": "l2",
           "description": "Each output row will have unit norm, either:\n* 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n* 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
           "name": "norm"
         },
@@ -1160,7 +1178,8 @@
           "default": null,
           "description": "The number of jobs to use for the computation. This will only provide\nspeedup for n_targets > 1 and sufficient large problems.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
           "name": "n_jobs",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         }
       ],
       "description": "\nOrdinary least squares Linear Regression.\n\nLinearRegression fits a linear model with coefficients w = (w1, ..., wp)\nto minimize the residual sum of squares between the observed targets in\nthe dataset, and the targets predicted by the linear approximation.\n",

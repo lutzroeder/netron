@@ -128,7 +128,8 @@ def update_attributes(schema, lines):
             "str {'filename', 'file', 'content'}",
             "str, {'word', 'char', 'char_wb'} or callable",
             "str {'english'}, list, or None (default=None)",
-            "{'scale', 'auto'} or float, optional (default='scale')"
+            "{'scale', 'auto'} or float, optional (default='scale')",
+            "{'word', 'char', 'char_wb'} or callable, default='word'"
         }
         if line == 'str':
             line = 'string'
