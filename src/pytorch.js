@@ -92,6 +92,7 @@ pytorch.ModelFactory = class {
                 constructorTable['torch.nn.modules.dropout.Dropout'] = function() {};
                 constructorTable['torch.nn.modules.dropout.Dropout2d'] = function() {};
                 constructorTable['torch.nn.modules.dropout.Dropout3d'] = function() {};
+                constructorTable['torch.nn.modules.fold.Unfold'] = function() {};
                 constructorTable['torch.nn.modules.instancenorm.InstanceNorm1d'] = function() {};
                 constructorTable['torch.nn.modules.instancenorm.InstanceNorm2d'] = function() {};
                 constructorTable['torch.nn.modules.instancenorm.InstanceNorm3d'] = function() {};
