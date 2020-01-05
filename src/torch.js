@@ -681,7 +681,7 @@ torch.T7Reader = class {
 
     constructor(buffer, callback) {
         this._callback = callback; 
-        this._memo = {};
+        this._memo = new Map();
 
         this._registry = {};
         this._registry['bnn.Binary'] = function(reader) { reader.nn(this); };
@@ -897,8 +897,8 @@ torch.T7Reader = class {
 
     object() {
         let index = this.int32();
-        if (this._memo[index]) {
-            return this._memo[index];
+        if (this._memo.has(index)) {
+            return this._memo.get(index);
         }
 
         let version = this.string();
@@ -913,7 +913,7 @@ torch.T7Reader = class {
         }
 
         let obj = { __type__: name };
-        this._memo[index] = obj;
+        this._memo.set(index, obj);
 
         let constructor = this._registry[name];
         if (constructor) {
@@ -931,11 +931,11 @@ torch.T7Reader = class {
 
     table() {
         let index = this.int32();
-        if (this._memo[index]) {
-            return this._memo[index];
+        if (this._memo.has(index)) {
+            return this._memo.get(index);
         }
         let table = {};
-        this._memo[index] = table;
+        this._memo.set(index, table);
         let size = this.int32();
         let convert = true;
         let sum = 0;
@@ -960,7 +960,7 @@ torch.T7Reader = class {
                 }
                 list.push(item);
             }
-            this._memo[index] = list;
+            this._memo.set(index, list);
             return list;
         }
         return table;
@@ -968,17 +968,14 @@ torch.T7Reader = class {
 
     function() {
         let index = this.int32();
-        if (this._memo[index]) {
-            return this._memo[index];
+        if (this._memo.has(index)) {
+            return this._memo.get(index);
         }
-
         let size = this.int32();
         let dumped = this.bytes(size);
         let upvalues = this.read();
-
         let func = { __type__: 'Function', size: size, dumped: dumped, upvalues: upvalues };
-
-        this._memo[index] = func;
+        this._memo.set(index, func);
         return func;
     }
 
