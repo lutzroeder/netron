@@ -1474,11 +1474,43 @@ tf.TensorBundle = class {
         switch (format) {
             case 1: {
                 const header = tf.proto.SavedTensorSlices.decode(entries.get(''));
+                let data = new Map();
+                for (let pair of entries) {
+                    if (pair[0] !== '' && pair[0] !== 'global_step') {
+                        const slices = tf.proto.SavedTensorSlices.decode(pair[1]);
+                        const name = slices.data.name;
+                        const tensor = slices.data.data;
+                        if (!data.has(name)) {
+                            if (tensor.tensor_content && tensor.tensor_content.length > 0) {
+                                data.set(name, { key: 'tensor_content', value: tensor.tensor_content });
+                            }
+                            else {
+                                const keys = Object.keys(tensor).filter((key) => key.endsWith('_val') && tensor[key] && tensor[key].length > 0);
+                                data.set(name, keys.length == 1 ? { key: keys[0], value: tensor[keys[0]] } : null);
+                            }
+                        }
+                        else {
+                            let item = data.get(name);
+                            if (item !== null) {
+                                if (tensor[item.key] && tensor[item.key].length > 0) {
+                                    item.value = item.value.concat(tensor[item.key]);
+                                }
+                                else {
+                                    data.set(name, null);
+                                }
+                            }
+                        }
+                    }
+                }
                 for (let meta of header.meta.tensor) {
                     if (meta.name !== 'global_step') {
                         let tensor = new tf.proto.TensorProto();
                         tensor.dtype = meta.type;
                         tensor.tensor_shape = meta.shape;
+                        const item = data.get(meta.name);
+                        if (item) {
+                            tensor[item.key] = item.value;
+                        }
                         this._tensors.push(new tf.Tensor(tensor, meta.name, null));
                     }
                 }
