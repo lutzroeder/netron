@@ -1,6 +1,6 @@
 [
   {
-    "name": "Conv1d",
+    "name": "torch.nn.modules.conv.Conv1d",
     "schema": {
       "attributes": [
         {
@@ -42,12 +42,11 @@
           "name": "stride"
         }
       ],
-      "category": "Layer",
-      "package": "torch.nn.modules.conv"
+      "category": "Layer"
     }
   },
   {
-    "name": "ConvTranspose1d",
+    "name": "torch.nn.modules.conv.ConvTranspose1d",
     "schema": {
       "attributes": [
         {
@@ -89,12 +88,11 @@
           "name": "stride"
         }
       ],
-      "category": "Layer",
-      "package": "torch.nn.modules.conv"
+      "category": "Layer"
     }
   },
   {
-    "name": "Conv2d",
+    "name": "torch.nn.modules.conv.Conv2d",
     "schema": {
       "attributes": [
         {
@@ -139,12 +137,11 @@
           "name": "stride"
         }
       ],
-      "category": "Layer",
-      "package": "torch.nn.modules.conv"
+      "category": "Layer"
     }
   },
   {
-    "name": "ConvTranspose2d",
+    "name": "torch.nn.modules.conv.ConvTranspose2d",
     "schema": {
       "attributes": [
         {
@@ -189,76 +186,66 @@
           "name": "stride"
         }
       ],
-      "category": "Layer",
-      "package": "torch.nn.modules.conv"
+      "category": "Layer"
     }
   },
   {
-    "name": "Conv3d",
+    "name": "torch.nn.modules.conv.Conv3d",
     "schema": {
-      "category": "Layer",
-      "package": "torch.nn.modules.conv"
+      "category": "Layer"
     }
   },
   {
-    "name": "ConvTranspose3d",
+    "name": "torch.nn.modules.conv.ConvTranspose3d",
     "schema": {
-      "category": "Layer",
-      "package": "torch.nn.modules.conv"
+      "category": "Layer"
     }
   },
   {
-    "name": "Linear",
+    "name": "torch.nn.modules.linear.Linear",
     "schema": {
       "attributes": [],
-      "category": "Layer",
-      "package": "torch.nn.modules.linear"
+      "category": "Layer"
     }
   },
   {
-    "name": "Sigmoid",
+    "name": "torch.nn.modules.activation.Sigmoid",
     "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
     "name": "Softmax",
     "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "Softmax2d",
+    "name": "torch.nn.modules.activation.Softmax2d",
     "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "Softplus",
+    "name": "torch.nn.modules.activation.Softplus",
     "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "Tanh",
+    "name": "torch.nn.modules.activation.Tanh",
     "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "LogSoftmax",
+    "name": "torch.nn.modules.activation.LogSoftmax",
     "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "ReLU",
+    "name": "torch.nn.modules.activation.ReLU",
     "schema": {
       "attributes": [
         {
@@ -275,66 +262,58 @@
           "name": "value"
         }
       ],
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "ReLU6",
+    "name": "torch.nn.modules.activation.ReLU6",
     "schema": {
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "PReLU",
+    "name": "torch.nn.modules.activation.PReLU",
     "schema": {
       "attributes": [],
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "ELU",
+    "name": "torch.nn.modules.activation.ELU",
     "schema": {
       "attributes": [],
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "GLU",
+    "name": "torch.nn.modules.activation.GLU",
     "schema": {
       "attributes": [],
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "Hardtanh",
+    "name": "torch.nn.modules.activation.Hardtanh",
     "schema": {
       "attributes": [],
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "LeakyReLU",
+    "name": "torch.nn.modules.activation.LeakyReLU",
     "schema": {
       "attributes": [],
-      "category": "Activation",
-      "package": "torch.nn.modules.activation"
+      "category": "Activation"
     }
   },
   {
-    "name": "MaxPool1d",
+    "name": "torch.nn.modules.pooling.MaxPool1d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "MaxPool2d",
+    "name": "torch.nn.modules.pooling.MaxPool2d",
     "schema": {
       "attributes": [
         {
@@ -354,40 +333,35 @@
           "visible": false
         }
       ],
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "MaxPool3d",
+    "name": "torch.nn.modules.pooling.MaxPool3d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "MaxUnpool1d",
+    "name": "torch.nn.modules.pooling.MaxUnpool1d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "MaxUnpool2d",
+    "name": "torch.nn.modules.pooling.MaxUnpool2d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "MaxUnpool3d",
+    "name": "torch.nn.modules.pooling.MaxUnpool3d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AvgPool2d",
+    "name": "torch.nn.modules.pooling.AvgPool2d",
     "schema": {
       "attributes": [
         {
@@ -403,69 +377,60 @@
           "visible": false
         }
       ],
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AvgPool3d",
+    "name": "torch.nn.modules.pooling.AvgPool3d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AdaptiveAvgPool1d",
+    "name": "torch.nn.modules.pooling.AdaptiveAvgPool1d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AdaptiveAvgPool2d",
+    "name": "torch.nn.modules.pooling.AdaptiveAvgPool2d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AdaptiveAvgPool3d",
+    "name": "torch.nn.modules.pooling.AdaptiveAvgPool3d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AdaptiveMaxPool1d",
+    "name": "torch.nn.modules.pooling.AdaptiveMaxPool1d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AdaptiveMaxPool2d",
+    "name": "torch.nn.modules.pooling.AdaptiveMaxPool2d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "AdaptiveMaxPool3d",
+    "name": "torch.nn.modules.pooling.AdaptiveMaxPool3d",
     "schema": {
-      "category": "Pool",
-      "package": "torch.nn.modules.pooling"
+      "category": "Pool"
     }
   },
   {
-    "name": "BatchNorm1d",
+    "name": "torch.nn.modules.batchnorm.BatchNorm1d",
     "schema": {
       "attributes": [],
-      "category": "Normalization",
-      "package": "torch.nn.modules.batchnorm"
+      "category": "Normalization"
     }
   },
   {
-    "name": "BatchNorm2d",
+    "name": "torch.nn.modules.batchnorm.BatchNorm2d",
     "schema": {
       "attributes": [
         {
@@ -506,26 +471,23 @@
           "name": "num_batches_tracked",
           "visible": false
         }
-      ],
-      "package": "torch.nn.modules.batchnorm"
+      ]
     }
   },
   {
-    "name": "GroupNorm",
+    "name": "torch.nn.modules.normalization.GroupNorm",
     "schema": {
-      "category": "Normalization",
-      "package": "torch.nn.modules.normalization"
+      "category": "Normalization"
     }
   },
   {
-    "name": "LayerNorm",
+    "name": "torch.nn.modules.normalization.LayerNorm",
     "schema": {
-      "category": "Normalization",
-      "package": "torch.nn.modules.normalization"
+      "category": "Normalization"
     }
   },
   {
-    "name": "Dropout2d",
+    "name": "torch.nn.modules.dropout.Dropout2d",
     "schema": {
       "attributes": [
         {
@@ -538,12 +500,11 @@
           "name": "p"
         }
       ],
-      "category": "Dropout",
-      "package": "torch.nn.modules.dropout"
+      "category": "Dropout"
     }
   },
   {
-    "name": "Dropout",
+    "name": "torch.nn.modules.dropout.Dropout",
     "schema": {
       "attributes": [
         {
@@ -556,26 +517,23 @@
           "name": "p"
         }
       ],
-      "category": "Dropout",
-      "package": "torch.nn.modules.dropout"
+      "category": "Dropout"
     }
   },
   {
-    "name": "GRU",
+    "name": "torch.nn.modules.rnn.GRU",
     "schema": {
-      "category": "Layer",
-      "package": "torch.nn.modules.rnn"
+      "category": "Layer"
     }
   },
   {
-    "name": "GRUCell",
+    "name": "torch.nn.modules.rnn.GRUCell",
     "schema": {
-      "category": "Layer",
-      "package": "torch.nn.modules.rnn"
+      "category": "Layer"
     }
   },
   {
-    "name": "LSTM",
+    "name": "torch.nn.modules.rnn.LSTM",
     "schema": {
       "attributes": [
         {
@@ -640,26 +598,23 @@
           "name": "bias_hh_l1",
           "visible": false
         }
-      ],
-      "package": "torch.nn.modules.rnn"
+      ]
     }
   },
   {
-    "name": "LSTMCell",
+    "name": "torch.nn.modules.rnn.LSTMCell",
     "schema": {
-      "category": "Layer",
-      "package": "torch.nn.modules.rnn"
+      "category": "Layer"
     }
   },
   {
-    "name": "RNN",
+    "name": "torch.nn.modules.rnn.RNN",
     "schema": {
-      "category": "Layer",
-      "package": "torch.nn.modules.rnn"
+      "category": "Layer"
     }
   },
   {
-    "name": "Embedding",
+    "name": "torch.nn.modules.sparse.Embedding",
     "schema": {
       "attributes": [
         {
@@ -683,99 +638,81 @@
           "name": "padding_idx"
         }
       ],
-      "category": "Transform",
-      "package": "torch.nn.modules.sparse"
+      "category": "Transform"
     }
   },
   {
-    "name": "ReflectionPad1d",
+    "name": "torch.nn.modules.padding.ReflectionPad1d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ReflectionPad2d",
+    "name": "torch.nn.modules.padding.ReflectionPad2d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ReplicationPad1d",
+    "name": "torch.nn.modules.padding.ReplicationPad1d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ReplicationPad2d",
+    "name": "torch.nn.modules.padding.ReplicationPad2d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ReplicationPad3d",
+    "name": "torch.nn.modules.padding.ReplicationPad3d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ZeroPad2d",
+    "name": "torch.nn.modules.padding.ZeroPad2d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ConstantPad1d",
+    "name": "torch.nn.modules.padding.ConstantPad1d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ConstantPad2d",
+    "name": "torch.nn.modules.padding.ConstantPad2d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "ConstantPad3d",
+    "name": "torch.nn.modules.padding.ConstantPad3d",
     "schema": {
-      "category": "Tensor",
-      "package": "torch.nn.modules.padding"
+      "category": "Tensor"
     }
   },
   {
-    "name": "PixelShuffle",
-    "schema": {
-      "package": "torch.nn.modules.pixelshuffle"
-    }
+    "name": "torch.nn.modules.pixelshuffle.PixelShuffle",
+    "schema": {}
   },
   {
-    "name": "InstanceNorm1d",
-    "schema": {
-      "package": "torch.nn.modules.instancenorm"
-    }
+    "name": "torch.nn.modules.instancenorm.InstanceNorm1d",
+    "schema": {}
   },
   {
-    "name": "InstanceNorm2d",
-    "schema": {
-      "package": "torch.nn.modules.instancenorm"
-    }
+    "name": "torch.nn.modules.instancenorm.InstanceNorm2d",
+    "schema": {}
   },
   {
-    "name": "InstanceNorm3d",
-    "schema": {
-      "package": "torch.nn.modules.instancenorm"
-    }
+    "name": "torch.nn.modules.instancenorm.InstanceNorm3d",
+    "schema": {}
   },
   {
-    "name": "CrossMapLRN2d",
+    "name": "torch.nn.modules.normalization.CrossMapLRN2d",
     "schema": {
       "attributes": [
         {

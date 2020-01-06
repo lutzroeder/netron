@@ -951,7 +951,7 @@ pytorch.Graph = class {
                         new pytorch.Argument(state.id, null, tensor)
                     ]);
                 });
-                this._nodes.push(new pytorch.Node(this._metadata, '', state_group.name, 'torch.nn.modules._', 'Module', attributes, inputs, []));
+                this._nodes.push(new pytorch.Node(this._metadata, '', state_group.name, 'torch.nn.Module', attributes, inputs, []));
             }
         }
     }
@@ -1008,8 +1008,8 @@ pytorch.Graph = class {
 
     _createNode(groups, key, obj, args) {
 
-        const operator = obj.__name__;
-        const schema = this._metadata.getSchema(operator);
+        const type = obj.__module__ + '.' + obj.__name__;
+        const schema = this._metadata.getSchema(type);
 
         let inputSchema = [ { name: 'input'} ];
         if (schema && schema.inputs && schema.inputs.length > 0) {
@@ -1061,7 +1061,7 @@ pytorch.Graph = class {
             }
         }
 
-        const node = new pytorch.Node(this._metadata, group, name, obj.__module__, obj.__name__, attributes, inputs, outputs);
+        const node = new pytorch.Node(this._metadata, group, name, type, attributes, inputs, outputs);
         this._nodes.push(node);
         return node;
     }
@@ -1134,12 +1134,11 @@ pytorch.Argument = class {
 
 pytorch.Node = class {
 
-    constructor(metadata, group, name, __module__, __name__, attributes, inputs, outputs) {
+    constructor(metadata, group, name, type, attributes, inputs, outputs) {
         this._metadata = metadata;
         this._group = group || '';
         this._name = name || '';
-        this._operator = __name__;
-        this._package = __module__;
+        this._type = type;
         this._attributes = attributes.map((attribute) => new pytorch.Attribute(this._metadata, this, attribute.name, attribute.value));
         this._inputs = inputs;
         this._outputs = outputs;
@@ -1154,19 +1153,19 @@ pytorch.Node = class {
     }
 
     get operator() {
-        return this._operator;
+        return this._type.split('.').pop();
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.getSchema(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.getSchema(this._type);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
-            schema.name = this._operator;
+            schema.name = this.operator;
             if (schema.description) {
                 schema.description = marked(schema.description);
             }
@@ -1197,7 +1196,7 @@ pytorch.Node = class {
     }
 
     get function() {
-        return !this._package.startsWith('torch.nn.modules.');
+        return !this._type.startsWith('torch.nn.modules.') && this._type !== 'torch.nn.Module';
     }
 
     get attributes() {
