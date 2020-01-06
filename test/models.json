@@ -2150,7 +2150,7 @@
     "type":   "keras",
     "target": "DenseNet121.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "./tools/keras", "sync install zoo" ],
+    "script": "./tools/keras sync install zoo",
     "status": "script"
   },
   {
@@ -2178,14 +2178,14 @@
     "type":   "keras",
     "target": "InceptionResNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "./tools/keras", "sync install zoo" ],
+    "script": "./tools/keras sync install zoo",
     "status": "script"
   },
   {
     "type":   "keras",
     "target": "InceptionV3.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "./tools/keras", "sync install zoo" ],
+    "script": "./tools/keras sync install zoo",
     "status": "script"
   },
   {
@@ -2248,14 +2248,14 @@
     "type":   "keras",
     "target": "MobileNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "./tools/keras", "sync install zoo" ],
+    "script": "./tools/keras sync install zoo",
     "status": "script"
   },
   {
     "type":   "keras",
     "target": "NASNetMobile.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "./tools/keras", "sync install zoo" ],
+    "script": "./tools/keras sync install zoo",
     "status": "script"
   },
   {
@@ -2331,7 +2331,7 @@
     "type":   "keras",
     "target": "VGG16.h5",
     "link":   "https://keras.io/applications",
-    "script": [ "./tools/keras", "sync install zoo" ],
+    "script": "./tools/keras sync install zoo",
     "status": "script"
   },
   {
@@ -3827,10 +3827,26 @@
   },
   {
     "type":   "pytorch",
-    "target": "alexnet.pth",
+    "target": "alexnet.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "alexnet.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "TorchScript v1",
+    "error":  "Unknown statement in 'alexnet.pt'.",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "alexnet_traced.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "TorchScript v1",
+    "error":  "Unknown statement in 'alexnet_traced.pt'.",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
@@ -3838,6 +3854,28 @@
     "source": "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
     "format": "PyTorch",
     "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py"
+  },
+  {
+    "type":   "pytorch",
+    "target": "blitz_neural_networks_tutorial_traced.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial_traced.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
+    "target": "blitz_neural_networks_tutorial.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial.pt]",
+    "error":  "Unknown statement in 'blitz_neural_networks_tutorial.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
+    "target": "blitz_cifar10_tutorial.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3748500/blitz_cifar10_tutorial.zip[blitz_cifar10_tutorial.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
     "type":   "pytorch",
@@ -3868,16 +3906,41 @@
   },
   {
     "type":   "pytorch",
-    "target": "densenet161.pth",
+    "target": "cruise_cutin_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_cutin_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "cruise_go_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_go_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "densenet161.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
   },
   {
     "type":   "pytorch",
-    "target": "densenet121.pth",
+    "target": "densenet161.pt",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "error":  "Unknown statement in 'densenet161.pt'.",
+    "render": "skip",
+    "script": "./tools/pytorch sync install zoo",
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "densenet161_traced.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "render": "skip",
+    "error":  "Unknown function argument in 'densenet161_traced.pt'.",
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
   },
   {
@@ -3887,10 +3950,51 @@
   },
   {
     "type":   "pytorch",
-    "target": "inception_v3.pth",
+    "target": "inception_v3.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "inception_v3.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown statement in 'inception_v3.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "inception_v3_traced.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown statement in 'inception_v3_traced.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "inception_v3_google-1a9a5a14.pth",
+    "source": "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
+  },
+  {
+    "type":   "pytorch",
+    "target": "junction_mlp_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/junction_mlp_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "lane_scanning_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/lane_scanning_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mask_r_cnn.pth",
+    "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/mask_r_cnn.pth?raw=true",
+    "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
   },
   {
     "type":   "pytorch",
@@ -3901,27 +4005,23 @@
   },
   {
     "type":   "pytorch",
-    "target": "mobilenet_v2.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "type":   "pytorch",
-    "target": "inception_v3_google-1a9a5a14.pth",
-    "source": "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
-  },
-  {
-    "type":   "pytorch",
-    "target": "mask_r_cnn.pth",
-    "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/mask_r_cnn.pth?raw=true",
-    "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
-  },
-  {
-    "type":   "pytorch",
     "target": "mnist_linear.ckpt",
     "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear.ckpt]",
     "format": "PyTorch",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mnist_linear_torchscript_1.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_1.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mnist_linear_torchscript_2.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_2.pt]",
+    "format": "TorchScript v1",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -3933,10 +4033,90 @@
   },
   {
     "type":   "pytorch",
+    "target": "mobilenet_quantized_scripted_925.pt",
+    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/pytorch/android-demo-app"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mobilenet_v2.pkl.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mobilenet_v2.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown statement in 'mobilenet_v2.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mobilenet_v2_traced.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown function argument in 'mobilenet_v2_traced.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "model-reddit16-f140225004_2.pt1",
+    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1?raw=true",
+    "error":  "Unknown function argument in 'model-reddit16-f140225004_2.pt1'.",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/pytorch/android-demo-app"
+  },
+  {
+    "type":   "pytorch",
     "target": "model_chall_train_152ft_384x288.pth.tar",
     "source": "https://www.dropbox.com/s/hfz5nkd39uisvbr/model_chall_train_152ft_384x288.pth.tar?dl=1",
     "format": "PyTorch",
     "link":   "https://github.com/JimmySuen/integral-human-pose"
+  },
+  {
+    "type":   "pytorch",
+    "target": "netron_issue_313_v1.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/313"
+  },
+  {
+    "type":   "pytorch",
+    "target": "netron_issue_313_v2.pt",
+    "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v2.pt]",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/313"
+  },
+  {
+    "type":   "pytorch",
+    "target": "pedestrian_interaction_position_embedding.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "pedestrian_interaction_prediction_layer.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_prediction_layer.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "pedestrian_interaction_single_lstm.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_single_lstm.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "pedestrian_interaction_social_embedding.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_social_embedding.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
@@ -3948,10 +4128,26 @@
   },
   {
     "type":   "pytorch",
-    "target": "resnet18.pth",
+    "target": "resnet18.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet18.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown statement in 'resnet18.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet18_traced.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown statement in 'resnet18_traced.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
@@ -3990,17 +4186,26 @@
   },
   {
     "type":   "pytorch",
-    "target": "resnet50.pth",
+    "target": "resnet101.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
   },
   {
     "type":   "pytorch",
-    "target": "resnet50.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
+    "target": "resnet101.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown statement in 'resnet101.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet101_traced.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "error":  "Unknown statement in 'resnet101_traced.pt'.",
+    "format": "TorchScript v1",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
@@ -4035,9 +4240,19 @@
   },
   {
     "type":   "pytorch",
-    "target": "squeezenet1_0.pth",
+    "target": "shufflenet_v2_x1_0.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "shufflenet_v2_x1_0.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "format": "TorchScript v1",
+    "error":  "Unknown statement in 'shufflenet_v2_x1_0.pt'.",
+    "render": "skip",
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
   },
   {
@@ -4045,6 +4260,31 @@
     "target": "squeezenet1_0-a815701f.pth",
     "source": "https://download.pytorch.org/models/squeezenet1_0-a815701f.pth",
     "format": "PyTorch"
+  },
+  {
+    "type":   "pytorch",
+    "target": "squeezenet1_1.pkl.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "squeezenet1_1.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "format": "TorchScript v1",
+    "error":  "Unknown statement in 'squeezenet1_1.pt'.",
+    "script": "./tools/pytorch sync install zoo",
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "squeezenet1_1_traced.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "format": "TorchScript v1",
+    "error":  "Unknown statement in 'squeezenet1_1_traced.pt'.",
+    "script": "./tools/pytorch sync install zoo",
+    "status": "script"
   },
   {
     "type":   "pytorch",
@@ -4058,6 +4298,27 @@
     "source": "https://raw.githubusercontent.com/MagicLeapResearch/SuperPointPretrainedNetwork/master/superpoint_v1.pth",
     "format": "PyTorch",
     "link":   "https://github.com/MagicLeapResearch/SuperPointPretrainedNetwork"
+  },
+  {
+    "type":   "pytorch",
+    "target": "traced_online_lane_enc.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_lane_enc.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "traced_online_obs_enc.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_obs_enc.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
+    "target": "traced_online_pred_layer.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_pred_layer.pt?raw=true",
+    "format": "TorchScript v1",
+    "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
@@ -4123,18 +4384,36 @@
   },
   {
     "type":   "pytorch",
-    "target": "vgg11_bn.pth",
+    "target": "vgg11_bn.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch",
     "status": "script"
   },
   {
     "type":   "pytorch",
-    "target": "vgg16.pth",
+    "target": "vgg16.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
+    "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch",
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "vgg16.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "format": "TorchScript v1",
+    "error":  "Unknown statement in 'vgg16.pt'.",
+    "script": "./tools/pytorch sync install zoo",
+    "status": "script"
+  },
+  {
+    "type":   "pytorch",
+    "target": "vgg16_traced.pt",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "format": "TorchScript v1",
+    "error":  "Unknown statement in 'vgg16_traced.pt'.",
+    "script": "./tools/pytorch sync install zoo",
     "status": "script"
   },
   {
@@ -5207,291 +5486,5 @@
     "source": "https://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7",
     "format": "Torch v7",
     "link":   "https://github.com/jcjohnson/fast-neural-style"
-  },
-  {
-    "type":   "torchscript",
-    "target": "alexnet.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "format": "TorchScript v1",
-    "error":  "Unknown statement in 'alexnet.pt'.",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "alexnet_traced.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "format": "TorchScript v1",
-    "error":  "Unknown statement in 'alexnet_traced.pt'.",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "blitz_neural_networks_tutorial_traced.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial_traced.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "torchscript",
-    "target": "blitz_neural_networks_tutorial.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial.pt]",
-    "error":  "Unknown statement in 'blitz_neural_networks_tutorial.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "torchscript",
-    "target": "blitz_cifar10_tutorial.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3748500/blitz_cifar10_tutorial.zip[blitz_cifar10_tutorial.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "torchscript",
-    "target": "cruise_cutin_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_cutin_vehicle_model.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "cruise_go_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_go_vehicle_model.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "densenet121.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "error":  "Unknown statement in 'densenet121.pt'.",
-    "render": "skip",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "type":   "torchscript",
-    "target": "densenet121_traced.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "render": "skip",
-    "error":  "Unknown function argument in 'densenet121_traced.pt'.",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "type":   "torchscript",
-    "target": "inception_v3.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown statement in 'inception_v3.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "inception_v3_traced.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown statement in 'inception_v3_traced.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "junction_mlp_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/junction_mlp_vehicle_model.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "lane_scanning_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/lane_scanning_vehicle_model.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "mnist_linear_torchscript_1.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_1.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "torchscript",
-    "target": "mnist_linear_torchscript_2.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3585288/mnist_linear_torchscript.zip[mnist_linear_torchscript_2.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/281"
-  },
-  {
-    "type":   "torchscript",
-    "target": "mobilenet_quantized_scripted_925.pt",
-    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/pytorch/android-demo-app"
-  },
-  {
-    "type":   "torchscript",
-    "target": "mobilenet_v2.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown statement in 'mobilenet_v2.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "mobilenet_v2_traced.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown function argument in 'mobilenet_v2_traced.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "model-reddit16-f140225004_2.pt1",
-    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1?raw=true",
-    "error":  "Unknown function argument in 'model-reddit16-f140225004_2.pt1'.",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/pytorch/android-demo-app"
-  },
-  {
-    "type":   "torchscript",
-    "target": "netron_issue_313_v1.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/313"
-  },
-  {
-    "type":   "torchscript",
-    "target": "netron_issue_313_v2.pt",
-    "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v2.pt]",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/313"
-  },
-  {
-    "type":   "torchscript",
-    "target": "pedestrian_interaction_position_embedding.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "pedestrian_interaction_prediction_layer.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_prediction_layer.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "pedestrian_interaction_single_lstm.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_single_lstm.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "pedestrian_interaction_social_embedding.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_social_embedding.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "resnet18.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown statement in 'resnet18.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "resnet18_traced.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown statement in 'resnet18_traced.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "resnet50.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown statement in 'resnet50.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "resnet50_traced.pt",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "error":  "Unknown statement in 'resnet50_traced.pt'.",
-    "format": "TorchScript v1",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "torchscript",
-    "target": "shufflenet_v2_x1_0.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "format": "TorchScript v1",
-    "error":  "Unknown statement in 'shufflenet_v2_x1_0.pt'.",
-    "render": "skip",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "type":   "torchscript",
-    "target": "squeezenet1_1.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "format": "TorchScript v1",
-    "error":  "Unknown statement in 'squeezenet1_1.pt'.",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "type":   "torchscript",
-    "target": "squeezenet1_1_traced.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "format": "TorchScript v1",
-    "error":  "Unknown statement in 'squeezenet1_1_traced.pt'.",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "type":   "torchscript",
-    "target": "traced_online_lane_enc.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_lane_enc.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "traced_online_obs_enc.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_obs_enc.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "traced_online_pred_layer.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_pred_layer.pt?raw=true",
-    "format": "TorchScript v1",
-    "link":   "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":   "torchscript",
-    "target": "vgg16.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "format": "TorchScript v1",
-    "error":  "Unknown statement in 'vgg16.pt'.",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
-  },
-  {
-    "type":   "torchscript",
-    "target": "vgg16_traced.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "format": "TorchScript v1",
-    "error":  "Unknown statement in 'vgg16_traced.pt'.",
-    "script": [ "./tools/pytorch", "sync install zoo" ],
-    "status": "script"
   }
 ]

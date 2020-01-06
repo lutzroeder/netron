@@ -584,9 +584,10 @@ function next() {
 
     let promise = null;
     if (item.script) {
+        const index = item.script.search(' ');
         const root = path.dirname(__dirname);
-        const command = path.resolve(root, item.script[0]);
-        const args = item.script[1];
+        const command = path.resolve(root, item.script.substring(0, index));
+        const args = item.script.substring(index + 1);
         promise = script(folder, targets, command, args);
     }
     else {
