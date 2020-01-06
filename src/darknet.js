@@ -655,10 +655,6 @@ darknet.Graph = class {
         if (weights) {
             weights.validate();
         }
-
-        if (!infer) {
-            console.log('X')
-        }
     }
 
     get inputs() {
