@@ -414,7 +414,6 @@ function script(folder, targets, command, args) {
                 process.env.COMSPEC = process.env.SHELL;
                 command = '/' + command.split(':').join('').split('\\').join('/');
             }
-            console.log('  ' + command + ' ' + args);
             child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
             process.env.COMSPEC = comspec;
             resolve();
