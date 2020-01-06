@@ -406,7 +406,7 @@ torchscript.Node = class {
     }
 
     get operator() {
-        return this._operator;
+        return this._operator.split('.').pop();
     }
 
     get category() {
@@ -2063,7 +2063,7 @@ torchscript.Container = class {
                     }
                 }
                 this._nodes.push({
-                    name: name.split('.').pop(),
+                    name: name,
                     attributes: attributes,
                     inputs: inputs,
                     outputs: outputs
