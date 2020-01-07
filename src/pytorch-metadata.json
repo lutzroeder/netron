@@ -730,5 +730,1561 @@
       ],
       "category": "Normalization"
     }
+  },
+  {
+    "name": "torch._convolution",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "transposed",
+          "type": "boolean"
+        },
+        {
+          "default": 0,
+          "name": "output_padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "groups",
+          "type": "int64"
+        },
+        {
+          "name": "benchmark",
+          "type": "boolean",
+          "visible": false
+        },
+        {
+          "name": "deterministic",
+          "type": "boolean",
+          "visible": false
+        },
+        {
+          "name": "cudnn_enabled",
+          "type": "boolean",
+          "visible": false
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "bias"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.conv2d",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "groups",
+          "type": "int64"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "bias"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.conv2d_relu",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "groups",
+          "type": "int64"
+        },
+        {
+          "name": "output_scale",
+          "type": "float64"
+        },
+        {
+          "name": "output_zero_point",
+          "type": "int64"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "packed_weight"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.max_pool2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "default": 2,
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.max_pool1d_with_indices",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "return_indices",
+          "type": "boolean"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "indices"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.max_pool2d_with_indices",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "return_indices",
+          "type": "boolean"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "indices"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.adaptive_avg_pool2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]",
+          "visible": false
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.avg_pool1d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "count_include_pad",
+          "type": "boolean"
+        },
+        {
+          "name": "divisor_override"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.avg_pool2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "count_include_pad",
+          "type": "boolean"
+        },
+        {
+          "name": "divisor_override"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.batch_norm",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "type": "boolean",
+          "visible": false
+        },
+        {
+          "default": 0.1,
+          "name": "momentum",
+          "type": "float32"
+        },
+        {
+          "default": 1e-05,
+          "name": "eps",
+          "type": "float32"
+        },
+        {
+          "name": "cudnn_enabled",
+          "type": "boolean",
+          "visible": false
+        }
+      ],
+      "category": "Normalization",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "bias"
+        },
+        {
+          "name": "running_mean"
+        },
+        {
+          "name": "running_var"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.relu_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.relu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.hardtanh_",
+    "schema": {
+      "attributes": [
+        {
+          "name": "min_value",
+          "type": "float64"
+        },
+        {
+          "name": "max_value",
+          "type": "float64"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.sigmoid",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.threshold",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "threshold",
+          "type": "float64"
+        },
+        {
+          "default": 0,
+          "name": "value",
+          "type": "float64"
+        },
+        {
+          "default": false,
+          "name": "inplace",
+          "type": "boolean"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.threshold_",
+    "schema": {
+      "attributes": [
+        {
+          "name": "threshold",
+          "type": "float64"
+        },
+        {
+          "name": "value",
+          "type": "float64"
+        },
+        {
+          "name": "inplace",
+          "type": "boolean"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.softmax",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.log_softmax",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        },
+        {
+          "name": "dtype",
+          "visible": false
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.slice",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "dim",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "start",
+          "type": "int64"
+        },
+        {
+          "default": 9223372036854775807,
+          "name": "end",
+          "type": "int64"
+        },
+        {
+          "default": 1,
+          "name": "step",
+          "type": "int64"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.dropout",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.5,
+          "name": "p",
+          "type": "float64"
+        },
+        {
+          "name": "train",
+          "type": "boolean",
+          "visible": false
+        }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.dropout_",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.5,
+          "name": "p",
+          "type": "float64"
+        },
+        {
+          "name": "train",
+          "type": "boolean",
+          "visible": false
+        }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.addmm",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        },
+        {
+          "default": 1,
+          "name": "beta",
+          "type": "float64"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "mat"
+        },
+        {
+          "name": "mat1"
+        },
+        {
+          "name": "mat2"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.add_",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.pow",
+    "schema": {
+      "attributes": [
+        {
+          "name": "exponent",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.mul_",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.add",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.sub",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.div",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.floordiv",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.sum",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64[]"
+        },
+        {
+          "name": "keepdim",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.mul",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.matmul",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.transpose",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim0",
+          "type": "int64"
+        },
+        {
+          "name": "dim1",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.chunk",
+    "schema": {
+      "attributes": [
+        {
+          "name": "chunks",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.size",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.view",
+    "schema": {
+      "attributes": [
+        {
+          "name": "size",
+          "type": "int64[]",
+          "visible": false
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.to",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dtype",
+          "visible": false
+        },
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "copy",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.reshape",
+    "schema": {
+      "attributes": [
+        {
+          "name": "shape",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Shape",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.select",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        },
+        {
+          "name": "index",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._pack_padded_sequence",
+    "schema": {
+      "attributes": [
+        {
+          "name": "batch_first",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "lenghts"
+        }
+      ],
+      "outputs": []
+    }
+  },
+  {
+    "name": "torch.repeat",
+    "schema": {
+      "attributes": [
+        {
+          "name": "repeats",
+          "type": "int64[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.mean",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64[]"
+        },
+        {
+          "name": "keepdim",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.lstm",
+    "schema": {
+      "attributes": [
+        {
+          "name": "has_biases",
+          "type": "boolean"
+        },
+        {
+          "name": "num_layers",
+          "type": "int64"
+        },
+        {
+          "name": "dropout",
+          "type": "float64"
+        },
+        {
+          "name": "train",
+          "type": "boolean"
+        },
+        {
+          "name": "bidirectional",
+          "type": "boolean"
+        },
+        {
+          "name": "batch_first",
+          "type": "boolean"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "hx"
+        },
+        {
+          "name": "params"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.contiguous",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.squeeze",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "category": "Transform",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.unsqueeze",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "category": "Transform",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.max",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim_or_y",
+          "type": "int64"
+        },
+        {
+          "name": "dim",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.cat",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "inputs"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.expand_as",
+    "schema": {
+      "inputs": [
+        {
+          "name": "inputs"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.permute",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dims",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Shape",
+      "inputs": [
+        {
+          "name": "inputs"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.embedding",
+    "schema": {
+      "attributes": [
+        {
+          "name": "padding_idx",
+          "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "scale_grad_by_freq",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "sparse",
+          "type": "boolean"
+        }
+      ],
+      "category": "Transform",
+      "inputs": [
+        {
+          "name": "inputs"
+        },
+        {
+          "name": "weight"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.flatten",
+    "schema": {
+      "attributes": [
+        {
+          "name": "start_dim",
+          "type": "int64"
+        },
+        {
+          "name": "end_dim",
+          "type": "int64"
+        }
+      ],
+      "category": "Shape",
+      "inputs": [
+        {
+          "name": "inputs"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._pack_padded_sequence",
+    "schema": {
+      "attributes": [
+        {
+          "name": "batch_first",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._pad_packed_sequence",
+    "schema": {
+      "attributes": [
+        {
+          "name": "batch_first",
+          "type": "boolean"
+        },
+        {
+          "name": "padding_value",
+          "type": "float32"
+        },
+        {
+          "name": "total_length",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "data"
+        },
+        {
+          "name": "batch_sizes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.quantize_per_tensor",
+    "schema": {
+      "attributes": [
+        {
+          "name": "scale",
+          "type": "float32"
+        },
+        {
+          "name": "zero_point",
+          "type": "float32"
+        },
+        {
+          "name": "dtype"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
