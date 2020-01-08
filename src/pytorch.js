@@ -176,6 +176,9 @@ pytorch.ModelFactory = class {
                     constructorTable['torchvision.models.detection.rpn.RegionProposalNetwork'] = function() {};
                     constructorTable['torchvision.models.detection.rpn.RPNHead'] = function() {};
                     constructorTable['torchvision.models.detection.transform.GeneralizedRCNNTransform'] = function() {};
+                    constructorTable['torchvision.models.googlenet.BasicConv2d'] = function() {};
+                    constructorTable['torchvision.models.googlenet.GoogLeNet'] = function() {};
+                    constructorTable['torchvision.models.googlenet.Inception'] = function() {};
                     constructorTable['torchvision.models.inception.BasicConv2d'] = function() {};
                     constructorTable['torchvision.models.inception.Inception3'] = function() {};
                     constructorTable['torchvision.models.inception.InceptionAux'] = function() {};
@@ -194,6 +197,8 @@ pytorch.ModelFactory = class {
                     constructorTable['torchvision.models.segmentation.deeplabv3.ASPPPooling'] = function() {};
                     constructorTable['torchvision.models.segmentation.deeplabv3.DeepLabHead'] = function() {};
                     constructorTable['torchvision.models.segmentation.deeplabv3.DeepLabV3'] = function() {};
+                    constructorTable['torchvision.models.segmentation.fcn.FCN'] = function() {};
+                    constructorTable['torchvision.models.segmentation.fcn.FCNHead'] = function() {};
                     constructorTable['torchvision.models.shufflenetv2.ShuffleNetV2'] = function() {};
                     constructorTable['torchvision.models.shufflenetv2.InvertedResidual'] = function() {};
                     constructorTable['torchvision.models.squeezenet.Fire'] = function() {};
@@ -204,12 +209,12 @@ pytorch.ModelFactory = class {
                     constructorTable['torchvision.ops.feature_pyramid_network.FeaturePyramidNetwork'] = function() {};
                     constructorTable['torchvision.ops.feature_pyramid_network.LastLevelMaxPool'] = function() {};
                     constructorTable['torchvision.ops.misc.FrozenBatchNorm2d'] = function() {};
+                    constructorTable['torchvision.ops.poolers.LevelMapper'] = function() {};
                     constructorTable['torchvision.ops.poolers.MultiScaleRoIAlign'] = function() {};
                     constructorTable['torchvision.transforms.transforms.Compose'] = function() {};
                     constructorTable['torchvision.transforms.transforms.Normalize'] = function() {};
                     constructorTable['torchvision.transforms.transforms.Resize'] = function() {};
                     constructorTable['torchvision.transforms.transforms.ToTensor'] = function() {};
-    
                     constructorTable['torch.ByteStorage'] = function (size) { 
                         this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; 
                     };
