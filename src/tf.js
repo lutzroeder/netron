@@ -232,7 +232,7 @@ tf.ModelFactory = class {
                     saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
                     const identifier = 'variables/variables.index';
                     return context.request(identifier, null).then((buffer) => {
-                        return tf.TensorBundle.open(buffer, identifier, context).then((bundle) => {
+                        return tf.TensorBundle.open(buffer, identifier, context, host).then((bundle) => {
                             return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, bundle);
                         });
                     }).catch((error) => {
@@ -260,7 +260,7 @@ tf.ModelFactory = class {
     static _openBundle(context, host) {
         return tf.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier;
-            return tf.TensorBundle.open(context.buffer, identifier, context).then((bundle) => {
+            return tf.TensorBundle.open(context.buffer, identifier, context, host).then((bundle) => {
                 return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
             }).catch((error) => {
                 host.exception(error, false);
@@ -1390,12 +1390,12 @@ tf.TensorShape = class {
 
 tf.TensorBundle = class {
 
-    static open(buffer, identifier, context) {
+    static open(buffer, identifier, context, host) {
         const format = !identifier.toLowerCase().endsWith('.index') ? 1 : 2;
         if (buffer.length <= 48) {
             throw new tf.Error('Invalid index file size.');
         }
-        let reader = new tf.TensorBundle.BinaryReader(buffer);
+        let reader = new tf.TensorBundle.BinaryReader(buffer, host);
         reader.seek(-8);
         const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
         if (!reader.bytes(8).every((value, index) => value === signature[index])) {
@@ -1465,6 +1465,9 @@ tf.TensorBundle = class {
         }
         return Promise.all(promises).then((shards) => {
             return new tf.TensorBundle(format, entries, shards);
+        }).catch((error) => {
+            host.exception(error, false);
+            return new tf.TensorBundle(format, entries, null);
         });
     }
 
@@ -1525,7 +1528,9 @@ tf.TensorBundle = class {
                         tensor.tensor_shape = entry.shape;
                         const offset = entry.offset.toNumber();
                         const size = entry.size.toNumber();
-                        tensor.tensor_content = shards[entry.shard_id].slice(offset, offset + size);
+                        if (shards) {
+                            tensor.tensor_content = shards[entry.shard_id].slice(offset, offset + size);
+                        }
                         this._tensors.push(new tf.Tensor(tensor, name, null));
                     }
                 });
