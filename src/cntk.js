@@ -1130,6 +1130,7 @@ cntk_v1.ComputationNetwork = class {
         };
         op.PerDimMeanVarNormalization = function() {};
         op.Softmax = function() {};
+        op.DynamicAxis = function() {};
 
         let nodes = [];
         this.nodes = {};
@@ -1358,7 +1359,9 @@ cntk_v1.TensorShape = class {
             dim0 = reader.uint32();
         }
         if (!acceptLegacyFormat || dim0 != 0) {
-            this.dims.push(dim0);
+            if (rank > 0) {
+                this.dims.push(dim0);
+            }
             for (let i = 1; i < rank; i++) {
                 this.dims.push(reader.uint32());
             }
