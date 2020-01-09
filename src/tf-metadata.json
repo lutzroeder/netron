@@ -17322,6 +17322,25 @@
           "default": -1,
           "name": "axis",
           "type": "int64"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 1
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "Type of the output tensor. Currently Dequantize supports float and bfloat16.\nIf 'dtype' is 'bfloat16', it only supports 'MIN_COMBINED' mode.",
+          "name": "dtype",
+          "type": "type"
         }
       ],
       "category": "Tensor",
@@ -17345,10 +17364,10 @@
       "outputs": [
         {
           "name": "output",
-          "type": 1
+          "typeAttr": "dtype"
         }
       ],
-      "summary": "Dequantize the 'input' tensor into a float Tensor."
+      "summary": "Dequantize the 'input' tensor into a float or bfloat16 Tensor."
     }
   },
   {
