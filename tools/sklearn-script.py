@@ -129,7 +129,9 @@ def update_attributes(schema, lines):
             "str, {'word', 'char', 'char_wb'} or callable",
             "str {'english'}, list, or None (default=None)",
             "{'scale', 'auto'} or float, optional (default='scale')",
-            "{'word', 'char', 'char_wb'} or callable, default='word'"
+            "{'word', 'char', 'char_wb'} or callable, default='word'",
+            "{'scale', 'auto'} or float, default='scale'",
+            "{'uniform', 'distance'} or callable, default='uniform'"
         }
         if line == 'str':
             line = 'string'

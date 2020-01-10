@@ -108,12 +108,14 @@
           "type": "float32"
         },
         {
+          "default": 200.0,
           "description": "Specify the size of the kernel cache (in MB).\n",
           "name": "cache_size",
           "option": "optional",
           "type": "float32"
         },
         {
+          "default": null,
           "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
           "name": "class_weight",
           "option": "optional"
@@ -216,12 +218,14 @@
           "type": "float32"
         },
         {
+          "default": 200.0,
           "description": "Specify the size of the kernel cache (in MB).\n",
           "name": "cache_size",
           "option": "optional",
           "type": "float32"
         },
         {
+          "default": null,
           "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
           "name": "class_weight",
           "option": "optional"
@@ -315,7 +319,7 @@
         },
         {
           "default": null,
-          "description": "The seed of the pseudo random number generator to use when shuffling\nthe data.  If int, random_state is the seed used by the random number\ngenerator; If RandomState instance, random_state is the random number\ngenerator; If None, the random number generator is the RandomState\ninstance used by `np.random`. Used when ``solver`` == 'sag' or\n'liblinear'.\n",
+          "description": "Used when ``solver`` == 'sag', 'saga' or 'liblinear' to shuffle the\ndata. See :term:`Glossary <random_state>` for details.\n",
           "name": "random_state",
           "option": "optional",
           "type": "int32"
@@ -490,6 +494,7 @@
           "option": "optional"
         },
         {
+          "default": "auto",
           "description": "Algorithm used to compute the nearest neighbors:\n\n- 'ball_tree' will use :class:`BallTree`\n- 'kd_tree' will use :class:`KDTree`\n- 'brute' will use a brute-force search.\n- 'auto' will attempt to decide the most appropriate algorithm\nbased on the values passed to :meth:`fit` method.\n\nNote: fitting on sparse input will override the setting of\nthis parameter, using brute force.\n",
           "name": "algorithm",
           "option": "optional"
@@ -502,10 +507,11 @@
           "type": "int32"
         },
         {
-          "default": "2",
+          "default": 2,
           "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
           "name": "p",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         },
         {
           "default": "minkowski",
@@ -522,7 +528,8 @@
           "default": null,
           "description": "The number of parallel jobs to run for neighbors search.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\nDoesn't affect :meth:`fit` method.\n",
           "name": "n_jobs",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         }
       ],
       "description": "Classifier implementing the k-nearest neighbors vote.\n\nRead more in the :ref:`User Guide <classification>`.\n",
@@ -545,6 +552,7 @@
           "name": "weights"
         },
         {
+          "default": "auto",
           "description": "Algorithm used to compute the nearest neighbors:\n\n- 'ball_tree' will use :class:`BallTree`\n- 'kd_tree' will use :class:`KDTree`\n- 'brute' will use a brute-force search.\n- 'auto' will attempt to decide the most appropriate algorithm\nbased on the values passed to :meth:`fit` method.\n\nNote: fitting on sparse input will override the setting of\nthis parameter, using brute force.\n",
           "name": "algorithm",
           "option": "optional"
@@ -557,10 +565,11 @@
           "type": "int32"
         },
         {
-          "default": "2",
+          "default": 2,
           "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
           "name": "p",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         },
         {
           "default": "minkowski",
@@ -577,7 +586,8 @@
           "default": null,
           "description": "The number of parallel jobs to run for neighbors search.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\nDoesn't affect :meth:`fit` method.\n",
           "name": "n_jobs",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         }
       ],
       "description": "Regression based on k-nearest neighbors.\n\nThe target is predicted by local interpolation of the targets\nassociated of the nearest neighbors in the training set.\n\nRead more in the :ref:`User Guide <regression>`.\n\n.. versionadded:: 0.9\n",
@@ -695,9 +705,10 @@
         },
         {
           "default": null,
-          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.\n\n.. versionadded:: 0.18.0\n",
+          "description": "Used when ``svd_solver`` == 'arpack' or 'randomized'. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
           "name": "random_state",
-          "option": "optional"
+          "option": "optional",
+          "type": "int32"
         }
       ],
       "description": "Principal component analysis (PCA).\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space. The input data is centered\nbut not scaled for each feature before applying the SVD.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nIt can also use the scipy.sparse.linalg ARPACK implementation of the\ntruncated SVD.\n\nNotice that this class does not support sparse input. See\n:class:`TruncatedSVD` for an alternative with sparse data.\n\nRead more in the :ref:`User Guide <PCA>`.\n",
