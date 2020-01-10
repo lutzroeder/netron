@@ -2343,6 +2343,13 @@
   },
   {
     "type":   "mlnet",
+    "target": "BikeDemandForecasting.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4042150/MLModel.zip",
+    "format": "ML.NET v1.4.28305.1",
+    "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
     "target": "FastTreeModel.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeModel.zip?raw=true",
     "format": "ML.NET v1.0.0.0",

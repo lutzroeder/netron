@@ -80,5 +80,13 @@
       "category": "Tensor",
       "description": "Duplicates columns from the dataset."
     }
+  },
+  {
+    "name": "SSAModel",
+    "schema": {
+      "attributes": [
+        { "name": "UseMarkerChars", "type": "boolean" }
+      ]
+    }
   }
 ]

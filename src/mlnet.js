@@ -512,6 +512,8 @@ mlnet.ModelReader = class {
         catalog.register('ProtonNNMCPred', mlnet.ProtonNNMCPred);
         catalog.register('RegressionPredXfer', mlnet.RegressionPredictionTransformer);
         catalog.register('RowToRowMapper', mlnet.RowToRowMapperTransform);
+        catalog.register('SsaForecasting', mlnet.SsaForecastingTransformer);
+        catalog.register('SSAModel', mlnet.AdaptiveSingularSpectrumSequenceModelerInternal);
         catalog.register('SelectColumnsTransform', mlnet.ColumnSelectingTransformer);
         catalog.register('StopWordsTransform', mlnet.StopWordsTransform);
         catalog.register('TensorFlowTransform', mlnet.TensorFlowTransformer);
@@ -2149,7 +2151,7 @@ mlnet.Codec = class {
 mlnet.SequentialTransformerBase = class {
 
     constructor(context) {
-        let reader = context.reader;
+        const reader = context.reader;
         this.WindowSize = reader.int32();
         this.InitialWindowSize = reader.int32();
         this.inputs = [];
@@ -2198,23 +2200,26 @@ mlnet.SequentialAnomalyDetectionTransformBase = class extends mlnet.SequentialTr
     }
 }
 
-mlnet.IidAnomalyDetectionBase = class extends mlnet.SequentialAnomalyDetectionTransformBase {
+mlnet.TimeSeriesUtils = class {
 
-    constructor(context) {
-        super(context);
-        let reader = context.reader;
-        this.WindowedBuffer = mlnet.IidAnomalyDetectionBase._deserializeFixedSizeQueueSingle(reader);
-        this.InitialWindowedBuffer = mlnet.IidAnomalyDetectionBase._deserializeFixedSizeQueueSingle(reader);
-    }
-
-    static _deserializeFixedSizeQueueSingle(reader) {
-        /* let capacity = */ reader.int32();
-        let count = reader.int32();
+    static deserializeFixedSizeQueueSingle(reader) {
+        /* const capacity = */ reader.int32();
+        const count = reader.int32();
         let queue = [];
         for (let i = 0; i < count; i++) {
             queue.push(reader.float32());
         }
         return queue;
+    }
+}
+
+mlnet.IidAnomalyDetectionBase = class extends mlnet.SequentialAnomalyDetectionTransformBase {
+
+    constructor(context) {
+        super(context);
+        let reader = context.reader;
+        this.WindowedBuffer = mlnet.TimeSeriesUtils.deserializeFixedSizeQueueSingle(reader);
+        this.InitialWindowedBuffer = mlnet.TimeSeriesUtils.deserializeFixedSizeQueueSingle(reader);
     }
 }
 
@@ -2242,14 +2247,92 @@ mlnet.IidSpikeDetector = class extends mlnet.IidAnomalyDetectionBaseWrapper {
     }
 }
 
+mlnet.SequenceModelerBase = class {
+
+    constructor(/* context */) {
+    }
+}
+
+mlnet.RankSelectionMethod = {
+    Fixed: 0,
+    Exact: 1,
+    Fact: 2
+}
+
+mlnet.AdaptiveSingularSpectrumSequenceModelerInternal = class extends mlnet.SequenceModelerBase {
+
+    constructor(context) {
+        super(context);
+        const reader = context.reader;
+        this._seriesLength = reader.int32();
+        this._windowSize = reader.int32();
+        this._trainSize = reader.int32();
+        this._rank = reader.int32();
+        this._discountFactor = reader.float32();
+        this._rankSelectionMethod = reader.byte(); // RankSelectionMethod
+        const isWeightSet = reader.byte();
+        this._alpha = reader.float32s(reader.int32());
+        if (context.modelVersionReadable >= 0x00010002) {
+            this._state = reader.float32s(reader.int32());
+        }
+        this.ShouldComputeForecastIntervals = reader.byte();
+        this._observationNoiseVariance = reader.float32();
+        this._autoregressionNoiseVariance = reader.float32();
+        this._observationNoiseMean = reader.float32();
+        this._autoregressionNoiseMean = reader.float32();
+        if (context.modelVersionReadable >= 0x00010002) {
+            this._nextPrediction = reader.float32();
+        }
+        this._maxRank = reader.int32();
+        this._shouldStablize = reader.byte();
+        this._shouldMaintainInfo = reader.byte();
+        this._maxTrendRatio = reader.float64();
+        if (isWeightSet) {
+            this._wTrans = reader.float32s(reader.int32());
+            this._y = reader.float32s(reader.int32());
+        }
+        this._buffer = mlnet.TimeSeriesUtils.deserializeFixedSizeQueueSingle(reader);
+    }
+}
+
+mlnet.SequentialForecastingTransformBase = class extends mlnet.SequentialTransformerBase {
+
+    constructor(context) {
+        super(context);
+        const reader = context.reader;
+        this._outputLength = reader.int32();
+    }
+}
+
+mlnet.SsaForecastingBaseWrapper = class extends mlnet.SequentialForecastingTransformBase {
+
+    constructor(context) {
+        super(context);
+        const reader = context.reader;
+        this.IsAdaptive = reader.boolean();
+        this.Horizon = reader.int32();
+        this.ConfidenceLevel = reader.float32();
+        this.WindowedBuffer = mlnet.TimeSeriesUtils.deserializeFixedSizeQueueSingle(reader);
+        this.InitialWindowedBuffer = mlnet.TimeSeriesUtils.deserializeFixedSizeQueueSingle(reader);
+        this.Model = context.open('SSA');
+    }
+}
+
+mlnet.SsaForecastingTransformer = class extends mlnet.SsaForecastingBaseWrapper {
+
+    constructor(context) {
+        super(context);
+    }
+}
+
 mlnet.ColumnSelectingTransformer = class {
 
     constructor(context) {
-        let reader = context.reader;
-        let keepColumns = reader.boolean();
+        const reader = context.reader;
+        const keepColumns = reader.boolean();
         this.KeepHidden = reader.boolean();
         this.IgnoreMissing = reader.boolean();
-        var length = reader.int32();
+        const length = reader.int32();
         this.inputs = [];
         for (let i = 0; i < length; i++) {
             this.inputs.push({ name: context.string() });
