@@ -381,7 +381,7 @@ darknet.Graph = class {
                         layer.out_h = layer.output_layer.out_h;
                         layer.out_w = layer.output_layer.out_w;
                         layer.out_c = output_filters;
-                        layer.out = layer.output_layer.outputs;
+                        layer.out = layer.output_layer.out;
                         break;
                     }
                     case 'rnn': {
