@@ -69952,6 +69952,7 @@
           "type": "string"
         }
       ],
+      "description": "Converts each string in the input Tensor to lowercase.",
       "inputs": [
         {
           "name": "input",
@@ -70302,6 +70303,7 @@
           "type": "string"
         }
       ],
+      "description": "Converts each string in the input Tensor to uppercase.",
       "inputs": [
         {
           "name": "input",
@@ -77149,6 +77151,56 @@
         }
       ],
       "summary": "Returns 0 if x == 0, and x / y otherwise, elementwise."
+    }
+  },
+  {
+    "name": "Xlog1py",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns 0 if x == 0, and x * log1p(y) otherwise, elementwise."
     }
   },
   {
