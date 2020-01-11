@@ -2366,7 +2366,7 @@
           "option": "optional"
         },
         {
-          "description": "(*float*): Optionally provide a default value for recieving empty tensors",
+          "description": "(*float*): Optionally provide a default value for receiving empty tensors",
           "name": "default_value",
           "option": "optional"
         }
@@ -3299,7 +3299,7 @@
   {
     "name": "SparseLengthsSum",
     "schema": {
-      "description": "\nPulls in slices of the input tensor, groups them into segments and applies\n'Sum' to each segment. Segments are defined by their LENGTHS.\n\nThis op is basically Gather and LengthsSum fused together.\n\nINDICES should contain integers in range 0..N-1 where N is the first dimension\nof DATA. INDICES represent which slices of DATA need to be pulled in.\n\nLENGTHS is a vector that defines slice sizes by first dimention of DATA. Values\nbelonging to the same segment are aggregated together. sum(LENGTHS) has\nto match INDICES size.\n\nThe first dimension of the output is equal to the number of input segment,\ni.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.\n\nSummation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.\n  ",
+      "description": "\nPulls in slices of the input tensor, groups them into segments and applies\n'Sum' to each segment. Segments are defined by their LENGTHS.\n\nThis op is basically Gather and LengthsSum fused together.\n\nINDICES should contain integers in range 0..N-1 where N is the first dimension\nof DATA. INDICES represent which slices of DATA need to be pulled in.\n\nLENGTHS is a vector that defines slice sizes by first dimension of DATA. Values\nbelonging to the same segment are aggregated together. sum(LENGTHS) has\nto match INDICES size.\n\nThe first dimension of the output is equal to the number of input segment,\ni.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.\n\nSummation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.\n  ",
       "inputs": [
         {
           "description": "Input tensor, slices of which are aggregated.",
@@ -8747,7 +8747,7 @@
           "name": "DATA"
         },
         {
-          "description": "Tensor of int32/int64 ranges, of dims (N, M, 2). Where N is number of examples and M is a size of each example. Last dimention represents a range in the format (start, lengths)",
+          "description": "Tensor of int32/int64 ranges, of dims (N, M, 2). Where N is number of examples and M is a size of each example. Last dimension represents a range in the format (start, lengths)",
           "name": "RANGES"
         },
         {
@@ -8794,7 +8794,7 @@
   {
     "name": "SortedSegmentRangeMax",
     "schema": {
-      "description": "\nApplies 'Max' to each segment of input tensor. In order to allow for more\nefficient implementation of 'Max', the input segments have to be contiguous\nand non-empty.\n\nSEGMENT_IDS is a vector that maps each of the first dimension slices of the\nDATA to a particular group (segment). Values belonging to the same segment are\naggregated together.\n\nThe first dimension of the output is equal to the number of input segments,\ni.e. `SEGMENT_IDS[-1]+1`. Other dimensions are inherited from the input tensor.\n\nMax computation is done element-wise, so that each element of the output slice corresponds to the max value of the respective elements in the input slices. Operation doesn't change the shape of individual blocks. This implementation imitates torch nn.Max operator. If the maximum value occurs more than once, the operator will return the first occurence of value. When computing the gradient using the backward propagation, the gradient input corresponding to the first occurence of the maximum value will be used.\n  ",
+      "description": "\nApplies 'Max' to each segment of input tensor. In order to allow for more\nefficient implementation of 'Max', the input segments have to be contiguous\nand non-empty.\n\nSEGMENT_IDS is a vector that maps each of the first dimension slices of the\nDATA to a particular group (segment). Values belonging to the same segment are\naggregated together.\n\nThe first dimension of the output is equal to the number of input segments,\ni.e. `SEGMENT_IDS[-1]+1`. Other dimensions are inherited from the input tensor.\n\nMax computation is done element-wise, so that each element of the output slice corresponds to the max value of the respective elements in the input slices. Operation doesn't change the shape of individual blocks. This implementation imitates torch nn.Max operator. If the maximum value occurs more than once, the operator will return the first occurrence of value. When computing the gradient using the backward propagation, the gradient input corresponding to the first occurrence of the maximum value will be used.\n  ",
       "inputs": [
         {
           "description": "Input tensor to be aggregated",
@@ -9739,7 +9739,7 @@
           "name": "val"
         },
         {
-          "description": "An optional additonal threshold to scale the orignal threshold",
+          "description": "An optional additional threshold to scale the orignal threshold",
           "name": "additional_threshold"
         }
       ],
@@ -11005,7 +11005,7 @@
           "option": "optional"
         },
         {
-          "description": "(*float*): Optionally provide a default value for recieving empty tensors",
+          "description": "(*float*): Optionally provide a default value for receiving empty tensors",
           "name": "default_value",
           "option": "optional"
         }
@@ -11188,7 +11188,7 @@
           "option": "optional"
         },
         {
-          "description": "(*float*): Optionally provide a default value for recieving empty tensors",
+          "description": "(*float*): Optionally provide a default value for receiving empty tensors",
           "name": "default_value",
           "option": "optional"
         }
@@ -12039,7 +12039,7 @@
   {
     "name": "FloatToFused8BitRowwiseQuantized",
     "schema": {
-      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, the first 4 bytes\nof each row in the output matrix are a 32-bit float storing the scale,\nthe next 4 bytes store the bias as a 32-bit float, and all remaining\nbytes in the row encode single quantized values.)\n",
+      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, each row contains\nint8 elements for each quantized element, and the last 8 bytes\nof each row in the output matrix are a float storing the scale\nfollowed by another float containing the scale.)\n",
       "inputs": [
         {
           "description": "Float32 input data",
@@ -13072,7 +13072,7 @@
           "option": "optional"
         }
       ],
-      "description": "\nPulls in slices of the input tensor, groups them into segments and applies\n'WeightedSum' to each segment. Segments are defined by their LENGTHS.\n\nThis op is basically Gather and LengthsWeightedSum fused together.\n\nINDICES should contain integers in range 0..N-1 where N is the first dimension\nof DATA. INDICES represent which slices of DATA need to be pulled in.\n\nLENGTHS is a vector that defines slice sizes by first dimention of DATA. Values\nbelonging to the same segment are aggregated together. sum(LENGTHS) has\nto match INDICES size.\n\nThe first dimension of the output is equal to the number of input segment,\ni.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.\n\nInput slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.\n  ",
+      "description": "\nPulls in slices of the input tensor, groups them into segments and applies\n'WeightedSum' to each segment. Segments are defined by their LENGTHS.\n\nThis op is basically Gather and LengthsWeightedSum fused together.\n\nINDICES should contain integers in range 0..N-1 where N is the first dimension\nof DATA. INDICES represent which slices of DATA need to be pulled in.\n\nLENGTHS is a vector that defines slice sizes by first dimension of DATA. Values\nbelonging to the same segment are aggregated together. sum(LENGTHS) has\nto match INDICES size.\n\nThe first dimension of the output is equal to the number of input segment,\ni.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.\n\nInput slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.\n  ",
       "inputs": [
         {
           "description": "Input tensor for the summation",
@@ -15985,7 +15985,7 @@
   {
     "name": "HalfFloatToFused8BitRowwiseQuantized",
     "schema": {
-      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, the first 4 bytes\nof each row in the output matrix are a 32-bit float storing the scale,\nthe next 4 bytes store the bias as a 32-bit float, and all remaining\nbytes in the row encode single quantized values.)\n",
+      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, each row contains\nint8 elements for each quantized element, and the last 8 bytes\nof each row in the output matrix are a float storing the scale\nfollowed by another float containing the scale.)\n",
       "inputs": [
         {
           "description": "Float16 input data",
@@ -16240,7 +16240,7 @@
   {
     "name": "SparseLengthsMean",
     "schema": {
-      "description": "\nPulls in slices of the input tensor, groups them into segments and applies\n'Mean' to each segment. Segments are defined by their LENGTHS.\n\nThis op is basically Gather and LengthsMean fused together.\n\nINDICES should contain integers in range 0..N-1 where N is the first dimension\nof DATA. INDICES represent which slices of DATA need to be pulled in.\n\nLENGTHS is a vector that defines slice sizes by first dimention of DATA. Values\nbelonging to the same segment are aggregated together. sum(LENGTHS) has\nto match INDICES size.\n\nThe first dimension of the output is equal to the number of input segment,\ni.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.\n\nMean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.\n  ",
+      "description": "\nPulls in slices of the input tensor, groups them into segments and applies\n'Mean' to each segment. Segments are defined by their LENGTHS.\n\nThis op is basically Gather and LengthsMean fused together.\n\nINDICES should contain integers in range 0..N-1 where N is the first dimension\nof DATA. INDICES represent which slices of DATA need to be pulled in.\n\nLENGTHS is a vector that defines slice sizes by first dimension of DATA. Values\nbelonging to the same segment are aggregated together. sum(LENGTHS) has\nto match INDICES size.\n\nThe first dimension of the output is equal to the number of input segment,\ni.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.\n\nMean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.\n  ",
       "inputs": [
         {
           "description": "Input tensor, slices of which are aggregated.",
@@ -17069,6 +17069,124 @@
         {
           "description": "Tensor of same shape as input, sharing its storage.",
           "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "RowWiseCounter",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default -1: off",
+          "name": "counter_halflife",
+          "option": "optional"
+        }
+      ],
+      "description": "\n    Count the number recent update on rows. Exponential decay is\n    applied on the counter with decay rate r, such that\n    r^{counter_halflife} = 0.5; If counter_halflife is nonpositive,\n    this operator is turned off.\n",
+      "inputs": [
+        {
+          "description": "Iter at last update",
+          "name": "prev_iter"
+        },
+        {
+          "description": "update counter",
+          "name": "update_counter"
+        },
+        {
+          "description": "Sparse indices",
+          "name": "indices"
+        },
+        {
+          "description": "current iteration",
+          "name": "iter"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated iter at last update",
+          "name": "output_prev_iter"
+        },
+        {
+          "description": "Output update counter",
+          "name": "output_update_counter"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Fused8BitRowwiseQuantizedHalfScaleBiasToHalfFloat",
+    "schema": {
+      "description": "\nDe-quantizes the result of the\nFloatToFused8BitRowwiseQuantized operator. The input is expected to\nencode the scale as a 16-bit float in the second to the last 2 bytes of each\nrow, followed by the bias as a 16-bit float in the next 2 bytes, and the\nquantized values in the preceding bytes of the row. The output is a\nmatrix containing only the values, but de-quantized. De-quantization is\nperformed by multiplying each value by its row's scale and bias\nparameters. The de-quantized values will thus not be exactly equal to\nthe original, un-quantized floating point values.\n",
+      "inputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "scale_bias_quantized_input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Float32 data",
+          "name": "float_output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "FloatToFused8BitRowwiseQuantizedHalfScaleBias",
+    "schema": {
+      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, each row contains\nint8 elements for each quantized element, and the last 4 bytes\nof each row in the output matrix are a half float storing the scale\nfollowed by another half float containing the scale.)\n",
+      "inputs": [
+        {
+          "description": "Float32 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "HalfFloatToFused8BitRowwiseQuantizedHalfScaleBias",
+    "schema": {
+      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, each row contains\nint8 elements for each quantized element, and the last 4 bytes\nof each row in the output matrix are a float storing the scale\nfollowed by another float containing the scale.)\n",
+      "inputs": [
+        {
+          "description": "Float16 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Fused8BitRowwiseQuantizedHalfScaleBiasToFloat",
+    "schema": {
+      "description": "\nDe-quantizes the result of the\nFloatToFused8BitRowwiseQuantized operator. The input is expected to\nencode the scale as a 16-bit float in the second to the last 2 bytes of each\nrow, followed by the bias as a 16-bit float in the next 2 bytes, and the\nquantized values in the preceding bytes of the row. The output is a\nmatrix containing only the values, but de-quantized. De-quantization is\nperformed by multiplying each value by its row's scale and bias\nparameters. The de-quantized values will thus not be exactly equal to\nthe original, un-quantized floating point values.\n",
+      "inputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "scale_bias_quantized_input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Float32 data",
+          "name": "float_output"
         }
       ],
       "support_level": "default"
