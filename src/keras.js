@@ -142,10 +142,10 @@ keras.Model = class {
                 model_weights_group = new keras.Group(model_weights_group);
                 let layer_names = model_weights_group.attribute('layer_names');
                 let layer_names_map = new Set();
-                for (let layer_name of layer_names) {
+                for (const layer_name of layer_names) {
                     layer_names_map.add(layer_name);
                 }
-                for (let layer_name of layer_names) {
+                for (const layer_name of layer_names) {
                     let layer_weights = model_weights_group.group(layer_name);
                     if (layer_weights) {
                         let weight_names = layer_weights.attribute('weight_names');
@@ -194,8 +194,8 @@ keras.Model = class {
             }
         }
         else if (weightsManifest) {
-            for (let manifest of weightsManifest) {
-                for (let weight of manifest.weights) {
+            for (const manifest of weightsManifest) {
+                for (const weight of manifest.weights) {
                     let p = weight.name.split('/');
                     p.pop();
                     let initializer = new keras.Tensor(weight.name, weight.dtype, weight.shape, false, null, manifest.paths.join(';'));
@@ -262,7 +262,7 @@ keras.Graph = class {
             }
         }
         else if (weights) {
-            for (let layer of Object.keys(weights)) {
+            for (const layer of Object.keys(weights)) {
                 if (weights[layer].length <= 6) {
                     const node = new keras.Node(metadata, 'Weights', { name: layer }, [], [], false, weights);
                     this._nodes.push(node)
@@ -297,7 +297,7 @@ keras.Graph = class {
         }
         let nodeMap = new Map();
         if (config.layers) {
-            for (let layer of config.layers) {
+            for (const layer of config.layers) {
                 if (layer.name) {
                     if (!nodeMap.has(layer.name)) {
                         nodeMap.set(layer.name, layer);
@@ -306,10 +306,10 @@ keras.Graph = class {
                     }
                 }
             }
-            for (let layer of config.layers) {
+            for (const layer of config.layers) {
                 if (layer.inbound_nodes) {
-                    for (let inbound_node of layer.inbound_nodes) {
-                        for (let inbound_connection of inbound_node) {
+                    for (const inbound_node of layer.inbound_nodes) {
+                        for (const inbound_connection of inbound_node) {
                             let inputName = inbound_connection[0];
                             let inputNode = nodeMap.get(inputName);
                             if (inputNode) {
@@ -341,7 +341,7 @@ keras.Graph = class {
                 }
                 if (inputs && i < inputs.length) {
                     if (config.layers) {
-                        for (let layer of config.layers) {
+                        for (const layer of config.layers) {
                             if (layer._inputs) {
                                 layer._inputs = layer._inputs.map((input) => {
                                     return input === name ? inputs[i] : input;
@@ -385,7 +385,7 @@ keras.Graph = class {
         }
 
         if (config.layers) {
-            for (let layer of config.layers) {
+            for (const layer of config.layers) {
                 if (nodeMap.has(layer.name)) {
                     this._loadNode(layer, layer._inputs, layer._outputs, weights, group, inputMap);
                 }
@@ -403,7 +403,7 @@ keras.Graph = class {
         let index = 0;
         let layers = config.layers ? config.layers : config;
 
-        for (let layer of layers) {
+        for (const layer of layers) {
             let name = index.toString();
             let nodeInputs = [ argument ];
             if (index == 0) {
@@ -546,9 +546,9 @@ keras.Node = class {
 
         let initializers = {};
         if (weights) {
-            for (let name of names) {
+            for (const name of names) {
                 if (weights[name]) {
-                    for (let initializer of weights[name]) {
+                    for (const initializer of weights[name]) {
                         inputs.push(initializer.name);
                         initializers[initializer.name] = initializer;
                     }
@@ -557,8 +557,8 @@ keras.Node = class {
         }
 
         if (config) {
-            for (let attributeName of Object.keys(config)) {
-                let attributeValue = config[attributeName];
+            for (const attributeName of Object.keys(config)) {
+                const attributeValue = config[attributeName];
                 if (attributeName != 'name' && attributeValue != null) {
                     this._attributes.push(new keras.Attribute(this._metadata, this.operator, attributeName, attributeValue));
                 }
@@ -662,28 +662,28 @@ keras.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
                 }
             }
             if (schema.references) {
-                for (let reference of schema.references) {
+                for (const reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
@@ -772,7 +772,7 @@ keras.Attribute = class {
         if (value.class_name) {
             obj.__type__ = value.class_name;
         }
-        for (let key of Object.keys(value.config)) {
+        for (const key of Object.keys(value.config)) {
             obj[key] = keras.Attribute._convert(value.config[key]);
         }
         return obj;
@@ -1043,7 +1043,7 @@ keras.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -1062,7 +1062,7 @@ keras.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

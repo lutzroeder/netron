@@ -120,7 +120,7 @@ onnx.Model = class {
         let imports = {};
         if (model.opset_import && model.opset_import.length > 0) {
             let results = [];
-            for (let opset_import of model.opset_import) {
+            for (const opset_import of model.opset_import) {
                 let domain = opset_import.domain || 'ai.onnx';
                 let result = domain + ' v' + opset_import.version;
                 if (!results.includes(result)) {
@@ -141,7 +141,7 @@ onnx.Model = class {
         let imageFormat = '';
         if (model.metadata_props) {
             let imageMetadata = {};
-            for (let metadata_prop of model.metadata_props) {
+            for (const metadata_prop of model.metadata_props) {
                 switch (metadata_prop.key) {
                     case 'author':
                         this._author = metadata_prop.value;
@@ -261,27 +261,27 @@ onnx.Graph = class {
             this._description = graph.doc_string || '';
 
             let initializers = {};
-            for (let tensor of graph.initializer) {
+            for (const tensor of graph.initializer) {
                 initializers[tensor.name] = new onnx.Tensor(tensor, 'Initializer');
             }
             let nodes = [];
             let outputCountMap = {};
             let inputCountMap = {};
-            for (let node of graph.node) {
-                for (let input of node.input) {
+            for (const node of graph.node) {
+                for (const input of node.input) {
                     inputCountMap[input] = (inputCountMap[input] || 0) + 1;
                 }
-                for (let output of node.output) {
+                for (const output of node.output) {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 }
             }
-            for (let input of graph.input) {
+            for (const input of graph.input) {
                 delete inputCountMap[input];
             }
-            for (let output of graph.output) {
+            for (const output of graph.output) {
                 delete outputCountMap[output];
             }
-            for (let node of graph.node) {
+            for (const node of graph.node) {
                 let initializerNode = false;
                 if (node.op_type == 'Constant' && node.input.length == 0 && node.output.length == 1) {
                     let name = node.output[0];
@@ -299,26 +299,26 @@ onnx.Graph = class {
             }
 
             this._arguments = {};
-            for (let valueInfo of graph.value_info) {
+            for (const valueInfo of graph.value_info) {
                 this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
             }
-            for (let valueInfo of graph.input) {
+            for (const valueInfo of graph.input) {
                 let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
                 if (!initializers[valueInfo.name]) {
                     this._inputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
                 }
             }
-            for (let valueInfo of graph.output) {
+            for (const valueInfo of graph.output) {
                 let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
                 this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
-            for (let node of nodes) {
+            for (const node of nodes) {
                 let inputs = [];
                 const schema = metadata.getSchema(node.op_type);
                 if (node.input && node.input.length > 0) {
                     let inputIndex = 0;
                     if (schema && schema.inputs) {
-                        for (let inputSchema of schema.inputs) {
+                        for (const inputSchema of schema.inputs) {
                             if (inputIndex < node.input.length || inputSchema.option != 'optional') {
                                 let inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
                                 let inputArguments = node.input.slice(inputIndex, inputIndex + inputCount).map((id) => {
@@ -341,7 +341,7 @@ onnx.Graph = class {
                 if (node.output && node.output.length > 0) {
                     let outputIndex = 0;
                     if (schema && schema.outputs) {
-                        for (let outputSchema of schema.outputs) {
+                        for (const outputSchema of schema.outputs) {
                             if (outputIndex < node.output.length || outputSchema.option != 'optional') {
                                 let outputCount = (outputSchema.option == 'variadic') ? (node.output.length - outputIndex) : 1;
                                 let outputArguments = node.output.slice(outputIndex, outputIndex + outputCount).map((id) => {
@@ -467,7 +467,7 @@ onnx.Node = class {
         this._description = description || '';
         this._attributes = [];
         if (attributes && attributes.length > 0) {
-            for (let attribute of attributes) {
+            for (const attribute of attributes) {
                 this._attributes.push(new onnx.Attribute(this._metadata, imageFormat, this.operator, attribute));
             }
         }            
@@ -497,21 +497,21 @@ onnx.Node = class {
                 schema.description = marked(schema.description, options);
             }
             if (schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description, options);
                     }
                 }
             }
             if (schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description, options);
                     }
                 }
             }
             if (schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description, options);
                     }
@@ -527,7 +527,7 @@ onnx.Node = class {
                 schema.outputs_range = formatRange(schema.min_output) + ' - ' + formatRange(schema.max_output);
             }
             if (schema.type_constraints) {
-                for (let type_constraint of schema.type_constraints) {
+                for (const type_constraint of schema.type_constraints) {
                     if (type_constraint.allowed_type_strs) {
                         type_constraint.allowed_type_strs_display = type_constraint.allowed_type_strs.map((type) => { return type; }).join(', ');
                     }
@@ -1165,7 +1165,7 @@ onnx.GraphMetadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -1195,7 +1195,7 @@ onnx.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         let name = item.name;
                         this._map[name] = this._map[name] || [];
@@ -1211,13 +1211,10 @@ onnx.Metadata = class {
         let schemas = this._map[operator];
         if (schemas) {
             let version = -1;
-            for (let schema of schemas) {
-                let domain = schema.domain;
-                if (domain == 'ai.onnx') {
-                    domain = '';
-                }
-                let importVersion = imports[domain];
-                let sinceVersion = schema.since_version;
+            for (const schema of schemas) {
+                const domain = schema.domain === 'ai.onnx' ? '' : schema.domain;
+                const importVersion = imports[domain];
+                const sinceVersion = schema.since_version;
                 if (importVersion >= sinceVersion && version < sinceVersion) {
                     version = sinceVersion;
                     result = schema;

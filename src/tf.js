@@ -119,7 +119,7 @@ tf.ModelFactory = class {
                         meta_graph.graph_def = graph_def;
                         saved_model = new tf.proto.SavedModel();
                         saved_model.meta_graphs.push(meta_graph);
-                        for (let node of root.modelTopology.node) {
+                        for (const node of root.modelTopology.node) {
                             graph_def.node.push(node);
                             node.input = node.input || [];
                         }
@@ -358,7 +358,7 @@ tf.Graph = class {
             if (nodes) {
                 let nodeMap = {};
                 this._namespaces = {};
-                for (let node of nodes) {
+                for (const node of nodes) {
                     const nodeName = node.name;
                     nodeMap[nodeName] = node;
                     if (node.op != 'Const') {
@@ -370,11 +370,11 @@ tf.Graph = class {
                     }
                     node.output = [];
                 }
-                for (let node of nodes) {
+                for (const node of nodes) {
                     const inputs = node.input;
                     node.input = [];
                     node.controlDependencies = [];
-                    for (let input of inputs) {
+                    for (const input of inputs) {
                         let split = input.split(':', 2);
                         let inputName = split[0];
                         let outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
@@ -396,16 +396,16 @@ tf.Graph = class {
                     }
                 }
                 this._nodeOutputCountMap = {};
-                for (let node of nodes) {
-                    for (let input of node.input) {
+                for (const node of nodes) {
+                    for (const input of node.input) {
                         this._nodeOutputCountMap[input] = (this._nodeOutputCountMap[input] || 0) + 1;
                     }
-                    for (let controlDependency of node.controlDependencies) {
+                    for (const controlDependency of node.controlDependencies) {
                         this._nodeOutputCountMap[controlDependency] = (this._nodeOutputCountMap[controlDependency] || 0) + 1;
                     }
                 }
                 let initializers = {};
-                for (let node of nodes) {
+                for (const node of nodes) {
                     if (node.op == 'Const' && node.input.length == 0 && node.controlDependencies.length == 0 && this._checkSingleOutput(node)) {
                         let value = node.attr.value;
                         if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
@@ -416,7 +416,7 @@ tf.Graph = class {
                         }
                     }
                 }
-                for (let node of nodes) {
+                for (const node of nodes) {
                     if (node.op == 'Identity' && node.input.length == 1 && node.controlDependencies.length == 0 && this._checkSingleOutput(node)) {
                         let initializer_name = node.input[0];
                         let initializer = initializers[initializer_name];
@@ -428,7 +428,7 @@ tf.Graph = class {
                     }
                 }
                 let inputMap = {};
-                for (let node of nodes) {
+                for (const node of nodes) {
                     if (node.op == 'Placeholder' && node.input.length == 0 && node.controlDependencies.length == 0 && node.output.length == 1) {
                         const dtype = node.attr.dtype;
                         const shape = node.attr.shape;
@@ -442,7 +442,7 @@ tf.Graph = class {
                 this._inputs = Object.keys(inputMap).map((key) => {
                     return inputMap[key];
                 });
-                for (let node of nodes) {
+                for (const node of nodes) {
                     let id = node.name;
                     if (!initializers[id] && !inputMap[id] /* && node.op != 'NoOp' */) {
                         this._nodes.push(new tf.Node(this, node, node.op, node.name, initializers, null));
@@ -451,8 +451,8 @@ tf.Graph = class {
             }
 
             if (graph.library) {
-                let funcs = graph.library.function;
-                for (let func of funcs) {
+                const funcs = graph.library.function;
+                for (const func of funcs) {
                     this._functions.push(new tf.Function(this, func, this._metadata));
                 }
             }
@@ -460,7 +460,7 @@ tf.Graph = class {
         else if (bundle) {
             let nodeNames = [];
             let nodeMap = new Map();
-            for (let tensor of bundle.tensors) {
+            for (const tensor of bundle.tensors) {
                 let parts = tensor.name.split('/');
                 if (bundle.format === 2) {
                     if (tensor.name === '_CHECKPOINTABLE_OBJECT_GRAPH' || 
@@ -482,7 +482,7 @@ tf.Graph = class {
                 }
                 nodeMap.get(nodeName).push({ name: tensorName, value: tensor });
             }
-            for (let nodeName of nodeNames) {
+            for (const nodeName of nodeNames) {
                 this._nodes.push(new tf.Node(this, null, 'Node', nodeName, null, nodeMap.get(nodeName)));
             }
         }
@@ -601,22 +601,22 @@ tf.Function = class {
 
         let inputs = func.signature.input_arg;
         if (inputs) {
-            for (let input of inputs) {
+            for (const input of inputs) {
                 let inputArgument = new tf.Argument(input.name, new tf.TensorType(input.type, null), null);
                 this._inputs.push(new tf.Parameter(input.name, [ inputArgument ]));
             }
         }
 
         let ret_map = {};
-        for (let key of Object.keys(func.ret)) {
-            let v = func.ret[key].split(':', 2);
+        for (const key of Object.keys(func.ret)) {
+            const v = func.ret[key].split(':', 2);
             ret_map[key] = v[0];
         }
 
         let out_args_reverse_map = {};
         let outputs = func.signature.output_arg;
         if (outputs) {
-            for (let output of outputs) {
+            for (const output of outputs) {
                 let name = ret_map[output.name];
                 this._outputs.push(new tf.Parameter(output.name, [ 
                     new tf.Argument(name, new tf.TensorType(output.type, null), null)
@@ -629,7 +629,7 @@ tf.Function = class {
         if (nodes) {
             let nodeMap = {};
 
-            for (let node of nodes) {
+            for (const node of nodes) {
                 let nodeName = node.name;
                 nodeMap[nodeName] = node;
                 if (node.op != 'Const') {
@@ -641,11 +641,11 @@ tf.Function = class {
                 }
                 node.output = [];
             }
-            for (let node of nodes) {
+            for (const node of nodes) {
                 let inputs = node.input;
                 node.input = [];
                 node.controlDependencies = [];
-                for (let input of inputs) {
+                for (const input of inputs) {
                     let split = input.split(':', 3);
                     let inputName = split[0];
                     let outputIndex = split.length == 1 ? 0 : parseInt(split[split.length - 1]);
@@ -672,17 +672,17 @@ tf.Function = class {
             }
 
             let nodeOutputCountMap = {};
-            for (let node of nodes) {
-                for (let input of node.input) {
+            for (const node of nodes) {
+                for (const input of node.input) {
                     nodeOutputCountMap[input] = (nodeOutputCountMap[input] || 0) + 1;
                 }
-                for (let controlDependency of node.controlDependencies) {
+                for (const controlDependency of node.controlDependencies) {
                     nodeOutputCountMap[controlDependency] = (nodeOutputCountMap[controlDependency] || 0) + 1;
                 }
             }
 
             let initializers = {};
-            for (let node of nodes) {
+            for (const node of nodes) {
                 if (node.op == 'Const' && node.input.length == 0 && node.controlDependencies.length == 0 && tf.Function._checkSingleOutput(node, nodeOutputCountMap)) {
                     let value = node.attr.value;
                     if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
@@ -693,7 +693,7 @@ tf.Function = class {
                     }
                 }
             }
-            for (let node of nodes) {
+            for (const node of nodes) {
                 if (node.op == 'Identity' && node.input.length == 1 && node.controlDependencies.length == 0 && tf.Function._checkSingleOutput(node, nodeOutputCountMap)) {
                     let initializer_name = node.input[0];
                     let initializer = initializers[initializer_name];
@@ -705,7 +705,7 @@ tf.Function = class {
                 }
             }
 
-            for (let node of nodes) {
+            for (const node of nodes) {
                 if (!initializers[node.name])
                     this._nodes.push(new tf.Node(this, node, node.op, node.name, initializers, null));
             }
@@ -781,7 +781,7 @@ tf.Node = class {
             }
             const metadata = graph.metadata;
             if (node.attr) {
-                for (let attributeName of Object.keys(node.attr)) {
+                for (const attributeName of Object.keys(node.attr)) {
                     this._attributes.push(new tf.Attribute(attributeName, node.attr[attributeName], this._operator, metadata));
                 }
             }
@@ -789,7 +789,7 @@ tf.Node = class {
             let inputIndex = 0;
             let inputs = node.input.filter(input => !input.startsWith('^'));
             if (schema && schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     let inputCount = 1;
                     if (input.numberAttr) {
                         let inputNumber = node.attr[input.numberAttr];
@@ -818,7 +818,7 @@ tf.Node = class {
             let outputIndex = 0;
             let outputs = node.output;
             if (schema && schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     let outputCount = 1;
                     if (output.numberAttr) {
                         let outputNumber = node.attr[output.numberAttr];
@@ -847,7 +847,7 @@ tf.Node = class {
             this._controlDependencies = node.controlDependencies;
         }
         else if (tensors) {
-            for (let tensor of tensors) {
+            for (const tensor of tensors) {
                 this._inputs.push(new tf.Parameter(tensor.name, [
                     new tf.Argument(tensor.value.name, null, tensor.value)
                 ]));
@@ -902,7 +902,7 @@ tf.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     if (input.type) {
                         input.type = tf.Tensor.formatDataType(input.type);
                     }
@@ -918,7 +918,7 @@ tf.Node = class {
                 }
             }
             if (schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     if (output.type) {
                         output.type = tf.Tensor.formatDataType(output.type);
                     }
@@ -934,7 +934,7 @@ tf.Node = class {
                 }
             }
             if (schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     let description = attribute.description;
                     if (attribute.allowedValues) {
                         let allowedValues = tf.GraphMetadata._formatAttributeValue(attribute.allowedValues);
@@ -1174,7 +1174,7 @@ tf.Tensor = class {
             return context;
         }
 
-        for (let dim of shape.dim) {
+        for (const dim of shape.dim) {
             context.size = context.size * (dim.size ? dim.size : 0);
         }
 
@@ -1478,7 +1478,7 @@ tf.TensorBundle = class {
             case 1: {
                 const header = tf.proto.SavedTensorSlices.decode(entries.get(''));
                 let data = new Map();
-                for (let pair of entries) {
+                for (const pair of entries) {
                     if (pair[0] !== '' && pair[0] !== 'global_step') {
                         const slices = tf.proto.SavedTensorSlices.decode(pair[1]);
                         const name = slices.data.name;
@@ -1505,7 +1505,7 @@ tf.TensorBundle = class {
                         }
                     }
                 }
-                for (let meta of header.meta.tensor) {
+                for (const meta of header.meta.tensor) {
                     if (meta.name !== 'global_step') {
                         let tensor = new tf.proto.TensorProto();
                         tensor.dtype = meta.type;
@@ -1627,7 +1627,7 @@ tf.GraphMetadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -1643,7 +1643,7 @@ tf.GraphMetadata = class {
             if (!map) {
                 map = {};
                 if (schema.inputs) {
-                    for (let input of schema.inputs) {
+                    for (const input of schema.inputs) {
                         if (input.typeAttr) {
                             map[input.typeAttr] = true;
                         }
@@ -1656,7 +1656,7 @@ tf.GraphMetadata = class {
                     }
                 }
                 if (schema.outputs) {
-                    for (let output of schema.outputs) {
+                    for (const output of schema.outputs) {
                         if (output.typeAttr) {
                             map[output.typeAttr] = true;
                         }
@@ -1724,7 +1724,7 @@ tf.Metadata = class {
             if (data) {
                 const items = JSON.parse(data);
                 if (items) {
-                    for (let item of items) {
+                    for (const item of items) {
                         if (item.name && item.schema) {
                             this._map[item.name] = item.schema;
                         }

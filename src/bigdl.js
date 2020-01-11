@@ -88,14 +88,14 @@ bigdl.Graph = class {
 
     _loadSequential(metadata, group, module) {
         group = group.length > 0 ?  group + '.' + module.namePostfix : module.namePostfix;
-        for (let submodule of module.subModules) {
+        for (const submodule of module.subModules) {
             this._loadModule(metadata, group, submodule);
         }
     }
 
     _loadStaticGraph(metadata, group, module) {
         group = group.length > 0 ?  group + '.' + module.namePostfix : module.namePostfix;
-        for (let submodule of module.subModules) {
+        for (const submodule of module.subModules) {
             this._loadModule(metadata, group, submodule);
         }
     }
@@ -197,7 +197,7 @@ bigdl.Node = class {
             ]));
         }
         if (module.parameters && module.parameters.length > 0) {
-            for (let parameter of module.parameters) {
+            for (const parameter of module.parameters) {
                 const input = inputs.shift();
                 const inputName = input ? input.name : this._inputs.length.toString();
                 this._inputs.push(new bigdl.Parameter(inputName, [ 
@@ -205,7 +205,7 @@ bigdl.Node = class {
                 ]));
             }
         }
-        for (let key of Object.keys(module.attr)) {
+        for (const key of Object.keys(module.attr)) {
             const value = module.attr[key];
             if (key === 'module_numerics' || key === 'module_tags') {
                 continue;
@@ -453,7 +453,7 @@ bigdl.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -472,7 +472,7 @@ bigdl.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

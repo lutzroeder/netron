@@ -128,7 +128,7 @@ ncnn.Graph = class {
             this._param(metadata, param, bin) :
             this._param_bin(metadata, param, bin);
  
-        for (let layer of layers) {
+        for (const layer of layers) {
             if (layer.type == 'Input') {
                 let dimensions = layer.attributes.map((a) => parseInt(a.value, 10));
                 let shape = new ncnn.TensorShape(dimensions);
@@ -316,19 +316,19 @@ ncnn.Node = class {
         let attributeMetadata = {};
         if (schema && schema.attributes) {
             for (let i = 0; i < schema.attributes.length; i++) {
-                let id = schema.attributes[i].id || i.toString();
+                const id = schema.attributes[i].id || i.toString();
                 attributeMetadata[id] = schema.attributes[i];
             }
         }
-        for (let attribute of layer.attributes) {
-            let attributeSchema = attributeMetadata[attribute.key];
+        for (const attribute of layer.attributes) {
+            const attributeSchema = attributeMetadata[attribute.key];
             this._attributes.push(new ncnn.Attribute(attributeSchema, attribute.key, attribute.value));
         }
 
         let inputs = layer.inputs;
         let inputIndex = 0;
         if (schema && schema.inputs) {
-            for (let inputDef of schema.inputs) {
+            for (const inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     let inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     let inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => {
@@ -351,7 +351,7 @@ ncnn.Node = class {
         let outputs = layer.outputs;
         let outputIndex = 0;
         if (schema && schema.outputs) {
-            for (let outputDef of schema.outputs) {
+            for (const outputDef of schema.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     let outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     let outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
@@ -510,7 +510,7 @@ ncnn.Node = class {
         let data = null;
         if (dimensions) {
             let size = 1;
-            for (let dimension of dimensions) {
+            for (const dimension of dimensions) {
                 size *= dimension;
             }
             if (!dataType) {
@@ -752,7 +752,7 @@ ncnn.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                         if (Object.prototype.hasOwnProperty.call(item.schema, 'operator')) {
@@ -778,7 +778,7 @@ ncnn.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

@@ -42,7 +42,7 @@ numpy.Array = class {
                     }
                     this._dataType = header.descr.substring(1);
                     let size = parseInt(header.descr[2]);
-                    for (let dimension of this._shape) {
+                    for (const dimension of this._shape) {
                         size *= dimension;
                     }
                     this._data = reader.bytes(size);
@@ -134,7 +134,7 @@ numpy.Array = class {
         writer.string(header);
 
         let size = context.itemSize;
-        for (let dimension of this._shape) {
+        for (const dimension of this._shape) {
             size *= dimension;
         }
 

@@ -143,7 +143,7 @@ sklearn.ModelFactory = class {
                     };
                     this.__read__ = function(unpickler) {
                         let size = 1;
-                        for (let dimension of this.shape) {
+                        for (const dimension of this.shape) {
                             size *= dimension;
                         }
                         if (this.dtype.name == 'object') {
@@ -324,7 +324,7 @@ sklearn.ModelFactory = class {
                         obj.push({ key: key, value: value });
                     };
                     if (args) {
-                        for (let arg of args) {
+                        for (const arg of args) {
                             obj.__setitem__(arg[0], arg[1]);
                         }
                     }
@@ -375,11 +375,11 @@ sklearn.ModelFactory = class {
 
                 let find_weight_dict = function(dicts) {
 
-                    for (let dict of dicts) {
+                    for (const dict of dicts) {
                         if (dict && !Array.isArray(dict)) {
                             let list = [];
-                            for (let key in dict) {
-                                let value = dict[key]
+                            for (const key in dict) {
+                                const value = dict[key]
                                 if (key != 'weight_order' && key != 'lr') {
                                     if (!key ||
                                         !value.__type__ || !value.__type__ == 'numpy.ndarray') {
@@ -459,7 +459,7 @@ sklearn.Graph = class {
             switch (obj.__type__) {
                 case 'sklearn.pipeline.Pipeline':
                     this._groups = true;
-                    for (let step of obj.steps) {
+                    for (const step of obj.steps) {
                         this._add('pipeline', step[0], step[1], [ input ], [ step[0] ]);
                         input = step[0];
                     }
@@ -472,8 +472,8 @@ sklearn.Graph = class {
         else if (array_dict) {
             let group_map = {};
             let groups = [];
-            for (let array of array_dict) {
-                let key = array.key.split('_');
+            for (const array of array_dict) {
+                const key = array.key.split('_');
                 let id = null;
                 if (key.length > 1) {
                     array.name = key.pop();
@@ -503,7 +503,7 @@ sklearn.Graph = class {
     }
     _add(group, name, obj, inputs, outputs) {
         let initializers = [];
-        for (let key of Object.keys(obj)) {
+        for (const key of Object.keys(obj)) {
             if (!key.startsWith('_')) {
                 let value = obj[key];
                 if (value && value.__type__ && value.__type__ == 'numpy.ndarray') {
@@ -599,7 +599,7 @@ sklearn.Node = class {
         this._attributes = [];
         this._initializers = [];
 
-        for (let key of Object.keys(obj)) {
+        for (const key of Object.keys(obj)) {
             if (!key.startsWith('_')) {
                 let value = obj[key];
 
@@ -640,28 +640,28 @@ sklearn.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
                 }
             }
             if (schema.references) {
-                for (let reference of schema.references) {
+                for (const reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
@@ -1001,7 +1001,7 @@ sklearn.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -1020,7 +1020,7 @@ sklearn.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

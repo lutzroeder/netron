@@ -74,7 +74,7 @@ class Application {
     _parseCommandLine(argv) {
         let open = false;
         if (argv.length > 1) {
-            for (let arg of argv.slice(1)) {
+            for (const arg of argv.slice(1)) {
                 if (!arg.startsWith('-')) {
                     const extension = arg.split('.').pop().toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
@@ -138,7 +138,7 @@ class Application {
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
         if (selectedFiles) {
-            for (let file of selectedFiles) {
+            for (const file of selectedFiles) {
                 this._openFile(file);
             }
         }
@@ -177,7 +177,7 @@ class Application {
 
     _dropFiles(sender, files) {
         let view = this._views.from(sender);
-        for (let file of files) {
+        for (const file of files) {
             if (view) {
                 this._loadFile(file, view);
                 view = null;
@@ -698,7 +698,7 @@ class View {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -765,7 +765,7 @@ class ViewCollection {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -835,8 +835,8 @@ class MenuService {
         this._menuTemplate = menuTemplate;
         this._commandTable = commandTable;
         this._itemTable = new Map();
-        for (let menu of menuTemplate) {
-            for (let item of menu.submenu) {
+        for (const menu of menuTemplate) {
+            for (const item of menu.submenu) {
                 if (item.id) {
                     if (!item.label) {
                         item.label = '';
@@ -865,7 +865,7 @@ class MenuService {
 
     _updateLabel(context) {
         let rebuild = false;
-        for (let entry of this._commandTable.entries()) {
+        for (const entry of this._commandTable.entries()) {
             const menuItem = this._menu.getMenuItemById(entry[0]);
             const command = entry[1];
             if (command && command.label) {
@@ -882,7 +882,7 @@ class MenuService {
     }
 
     _updateEnabled(context) {
-        for (let entry of this._commandTable.entries()) {
+        for (const entry of this._commandTable.entries()) {
             const menuItem = this._menu.getMenuItemById(entry[0]);
             if (menuItem) {
                 const command = entry[1];

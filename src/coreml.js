@@ -140,7 +140,7 @@ coreml.Graph = class {
     }
 
     _updateOutput(name, newName) {
-        for (let node of this._nodes) {
+        for (const node of this._nodes) {
             node._outputs = node._outputs.map((output) => (output != name) ? output : newName);
         }
         return newName;
@@ -166,20 +166,20 @@ coreml.Graph = class {
         if (preprocessing && preprocessing.length > 0) {
             let preprocessingInput = this._description.input[0].name;
             let inputNodes = [];
-            for (let node of this._nodes) {
+            for (const node of this._nodes) {
                 if (node._inputs.some((input => input == preprocessingInput))) {
                     inputNodes.push(node);
                 }
             }
             let preprocessorOutput = preprocessingInput;
             let preprocessorIndex = 0;
-            for (let p of preprocessing) {
+            for (const p of preprocessing) {
                 let input = p.featureName ? p.featureName : preprocessorOutput;
                 preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
                 this._createNode(scope, group, p.preprocessor, null, p[p.preprocessor], [ input ], [ preprocessorOutput ]);
                 preprocessorIndex++;
             }
-            for (let inputNode of inputNodes) {
+            for (const inputNode of inputNodes) {
                 inputNode._inputs = inputNode._inputs.map((input) => (input != preprocessingInput) ? input : preprocessorOutput);
             }
         }
@@ -189,7 +189,7 @@ coreml.Graph = class {
         this._groups = this._groups | (group.length > 0 ? true : false);
         if (model.neuralNetworkClassifier) {
             const neuralNetworkClassifier = model.neuralNetworkClassifier;
-            for (let layer of neuralNetworkClassifier.layers) {
+            for (const layer of neuralNetworkClassifier.layers) {
                 this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
             }
             this._updateClassifierOutput(group, neuralNetworkClassifier);
@@ -198,7 +198,7 @@ coreml.Graph = class {
         }
         else if (model.neuralNetwork) {
             const neuralNetwork = model.neuralNetwork;
-            for (let layer of neuralNetwork.layers) {
+            for (const layer of neuralNetwork.layers) {
                 this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
             }
             this._updatePreprocessing(scope, group, neuralNetwork.preprocessing);
@@ -206,7 +206,7 @@ coreml.Graph = class {
         }
         else if (model.neuralNetworkRegressor) {
             const neuralNetworkRegressor = model.neuralNetworkRegressor;
-            for (let layer of neuralNetworkRegressor.layers) {
+            for (const layer of neuralNetworkRegressor.layers) {
                 this._createNode(scope, group, layer.layer, layer.name, layer[layer.layer], layer.input, layer.output);
             }
             this._updatePreprocessing(scope, group, neuralNetworkRegressor);
@@ -576,7 +576,7 @@ coreml.Node = class {
         this._initializers = [];
         if (data) {
             const initializerMap = this._initialize(data);
-            for (let key of Object.keys(data)) {
+            for (const key of Object.keys(data)) {
                 if (!initializerMap[key]) {
                     this._attributes.push(new coreml.Attribute(this._metadata, this.operator, key, data[key]));
                 }
@@ -606,21 +606,21 @@ coreml.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
@@ -901,7 +901,7 @@ coreml.Tensor = class {
                 this._quantization.lookupTableQuantization.floatValue &&
                 this._quantization.lookupTableQuantization.floatValue.length > 0) {
                 let map = [];
-                for (let key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
+                for (const key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
                     map.push(key.toString() + ' = ' + this._quantization.lookupTableQuantization.floatValue[key].toString());
                 }
                 return map.join('; ');
@@ -1124,7 +1124,7 @@ coreml.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -1143,7 +1143,7 @@ coreml.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -1158,7 +1158,7 @@ coreml.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.inputs && schema.inputs.length > 0) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     map[input.name] = input;
                 }
             }

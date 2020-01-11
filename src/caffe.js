@@ -198,8 +198,8 @@ caffe.Model = class {
         this._graphs = [];
 
         let phases = new Set();
-        for (let layer of net.layer) {
-            for (let include of layer.include) {
+        for (const layer of net.layer) {
+            for (const include of layer.include) {
                 if (include.phase !== undefined) {
                     phases.add(include.phase);
                 }
@@ -209,7 +209,7 @@ caffe.Model = class {
             phases.add(-1);
         }
 
-        for (let phase of phases) {
+        for (const phase of phases) {
             this._graphs.push(new caffe.Graph(metadata, phase, net, this._version));
         }
     }
@@ -238,14 +238,14 @@ caffe.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        for (let layer of net.layer) {
+        for (const layer of net.layer) {
             layer.input = layer.bottom.slice(0);
             layer.output = layer.top.slice(0);
             layer.chain = [];
         }
 
         let layers = [];
-        for (let layer of net.layer) {
+        for (const layer of net.layer) {
             if (phase === -1 || layer.include.every((include) => include.phase === phase)) {
                 layers.push(layer);
             }
@@ -253,7 +253,7 @@ caffe.Graph = class {
 
         let scope = {};
         let index = 0;
-        for (let layer of layers) {
+        for (const layer of layers) {
             layer.input = layer.input.map((input) => scope[input] ? scope[input] : input);
             layer.output = layer.output.map((output) => {
                 scope[output] = scope[output] ? output + '\n' + index.toString() : output; // custom argument id
@@ -264,14 +264,14 @@ caffe.Graph = class {
 
         // Graph Inputs
         let usedOutputs = new Set();
-        for (let layer of layers) {
-            for (let output of layer.output) {
+        for (const layer of layers) {
+            for (const output of layer.output) {
                 usedOutputs.add(output);
             }
         }
         let unusedInputs = [];
-        for (let layer of layers) {
-            for (let input of layer.input) {
+        for (const layer of layers) {
+            for (const input of layer.input) {
                 if (!usedOutputs.has(input)) {
                     unusedInputs.push(input);
                 }
@@ -314,7 +314,7 @@ caffe.Graph = class {
 
         if (net.input && net.input.length > 0) {
             index = 0;
-            for (let input of net.input) {
+            for (const input of net.input) {
                 let inputType = null;
                 if (net.input_shape && index < net.input_shape.length) {
                     const blobShape = net.input_shape[index];
@@ -330,10 +330,10 @@ caffe.Graph = class {
             }
         }
 
-        for (let layer of nodes) {
+        for (const layer of nodes) {
             const node = new caffe.Node(metadata, layer, version);
             if (layer.chain && layer.chain.length > 0) {
-                for (let chain of layer.chain) {
+                for (const chain of layer.chain) {
                     node.chain.push(new caffe.Node(metadata, chain, version));
                 }
             }
@@ -435,7 +435,7 @@ caffe.Node = class {
                     if (!caffe.Node._operatorMap) {
                         caffe.Node._operatorMap = {};
                         const known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
-                        for (let key of Object.keys(caffe.proto.V1LayerParameter.LayerType)) {
+                        for (const key of Object.keys(caffe.proto.V1LayerParameter.LayerType)) {
                             const index = caffe.proto.V1LayerParameter.LayerType[key];
                             caffe.Node._operatorMap[index] = key.split('_').map((item) => {
                                 return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
@@ -456,7 +456,7 @@ caffe.Node = class {
 
         switch (version) {
             case 0:
-                for (let attributeName of Object.keys(layer.layer)) {
+                for (const attributeName of Object.keys(layer.layer)) {
                     if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
                         this._attributes.push(new caffe.Attribute(this._metadata, this.operator, attributeName, layer.layer[attributeName]));
                     }
@@ -465,7 +465,7 @@ caffe.Node = class {
                 break;
             case 1:
             case 2:
-                for (let layer_kind of Object.keys(layer)) {
+                for (const layer_kind of Object.keys(layer)) {
                     if (layer_kind.endsWith('_param') || layer_kind == 'transform_param') {
                         const param = layer[layer_kind];
                         let type = this._type;
@@ -473,7 +473,7 @@ caffe.Node = class {
                             type = 'Convolution';
                         }
                         const prototype = Object.getPrototypeOf(param);
-                        for (let name of Object.keys(param)) {
+                        for (const name of Object.keys(param)) {
                             const defaultValue = prototype[name];
                             const value = param[name];
                             if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
@@ -501,11 +501,11 @@ caffe.Node = class {
         let inputs = layer.input.concat(initializers);
         let inputIndex = 0;
         if (schema && schema.inputs) {
-            for (let inputDef of schema.inputs) {
+            for (const inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     let inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     let inputArguments = [];
-                    for (let input of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                    for (const input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (input != '' || inputDef.option != 'optional') {
                             if (input instanceof caffe.Tensor) {
                                 inputArguments.push(new caffe.Argument('', null, input));
@@ -532,7 +532,7 @@ caffe.Node = class {
         let outputs = layer.output;
         let outputIndex = 0;
         if (schema && schema.outputs) {
-            for (let outputDef of schema.outputs) {
+            for (const outputDef of schema.outputs) {
                 if (outputIndex < outputs.length) {
                     let outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
@@ -798,7 +798,7 @@ caffe.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -817,7 +817,7 @@ caffe.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

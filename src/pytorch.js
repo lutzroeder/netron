@@ -50,23 +50,16 @@ pytorch.ModelFactory = class {
 
     static _container(context, pickle, python, exception) {
         const identifier = context.identifier;
-        const entries = context.entries;
-        if (entries && entries.some((entry) => entry.name === 'model.json' || entry.name === 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'))) {
-            return new pytorch.ZipContainer(identifier, entries, pickle, python, exception);
+        if (context.entries('zip').some((entry) => entry.name === 'model.json' || entry.name === 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'))) {
+            return new pytorch.ZipContainer(identifier, context.entries('zip'), pickle, python, exception);
         }
         const buffer = context.buffer;
         const signature = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
         if (buffer && buffer.length > 14 && buffer[0] == 0x80 && buffer[1] < 0x05 && signature.every((v, i) => v == buffer[i + 2])) {
             return new pytorch.PickleContainer(identifier, buffer, pickle, exception);
         }
-        try {
-            const archive = new tar.Archive(buffer);
-            if (archive.entries.some((entry) => entry.name == 'pickle')) {
-                return new pytorch.TarContainer(identifier, archive.entries, pickle, exception);
-            }
-        }
-        catch (error) {
-            // continue regardless of error
+        if (context.entries('tar').some((entry) => entry.name == 'pickle')) {
+            return new pytorch.TarContainer(identifier, context.entries('tar'), pickle, exception);
         }
         return null;
     }
@@ -1439,7 +1432,7 @@ pytorch.Execution = class {
                 obj.push({ key: key, value: value });
             };
             if (args) {
-                for (let arg of args) {
+                for (const arg of args) {
                     obj.__setitem__(arg[0], arg[1]);
                 }
             }
@@ -2167,7 +2160,7 @@ pytorch.TarContainer = class {
                 this._state = [];
                 let state_map = {};
                 if (obj && Array.isArray(obj)) {
-                    for (let item of obj) {
+                    for (const item of obj) {
                         if (!item || !item.key || !item.value) {
                             this._state = null;
                             break;
@@ -2849,7 +2842,7 @@ pytorch.ZipContainer = class {
     trace(obj, method) {
         let args = [];
         this._tensors = new Set();
-        for (let parameter of method.parameters) {
+        for (const parameter of method.parameters) {
             if (parameter.name !== 'self') {
                 this._tensors.add(parameter.name);
                 args.push({});

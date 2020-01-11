@@ -61,7 +61,7 @@ flux.ModelFactory = class {
                 }
                 obj = root._backrefs[obj.ref - 1];
             }
-            for (let key of Object.keys(obj)) {
+            for (const key of Object.keys(obj)) {
                 if (obj !== root || key !== '_backrefs') {
                     obj[key] = flux.ModelFactory._backref(obj[key], root);
                 }
@@ -109,7 +109,7 @@ flux.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -128,7 +128,7 @@ flux.Metadata = class {
             map = {};
             let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

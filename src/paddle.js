@@ -44,7 +44,7 @@ paddle.Model = class {
 
     constructor(metadata, desc) {
         this._graphs = [];
-        for (let block of desc.blocks) {
+        for (const block of desc.blocks) {
             this._graphs.push(new paddle.Graph(metadata, block));
         }
     }
@@ -67,7 +67,7 @@ paddle.Graph = class {
 
         let initializers = {};
         let types = {};
-        for (let variable of block.vars) {
+        for (const variable of block.vars) {
             if (variable.persistable && variable.type && 
                 variable.type.type != paddle.proto.VarType.Type.FETCH_LIST && 
                 variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
@@ -81,10 +81,10 @@ paddle.Graph = class {
 
         let scope = {};
         for (let i = 0; i < block.ops.length; i++) {
-            for (let input of block.ops[i].inputs) {
+            for (const input of block.ops[i].inputs) {
                 input.arguments = input.arguments.map((argument) => scope[argument] ? scope[argument] : argument);
             }
-            for (let output of block.ops[i].outputs) {
+            for (const output of block.ops[i].outputs) {
                 output.arguments = output.arguments.map((argument) => {
                     if (scope[argument]) {
                         let next = argument + '\n' + i.toString(); // custom argument id
@@ -99,7 +99,7 @@ paddle.Graph = class {
 
         let lastNode = null;
         let lastOutput = null;
-        for (let op of block.ops) {
+        for (const op of block.ops) {
             if (op.type == 'feed') {
                 let inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => {
@@ -221,16 +221,16 @@ paddle.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._chain = [];
-        for (let attr of op.attrs) {
+        for (const attr of op.attrs) {
             this._attributes.push(new paddle.Attribute(metadata, this._operator, attr));
         }
-        for (let input of op.inputs) {
+        for (const input of op.inputs) {
             if (input.arguments.length > 0) {
                 let inputConnections = input.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, initializers[argument]));
                 this._inputs.push(new paddle.Parameter(input.parameter, inputConnections));
             }
         }
-        for (let output of op.outputs) {
+        for (const output of op.outputs) {
             if (output.arguments.length > 0) {
                 let outputConnections = output.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, null));
                 this._outputs.push(new paddle.Parameter(output.parameter, outputConnections));
@@ -485,7 +485,7 @@ paddle.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -504,7 +504,7 @@ paddle.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

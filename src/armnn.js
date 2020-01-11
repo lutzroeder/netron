@@ -197,8 +197,7 @@ armnn.Node = class {
 
     static castLayer(layer) {
         let layerType = layer.layerType();
-
-        for (let k of Object.keys(armnn.schema.Layer)) {
+        for (const k of Object.keys(armnn.schema.Layer)) {
             if (layerType == armnn.schema.Layer[k]) 
                 return layer.layer(new armnn.schema[k]);
         }
@@ -596,7 +595,7 @@ armnn.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -616,7 +615,7 @@ armnn.Metadata = class {
             if (!attributeMap) {
                 attributeMap = {};
                 if (schema.attributes) {
-                    for (let attribute of schema.attributes) {
+                    for (const attribute of schema.attributes) {
                         attributeMap[attribute.name] = attribute;
                     }
                 }

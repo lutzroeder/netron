@@ -66,7 +66,7 @@ tflite.Model = class {
         this._description = model.description() || '';
         let operatorCodeList = [];
         let builtinOperatorMap = {};
-        for (let key of Object.keys(tflite.schema.BuiltinOperator)) {
+        for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
             const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
             const builtinOperatorIndex = tflite.schema.BuiltinOperator[key]; 
             builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
@@ -695,7 +695,7 @@ tflite.Metadata = class {
         if (data) {
             const items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -715,7 +715,7 @@ tflite.Metadata = class {
             if (!attributeMap) {
                 attributeMap = {};
                 if (schema.attributes) {
-                    for (let attribute of schema.attributes) {
+                    for (const attribute of schema.attributes) {
                         attributeMap[attribute.name] = attribute;
                     }
                 }
@@ -735,7 +735,7 @@ tflite.Utility = class {
     static dataType(type) {
         if (!tflite.Utility._tensorTypeMap) {
             tflite.Utility._tensorTypeMap = new Map();
-            for (let name of Object.keys(tflite.schema.TensorType)) {
+            for (const name of Object.keys(tflite.schema.TensorType)) {
                 tflite.Utility._tensorTypeMap.set(tflite.schema.TensorType[name], name.toLowerCase());
             }
             tflite.Utility._tensorTypeMap.set(6, 'boolean');
@@ -753,7 +753,7 @@ tflite.Utility = class {
                 typeMap = new Map();
                 const enumType = tflite.schema[type];
                 if (enumType) {
-                    for (let key of Object.keys(enumType)) {
+                    for (const key of Object.keys(enumType)) {
                         typeMap.set(enumType[key], key);
                     }
                 }

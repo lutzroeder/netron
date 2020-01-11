@@ -111,7 +111,7 @@ torch.Graph = class {
                 let subOutputs = [];
                 const length = module.modules.length;
                 let index = 0;
-                for (let subModule of module.modules) {
+                for (const subModule of module.modules) {
                     if (index == length - 1) {
                         subOutputs = outputs;
                     }                    
@@ -130,7 +130,7 @@ torch.Graph = class {
                 let newInputs = [];
                 let newOutputs = [];
                 let index = 0;
-                for (let subModule of module.modules) {
+                for (const subModule of module.modules) {
                     let subInputs = [].concat(inputs);
                     let subOutputs = [].concat(outputs);
                     this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
@@ -143,7 +143,7 @@ torch.Graph = class {
                     index++;
                 }
                 inputs = inputs.concat(newInputs);
-                for (let newOutput of newOutputs) {
+                for (const newOutput of newOutputs) {
                     outputs.push(newOutput);
                 }
                 groups.pop();
@@ -157,7 +157,7 @@ torch.Graph = class {
                 }
                 let concatInputs = [];
                 let index = 0;
-                for (let subModule of module.modules) {
+                for (const subModule of module.modules) {
                     let streamInputs = inputs.map((input) => input);
                     let streamOutputs = [];
                     this._loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
@@ -249,7 +249,7 @@ torch.Node = class {
         const type = module.__type__;
         this._operator = type ? type.split('.').pop() : 'Unknown';
         let initializers = [];
-        for (let key of Object.keys(module)) {
+        for (const key of Object.keys(module)) {
             const obj = module[key];
             if (obj && obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Storage')) {
                 let array = [];
@@ -347,7 +347,7 @@ torch.Node = class {
         }
         this._attributes = [];
         if (module.__type__) {
-            for (let key of Object.keys(module)) {
+            for (const key of Object.keys(module)) {
                 if (key == '__type__' || key == '_type') {
                     continue;
                 }
@@ -640,7 +640,7 @@ torch.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -659,7 +659,7 @@ torch.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -982,7 +982,7 @@ torch.T7Reader = class {
     nn(obj) {
         let attributes = this.read();
         if (attributes != null) {
-            for (let key of Object.keys(attributes)) {
+            for (const key of Object.keys(attributes)) {
                 obj[key] = attributes[key];
             }
         }
@@ -1156,8 +1156,8 @@ torch.TextReader = class {
     }
 
     int64() {
-        let token = this._textDecoder.decode(this.line(20));
-        let number = Number.parseInt(token, 10);
+        const token = this._textDecoder.decode(this.line(20));
+        const number = Number.parseInt(token, 10);
         if (Number.isNaN(token - number)) {
             throw new torch.Error("Couldn't parse int64 '" + token + "'.");
         }
@@ -1167,9 +1167,9 @@ torch.TextReader = class {
     int64s(size) {
         let array = [];
         if (size > 0) {
-            let text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
-            for (let token of text.split(' ')) {
-                let number = Number.parseInt(token, 10);
+            const text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
+            for (const token of text.split(' ')) {
+                const number = Number.parseInt(token, 10);
                 if (Number.isNaN(token - number)) {
                     throw new torch.Error("Couldn't parse int64 '" + token + "'.");
                 }
@@ -1184,7 +1184,7 @@ torch.TextReader = class {
     }
 
     float64() {
-        let token = this._textDecoder.decode(this.line(24));
+        const token = this._textDecoder.decode(this.line(24));
         if (token.startsWith('-nan')) {
             return -NaN;
         }
@@ -1197,7 +1197,7 @@ torch.TextReader = class {
         if (token.startsWith('-inf')) {
             return -Infinity;
         }
-        let number = Number.parseFloat(token);
+        const number = Number.parseFloat(token);
         if (Number.isNaN(token - number)) {
             throw new Error("Couldn't parse float '" + token + "'.");
         }
@@ -1205,12 +1205,12 @@ torch.TextReader = class {
     }
 
     string() {
-        let size = this.int32();
+        const size = this.int32();
         if (size == 0) {
             return '';
         }
-        let data = this.line(size);
-        let text = this._textDecoder.decode(data);
+        const data = this.line(size);
+        const text = this._textDecoder.decode(data);
         if (size != text.length) {
             throw torch.Error('Invalid text length.');
         }

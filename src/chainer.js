@@ -12,7 +12,8 @@ chainer.ModelFactory = class {
         const identifier = context.identifier; 
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'npz') {
-            return context.entries.length > 0 && context.entries.every((entry) => entry.name.indexOf('/') !== -1);
+            const entries = context.entries('zip');
+            return entries.length > 0 && entries.every((entry) => entry.name.indexOf('/') !== -1);
         }
         if (extension === 'h5' || extension === 'hd5' || extension === 'hdf5' || extension === 'keras' || extension === 'model') {
             const buffer = context.buffer;
@@ -165,7 +166,7 @@ chainer.ModelFactory = class {
                         [ 'f2', 'float16'], [ 'f4', 'float32' ], [ 'f8', 'float64']
                     ]);
 
-                    for (let entry of context.entries) {
+                    for (const entry of context.entries('zip')) {
                         if (!entry.name.endsWith('.npy')) {
                             throw new chainer.Error("Invalid file name '" + entry.name + "'.");
                         }
@@ -228,7 +229,7 @@ chainer.ModelFactory = class {
                 }
                 let modules = [];
                 let map = new Map();
-                for (let moduleGroup of rootGroup.groups) {
+                for (const moduleGroup of rootGroup.groups) {
                     if (Object.keys(moduleGroup.attributes).length !== 0 || moduleGroup.value !== null) {
                         throw new chainer.Error('Module group format is not Chainer HDF5');
                     }
@@ -245,7 +246,7 @@ chainer.ModelFactory = class {
                         map.set(moduleName, module);
                         modules.push(module);
                     }
-                    for (let variableGroup of moduleGroup.groups) {
+                    for (const variableGroup of moduleGroup.groups) {
                         if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
                             throw new chainer.Error('Variable format is not Chainer HDF5');
                         }
@@ -294,7 +295,7 @@ chainer.Graph = class {
 
     constructor(modules) {
         this._nodes = [];
-        for (let module of modules) {
+        for (const module of modules) {
             this._nodes.push(new chainer.Node(module));
         }
     }
@@ -357,7 +358,7 @@ chainer.Node = class {
     constructor(module) {
         this._name = module.name;
         this._inputs = [];
-        for (let parameter of module.parameters) {
+        for (const parameter of module.parameters) {
             const name = [ this._name, parameter.name ].join('/');
             const initializer = new chainer.Tensor(name, parameter.dataType, parameter.shape, parameter.data, parameter.byteOrder);
             this._inputs.push(new chainer.Parameter(parameter.name, [

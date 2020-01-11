@@ -128,7 +128,7 @@ hdf5.Group = class {
         }
         if (!this._attributes) {
             this._attributes = {};
-            for (let attribute of this._dataObjectHeader.attributes) {
+            for (const attribute of this._dataObjectHeader.attributes) {
                 const name = attribute.name;
                 const value = attribute.decodeValue(this._globalHeap);
                 this._attributes[name] = value;
@@ -152,8 +152,8 @@ hdf5.Group = class {
                 if (this._entry.treeAddress || this._entry.heapAddress) {
                     const heap = new hdf5.Heap(this._reader.at(this._entry.heapAddress));
                     const tree = new hdf5.Tree(this._reader.at(this._entry.treeAddress));
-                    for (let node of tree.nodes) {
-                        for (let entry of node.entries) {
+                    for (const node of tree.nodes) {
+                        for (const entry of node.entries) {
                             const name = heap.getString(entry.linkNameOffset);
                             const group = new hdf5.Group(this._reader, entry, null, this._globalHeap, this._path, name);
                             this._groups.push(group);
@@ -164,7 +164,7 @@ hdf5.Group = class {
             }
             else {
                 this._decodeDataObject();
-                for (let link of this._dataObjectHeader.links) {
+                for (const link of this._dataObjectHeader.links) {
                     if (Object.prototype.hasOwnProperty.call(link, 'objectHeaderAddress')) {
                         const name = link.name;
                         const objectHeader = new hdf5.DataObjectHeader(this._reader.at(link.objectHeaderAddress));
@@ -227,7 +227,7 @@ hdf5.Variable = class {
                         size *= this._dataspace.shape[i];
                     }
                     var data = new Uint8Array(size);
-                    for (let node of tree.nodes) {
+                    for (const node of tree.nodes) {
                         if (node.fields.length !== 2 || node.fields[1] !== 0) {
                             return null;
                         }
@@ -237,7 +237,7 @@ hdf5.Variable = class {
                         const start = node.fields[0] * this._dataLayout.datasetElementSize;
                         var chunk = node.data;
                         if (this._filterPipeline) {
-                            for (let filter of this._filterPipeline.filters) {
+                            for (const filter of this._filterPipeline.filters) {
                                 chunk = filter.decode(chunk);
                             }
                         }

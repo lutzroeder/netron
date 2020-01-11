@@ -12,10 +12,13 @@ mlnet.ModelFactory = class {
     match(context) {
         const identifier = context.identifier; 
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'zip' && context.entries.length > 0) {
-            const root = new Set([ 'TransformerChain', 'Predictor']);
-            if (context.entries.some((e) => root.has(e.name.split('\\').shift().split('/').shift()))) {
-                return true;
+        if (extension === 'zip') {
+            const entries = context.entries('zip');
+            if (entries.length > 0) {
+                const root = new Set([ 'TransformerChain', 'Predictor']);
+                if (entries.some((e) => root.has(e.name.split('\\').shift().split('/').shift()))) {
+                    return true;
+                }
             }
         }
         return false;
@@ -25,7 +28,7 @@ mlnet.ModelFactory = class {
         const identifier = context.identifier;
         return mlnet.Metadata.open(host).then((metadata) => {
             try {
-                const reader = new mlnet.ModelReader(context.entries);
+                const reader = new mlnet.ModelReader(context.entries('zip'));
                 return new mlnet.Model(metadata, reader);
             }
             catch (error) {
@@ -67,7 +70,7 @@ mlnet.Graph = class {
         this._groups = false;
 
         if (reader.schema && reader.schema.inputs) {
-            for (let input of reader.schema.inputs) {
+            for (const input of reader.schema.inputs) {
                 this._inputs.push(new mlnet.Parameter(input.name, [
                     new mlnet.Argument(input.name, new mlnet.TensorType(input.type))
                 ]));
@@ -100,8 +103,8 @@ mlnet.Graph = class {
 
     _loadChain(metadata, scope, name, chain) {
         this._groups = true;
-        let group = name.split('/').splice(1).join('/');
-        for (let childTransformer of chain) {
+        const group = name.split('/').splice(1).join('/');
+        for (const childTransformer of chain) {
             this._loadTransformer(metadata, scope, group, childTransformer);
         }
     }
@@ -109,10 +112,10 @@ mlnet.Graph = class {
     _createNode(metadata, scope, group, transformer) {
 
         if (transformer.inputs && transformer.outputs) {
-            for (let input of transformer.inputs) {
+            for (const input of transformer.inputs) {
                 input.name = scope[input.name] ? scope[input.name].argument : input.name;
             }
-            for (let output of transformer.outputs) {
+            for (const output of transformer.outputs) {
                 if (scope[output.name]) {
                     scope[output.name].counter++;
                     var next = output.name + '\n' + scope[output.name].counter.toString(); // custom argument id
@@ -198,7 +201,7 @@ mlnet.Node = class {
 
         if (transformer.inputs) {
             let i = 0;
-            for (let input of transformer.inputs) {
+            for (const input of transformer.inputs) {
                 this._inputs.push(new mlnet.Parameter(i.toString(), [
                     new mlnet.Argument(input.name)
                 ]));
@@ -208,7 +211,7 @@ mlnet.Node = class {
 
         if (transformer.outputs) {
             let i = 0;
-            for (let output of transformer.outputs) {
+            for (const output of transformer.outputs) {
                 this._outputs.push(new mlnet.Parameter(i.toString(), [
                     new mlnet.Argument(output.name)
                 ]));
@@ -216,7 +219,7 @@ mlnet.Node = class {
             }
         }
 
-        for (let key of Object.keys(transformer).filter((key) => !key.startsWith('_') && key !== 'inputs' && key !== 'outputs')) {
+        for (const key of Object.keys(transformer).filter((key) => !key.startsWith('_') && key !== 'inputs' && key !== 'outputs')) {
             this._attributes.push(new mlnet.Attribute(metadata, this._operator, key, transformer[key]));
         }
     }
@@ -425,7 +428,7 @@ mlnet.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -444,7 +447,7 @@ mlnet.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -1584,7 +1587,7 @@ mlnet.TermManager = class {
             }
         }
         else {
-            throw new mlnet.Error('');
+            throw new mlnet.Error('Unsupported TermManager version.');
             // for (let i = 0; i < cmap; ++i) {
             //    debugger;
             //    // termMap[i] = TermMap.TextImpl.Create(c, host)
@@ -1661,7 +1664,7 @@ mlnet.RowToRowMapperTransform = class extends mlnet.RowToRowTransformBase {
         super(context);
         let mapper = context.open('Mapper');
         this.__type__ = mapper.__type__;
-        for (let key of Object.keys(mapper)) {
+        for (const key of Object.keys(mapper)) {
             this[key] = mapper[key];
         }
     }
@@ -1985,7 +1988,7 @@ mlnet.InternalRegressionTree = class {
             if (categoricalNodeIndices.length > 0) {
                 this.CategoricalSplitFeatures = [];
                 this.CategoricalSplitFeatureRanges = [];
-                for (let index of categoricalNodeIndices) {
+                for (const index of categoricalNodeIndices) {
                     this.CategoricalSplitFeatures[index] = reader.int32s(reader.int32());
                     this.CategoricalSplitFeatureRanges[index] = reader.int32s(2);
                 }
@@ -2227,7 +2230,7 @@ mlnet.IidAnomalyDetectionBaseWrapper = class {
 
     constructor(context) {
         let internalTransform = new mlnet.IidAnomalyDetectionBase(context);
-        for (let key of Object.keys(internalTransform)) {
+        for (const key of Object.keys(internalTransform)) {
             this[key] = internalTransform[key];
         }
     }

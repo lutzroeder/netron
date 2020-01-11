@@ -287,7 +287,7 @@ mnn.Node = class {
 
         let attributeNames = [];
         let attributeNamesMap = {};
-        for (let attributeName of Object.keys(Object.getPrototypeOf(parameter))) {
+        for (const attributeName of Object.keys(Object.getPrototypeOf(parameter))) {
             if (attributeName != '__init') {
                 attributeNames.push(attributeName);
             }
@@ -295,14 +295,14 @@ mnn.Node = class {
         }
 
         let attributeArrayNamesMap = {}; 
-        for (let attributeName of Object.keys(attributeNamesMap)) {
+        for (const attributeName of Object.keys(attributeNamesMap)) {
             if (attributeNamesMap[attributeName + 'Length']) { // some bugs without array
                 attributeArrayNamesMap[attributeName] = true;
                 attributeNames = attributeNames.filter((item) => item != (attributeName + 'Array') && item != (attributeName + 'Length'));
             }
         }
 
-        for (let attributeName of attributeNames) {
+        for (const attributeName of attributeNames) {
         
             if (invisibleAttributes && invisibleAttributes[attributeName]) {
                 continue;
@@ -336,7 +336,7 @@ mnn.Node = class {
     
     static _findParameterClassName(opParameterObject) {
         const keys = Object.getOwnPropertyNames(mnn.schema);
-        for (let key of keys) {
+        for (const key of keys) {
             const cls = mnn.schema[key];
             if (typeof cls === "function" && opParameterObject instanceof cls) {
                 return key;
@@ -616,7 +616,7 @@ mnn.Metadata = class {
         if (data) {
             const items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map.set(item.name, item.schema);
                     }
@@ -636,7 +636,7 @@ mnn.Metadata = class {
             if (!attributeMap) {
                 attributeMap = {};
                 if (schema.attributes) {
-                    for (let attribute of schema.attributes) {
+                    for (const attribute of schema.attributes) {
                         attributeMap[attribute.name] = attribute;
                     }
                 }

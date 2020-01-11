@@ -67,7 +67,7 @@ zip.Entry = class {
         extraDataLength = reader.uint16();
         let nameBuffer = reader.bytes(nameLength);
         this._name = '';
-        for (let c of nameBuffer) {
+        for (const c of nameBuffer) {
             this._name += String.fromCharCode(c);
         }
         reader.skip(extraDataLength);
@@ -342,12 +342,12 @@ zip.Ouptut = class {
 
     merge() {
         let size = 0;
-        for (let block1 of this._blocks) {
+        for (const block1 of this._blocks) {
             size += block1.length;
         }
         let output = new Uint8Array(size);
         let offset = 0;
-        for (let block2 of this._blocks) {
+        for (const block2 of this._blocks) {
             output.set(block2, offset);
             offset += block2.length;
         }

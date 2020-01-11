@@ -75,7 +75,7 @@ cntk.ModelFactory = class {
 
     static _convertDictionary(dictionary) {
         let target = {};
-        for (let key of Object.keys(dictionary.data).filter((key) => key != 'version')) {
+        for (const key of Object.keys(dictionary.data).filter((key) => key != 'version')) {
             target[key] = cntk.ModelFactory._convertDictionaryValue(dictionary.data[key]);
         }
         return target;
@@ -151,7 +151,7 @@ cntk.Graph = class {
         let args = {};
         switch (version) {
             case 1: {
-                for (let name of Object.keys(obj.nodes)) {
+                for (const name of Object.keys(obj.nodes)) {
                     const node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue':
@@ -164,14 +164,14 @@ cntk.Graph = class {
                             break;
                     }
                 }
-                for (let name of Object.keys(obj.nodes)) {
+                for (const name of Object.keys(obj.nodes)) {
                     const node = obj.nodes[name];
                     if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
                         this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
                 }
                 if (obj.output) {
-                    for (let output of obj.output) {
+                    for (const output of obj.output) {
                         this._outputs.push(new cntk.Parameter(output, [ 
                             new cntk.Argument(version, output)
                         ]));
@@ -181,10 +181,10 @@ cntk.Graph = class {
             }
             case 2: {
                 let nodeMap = new Map();
-                for (let node of obj.primitive_functions) {
+                for (const node of obj.primitive_functions) {
                     nodeMap.set(node.uid, node);
                 }
-                for (let input of obj.inputs) {
+                for (const input of obj.inputs) {
                     let argument = new cntk.Argument(version, input);
                     args[input.uid] = argument;
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
@@ -193,7 +193,7 @@ cntk.Graph = class {
                         this._inputs.push(new cntk.Parameter(inputName, [ argument ]));
                     }
                 }
-                for (let block of obj.primitive_functions) {
+                for (const block of obj.primitive_functions) {
                     if (block.op == 57 && block.block_function_composite) {
                         let list = [ block.block_function_composite.root ];
                         let nodes = [];
@@ -219,7 +219,7 @@ cntk.Graph = class {
                         this._functions.push(new cntk.Function(block.block_function_op_name, nodes, inputs, outputs));
                     }
                 }
-                for (let node of obj.primitive_functions) {
+                for (const node of obj.primitive_functions) {
                     if (nodeMap.has(node.uid)) {
                         this._nodes.push(new cntk.Node(metadata, version, node, args));
                     }
@@ -375,7 +375,7 @@ cntk.Node = class {
             case 1: {
                 this._operator = obj.__type__;
                 this._name = obj.name;
-                for (let attributeName of Object.keys(obj)) {
+                for (const attributeName of Object.keys(obj)) {
                     if (attributeName != '__type__' && attributeName != 'name' && attributeName != 'inputs' && attributeName != 'precision') {
                         this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj[attributeName]));
                     }
@@ -403,7 +403,7 @@ cntk.Node = class {
                     if (!Object.prototype.hasOwnProperty.call(obj, 'op')) {
                         this._operator = obj.type;
                         if (obj.user_defined_state) {
-                            for (let attributeName of Object.keys(obj.user_defined_state)) {
+                            for (const attributeName of Object.keys(obj.user_defined_state)) {
                                 this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj.user_defined_state[attributeName]));
                             }
                         }
@@ -416,11 +416,11 @@ cntk.Node = class {
                     }
                 }
                 if (obj.attributes) {
-                    for (let attributeName of Object.keys(obj.attributes)) {
+                    for (const attributeName of Object.keys(obj.attributes)) {
                         this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj.attributes[attributeName]));
                     }
                 }
-                for (let input of obj.inputs) {
+                for (const input of obj.inputs) {
                     let argument = args[input];
                     if (argument) {
                         if (argument.initializer) {
@@ -443,11 +443,11 @@ cntk.Node = class {
         let inputIndex = 0;
         const schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         if (schema && schema.inputs) {
-            for (let inputSchema of schema.inputs) {
+            for (const inputSchema of schema.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
                     let inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     let inputArguments = [];
-                    for (let inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                    for (const inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (inputArgument.id != '' || inputSchema.option != 'optional') {
                             inputArguments.push(inputArgument);
                         }
@@ -463,7 +463,7 @@ cntk.Node = class {
 
         let outputIndex = 0;
         if (schema && schema.outputs) {
-            for (let outputSchema of schema.outputs) {
+            for (const outputSchema of schema.outputs) {
                 if (outputIndex < outputs.length || outputSchema.option != 'optional') {
                     let outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
@@ -526,7 +526,7 @@ cntk.Attribute = class {
         }
         if (cntk_v2 && this._value instanceof cntk_v2.Axis) {
             const axis = { __type__: 'Axis' };
-            for (let key of Object.keys(value).filter((key) => key !== 'name')) {
+            for (const key of Object.keys(value).filter((key) => key !== 'name')) {
                 axis[key] = value[key];
             }
             this._value = axis;
@@ -803,7 +803,7 @@ cntk.Metadata = class {
         if (data) {
             let items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         const name = item.name;
                         const schema = item.schema;
@@ -832,7 +832,7 @@ cntk.Metadata = class {
             map = {};
             let schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

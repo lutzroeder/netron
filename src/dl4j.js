@@ -11,7 +11,7 @@ dl4j.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'zip' && context.entries.length > 0) {
+        if (extension === 'zip' && context.entries('zip').length > 0) {
             if (dl4j.ModelFactory._openContainer(context)) {
                 return true;
             }
@@ -45,7 +45,8 @@ dl4j.ModelFactory = class {
     }
 
     static _openContainer(context) {
-        const configurationEntries = context.entries.filter((entry) => entry.name === 'configuration.json');
+        const entries = context.entries('zip');
+        const configurationEntries = entries.filter((entry) => entry.name === 'configuration.json');
         if (configurationEntries.length != 1) {
             return null;
         }
@@ -59,7 +60,7 @@ dl4j.ModelFactory = class {
         if (configuration.indexOf('"vertices"') === -1 && configuration.indexOf('"confs"') === -1) {
             return null;
         }
-        const coefficientsEntries = context.entries.filter((entry) => entry.name === 'coefficients.bin');
+        const coefficientsEntries = entries.filter((entry) => entry.name === 'coefficients.bin');
         if (coefficientsEntries.length > 1) {
             return null;
         }
@@ -99,7 +100,7 @@ dl4j.Graph = class {
         let dataType = reader.dataType;
 
         if (configuration.networkInputs) {
-            for (let input of configuration.networkInputs) {
+            for (const input of configuration.networkInputs) {
                 this._inputs.push(new dl4j.Parameter(input, true, [
                     new dl4j.Argument(input, null, null)
                 ]));
@@ -107,7 +108,7 @@ dl4j.Graph = class {
         }
 
         if (configuration.networkOutputs) {
-            for (let output of configuration.networkOutputs) {
+            for (const output of configuration.networkOutputs) {
                 this._outputs.push(new dl4j.Parameter(output, true, [
                     new dl4j.Argument(output, null, null)
                 ]));
@@ -118,8 +119,7 @@ dl4j.Graph = class {
 
         // Computation Graph
         if (configuration.vertices) {
-            for (let name in configuration.vertices) {
-
+            for (const name in configuration.vertices) {
                 let vertex = dl4j.Node._object(configuration.vertices[name]);
                 inputs = configuration.vertexInputs[name];
                 let variables = [];
@@ -153,7 +153,7 @@ dl4j.Graph = class {
             this._inputs.push(new dl4j.Parameter('input', true, [
                 new dl4j.Argument('input', null, null)
             ]));
-            for (let conf of configuration.confs) {
+            for (const conf of configuration.confs) {
                 let layer = dl4j.Node._object(conf.layer);
                 this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables));
                 inputs = [ layer.layerName ];
@@ -239,7 +239,7 @@ dl4j.Node = class {
         }
 
         if (variables) {
-            for (let variable of variables) {
+            for (const variable of variables) {
                 let tensor = null;
                 switch (this._operator) {
                     case 'Convolution':
@@ -316,7 +316,7 @@ dl4j.Node = class {
             }
         }
 
-        for (let key in attributes) {
+        for (const key in attributes) {
             switch (key) {
                 case '__type__':
                 case 'constraints':
@@ -503,7 +503,7 @@ dl4j.Metadata = class {
             if (data) {
                 let items = JSON.parse(data);
                 if (items) {
-                    for (let item of items) {
+                    for (const item of items) {
                         if (item.name && item.schema) {
                             this._map[item.name] = item.schema;
                         }
@@ -523,7 +523,7 @@ dl4j.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }

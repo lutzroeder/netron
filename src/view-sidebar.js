@@ -108,7 +108,7 @@ sidebar.Sidebar = class {
                 contentElement.innerHTML = item.content;
             }
             else if (item.content instanceof Array) {
-                for (let element of item.content) {
+                for (const element of item.content) {
                     contentElement.appendChild(element);
                 }
             }
@@ -171,7 +171,7 @@ sidebar.NodeSidebar = class {
         let attributes = node.attributes;
         if (attributes && attributes.length > 0) {
             this._addHeader('Attributes');
-            for (let attribute of attributes) {
+            for (const attribute of attributes) {
                 this._addAttribute(attribute.name, attribute);
             }
         }
@@ -179,7 +179,7 @@ sidebar.NodeSidebar = class {
         let inputs = node.inputs;
         if (inputs && inputs.length > 0) {
             this._addHeader('Inputs');
-            for (let input of inputs) {
+            for (const input of inputs) {
                 this._addInput(input.name, input);
             }
         }
@@ -187,7 +187,7 @@ sidebar.NodeSidebar = class {
         let outputs = node.outputs;
         if (outputs && outputs.length > 0) {
             this._addHeader('Outputs');
-            for (let output of outputs) {
+            for (const output of outputs) {
                 this._addOutput(output.name, output);
             }
         }
@@ -225,7 +225,7 @@ sidebar.NodeSidebar = class {
             view.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
-            let item = new sidebar.NameValueView(this._host, name, view);
+            const item = new sidebar.NameValueView(this._host, name, view);
             this._inputs.push(item);
             this._elements.push(item.render());
         }
@@ -233,14 +233,14 @@ sidebar.NodeSidebar = class {
 
     _addOutput(name, output) {
         if (output.arguments.length > 0) {
-            let item = new sidebar.NameValueView(this._host, name, new sidebar.ParameterView(this._host, output));
+            const item = new sidebar.NameValueView(this._host, name, new sidebar.ParameterView(this._host, output));
             this._outputs.push(item);
             this._elements.push(item.render());
         }
     }
 
     toggleInput(name) {
-        for (let input of this._inputs) {
+        for (const input of this._inputs) {
             if (name == input.name) {
                 input.toggle();
             }
@@ -255,7 +255,7 @@ sidebar.NodeSidebar = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -330,7 +330,7 @@ sidebar.NodeSidebar = class {
             list.push(sidebar.NodeSidebar.formatAttributeValue(value[Object.keys(value)[0]], null, true))
         }
         else {
-            for (let key of keys) {
+            for (const key of keys) {
                 list.push(key + ': ' + sidebar.NodeSidebar.formatAttributeValue(value[key], null, true));
             }
         }
@@ -372,7 +372,7 @@ sidebar.NameValueView = class {
         let valueElement = this._host.document.createElement('div');
         valueElement.className = 'sidebar-view-item-value-list';
 
-        for (let element of value.render()) {
+        for (const element of value.render()) {
             valueElement.appendChild(element);
         }
 
@@ -408,7 +408,7 @@ sidebar.SelectView = class {
         });
         this._elements.push(selectElement);
 
-        for (let value of values) {
+        for (const value of values) {
             let optionElement = this._host.document.createElement('option');
             optionElement.innerText = value;
             if (value == selected) {
@@ -430,7 +430,7 @@ sidebar.SelectView = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -554,7 +554,7 @@ sidebar.ParameterView = class {
         this._list = list;
         this._elements = [];
         this._items = [];
-        for (let argument of list.arguments) {
+        for (const argument of list.arguments) {
             let item = new sidebar.ArgumentView(host, argument);
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
@@ -569,7 +569,7 @@ sidebar.ParameterView = class {
     }
 
     toggle() {
-        for (let item of this._items) {
+        for (const item of this._items) {
             item.toggle();
         }
     }
@@ -582,7 +582,7 @@ sidebar.ParameterView = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -735,7 +735,7 @@ sidebar.ArgumentView = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -788,7 +788,7 @@ sidebar.ModelSidebar = class {
 
         let metadata = this._model.metadata;
         if (metadata) {
-            for (let property of this._model.metadata) {
+            for (const property of this._model.metadata) {
                 this._addProperty(property.name, new sidebar.ValueTextView(this._host, property.value));
             }
         }
@@ -817,14 +817,14 @@ sidebar.ModelSidebar = class {
 
             if (graph.inputs.length > 0) {
                 this._addHeader('Inputs');
-                for (let input of graph.inputs) {
+                for (const input of graph.inputs) {
                     this.addArgument(input.name, input);
                 }
             }
 
             if (graph.outputs.length > 0) {
                 this._addHeader('Outputs');
-                for (let output of graph.outputs) {
+                for (const output of graph.outputs) {
                     this.addArgument(output.name, output);
                 }
             }
@@ -862,7 +862,7 @@ sidebar.ModelSidebar = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -982,7 +982,7 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -1022,7 +1022,7 @@ sidebar.FindSidebar = class {
 
     _raise(event, data) {
         if (this._events && this._events[event]) {
-            for (let callback of this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -1083,12 +1083,12 @@ sidebar.FindSidebar = class {
         let nodeMatches = new Set();
         let edgeMatches = new Set();
 
-        for (let node of this._graph.nodes) {
+        for (const node of this._graph.nodes) {
 
             let initializers = [];
 
-            for (let input of node.inputs) {
-                for (let argument of input.arguments) {
+            for (const input of node.inputs) {
+                for (const argument of input.arguments) {
                     if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.id)) {
                         if (!argument.initializer) {
                             let inputItem = this._host.document.createElement('li');
@@ -1116,7 +1116,7 @@ sidebar.FindSidebar = class {
                 nodeMatches.add(node.name);
             }
 
-            for (let initializer of initializers) {
+            for (const initializer of initializers) {
                 let initializeItem = this._host.document.createElement('li');
                 initializeItem.innerText = '\u25A0 ' + initializer.name;
                 initializeItem.id = 'initializer-' + initializer.name;
@@ -1124,9 +1124,9 @@ sidebar.FindSidebar = class {
             }
         }
 
-        for (let node of this._graph.nodes) {
-            for (let output of node.outputs) {
-                for (let argument of output.arguments) {
+        for (const node of this._graph.nodes) {
+            for (const output of node.outputs) {
+                for (const argument of output.arguments) {
                     if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.id]) {
                         let outputItem = this._host.document.createElement('li');
                         outputItem.innerText = '\u2192 ' + argument.id.split('\n').shift(); // custom argument id

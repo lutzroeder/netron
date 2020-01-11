@@ -13,7 +13,7 @@ mxnet.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'model' || extension == 'mar') {
-            if (context.entries.length > 0) {
+            if (context.entries('zip').length > 0) {
                 return true;
             }
         }
@@ -90,7 +90,7 @@ mxnet.ModelFactory = class {
             case 'model': {
                 let entries = new Map();
                 try {
-                    for (let entry of context.entries) {
+                    for (const entry of context.entries('zip')) {
                         entries.set(entry.name, entry);
                     }
                 }
@@ -218,7 +218,7 @@ mxnet.ModelFactory = class {
             if (params) {
                 try {
                     const stream = new ndarray.Stream(params);
-                    for (let key of Object.keys(stream.arrays)) {
+                    for (const key of Object.keys(stream.arrays)) {
                         let name = key;
                         if (name.startsWith('arg:') || name.startsWith('aux:')) {
                             name = key.substring(4);
@@ -400,7 +400,7 @@ mxnet.Graph = class {
         this._outputs = [];
 
         if (params) {
-            for (let key of Object.keys(params)) {
+            for (const key of Object.keys(params)) {
                 const param = params[key];
                 params[key] = new mxnet.Tensor('Initializer', key,
                     new mxnet.TensorType(param.dataType, new mxnet.TensorShape(param.shape.dimensions)),
@@ -410,7 +410,7 @@ mxnet.Graph = class {
 
         if (symbol) {
             const nodes = symbol.nodes;
-            for (let node of nodes) {
+            for (const node of nodes) {
                 if (node.op && node.op != 'null') { 
                     let operator = node.op;
                     const attrs = node.attrs || node.attr || node.param;
@@ -422,35 +422,35 @@ mxnet.Graph = class {
     
             let inputs = {};
             if (signature && signature.inputs) {
-                for (let input of signature.inputs) {
+                for (const input of signature.inputs) {
                     inputs[input.data_name] = input;
                 }
             }
             let outputs = {};
             if (signature && signature.outputs) {
-                for (let output of signature.outputs) {
+                for (const output of signature.outputs) {
                     outputs[output.data_name] = output;
                 }
             }
     
-            for (let node of nodes) {
+            for (const node of nodes) {
                 node.outputs = [];
             }
-            for (let node of nodes) {
+            for (const node of nodes) {
                 node.inputs = node.inputs.map((input) => {
                     return mxnet.Graph._updateOutput(nodes, input);
                 });
             }
     
             let outputCountMap = {};
-            for (let node of nodes) {
-                for (let output of node.outputs) {
+            for (const node of nodes) {
+                for (const output of node.outputs) {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 }
             }
     
             let argumentMap = {};
-            for (let index of symbol.arg_nodes) {
+            for (const index of symbol.arg_nodes) {
                 argumentMap[index] = (index < nodes.length) ? nodes[index] : null;
             }
     
@@ -467,11 +467,11 @@ mxnet.Graph = class {
             }
     
             let initializerMap = {};
-            for (let node of nodes.filter((node, index) => !argumentMap[index])) {
+            for (const node of nodes.filter((node, index) => !argumentMap[index])) {
                 this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, params));
             }
     
-            for (let argumentKey of Object.keys(argumentMap)) {
+            for (const argumentKey of Object.keys(argumentMap)) {
                 let argument = argumentMap[argumentKey];
                 if (argument && (!argument.inputs || argument.inputs.length == 0) && (argument.outputs && argument.outputs.length == 1)) {
                     const inputId = argument.outputs[0];
@@ -494,7 +494,7 @@ mxnet.Graph = class {
             }
             if (separator.length > 0) {
                 let blockMap = {};
-                for (let id of Object.keys(params)) {
+                for (const id of Object.keys(params)) {
                     let parts = id.split(separator);
                     let argumentName = parts.pop();
                     if (id.endsWith('moving_mean') || id.endsWith('moving_var')) {
@@ -611,7 +611,7 @@ mxnet.Node = class {
             if (this._operator == 'tvm_op' && attrs.func_name) {
                 this._operator = attrs.func_name;
             }
-            for (let attributeName of Object.keys(attrs)) {
+            for (const attributeName of Object.keys(attrs)) {
                 if (this._operator != 'tvm_op' && attributeName != 'func_name') {
                     this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, attributeName, attrs[attributeName]));
                 }
@@ -637,7 +637,7 @@ mxnet.Node = class {
                 inputs = inputs.filter((item) => item != null);
             }
             let initializers = {};
-            for (let input of inputs) {
+            for (const input of inputs) {
                 const id = '[' + input.join(',') + ']';
                 initializer = initializerMap[id];
                 if (!initializer) {
@@ -688,11 +688,11 @@ mxnet.Node = class {
 
             let inputIndex = 0;
             if (schema && schema.inputs) {
-                for (let inputDef of schema.inputs) {
+                for (const inputDef of schema.inputs) {
                     if (inputIndex < inputs.length || inputDef.option != 'optional') {
                         let inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                         let inputArguments = [];
-                        for (let input of inputs.slice(inputIndex, inputIndex + inputCount)) {
+                        for (const input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                             const inputId = '[' + input.join(',') + ']';
                             if (inputId != '' || inputDef.option != 'optional') {
                                 inputArguments.push(new mxnet.Argument(inputId, inputDef.type, initializers[inputId]));
@@ -717,11 +717,11 @@ mxnet.Node = class {
             const outputs = node.outputs;
             let outputIndex = 0;
             if (schema && schema.outputs) {
-                for (let outputDef of schema.outputs) {
+                for (const outputDef of schema.outputs) {
                     if (outputIndex < outputs.length || outputDef.option != 'optional') {
                         let outputArguments = [];
                         const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                        for (let output of outputs.slice(outputIndex, outputIndex + outputCount)) {
+                        for (const output of outputs.slice(outputIndex, outputIndex + outputCount)) {
                             outputArguments.push(new mxnet.Argument('[' + output.join(',') + ']', null, null));
                         }
                         this._outputs.push(new mxnet.Parameter(outputDef.name, outputArguments));
@@ -739,7 +739,7 @@ mxnet.Node = class {
         }
 
         if (node.params) {
-            for (let param of node.params) {
+            for (const param of node.params) {
                 this._inputs.push(new mxnet.Parameter(param.name, [
                     new mxnet.Argument(param.id, null, params[param.id] || null)
                 ]));
@@ -765,21 +765,21 @@ mxnet.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
@@ -842,7 +842,7 @@ mxnet.Attribute = class {
                         let items = this._value.substring(1, this._value.length - 1).split(',')
                             .map((item) => item.trim())
                             .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
-                        for (let item of items) {
+                        for (const item of items) {
                             number = Number.parseInt(item, 10);
                             if (Number.isNaN(item - number)) {
                                 array = null;
@@ -1119,7 +1119,7 @@ mxnet.Metadata = class {
         if (data) {
             const items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item.name && item.schema) {
                         this._map[item.name] = item.schema;
                     }
@@ -1138,7 +1138,7 @@ mxnet.Metadata = class {
             map = {};
             const schema = this.getSchema(operator);
             if (schema && schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
@@ -1290,7 +1290,7 @@ ndarray.Shape = class {
 
     size() {
         let result = 1;
-        for (let dimension of this._dimensions) {
+        for (const dimension of this._dimensions) {
             result *= dimension;
         }
         return result;

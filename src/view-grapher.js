@@ -33,22 +33,22 @@ grapher.Renderer = class {
         svgNodeGroup.setAttribute('class', 'nodes');
         this._svgElement.appendChild(svgNodeGroup);
 
-        for (let nodeId of graph.nodes()) {
+        for (const nodeId of graph.nodes()) {
             if (graph.children(nodeId).length == 0) {
-                let node = graph.node(nodeId);
-                let element = this.createElement('g');
+                const node = graph.node(nodeId);
+                const element = this.createElement('g');
                 if (node.id) {
                     element.setAttribute('id', node.id);
                 }
                 element.setAttribute('class', Object.prototype.hasOwnProperty.call(node, 'class') ? ('node ' + node.class) : 'node');
                 element.style.opacity = 0;
-                let container = this.createElement('g');
+                const container = this.createElement('g');
                 container.appendChild(node.label);
                 element.appendChild(container);
                 svgNodeGroup.appendChild(element);
-                let nodeBox = node.label.getBBox();
-                let nodeX = - nodeBox.width / 2;
-                let nodeY = - nodeBox.height / 2;
+                const nodeBox = node.label.getBBox();
+                const nodeX = - nodeBox.width / 2;
+                const nodeY = - nodeBox.height / 2;
                 container.setAttribute('transform', 'translate(' + nodeX + ',' + nodeY + ')');
                 node.width = nodeBox.width;
                 node.height = nodeBox.height;
@@ -56,26 +56,26 @@ grapher.Renderer = class {
             }
         }
 
-        for (let edgeId of graph.edges()) {
-            let edge = graph.edge(edgeId);
+        for (const edgeId of graph.edges()) {
+            const edge = graph.edge(edgeId);
             if (edge.label) {
                 let tspan = this.createElement('tspan');
                 tspan.setAttribute('xml:space', 'preserve');
                 tspan.setAttribute('dy', '1em');
                 tspan.setAttribute('x', '1');
                 tspan.appendChild(this._document.createTextNode(edge.label));
-                let text = this.createElement('text');
+                const text = this.createElement('text');
                 text.appendChild(tspan);
-                let textContainer = this.createElement('g');
+                const textContainer = this.createElement('g');
                 textContainer.appendChild(text);
-                let labelElement = this.createElement('g');
+                const labelElement = this.createElement('g');
                 labelElement.style.opacity = 0;
                 labelElement.setAttribute('class', 'edge-label');
                 labelElement.appendChild(textContainer);
                 svgEdgeLabelGroup.appendChild(labelElement);
-                let edgeBox = textContainer.getBBox();
-                let edgeX = - edgeBox.width / 2;
-                let edgeY = - edgeBox.height / 2;
+                const edgeBox = textContainer.getBBox();
+                const edgeX = - edgeBox.width / 2;
+                const edgeY = - edgeBox.height / 2;
                 textContainer.setAttribute('transform', 'translate(' + edgeX + ',' + edgeY + ')');
                 edge.width = edgeBox.width;
                 edge.height = edgeBox.height;
@@ -85,17 +85,17 @@ grapher.Renderer = class {
 
         dagre.layout(graph);
 
-        for (let nodeId of graph.nodes()) {
+        for (const nodeId of graph.nodes()) {
             if (graph.children(nodeId).length == 0) {
-                let node = graph.node(nodeId);
+                const node = graph.node(nodeId);
                 node.element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
                 node.element.style.opacity = 1;
                 delete node.element;
             }
         }
 
-        for (let edgeId of graph.edges()) {
-            let edge = graph.edge(edgeId);
+        for (const edgeId of graph.edges()) {
+            const edge = graph.edge(edgeId);
             if (edge.labelElement) {
                 edge.labelElement.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
                 edge.labelElement.style.opacity = 1;
@@ -103,9 +103,9 @@ grapher.Renderer = class {
             }
         }
 
-        let edgePathGroupDefs = this.createElement('defs');
+        const edgePathGroupDefs = this.createElement('defs');
         svgEdgePathGroup.appendChild(edgePathGroupDefs);
-        let marker = this.createElement('marker');
+        const marker = this.createElement('marker');
         marker.setAttribute('id', 'arrowhead-vee');
         marker.setAttribute('viewBox', '0 0 10 10');
         marker.setAttribute('refX', 9);
@@ -115,16 +115,16 @@ grapher.Renderer = class {
         marker.setAttribute('markerHeight', 6);
         marker.setAttribute('orient', 'auto');
         edgePathGroupDefs.appendChild(marker);
-        let markerPath = this.createElement('path');
+        const markerPath = this.createElement('path');
         markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z');
         markerPath.style.setProperty('stroke-width', 1);
         markerPath.style.setProperty('stroke-dasharray', '1,0');
         marker.appendChild(markerPath);
 
-        for (let edgeId of graph.edges()) {
-            let edge = graph.edge(edgeId);
-            let edgePath = grapher.Renderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
-            let edgeElement = this.createElement('path');
+        for (const edgeId of graph.edges()) {
+            const edge = graph.edge(edgeId);
+            const edgePath = grapher.Renderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
+            const edgeElement = this.createElement('path');
             edgeElement.setAttribute('class', Object.prototype.hasOwnProperty.call(edge, 'class') ? ('edge-path ' + edge.class) : 'edge-path');
             edgeElement.setAttribute('d', edgePath);
             edgeElement.setAttribute('marker-end', 'url(#arrowhead-vee)');
@@ -134,13 +134,13 @@ grapher.Renderer = class {
             svgEdgePathGroup.appendChild(edgeElement);
         }
 
-        for (let nodeId of graph.nodes()) {
+        for (const nodeId of graph.nodes()) {
             if (graph.children(nodeId).length > 0) {
-                let node = graph.node(nodeId);
-                let nodeElement = this.createElement('g');
+                const node = graph.node(nodeId);
+                const nodeElement = this.createElement('g');
                 nodeElement.setAttribute('class', 'cluster');
                 nodeElement.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-                let rect = this.createElement('rect');
+                const rect = this.createElement('rect');
                 rect.setAttribute('x', - node.width / 2);
                 rect.setAttribute('y', - node.height / 2 );
                 rect.setAttribute('width', node.width);
@@ -166,10 +166,10 @@ grapher.Renderer = class {
         points.unshift(grapher.Renderer.intersectRect(tail, points[0]));
         points.push(grapher.Renderer.intersectRect(head, points[points.length - 1]));
 
-        let path = new Path();
-        let curve = new Curve(path);
+        const path = new Path();
+        const curve = new Curve(path);
         for (let i = 0; i < points.length; i++) {
-            let point = points[i];
+            const point = points[i];
             if (i == 0) {
                 curve.lineStart();
             }
@@ -183,10 +183,10 @@ grapher.Renderer = class {
     }
     
     static intersectRect(node, point) {
-        let x = node.x;
-        let y = node.y;
-        let dx = point.x - x;
-        let dy = point.y - y;
+        const x = node.x;
+        const y = node.y;
+        const dx = point.x - x;
+        const dy = point.y - y;
         let w = node.width / 2;
         let h = node.height / 2;
         let sx;
@@ -238,7 +238,7 @@ grapher.NodeElement = class {
         let height = 0;
         let tops = [];
 
-        for (let block of this._blocks) {
+        for (const block of this._blocks) {
             tops.push(height);
             block.layout(rootElement);
             if (width < block.width) {
@@ -262,7 +262,7 @@ grapher.NodeElement = class {
     }
 
     static roundedRect(x, y, width, height, r1, r2, r3, r4) {
-        let radius = 5;
+        const radius = 5;
         r1 = r1 ? radius : 0;
         r2 = r2 ? radius : 0;
         r3 = r3 ? radius : 0;
@@ -307,7 +307,7 @@ grapher.NodeElement.Header = class {
         this._elements = [];
         let x = 0;
         let y = 0;
-        for (let item of this._items) {
+        for (const item of this._items) {
             let yPadding = 4;
             let xPadding = 7;
             let element = this.createElement('g');
@@ -458,7 +458,7 @@ grapher.NodeElement.List = class {
         this._element.appendChild(this._backgroundElement);
         this._element.setAttribute('transform', 'translate(' + x + ',' + y + ')');
         this._height += 3;
-        for (let item of this._items) {
+        for (const item of this._items) {
             let yPadding = 1;
             let xPadding = 6;
             let textElement = this.createElement('text');

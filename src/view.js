@@ -294,7 +294,7 @@ view.View = class {
             let graphRect = graphElement.getBoundingClientRect();
             let x = 0;
             let y = 0;
-            for (let element of selection) {
+            for (const element of selection) {
                 element.classList.add('select');
                 this._selection.push(element);
                 let box = element.getBBox();
@@ -446,7 +446,7 @@ view.View = class {
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
                 if (groups) {
-                    for (let node of nodes) {
+                    for (const node of nodes) {
                         if (node.group) {
                             let path = node.group.split('/');
                             while (path.length > 0) {
@@ -459,7 +459,7 @@ view.View = class {
                 }
 
                 const self = this;
-                for (let node of nodes) {
+                for (const node of nodes) {
     
                     let element = new grapher.NodeElement(this._host.document);
 
@@ -486,7 +486,7 @@ view.View = class {
                         let initializers = [];
                         let hiddenInitializers = false;
                         if (self._showInitializers) {
-                            for (let input of node.inputs) {
+                            for (const input of node.inputs) {
                                 if (input.visible && input.arguments.length == 1 && input.arguments[0].initializer != null) {
                                     initializers.push(input);
                                 }
@@ -505,7 +505,7 @@ view.View = class {
                             block.handler = () => {
                                 self.showNodeProperties(node);
                             };
-                            for (let initializer of initializers) {
+                            for (const initializer of initializers) {
                                 const argument = initializer.arguments[0];
                                 const type = argument.type;
                                 let shape = '';
@@ -529,7 +529,7 @@ view.View = class {
                                 block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
                             }
 
-                            for (let attribute of attributes) {
+                            for (const attribute of attributes) {
                                 if (attribute.visible) {
                                     let attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
@@ -542,8 +542,8 @@ view.View = class {
 
                         if (edges) {
                             const inputs = node.inputs;
-                            for (let input of inputs) {
-                                for (let argument of input.arguments) {
+                            for (const input of inputs) {
+                                for (const argument of input.arguments) {
                                     if (argument.id != '' && !argument.initializer) {
                                         let tuple = edgeMap[argument.id];
                                         if (!tuple) {
@@ -564,8 +564,8 @@ view.View = class {
                                     outputs = chainOutputs;
                                 }
                             }
-                            for (let output of outputs) {
-                                for (let argument of output.arguments) {
+                            for (const output of outputs) {
+                                for (const argument of output.arguments) {
                                     if (argument.id != '') {
                                         let tuple = edgeMap[argument.id];
                                         if (!tuple) {
@@ -583,7 +583,7 @@ view.View = class {
                         }
     
                         if (node.chain && node.chain.length > 0) {
-                            for (let innerNode of node.chain) {
+                            for (const innerNode of node.chain) {
                                 addNode(element, innerNode, false);
                             }
                         }
@@ -596,7 +596,7 @@ view.View = class {
                     addNode(element, node, true);
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        for (let controlDependency of node.controlDependencies) {
+                        for (const controlDependency of node.controlDependencies) {
                             let tuple = edgeMap[controlDependency];
                             if (!tuple) {
                                 tuple = { from: null, to: [] };
@@ -656,8 +656,8 @@ view.View = class {
                     nodeId++;
                 }
 
-                for (let input of graph.inputs) {
-                    for (let argument of input.arguments) {
+                for (const input of graph.inputs) {
+                    for (const argument of input.arguments) {
                         let tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
@@ -682,8 +682,8 @@ view.View = class {
                     g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } ); 
                 }
             
-                for (let output of graph.outputs) {
-                    for (let argument of output.arguments) {
+                for (const output of graph.outputs) {
+                    for (const argument of output.arguments) {
                         let tuple = edgeMap[argument.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
@@ -705,10 +705,10 @@ view.View = class {
                     g.setNode(nodeId++, { label: outputElement.format(graphElement) } ); 
                 }
 
-                for (let edge of Object.keys(edgeMap)) {
+                for (const edge of Object.keys(edgeMap)) {
                     let tuple = edgeMap[edge];
                     if (tuple.from != null) {
-                        for (let to of tuple.to) {
+                        for (const to of tuple.to) {
                             let text = '';
                             let type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
@@ -800,7 +800,7 @@ view.View = class {
                                 let xs = [];
                                 let ys = [];
                                 for (let i = 0; i < inputElements.length; i++) {
-                                    let inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                                    const inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
                                     xs.push(inputTransform.e);
                                     ys.push(inputTransform.f);
                                 }
@@ -829,7 +829,7 @@ view.View = class {
     applyStyleSheet(element, name) {
         let rules = [];
         for (let i = 0; i < this._host.document.styleSheets.length; i++) {
-            let styleSheet = this._host.document.styleSheets[i];
+            const styleSheet = this._host.document.styleSheets[i];
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
                 rules = styleSheet.cssRules;
                 break;
@@ -837,12 +837,12 @@ view.View = class {
         }
         let nodes = element.getElementsByTagName('*');
         for (let j = 0; j < nodes.length; j++) {
-            let node = nodes[j];
+            const node = nodes[j];
             for (let k = 0; k < rules.length; k++) {
-                let rule = rules[k];
+                const rule = rules[k];
                 if (node.matches(rule.selectorText)) {
                     for (let l = 0; l < rule.style.length; l++) {
-                        let item = rule.style.item(l);
+                        const item = rule.style.item(l);
                         node.style[item] = rule.style[item];
                     }
                 }
@@ -851,11 +851,8 @@ view.View = class {
     }
 
     export(file) {
-        let extension = '';
-        let lastIndex = file.lastIndexOf('.');
-        if (lastIndex != -1) {
-            extension = file.substring(lastIndex + 1);
-        }
+        const lastIndex = file.lastIndexOf('.');
+        const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
             const graphElement = this._host.document.getElementById('graph');
             const exportElement = graphElement.cloneNode(true);
@@ -1001,6 +998,7 @@ class ModelContext {
     constructor(context) {
         this._context = context;
         this._tags = new Map();
+        this._entries = new Map();
     }
 
     request(file, encoding) {
@@ -1022,21 +1020,31 @@ class ModelContext {
         return this._text;
     }
 
-    get entries() {
-        if (!this._entries) {
-            this._entries = [];
-            let buffer = this.buffer;
-            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
-                try {
-                    let archive = new zip.Archive(buffer);
-                    this._entries = archive.entries;
-                }
-                catch (error) {
-                    this._entries = [];
+    entries(extension) {
+        let entries = this._entries.get(extension);
+        if (!entries) {
+            entries = [];
+            try {
+                const buffer = this.buffer;
+                switch (extension) {
+                    case 'zip': {
+                        if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+                            entries = new zip.Archive(buffer).entries;
+                        }
+                        break;
+                    }
+                    case 'tar': {
+                        entries = new tar.Archive(buffer).entries;
+                        break;
+                    }
                 }
             }
+            catch (error) {
+                entries = [];
+            }
+            this._entries.set(extension, entries);
         }
-        return this._entries;
+        return entries;
     }
 
     tags(extension) {
@@ -1044,10 +1052,9 @@ class ModelContext {
         if (!tags) {
             tags = new Map();
             try {
-                let reader = null;
                 switch (extension) {
                     case 'pbtxt': {
-                        let b = this.buffer;
+                        const b = this.buffer;
                         const length = b.length;
                         const signature = 
                             (length >= 3 && b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) ||
@@ -1059,17 +1066,17 @@ class ModelContext {
                         if (!signature && b.subarray(0, Math.min(1024, length)).some((c) => c < 7 || (c > 14 && c < 32))) {
                             break;
                         }
-                        reader = prototxt.TextReader.create(this.text);
+                        const reader = prototxt.TextReader.create(this.text);
                         reader.start(false);
                         while (!reader.end(false)) {
-                            let tag = reader.tag();
+                            const tag = reader.tag();
                             tags.set(tag, true);
                             reader.skip();
                         }
                         break;
                     }
                     case 'pb': {
-                        reader = new protobuf.Reader.create(this.buffer);
+                        const reader = new protobuf.Reader.create(this.buffer);
                         while (reader.pos < reader.len) {
                             const tagType = reader.uint32();
                             tags.set(tagType >>> 3, tagType & 7);
@@ -1099,7 +1106,7 @@ class ArchiveContext {
     constructor(entries, rootFolder, identifier, buffer) {
         this._entries = {};
         if (entries) {
-            for (let entry of entries) {
+            for (const entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
                     let name = entry.name.substring(rootFolder.length);
                     if (identifier.length > 0 && identifier.indexOf('/') < 0) {
@@ -1113,14 +1120,11 @@ class ArchiveContext {
     }
 
     request(file, encoding) {
-        let entry = this._entries[file];
+        const entry = this._entries[file];
         if (!entry) {
             return Promise.reject(new Error('File not found.'));
         }
-        let data = entry.data;
-        if (encoding != null) {
-            data = new TextDecoder(encoding).decode(data);
-        }
+        const data = encoding ? new TextDecoder(encoding).decode(entry.data) : entry.data;
         return Promise.resolve(data);
     }
 
@@ -1172,7 +1176,7 @@ view.ModelFactoryService = class {
     }
 
     register(id, extensions) {
-        for (let extension of extensions) {
+        for (const extension of extensions) {
             this._extensions.push({ extension: extension, id: id });
         }
     }
@@ -1195,7 +1199,7 @@ view.ModelFactoryService = class {
                         if (!module.ModelFactory) {
                             throw new ModelError("Failed to load module '" + id + "'.");
                         }
-                        let modelFactory = new module.ModelFactory(); 
+                        const modelFactory = new module.ModelFactory(); 
                         if (!modelFactory.match(context)) {
                             return nextModule();
                         }
@@ -1303,7 +1307,7 @@ view.ModelFactoryService = class {
 
         try {
             let folders = {};
-            for (let entry of archive.entries) {
+            for (const entry of archive.entries) {
                 if (entry.name.indexOf('/') != -1) {
                     folders[entry.name.split('/').shift() + '/'] = true;
                 }
@@ -1379,7 +1383,7 @@ view.ModelFactoryService = class {
 
     accept(identifier) {
         identifier = identifier.toLowerCase();
-        for (let extension of this._extensions) {
+        for (const extension of this._extensions) {
             if (identifier.endsWith(extension.extension)) {
                 return true;
             }
@@ -1397,7 +1401,7 @@ view.ModelFactoryService = class {
         let moduleList = [];
         let moduleMap = {};
         const identifier = context.identifier.toLowerCase();
-        for (let extension of this._extensions) {
+        for (const extension of this._extensions) {
             if (identifier.endsWith(extension.extension)) {
                 if (!moduleMap[extension.id]) {
                     moduleList.push(extension.id);

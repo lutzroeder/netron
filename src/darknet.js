@@ -119,7 +119,7 @@ darknet.Graph = class {
             let data = null;
             if (weights) {
                 let size = 1;
-                for (let dim of shape) {
+                for (const dim of shape) {
                     size *= dim;
                 }
                 data = weights.bytes(4 * size);
@@ -573,7 +573,7 @@ darknet.Graph = class {
                     case 'route': {
                         let layers = [].concat(layer.layers);
                         layer.out = 0;
-                        for (let next of layers) {
+                        for (const next of layers) {
                             layer.out += next.out;
                         }
                         const first = layers.shift();
@@ -743,13 +743,13 @@ darknet.Node = class {
             this._outputs.push(new darknet.Parameter(layer.outputs.length <= 1 ? 'output' : 'outputs', true, layer.outputs));
         }
         if (section.chain) {
-            for (let chain of section.chain) {
+            for (const chain of section.chain) {
                 this._chain.push(new darknet.Node(metadata, net, chain, ''));
             }
         }
         const options = section.options;
         if (options) {
-            for (let key of Object.keys(options)) {
+            for (const key of Object.keys(options)) {
                 this._attributes.push(new darknet.Attribute(metadata, this._operator, key, options[key]));
             }
         }
@@ -772,28 +772,28 @@ darknet.Node = class {
                 schema.description = marked(schema.description);
             }
             if (schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     if (attribute.description) {
                         attribute.description = marked(attribute.description);
                     }
                 }
             }
             if (schema.inputs) {
-                for (let input of schema.inputs) {
+                for (const input of schema.inputs) {
                     if (input.description) {
                         input.description = marked(input.description);
                     }
                 }
             }
             if (schema.outputs) {
-                for (let output of schema.outputs) {
+                for (const output of schema.outputs) {
                     if (output.description) {
                         output.description = marked(output.description);
                     }
                 }
             }
             if (schema.references) {
-                for (let reference of schema.references) {
+                for (const reference of schema.references) {
                     if (reference) {
                         reference.description = marked(reference.description);
                     }
@@ -1068,7 +1068,7 @@ darknet.Metadata = class {
         if (data) {
             const items = JSON.parse(data);
             if (items) {
-                for (let item of items) {
+                for (const item of items) {
                     if (item && item.name && item.schema) {
                         if (this._map.has(item.name)) {
                             throw new darknet.Error("Duplicate metadata key '" + item.name + "'.");
@@ -1090,7 +1090,7 @@ darknet.Metadata = class {
             this._attributeMap.set(key, null);
             const schema = this.getSchema(operator);
             if (schema && schema.attributes) {
-                for (let attribute of schema.attributes) {
+                for (const attribute of schema.attributes) {
                     this._attributeMap.set(operator + ':' + attribute.name, attribute);
                 }
             }
