@@ -19,7 +19,7 @@ pytorch.ModelFactory = class {
         if (extension === 'pth' || extension === 'pkl' || extension === 'pt' || extension === 'bin' ||
             extension === 'h5' || extension === 't7' || extension === 'dms' || extension === 'model' ||
             extension === 'ckpt' || extension == 'pt1' || identifier.toLowerCase().endsWith('.pth.tar')) {
-            if (pytorch.ModelFactory._container(context)) {
+            if (pytorch.ModelFactory._container(context, null, null, null)) {
                 return true;
             }
         }
@@ -30,9 +30,11 @@ pytorch.ModelFactory = class {
         const identifier = context.identifier;
         return host.require('./pickle').then((pickle) => {
             return host.require('./python').then((python) => {
-                let container = pytorch.ModelFactory._container(context);
+                let container = pytorch.ModelFactory._container(context, pickle, python, (error, fatal) => {
+                    host.exception(new pytorch.Error(error.message.substring(0, error.message.length - 1) + " in '" + identifier + "'."), fatal);
+                });
                 try {
-                    container.open(host, pickle, python);
+                    container.open();
                 }
                 catch (error) {
                     host.exception(error, false);
@@ -40,7 +42,6 @@ pytorch.ModelFactory = class {
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     throw new pytorch.Error(message + " in '" + identifier + "'.");
                 }
-        
                 return pytorch.Metadata.open(host).then((metadata) => {
                     try {
                         if (container instanceof pytorch.ZipContainer) {
@@ -59,17 +60,25 @@ pytorch.ModelFactory = class {
         });
     }
 
-    static _container(context) {
-        const containers = [
-            new pytorch.PickleContainer(context),
-            new pytorch.ZipContainer(context),
-            new pytorch.TarContainer(context)
-        ];
-        while (containers.length > 0) {
-            const container = containers.shift();
-            if (container.match()) {
-                return container;
+    static _container(context, pickle, python, exception) {
+        const identifier = context.identifier;
+        const entries = context.entries;
+        if (entries && entries.some((entry) => entry.name === 'model.json' || entry.name === 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'))) {
+            return new pytorch.ZipContainer(identifier, entries, pickle, python, exception);
+        }
+        const buffer = context.buffer;
+        const signature = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && buffer[1] < 0x05 && signature.every((v, i) => v == buffer[i + 2])) {
+            return new pytorch.PickleContainer(identifier, buffer, pickle, exception);
+        }
+        try {
+            const archive = new tar.Archive(buffer);
+            if (archive.entries.some((entry) => entry.name == 'pickle')) {
+                return new pytorch.TarContainer(identifier, archive.entries, pickle, exception);
             }
+        }
+        catch (error) {
+            // continue regardless of error
         }
         return null;
     }
@@ -78,12 +87,13 @@ pytorch.ModelFactory = class {
 pytorch.Model = class { 
 
     constructor(metadata, container) {
+        this._format = container.format;
         this._graphs = [];
         this._graphs.push(new pytorch.Graph(metadata, container));
     }
 
     get format() {
-        return 'PyTorch';
+        return this._format;
     }
 
     get graphs() {
@@ -689,34 +699,10 @@ pytorch.Error = class extends Error {
     }
 };
 
-torchscript.ModelFactory = class {
-
-    match(context) {
-        const identifier = context.identifier; 
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'pt' || extension == 'pt1' || extension == 'pth' || extension == 'pkl' || extension == 'h5' || extension == 't7' ||
-            extension == 'dms' || extension == 'model' || extension == 'ckpt' || identifier.endsWith('.pth.tar')) {
-            const entries = context.entries;
-            if (entries && entries.length > 0) {
-                const versionEntry = entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
-                if (versionEntry) {
-                    const prefix = versionEntry.name.substring(0, versionEntry.name.length - 7);
-                    if (entries.some((entry) => entry.name == prefix + 'model.json') ||
-                        entries.some((entry) => entry.name == prefix + 'data.pkl')) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-};
-
 torchscript.Model = class { 
 
     constructor(metadata, host, container) {
-        this._format = 'TorchScript v' + container.version.toString();
+        this._format = container.format;
         this._producer = container.producer || '';
         this._graphs = [];
         this._graphs.push(new torchscript.Graph(metadata, host, container));
@@ -1378,10 +1364,9 @@ torchscript.Tensor = class {
 
 pytorch.Unpickler = class {
 
-    constructor(buffer, host, identifier, pickle) {
+    constructor(pickle, buffer, exception) {
         this._unpickler = new pickle.Unpickler(buffer);
-        this._host = host;
-        this._identifier = identifier;
+        this._exception = exception;
         this._unknownNameMap = new Set();
         this._knownPackageMap = new Set([ 'torch', 'torchvision', 'collections', '__builtin__', '_codecs', 'argparse', 'numpy' ]);
         this._functionTable = {};
@@ -1825,7 +1810,7 @@ pytorch.Unpickler = class {
         else if (name && !this._unknownNameMap.has(name)) {
             this._unknownNameMap.add(name);
             if (this._knownPackageMap.has(name.split('.').shift())) {
-                this._host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + this._identifier + "'."), false);
+                this._host.exception(new pytorch.Error("Unknown function '" + name + "'."), false);
             }
         }
         return obj;
@@ -1834,113 +1819,148 @@ pytorch.Unpickler = class {
 
 pytorch.TarContainer = class {
 
-    constructor(context) {
-        this._context = context;
+    constructor(identifier, entries, pickle, exception) {
+        this._identifier = identifier;
+        this._entries = entries;
+        this._pickle = pickle;
+        this._exception = exception;
     }
 
-    match() {
-        const buffer = this._context.buffer;
-        try {
-            if (buffer.length >= 512) {
-                let sum = 0;
-                for (let i = 0; i < 512; i++) {
-                    sum += (i >= 148 && i < 156) ? 32 : buffer[i];
+    get format() {
+        return 'PyTorch Eager v0.1.1'
+    }
+
+    open() {
+        this._data = null;
+        this._state = null;
+        this._littleEndian = true;
+ 
+        let entries = {};
+        for (let entry of this._entries) {
+            switch (entry.name) {
+                case 'sys_info': entries.sys_info = entry.data; break;
+                case 'pickle': entries.pickle = entry.data; break;
+                case 'storages': entries.storages = entry.data; break;
+                case 'tensors': entries.tensors = entry.data; break;
+            }
+        }
+        if (entries.sys_info) {
+            const unpickler = new pytorch.Unpickler(this._pickle, entries.sys_info, this._exception);
+            const sys_info = unpickler.load();
+            if (sys_info.protocol_version != 1000) {
+                throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
+            }
+            if (sys_info.type_sizes &&
+                ((sys_info.type_sizes.int && sys_info.type_sizes.int != 4) ||
+                (sys_info.type_sizes.long && sys_info.type_sizes.long != 4) ||
+                (sys_info.type_sizes.short && sys_info.type_sizes.short != 2))) {
+                throw new pytorch.Error('Unsupported type sizes.');
+            }
+            this._littleEndian = sys_info.little_endian;
+        }
+
+        let deserialized_objects = {};
+        if (entries.storages) {
+            const unpickler = new pytorch.Unpickler(this._pickle, entries.storages, this._exception);
+            const num_storages = unpickler.load();
+            for (let i = 0; i < num_storages; i++) {
+                const storage_args = unpickler.load();
+                const storage_key = storage_args[0];
+                const storage_type = storage_args[2];
+                const size = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
+                const storage = unpickler.invoke(storage_type, [ size ]);
+                storage.data = unpickler.read(storage.dataTypeSize * storage.size);
+                deserialized_objects[storage_key] = storage;
+            }
+            /*
+            let storage_views = unpickler.load();
+            for target_cdata, root_cdata, offset, size in storage_views:
+                root = deserialized_objects[root_cdata]
+                deserialized_objects[target_cdata] = root[offset:offset + size]
+            */
+        }
+
+        if (entries.tensors) {
+            const unpickler = new pytorch.Unpickler(this._pickle, entries.tensors, this._exception);
+            const num_tensors = unpickler.load();
+            for (let j = 0; j < num_tensors; j++) {
+                const tensor_args = unpickler.load();
+                const tensor_key = tensor_args[0];
+                const storage_id = tensor_args[1];
+                const storage = deserialized_objects[storage_id];
+                const ndim = long.Long.fromBytesLE(unpickler.read(4), false).toNumber();
+                unpickler.read(4);
+                let shape = [];
+                for (let k = 0; k < ndim; k++) {
+                    shape.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber())
                 }
-                let checksum = '';
-                for (let j = 148; j < 156 && buffer[j] != 0; j++) {
-                    checksum += String.fromCharCode(buffer[j]);
+                let stride = [];
+                for (let l = 0; l < ndim; l++) {
+                    stride.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber())
                 }
-                checksum = parseInt(checksum, 8);
-                if (!isNaN(checksum) && sum == checksum) {
-                    const archive = new tar.Archive(buffer);
-                    for (let entry of archive.entries) {
-                        switch (entry.name) {
-                            case 'sys_info': this._sys_info = entry.data; break;
-                            case 'pickle': this._pickle = entry.data; break;
-                            case 'storages': this._storages = entry.data; break;
-                            case 'tensors': this._tensors = entry.data; break;
+                const storage_offset = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
+                const tensor_type_name = storage.__name__.replace('Storage', 'Tensor');
+                const tensor = unpickler.invoke(storage.__module__ + '.' + tensor_type_name, []);
+                tensor.__setstate__([ storage, storage_offset, shape, stride ]);
+                deserialized_objects[tensor_key] = tensor;
+            }
+        }
+
+        if (entries.pickle) {
+            const unpickler = new pytorch.Unpickler(this._pickle, entries.pickle, this._exception);
+            const persistent_load = (saved_id) => {
+                return deserialized_objects[saved_id];
+            };
+            let obj = unpickler.load(persistent_load);
+            if (obj) {
+                if (!Array.isArray(obj)) {
+                    let array = [];
+                    for (let key of Object.keys(obj)) {
+                        array.push({ key: key, value: obj[key] });
+                    }
+                    obj = array;
+                }
+                this._state = [];
+                let state_map = {};
+                if (obj && Array.isArray(obj)) {
+                    for (let item of obj) {
+                        if (!item || !item.key || !item.value) {
+                            this._state = null;
+                            break;
                         }
+                        let state = {};
+                        state.id = item.key;
+                        state.value = null;
+                        if (item.value && item.value.__module__ === 'torch.nn.parameter' && item.value.__name__ === 'Parameter') {
+                            state.value = item.value[0];
+                        }
+                        else if (pytorch.Utility.isTensor(item.value)) {
+                            state.value = item.value;
+                        }
+                        if (!state.value) {
+                            this._state = null;
+                            break;
+                        }
+                        const split = state.id.split('.');
+                        if (split.length < 2) {
+                            this._state = null;
+                            break;
+                        }
+                        state.name = split.pop();
+                        const state_group_name = split.join('.');
+                        let state_group = state_map[state_group_name];
+                        if (!state_group) {
+                            state_group = {};
+                            state_group.name = state_group_name;
+                            state_group.states = [];
+                            state_map[state_group_name] = state_group;
+                            this._state.push(state_group);
+                        }
+                        state_group.states.push(state);
                     }
                 }
             }
         }
-        catch (error) {
-            // continue regardless of error
-        }
-        return this._sys_info && this._pickle && this._storages && this._tensors;
-    }
-
-    open(host, pickle /* , python */) {
-        const identifier = this._context.identifier;
-        let unpickler = new pytorch.Unpickler(this._sys_info, host, identifier, pickle);
-        const sys_info = unpickler.load();
-        if (sys_info.protocol_version != 1000) {
-            throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
-        }
-        if (sys_info.type_sizes &&
-            ((sys_info.type_sizes.int && sys_info.type_sizes.int != 4) ||
-            (sys_info.type_sizes.long && sys_info.type_sizes.long != 4) ||
-            (sys_info.type_sizes.short && sys_info.type_sizes.short != 2))) {
-            throw new pytorch.Error('Unsupported type sizes.');
-        }
-
-        let deserialized_objects = {};
-        unpickler = new pytorch.Unpickler(this._storages, host, identifier, pickle);
-        const num_storages = unpickler.load();
-        for (let i = 0; i < num_storages; i++) {
-            const storage_args = unpickler.load();
-            const storage_key = storage_args[0];
-            const storage_type = storage_args[2];
-            const size = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
-            const storage = unpickler.invoke(storage_type, [ size ]);
-            storage.data = unpickler.read(storage.dataTypeSize * storage.size);
-            deserialized_objects[storage_key] = storage;
-        }
-        /*
-        let storage_views = unpickler.load();
-        for target_cdata, root_cdata, offset, size in storage_views:
-            root = deserialized_objects[root_cdata]
-            deserialized_objects[target_cdata] = root[offset:offset + size]
-        */
-
-        unpickler = new pytorch.Unpickler(this._tensors, host, identifier, pickle);
-        const num_tensors = unpickler.load();
-        for (let j = 0; j < num_tensors; j++) {
-            const tensor_args = unpickler.load();
-            const tensor_key = tensor_args[0];
-            const storage_id = tensor_args[1];
-            const storage = deserialized_objects[storage_id];
-            const ndim = long.Long.fromBytesLE(unpickler.read(4), false).toNumber();
-            unpickler.read(4);
-            let shape = [];
-            for (let k = 0; k < ndim; k++) {
-                shape.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber())
-            }
-            let stride = [];
-            for (let l = 0; l < ndim; l++) {
-                stride.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber())
-            }
-            const storage_offset = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
-            const tensor_type_name = storage.__name__.replace('Storage', 'Tensor');
-            const tensor = unpickler.invoke(storage.__module__ + '.' + tensor_type_name, []);
-            tensor.__setstate__([ storage, storage_offset, shape, stride ]);
-            deserialized_objects[tensor_key] = tensor;
-        }
-
-        unpickler = new pytorch.Unpickler(this._pickle, host, identifier, pickle);
-        const persistent_load = (saved_id) => {
-            return deserialized_objects[saved_id];
-        };
-        const obj = unpickler.load(persistent_load);
-
-        this._sys_info = null;
-        this._tensors = null;
-        this._storages = null;
-        this._pickle = null;
-
-        this._littleEndian = sys_info.little_endian;
-        this._data = null;
-        this._state = pytorch.TarContainer._convertStateDictLegacyFormat(obj);
     }
 
     get data() {
@@ -1954,73 +1974,23 @@ pytorch.TarContainer = class {
     get littleEndian() {
         return this._littleEndian;
     }
-
-    static _convertStateDictLegacyFormat(obj) {
-        if (!obj) {
-            return null;
-        }
-        if (obj && !Array.isArray(obj)) {
-            let array = [];
-            for (let key of Object.keys(obj)) {
-                array.push({ key: key, value: obj[key] });
-            }
-            obj = array;
-        }
-        let state_dict = [];
-        let state_map = {};
-        if (obj && Array.isArray(obj)) {
-            for (let item of obj) {
-                if (!item || !item.key || !item.value) {
-                    return null;
-                }
-                let state = {};
-                state.id = item.key;
-                state.value = null;
-                if (item.value && item.value.__module__ === 'torch.nn.parameter' && item.value.__name__ === 'Parameter') {
-                    state.value = item.value[0];
-                }
-                else if (pytorch.Utility.isTensor(item.value)) {
-                    state.value = item.value;
-                }
-                if (!state.value) {
-                    return null;
-                }
-                const split = state.id.split('.');
-                if (split.length < 2) {
-                    return null;
-                }
-                state.name = split.pop();
-                const state_group_name = split.join('.');
-                let state_group = state_map[state_group_name];
-                if (!state_group) {
-                    state_group = {};
-                    state_group.name = state_group_name;
-                    state_group.states = [];
-                    state_map[state_group_name] = state_group;
-                    state_dict.push(state_group);
-                }
-                state_group.states.push(state);
-            }
-        }
-        return state_dict;
-    }
 }
 
 pytorch.PickleContainer = class {
 
-    constructor(context) {
-        this._context = context;
+    constructor(identifier, buffer, pickle, exception) {
+        this._identifier = identifier;
+        this._buffer = buffer;
+        this._pickle = pickle;
+        this._exception = exception;
     }
 
-    match() {
-        const buffer = this._context.buffer;
-        const signature = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        return buffer && buffer.length > 14 && buffer[0] == 0x80 && signature.every((v, i) => v == buffer[i + 2]);
+    get format() {
+        return 'PyTorch Eager v0.1.10'
     }
 
-    open(host, pickle /*, python */) {
-        const identifier = this._context.identifier;
-        const unpickler = new pytorch.Unpickler(this._context.buffer, host, identifier, pickle);
+    open() {
+        const unpickler = new pytorch.Unpickler(this._pickle, this._buffer, this._exception);
         unpickler.load(); // magic_number
         const protocol_version = unpickler.load();
         if (protocol_version != 1001) {
@@ -2294,40 +2264,23 @@ pytorch.PickleContainer = class {
 
 pytorch.ZipContainer = class {
 
-    constructor(context) {
-        this._context = context;
-    }
-
-    match() {
-        this._identifier = this._context.identifier;
-        const entries = this._context.entries;
-        if (entries && entries.length > 0) {
-            const versionEntry = entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
-            if (versionEntry) {
-                const prefix = versionEntry.name.substring(0, versionEntry.name.length - 7);
-                if (entries.some((entry) => entry.name == prefix + 'model.json') ||
-                    entries.some((entry) => entry.name == prefix + 'data.pkl')) {
-                    this._entries = entries;
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    open(host, pickle, python) {
+    constructor(identifier, entries, pickle, python, exception) {
+        this._identifier = identifier;
+        this._entries = entries;
         this._pickle = pickle;
         this._python = python;
-        this._utf8Decoder = new TextDecoder('utf-8');
-
-        // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
-        const versionEntry = this._entries.find((entry) => entry.name == 'version' || entry.name.endsWith('/version'));
-        if (!versionEntry) {
-            throw new pytorch.Error('TorchScript container does not contain version signature.');
+        this._exception = exception;
+        const entry = this._entries.find((entry) => entry.name == 'model.json' || entry.name == 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'));
+        if (!entry) {
+            throw new pytorch.Error("PyTorch Zip container does not contain 'data.pkl' or 'model.json'.");
         }
-        this._prefix = versionEntry.name.substring(0, versionEntry.name.length - 7);
-        this._version = JSON.parse(this._utf8Decoder.decode(versionEntry.data));
+        const lastIndex = entry.name.lastIndexOf('/');
+        this._prefix = lastIndex === -1 ? '' : entry.name.substring(0, lastIndex + 1);
+    }
 
+    open() {
+        // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
+        this._utf8Decoder = new TextDecoder('utf-8');
         this._packages = new Map();
         this._context = new pytorch.Context();
         this._context.scope.builtins = {};
@@ -2551,14 +2504,14 @@ pytorch.ZipContainer = class {
         this._registerOperator('torch.unsqueeze', 1);
         this._registerOperator('ops.quantized.conv2d_relu', 1);
 
-        const entry = this._entries.find((entry) => entry.name == this._prefix + 'data.pkl');
-        if (entry && entry.data) {
-            this._data = this._unpickle(entry.data, this._storage('data'));
+        const dataEntry = this._entries.find((entry) => entry.name == this._prefix + 'data.pkl');
+        if (dataEntry && dataEntry.data) {
+            this._data = this._unpickle(dataEntry.data, this._storage('data'));
         }
         else {
-            const entry = this._entries.find((entry) => entry.name == this._prefix + 'model.json');
-            if (entry) {
-                const model = JSON.parse(this._utf8Decoder.decode(entry.data))
+            const modelEntry = this._entries.find((entry) => entry.name == this._prefix + 'model.json');
+            if (modelEntry) {
+                const model = JSON.parse(this._utf8Decoder.decode(modelEntry.data))
                 this._producer = model.producerName + (model.producerVersion ? ' v' + model.producerVersion : '');
                 this._data = model.mainModule || {};
                 this._name = this._data.name || '';
@@ -2638,12 +2591,27 @@ pytorch.ZipContainer = class {
         return this._name;
     }
 
-    get producer() {
-        return this._producer;
+    get format() {
+        const versionEntry = this._entries.find((entry) => entry.name === this._prefix + 'version');
+        const version = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
+        const modelEntry = this._entries.find((entry) => entry.name === this._prefix + 'model.json');
+        const dataEntry = this._entries.find((entry) => entry.name === this._prefix + 'data.pkl');
+        if (version === '' || version === '1' || version === '2') {
+            if (modelEntry) {
+                return 'PyTorch Script v1.0';
+            }
+            if (dataEntry) {
+                if (this._entries.find((entry) => entry.name.startsWith(this._prefix + 'code/'))) {
+                    return version === '2' ? 'PyTorch Script v1.4' : 'PyTorch Script v1.3';
+                }
+                return 'PyTorch Eager v1.4';
+            }
+        }
+        throw new pytorch.Error("Unsupported PyTorch Zip version '" + version + "'.");
     }
 
-    get version() {
-        return this._version;
+    get producer() {
+        return this._producer;
     }
 
     get data() {
