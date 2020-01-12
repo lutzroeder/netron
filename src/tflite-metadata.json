@@ -278,6 +278,24 @@
     }
   },
   {
+    "name": "LocalResponseNormalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "radius", "type": "int32", "default": 5 },
+        { "name": "bias", "type": "float32", "default": 1 },
+        { "name": "alpha", "type": "float32", "default": 1 },
+        { "name": "beta", "type": "float32", "default": 0.5 }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Predict",
     "schema": {
       "inputs": [
