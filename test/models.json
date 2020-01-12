@@ -2150,8 +2150,7 @@
     "type":   "keras",
     "target": "DenseNet121.h5",
     "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo",
-    "status": "script"
+    "script": "./tools/keras sync install zoo"
   },
   {
     "type":   "keras",
@@ -2178,15 +2177,13 @@
     "type":   "keras",
     "target": "InceptionResNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo",
-    "status": "script"
+    "script": "./tools/keras sync install zoo"
   },
   {
     "type":   "keras",
     "target": "InceptionV3.h5",
     "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo",
-    "status": "script"
+    "script": "./tools/keras sync install zoo"
   },
   {
     "type":   "keras",
@@ -2248,15 +2245,13 @@
     "type":   "keras",
     "target": "MobileNetV2.h5",
     "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo",
-    "status": "script"
+    "script": "./tools/keras sync install zoo"
   },
   {
     "type":   "keras",
     "target": "NASNetMobile.h5",
     "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo",
-    "status": "script"
+    "script": "./tools/keras sync install zoo"
   },
   {
     "type":   "keras",
@@ -2331,8 +2326,7 @@
     "type":   "keras",
     "target": "VGG16.h5",
     "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo",
-    "status": "script"
+    "script": "./tools/keras sync install zoo"
   },
   {
     "type":   "mlnet",
@@ -3835,9 +3829,16 @@
   {
     "type":   "pytorch",
     "target": "alexnet.pkl.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "alexnet.zip.pth",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
@@ -3928,34 +3929,39 @@
   {
     "type":   "pytorch",
     "target": "densenet161.pkl.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "densenet161.zip.pth",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "densenet161.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "error":  "Unknown statement in 'densenet161.pt'.",
     "render": "skip",
     "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch Script v1.4",
-    "status": "script"
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "densenet161_traced.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "render": "skip",
     "error":  "Unknown function argument in 'densenet161_traced.pt'.",
     "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch Script v1.4",
-    "status": "script"
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "densenet161-8d451a50.pth",
+    "format": "PyTorch Eager v0.1.10",
     "source": "https://download.pytorch.org/models/densenet161-8d451a50.pth"
   },
   {
@@ -3963,8 +3969,7 @@
     "target": "inception_v3.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
   },
   {
     "type":   "pytorch",
@@ -4056,8 +4061,7 @@
     "target": "mobilenet_v2.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
   },
   {
     "type":   "pytorch",
@@ -4144,8 +4148,14 @@
     "target": "resnet18.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet18.zip.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4"
   },
   {
     "type":   "pytorch",
@@ -4203,8 +4213,14 @@
     "target": "resnet101.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
+  },
+  {
+    "type":   "pytorch",
+    "target": "resnet101.zip.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4"
   },
   {
     "type":   "pytorch",
@@ -4261,8 +4277,14 @@
     "target": "shufflenet_v2_x1_0.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
+  },
+  {
+    "type":   "pytorch",
+    "target": "shufflenet_v2_x1_0.zip.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4"
   },
   {
     "type":   "pytorch",
@@ -4271,8 +4293,7 @@
     "error":  "Unknown statement in 'shufflenet_v2_x1_0.pt'.",
     "render": "skip",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Script v1.4",
-    "status": "script"
+    "format": "PyTorch Script v1.4"
   },
   {
     "type":   "pytorch",
@@ -4285,8 +4306,14 @@
     "target": "squeezenet1_1.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
+  },
+  {
+    "type":   "pytorch",
+    "target": "squeezenet1_1.zip.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4"
   },
   {
     "type":   "pytorch",
@@ -4294,8 +4321,7 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "error":  "Unknown statement in 'squeezenet1_1.pt'.",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Script v1.4",
-    "status": "script"
+    "format": "PyTorch Script v1.4"
   },
   {
     "type":   "pytorch",
@@ -4303,8 +4329,7 @@
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "error":  "Unknown statement in 'squeezenet1_1_traced.pt'.",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Script v1.4",
-    "status": "script"
+    "format": "PyTorch Script v1.4"
   },
   {
     "type":   "pytorch",
@@ -4407,34 +4432,44 @@
     "target": "vgg11_bn.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
+  },
+  {
+    "type":   "pytorch",
+    "target": "vgg11_bn.zip.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4"
   },
   {
     "type":   "pytorch",
     "target": "vgg16.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch Eager v0.1.10",
-    "status": "script"
+    "format": "PyTorch Eager v0.1.10"
+  },
+  {
+    "type":   "pytorch",
+    "target": "vgg16.zip.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch Eager v1.4"
   },
   {
     "type":   "pytorch",
     "target": "vgg16.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "error":  "Unknown statement in 'vgg16.pt'.",
     "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch Script v1.4",
-    "status": "script"
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "vgg16_traced.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "error":  "Unknown statement in 'vgg16_traced.pt'.",
     "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch Script v1.4",
-    "status": "script"
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "sklearn",
@@ -5477,7 +5512,7 @@
     "target": "soundnet5_final.t7",
     "source": "http://data.csail.mit.edu/soundnet/soundnet_models_public.zip[soundnet_models_public/soundnet5_final.t7]",
     "format": "Torch v7",
-    "status": "https://github.com/afperezm/acoustic-images-distillation"
+    "link":   "https://github.com/afperezm/acoustic-images-distillation"
   },
   {
     "type":   "torch",
