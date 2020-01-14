@@ -63,7 +63,9 @@ armnnSerializer.DataType = {
   QuantisedAsymm8: 2,
   Signed32: 3,
   Boolean: 4,
-  QuantisedSymm16: 5
+  QuantisedSymm16: 5,
+  QAsymmU8: 6,
+  QSymmS16: 7
 };
 
 /**
@@ -75,7 +77,9 @@ armnnSerializer.DataTypeName = {
   2: 'QuantisedAsymm8',
   3: 'Signed32',
   4: 'Boolean',
-  5: 'QuantisedSymm16'
+  5: 'QuantisedSymm16',
+  6: 'QAsymmU8',
+  7: 'QSymmS16'
 };
 
 /**

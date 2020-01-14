@@ -527,10 +527,12 @@ armnn.TensorType = class {
         switch (dataType) {
             case 0: this._dataType = 'float16'; break;
             case 1: this._dataType = 'float32'; break;
-            case 2: this._dataType = 'quint8'; break;
+            case 2: this._dataType = 'quint8'; break; // QuantisedAsymm8
             case 3: this._dataType = 'int32'; break;
             case 4: this._dataType = 'boolean'; break;
-            case 5: this._dataType = 'qint16'; break;
+            case 5: this._dataType = 'qint16'; break; // QuantisedSymm16
+            case 6: this._dataType = 'quint8'; break; // QAsymmU8
+            case 7: this._dataType = 'qint16'; break; // QSymmS16
             default: throw new armnn.Error("Unknown data type '" + dataType + "'.");
         }
 
