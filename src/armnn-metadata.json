@@ -4,7 +4,7 @@
     "schema": {
       "category": "Tensor",
       "bindings": [
-	{ "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+        { "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
       ]
     }
   },
@@ -13,7 +13,7 @@
     "schema": {
       "category": "Tensor",
       "bindings": [
-	{ "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+        { "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
       ]
     }
   },

@@ -75,9 +75,8 @@ armnn.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        let params = {};
-
         // generate parameters
+        let params = {};
         let paramIdx = 0;
         for (let j = 0; j < graph.layersLength(); j++) {
             let base = armnn.Node.getBase(graph.layers(j));
@@ -85,22 +84,16 @@ armnn.Graph = class {
                 let key = armnn.Parameter.makeKey(base.index(), i);
                 let name = paramIdx.toString();
                 let args = [ new armnn.Argument(name, base.outputSlots(i).tensorInfo(), null) ];
-                params[key] = new armnn.Parameter(name, name, args);
+                params[key] = new armnn.Parameter(name, args);
                 paramIdx++;
             }
         }
-
-        // generate nodes
         for (let j = 0; j < graph.layersLength(); j++) {
             this._nodes.push(new armnn.Node(graph.layers(j), params, metadata));
         }
-
-        // link inputs
         for (let k = 0; k < graph.inputIdsLength(); k++) {
             // need to do something?
         }
-
-        // link outputs
         for (let l = 0; l < graph.outputIdsLength(); l++) {
             // need to do something?
         }
@@ -131,7 +124,7 @@ armnn.Node = class {
 
     constructor(layer, params, metadata) {
         this._metadata = metadata;
-        this._operator = armnn.schema.LayerName[layer.layerType()].replace(/Layer$/, '');
+        this._operator = armnn.schema.LayerName[layer.layerType()];
 
         this._name = '';
         this._outputs = [];
@@ -139,8 +132,7 @@ armnn.Node = class {
         this._category = '';
         this._attributes = [];
 
-        let base = armnn.Node.getBase(layer)
-
+        const base = armnn.Node.getBase(layer)
         if (base) {
             this._name = base.layerName();
 
@@ -148,7 +140,6 @@ armnn.Node = class {
                 let srcConnection = base.inputSlots(i).connection();
                 let srcLayerIdx = srcConnection.sourceLayerIndex()
                 let srcOutputIdx = srcConnection.outputSlotIndex()
-
                 this._inputs.push(params[armnn.Parameter.makeKey(srcLayerIdx, srcOutputIdx)]);
             }
 
@@ -156,11 +147,41 @@ armnn.Node = class {
                 this._outputs.push(params[armnn.Parameter.makeKey(base.index(), j)]);
             }
         }
-        this.setAttribute(layer);
+
+        const schema = this._metadata.getSchema(this._operator);
+        if (schema) {
+            this._category = schema.category || '';
+
+            const _layer = armnn.Node.castLayer(layer);
+
+            if (schema.bindings) {
+                for (let i = 0 ; i < schema.bindings.length ; i++) {
+                    const binding = schema.bindings[i];
+                    const value = _layer.base()[binding.src]();
+                    this._attributes.push(new armnn.Attribute(binding.name, binding.type, value));
+                }
+            }
+            if (schema.attributes) {
+                for (const attr of schema.attributes) {
+                    const value = this.packAttr(_layer, attr);
+                    this._attributes.push(new armnn.Attribute(attr.name, attr.type, value));
+                }
+            }
+            if (schema.inputs) {
+                for (let i = 0 ; i < schema.inputs.length ; i++) {
+                    let input = schema.inputs[i];
+                    let value = _layer[input["src"]]();
+                    if (value) {
+                        let args = [ new armnn.Argument('', null, value) ];
+                        this._inputs.push(new armnn.Parameter(input["name"], args));
+                    }
+                }
+            }
+        }
     }
 
     get operator() {
-        return this._operator;
+        return this._operator.replace(/Layer$/, '');
     }
 
     get name() {
@@ -253,52 +274,6 @@ armnn.Node = class {
             return this.getAttr(descriptor, key);
         }
     }
-
-    setAttribute(layer) {
-        let layerType = layer.layerType();
-        let layerName = armnn.schema.LayerName[layerType];
-
-        let schema = this._metadata.getSchema(layerName);
-
-        // ignore unknown layer
-        if (!schema)
-            return;
-
-        let _layer = armnn.Node.castLayer(layer);
-
-        if (typeof schema["bindings"] != "undefined") {
-            for (let i = 0 ; i < schema.bindings.length ; i++) {
-                let binding = schema.bindings[i];
-
-                let value = _layer.base()[binding.src]();
-                this._attributes.push(new armnn.Attribute(binding.name, binding.type, value));
-            }
-        }
-
-        if (typeof schema["attributes"] != "undefined") {
-            for (let i = 0 ; i < schema.attributes.length ; i++) {
-                let attr = schema.attributes[i];
-
-                let value = this.packAttr(_layer, attr);
-                this._attributes.push(new armnn.Attribute(attr.name, attr.type, value));
-            }
-        }
-
-        if (typeof schema["inputs"] != "undefined") {
-            for (let i = 0 ; i < schema.inputs.length ; i++) {
-                let input = schema.inputs[i];
-                let value = _layer[input["src"]]();
-
-                if (value) {
-                    let args = [ new armnn.Argument('', null, value) ];
-                    this._inputs.push(new armnn.Parameter(input["name"], '', args));
-                }
-            }
-        }
-
-        this._category = schema["category"];
-    }
-
 };
 
 armnn.Attribute = class {
@@ -324,7 +299,7 @@ armnn.Attribute = class {
 
 armnn.Parameter = class {
 
-    constructor(name, id, args) {
+    constructor(name, args) {
         this._name = name;
         this._arguments = args;
     }
