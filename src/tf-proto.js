@@ -208,6 +208,7 @@
     
                 function MetaInfoDef(properties) {
                     this.tags = [];
+                    this.function_aliases = {};
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -221,11 +222,12 @@
                 MetaInfoDef.prototype.tensorflow_version = "";
                 MetaInfoDef.prototype.tensorflow_git_version = "";
                 MetaInfoDef.prototype.stripped_default_attrs = false;
+                MetaInfoDef.prototype.function_aliases = $util.emptyObject;
     
                 MetaInfoDef.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.MetaGraphDef.MetaInfoDef();
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.MetaGraphDef.MetaInfoDef(), key;
                     while (reader.pos < end) {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
@@ -252,6 +254,14 @@
                         case 7:
                             message.stripped_default_attrs = reader.bool();
                             break;
+                        case 8:
+                            reader.skip().pos++;
+                            if (message.function_aliases === $util.emptyObject)
+                                message.function_aliases = {};
+                            key = reader.string();
+                            reader.pos++;
+                            message.function_aliases[key] = reader.string();
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -261,7 +271,7 @@
                 };
     
                 MetaInfoDef.decodeText = function decodeText(reader) {
-                    var message = new $root.tensorflow.MetaGraphDef.MetaInfoDef();
+                    var message = new $root.tensorflow.MetaGraphDef.MetaInfoDef(), key, value;
                     reader.start();
                     while (!reader.end()) {
                         var tag = reader.tag();
@@ -294,6 +304,23 @@
                             break;
                         case "stripped_default_attrs":
                             message.stripped_default_attrs = reader.bool();
+                            break;
+                        case "function_aliases":
+                            if (message.function_aliases === $util.emptyObject)
+                                message.function_aliases = {};
+                            reader.start();
+                            key = "";
+                            value = "";
+                            while (!reader.end())
+                                switch (reader.tag()) {
+                                case "key":
+                                    key = reader.string();
+                                    break;
+                                case "value":
+                                    value = reader.string();
+                                    break;
+                                }
+                            message.function_aliases[key] = value;
                             break;
                         default:
                             reader.field(tag, message);
