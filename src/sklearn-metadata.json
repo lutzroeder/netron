@@ -366,7 +366,7 @@
         },
         {
           "default": null,
-          "description": "The Elastic-Net mixing parameter, with ``0 <= l1_ratio <= 1``. Only\nused if ``penalty='elasticnet'`. Setting ``l1_ratio=0`` is equivalent\nto using ``penalty='l2'``, while setting ``l1_ratio=1`` is equivalent\nto using ``penalty='l1'``. For ``0 < l1_ratio <1``, the penalty is a\ncombination of L1 and L2.\n",
+          "description": "The Elastic-Net mixing parameter, with ``0 <= l1_ratio <= 1``. Only\nused if ``penalty='elasticnet'``. Setting ``l1_ratio=0`` is equivalent\nto using ``penalty='l2'``, while setting ``l1_ratio=1`` is equivalent\nto using ``penalty='l1'``. For ``0 < l1_ratio <1``, the penalty is a\ncombination of L1 and L2.\n",
           "name": "l1_ratio",
           "option": "optional",
           "type": "float32"
