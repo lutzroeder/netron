@@ -198,7 +198,8 @@ TFLITE.BuiltinOperator = {
   NON_MAX_SUPPRESSION_V5: 121,
   SCATTER_ND: 122,
   SELECT_V2: 123,
-  DENSIFY: 124
+  DENSIFY: 124,
+  SEGMENT_SUM: 125
 };
 
 /**
@@ -329,7 +330,8 @@ TFLITE.BuiltinOperatorName = {
   121: 'NON_MAX_SUPPRESSION_V5',
   122: 'SCATTER_ND',
   123: 'SELECT_V2',
-  124: 'DENSIFY'
+  124: 'DENSIFY',
+  125: 'SEGMENT_SUM'
 };
 
 /**
@@ -435,7 +437,8 @@ TFLITE.BuiltinOptions = {
   NonMaxSuppressionV5Options: 96,
   ScatterNdOptions: 97,
   SelectV2Options: 98,
-  DensifyOptions: 99
+  DensifyOptions: 99,
+  SegmentSumOptions: 100
 };
 
 /**
@@ -541,7 +544,8 @@ TFLITE.BuiltinOptionsName = {
   96: 'NonMaxSuppressionV5Options',
   97: 'ScatterNdOptions',
   98: 'SelectV2Options',
-  99: 'DensifyOptions'
+  99: 'DensifyOptions',
+  100: 'SegmentSumOptions'
 };
 
 /**
@@ -9783,6 +9787,66 @@ TFLITE.DensifyOptions.endDensifyOptions = function(builder) {
 TFLITE.DensifyOptions.createDensifyOptions = function(builder) {
   TFLITE.DensifyOptions.startDensifyOptions(builder);
   return TFLITE.DensifyOptions.endDensifyOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+TFLITE.SegmentSumOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.SegmentSumOptions}
+ */
+TFLITE.SegmentSumOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.SegmentSumOptions=} obj
+ * @returns {TFLITE.SegmentSumOptions}
+ */
+TFLITE.SegmentSumOptions.getRootAsSegmentSumOptions = function(bb, obj) {
+  return (obj || new TFLITE.SegmentSumOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.SegmentSumOptions.startSegmentSumOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.SegmentSumOptions.endSegmentSumOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.SegmentSumOptions.createSegmentSumOptions = function(builder) {
+  TFLITE.SegmentSumOptions.startSegmentSumOptions(builder);
+  return TFLITE.SegmentSumOptions.endSegmentSumOptions(builder);
 }
 
 /**
