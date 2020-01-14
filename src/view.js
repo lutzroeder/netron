@@ -1034,7 +1034,20 @@ class ModelContext {
                         break;
                     }
                     case 'tar': {
-                        entries = new tar.Archive(buffer).entries;
+                        if (buffer.length >= 512) {
+                            let sum = 0;
+                            for (let i = 0; i < 512; i++) {
+                                sum += (i >= 148 && i < 156) ? 32 : buffer[i];
+                            }
+                            let checksum = '';
+                            for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
+                                checksum += String.fromCharCode(buffer[i]);
+                            }
+                            checksum = parseInt(checksum, 8);
+                            if (!isNaN(checksum) && sum == checksum) {
+                                entries = new tar.Archive(buffer).entries;
+                            }
+                        }
                         break;
                     }
                 }

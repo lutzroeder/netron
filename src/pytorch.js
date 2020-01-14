@@ -92,7 +92,7 @@ pytorch.Graph = class {
         this._groups = true;
         this._littleEndian = container.littleEndian;
 
-        if (container.script) {
+        if (container.format.startsWith('TorchScript ')) {
             this._name = container.name;
             let traced = container.trace();
             let initializers = {};
@@ -1984,7 +1984,7 @@ pytorch.TarContainer = class {
     }
 
     get format() {
-        return 'PyTorch Eager v0.1.1'
+        return 'PyTorch v0.1.1'
     }
 
     get data() {
@@ -2152,7 +2152,7 @@ pytorch.PickleContainer = class {
     }
 
     get format() {
-        return 'PyTorch Eager v0.1.10'
+        return 'PyTorch v0.1.10'
     }
 
     get data() {
@@ -2462,41 +2462,52 @@ pytorch.ZipContainer = class {
     }
 
     get format() {
-        const versionEntry = this._entries.find((entry) => entry.name === this._prefix + 'version');
-        const version = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
-        const modelEntry = this._entries.find((entry) => entry.name === this._prefix + 'model.json');
-        const dataEntry = this._entries.find((entry) => entry.name === this._prefix + 'data.pkl');
-        if (version === '' || version === '1' || version === '2') {
-            if (modelEntry) {
-                return 'PyTorch Script v1.0';
-            }
-            if (dataEntry) {
-                if (this._entries.find((entry) => entry.name.startsWith(this._prefix + 'code/'))) {
-                    return version === '2' ? 'PyTorch Script v1.4' : 'PyTorch Script v1.3';
+        if (this._format === undefined) {
+            const versionEntry = this._entry('version');
+            const version = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
+            if (version === '' || version === '1' || version === '2') {
+                if (this._entry('model.json')) {
+                    if (this._entry('attributes.pkl')) {
+                        this._format = 'TorchScript v1.1';
+                    }
+                    else {
+                        this._format = 'TorchScript v1.0';
+                    }
                 }
-                return 'PyTorch Eager v1.4';
+                else if (this._entry('data.pkl')) {
+                    if (this._entry('constants.pkl')) {
+                        if (version === '2') {
+                            this._format = 'TorchScript v1.4';
+                        }
+                        else {
+                            this._format = 'TorchScript v1.3';
+                        }
+                    }
+                    else {
+                        this._format = 'PyTorch v1.4';
+                    }
+                }
+            }
+            else {
+                throw new pytorch.Error("Unsupported PyTorch ZIP version '" + version + "'.");
             }
         }
-        throw new pytorch.Error("Unsupported PyTorch Zip version '" + version + "'.");
+        return this._format;
     }
 
     get producer() {
         return this.data ? this._producer : '';
     }
 
-    get script() {
-        return this.execution ? this._script : false;
-    }
-
     get data() {
         if (this._data === undefined) {
             this._data = null;
-            const dataEntry = this._entries.find((entry) => entry.name == this._prefix + 'data.pkl');
+            const dataEntry = this._entry('data.pkl');
             if (dataEntry && dataEntry.data) {
                 this._data = this._unpickle(dataEntry.data, this._storage('data'));
             }
             else {
-                const modelEntry = this._entries.find((entry) => entry.name == this._prefix + 'model.json');
+                const modelEntry = this._entry('model.json');
                 if (modelEntry) {
                     const model = JSON.parse(this._utf8Decoder.decode(modelEntry.data))
                     this._producer = model.producerName + (model.producerVersion ? ' v' + model.producerVersion : '');
@@ -2595,7 +2606,7 @@ pytorch.ZipContainer = class {
     get attributes() {
         if (this._attributes ===  undefined) {
             this._attributes = null;
-            const entry = this._entries.find((entry) => entry.name == this._prefix + 'attributes.pkl');
+            const entry = this._entry('attributes.pkl');
             if (entry && entry.data) {
                 this._attributes = this._unpickle(entry.data, null);
             }
@@ -2604,9 +2615,9 @@ pytorch.ZipContainer = class {
     }
 
     get constants() {
-        if (this._constants ===  undefined) {
+        if (this._constants === undefined) {
             this._constants = null;
-            const entry = this._entries.find((entry) => entry.name == this._prefix + 'constants.pkl');
+            const entry = this._entry('constants.pkl');
             if (entry && entry.data) {
                 this._constants = this._unpickle(entry.data, this._storage('constants'));
             }
@@ -2614,22 +2625,9 @@ pytorch.ZipContainer = class {
         return this._constants;
     }
 
-    _storage(dirname) {
-        let map = new Map();
-        const prefix = this._prefix + dirname + '/';
-        for (const entry of this._entries) {
-            if (entry.name.startsWith(prefix)) {
-                const key = entry.name.substring(prefix.length);
-                map.set(key, entry.data);
-            }
-        }
-        return map;
-    }
-
     get execution() {
         if (this._execution === undefined) {
             this._types = new Map(); // TODO
-            this._script = false;
             let sources = {};
             for (const entry of this._entries) {
                 if (entry.name.startsWith(this._prefix + 'code')) {
@@ -2638,12 +2636,15 @@ pytorch.ZipContainer = class {
                         throw new pytorch.Error("Duplicate source file '" + file + "'.");
                     }
                     sources[file] = entry.data;
-                    this._script = true;
                 }
             }
             this._execution = new pytorch.Execution(this._python, sources, this._exception);
         }
         return this._execution;
+    }
+
+    _entry(name) {
+        return this._entries.find((entry) => entry.name == this._prefix + name)
     }
 
     _unpickle(data, storage_map) {
@@ -2684,6 +2685,18 @@ pytorch.ZipContainer = class {
             return storage;
         };
         return new this._pickle.Unpickler(data).load((name, args) => this.execution.invoke(name, args), persistent_load);
+    }
+
+    _storage(dirname) {
+        let map = new Map();
+        const prefix = this._prefix + dirname + '/';
+        for (const entry of this._entries) {
+            if (entry.name.startsWith(prefix)) {
+                const key = entry.name.substring(prefix.length);
+                map.set(key, entry.data);
+            }
+        }
+        return map;
     }
 
     _type(name) {
