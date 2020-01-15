@@ -7547,10 +7547,18 @@ MNN.Interp.prototype.alignCorners = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+MNN.Interp.prototype.halfPixelCenters = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 MNN.Interp.startInterp = function(builder) {
-  builder.startObject(6);
+  builder.startObject(7);
 };
 
 /**
@@ -7603,6 +7611,14 @@ MNN.Interp.addAlignCorners = function(builder, alignCorners) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {boolean} halfPixelCenters
+ */
+MNN.Interp.addHalfPixelCenters = function(builder, halfPixelCenters) {
+  builder.addFieldInt8(6, +halfPixelCenters, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 MNN.Interp.endInterp = function(builder) {
@@ -7618,9 +7634,10 @@ MNN.Interp.endInterp = function(builder) {
  * @param {number} outputHeight
  * @param {number} resizeType
  * @param {boolean} alignCorners
+ * @param {boolean} halfPixelCenters
  * @returns {flatbuffers.Offset}
  */
-MNN.Interp.createInterp = function(builder, widthScale, heightScale, outputWidth, outputHeight, resizeType, alignCorners) {
+MNN.Interp.createInterp = function(builder, widthScale, heightScale, outputWidth, outputHeight, resizeType, alignCorners, halfPixelCenters) {
   MNN.Interp.startInterp(builder);
   MNN.Interp.addWidthScale(builder, widthScale);
   MNN.Interp.addHeightScale(builder, heightScale);
@@ -7628,6 +7645,7 @@ MNN.Interp.createInterp = function(builder, widthScale, heightScale, outputWidth
   MNN.Interp.addOutputHeight(builder, outputHeight);
   MNN.Interp.addResizeType(builder, resizeType);
   MNN.Interp.addAlignCorners(builder, alignCorners);
+  MNN.Interp.addHalfPixelCenters(builder, halfPixelCenters);
   return MNN.Interp.endInterp(builder);
 }
 
