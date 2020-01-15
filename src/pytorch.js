@@ -16,7 +16,7 @@ pytorch.ModelFactory = class {
         if (extension === 'pth' || extension === 'pkl' || extension === 'pt' || extension === 'bin' ||
             extension === 'h5' || extension === 't7' || extension === 'dms' || extension === 'model' ||
             extension === 'ckpt' || extension == 'pt1' || identifier.toLowerCase().endsWith('.pth.tar')) {
-            if (pytorch.ModelFactory._container(context, null, null, null)) {
+            if (pytorch.Container.open(context, null, null, null)) {
                 return true;
             }
         }
@@ -27,7 +27,7 @@ pytorch.ModelFactory = class {
         const identifier = context.identifier;
         return host.require('./pickle').then((pickle) => {
             return host.require('./python').then((python) => {
-                let container = pytorch.ModelFactory._container(context, pickle, python, (error, fatal) => {
+                let container = pytorch.Container.open(context, pickle, python, (error, fatal) => {
                     let message = error && error.message ? error.message : error.toString();
                     message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
                     host.exception(new pytorch.Error(message + " in '" + identifier + "'."), fatal);
@@ -46,22 +46,6 @@ pytorch.ModelFactory = class {
             });
         });
     }
-
-    static _container(context, pickle, python, exception) {
-        const identifier = context.identifier;
-        if (context.entries('zip').some((entry) => entry.name === 'model.json' || entry.name === 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'))) {
-            return new pytorch.ZipContainer(identifier, context.entries('zip'), pickle, python, exception);
-        }
-        const buffer = context.buffer;
-        const signature = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && buffer[1] < 0x05 && signature.every((v, i) => v == buffer[i + 2])) {
-            return new pytorch.PickleContainer(identifier, buffer, pickle, exception);
-        }
-        if (context.entries('tar').some((entry) => entry.name == 'pickle')) {
-            return new pytorch.TarContainer(identifier, context.entries('tar'), pickle, exception);
-        }
-        return null;
-    }
 };
 
 pytorch.Model = class { 
@@ -69,8 +53,7 @@ pytorch.Model = class {
     constructor(metadata, container) {
         this._format = container.format;
         this._producer = container.producer || '';
-        this._graphs = [];
-        this._graphs.push(new pytorch.Graph(metadata, container));
+        this._graphs = [ new pytorch.Graph(metadata, container) ];
     }
 
     get format() {
@@ -85,7 +68,6 @@ pytorch.Model = class {
 pytorch.Graph = class {
 
     constructor(metadata, container) {
-        this._metadata = metadata;
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
@@ -95,7 +77,7 @@ pytorch.Graph = class {
         if (container.format.startsWith('TorchScript ')) {
             this._name = container.name;
             let traced = container.trace();
-            let initializers = {};
+            let initializers = new Map();
             if (container.data) {
                 let queue = [ container.data ];
                 while (queue.length > 0) {
@@ -110,7 +92,7 @@ pytorch.Graph = class {
                                         parameter.initializer = new pytorch.Tensor(parameter.name, parameter, true);
                                     }
                                     if (parameter.__outputs__ && parameter.__outputs__.length == 1) {
-                                        initializers[parameter.__outputs__[0]] = parameter;
+                                        initializers.set(parameter.__outputs__[0], parameter);
                                     }
                                 }
                                 else if (obj && obj.__module__ && obj.__name__) {
@@ -161,7 +143,7 @@ pytorch.Graph = class {
             this._type = (data.__module__ && data.__name__) ? (data.__module__ + '.' + data.__name__) : '';
             const input = 'data';
             this._inputs.push(new pytorch.Parameter(input, true, [ new pytorch.Argument(input, null, null) ]));
-            const outputs = this._loadModule(container.data, [], [ input ]);
+            const outputs = this._loadModule(metadata, container.data, [], [ input ]);
             for (const output of outputs) {
                 this._outputs.push(new pytorch.Parameter(output, true, [ new pytorch.Argument(output, null, null) ]));
             }
@@ -183,12 +165,12 @@ pytorch.Graph = class {
                     inputs: inputs,
                     outputs: []
                 };
-                this._nodes.push(new pytorch.Node(this._metadata, '', obj, null));
+                this._nodes.push(new pytorch.Node(metadata, '', obj, null));
             }
         }
     }
 
-    _loadModule(parent, groups, inputs) {
+    _loadModule(metadata, parent, groups, inputs) {
 
         if (parent.__module__ &&
             !parent.__module__ === 'torch.nn.modules.container' &&
@@ -207,7 +189,7 @@ pytorch.Graph = class {
                 switch (type) {
                     case 'torch.nn.modules.container.Sequential':
                         groups.push(module.key);
-                        inputs = this._loadModule(module.value, groups, inputs);
+                        inputs = this._loadModule(metadata, module.value, groups, inputs);
                         groups.pop(module.key);
                         break;
                     case 'torchvision.models.densenet._Transition':
@@ -222,13 +204,13 @@ pytorch.Graph = class {
                     case 'torchvision.models.inception.InceptionD':
                     case 'torchvision.models.inception.InceptionE': {
                         groups.push(module.key);
-                        const node = this._createNode(groups, module.key, module.value, inputs, this._littleEndian);
+                        const node = this._createNode(metadata, groups, module.key, module.value, inputs, this._littleEndian);
                         inputs = [ node.name ];
                         groups.pop(module.key);
                         break; 
                     }
                     default: {
-                        const node = this._createNode(groups, module.key, module.value, inputs);
+                        const node = this._createNode(metadata, groups, module.key, module.value, inputs);
                         inputs = [ node.name ];
                         break;
                     }
@@ -238,10 +220,10 @@ pytorch.Graph = class {
         return inputs;
     }
 
-    _createNode(groups, key, obj, args) {
+    _createNode(metadata, groups, key, obj, args) {
 
         const type = obj.__module__ + '.' + obj.__name__;
-        const schema = this._metadata.getSchema(type);
+        const schema = metadata.getSchema(type);
 
         let inputSchema = [ { name: 'input'} ];
         if (schema && schema.inputs && schema.inputs.length > 0) {
@@ -299,7 +281,7 @@ pytorch.Graph = class {
             inputs: inputs,
             outputs: outputs
         }
-        const node = new pytorch.Node(this._metadata, group, item, {});
+        const node = new pytorch.Node(metadata, group, item, {});
         this._nodes.push(node);
         return node;
     }
@@ -308,10 +290,9 @@ pytorch.Graph = class {
         if (module) {
             if (pytorch.Graph._getParameters(module).length > 0 && !module.__hide__) {
                 const item = { module: module };
-                let node = new pytorch.Node(metadata, '', item, initializers);
-                this._nodes.push(node);
+                this._nodes.push(new pytorch.Node(metadata, '', item, initializers));
             }
-            let submodules = pytorch.Graph._getSubmodules(module);
+            const submodules = pytorch.Graph._getSubmodules(module);
             for (const submodule of submodules) {
                 this._loadScriptModule(metadata, container, submodule, initializers);
             }
@@ -461,7 +442,7 @@ pytorch.Node = class {
                 let count = 0;
                 for (const input of item.node.inputs) {
                     for (const argument of input) {
-                        const parameter = initializers[argument.id];
+                        const parameter = initializers.get(argument.id);
                         if (parameter) {
                             if (parameter.__parent__ && (module == null || module == parameter.__parent__)) {
                                 module = parameter.__parent__;
@@ -483,7 +464,7 @@ pytorch.Node = class {
                         module.__hide__ = true;
                         for (const input of item.node.inputs) {
                             for (const argument of input) {
-                                const parameter = initializers[argument.id];
+                                const parameter = initializers.get(argument.id);
                                 if (parameter && parameter.initializer) {
                                     argument.initializer = parameter.initializer;
                                 }
@@ -625,6 +606,12 @@ pytorch.Attribute = class {
         this._name = name;
         this._value = value;
 
+        if (this._name === 'training') {
+            this._visible = false;
+            this._type = 'boolean';
+            return;
+        }
+
         if (value && value.type) {
             switch (value.type) {
                 case 'number':
@@ -736,7 +723,7 @@ pytorch.Attribute = class {
     }
 
     get visible() {
-        return (this._visible == false || this.name == 'training') ? false : true;
+        return this._visible == false ? false : true;
     }
 };
 
@@ -1033,7 +1020,7 @@ pytorch.Execution = class {
         this._unknownNameMap = new Set();
         this._knownPackageMap = new Set([ 'torch', 'torchvision', 'collections', '__builtin__', '_codecs', 'argparse', 'numpy' ]);
         this._packages = new Map();
-        this._context = new pytorch.Context();
+        this._context = new pytorch.Execution.Context();
         this._context.scope.builtins = {};
         this._context.scope.builtins.type = { __module__: 'builtins', __name__: 'type' };
         this._context.scope.builtins.module = { __module__: 'builtins', __name__: 'module', __class__: this._context.scope.builtins.type };
@@ -1974,10 +1961,98 @@ pytorch.Execution = class {
     }
 }
 
-pytorch.TarContainer = class {
+pytorch.Execution.Context = class {
 
-    constructor(identifier, entries, pickle, exception) {
-        this._identifier = identifier;
+    constructor(parent, scope) {
+        this._parent = parent || null;
+        this._scope = scope || {};
+    }
+
+    push(scope) {
+        return new pytorch.Execution.Context(this, scope);
+    }
+
+    pop() {
+        return this._parent;
+    }
+
+    get scope() {
+        return this._scope;
+    }
+
+    set(name, value) {
+        this._scope[name] = value;
+    }
+
+    get(name) {
+        if (name in this._scope) {
+            return this._scope[name]
+        }
+        if (this._parent) {
+            return this._parent.get(name);
+        }
+        return undefined;
+    }
+
+    setx(name, value) {
+        let parts = name.split('.');
+        if (parts.length == 1) {
+            this.set(parts[0], value)
+        }
+        else {
+            let parent = this.get(parts[0]);
+            if (!parent) {
+                parent = {};
+                this.set(parts[0], parent)
+            }
+            parts.shift();
+            while (parts.length > 1) {
+                const part = parts.shift();
+                parent[part] = parent[part] || {};
+                parent = parent[part];
+            }
+            parent[parts[0]] = value;
+        }
+    }
+
+    getx(name) {
+        let parts = name.split('.');
+        let value = this.get(parts[0]);
+        if (value) {
+            parts.shift();
+            while (parts.length > 0 && value[parts[0]]) {
+                value = value[parts[0]];
+                parts.shift();
+            }
+            if (parts.length === 0) {
+                return value;
+            }
+        }
+        return undefined;
+    }
+}
+
+pytorch.Container = class {
+
+    static open(context, pickle, python, exception) {
+        if (context.entries('zip').some((entry) => entry.name === 'model.json' || entry.name === 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'))) {
+            return new pytorch.Container.Zip(context.entries('zip'), pickle, python, exception);
+        }
+        const buffer = context.buffer;
+        const signature = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && buffer[1] < 0x05 && signature.every((v, i) => v == buffer[i + 2])) {
+            return new pytorch.Container.Pickle(buffer, pickle, exception);
+        }
+        if (context.entries('tar').some((entry) => entry.name == 'pickle')) {
+            return new pytorch.Container.Tar(context.entries('tar'), pickle, exception);
+        }
+        return null;
+    }
+}
+
+pytorch.Container.Tar = class {
+
+    constructor(entries, pickle, exception) {
         this._entries = entries;
         this._pickle = pickle;
         this._exception = exception;
@@ -1988,25 +2063,24 @@ pytorch.TarContainer = class {
     }
 
     get data() {
-        this._open();
+        this._unpickle();
         return this._data;
     }
 
     get state() {
-        this._open();
+        this._unpickle();
         return this._state;
     }
 
     get littleEndian() {
-        this._open();
+        this._unpickle();
         return this._littleEndian;
     }
 
-    _open() {
-        if (this._opened) {
+    _unpickle() {
+        if (!this._entries) {
             return;
         }
-        this._opened = true;
         this._data = null;
         this._state = null;
         this._littleEndian = true;
@@ -2022,6 +2096,10 @@ pytorch.TarContainer = class {
                 case 'tensors': entries.tensors = entry.data; break;
             }
         }
+
+        this._exception = null;
+        this._entries = null;
+
         if (entries.sys_info) {
             const unpickler = new this._pickle.Unpickler(entries.sys_info);
             const sys_info = unpickler.load((name, args) => execution.invoke(name, args));
@@ -2142,10 +2220,9 @@ pytorch.TarContainer = class {
     }
 }
 
-pytorch.PickleContainer = class {
+pytorch.Container.Pickle = class {
 
-    constructor(identifier, buffer, pickle, exception) {
-        this._identifier = identifier;
+    constructor(buffer, pickle, exception) {
         this._buffer = buffer;
         this._pickle = pickle;
         this._exception = exception;
@@ -2156,27 +2233,32 @@ pytorch.PickleContainer = class {
     }
 
     get data() {
-        this._open();
+        this._unpickle();
         return this._data;
     }
 
     get state() {
-        this._open();
+        this._unpickle();
         return this._state;
     }
 
     get littleEndian() {
-        this._open();
+        this._unpickle();
         return this._littleEndian;
     }
 
-    _open() {
-        if (this._opened) {
+    _unpickle() {
+        if (!this._buffer) {
             return;
         }
-        this._opened = true;
+ 
         const execution = new pytorch.Execution(null, [], this._exception);
         const unpickler = new this._pickle.Unpickler(this._buffer);
+
+        this._buffer = null;
+        this._pickle = null;
+        this._exception = null;
+
         unpickler.load(); // magic_number
         const protocol_version = unpickler.load();
         if (protocol_version != 1001) {
@@ -2246,19 +2328,16 @@ pytorch.PickleContainer = class {
             }
             storage.data = unpickler.read(storage.dataTypeSize * storage.size);
         }
-
-        this._data = pytorch.PickleContainer._findRootModule(data);
+        this._data = this._findRootModule(data);
         if (!this._data) {
-            this._state = pytorch.PickleContainer._findStateDict(data);
-            if (!this._state) {
-                throw new pytorch.Error('File does not contain root module or state dictionary.');
-            }
+            this._state = this._findStateDict(data);
         }
-
-        this._buffer = null;
+        if (!this._data && !this._state) {
+            throw new pytorch.Error('File does not contain root module or state dictionary.');
+        }
     }
 
-    static _findRootModule(root) {
+    _findRootModule(root) {
         const candidates = [ root, root.model, root.net ];
         for (const obj of candidates) {
             if (obj && obj._modules) {
@@ -2268,7 +2347,7 @@ pytorch.PickleContainer = class {
         return null;
     }
 
-    static _findStateDict(root) {
+    _findStateDict(root) {
         if (root) {
             if (root.encoder && Array.isArray(root.encoder) && 
                 root.decoder && Array.isArray(root.decoder) && !root.state_dict) {
@@ -2291,9 +2370,9 @@ pytorch.PickleContainer = class {
         ];
         for (const dict of candidates) {
             let state_dict = null;
-            state_dict = state_dict || pytorch.PickleContainer._convertStateDictList(dict);
-            state_dict = state_dict || pytorch.PickleContainer._convertStateDictMap(dict);
-            state_dict = state_dict || pytorch.PickleContainer._convertStateDictGroupMap(dict);
+            state_dict = state_dict || this._convertStateDictList(dict);
+            state_dict = state_dict || this._convertStateDictMap(dict);
+            state_dict = state_dict || this._convertStateDictGroupMap(dict);
             if (state_dict) {
                 return state_dict;
             }
@@ -2301,7 +2380,7 @@ pytorch.PickleContainer = class {
         return null;
     }
 
-    static _convertStateDictList(list) {
+    _convertStateDictList(list) {
         if (!list || 
             !Array.isArray(list) || 
             !list.every((item) => item && item.key && (item.value === null || pytorch.Utility.isTensor(item.value)))) {
@@ -2335,7 +2414,7 @@ pytorch.PickleContainer = class {
         return state_dict;
     }
 
-    static _convertStateDictMap(obj) {
+    _convertStateDictMap(obj) {
         if (!obj || Array.isArray(obj)) {
             return null
         }
@@ -2372,7 +2451,7 @@ pytorch.PickleContainer = class {
         return state_dict;
     }
 
-    static _convertStateDictGroupMap(obj) {
+    _convertStateDictGroupMap(obj) {
         if (!obj || Array.isArray(obj)) {
             return null;
         }
@@ -2435,10 +2514,9 @@ pytorch.PickleContainer = class {
     }
 }
 
-pytorch.ZipContainer = class {
+pytorch.Container.Zip = class {
 
-    constructor(identifier, entries, pickle, python, exception) {
-        this._identifier = identifier;
+    constructor(entries, pickle, python, exception) {
         this._entries = entries;
         this._pickle = pickle;
         this._python = python;
@@ -2451,14 +2529,6 @@ pytorch.ZipContainer = class {
         const lastIndex = entry.name.lastIndexOf('/');
         this._prefix = lastIndex === -1 ? '' : entry.name.substring(0, lastIndex + 1);
         this._utf8Decoder = new TextDecoder('utf-8');
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get name() {
-        return this._name;
     }
 
     get format() {
@@ -2497,6 +2567,10 @@ pytorch.ZipContainer = class {
 
     get producer() {
         return this.data ? this._producer : '';
+    }
+
+    get name() {
+        return this._name;
     }
 
     get data() {
@@ -3670,77 +3744,6 @@ pytorch.ZipContainer = class {
 
     get nodes() {
         return this._nodes;
-    }
-}
-
-pytorch.Context = class {
-
-    constructor(parent, scope) {
-        this._parent = parent || null;
-        this._scope = scope || {};
-    }
-
-    push(scope) {
-        return new pytorch.Context(this, scope);
-    }
-
-    pop() {
-        return this._parent;
-    }
-
-    get scope() {
-        return this._scope;
-    }
-
-    set(name, value) {
-        this._scope[name] = value;
-    }
-
-    get(name) {
-        if (name in this._scope) {
-            return this._scope[name]
-        }
-        if (this._parent) {
-            return this._parent.get(name);
-        }
-        return undefined;
-    }
-
-    setx(name, value) {
-        let parts = name.split('.');
-        if (parts.length == 1) {
-            this.set(parts[0], value)
-        }
-        else {
-            let parent = this.get(parts[0]);
-            if (!parent) {
-                parent = {};
-                this.set(parts[0], parent)
-            }
-            parts.shift();
-            while (parts.length > 1) {
-                const part = parts.shift();
-                parent[part] = parent[part] || {};
-                parent = parent[part];
-            }
-            parent[parts[0]] = value;
-        }
-    }
-
-    getx(name) {
-        let parts = name.split('.');
-        let value = this.get(parts[0]);
-        if (value) {
-            parts.shift();
-            while (parts.length > 0 && value[parts[0]]) {
-                value = value[parts[0]];
-                parts.shift();
-            }
-            if (parts.length === 0) {
-                return value;
-            }
-        }
-        return undefined;
     }
 }
 
