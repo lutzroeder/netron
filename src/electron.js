@@ -95,7 +95,7 @@ host.ElectronHost = class {
             this._view.showModelProperties();
         });
 
-        var openFileButton = this.document.getElementById('open-file-button');
+        let openFileButton = this.document.getElementById('open-file-button');
         if (openFileButton) {
             openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', () => {
@@ -111,9 +111,9 @@ host.ElectronHost = class {
         });
         this.document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
-            var files = [];
-            for (var i = 0; i < e.dataTransfer.files.length; i++) {
-                var file = e.dataTransfer.files[i].path;
+            let files = [];
+            for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                const file = e.dataTransfer.files[i].path;
                 if (this._view.accept(file)) {
                     files.push(e.dataTransfer.files[i].path);
                 }
@@ -133,8 +133,8 @@ host.ElectronHost = class {
     }
 
     error(message, detail) {
-        var owner = electron.remote.getCurrentWindow();
-        var options = {
+        const owner = electron.remote.getCurrentWindow();
+        const options = {
             type: 'error',
             message: message,
             detail: detail,
@@ -143,8 +143,8 @@ host.ElectronHost = class {
     }
 
     confirm(message, detail) {
-        var owner = electron.remote.getCurrentWindow();
-        var options = {
+        const owner = electron.remote.getCurrentWindow();
+        const options = {
             type: 'question',
             message: message,
             detail: detail,
@@ -152,7 +152,7 @@ host.ElectronHost = class {
             defaultId: 0,
             cancelId: 1
         };
-        var result = electron.remote.dialog.showMessageBoxSync(owner, options);
+        const result = electron.remote.dialog.showMessageBoxSync(owner, options);
         return result == 0;
     }
 
@@ -166,8 +166,8 @@ host.ElectronHost = class {
     }
 
     save(name, extension, defaultPath, callback) {
-        var owner = electron.remote.BrowserWindow.getFocusedWindow();
-        var showSaveDialogOptions = {
+        const owner = electron.remote.BrowserWindow.getFocusedWindow();
+        const showSaveDialogOptions = {
             title: 'Export Tensor',
             defaultPath: defaultPath,
             buttonLabel: 'Export',
@@ -180,11 +180,10 @@ host.ElectronHost = class {
     }
 
     export(file, blob) {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = (e) => {
-            var data = new Uint8Array(e.target.result);
-            var encoding = null;
-            fs.writeFile(file, data, encoding, (err) => {
+            const data = new Uint8Array(e.target.result);
+            fs.writeFile(file, data, null, (err) => {
                 if (err) {
                     this.exception(err, false);
                     this.error('Error writing file.', err.message);
@@ -192,7 +191,7 @@ host.ElectronHost = class {
             });
         };
 
-        var err = null;
+        let err = null;
         if (!blob) {
             err = new Error("Export blob is '" + JSON.stringify(blob) + "'.");
         }
@@ -211,7 +210,7 @@ host.ElectronHost = class {
 
     request(base, file, encoding) {
         return new Promise((resolve, reject) => {
-            var pathname = path.join(base || __dirname, file);
+            const pathname = path.join(base || __dirname, file);
             fs.exists(pathname, (exists) => {
                 if (!exists) {
                     reject(new Error("File not found '" + file + "'."));
@@ -237,16 +236,16 @@ host.ElectronHost = class {
     exception(error, fatal) {
         if (this._telemetry && error && error.telemetry !== false) {
             try {
-                var description = [];
+                let description = [];
                 description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
                 if (error.stack) {
-                    var match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
+                    const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                     if (match) {
                         description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
                     }
                 }
     
-                var params = { 
+                const params = { 
                     applicationName: this.type,
                     applicationVersion: this.version,
                     userAgentOverride: navigator.userAgent
@@ -262,7 +261,7 @@ host.ElectronHost = class {
     screen(name) {
         if (this._telemetry) {
             try {
-                var params = {
+                const params = {
                     userAgentOverride: navigator.userAgent
                 };
                 this._telemetry.screenview(name, this.type, this.version, null, null, params, () => { });
@@ -276,7 +275,7 @@ host.ElectronHost = class {
     event(category, action, label, value) {
         if (this._telemetry) {
             try {
-                var params = { 
+                const params = { 
                     applicationName: this.type,
                     applicationVersion: this.version,
                     userAgentOverride: navigator.userAgent
@@ -293,7 +292,7 @@ host.ElectronHost = class {
         if (file) {
             this._view.show('Spinner');
             this._readFile(file).then((buffer) => {
-                var context = new ElectonContext(this, path.dirname(file), path.basename(file), buffer);
+                const context = new ElectonContext(this, path.dirname(file), path.basename(file), buffer);
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     if (model) {

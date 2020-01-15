@@ -231,7 +231,7 @@ pickle.Unpickler = class {
                         obj.__setstate__(state);
                     }
                     else {
-                        for (let p in state) {
+                        for (const p in state) {
                             obj[p] = state[p];
                         }
                     }

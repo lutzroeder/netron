@@ -22,7 +22,7 @@ python.Parser = class {
     }
 
     parse() {
-        let node = this._node('program');
+        const node = this._node('program');
         node.body = [];
         while (!this._tokenizer.match('eof')) {
             const statement = this._parseStatement();
@@ -42,7 +42,7 @@ python.Parser = class {
     }
 
     _parseSuite() {
-        let node = this._node('block');
+        const node = this._node('block');
         node.statements = [];
         let statement = null;
         if (this._tokenizer.eat('\n')) {
@@ -172,7 +172,7 @@ python.Parser = class {
         }
         node = this._eat('id', 'from');
         if (node) {
-            let dots = this._tokenizer.peek();
+            const dots = this._tokenizer.peek();
             if (dots && Array.from(dots.type).every((c) => c == '.')) {
                 node.from = this._eat(dots.type);
                 node.from.expression = this._parseExpression();
@@ -182,7 +182,7 @@ python.Parser = class {
             }
             this._tokenizer.expect('id', 'import');
             node.import = [];
-            let close = this._tokenizer.eat('(');
+            const close = this._tokenizer.eat('(');
             do {
                 let symbol = this._node();
                 symbol.symbol = this._parseExpression(-1, [], false);
@@ -208,7 +208,7 @@ python.Parser = class {
             return node;
         }
 
-        let async = this._eat('id', 'async');
+        const async = this._eat('id', 'async');
         if (async && 
             !this._tokenizer.match('id', 'def') &&
             !this._tokenizer.match('id', 'with') && 
@@ -375,7 +375,7 @@ python.Parser = class {
             return node;
         }
 
-        let expression = this._parseExpression(-1, [], true);
+        const expression = this._parseExpression(-1, [], true);
         if (expression) {
             if (expression.type == 'id' && this._tokenizer.eat(':')) {
                 node = this._node('var');
@@ -459,15 +459,15 @@ python.Parser = class {
 
     _parseExpression(minPrecedence, terminal, tuple) {
         minPrecedence = minPrecedence || -1;
-        let terminalSet = new Set(terminal);
+        const terminalSet = new Set(terminal);
         let stack = [];
         for (;;) {
             let node = this._node();
-            let token = this._tokenizer.peek();
+            const token = this._tokenizer.peek();
             if (stack.length == 1 && terminalSet.has(token.value)) {
                 break;
             }
-            let precedence = python.Parser._precedence[token.value];
+            const precedence = python.Parser._precedence[token.value];
             if (precedence) {
                 if (precedence >= minPrecedence) {
                     this._tokenizer.read();
@@ -548,7 +548,7 @@ python.Parser = class {
                 continue;
             }
             while (this._tokenizer.match('id', 'for') || this._tokenizer.match('id', 'async')) {
-                let async = this._eat('id', 'async');
+                const async = this._eat('id', 'async');
                 if (async && !this._tokenizer.match('id', 'for')) {
                     throw new python.Error("Expected 'for'" + this._tokenizer.location());
                 }
@@ -607,7 +607,7 @@ python.Parser = class {
             if (this._tokenizer.peek().value === '(') {
                 if (stack.length == 0) {
                     node = this._node('tuple');
-                    let args = this._parseArguments();
+                    const args = this._parseArguments();
                     if (args.length == 1) {
                         stack.push(args[0]);
                     }
@@ -641,7 +641,7 @@ python.Parser = class {
                 continue;
             }
             node = this._node();
-            let literal = this._parseLiteral();
+            const literal = this._parseLiteral();
             if (literal) {
                 if (stack.length > 0 && literal.type == 'number' &&
                     (literal.value.startsWith('-') || literal.value.startsWith('+'))) {
@@ -713,7 +713,7 @@ python.Parser = class {
         this._tokenizer.expect('{');
         let dict = true;
         while (!this._tokenizer.eat('}')) {
-            let item = this._parseExpression(-1, [], false);
+            const item = this._parseExpression(-1, [], false);
             if (item == null) {
                 throw new python.Error('Expected expression' + this._tokenizer.location());
             }
@@ -721,7 +721,7 @@ python.Parser = class {
                 dict = false;
             }
             if (dict) {
-                let value = this._parseExpression(-1, [], false);
+                const value = this._parseExpression(-1, [], false);
                 if (value == null) {
                     throw new python.Error('Expected expression' + this._tokenizer.location());
                 }
@@ -746,7 +746,7 @@ python.Parser = class {
         let list = [];
         this._tokenizer.expect('[');
         while (!this._tokenizer.eat(']')) {
-            let expression = this._parseExpression();
+            const expression = this._parseExpression();
             if (expression == null) {
                 throw new python.Error('Expected expression' + this._tokenizer.location());
             }
@@ -765,7 +765,7 @@ python.Parser = class {
     _parseSlice() {
         let node = { type: '::' };
         let list = [];
-        let group = [ 'start', 'stop', 'step' ];
+        const group = [ 'start', 'stop', 'step' ];
         this._tokenizer.expect('[');
         while (!this._tokenizer.eat(']')) {
             if (this._tokenizer.eat(':')) {
@@ -795,7 +795,7 @@ python.Parser = class {
     }
 
     _parseName() {
-        let token = this._tokenizer.peek();
+        const token = this._tokenizer.peek();
         if (token.type == 'id' && !token.keyword) {
             this._tokenizer.read();
             return token;
@@ -804,7 +804,7 @@ python.Parser = class {
     }
 
     _parseLiteral() {
-        let token = this._tokenizer.peek();
+        const token = this._tokenizer.peek();
         if (token.type == 'string' || token.type == 'number' || token.type == 'boolean') {
             this._tokenizer.read();
             return token;
@@ -816,7 +816,7 @@ python.Parser = class {
         let list = [];
         this._tokenizer.expect('[');
         while (!this._tokenizer.eat(']')) {
-            let type = this._parseType();
+            const type = this._parseType();
             if (type == null) {
                 throw new python.Error('Expected type ' + this._tokenizer.location());
             }
@@ -894,7 +894,7 @@ python.Parser = class {
             if (this._tokenizer.eat('\n')) {
                 continue;
             }
-            let expression = this._parseExpression(-1, [], false);
+            const expression = this._parseExpression(-1, [], false);
             if (expression == null) {
                 throw new python.Error('Expected expression ' + this._tokenizer.location());
             }
@@ -960,7 +960,7 @@ python.Tokenizer = class {
         if (!this._cache) {
             this._token = this._tokenize(this._token);
         }
-        let next = this._position + this._token.value.length; 
+        const next = this._position + this._token.value.length; 
         while (this._position < next) {
             if (python.Tokenizer._isNewline(this._get(this._position))) {
                 this._position = this._newLine(this._position);
@@ -976,7 +976,7 @@ python.Tokenizer = class {
     }
 
     match(type, value) {
-        let token = this.peek();
+        const token = this.peek();
         if (token.type === type && (!value || token.value === value)) {
             return true;
         }
@@ -984,7 +984,7 @@ python.Tokenizer = class {
     }
 
     eat(type, value) {
-        let token = this.peek();
+        const token = this.peek();
         if (token.type === type && (!value || token.value === value)) {
             this.read();
             return true;
@@ -993,7 +993,7 @@ python.Tokenizer = class {
     }
 
     expect(type, value) {
-        let token = this.peek();
+        const token = this.peek();
         if (token.type !== type) {
             throw new python.Error("Unexpected '" + token.value + "' instead of '" + type + "'" + this.location());
         }
@@ -1047,7 +1047,7 @@ python.Tokenizer = class {
         if (c <= 'z') {
             return true;
         }
-        let code = c.charCodeAt(0);
+        const code = c.charCodeAt(0);
         if (code >= 0xAA) {
             return python.Tokenizer._identifierStart.test(c);
         }
@@ -1073,7 +1073,7 @@ python.Tokenizer = class {
         if (c <= 'z') {
             return true;
         }
-        let code = c.charCodeAt(0);
+        const code = c.charCodeAt(0);
         if (code >= 0xAA) {
             return python.Tokenizer._identifierChar.test(c);
         }
@@ -1111,7 +1111,7 @@ python.Tokenizer = class {
 
     _skipWhitespace() {
         while (this._position < this._text.length) {
-            let c = this._text[this._position];
+            const c = this._text[this._position];
             if (c == '#') {
                 this._skipLine();
             }
@@ -1223,8 +1223,8 @@ python.Tokenizer = class {
         if (this._position >= this._text.length) {
             return { type: 'eof', value: '' };
         }
-        let c = this._get(this._position);
-        let string = this._string();
+        const c = this._get(this._position);
+        const string = this._string();
         if (string) {
             return string;
         }
@@ -1256,7 +1256,7 @@ python.Tokenizer = class {
                     while (this._get(end) === '.') {
                         end++;
                     }
-                    let text = this._text.substring(this._position, end);
+                    const text = this._text.substring(this._position, end);
                     return { type: text, value: text };
                 }
                 const identifier = this._identifier();
@@ -1284,7 +1284,7 @@ python.Tokenizer = class {
 
     _number() {
         let c = this._get(this._position);
-        let sign = (c === '-' || c === '+') ? 1 : 0;
+        const sign = (c === '-' || c === '+') ? 1 : 0;
         let i = this._position + sign;
         c = this._get(i);
         if (c === '0') {
@@ -1325,11 +1325,8 @@ python.Tokenizer = class {
                 radix = 8;
             }
             if (radix > 0 && this._get(i) !== '.') {
-                let radixText = this._text.substring(this._position, i);
-                let radixParseText = radixText;
-                if (radixParseText.indexOf('_') !== -1) {
-                    radixParseText = radixParseText.split('_').join('');
-                }
+                const radixText = this._text.substring(this._position, i);
+                const radixParseText = radixText.indexOf('_') !== -1 ? radixText.split('_').join('') : radixText;
                 if (!isNaN(parseInt(radixParseText, radix))) {
                     return { type: 'number', value: radixText };
                 }
@@ -1353,7 +1350,7 @@ python.Tokenizer = class {
             if (this._get(i) === 'j' || this._get(i) === 'J' || this._get(i) === 'l' || this._get(i) === 'L') {
                 return { 'type': 'number', value: this._text.substring(this._position, i + 1) };
             }
-            let intText = this._text.substring(this._position, i);
+            const intText = this._text.substring(this._position, i);
             if (!isNaN(parseInt(intText, 10))) {
                 return { type: 'number', value: intText };
             }
@@ -1395,11 +1392,8 @@ python.Tokenizer = class {
                 if (this._get(i) === 'j' || this._get(i) === 'J') {
                     return { type: 'number', value: this._text.substring(this._position, i + 1) };
                 }
-                let floatText = this._text.substring(this._position, i);
-                let floatParseText = floatText;
-                if (floatParseText.indexOf('_') != -1) {
-                    floatParseText = floatParseText.split('_').join('');
-                }
+                const floatText = this._text.substring(this._position, i);
+                let floatParseText = floatText.indexOf('_') != -1 ? floatText.split('_').join('') : floatText;
                 if (!isNaN(parseFloat(floatParseText))) {
                     return { type: 'number', value: floatText }
                 }
@@ -1417,7 +1411,7 @@ python.Tokenizer = class {
             }
         }
         if (i > this._position) {
-            let text = this._text.substring(this._position, i);
+            const text = this._text.substring(this._position, i);
             return { type: 'id', value: text, keyword: python.Tokenizer._isKeyword(text) };
         }
         return null;
@@ -1425,9 +1419,9 @@ python.Tokenizer = class {
 
     _operator() {
         let length = 0;
-        let c0 = this._get(this._position);
-        let c1 = this._get(this._position + 1);
-        let c2 = this._get(this._position + 2);
+        const c0 = this._get(this._position);
+        const c1 = this._get(this._position + 1);
+        const c2 = this._get(this._position + 2);
         switch (c0) {
             case '+':
             case '&':
@@ -1484,7 +1478,7 @@ python.Tokenizer = class {
                 length = c1 === '=' ? 2 : 1;
         }
         if (length > 0) {
-            let text = this._text.substring(this._position, this._position + length);
+            const text = this._text.substring(this._position, this._position + length);
             return { type: text, value: text };
         }
         return null;
@@ -1523,9 +1517,9 @@ python.Tokenizer = class {
             i += prefix.length;
             let quote = '';
             let count = 0;
-            let q0 = this._get(i);
-            let q1 = this._get(i + 1);
-            let q2 = this._get(i + 2);
+            const q0 = this._get(i);
+            const q1 = this._get(i + 1);
+            const q2 = this._get(i + 2);
             switch (q0) {
                 case "'":
                     quote = q0;

@@ -41,8 +41,8 @@ host.BrowserHost = class {
     initialize(view) {
         this._view = view;
 
-        var meta = {};
-        for (var element of Array.from(document.getElementsByTagName('meta'))) {
+        let meta = {};
+        for (const element of Array.from(document.getElementsByTagName('meta'))) {
             if (element.content) {
                 meta[element.name] = meta[element.name] || [];
                 meta[element.name].push(element.content);
@@ -119,21 +119,21 @@ host.BrowserHost = class {
             return;
         }
 
-        var urlParam = this._getQueryParameter('url');
+        const urlParam = this._getQueryParameter('url');
         if (urlParam) {
             this._openModel(urlParam, this._getQueryParameter('identifier') || null);
             return;
         }
 
-        var gistParam = this._getQueryParameter('gist');
+        const gistParam = this._getQueryParameter('gist');
         if (gistParam) {
             this._openGist(gistParam);
             return;
         }
 
         this._view.show('Welcome');
-        var openFileButton = this.document.getElementById('open-file-button');
-        var openFileDialog = this.document.getElementById('open-file-dialog');
+        let openFileButton = this.document.getElementById('open-file-button');
+        let openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
             openFileButton.addEventListener('click', () => {
                 openFileDialog.value = '';
@@ -141,8 +141,8 @@ host.BrowserHost = class {
             });
             openFileDialog.addEventListener('change', (e) => {
                 if (e.target && e.target.files && e.target.files.length > 0) {
-                    var files = Array.from(e.target.files);
-                    var file = files.find((file) => this._view.accept(file.name));
+                    const files = Array.from(e.target.files);
+                    const file = files.find((file) => this._view.accept(file.name));
                     if (file) {
                         this._open(file, files);
                     }
@@ -158,8 +158,8 @@ host.BrowserHost = class {
         this.document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                var files = Array.from(e.dataTransfer.files);
-                var file = files.find((file) => this._view.accept(file.name));
+                const files = Array.from(e.dataTransfer.files);
+                const file = files.find((file) => this._view.accept(file.name));
                 if (file) {
                     this._open(file, files);
                 }
@@ -183,19 +183,19 @@ host.BrowserHost = class {
     }
 
     require(id) {
-        var url = this._url(id + '.js');
+        const url = this._url(id + '.js');
         window.__modules__ = window.__modules__ || {};
         if (window.__modules__[url]) {
             return Promise.resolve(window.__exports__[url]);
         }
         return new Promise((resolve, reject) => {
             window.module = { exports: {} };
-            var script = document.createElement('script');
+            let script = document.createElement('script');
             script.setAttribute('id', id);
             script.setAttribute('type', 'text/javascript');
             script.setAttribute('src', url);
             script.onload = () => {
-                var exports = window.module.exports;
+                let exports = window.module.exports;
                 delete window.module;
                 window.__modules__[id] = exports;
                 resolve(exports);
@@ -213,7 +213,7 @@ host.BrowserHost = class {
     }
 
     export(file, blob) {
-        var element = this.document.createElement('a');
+        let element = this.document.createElement('a');
         element.download = file;
         element.href = URL.createObjectURL(blob);
         this.document.body.appendChild(element);
@@ -223,8 +223,8 @@ host.BrowserHost = class {
 
     request(base, file, encoding) {
         return new Promise((resolve, reject) => {
-            var url = base ? (base + '/' + file) : this._url(file);
-            var request = new XMLHttpRequest();
+            const url = base ? (base + '/' + file) : this._url(file);
+            let request = new XMLHttpRequest();
             if (encoding == null) {
                 request.responseType = 'arraybuffer';
             }
@@ -255,10 +255,10 @@ host.BrowserHost = class {
 
     exception(error, fatal) {
         if (window.ga && this.version && this.version !== '0.0.0' && error && error.telemetry !== false) {
-            var description = [];
+            let description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
             if (error.stack) {
-                var match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
+                const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                 if (match) {
                     description.push(match[1] + '(' + match[2].split('/').pop() + ')');
                 }
@@ -299,9 +299,9 @@ host.BrowserHost = class {
     }
 
     _url(file) {
-        var url = file;
+        let url = file;
         if (window && window.location && window.location.href) {
-            var location = window.location.href.split('?').shift();
+            let location = window.location.href.split('?').shift();
             if (location.endsWith('.html')) {
                 location = location.split('/').slice(0, -1).join('/');
             }
@@ -314,10 +314,10 @@ host.BrowserHost = class {
     }
 
     _getQueryParameter(name) {
-        var url = window.location.href;
+        const url = window.location.href;
         name = name.replace(/[[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
-        var results = regex.exec(url);
+        const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+        const results = regex.exec(url);
         if (!results) {
             return null;
         }
@@ -329,12 +329,12 @@ host.BrowserHost = class {
 
     _openModel(url, identifier) {
         this._view.show('Spinner');
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
         request.onload = () => {
             if (request.status == 200) {
-                var buffer = new Uint8Array(request.response);
-                var context = new BrowserContext(this, url, identifier, buffer);
+                const buffer = new Uint8Array(request.response);
+                const context = new BrowserContext(this, url, identifier, buffer);
                 this._view.open(context).then(() => {
                     this.document.title = identifier || url.split('/').pop();
                 }).catch((error) => {
@@ -357,7 +357,7 @@ host.BrowserHost = class {
 
     _open(file, files) {
         this._view.show('Spinner');
-        var context = new BrowserFileContext(file, files);
+        const context = new BrowserFileContext(file, files);
         context.open().then(() => {
             return this._view.open(context).then((model) => {
                 this._view.show(null);
@@ -373,23 +373,23 @@ host.BrowserHost = class {
 
     _openGist(gist) {
         this._view.show('Spinner');
-        var url = 'https://api.github.com/gists/' + gist;
-        var request = new XMLHttpRequest();
+        const url = 'https://api.github.com/gists/' + gist;
+        let request = new XMLHttpRequest();
         request.onload = () => {
-            var identifier = null;
-            var buffer = null;
-            var json = JSON.parse(request.response);
+            let identifier = null;
+            let buffer = null;
+            const json = JSON.parse(request.response);
             if (json.message) {
                 this.error('Error while loading Gist.', json.message);
                 return;
             }
             if (json.files) {
-                for (var key of Object.keys(json.files)) {
-                    var file = json.files[key];
+                for (const key of Object.keys(json.files)) {
+                    const file = json.files[key];
                     identifier = file.filename;
-                    var extension = identifier.split('.').pop().toLowerCase();
+                    const extension = identifier.split('.').pop().toLowerCase();
                     if (extension == 'json' || extension == 'pbtxt' || extension == 'prototxt') {
-                        var encoder = new TextEncoder();
+                        const encoder = new TextEncoder();
                         buffer = encoder.encode(file.content);
                     }
                 }
@@ -398,7 +398,7 @@ host.BrowserHost = class {
                 this.error('Error while loading Gist.', 'Gist does not contain model file.');
                 return;
             }
-            var context = new BrowserContext(this, '', identifier, buffer);
+            const context = new BrowserContext(this, '', identifier, buffer);
             this._view.open(context).then(() => {
                 this.document.title = identifier;
             }).catch((error) => {
@@ -421,26 +421,29 @@ if (typeof TextDecoder === "undefined") {
         this._encoding = encoding;
     };
     TextDecoder.prototype.decode = function decode(buffer) {
-        var result = '';
-        var length = buffer.length;
-        var i = 0;
+        let result = '';
+        const length = buffer.length;
+        let i = 0;
         switch (this._encoding) {
             case 'utf-8':
                 while (i < length) {
-                    var c = buffer[i++];
+                    const c = buffer[i++];
                     switch(c >> 4) {
-                        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+                        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: {
                             result += String.fromCharCode(c);
                             break;
-                        case 12: case 13:
-                            c2 = buffer[i++];
+                        }
+                        case 12: case 13: {
+                            const c2 = buffer[i++];
                             result += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
                             break;
-                        case 14:
-                            var c2 = buffer[i++];
-                            var c3 = buffer[i++];
+                        }
+                        case 14: {
+                            const c2 = buffer[i++];
+                            const c3 = buffer[i++];
                             result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
                             break;
+                        }
                     }
                 }
                 break;
@@ -459,9 +462,10 @@ if (typeof TextEncoder === "undefined") {
     };
     TextEncoder.prototype.encode = function encode(str) {
         "use strict";
-        var length = str.length, resPos = -1;
-        var resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
-        for (var point = 0, nextcode = 0, i = 0; i !== length; ) {
+        const length = str.length
+        let resPos = -1;
+        let resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
+        for (let point = 0, nextcode = 0, i = 0; i !== length; ) {
             point = str.charCodeAt(i);
             i += 1;
             if (point >= 0xD800 && point <= 0xDBFF) {
@@ -531,12 +535,12 @@ if (typeof TextEncoder === "undefined") {
 
 if (!HTMLCanvasElement.prototype.toBlob) {
     HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
-        var canvas = this;
+        const canvas = this;
         setTimeout(function() {
-            var data = atob(canvas.toDataURL(type, quality).split(',')[1]);
-            var length = data.length;
-            var buffer = new Uint8Array(length);
-            for (var i = 0; i < length; i++) {
+            const data = atob(canvas.toDataURL(type, quality).split(',')[1]);
+            const length = data.length;
+            const buffer = new Uint8Array(length);
+            for (let i = 0; i < length; i++) {
                 buffer[i] = data.charCodeAt(i);
             }
             callback(new Blob([ buffer ], { type: type || 'image/png' }));
@@ -554,7 +558,7 @@ host.Dropdown = class {
         this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
         this._acceleratorMap = {}; 
         window.addEventListener('keydown', (e) => {
-            var code = e.keyCode;
+            let code = e.keyCode;
             code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0; 
             code |= e.altKey ? 0x0200 : 0;
             code |= e.shiftKey ? 0x0100 : 0;
@@ -562,7 +566,7 @@ host.Dropdown = class {
                 this.close();
                 return;
             }
-            var item = this._acceleratorMap[code.toString()];
+            const item = this._acceleratorMap[code.toString()];
             if (item) {
                 item.click();
                 e.preventDefault();
@@ -576,13 +580,13 @@ host.Dropdown = class {
     }
 
     add(item) {
-        var accelerator = item.accelerator;
+        const accelerator = item.accelerator;
         if (accelerator) {
-            var cmdOrCtrl = false;
-            var alt = false;
-            var shift = false;
-            var key = '';
-            for (var part of item.accelerator.split('+')) {
+            let cmdOrCtrl = false;
+            let alt = false;
+            let shift = false;
+            let key = '';
+            for (const part of item.accelerator.split('+')) {
                 switch (part) {
                     case 'CmdOrCtrl': cmdOrCtrl = true; break;
                     case 'Alt': alt = true; break;
@@ -597,11 +601,11 @@ host.Dropdown = class {
                     item.accelerator.text += alt ? '&#x2325;' : '';
                     item.accelerator.text += shift ? '&#x21e7;' : '';
                     item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
-                    var keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
+                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
                     item.accelerator.text += keyTable[key] ? keyTable[key] : key;
                 }
                 else {
-                    var list = [];
+                    let list = [];
                     if (cmdOrCtrl) {
                         list.push('Ctrl');
                     }
@@ -614,7 +618,7 @@ host.Dropdown = class {
                     list.push(key);
                     item.accelerator.text = list.join('+');
                 }
-                var code = 0;
+                let code = 0;
                 switch (key) {
                     case 'Backspace': code = 0x08; break;
                     case 'Enter': code = 0x0D; break;
@@ -642,22 +646,22 @@ host.Dropdown = class {
             this._dropdown.removeChild(this._dropdown.lastChild);
         }
 
-        for (var item of this._items) {
+        for (const item of this._items) {
             if (Object.keys(item).length > 0) {
-                var button = this._document.createElement('button');
+                let button = this._document.createElement('button');
                 button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
                 button.addEventListener('click', item.click);
                 button.addEventListener('click', () => this.close());
                 this._dropdown.appendChild(button);
                 if (item.accelerator) {
-                    var accelerator = this._document.createElement('span');
+                    let accelerator = this._document.createElement('span');
                     accelerator.style.float = 'right';
                     accelerator.innerHTML = item.accelerator.text;
                     button.appendChild(accelerator);
                 }
             }
             else {
-                var separator = this._document.createElement('div');
+                let separator = this._document.createElement('div');
                 separator.setAttribute('class', 'separator');
                 this._dropdown.appendChild(separator);
             }
@@ -677,7 +681,7 @@ class BrowserFileContext {
     constructor(file, blobs) {
         this._file = file;
         this._blobs = {};
-        for (var blob of blobs) {
+        for (const blob of blobs) {
             this._blobs[blob.name] = blob;
         }
     }
@@ -697,18 +701,18 @@ class BrowserFileContext {
     }
 
     request(file, encoding) {
-        var blob = this._blobs[file];
+        const blob = this._blobs[file];
         if (!blob) {
             return Promise.reject(new Error("File not found '" + file + "'."));
         }
         return new Promise((resolve, reject) => {
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.onload = (e) => {
                 resolve(encoding ? e.target.result : new Uint8Array(e.target.result));
             };
             reader.onerror = (e) => {
                 e = e || window.event;
-                var message = '';
+                let message = '';
                 switch(e.target.error.code) {
                     case e.target.error.NOT_FOUND_ERR:
                         message = "File not found '" + file + "'.";
