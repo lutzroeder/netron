@@ -9723,6 +9723,13 @@
           "description": "scalar, dimension of the logits",
           "name": "logits_dimension",
           "type": "int64"
+        },
+        {
+          "default": 1,
+          "description": "Number of groups of split information to process, where a group contains feature\nids that are processed together in BoostedTreesCalculateBestFeatureSplitOpV2.\nINFERRED.",
+          "minimum": 1,
+          "name": "num_groups",
+          "type": "int64"
         }
       ],
       "description": "or by starting a new tree.",
@@ -9735,6 +9742,7 @@
         {
           "description": "Rank 1 tensor with ids for each feature. This is the real id of\nthe feature that will be used in the split.",
           "name": "feature_ids",
+          "numberAttr": "num_groups",
           "type": 3
         },
         {
