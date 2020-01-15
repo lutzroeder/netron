@@ -230,6 +230,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.MaxAbsScaler'] = function() {};
                 constructorTable['sklearn.preprocessing.data.MinMaxScaler'] = function() {};
+                constructorTable['sklearn.preprocessing.data.Normalizer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.OneHotEncoder'] = function() {};
                 constructorTable['sklearn.preprocessing.data.PowerTransformer'] = function() {};
                 constructorTable['sklearn.preprocessing.data.RobustScaler'] = function() {};
