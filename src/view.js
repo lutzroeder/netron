@@ -386,7 +386,7 @@ view.View = class {
                 this.show('Graph');
                 return this._model;
             }).catch((error) => {
-                this.renderGraph(this._activeGraph).then(() => {
+                return this.renderGraph(this._activeGraph).then(() => {
                     this.show('Graph');
                     throw error;
                 }).catch(() => {
