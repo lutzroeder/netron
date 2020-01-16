@@ -1,5 +1,5 @@
 
-<p align='center'><a href='https://github.com/lutzroeder/netron'><img width='400' src='media/logo.png'/></a></p>
+<p align='center'><a href='https://github.com/lutzroeder/netron'><img width='400' src='.github/logo.png'/></a></p>
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
@@ -7,7 +7,7 @@ Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`)
 
 Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **Arm NN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer**, (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **Darknet** (`.cfg`), **ML.NET** (`.zip`), **MNN** (`.mnn`), **OpenVINO** (`.xml`), **PaddlePaddle** (`.zip`, `__model__`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`).
 
-<p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
+<p align='center'><a href='https://www.lutzroeder.com/ai'><img src='.github/screenshot.png' width='800'></a></p>
 
 ## Install
 
