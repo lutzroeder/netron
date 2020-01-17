@@ -2015,10 +2015,10 @@
   },
   {
     "type":   "darknet",
-    "target": "yolov3-tiny_occlusion_track.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov3-tiny_occlusion_track.cfg?raw=true",
+    "target": "yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/4074756/yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg.zip[yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg]",
     "format": "Darknet",
-    "link":   "https://github.com/AlexeyAB/darknet"
+    "link":   "https://github.com/lutzroeder/netron/issues/410"
   },
   {
     "type":   "darknet",

@@ -198,17 +198,25 @@ darknet.Graph = class {
             layer.outputs = [ new darknet.Argument(i.toString(), null, null) ];
             layer.weights = [];
             switch (section.type) {
-                case 'shortcut':
+                case 'shortcut': {
+                    const from = options.from ? options.from.split(',').map((item) => Number.parseInt(item.trim(), 10)) : [];
+                    for (let index of from) {
+                        index = (index < 0) ? i + index : index;
+                        const item = sections[index].layer;
+                        if (item) {
+                            layer.inputs.push(item.outputs[0]);
+                        }
+                    }
+                    delete options.from;
+                    break;
+                }
                 case 'sam':
                 case 'scale_channels': {
                     let index = option_find_int(options, 'from', 0);
-                    if (index < 0) {
-                        index = i + index;
-                    }
-                    const from = sections[index].layer;
-                    if (from) {
-                        layer.inputs.push(from.outputs[0]);
-                        layer.from = from;
+                    index = (index < 0) ? i + index : index;
+                    const item = sections[index].layer;
+                    if (item) {
+                        layer.inputs.push(item.outputs[0]);
                     }
                     delete options.from;
                     break;
@@ -562,14 +570,6 @@ darknet.Graph = class {
                         layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out ]));
                         break;
                     }
-                    case 'sam': {
-                        const activation = option_find_str(options, 'activation', 'linear');
-                        if (activation !== 'linear') {
-                            section.chain.push({ type: activation });
-                        }
-                        infer = false;
-                        break;
-                    }
                     case 'route': {
                         let layers = [].concat(layer.layers);
                         layer.out = 0;
@@ -594,19 +594,9 @@ darknet.Graph = class {
                         layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
                         break;
                     }
-                    case 'shortcut': {
-                        const activation = option_find_str(options, 'activation', 'linear');
-                        layer.out_w = params.w;
-                        layer.out_h = params.h;
-                        layer.out_c = params.c;
-                        layer.out = params.w * params.h * params.c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ params.w, params.h, params.c ]));
-                        if (activation !== 'linear') {
-                            section.chain.push({ type: activation });
-                        }
-                        break;
-                    }
-                    case 'scale_channels': {
+                    case 'shortcut':
+                    case 'scale_channels':
+                    case 'sam': {
                         const activation = option_find_str(options, 'activation', 'linear');
                         layer.out_w = params.w;
                         layer.out_h = params.h;
