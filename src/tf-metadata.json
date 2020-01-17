@@ -69960,7 +69960,7 @@
           "type": "string"
         }
       ],
-      "description": "Converts each string in the input Tensor to lowercase.",
+      "description": "Example:\n>>> tf.strings.lower(\"CamelCase string and ALL CAPS\")\n<tf.Tensor: shape=(), dtype=string, numpy=b'camelcase string and all caps'>",
       "inputs": [
         {
           "name": "input",
@@ -69972,7 +69972,8 @@
           "name": "output",
           "type": 7
         }
-      ]
+      ],
+      "summary": "Converts all uppercase characters into their respective lowercase replacements."
     }
   },
   {
@@ -70311,7 +70312,7 @@
           "type": "string"
         }
       ],
-      "description": "Converts each string in the input Tensor to uppercase.",
+      "description": "Example:\n>>> tf.strings.upper(\"CamelCase string and ALL CAPS\")\n<tf.Tensor: shape=(), dtype=string, numpy=b'CAMELCASE STRING AND ALL CAPS'>",
       "inputs": [
         {
           "name": "input",
@@ -70323,7 +70324,8 @@
           "name": "output",
           "type": 7
         }
-      ]
+      ],
+      "summary": "Converts all lowercase characters into their respective uppercase replacements."
     }
   },
   {
