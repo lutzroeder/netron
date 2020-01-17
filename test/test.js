@@ -150,6 +150,10 @@ class HTMLDocument {
         this.body = new HTMLBodyElement();
     }
 
+    createElement(/* name */) {
+        return new HTMLHtmlElement();
+    }
+
     createElementNS(/* namespace, name */) {
         return new HTMLHtmlElement();
     }
@@ -201,6 +205,10 @@ class HTMLHtmlElement {
 
     removeEventListener(/* event, callback */) {
     }
+
+    get classList() {
+        return new DOMTokenList();
+    }
 }
 
 class HTMLBodyElement {
@@ -221,6 +229,12 @@ class CSSStyleDeclaration {
 
     setProperty(name, value) {
         this._properties[name] = value;
+    }
+}
+
+class DOMTokenList {
+
+    add(/* token1 */) {
     }
 }
 
@@ -529,6 +543,7 @@ function loadModel(target, item) {
                         chain.name.length;
                     }
                 }
+                // new sidebar.NodeSidebar(host, node);
             }
         }
         if (exceptions.length > 0) {
