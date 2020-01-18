@@ -2180,7 +2180,7 @@
           "name": "W"
         },
         {
-          "description": "The bias traiend from Softmax Ops",
+          "description": "The bias trained from Softmax Ops",
           "name": "b"
         }
       ],
@@ -2391,7 +2391,7 @@
   {
     "name": "BatchBucketize",
     "schema": {
-      "description": "\nBucketize the float_features into sparse features.\nThe float_features is a N * D tensor where N is the batch_size, and D is the feature_dim.\nThe indices is a 1D tensor containing the indices of the features that need to be bucketized.\nThe lengths is a 1D tensor that splits the following 'boundaries' argument.\nThe boundaries is a 1D tensor containing the border list for each feature.\n\nWith in each batch, `indices` should not have duplicate number,\nand the number of elements in `indices` should be less than or euqal to `D`.\nEach element in `lengths` vector (lengths[`i`]) represents\nthe number of boundaries in the sub border list.\nThe sum of all elements in `lengths` must be equal to the size of  `boundaries`.\nIf lengths[0] = 2, the first sub border list is [0.5, 1.0], which separate the\nvalue to (-inf, 0.5], (0,5, 1.0], (1.0, inf). The bucketized feature will have\nthree possible values (i.e. 0, 1, 2).\n\n\nFor example, with input:\n\n  float_features = [[1.42, 2.07, 3.19, 0.55, 4.32],\n                    [4.57, 2.30, 0.84, 4.48, 3.09],\n                    [0.89, 0.26, 2.41, 0.47, 1.05],\n                    [0.03, 2.97, 2.43, 4.36, 3.11],\n                    [2.74, 5.77, 0.90, 2.63, 0.38]]\n  indices = [0, 1, 4]\n  lengths = [2, 3, 1]\n  boundaries =  [0.5, 1.0, 1.5, 2.5, 3.5, 2.5]\n\nThe output is:\n\n  output =[[2, 1, 1],\n           [2, 1, 1],\n           [1, 0, 0],\n           [0, 2, 1],\n           [2, 3, 0]]\n\nafter running this operator.\n",
+      "description": "\nBucketize the float_features into sparse features.\nThe float_features is a N * D tensor where N is the batch_size, and D is the feature_dim.\nThe indices is a 1D tensor containing the indices of the features that need to be bucketized.\nThe lengths is a 1D tensor that splits the following 'boundaries' argument.\nThe boundaries is a 1D tensor containing the border list for each feature.\n\nWith in each batch, `indices` should not have duplicate number,\nand the number of elements in `indices` should be less than or equal to `D`.\nEach element in `lengths` vector (lengths[`i`]) represents\nthe number of boundaries in the sub border list.\nThe sum of all elements in `lengths` must be equal to the size of  `boundaries`.\nIf lengths[0] = 2, the first sub border list is [0.5, 1.0], which separate the\nvalue to (-inf, 0.5], (0,5, 1.0], (1.0, inf). The bucketized feature will have\nthree possible values (i.e. 0, 1, 2).\n\n\nFor example, with input:\n\n  float_features = [[1.42, 2.07, 3.19, 0.55, 4.32],\n                    [4.57, 2.30, 0.84, 4.48, 3.09],\n                    [0.89, 0.26, 2.41, 0.47, 1.05],\n                    [0.03, 2.97, 2.43, 4.36, 3.11],\n                    [2.74, 5.77, 0.90, 2.63, 0.38]]\n  indices = [0, 1, 4]\n  lengths = [2, 3, 1]\n  boundaries =  [0.5, 1.0, 1.5, 2.5, 3.5, 2.5]\n\nThe output is:\n\n  output =[[2, 1, 1],\n           [2, 1, 1],\n           [1, 0, 0],\n           [0, 2, 1],\n           [2, 3, 0]]\n\nafter running this operator.\n",
       "inputs": [
         {
           "description": "2-D dense tensor, the second dimension must be greater or equal to the indices dimension",
@@ -4407,7 +4407,7 @@
   {
     "name": "SwapBestPath",
     "schema": {
-      "description": "\nGiven a sequence of idices and a matrix, enforce that these indices have the\nbest columnwise scores\nscore\n",
+      "description": "\nGiven a sequence of indices and a matrix, enforce that these indices have the\nbest columnwise scores\nscore\n",
       "inputs": [
         {
           "description": "N*D predictions matrix",
@@ -5470,7 +5470,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A bool variable to control whether to use max norm     or constant norm. When use_max_norm = false, constant norm is used so that     all the embedding vectors are scaled to have a L2 norm equals to A     (see blow arugment norm=A). If use_max_norm = true,     max norm is used so that embedding is scaled so that its l2 norm is no larger     than A. If an embedding's norm is less than A originally,     the embedding is left unchanged.    The default is True.",
+          "description": "A bool variable to control whether to use max norm     or constant norm. When use_max_norm = false, constant norm is used so that     all the embedding vectors are scaled to have a L2 norm equals to A     (see blow argument norm=A). If use_max_norm = true,     max norm is used so that embedding is scaled so that its l2 norm is no larger     than A. If an embedding's norm is less than A originally,     the embedding is left unchanged.    The default is True.",
           "name": "use_max_norm",
           "option": "optional"
         },
@@ -6081,7 +6081,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "How many bits to quantiz per data (defaults to 8).",
+          "description": "How many bits to quantize per data (defaults to 8).",
           "name": "bitwidth",
           "option": "optional"
         },
@@ -6247,7 +6247,7 @@
           "name": "OBJECT_ID"
         },
         {
-          "description": "(Optional) Auxillary bookkeeping map. This should be created from  `CreateMap` with keys of type int64 and values of type int32",
+          "description": "(Optional) Auxiliary bookkeeping map. This should be created from  `CreateMap` with keys of type int64 and values of type int32",
           "name": "OBJECT_TO_POS_MAP_IN"
         },
         {
@@ -6387,7 +6387,7 @@
           "option": "optional"
         }
       ],
-      "description": "\n    This operator is to map raw feature values into the percentile\n    representations based on Bisection for more than one feature.\n\n    The input is the bath of input feature values, with the size of (batch_size,\n    num_feature), where num_feature = F (F >= 1).\n\n    For each feature, we also need additional information regarding the feature\n    value distribution.\n    There are several vectors to keep data to percentile mappping information\n    as arguments (context):\n    1. feature raw values (R)\n    2. feature percentile mapping (P)\n    3. feature percentile lower bound (L)\n    4. feature percentile upper bound (U)\n\n    A toy example:\n    Suppose the sampled data distribution is as follows:\n    1, 1, 2, 2, 2, 2, 2, 2, 3, 4\n    We have the mapping vectors as follows:\n    R = [1, 2, 3, 4]\n    P = [0.15, 0.55, 0.9, 1.0]\n    L = [0.1, 0.3, 0.9, 1.0]\n    U = [0.2, 0.8, 0.9, 1.0]\n    Where P is computed as (L + U) / 2.\n\n    For a given list of feature values, X = [x_0, x_1, ..., x_i, ...], for each\n    feature value (x_i) we first apply bisection to find the right index (t),\n    such that R[t] <= x_i < R[t+1].\n    If x_i = R[t], P[t] is returned;\n    otherwise, the interpolation is apply by (R[t], R[t+1]) and (U[t] and L[t]).\n\n    As there are F features (F >= 1), we concate all the R_f, P_f, L_f, and\n    U_f for each feature f and use an additional input length to keep track of\n    the number of points for each set of raw feature value to percentile mapping.\n    For example, there are two features:\n    R_1 =[0.1, 0.4, 0.5];\n    R_2 = [0.3, 1.2];\n    We will build R = [0.1, 0.4, 0.5, 0.3, 1.2]; besides, we have\n    lengths = [3, 2]\n    to indicate the boundries of the percentile information.\n\n",
+      "description": "\n    This operator is to map raw feature values into the percentile\n    representations based on Bisection for more than one feature.\n\n    The input is the bath of input feature values, with the size of (batch_size,\n    num_feature), where num_feature = F (F >= 1).\n\n    For each feature, we also need additional information regarding the feature\n    value distribution.\n    There are several vectors to keep data to percentile mappping information\n    as arguments (context):\n    1. feature raw values (R)\n    2. feature percentile mapping (P)\n    3. feature percentile lower bound (L)\n    4. feature percentile upper bound (U)\n\n    A toy example:\n    Suppose the sampled data distribution is as follows:\n    1, 1, 2, 2, 2, 2, 2, 2, 3, 4\n    We have the mapping vectors as follows:\n    R = [1, 2, 3, 4]\n    P = [0.15, 0.55, 0.9, 1.0]\n    L = [0.1, 0.3, 0.9, 1.0]\n    U = [0.2, 0.8, 0.9, 1.0]\n    Where P is computed as (L + U) / 2.\n\n    For a given list of feature values, X = [x_0, x_1, ..., x_i, ...], for each\n    feature value (x_i) we first apply bisection to find the right index (t),\n    such that R[t] <= x_i < R[t+1].\n    If x_i = R[t], P[t] is returned;\n    otherwise, the interpolation is apply by (R[t], R[t+1]) and (U[t] and L[t]).\n\n    As there are F features (F >= 1), we concate all the R_f, P_f, L_f, and\n    U_f for each feature f and use an additional input length to keep track of\n    the number of points for each set of raw feature value to percentile mapping.\n    For example, there are two features:\n    R_1 =[0.1, 0.4, 0.5];\n    R_2 = [0.3, 1.2];\n    We will build R = [0.1, 0.4, 0.5, 0.3, 1.2]; besides, we have\n    lengths = [3, 2]\n    to indicate the boundaries of the percentile information.\n\n",
       "inputs": [
         {
           "description": "Input 2D tensor of floats of size (N, D), where N is the batch size and D is the feature dimension.",
@@ -9053,7 +9053,7 @@
           "option": "optional"
         }
       ],
-      "description": "\nBatch Matrix multiplication Yi = Ai * Bi, where A has shape (dim0, dim1, ... M, K),\nB has shape (dim0, dim1, ... K, N), Y has shape (dim0, dim1, ... M, N) and i ranges\nfrom 0 to (dim0 * dim1 ...) - 1. rank(A) == rank(B) >= 2. In case of A and B being\ntwo diemnsional, it behaves like normal matrix multiplication.\n",
+      "description": "\nBatch Matrix multiplication Yi = Ai * Bi, where A has shape (dim0, dim1, ... M, K),\nB has shape (dim0, dim1, ... K, N), Y has shape (dim0, dim1, ... M, N) and i ranges\nfrom 0 to (dim0 * dim1 ...) - 1. rank(A) == rank(B) >= 2. In case of A and B being\ntwo dimensional, it behaves like normal matrix multiplication.\n",
       "inputs": [
         {
           "description": "tensor of shape (dim0, dim1 ... M, K)",
@@ -9739,7 +9739,7 @@
           "name": "val"
         },
         {
-          "description": "An optional additional threshold to scale the orignal threshold",
+          "description": "An optional additional threshold to scale the original threshold",
           "name": "additional_threshold"
         }
       ],
@@ -10289,7 +10289,7 @@
   {
     "name": "StumpFuncIndex",
     "schema": {
-      "description": "\nSplit the elemnts and return the indices based on the given threshold.\n",
+      "description": "\nSplit the elements and return the indices based on the given threshold.\n",
       "inputs": [
         {
           "description": "tensor of float",
@@ -17187,6 +17187,37 @@
         {
           "description": "Float32 data",
           "name": "float_output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "AtomicFetchAdd64",
+    "schema": {
+      "description": "\nLike, AtomicFetchAdd but with int64_t scalar tensors,\nperforms an atomic fetch add\nby mutating the first argument and adding it to the second input\nargument. Returns the updated integer and the value prior to the update.\n",
+      "inputs": [
+        {
+          "description": "Blob containing to a unique_ptr<mutex>",
+          "name": "mutex_ptr"
+        },
+        {
+          "description": "Value to be mutated after the sum.",
+          "name": "mut_value"
+        },
+        {
+          "description": "Value to add to the first operand.",
+          "name": "increment"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Mutated value after sum. Usually same as input 1.",
+          "name": "mut_value"
+        },
+        {
+          "description": "Value of the first operand before sum.",
+          "name": "fetched_value"
         }
       ],
       "support_level": "default"
