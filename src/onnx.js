@@ -314,7 +314,7 @@ onnx.Graph = class {
             }
             for (const node of nodes) {
                 let inputs = [];
-                const schema = metadata.getSchema(node.op_type);
+                const schema = metadata.type(node.op_type);
                 if (node.input && node.input.length > 0) {
                     let inputIndex = 0;
                     if (schema && schema.inputs) {
@@ -488,7 +488,7 @@ onnx.Node = class {
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.type(this._operator);
         if (schema) {
             const options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
             schema = JSON.parse(JSON.stringify(schema));
@@ -543,7 +543,7 @@ onnx.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.type(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -615,7 +615,7 @@ onnx.Attribute = class {
             this._value = new onnx.Graph(metadata, imageFormat, attribute.g);
         }
 
-        let attributeSchema = metadata.getAttributeSchema(operator, attribute.name);
+        let attributeSchema = metadata.attribute(operator, attribute.name);
 
         if (!this._type) {
             if (Object.prototype.hasOwnProperty.call(attribute, 'type')) {
@@ -1148,10 +1148,10 @@ onnx.GraphMetadata = class {
         this._imports = imports;
     }
 
-    getSchema(operator) {
+    type(operator) {
         let schema = this._cache[operator];
         if (!schema) {
-            schema = this._metadata.getSchema(operator, this._imports);
+            schema = this._metadata.type(operator, this._imports);
             if (schema) {
                 this._cache[operator] = schema;
             }
@@ -1159,11 +1159,11 @@ onnx.GraphMetadata = class {
         return schema;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
@@ -1206,7 +1206,7 @@ onnx.Metadata = class {
         }
     }
 
-    getSchema(operator, imports) {
+    type(operator, imports) {
         let result = null;
         let schemas = this._map[operator];
         if (schemas) {
