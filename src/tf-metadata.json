@@ -69960,7 +69960,7 @@
           "type": "string"
         }
       ],
-      "description": "Example:\n>>> tf.strings.lower(\"CamelCase string and ALL CAPS\")\n<tf.Tensor: shape=(), dtype=string, numpy=b'camelcase string and all caps'>",
+      "description": "Example:\n\n>>> tf.strings.lower(\"CamelCase string and ALL CAPS\")\n<tf.Tensor: shape=(), dtype=string, numpy=b'camelcase string and all caps'>\n",
       "inputs": [
         {
           "name": "input",
@@ -70312,7 +70312,7 @@
           "type": "string"
         }
       ],
-      "description": "Example:\n>>> tf.strings.upper(\"CamelCase string and ALL CAPS\")\n<tf.Tensor: shape=(), dtype=string, numpy=b'CAMELCASE STRING AND ALL CAPS'>",
+      "description": "Example:\n\n>>> tf.strings.upper(\"CamelCase string and ALL CAPS\")\n<tf.Tensor: shape=(), dtype=string, numpy=b'CAMELCASE STRING AND ALL CAPS'>\n",
       "inputs": [
         {
           "name": "input",
