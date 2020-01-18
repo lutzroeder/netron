@@ -246,8 +246,7 @@ torch.Node = class {
         else {
             this._name = this._group ? (this._group + ':' + name) : name;
         }
-        const type = module.__type__;
-        this._operator = type ? type.split('.').pop() : 'Unknown';
+        this._type = module.__type__ || 'nn.Module';
         let initializers = [];
         for (const key of Object.keys(module)) {
             const obj = module[key];
@@ -278,7 +277,7 @@ torch.Node = class {
         delete module.tmp_in;
         delete module.tmp_out;
         delete module.accUpdateGradParameters;
-        switch (type) {
+        switch (this._type) {
             case 'nn.Linear':
                 delete module.addBuffer;
                 break;
@@ -364,7 +363,7 @@ torch.Node = class {
                 if (key == 'modules' || (obj.__type__ && obj.__type__ != 'Function')) {
                     continue;
                 }
-                this._attributes.push(new torch.Attribute(this._metadata, this._operator, key, obj));
+                this._attributes.push(new torch.Attribute(this._metadata, this._type, key, obj));
             }
         }
         this._inputs = [];
@@ -399,7 +398,7 @@ torch.Node = class {
     }
 
     get operator() {
-        return this._operator;
+        return this._type;
     }
 
     get group() {
@@ -407,7 +406,7 @@ torch.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.type(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -452,13 +451,13 @@ torch.Node = class {
 
 torch.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(metadata, type, name, value) {
         this._name = name;
         this._value = value;
         if (name == 'train') {
             this._visible = false;
         }
-        const schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.attribute(type, name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible')) {
                 this._visible = schema.visible;
@@ -649,15 +648,15 @@ torch.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;

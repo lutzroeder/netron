@@ -1,18 +1,18 @@
 [
   {
-    "name": "Linear",
+    "name": "nn.Linear",
     "schema": {
       "category": "Layer"
     }
   },
   {
-    "name": "LinearNoBias",
+    "name": "nn.LinearNoBias",
     "schema": {
       "category": "Layer"
     }
   },
   {
-    "name": "SpatialConvolution",
+    "name": "nn.SpatialConvolution",
     "schema": {
       "category": "Layer",
       "attributes": [
@@ -35,13 +35,36 @@
     }
   },
   {
-    "name": "VolumetricConvolution",
+    "name": "cudnn.SpatialConvolution",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "benchmarked", "visible": false },
+        { "name": "input_offset", "visible": false },
+        { "name": "output_offset", "visible": false },
+        { "name": "weight_offset", "visible": false },
+        { "name": "groups", "default": 1 },
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "padding", "default": 0 },
+        { "name": "nInputPlane", "visible": false },
+        { "name": "nOutputPlane", "visible": false },
+        { "name": "convDescData", "visible": false },
+        { "name": "autotunerHash", "visible": false },
+        { "name": "fmode", "visible": false },
+        { "name": "bwmode", "visible": false },
+        { "name": "bdmode", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "nn.VolumetricConvolution",
     "schema": {
       "category": "Layer"
     }
   },
   {
-    "name": "SpatialConvolutionMM",
+    "name": "nn.SpatialConvolutionMM",
     "schema": {
       "category": "Layer",
       "attributes": [
@@ -55,7 +78,7 @@
     }
   },
   {
-    "name": "SpatialFullConvolution",
+    "name": "nn.SpatialFullConvolution",
     "schema": {
       "category": "Layer",
       "attributes": [
@@ -74,7 +97,26 @@
     }
   },
   {
-    "name": "SpatialDilatedConvolution",
+    "name": "cudnn.SpatialFullConvolution",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "groups", "default": 1 },
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "dilation", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "convDescData", "visible": false },
+        { "name": "autotunerHash", "visible": false },
+        { "name": "nInputPlane", "visible": false },
+        { "name": "nOutputPlane", "visible": false },
+        { "name": "input_offset", "visible": false },
+        { "name": "output_offset", "visible": false },
+        { "name": "weight_offset", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "nn.SpatialDilatedConvolution",
     "schema": {
       "category": "Layer",
       "attributes": [
@@ -87,13 +129,13 @@
     }
   },
   {
-    "name": "SpatialSubtractiveNormalization",
+    "name": "nn.SpatialSubtractiveNormalization",
     "schema": {
       "category": "Normalization"
     }
   },
   {
-    "name": "InstanceNormalization",
+    "name": "nn.InstanceNormalization",
     "schema": {
       "category": "Normalization",
       "attributes": [
@@ -106,7 +148,7 @@
     }
   },
   {
-    "name": "BatchNormalization",
+    "name": "nn.BatchNormalization",
     "schema": {
       "category": "Normalization",
       "attributes": [
@@ -117,7 +159,18 @@
     }
   },
   {
-    "name": "SpatialBatchNormalization",
+    "name": "cudnn.BatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "affine", "default": true },
+        { "name": "momentum", "default": 0.1 },
+        { "name": "eps", "default": 0.00001 }
+      ]
+    }
+  },
+  {
+    "name": "nn.SpatialBatchNormalization",
     "schema": {
       "category": "Normalization",
       "attributes": [
@@ -131,7 +184,21 @@
     }
   },
   {
-    "name": "VolumetricBatchNormalization",
+    "name": "cudnn.SpatialBatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        { "name": "affine", "default": true },
+        { "name": "momentum", "default": 0.1 },
+        { "name": "eps", "default": 0.00001 },
+        { "name": "mode", "default": "CUDNN_BATCHNORM_SPATIAL" },
+        { "name": "nDim", "default": 4 },
+        { "name": "__shareGradInputKey", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "nn.VolumetricBatchNormalization",
     "schema": {
       "category": "Normalization",
       "attributes": [
@@ -142,7 +209,7 @@
     }
   },
   {
-    "name": "SpatialAveragePooling",
+    "name": "nn.SpatialAveragePooling",
     "schema": {
       "category": "Pool",
       "attributes": [ 
@@ -155,13 +222,26 @@
     }
   },
   {
-    "name": "VolumetricAveragePooling",
+    "name": "cudnn.SpatialAveragePooling",
+    "schema": {
+      "category": "Pool",
+      "attributes": [ 
+        { "name": "ceil_mode", "default": false },
+        { "name": "mode", "default": "CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING" },
+        { "name": "d", "default": [ 1, 1 ] },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "count_include_pad", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "nn.VolumetricAveragePooling",
     "schema": {
       "category": "Pool"
     }
   },
   {
-    "name": "SpatialMaxPooling",
+    "name": "nn.SpatialMaxPooling",
     "schema": {
       "category": "Pool",
       "attributes": [ 
@@ -174,7 +254,33 @@
     }
   },
   {
-    "name": "VolumetricMaxPooling",
+    "name": "cudnn.SpatialMaxPooling",
+    "schema": {
+      "category": "Pool",
+      "attributes": [ 
+        { "name": "ceil_mode", "default": false },
+        { "name": "mode", "default": "CUDNN_POOLING_MAX" },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "iheight", "visible": false },
+        { "name": "iwidth", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "inn.SpatialMaxPooling",
+    "schema": {
+      "category": "Pool",
+      "attributes": [ 
+        { "name": "ceil_mode", "default": false },
+        { "name": "mode", "default": "CUDNN_POOLING_MAX" },
+        { "name": "pad", "default": [ 0, 0 ] },
+        { "name": "iheight", "visible": false },
+        { "name": "iwidth", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "nn.VolumetricMaxPooling",
     "schema": {
       "category": "Pool",
       "attributes": [ 
@@ -183,13 +289,13 @@
     }
   },
   {
-    "name": "SpatialFractionalMaxPooling",
+    "name": "nn.SpatialFractionalMaxPooling",
     "schema": {
       "category": "Pool"
     }
   },
   {
-    "name": "SpatialZeroPadding",
+    "name": "nn.SpatialZeroPadding",
     "schema": {
       "category": "Tensor",
       "attributes": [ 
@@ -197,7 +303,7 @@
     }
   },
   {
-    "name": "SpatialReflectionPadding",
+    "name": "nn.SpatialReflectionPadding",
     "schema": {
       "category": "Tensor",
       "attributes": [ 
@@ -205,7 +311,7 @@
     }
   },
   {
-    "name": "SpatialReplicationPadding",
+    "name": "nn.SpatialReplicationPadding",
     "schema": {
       "category": "Tensor",
       "attributes": [ 
@@ -213,7 +319,7 @@
     }
   },
   {
-    "name": "Concat",
+    "name": "nn.Concat",
     "schema": {
       "category": "Tensor",
       "attributes": [
@@ -222,13 +328,13 @@
     }
   },
   {
-    "name": "PReLU",
+    "name": "nn.PReLU",
     "schema": {
       "category": "Activation"
     }
   },
   {
-    "name": "ReLU",
+    "name": "nn.ReLU",
     "schema": {
       "category": "Activation",
       "attributes": [
@@ -241,19 +347,38 @@
     }
   },
   {
-    "name": "SoftMax",
+    "name": "cudnn.ReLU",
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        { "name": "threshold", "default": 0 },
+        { "name": "val", "default": 0 },
+        { "name": "inplace", "default": false, "visible": false },
+        { "name": "mode", "default": "CUDNN_ACTIVATION_RELU" },
+        { "name": "nElem", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "nn.SoftMax",
     "schema": {
       "category": "Activation"
     }
   },
   {
-    "name": "LogSoftMax",
+    "name": "nn.LogSoftMax",
     "schema": {
       "category": "Activation"
     }
   },
   {
-    "name": "Tanh",
+    "name": "cudnn.LogSoftMax",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "nn.Tanh",
     "schema": {
       "category": "Activation",
       "attributes": [
@@ -263,7 +388,7 @@
     }
   },
   {
-    "name": "LeakyReLU",
+    "name": "nn.LeakyReLU",
     "schema": {
       "category": "Activation",
       "attributes": [
@@ -273,7 +398,7 @@
     }
   },
   {
-    "name": "Sigmoid",
+    "name": "nn.Sigmoid",
     "schema": {
       "category": "Activation",
       "attributes": [
@@ -283,7 +408,7 @@
     }
   },
   {
-    "name": "Reshape",
+    "name": "nn.Reshape",
     "schema": {
       "category": "Shape",
       "attributes": [
@@ -292,7 +417,7 @@
     }
   },
   {
-    "name": "Dropout",
+    "name": "nn.Dropout",
     "schema": {
       "category": "Dropout",
       "attributes": [
@@ -301,13 +426,13 @@
     }
   },
   {
-    "name": "SpatialDropout",
+    "name": "nn.SpatialDropout",
     "schema": {
       "category": "Dropout"
     }
   },
   {
-    "name": "Normalize",
+    "name": "nn.Normalize",
     "schema": {
       "category": "Normalization",
       "attributes": [
@@ -315,7 +440,7 @@
     }
   },
   {
-    "name": "Normalize2",
+    "name": "nn.Normalize2",
     "schema": {
       "category": "Normalization",
       "attributes": [
@@ -323,7 +448,7 @@
     }
   },
   {
-    "name": "SpatialCrossMapLRN",
+    "name": "nn.SpatialCrossMapLRN",
     "schema": {
       "category": "Normalization",
       "attributes": [
@@ -331,7 +456,7 @@
     }
   },
   {
-    "name": "Mean",
+    "name": "nn.Mean",
     "schema": {
       "attributes": [
         { "name": "squeeze", "default": true },
@@ -342,7 +467,7 @@
     }
   },
   {
-    "name": "MulConstant",
+    "name": "nn.MulConstant",
     "schema": {
       "attributes": [
         { "name": "inplace", "default": false, "visible": false }
@@ -350,7 +475,78 @@
     }
   },
   {
-    "name": "MM",
+    "name": "nn.Identity",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.ConcatTable",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.CAddTable",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.ScaleTable",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.SelectTable",
+    "schema": {
+    }
+  },
+  {
+    "name": "w2nn.ScaleTable",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.SplitTable",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.FlattenTable",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.View",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.Sequencer",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.TotalVariation",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.ShaveImage",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.Contiguous",
+    "schema": {
+    }
+  },
+  {
+    "name": "nn.Squeeze",
+    "schema": {
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "nn.MM",
     "schema": {
     }
   }

@@ -471,7 +471,7 @@ view.View = class {
                         if (category) {
                             styles.push('node-item-operator-' + category.toLowerCase());
                         }
-                        const content = self.showNames && node.name ? node.name : node.operator;
+                        const content = self.showNames && node.name ? node.name : node.operator.split('.').pop();
                         const tooltip = self.showNames && node.name ? node.operator : node.name;
                         header.add(null, styles, content, tooltip, () => { 
                             self.showNodeProperties(node, null);
