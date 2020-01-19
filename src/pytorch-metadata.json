@@ -845,7 +845,51 @@
     }
   },
   {
-    "name": "torch.conv2d_relu",
+    "name": "ops.quantized.conv2d",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "groups",
+          "type": "int64"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "bias"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.conv2d_relu",
     "schema": {
       "attributes": [
         {
@@ -891,6 +935,12 @@
           "name": "output"
         }
       ]
+    }
+  },
+  {
+    "name": "ops.quantized.linear",
+    "schema": {
+      "category": "Layer"
     }
   },
   {
