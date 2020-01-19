@@ -92,6 +92,9 @@ class Application {
         if (!this._configuration.has('userId')) {
             this._configuration.set('userId', require('uuid').v4());
         }
+        if (this._configuration.get('forceDarkMode'))  {
+            electron.nativeTheme.themeSource = 'dark';
+        }
         global.userId = this._configuration.get('userId');
         if (this._openFileQueue) {
             let openFileQueue = this._openFileQueue;
