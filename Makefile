@@ -51,7 +51,6 @@ build_electron:
 	npx electron-builder install-app-deps
 	npx electron-builder --mac
 	npx electron-builder --win
-	npx electron-builder --linux deb
 	npx electron-builder --linux appimage
 	npx electron-builder --linux snap
 
@@ -79,7 +78,6 @@ publish_github_electron:
 	npx electron-builder install-app-deps
 	npx electron-builder --mac --publish always
 	npx electron-builder --win --publish always
-	npx electron-builder --linux deb --publish always
 	npx electron-builder --linux appimage --publish always
 	npx electron-builder --linux snap --publish always
 
