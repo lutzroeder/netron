@@ -481,6 +481,51 @@
     }
   },
   {
+    "name": "Sum",
+    "schema": {
+      "inputs": [
+        { "name": "input", "type": "T" },
+        { "name": "axis", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "keep_dims", "type": "boolean" }
+      ]
+    }
+  },
+  {
+    "name": "ReduceMax",
+    "schema": {
+      "inputs": [
+        { "name": "input", "type": "T" },
+        { "name": "axis", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "keep_dims", "type": "boolean" }
+      ]
+    }
+  },
+  {
+    "name": "ReduceMin",
+    "schema": {
+      "inputs": [
+        { "name": "input", "type": "T" },
+        { "name": "axis", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "keep_dims", "type": "boolean" }
+      ]
+    }
+  },
+  {
     "name": "Mean",
     "schema": {
       "inputs": [
@@ -489,6 +534,9 @@
       ],
       "outputs": [
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "keep_dims", "type": "boolean" }
       ]
     }
   },

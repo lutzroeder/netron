@@ -563,7 +563,7 @@ function render(model) {
         if (!currentView.showInitializers) {
             currentView.toggleInitializers();
         }
-        return currentView.renderGraph(model.graphs[0]);
+        return currentView.renderGraph(model, model.graphs[0]);
     }
     catch (error) {
         return Promise.reject(error);

@@ -380,13 +380,13 @@ view.View = class {
                     }  
                 }
             }
-            return this.renderGraph(graph).then(() => {
+            return this.renderGraph(model, graph).then(() => {
                 this._model = model;
                 this._activeGraph = graph;
                 this.show('Graph');
                 return this._model;
             }).catch((error) => {
-                return this.renderGraph(this._activeGraph).then(() => {
+                return this.renderGraph(this._model, this._activeGraph).then(() => {
                     this.show('Graph');
                     throw error;
                 }).catch(() => {
@@ -396,7 +396,7 @@ view.View = class {
         });
     }
 
-    renderGraph(graph) {
+    renderGraph(model, graph) {
         try {
             if (!graph) {
                 return Promise.resolve();
@@ -471,8 +471,12 @@ view.View = class {
                         if (category) {
                             styles.push('node-item-operator-' + category.toLowerCase());
                         }
-                        const content = self.showNames && node.name ? node.name : node.operator.split('.').pop();
-                        const tooltip = self.showNames && node.name ? node.operator : node.name;
+                        const operator = node.operator;
+                        if (typeof operator !== 'string' || !operator.split) { // #416
+                            throw new ModelError("Unknown node operator '" + JSON.stringify(operator) + "' in '" + model.format + "'.");
+                        }
+                        const content = self.showNames && node.name ? node.name : operator.split('.').pop();
+                        const tooltip = self.showNames && node.name ? operator : node.name;
                         header.add(null, styles, content, tooltip, () => { 
                             self.showNodeProperties(node, null);
                         });
