@@ -356,7 +356,7 @@
     "schema": {
       "attributes": [
         {
-          "default": "sigmoid",
+          "default": "",
           "description": " *type* represents particular activation function. For example, *type* equal *sigmoid* means that neurons of this layer have a sigmoid activation function.",
           "name": "type",
           "option": "required"
