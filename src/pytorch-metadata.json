@@ -1933,26 +1933,6 @@
     }
   },
   {
-    "name": "torch._pack_padded_sequence",
-    "schema": {
-      "attributes": [
-        {
-          "name": "batch_first",
-          "type": "boolean"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "input"
-        },
-        {
-          "name": "lenghts"
-        }
-      ],
-      "outputs": []
-    }
-  },
-  {
     "name": "torch.repeat",
     "schema": {
       "attributes": [
@@ -2042,6 +2022,12 @@
       "outputs": [
         {
           "name": "output"
+        },
+        {
+          "name": "?"
+        },
+        {
+          "name": "?"
         }
       ]
     }
@@ -2126,6 +2112,9 @@
       "outputs": [
         {
           "name": "output"
+        },
+        {
+          "name": "?"
         }
       ]
     }
@@ -2273,6 +2262,9 @@
       "outputs": [
         {
           "name": "output"
+        },
+        {
+          "name": "?"
         }
       ]
     }
@@ -2305,6 +2297,9 @@
       "outputs": [
         {
           "name": "output"
+        },
+        {
+          "name": "?"
         }
       ]
     }
@@ -2325,6 +2320,36 @@
           "name": "dtype"
         }
       ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.floor_divide",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.index",
+    "schema": {
       "inputs": [
         {
           "name": "input"

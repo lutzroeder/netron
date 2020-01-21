@@ -88,6 +88,7 @@ pytorch.Graph = class {
                             if (!Array.isArray(obj) && obj === Object(obj)) {
                                 if (pytorch.Utility.isTensor(obj)) {
                                     let parameter = obj;
+                                    parameter.__parent__ = module;
                                     if (!parameter.initializer) {
                                         parameter.initializer = new pytorch.Tensor(parameter.name, parameter, true);
                                     }
@@ -1583,34 +1584,43 @@ pytorch.Execution = class {
         */
     }
 
+    get context() {
+        return this._context;
+    }
+
     parse(file) {
         const data = this._sources[file];
-        const code = this._utf8Decoder.decode(data);
-        const reader = new this._python.Parser(code, file);
-        const program = reader.parse();
-        if (!program) {
-            throw new pytorch.Error("Module '" + file + "' not found.");
+        if (data) {
+            const code = this._utf8Decoder.decode(data);
+            const reader = new this._python.Parser(code, file);
+            const program = reader.parse();
+            if (!program) {
+                throw new pytorch.Error("Module '" + file + "' parse error.");
+            }
+            return program;
         }
-        return program;
+        return null;
     }
 
     package(name, file, raw) {
         if (this._python && !this._packages.has(name)) {
             file = file || 'code/' + name.split('.').join('/') + '.py';
             const program = this.parse(file);
-            let globals = this._context.getx(name);
-            if (globals === undefined) {
-                globals = {};
-                this._context.setx(name, globals);
-            }
-            globals.__class__ = this._context.scope.builtins.module;
-            globals.__name__ = name;
-            globals.__file__ = file;
-            this._packages.set(name, globals);
-            let context = this._context.push(globals);
-            this._block(program.body, context);
-            if (raw) {
-                return program;
+            if (program) {
+                let globals = this._context.getx(name);
+                if (globals === undefined) {
+                    globals = {};
+                    this._context.setx(name, globals);
+                }
+                globals.__class__ = this._context.scope.builtins.module;
+                globals.__name__ = name;
+                globals.__file__ = file;
+                this._packages.set(name, globals);
+                let context = this._context.push(globals);
+                this._block(program.body, context);
+                if (raw) {
+                    return program;
+                }
             }
         }
         return this._packages.get(name);
@@ -1669,9 +1679,19 @@ pytorch.Execution = class {
             if (this.type(targetName)) {
                 return this.invoke(targetName, callArguments);
             }
-            return this._invokeCallback(targetName, args, context);
+            if (this._invokeCallback) {
+                return this._invokeCallback(targetName, args, context);
+            }
         }
         const func = callTarget[name];
+        if (func.__class__ === this._context.scope.builtins.type) {
+            let obj = {};
+            obj.__proto__ = func;
+            if (obj.__init__ && typeof obj.__init__ === 'function') {
+                obj.__init__.apply(obj, args);
+            }
+            return obj;
+        }
         if (func.__class__ === this._context.scope.builtins.function) {
             if (func.__call__) {
                 return func.__call__([ callTarget ].concat(callArguments));
@@ -1683,7 +1703,7 @@ pytorch.Execution = class {
         throw new pytorch.Error("Unsupported call expression.");
     }
 
-    _apply(method, args, context) {
+    apply(method, args, context) {
         args = Array.prototype.slice.call(args);
         context = context.push();
         for (const parameter of method.parameters) {
@@ -1713,7 +1733,7 @@ pytorch.Execution = class {
                         __name__: statement.name,
                         __code__: statement,
                         __call__: function(args) {
-                            return self._apply(this.__code__, args, this.__globals__);
+                            return self.apply(this.__code__, args, this.__globals__);
                         }
                     }
                     context.set(statement.name, func);
@@ -1847,6 +1867,9 @@ pytorch.Execution = class {
                     expression.arguments.length === 1 && expression.arguments[0].type === 'id' && expression.arguments[0].value === 'Tensor') {
                     return { __module__: 'torch', __name__: 'Tensor' };
                 }
+                if (expression.target.type === 'id' && expression.target.value === 'annotate' && expression.arguments.length === 2) {
+                    return this.expression(expression.arguments[1], context);
+                }
                 if (expression.target.type === '.') {
                     return this._call(expression.target.target, expression.target.member.value, expression.arguments, context);
                 }
@@ -1873,17 +1896,6 @@ pytorch.Execution = class {
                     throw new Error("Unsupported '" + expression.value + "'.");
                     // return { __typeref__: expression.value };
                 }
-                if (expression.value === 'CONSTANTS') {
-                    let constants = context.get('CONSTANTS')
-                    if (!constants) {
-                        constants = {};
-                        for (let i = 0; i < this.constants.length; i++) {
-                            constants['c' + i.toString()] = this.constants[i];
-                        }
-                        context.set('CONSTANTS', constants);
-                    }
-                    return constants;
-                }
                 break;
             }
             case 'tuple': {
@@ -1901,7 +1913,7 @@ pytorch.Execution = class {
                 packageName = '.' + current.member.value + packageName;
                 current = current.target;
             }
-            else if (current.type === 'id' && current.value !== 'self') {
+            else if (current.type === 'id' && current.value !== 'self' && current.value !== 'CONSTANTS') {
                 packageName = current.value + packageName;
                 break;
             }
@@ -2692,7 +2704,7 @@ pytorch.Container.Zip = class {
 
     get constants() {
         if (this._constants === undefined) {
-            this._constants = null;
+            this._constants = [];
             const entry = this._entry('constants.pkl');
             if (entry && entry.data) {
                 this._constants = this._unpickle(entry.data, this._storage('constants'));
@@ -2714,7 +2726,12 @@ pytorch.Container.Zip = class {
                     sources[file] = entry.data;
                 }
             }
-            this._execution = new pytorch.Execution(this._python, sources, (name, args, context) => this._invokeCallback(name, args, context), this._exceptionCallback);
+            this._execution = new pytorch.Execution(this._python, sources, (name, args, context) => this._invoke(name, args, context), this._exceptionCallback);
+            let constants = {};
+            for (let i = 0; i < this.constants.length; i++) {
+                constants['c' + i.toString()] = this.constants[i];
+            }
+            this._execution.context.set('CONSTANTS', constants);
         }
         return this._execution;
     }
@@ -2732,16 +2749,25 @@ pytorch.Container.Zip = class {
 
             for (let i = 0; i < schema.inputs.length; i++) {
                 let arg = args.shift();
-                let parameter = this._execution.expression(arg, context);
-                if (parameter.__variable__) {
-                    node.inputs.push([ { id: parameter.__variable__ } ]);
+                const p = this._execution.expression(arg, context);
+                const parameters = Array.isArray(p) ? p : [ p ];
+                let inputs = [];
+
+                for (const parameter of parameters) {
+                    if (parameter) {
+                        if (parameter.__variable__) {
+                            inputs.push({ id: parameter.__variable__ });
+                            node.inputs.push([  ]);
+                        }
+                        else {
+                            const id = this._variable().value;
+                            parameter.__outputs__ = parameter.__outputs__ || [];
+                            parameter.__outputs__.push(id);
+                            inputs.push({ id: id });
+                        }
+                    }
                 }
-                else {
-                    const id = this._variable().value;
-                    parameter.__outputs__ = parameter.__outputs__ || [];
-                    parameter.__outputs__.push(id);
-                    node.inputs.push([ { id: id } ]);
-                }
+                node.inputs.push(inputs);
             }
             let outputs = []
             for (let i = 0; i < schema.outputs.length; i++) {
@@ -2860,9 +2886,30 @@ pytorch.Container.Zip = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
+        if (this._torchscriptArena) {
+            const program = this.execution.parse(this._torchscriptArena);
+            for (let statement of program.body) {
+                if (statement.type == 'def') {
+                    const self = this;
+                    const globals = this.execution.context;
+                    const func = {
+                        __class__: this.execution.context.scope.builtins.function,
+                        __name__: statement.name,
+                        __code__: statement,
+                        __call__: function(args) {
+                            return self.execution.apply(this.__code__, args, globals);
+                        }
+                    }
+                    this.data[statement.name] = func;
+                }
+            }
+        }
         if (this.data.forward) {
             this.data.forward.__call__([ this.data, { __module__: 'torch', __name__: 'Tensor' } ]);
             return true;
+        }
+        else {
+            throw new pytorch.Error("Module 'forward' not implemented.");
         }
         */
 
