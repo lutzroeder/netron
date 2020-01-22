@@ -181,7 +181,7 @@ bigdl.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
-        const schema =  metadata.getSchema(this.operator);
+        const schema =  metadata.type(this.operator);
         let inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
         inputs.shift();
         if (module.weight) {
@@ -240,7 +240,7 @@ bigdl.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._type);
+        const schema = this._metadata.type(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -462,15 +462,15 @@ bigdl.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;

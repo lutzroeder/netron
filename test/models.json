@@ -3352,8 +3352,8 @@
   },
   {
     "type":   "openvino",
-    "target": "2018_R4_emotions-recognition-retail-0003.xml,2018_R4_emotions-recognition-retail-0003.bin",
-    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/emotions-recognition-retail-0003/FP32/emotions-recognition-retail-0003.xml,https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/emotions-recognition-retail-0003/FP32/emotions-recognition-retail-0003.bin",
+    "target": "2018_R4_emotions-recognition-retail-0003.bin,2018_R4_emotions-recognition-retail-0003.xml",
+    "source": "https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/emotions-recognition-retail-0003/FP32/emotions-recognition-retail-0003.bin,https://download.01.org/openvinotoolkit/2018_R4/open_model_zoo/emotions-recognition-retail-0003/FP32/emotions-recognition-retail-0003.xml",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },

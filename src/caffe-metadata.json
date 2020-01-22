@@ -114,7 +114,7 @@
   {
     "name": "Scale",
     "schema": {
-      "category": "Data",
+      "category": "Layer",
       "inputs": [
         { "name": "input" },
         { "name": "scale" },

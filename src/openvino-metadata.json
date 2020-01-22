@@ -356,7 +356,6 @@
     "schema": {
       "attributes": [
         {
-          "default": "sigmoid",
           "description": " *type* represents particular activation function. For example, *type* equal *sigmoid* means that neurons of this layer have a sigmoid activation function.",
           "name": "type",
           "option": "required"
@@ -617,6 +616,7 @@
   {
     "name": "ScaleShift",
     "schema": {
+      "category": "Layer",
       "attributes": [],
       "description": "**Short description**: *ScaleShift* layer performs linear transformation of the input blobs. Weights denote scaling parameter, biases - a shift.\n**Parameters**: *ScaleShift* layer does not have additional parameters.\n**Mathematical Formulation**\n\\f[\no_{i} =\\gamma b_{i} + \\beta\n\\f]\n**Example**\n\n```\n<layer ... type=\"ScaleShift\" ... >\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
       "inputs": null,

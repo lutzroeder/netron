@@ -35,7 +35,7 @@
   {
     "name": "Scale",
     "schema": {
-      "category": "Data",
+      "category": "Layer",
       "inputs": [
         { "name": "inputs" },
         { "name": "weight" },

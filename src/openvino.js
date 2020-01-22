@@ -15,8 +15,9 @@ openvino.ModelFactory = class {
                 return true;
             }
         }
-        // if (extension === 'bin') {
-        // }
+        if (extension === 'bin') {
+            return true;
+        }
         return false;
     }
 
@@ -445,28 +446,20 @@ openvino.Node = class {
                         };
                         if (precisionMap[blobPrecision]) {
                             let itemSize = precisionMap[blobPrecision];
-                            switch (this._type) {
-                                case 'FullyConnected': {
-                                    switch (name) {
-                                        case 'weights': {
-                                            const outSize = parseInt(attributes['out-size'], 10);
-                                            shape = [ size / (outSize * itemSize), outSize ];
-                                            break;
-                                        }
-                                        case 'biases': {
-                                            shape = [ parseInt(attributes['out-size'], 10) ];
-                                            break;
-                                        }
-                                    }
+                            switch (this._type + ':' + name) {
+                                case 'FullyConnected:weights': {
+                                    const outSize = parseInt(attributes['out-size'], 10);
+                                    shape = [ size / (outSize * itemSize), outSize ];
                                     break;
                                 }
-                                case 'Convolution': {
-                                    switch (name) {
-                                        case 'biases': {
-                                            shape = [ size / itemSize ];
-                                            break;
-                                        }
-                                    }
+                                case 'FullyConnected:biases': {
+                                    shape = [ parseInt(attributes['out-size'], 10) ];
+                                    break;
+                                }
+                                case 'ScaleShift:weights': 
+                                case 'ScaleShift:biases': 
+                                case 'Convolution:biases': {
+                                    shape = [ Math.floor(size / itemSize) ];
                                     break;
                                 }
                             }
@@ -500,12 +493,12 @@ openvino.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._type);
+        const schema = this._metadata.type(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this._type);
+        let schema = this._metadata.type(this._type);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._type;
@@ -621,7 +614,7 @@ openvino.Attribute = class {
         this._node = node;
         this._name = name;
         this._value = value;
-        const schema = metadata.getAttributeSchema(node.operator, name);
+        const schema = metadata.attribute(node.operator, name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 this._type = schema.type;
@@ -672,7 +665,7 @@ openvino.Attribute = class {
                             let floats = [];
                             this._value.split(',').map((item) => {
                                 item = item.trim();
-                                let floatValue = Number.parseFloat(item);
+                                const floatValue = Number.parseFloat(item);
                                 if (Number.isNaN(item - floatValue)) {
                                     floats = null;
                                 }
@@ -762,7 +755,7 @@ openvino.Tensor = class {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
@@ -795,7 +788,7 @@ openvino.Tensor = class {
             shape = [ 1 ];
         }
         let results = [];
-        let size = shape[dimension];
+        const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -961,15 +954,15 @@ openvino.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map.get(operator) || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         const key = operator + ':' + name;
         if (!this._attributeMap.has(key)) {
             this._attributeMap.set(key, null);
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
                     this._attributeMap.set(operator + ':' + attribute.name, attribute);

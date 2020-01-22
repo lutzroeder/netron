@@ -495,7 +495,7 @@ caffe.Node = class {
                 break;
         }
 
-        const schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.type(this.operator);
 
         this._inputs = [];
         let inputs = layer.input.concat(initializers);
@@ -554,7 +554,7 @@ caffe.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._type);
+        const schema = this._metadata.type(this._type);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -593,7 +593,7 @@ caffe.Attribute = class {
             this._value = new caffe.TensorShape(value.dim);
         }
 
-        const schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
@@ -807,15 +807,15 @@ caffe.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
