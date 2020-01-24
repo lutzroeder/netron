@@ -17222,5 +17222,36 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "Quantile",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If true (default), apply abs() on the tensor values.",
+          "name": "abs",
+          "option": "optional"
+        },
+        {
+          "description": "multiplicative tolerance of the quantile_value.",
+          "name": "tol",
+          "option": "optional"
+        }
+      ],
+      "description": "\n    Calculate the quantile for the value in the given list of tensors.\n",
+      "inputs": [
+        {
+          "description": "*(type: Tensor`<float>`)* List of input tensors.",
+          "name": "X1, X2, ..."
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Value at the given quantile",
+          "name": "quantile_value"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
