@@ -193,7 +193,8 @@ armnnSerializer.LayerType = {
   InstanceNormalization: 50,
   LogSoftmax: 51,
   Comparison: 52,
-  StandIn: 53
+  StandIn: 53,
+  ElementwiseUnary: 54
 };
 
 /**
@@ -253,7 +254,8 @@ armnnSerializer.LayerTypeName = {
   50: 'InstanceNormalization',
   51: 'LogSoftmax',
   52: 'Comparison',
-  53: 'StandIn'
+  53: 'StandIn',
+  54: 'ElementwiseUnary'
 };
 
 /**
@@ -278,6 +280,28 @@ armnnSerializer.ComparisonOperationName = {
   3: 'Less',
   4: 'LessOrEqual',
   5: 'NotEqual'
+};
+
+/**
+ * @enum {number}
+ */
+armnnSerializer.UnaryOperation = {
+  Abs: 0,
+  Rsqrt: 1,
+  Sqrt: 2,
+  Exp: 3,
+  Neg: 4
+};
+
+/**
+ * @enum {string}
+ */
+armnnSerializer.UnaryOperationName = {
+  0: 'Abs',
+  1: 'Rsqrt',
+  2: 'Sqrt',
+  3: 'Exp',
+  4: 'Neg'
 };
 
 /**
@@ -420,7 +444,8 @@ armnnSerializer.Layer = {
   InstanceNormalizationLayer: 51,
   LogSoftmaxLayer: 52,
   ComparisonLayer: 53,
-  StandInLayer: 54
+  StandInLayer: 54,
+  ElementwiseUnaryLayer: 55
 };
 
 /**
@@ -481,7 +506,8 @@ armnnSerializer.LayerName = {
   51: 'InstanceNormalizationLayer',
   52: 'LogSoftmaxLayer',
   53: 'ComparisonLayer',
-  54: 'StandInLayer'
+  54: 'StandInLayer',
+  55: 'ElementwiseUnaryLayer'
 };
 
 /**
@@ -1784,6 +1810,8 @@ armnnSerializer.BindableLayerBase.createBindableLayerBase = function(builder, ba
 }
 
 /**
+ * @deprecated Use ElementwiseUnaryLayer instead
+ *
  * @constructor
  */
 armnnSerializer.AbsLayer = function() {
@@ -3268,6 +3296,182 @@ armnnSerializer.DivisionLayer.createDivisionLayer = function(builder, baseOffset
   armnnSerializer.DivisionLayer.startDivisionLayer(builder);
   armnnSerializer.DivisionLayer.addBase(builder, baseOffset);
   return armnnSerializer.DivisionLayer.endDivisionLayer(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.ElementwiseUnaryDescriptor = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.ElementwiseUnaryDescriptor}
+ */
+armnnSerializer.ElementwiseUnaryDescriptor.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.ElementwiseUnaryDescriptor=} obj
+ * @returns {armnnSerializer.ElementwiseUnaryDescriptor}
+ */
+armnnSerializer.ElementwiseUnaryDescriptor.getRootAsElementwiseUnaryDescriptor = function(bb, obj) {
+  return (obj || new armnnSerializer.ElementwiseUnaryDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {armnnSerializer.UnaryOperation}
+ */
+armnnSerializer.ElementwiseUnaryDescriptor.prototype.operation = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {armnnSerializer.UnaryOperation} */ (this.bb.readInt8(this.bb_pos + offset)) : armnnSerializer.UnaryOperation.Abs;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.ElementwiseUnaryDescriptor.startElementwiseUnaryDescriptor = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {armnnSerializer.UnaryOperation} operation
+ */
+armnnSerializer.ElementwiseUnaryDescriptor.addOperation = function(builder, operation) {
+  builder.addFieldInt8(0, operation, armnnSerializer.UnaryOperation.Abs);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.ElementwiseUnaryDescriptor.endElementwiseUnaryDescriptor = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {armnnSerializer.UnaryOperation} operation
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.ElementwiseUnaryDescriptor.createElementwiseUnaryDescriptor = function(builder, operation) {
+  armnnSerializer.ElementwiseUnaryDescriptor.startElementwiseUnaryDescriptor(builder);
+  armnnSerializer.ElementwiseUnaryDescriptor.addOperation(builder, operation);
+  return armnnSerializer.ElementwiseUnaryDescriptor.endElementwiseUnaryDescriptor(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.ElementwiseUnaryLayer = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.ElementwiseUnaryLayer}
+ */
+armnnSerializer.ElementwiseUnaryLayer.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.ElementwiseUnaryLayer=} obj
+ * @returns {armnnSerializer.ElementwiseUnaryLayer}
+ */
+armnnSerializer.ElementwiseUnaryLayer.getRootAsElementwiseUnaryLayer = function(bb, obj) {
+  return (obj || new armnnSerializer.ElementwiseUnaryLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {armnnSerializer.LayerBase=} obj
+ * @returns {armnnSerializer.LayerBase|null}
+ */
+armnnSerializer.ElementwiseUnaryLayer.prototype.base = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new armnnSerializer.LayerBase).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ElementwiseUnaryDescriptor=} obj
+ * @returns {armnnSerializer.ElementwiseUnaryDescriptor|null}
+ */
+armnnSerializer.ElementwiseUnaryLayer.prototype.descriptor = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? (obj || new armnnSerializer.ElementwiseUnaryDescriptor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.ElementwiseUnaryLayer.startElementwiseUnaryLayer = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ */
+armnnSerializer.ElementwiseUnaryLayer.addBase = function(builder, baseOffset) {
+  builder.addFieldOffset(0, baseOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} descriptorOffset
+ */
+armnnSerializer.ElementwiseUnaryLayer.addDescriptor = function(builder, descriptorOffset) {
+  builder.addFieldOffset(1, descriptorOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.ElementwiseUnaryLayer.endElementwiseUnaryLayer = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ * @param {flatbuffers.Offset} descriptorOffset
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.ElementwiseUnaryLayer.createElementwiseUnaryLayer = function(builder, baseOffset, descriptorOffset) {
+  armnnSerializer.ElementwiseUnaryLayer.startElementwiseUnaryLayer(builder);
+  armnnSerializer.ElementwiseUnaryLayer.addBase(builder, baseOffset);
+  armnnSerializer.ElementwiseUnaryLayer.addDescriptor(builder, descriptorOffset);
+  return armnnSerializer.ElementwiseUnaryLayer.endElementwiseUnaryLayer(builder);
 }
 
 /**
@@ -7866,6 +8070,8 @@ armnnSerializer.PadDescriptor.createPadDescriptor = function(builder, padListOff
 }
 
 /**
+ * @deprecated Use ElementwiseUnaryLayer instead
+ *
  * @constructor
  */
 armnnSerializer.RsqrtLayer = function() {
