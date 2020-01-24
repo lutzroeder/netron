@@ -20137,6 +20137,10 @@
         {
           "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
           "summary": "default_values"
+        },
+        {
+          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    split=[0, 0, 0]\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
+          "summary": "zero_size_splits"
         }
       ],
       "inputs": [
@@ -20211,6 +20215,10 @@
         {
           "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
           "summary": "default_values"
+        },
+        {
+          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    split=[0, 0, 0]\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
+          "summary": "zero_size_splits"
         }
       ],
       "inputs": [
@@ -20270,7 +20278,7 @@
           "type": "int64"
         },
         {
-          "description": "length of each output",
+          "description": "length of each output. Values should be >= 0.",
           "name": "split",
           "required": false,
           "type": "int64[]"
@@ -20291,6 +20299,10 @@
         {
           "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
           "summary": "default_values"
+        },
+        {
+          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    split=[0, 0, 0]\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
+          "summary": "zero_size_splits"
         }
       ],
       "inputs": [
@@ -20366,7 +20378,7 @@
           "type": "T"
         },
         {
-          "description": "Length of each output. It can be either a scalar(tensor of empty shape), or a 1-D tensor. All values must be positive. ",
+          "description": "Length of each output. It can be either a scalar(tensor of empty shape), or a 1-D tensor. All values must be >= 0. ",
           "name": "split",
           "option": "optional",
           "type": "I"
