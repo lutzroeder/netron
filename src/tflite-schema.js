@@ -4075,10 +4075,18 @@ TFLITE.ResizeBilinearOptions.prototype.alignCorners = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+TFLITE.ResizeBilinearOptions.prototype.halfPixelCenters = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.ResizeBilinearOptions.startResizeBilinearOptions = function(builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -4087,6 +4095,14 @@ TFLITE.ResizeBilinearOptions.startResizeBilinearOptions = function(builder) {
  */
 TFLITE.ResizeBilinearOptions.addAlignCorners = function(builder, alignCorners) {
   builder.addFieldInt8(2, +alignCorners, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} halfPixelCenters
+ */
+TFLITE.ResizeBilinearOptions.addHalfPixelCenters = function(builder, halfPixelCenters) {
+  builder.addFieldInt8(3, +halfPixelCenters, +false);
 };
 
 /**
@@ -4101,11 +4117,13 @@ TFLITE.ResizeBilinearOptions.endResizeBilinearOptions = function(builder) {
 /**
  * @param {flatbuffers.Builder} builder
  * @param {boolean} alignCorners
+ * @param {boolean} halfPixelCenters
  * @returns {flatbuffers.Offset}
  */
-TFLITE.ResizeBilinearOptions.createResizeBilinearOptions = function(builder, alignCorners) {
+TFLITE.ResizeBilinearOptions.createResizeBilinearOptions = function(builder, alignCorners, halfPixelCenters) {
   TFLITE.ResizeBilinearOptions.startResizeBilinearOptions(builder);
   TFLITE.ResizeBilinearOptions.addAlignCorners(builder, alignCorners);
+  TFLITE.ResizeBilinearOptions.addHalfPixelCenters(builder, halfPixelCenters);
   return TFLITE.ResizeBilinearOptions.endResizeBilinearOptions(builder);
 }
 
