@@ -17,22 +17,12 @@ mnn.ModelFactory = class {
 
     open(context, host) {
         return host.require('./mnn-schema').then((mnn_schema) => {
-            const identifier = context.identifier;
-            let net = null;
-            try {
-                const byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
-                mnn.schema = mnn_schema;
-                net = mnn.schema.Net.getRootAsNet(byteBuffer);
-            }
-            catch (error) {
-                host.exception(error, false);
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new mnn.Error(message + " in '" + identifier + "'.");
-            }
-
             return mnn.Metadata.open(host).then((metadata) => {
+                const identifier = context.identifier;
                 try {
+                    mnn.schema = mnn_schema;
+                    const byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
+                    const net = mnn.schema.Net.getRootAsNet(byteBuffer);
                     return new mnn.Model(metadata, net);
                 }
                 catch (error) {
@@ -49,24 +39,21 @@ mnn.ModelFactory = class {
 mnn.Model = class {
 
     constructor(metadata, net) {
-        const producers = new Map([
-            [ mnn.schema.NetSource.CAFFE, 'Caffe' ],
-            [ mnn.schema.NetSource.TENSORFLOW, 'TensorFlow' ],
-            [ mnn.schema.NetSource.TFLITE, 'TensorFlow Lite' ],
-            [ mnn.schema.NetSource.ONNX, 'ONNX' ],
-        ]);
-        this._format = 'MNN v2';
-        this._producer = producers.has(net.sourceType()) ? producers.get(net.sourceType()) : '';
-        this._graphs = [];
-        this._graphs.push(new mnn.Graph(metadata, net));
+        switch (net.sourceType()) {
+            case mnn.schema.NetSource.CAFFE: this._producer = 'Caffe'; break;
+            case mnn.schema.NetSource.TENSORFLOW: this._producer = 'TensorFlow'; break;
+            case mnn.schema.NetSource.TFLITE: this._producer = 'TensorFlow Lite'; break;
+            case mnn.schema.NetSource.ONNX: this._producer = 'ONNX'; break;
+        }
+        this._graphs = [ new mnn.Graph(metadata, net) ];
     }
 
     get format() {
-        return this._format;
+        return 'MNN v2';
     }
 
     get producer() {
-        return this._producer;
+        return this._producer || '';
     }
 
     get graphs() {
@@ -172,8 +159,8 @@ mnn.Node = class {
 
     constructor(metadata, op, net) {
         this._metadata = metadata;
-        this._operator = mnn.schema.OpTypeName[op.type()]
-        this._name = op.name();
+        this._operator = mnn.schema.OpTypeName[op.type()] || '(' + op.type().toString() + ')';
+        this._name = op.name() || '';
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
@@ -198,82 +185,69 @@ mnn.Node = class {
         if (typeof parameterConstructor === 'function') {
             const parameter = op.main(Reflect.construct(parameterConstructor, []));
             if (parameter !== null && parameter instanceof mnn.schema.Blob) {
+                const type = mnn.Graph._blobTensorType(parameter);
+                let data = null;
+                switch (type.dataType) {
+                    case 'int32': data = parameter.int32sArray(); break;
+                    case 'float32': data = parameter.float32sArray(); break;
+                }
                 this._inputs.push(new mnn.Parameter('value', true, [
-                    new mnn.Argument('', null, mnn.Node._blobTensor(parameter))
+                    new mnn.Argument('', null, new mnn.Tensor('Blob', type, data))
                 ]));
             }
             else {
-                const invisibleAttributes = this._buildExtraInfo(parameterType, parameter);
+                // weights & bias
+                let invisibleAttributes = null;
+                switch (parameterType) {
+                    case 'Convolution2D': {
+                        const common = parameter.common();
+                        const outputCount = common.outputCount();
+                        const inputCount = common.inputCount();
+                        const kernelX = common.kernelX();
+                        const kernelY = common.kernelY();
+                        this._buildTensor('float32', 'weight', [ outputCount, inputCount, kernelX, kernelY ], parameter.weightArray());
+                        this._buildTensor('float32', 'bias', [ outputCount ], parameter.biasArray());
+                        invisibleAttributes = { "weight": true, "bias": true };
+                        break;
+                    }
+                    case 'InnerProduct': {
+                        const outputCount = parameter.outputCount();
+                        const inputCount = parameter.weightSize() / outputCount;
+                        this._buildTensor('float32', 'weight', [ outputCount, inputCount ], parameter.weightArray());
+                        this._buildTensor('float32', 'bias', [ outputCount ], parameter.biasArray());
+                        invisibleAttributes = { 'weight': true, 'bias': true };
+                        break;
+                    }
+                    case 'Scale': {
+                        const scaleDataCount = parameter.channels();
+                        this._buildTensor('float32', 'scale', [ scaleDataCount ], parameter.scaleDataArray());
+                        this._buildTensor('float32', 'bias', [ scaleDataCount ], parameter.biasDataArray());
+                        invisibleAttributes = { 'scaleData': true, 'biasData': true };
+                        break;
+                    }
+                    case 'BatchNorm': {
+                        const channels = parameter.channels();
+                        this._buildTensor('float32', 'mean', [ channels ], parameter.meanDataArray());
+                        this._buildTensor('float32', 'slope', [ channels ], parameter.slopeDataArray());
+                        this._buildTensor('float32', 'variance', [ channels ], parameter.varDataArray());
+                        this._buildTensor('float32', 'bias', [ channels ], parameter.biasDataArray());
+                        invisibleAttributes = { 'slopeData': true, 'meanData': true, 'varData': true, 'biasData': true };
+                        break;
+                    }
+                    case 'PRelu': {
+                        this._buildTensor('float32', 'slope', [ parameter.slopeCount() ], parameter.slopeArray());
+                        invisibleAttributes = { 'slope': true };
+                        break;
+                    }
+                    case 'Normalize': {
+                        this._buildTensor('float32', 'scale', [ parameter.scaleLength() ], parameter.scaleArray());
+                        invisibleAttributes = { 'scale': true };
+                        break;
+                    }
+                }
                 this._recursivelyBuildAttributes(metadata, net, parameter, parameterType, invisibleAttributes, this._attributes);
             }
         }
-    }
-
-    static _blobTensor(blob) {
-        const type = mnn.Graph._blobTensorType(blob);
-        let data = null;
-        switch (type.dataType) {
-            case 'int32':
-                data = blob.int32sArray();
-                break;
-            case 'float32':
-                data = blob.float32sArray();
-                break;
-        }
-        return new mnn.Tensor('Blob', type, data);
-    }
-
-    _buildExtraInfo(parameterType, parameter) {
-
-        // weights & bias
-        switch (parameterType) {
-            case 'Convolution2D': {
-                const common = parameter.common();
-                const outputCount = common.outputCount();
-                const inputCount = common.inputCount();
-                const kernelX = common.kernelX();
-                const kernelY = common.kernelY();
-                this._buildTensor('float32', 'weight', [ outputCount, inputCount, kernelX, kernelY ], parameter.weightArray());
-                this._buildTensor('float32', 'bias', [ outputCount ], parameter.biasArray());
-                return { "weight": true, "bias": true };
-            }
-
-            case 'InnerProduct': {
-                const outputCount = parameter.outputCount();
-                const inputCount = parameter.weightSize() / outputCount;
-                this._buildTensor('float32', 'weight', [ outputCount, inputCount ], parameter.weightArray());
-                this._buildTensor('float32', 'bias', [ outputCount ], parameter.biasArray());
-                return { 'weight': true, 'bias': true };
-            }
-
-            case 'Scale': {
-                const scaleDataCount = parameter.channels();
-                this._buildTensor('float32', 'scale', [ scaleDataCount ], parameter.scaleDataArray());
-                this._buildTensor('float32', 'bias', [ scaleDataCount ], parameter.biasDataArray());
-                return { 'scaleData': true, 'biasData': true };
-            }
-
-            case 'BatchNorm': {
-                const channels = parameter.channels();
-                this._buildTensor('float32', 'mean', [ channels ], parameter.meanDataArray());
-                this._buildTensor('float32', 'slope', [ channels ], parameter.slopeDataArray());
-                this._buildTensor('float32', 'variance', [ channels ], parameter.varDataArray());
-                this._buildTensor('float32', 'bias', [ channels ], parameter.biasDataArray());
-                return { 'slopeData': true, 'meanData': true, 'varData': true, 'biasData': true };
-            }
-
-            case 'PRelu': {
-                this._buildTensor('float32', 'slope', [ parameter.slopeCount() ], parameter.slopeArray());
-                return { 'slope': true };
-            }
-
-            case 'Normalize': {
-                this._buildTensor('float32', 'scale', [ parameter.scaleLength() ], parameter.scaleArray());
-                return { 'scale': true };
-            }
-        }
-
-        return null;
     }
 
     _buildTensor(dataType, name, dimensions, value) {
@@ -321,28 +295,25 @@ mnn.Node = class {
                 else {
                     value = parameter[attributeName]();
                     if (typeof value === 'object') {
-                        const name = mnn.Node._findParameterClassName(value);
+                        let name = null;
+                        for (const key of Object.getOwnPropertyNames(mnn.schema)) {
+                            const type = mnn.schema[key];
+                            if (typeof type === "function" && value instanceof type) {
+                                name = key;
+                                break;
+                            }
+                        }
                         this._recursivelyBuildAttributes(metadata, net, value, name, null, attributeHolders);
                         value = null;
                     }
                 }
 
                 if (value != null) {
-                    attributeHolders.push(new mnn.Attribute(metadata, this.operator, attributeName, value));
+                    const schema = metadata.attribute(this.operator, attributeName);
+                    attributeHolders.push(new mnn.Attribute(schema, attributeName, value));
                 }
             }
         }
-    }
-    
-    static _findParameterClassName(opParameterObject) {
-        const keys = Object.getOwnPropertyNames(mnn.schema);
-        for (const key of keys) {
-            const cls = mnn.schema[key];
-            if (typeof cls === "function" && opParameterObject instanceof cls) {
-                return key;
-            }
-        }
-        return null;
     }
 
     get operator() {
@@ -366,7 +337,7 @@ mnn.Node = class {
     }
 
     get category() {
-        let schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.type(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -389,14 +360,11 @@ mnn.Node = class {
 
 mnn.Attribute = class {
 
-    constructor(metadata, operator, name, value, visible) {
-
+    constructor(schema, name, value, visible) {
         this._type = null;
         this._value = value;
         this._name = name;
         this._visible = visible;
-
-        const schema = metadata.getAttributeSchema(operator, name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -625,12 +593,12 @@ mnn.Metadata = class {
         }
     }
 
-    getSchema(operatorName) {
-        return this._map.has(operatorName) ? this._map.get(operatorName) : null;
+    type(operator) {
+        return this._map.has(operator) ? this._map.get(operator) : null;
     }
 
-    getAttributeSchema(operator, name) {
-        const schema = this.getSchema(operator);
+    attribute(operator, name) {
+        const schema = this.type(operator);
         if (schema) {
             let attributeMap = schema.attributeMap;
             if (!attributeMap) {
