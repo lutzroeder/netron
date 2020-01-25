@@ -738,7 +738,7 @@
           "type": "int64"
         }
       ],
-      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nIf select_last_index is True (default False), the index of the last occurence of the max \nis selected if the max appears more than once in the input. Otherwise the index of the \nfirst occurence is selected.\nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nIf select_last_index is True (default False), the index of the last occurrence of the max \nis selected if the max appears more than once in the input. Otherwise the index of the \nfirst occurrence is selected.\nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -1029,7 +1029,7 @@
           "type": "int64"
         }
       ],
-      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nIf select_last_index is True (default False), the index of the last occurence of the min \nis selected if the min appears more than once in the input. Otherwise the index of the \nfirst occurence is selected.\nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned. \nIf select_last_index is True (default False), the index of the last occurrence of the min \nis selected if the min appears more than once in the input. Otherwise the index of the \nfirst occurrence is selected.\nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -1585,7 +1585,7 @@
           "type": "string"
         },
         {
-          "description": "Wether to use ceil or floor (default) to compute the output shape.",
+          "description": "Whether to use ceil or floor (default) to compute the output shape.",
           "name": "ceil_mode",
           "required": false,
           "type": "int64"
@@ -1717,7 +1717,7 @@
           "type": "string"
         },
         {
-          "description": "Wether to use ceil or floor (default) to compute the output shape.",
+          "description": "Whether to use ceil or floor (default) to compute the output shape.",
           "name": "ceil_mode",
           "required": false,
           "type": "int64"
@@ -5394,6 +5394,83 @@
     }
   },
   {
+    "name": "Einsum",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Einsum expression string.",
+          "name": "equation",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "description": "An einsum of the form ```term1, term2 -> output-term``` produces an output tensor using the following equation\n\n```output[output-term] = reduce-sum( input1[term1] * input2[term] )```\n\nwhere the reduce-sum performs a summation over all the indices occurring in in the input terms (term1, term2)\nthat do not occur in the output-term.\n\nThe Einsum operator evaluates algebraic tensor operations on a sequence of tensors, using the Einstein summation\nconvention. The equation string contains a comma-separated sequence of lower case letters. Each term corresponds to\nan operand tensor, and the characters within the terms correspond to operands dimensions.\n\nThis sequence may be followed by \"->\" to separate the left and right hand side of the equation.\nIf the equation contains \"->\" followed by the right-hand side, the explicit (not classical) form of the Einstein\nsummation is performed, and the right-hand side indices indicate output tensor dimensions. In other cases,\noutput indices are (implicitly) set to the alphabetically sorted sequence of indices appearing exactly once in the\nequation.\n\nWhen a dimension character is repeated in the left-hand side, it represents summation along the dimension.\n\nThe equation may contain ellipsis (\"...\") to enable broadcasting. Ellipsis must indicate a fixed number of dimensions.\nThe right-hand side may contain exactly one ellipsis. In implicit mode, the ellipsis dimensions are set to the\nbeginning of the output. The equation string may contain space (U+0020) character.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "Eqn = '...ii ->...i'\nnode = onnx.helper.make_node(\n    'Einsum',\n    inputs=['x'],\n    outputs=['y'],\n    equation=Eqn\n)\n\nX = np.random.randn(3, 5, 5)\nZ = einsum_reference_implementation(Eqn, (X,))\n\nexpect(node, inputs=[X], outputs=[Z], name='test_einsum_batch_diagonal')",
+          "summary": "einsum_batch_diagonal"
+        },
+        {
+          "code": "Eqn = 'bij, bjk -> bik'\nnode = onnx.helper.make_node(\n    'Einsum',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    equation=Eqn\n)\n\nX = np.random.randn(5, 2, 3)\nY = np.random.randn(5, 3, 4)\nZ = einsum_reference_implementation(Eqn, (X, Y))\n\nexpect(node, inputs=[X, Y], outputs=[Z], name='test_einsum_batch_matmul')",
+          "summary": "einsum_batch_matmul"
+        },
+        {
+          "code": "Eqn = 'i,i'\nnode = onnx.helper.make_node(\n    'Einsum',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    equation=Eqn\n)\n\nX = np.random.randn(5)\nY = np.random.randn(5)\nZ = einsum_reference_implementation(Eqn, (X, Y))\n\nexpect(node, inputs=[X, Y], outputs=[Z], name='test_einsum_inner_prod')",
+          "summary": "einsum_inner_prod"
+        },
+        {
+          "code": "Eqn = 'ij->i'\nnode = onnx.helper.make_node(\n    'Einsum',\n    inputs=['x'],\n    outputs=['y'],\n    equation=Eqn\n)\n\nX = np.random.randn(3, 4)\nZ = einsum_reference_implementation(Eqn, (X,))\n\nexpect(node, inputs=[X], outputs=[Z], name='test_einsum_sum')",
+          "summary": "einsum_sum"
+        },
+        {
+          "code": "Eqn = 'ij->ji'\nnode = onnx.helper.make_node(\n    'Einsum',\n    inputs=['x'],\n    outputs=['y'],\n    equation=Eqn\n)\n\nX = np.random.randn(3, 4)\nY = einsum_reference_implementation(Eqn, (X,))\n\nexpect(node, inputs=[X], outputs=[Y], name='test_einsum_transpose')",
+          "summary": "einsum_transpose"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Operands",
+          "name": "Inputs",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Output",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to all numerical tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Elu",
     "schema": {
       "attributes": [
@@ -8315,7 +8392,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([[3, 0, 1, 2], [2, 5, 1, 0], [0, 1, 3, 2], [0, 1, 2, 3]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_example')\n\n# For multiple occurrances of the maximal values, the first occurrence is selected for one-hot output\nx = np.array([[3, 3, 3, 1]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_one_hot')",
+          "code": "node = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([[3, 0, 1, 2], [2, 5, 1, 0], [0, 1, 3, 2], [0, 1, 2, 3]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_example')\n\n# For multiple occurrences of the maximal values, the first occurrence is selected for one-hot output\nx = np.array([[3, 3, 3, 1]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_one_hot')",
           "summary": "hardmax"
         },
         {
@@ -8372,7 +8449,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([[3, 0, 1, 2], [2, 5, 1, 0], [0, 1, 3, 2], [0, 1, 2, 3]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_example')\n\n# For multiple occurrances of the maximal values, the first occurrence is selected for one-hot output\nx = np.array([[3, 3, 3, 1]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_one_hot')",
+          "code": "node = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([[3, 0, 1, 2], [2, 5, 1, 0], [0, 1, 3, 2], [0, 1, 2, 3]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_example')\n\n# For multiple occurrences of the maximal values, the first occurrence is selected for one-hot output\nx = np.array([[3, 3, 3, 1]]).astype(np.float32)\ny = np.array([[1, 0, 0, 0]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_one_hot')",
           "summary": "hardmax"
         },
         {
@@ -11259,7 +11336,7 @@
           "type": "string"
         },
         {
-          "description": "Wether to use ceil or floor (default) to compute the output shape.",
+          "description": "Whether to use ceil or floor (default) to compute the output shape.",
           "name": "ceil_mode",
           "required": false,
           "type": "int64"
@@ -11418,7 +11495,7 @@
           "type": "string"
         },
         {
-          "description": "Wether to use ceil or floor (default) to compute the output shape.",
+          "description": "Whether to use ceil or floor (default) to compute the output shape.",
           "name": "ceil_mode",
           "required": false,
           "type": "int64"
@@ -11577,7 +11654,7 @@
           "type": "string"
         },
         {
-          "description": "Wether to use ceil or floor (default) to compute the output shape.",
+          "description": "Whether to use ceil or floor (default) to compute the output shape.",
           "name": "ceil_mode",
           "required": false,
           "type": "int64"
