@@ -199,6 +199,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.linear_model.sgd_fast.Hinge'] = function() {};
                 constructorTable['sklearn.linear_model.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
+                constructorTable['sklearn.linear_model._logistic.LogisticRegression'] = function() {};
                 constructorTable['sklearn.linear_model.LassoLars​'] = function() {};
                 constructorTable['sklearn.linear_model.ridge.Ridge'] = function() {};
                 constructorTable['sklearn.linear_model.sgd_fast.Log'] = function() {};
@@ -590,40 +591,29 @@ sklearn.Node = class {
 
     constructor(metadata, group, name, obj, inputs, outputs) {
         this._metadata = metadata;
-        if (group) {
-            this._group = group;
-        }
-        let operator = obj.__type__.split('.');
-        this._type = operator.pop();
-        this._package = operator.join('.');
+        this._group = group || '';
+        this._type = obj.__type__;
         this._name = name || '';
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
         this._initializers = [];
-
-        for (const key of Object.keys(obj)) {
-            if (!key.startsWith('_')) {
-                let value = obj[key];
-
-                if (Array.isArray(value) || Number.isInteger(value) || value == null) {
-                    this._attributes.push(new sklearn.Attribute(this._metadata, this, key, value));
+        for (const name of Object.keys(obj)) {
+            if (!name.startsWith('_')) {
+                const value = obj[name];
+                if (!Array.isArray(value) && !Number.isInteger(value) && value !== null && value.__type__ !== 'numpy.ndarray') {
+                    this._initializers.push(new sklearn.Tensor(name, value));
                 }
                 else {
-                    switch (value.__type__) {
-                        case 'numpy.ndarray':
-                            this._initializers.push(new sklearn.Tensor(key, value));
-                            break;
-                        default: 
-                            this._attributes.push(new sklearn.Attribute(this._metadata, this, key, value));
-                    }
+                    const schema = metadata.attribute(this.operator, name);
+                    this._attributes.push(new sklearn.Attribute(schema, name, value));
                 }
             }
         }
     }
 
     get operator() {
-        return this._type;
+        return this._type.split('.').pop();
     }
 
     get name() {
@@ -635,7 +625,7 @@ sklearn.Node = class {
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.type(this.operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this.operator;
@@ -676,7 +666,7 @@ sklearn.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.type(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -695,11 +685,9 @@ sklearn.Node = class {
 
 sklearn.Attribute = class {
 
-    constructor(metadata, node, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         this._value = value;
-
-        const schema = metadata.getAttributeSchema(node.operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'option') && schema.option == 'optional' && this._value == null) {
                 this._visible = false;
@@ -1013,15 +1001,15 @@ sklearn.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
