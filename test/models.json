@@ -4044,6 +4044,14 @@
   },
   {
     "type":   "pytorch",
+    "target": "mobilenet_quantization_scripted_quantized.pth",
+    "source": "https://github.com/lutzroeder/netron/files/4111581/mobilenet_quantization_scripted_quantized.pth.zip[mobilenet_quantization_scripted_quantized.pth]",
+    "format": "TorchScript v1.3",
+    "error":  "Unknown statement in 'mobilenet_quantization_scripted_quantized.pth'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/421"
+  },
+  {
+    "type":   "pytorch",
     "target": "mobilenet_quantized_scripted_925.pt",
     "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
     "format": "TorchScript v1.3",

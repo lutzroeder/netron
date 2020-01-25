@@ -1459,8 +1459,14 @@ pytorch.Execution = class {
         this._registerFunction('ops.prim.NumToTensor', function(value) {
             return { __module__: 'torch', __name__: 'Tensor', value: value }; // TODO
         });
+        this._registerFunction('ops.prim.shape', function(/* value */) {
+            return undefined; // TODO
+        });
         this._registerFunction('ops.quantized.conv_prepack', function(/* weight, bias, stride, padding, dilation, groups */) {
             return { __module__: 'torch', __name__: '__conv_prepack__' }; // TODO
+        });
+        this._registerFunction('ops.quantized.conv2d_prepack', function(/* weight, bias, stride, padding, dilation, groups */) {
+            return { __module__: 'torch', __name__: '__conv2d_prepack__' }; // TODO
         });
         this._registerFunction('ops.quantized.linear_prepack', function(/* weight, bias */) {
             return { __module__: 'torch', __name__: '__linear_prepack__' }; // TODO
@@ -1528,6 +1534,9 @@ pytorch.Execution = class {
         });
         this._registerFunction('torch.jit._pickle.build_tensorlist', function(data) {
             return data;
+        });
+        this._registerFunction('torch.len', function(/* value */) {
+            return undefined;
         });
         this._registerFunction('torch.lt', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -2881,149 +2890,110 @@ pytorch.Container.Zip = class {
     }
 
     trace() {
-
-        /*
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
-        if (this._torchscriptArena) {
-            const program = this.execution.parse(this._torchscriptArena);
-            for (let statement of program.body) {
-                if (statement.type == 'def') {
-                    const self = this;
-                    const globals = this.execution.context;
-                    const func = {
-                        __class__: this.execution.context.scope.builtins.function,
-                        __name__: statement.name,
-                        __code__: statement,
-                        __call__: function(args) {
-                            return self.execution.apply(this.__code__, args, globals);
+        // this._trace = true;
+        if (this._trace) {
+            this._inputs = [];
+            this._outputs = [];
+            this._nodes = [];
+            if (this._torchscriptArena) {
+                const program = this.execution.parse(this._torchscriptArena);
+                for (let statement of program.body) {
+                    if (statement.type == 'def') {
+                        const self = this;
+                        const globals = this.execution.context;
+                        const func = {
+                            __class__: this.execution.context.scope.builtins.function,
+                            __name__: statement.name,
+                            __code__: statement,
+                            __call__: function(args) {
+                                return self.execution.apply(this.__code__, args, globals);
+                            }
                         }
+                        this.data[statement.name] = func;
                     }
-                    this.data[statement.name] = func;
                 }
             }
-        }
-        if (this.data.forward) {
-            this.data.forward.__call__([ this.data, { __module__: 'torch', __name__: 'Tensor' } ]);
-            return true;
+            if (this.data.forward) {
+                this.data.forward.__call__([ this.data, { __module__: 'torch', __name__: 'Tensor' } ]);
+                return true;
+            }
+            else {
+                throw new pytorch.Error("Module 'forward' not implemented.");
+            }
         }
         else {
-            throw new pytorch.Error("Module 'forward' not implemented.");
-        }
-        */
+            this._inputs = [];
+            this._outputs = [];
+            this._nodes = [];
 
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
+            this._moduleMap = new Map();
+            this._state = {};
 
-        this._moduleMap = new Map();
-        this._state = {};
-
-        try {
-            let statements = this.body;
-            let method = statements.find((statement) => statement.type == 'def' && statement.name == 'forward');
-            if (!method) {
-                throw new pytorch.Error("Method 'forward' not found.");
+            try {
+                let statements = this.body;
+                let method = statements.find((statement) => statement.type == 'def' && statement.name == 'forward');
+                if (!method) {
+                    throw new pytorch.Error("Method 'forward' not found.");
+                }
+                this._body = method.body.statements;
+                let methodParameters = method.parameters;
+                if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
+                    methodParameters.shift();
+                }
+                for (const parameter of methodParameters) {
+                    this._parameter(parameter);
+                }
+                if (this._body.length >= 2) {
+                    // x = ...
+                    // return x
+                    let returnStatement = this._body[this._body.length - 1];
+                    let assignStatement = this._body[this._body.length - 2];
+                    if (returnStatement.type === 'return' && 
+                        returnStatement.expression.type === 'id' &&
+                        assignStatement.type === '=' &&
+                        assignStatement.target.type === 'id' &&
+                        assignStatement.target.value === returnStatement.expression.value) {
+                        returnStatement.expression = assignStatement.expression;
+                        this._body.pop();
+                        this._body.pop();
+                        this._body.push(returnStatement);
+                    }
+                }
+        
+                while (this._body.length > 0) {
+                    let statement = this._body.shift();
+                    if (this._conditionStatement(statement)) {
+                        continue;
+                    }
+                    if (this._assignStatement(statement)) {
+                        continue;
+                    }
+                    if (this._argumentStatement(statement)) {
+                        continue;
+                    }
+                    if (this._nodeStatement(statement)) {
+                        continue;
+                    }
+                    if (this._returnStatement(statement)) {
+                        continue;
+                    }
+                    if (statement.type === 'pass') {
+                        continue;
+                    }
+                    if (this._isCall(statement, 'torch.warn', [ {}, {} ])) {
+                        continue;
+                    }
+                    throw new pytorch.Error('Unknown statement.');
+                    // throw new pytorch.Error('Unknown statement' + statement.location + '.');
+                }
+                return true;
             }
-            this._body = method.body.statements;
-            let methodParameters = method.parameters;
-            if (methodParameters.length > 0 && methodParameters[0].name == 'self') {
-                methodParameters.shift();
+            catch (error) {
+                this._exceptionCallback(error, false);
             }
-            for (const parameter of methodParameters) {
-                this._parameter(parameter);
-            }
-            if (this._body.length >= 2) {
-                // x = ...
-                // return x
-                let returnStatement = this._body[this._body.length - 1];
-                let assignStatement = this._body[this._body.length - 2];
-                if (returnStatement.type === 'return' && 
-                    returnStatement.expression.type === 'id' &&
-                    assignStatement.type === '=' &&
-                    assignStatement.target.type === 'id' &&
-                    assignStatement.target.value === returnStatement.expression.value) {
-                    returnStatement.expression = assignStatement.expression;
-                    this._body.pop();
-                    this._body.pop();
-                    this._body.push(returnStatement);
-                }
-            }
-    
-            while (this._body.length > 0) {
-                let statement = this._body.shift();
-                if (this._conditionStatement(statement)) {
-                    continue;
-                }
-                if (this._assignStatement(statement)) {
-                    continue;
-                }
-                if (this._argumentStatement(statement)) {
-                    continue;
-                }
-                if (this._nodeStatement(statement)) {
-                    continue;
-                }
-                if (this._returnStatement(statement)) {
-                    continue;
-                }
-                if (statement.type === 'pass') {
-                    continue;
-                }
-                if (this._isCall(statement, 'torch.warn', [ {}, {} ])) {
-                    continue;
-                }
-                throw new pytorch.Error('Unknown statement.');
-                // throw new pytorch.Error('Unknown statement' + statement.location + '.');
-            }
-            return true;
-        }
-        catch (error) {
-            this._exceptionCallback(error, false);
         }
         return false;
     }
-
-    /*
-    _trace(name, args) {
-        let namespace = 'torch.';
-        if (name.startsWith(namespace)) {
-            switch (name) {
-                case 'torch.conv2d':
-                    return { __module__: 'torch', __name__: 'Tensor', size: [ 0, 0, 0, 0 ] }; // TODO
-                case 'torch._convolution':
-                case 'torch.addmm':
-                case 'torch.relu_':
-                case 'torch.relu':
-                case 'torch.max_pool2d':
-                case 'torch.view':
-                case 'torch.matmul':
-                case 'torch.flatten':
-                case 'torch.add_':
-                case 'torch.add':
-                case 'torch.mul_':
-                case 'torch.mean':
-                case 'torch.log_softmax':
-                case 'torch.dropout':
-                case 'torch.dropout_':
-                case 'torch.adaptive_avg_pool2d':
-                case 'torch.batch_norm':
-                case 'torch.cat':
-                case 'torch.select':
-                case 'torch.unsqueeze':
-                    return [ { __module__: 'torch', __name__: 'Tensor' } ]; // TODO
-                case 'torch.max_pool2d_with_indices':
-                    return [ { __module__: 'torch', __name__: 'Tensor' }, { __module__: 'torch', __name__: 'Tensor' } ]; // TODO
-                case 'torch.list_with_default':
-                    return [0]; // TODO
-                case 'torch.size':
-                    return 0; // TODO
-            }
-        }
-        throw new pytorch.Error("Unknown symbol '" + name + "'.");
-    }
-    */
 
     _parameter(parameter) {
         let type = parameter.parameterType; 
