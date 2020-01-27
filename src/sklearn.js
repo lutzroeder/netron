@@ -601,7 +601,7 @@ sklearn.Node = class {
         for (const name of Object.keys(obj)) {
             if (!name.startsWith('_')) {
                 const value = obj[name];
-                if (!Array.isArray(value) && !Number.isInteger(value) && value !== null && value.__type__ !== 'numpy.ndarray') {
+                if (value && !Array.isArray(value) && value === Object(value) && value.__type__ === 'numpy.ndarray') {
                     this._initializers.push(new sklearn.Tensor(name, value));
                 }
                 else {
