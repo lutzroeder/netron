@@ -2877,7 +2877,7 @@
     "type":   "ncnn",
     "target": "squeezenet_v1.1.bin",
     "source": "https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.bin?raw=true",
-    "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
+    "error":  "File not found 'squeezenet_v1.1.xml' in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
@@ -3838,7 +3838,6 @@
     "target": "alexnet.pt",
     "script": "./tools/pytorch sync install zoo",
     "format": "TorchScript v1.4",
-    "error":  "Unknown statement in 'alexnet.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -3846,7 +3845,6 @@
     "target": "alexnet_traced.pt",
     "script": "./tools/pytorch sync install zoo",
     "format": "TorchScript v1.4",
-    "error":  "Unknown statement in 'alexnet_traced.pt'.",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -3936,7 +3934,6 @@
   {
     "type":   "pytorch",
     "target": "densenet161.pt",
-    "error":  "Unknown statement in 'densenet161.pt'.",
     "render": "skip",
     "script": "./tools/pytorch sync install zoo",
     "format": "TorchScript v1.4",
@@ -3946,7 +3943,6 @@
     "type":   "pytorch",
     "target": "densenet161_traced.pt",
     "render": "skip",
-    "error":  "Unknown function argument in 'densenet161_traced.pt'.",
     "script": "./tools/pytorch sync install zoo",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -3968,7 +3964,7 @@
     "type":   "pytorch",
     "target": "inception_v3.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown statement in 'inception_v3.pt'.",
+    "error":  "Unknown expression type in 'inception_v3.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -3976,7 +3972,6 @@
     "type":   "pytorch",
     "target": "inception_v3_traced.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown statement in 'inception_v3_traced.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4068,7 +4063,6 @@
     "type":   "pytorch",
     "target": "mobilenet_v2.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown statement in 'mobilenet_v2.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4076,7 +4070,6 @@
     "type":   "pytorch",
     "target": "mobilenet_v2_traced.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown function argument in 'mobilenet_v2_traced.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4162,7 +4155,6 @@
     "type":   "pytorch",
     "target": "resnet18.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown statement in 'resnet18.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4170,7 +4162,6 @@
     "type":   "pytorch",
     "target": "resnet18_traced.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown statement in 'resnet18_traced.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4227,7 +4218,6 @@
     "type":   "pytorch",
     "target": "resnet101.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown statement in 'resnet101.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4235,7 +4225,6 @@
     "type":   "pytorch",
     "target": "resnet101_traced.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown statement in 'resnet101_traced.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4257,7 +4246,8 @@
     "type":   "pytorch",
     "target": "resnet101-5d3b4d8f.pth",
     "source": "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth",
-    "format": "PyTorch v0.1.1"
+    "format": "PyTorch v0.1.1",
+    "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
   },
   {
     "type":   "pytorch",
@@ -4276,25 +4266,24 @@
   {
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.pkl.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v0.1.10"
+    "format": "PyTorch v0.1.10",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.zip.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v1.4"
+    "format": "PyTorch v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "error":  "Unknown statement in 'shufflenet_v2_x1_0.pt'.",
     "render": "skip",
     "script": "./tools/pytorch sync install zoo",
-    "format": "TorchScript v1.4"
+    "format": "TorchScript v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
@@ -4305,32 +4294,30 @@
   {
     "type":   "pytorch",
     "target": "squeezenet1_1.pkl.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v0.1.10"
+    "format": "PyTorch v0.1.10",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "squeezenet1_1.zip.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v1.4"
+    "format": "PyTorch v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "squeezenet1_1.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "error":  "Unknown statement in 'squeezenet1_1.pt'.",
     "script": "./tools/pytorch sync install zoo",
-    "format": "TorchScript v1.4"
+    "format": "TorchScript v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "squeezenet1_1_traced.pt",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
-    "error":  "Unknown statement in 'squeezenet1_1_traced.pt'.",
     "script": "./tools/pytorch sync install zoo",
-    "format": "TorchScript v1.4"
+    "format": "TorchScript v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
@@ -4431,35 +4418,34 @@
   {
     "type":   "pytorch",
     "target": "vgg11_bn.pkl.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v0.1.10"
+    "format": "PyTorch v0.1.10",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "vgg11_bn.zip.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v1.4"
+    "format": "PyTorch v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "vgg16.pkl.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v0.1.10"
+    "format": "PyTorch v0.1.10",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "vgg16.zip.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v1.4"
+    "format": "PyTorch v1.4",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "vgg16.pt",
-    "error":  "Unknown statement in 'vgg16.pt'.",
     "script": "./tools/pytorch sync install zoo",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -4467,7 +4453,6 @@
   {
     "type":   "pytorch",
     "target": "vgg16_traced.pt",
-    "error":  "Unknown statement in 'vgg16_traced.pt'.",
     "script": "./tools/pytorch sync install zoo",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"

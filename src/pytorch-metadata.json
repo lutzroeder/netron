@@ -1807,27 +1807,9 @@
       "outputs": [
         {
           "name": "output"
-        }
-      ]
-    }
-  },
-  {
-    "name": "torch.size",
-    "schema": {
-      "attributes": [
+        },
         {
-          "name": "dim",
-          "type": "int64"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "input"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output"
+          "name": "output2"
         }
       ]
     }
@@ -2001,16 +1983,15 @@
         {
           "name": "bidirectional",
           "type": "boolean"
-        },
-        {
-          "name": "batch_first",
-          "type": "boolean"
         }
       ],
       "category": "Layer",
       "inputs": [
         {
-          "name": "input"
+          "name": "data"
+        },
+        {
+          "name": "batch_sizes"
         },
         {
           "name": "hx"
