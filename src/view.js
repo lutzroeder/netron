@@ -1339,7 +1339,6 @@ view.ModelFactoryService = class {
             rootFolder = rootFolder == '/' ? '' : rootFolder;
             let matches = [];
             let entries = archive.entries.slice();
-            const sourceContext = context;
             const nextEntry = () => {
                 if (entries.length > 0) {
                     const entry = entries.shift();
@@ -1374,18 +1373,20 @@ view.ModelFactoryService = class {
                 }
                 else {
                     if (matches.length == 0) {
-                        return Promise.resolve(sourceContext);
-                        // return Promise.reject(new ArchiveError('Archive does not contain model file.'));
+                        return Promise.resolve(context);
                     }
-                    else if (matches.length > 1) {
-                        if (matches.length == 2 &&
-                            matches.some((e) => e.name.endsWith('.params')) &&
-                            matches.some((e) => e.name.endsWith('-symbol.json'))) {
-                            matches = matches.filter((e) => e.name.endsWith('.params'));
-                        }
-                        else {
-                            return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
-                        }
+                    if (matches.length > 0 && 
+                        matches.some((e) => e.name.endsWith('.bin')) &&
+                        archive.entries.some((e) => e.name.endsWith('.json'))) {
+                        return Promise.resolve(context); // dl4j
+                    }
+                    if (matches.length == 2 &&
+                        matches.some((e) => e.name.endsWith('.params')) &&
+                        matches.some((e) => e.name.endsWith('-symbol.json'))) {
+                        matches = matches.filter((e) => e.name.endsWith('.params'));
+                    }
+                    if (matches.length > 1) {
+                        return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches[0];
                     return Promise.resolve(new ModelContext(new ArchiveContext(archive.entries, rootFolder, match.name, match.data)));
