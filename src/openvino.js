@@ -34,6 +34,11 @@ openvino.ModelFactory = class {
             case 'bin':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
                     return this._openModel(identifier, host, xml, context.buffer);
+                }).catch((error) => {
+                    host.exception(error, false);
+                    let message = error && error.message ? error.message : error.toString();
+                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                    throw new openvino.Error(message + " in '" + identifier + "'.");
                 });
         }
     }
