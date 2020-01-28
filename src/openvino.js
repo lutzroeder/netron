@@ -9,13 +9,14 @@ var marked = marked || require('marked');
 openvino.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
             if (context.text.includes('<net')) {
                 return true;
             }
         }
-        if (extension === 'bin') {
+        if (extension === 'bin' && identifier !== 'natives_blob.bin') {
             return true;
         }
         return false;
