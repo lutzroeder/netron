@@ -1502,21 +1502,14 @@ mlnet.NormalizingTransformer = class extends mlnet.OneToOneTransformerBase {
             /* let isVector = */ reader.boolean();
             /* let vectorSize = */ reader.int32();
             const itemKind = reader.byte();
-            let itemType = null;
             switch (itemKind) {
-                case 9:
-                    itemType = 'float32';
-                    break;
-                case 10:
-                    itemType = 'float64';
-                    break;
-                default:
-                    throw new mlnet.Error('Unknown item kind.');
+                case 9: this.itemType = 'float32'; break;
+                case 10: this.itemType = 'float64'; break;
+                default: throw new mlnet.Error("Unknown NormalizingTransformer item kind '" + itemKind + "'.");
             }
             const func = context.open(name);
-            this.Options.push({ type: itemType, func: func });
+            this.Options.push({ func: func });
         }
-
     }
 }
 
