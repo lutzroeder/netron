@@ -14840,7 +14840,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will usethe data type of the input tensor.",
+          "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will use the data type of the input tensor.",
           "name": "dtype",
           "required": false,
           "type": "int64"
@@ -14991,7 +14991,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will usethe data type of the input tensor.",
+          "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will use the data type of the input tensor.",
           "name": "dtype",
           "required": false,
           "type": "int64"
