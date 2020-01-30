@@ -15,8 +15,27 @@
 </head>
 <body>
 <div id="welcome" class="background" style="display: block">
-    <a class="center logo" href="https://github.com/lutzroeder/netron" target="_blank">
-        <svg xmlns="http://www.w3.org/2000/svg" class="logo absolute" width="128" height="128" viewbox="0 0 1024 1024">
+    <a id="download-link" class="center" style="width: 640px; height: 128px;" href="https://github.com/lutzroeder/netron" target="_blank">
+        <svg class="absolute logo" style="left: -15px; top: -23px; width: 640px; height: 128px" viewbox="0 0 5120 1024">
+            <g transform="scale(8.2) translate(0,-15)">
+                <g transform="matrix(100,0,0,100,60.9965,126)">
+                    <path class="glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,164.341,126)">
+                    <path class="glyph" d="M0.089,0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,244.491,126)">
+                    <path class="glyph" d="M0.216,0L0.216,-0.654L0.019,-0.654L0.019,-0.715L0.478,-0.715L0.478,-0.654L0.281,-0.654L0.281,0L0.216,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,323.031,126)">
+                    <path class="glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,0L0.444,0L0.193,-0.341L0.154,-0.341L0.154,0L0.089,0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,520.979,126)">
+                    <path class="glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                </g>
+            </g>
+        </svg>
+        <svg class="absolute logo" style="left: 392px; top: 0px; width: 106px; height: 106px;" viewbox="0 0 1024 1024">
             <circle class="stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
             <circle class="border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
             <circle class="border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
@@ -61,13 +80,14 @@
                 <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
         </svg>
-        <svg id="spinner" class="spinner logo absolute" viewbox="0 0 1024 1024" style="display: none;">
+        <svg id="spinner" class="absolute logo spinner" style="left: 392px; top: 0px; width: 106px; height: 106px; display: none;" viewbox="0 0 1024 1024">
             <g transform="translate(512, 512)" style="opacity: 1">
                 <path class="stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
             </g>
         </svg>
     </a>
-    <button id="open-file-button" class="center" style="top: 200px; width: 125px; opacity: 0;">Open Model...</button>
+    <button id="open-file-button" class="center" style="top: 180px; left: -150px; width: 125px; opacity: 0;">Open Model&hellip;</button>
+    <button id="download-button" class="center" style="top: 180px; left: 150px; width: 125px; opacity: 0;">Download</button>
     <input type="file" id="open-file-dialog" style="display:none" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .bin, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>

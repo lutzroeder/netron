@@ -79,6 +79,7 @@ view.View = class {
 
         let welcomeElement = this._host.document.getElementById('welcome');
         let openFileButton = this._host.document.getElementById('open-file-button');
+        let downloadButton = this._host.document.getElementById('download-button');
         let spinnerElement = this._host.document.getElementById('spinner');
         let graphElement = this._host.document.getElementById('graph');
         let toolbarElement = this._host.document.getElementById('toolbar');
@@ -88,6 +89,10 @@ view.View = class {
             welcomeElement.style.display = 'block';
             openFileButton.style.display = 'block';
             openFileButton.style.opacity = 1;
+            if (downloadButton) {
+                downloadButton.style.display = 'block';
+                downloadButton.style.opacity = 1;    
+            }
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'none';
             graphElement.style.opacity = 0;
@@ -99,6 +104,9 @@ view.View = class {
             welcomeElement.style.display = 'block';
             spinnerElement.style.display = 'block';
             openFileButton.style.display = 'block';
+            if (downloadButton) {
+                downloadButton.style.display = 'block';
+            }
             graphElement.style.display = 'block';
             graphElement.style.opacity = 0;
             toolbarElement.style.display = 'none';
@@ -108,6 +116,10 @@ view.View = class {
             welcomeElement.style.display = 'none';
             openFileButton.style.display = 'none';
             openFileButton.style.opacity = 0;
+            if (downloadButton) {
+                downloadButton.style.display = 'none';
+                downloadButton.style.opacity = 0;
+            }
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'block';
             graphElement.style.opacity = 1;

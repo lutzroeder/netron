@@ -149,6 +149,14 @@ host.BrowserHost = class {
                 }
             });
         }
+        let downloadButton = this.document.getElementById('download-button');
+        let downloadLink = this.document.getElementById('download-link');
+        if (downloadButton && downloadLink) {
+            downloadButton.style.opacity = 1;
+            downloadButton.addEventListener('click', () => {
+                this.openURL(downloadLink.href);
+            });
+        }
         this.document.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
