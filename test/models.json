@@ -3971,7 +3971,7 @@
     "type":   "pytorch",
     "target": "inception_v3.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown expression type in 'inception_v3.pt'.",
+    "error":  "Unknown torch.mul expression type in 'inception_v3.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },

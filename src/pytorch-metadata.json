@@ -845,6 +845,73 @@
     }
   },
   {
+    "name": "ops.quantized.add",
+    "schema": {
+      "attributes": [
+        {
+          "name": "scale"
+        },
+        {
+          "name": "zero_point"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "A"
+        },
+        {
+          "name": "B"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "C"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.linear",
+    "schema": {
+      "attributes": [
+        {
+          "name": "scale"
+        },
+        {
+          "name": "zero_point"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "packed_params"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.dequantize",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "ops.quantized.conv2d",
     "schema": {
       "attributes": [
@@ -875,10 +942,7 @@
           "name": "input"
         },
         {
-          "name": "weight"
-        },
-        {
-          "name": "bias"
+          "name": "packed_params"
         }
       ],
       "outputs": [
@@ -935,12 +999,6 @@
           "name": "output"
         }
       ]
-    }
-  },
-  {
-    "name": "ops.quantized.linear",
-    "schema": {
-      "category": "Layer"
     }
   },
   {
