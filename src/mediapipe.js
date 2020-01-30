@@ -21,7 +21,7 @@ mediapipe.ModelFactory = class {
     open(context /*, host */) {
         const reader = prototxt.TextReader.create(context.text);
         const root = new mediapipe.Node(reader);
-
+        return new mediapipe.Model(root);
     }
 };
 
@@ -61,12 +61,14 @@ mediapipe.Graph = class {
 
 mediapipe.Node = class {
 
-    constructor(reader) {
+    constructor(/* reader */) {
+        /*
         reader.start();
         while (!reader.end()) {
-            debugger;
+            // debugger;
             var tag = reader.tag();
         }
+        */
     }
 }
 
