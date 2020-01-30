@@ -16,7 +16,13 @@ openvino.ModelFactory = class {
                 return true;
             }
         }
-        if (extension === 'bin' && identifier !== 'natives_blob.bin') {
+        if (extension === 'bin') {
+            switch (identifier) {
+                case 'natives_blob.bin':
+                case 'snapshot_blob.bin':
+                case 'v8_context_snapshot.bin':
+                    return false;
+            }
             return true;
         }
         return false;
