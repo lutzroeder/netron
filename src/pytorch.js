@@ -1036,6 +1036,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.distributions.multivariate_normal.MultivariateNormal', function() {});
         this._registerConstructor('torch.nn.backends.thnn._get_thnn_function_backend', function() {});
         this._registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
+        this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.GLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.Hardtanh', function() {});
