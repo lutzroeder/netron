@@ -15703,6 +15703,39 @@
     }
   },
   {
+    "name": "Dawsn",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "DebugGradientIdentity",
     "schema": {
       "attributes": [
@@ -21427,6 +21460,39 @@
     }
   },
   {
+    "name": "Expint",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Expm1",
     "schema": {
       "attributes": [
@@ -23383,6 +23449,72 @@
         }
       ],
       "summary": "Computes gradient of the FractionalMaxPool function."
+    }
+  },
+  {
+    "name": "FresnelCos",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "FresnelSin",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
@@ -26117,6 +26249,75 @@
         }
       ],
       "summary": "Returns the imaginary part of a complex number."
+    }
+  },
+  {
+    "name": "ImageProjectiveTransformV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "description": "Input dtype.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "description": "Interpolation method, \"NEAREST\" or \"BILINEAR\".",
+          "name": "interpolation",
+          "type": "string"
+        }
+      ],
+      "description": "If one row of `transforms` is `[a0, a1, a2, b0, b1, b2, c0, c1]`, then it maps\nthe *output* point `(x, y)` to a transformed *input* point\n`(x', y') = ((a0 x + a1 y + a2) / k, (b0 x + b1 y + b2) / k)`, where\n`k = c0 x + c1 y + 1`. If the transformed point lays outside of the input\nimage, the output pixel is set to 0.",
+      "inputs": [
+        {
+          "description": "4-D with shape `[batch, height, width, channels]`.",
+          "name": "images",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "2-D Tensor, `[batch, 8]` or `[1, 8]` matrix, where each row corresponds to a 3 x 3\nprojective transformation matrix, with the last entry assumed to be 1. If there\nis one row, the same transformation will be applied to all images.",
+          "name": "transforms",
+          "type": 1
+        },
+        {
+          "description": "1-D Tensor [new_height, new_width].",
+          "name": "output_shape",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "4-D with shape\n`[batch, new_height, new_width, channels]`.",
+          "name": "transformed_images",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Applies the given transform to each of the images."
     }
   },
   {
@@ -67657,6 +67858,39 @@
         }
       ],
       "summary": "Applies set operation along last dimension of 2 `SparseTensor` inputs."
+    }
+  },
+  {
+    "name": "Spence",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
