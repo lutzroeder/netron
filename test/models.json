@@ -2322,6 +2322,13 @@
     "script": "./tools/keras sync install zoo"
   },
   {
+    "type":   "mediapipe",
+    "target": "face_detection_mobile_cpu.pbtxt",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/face_detection/face_detection_mobile_cpu.pbtxt",
+    "error":  "Unsupported file content for extension '.pbtxt' in 'face_detection_mobile_cpu.pbtxt'.",
+    "link":   "https://github.com/google/mediapipe"
+  },
+  {
     "type":   "mlnet",
     "target": "BinaryClassification_AutoML_SentimentModel.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip?raw=true",
@@ -4642,13 +4649,6 @@
     "format": "TensorFlow MetaGraph",
     "render": "skip",
     "link":   "https://github.com/Leavingseason/xDeepFM"
-  },
-  {
-    "type":   "tf",
-    "target": "face_detection_mobile_cpu.pbtxt",
-    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/face_detection/face_detection_mobile_cpu.pbtxt",
-    "error":  "Unsupported file content for extension '.pbtxt' in 'face_detection_mobile_cpu.pbtxt'.",
-    "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "tf",
