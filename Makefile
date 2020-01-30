@@ -30,6 +30,7 @@ update:
 	@./tools/darknet sync
 	@./tools/dl4j sync
 	@./tools/keras sync install metadata
+	@./tools/mediapipe sync
 	@./tools/mlnet sync metadata
 	@./tools/mnn sync schema
 	@./tools/mxnet sync metadata

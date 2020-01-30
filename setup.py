@@ -100,6 +100,7 @@ setuptools.setup(
             'dl4j.js', 'dl4j-metadata.json',
             'flux.js', 'flux-metadata.json',
             'keras.js', 'keras-metadata.json',
+            'mediapipe.js',
             'mlnet.js', 'mlnet-metadata.json',
             'mnn.js', 'mnn-metadata.json', 'mnn-schema.js',
             'mxnet.js', 'mxnet-metadata.json',
