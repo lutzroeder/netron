@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -12,83 +13,100 @@
 <link rel="apple-touch-icon" type="image/png" href="icon.png" />
 <link rel="apple-touch-icon-precomposed" type="image/png" href="icon.png" />
 <link rel="fluid-icon" type="image/png" href="icon.png" />
+<style>
+#logo-container { width: 640px; height: 128px; }
+#logo-icon { left: 392px; top: 0px; width: 106px; height: 106px; }
+#logo-spinner { left: 392px; top: 0px; width: 106px; height: 106px; display: none; }
+#logo-text { left: -15px; top: -23px; width: 640px; height: 128px; bottom: 0; right: 0; }
+#open-file-dialog { display: none; }
+#open-file-button { top: 180px; left: -150px; width: 125px; opacity: 0; }
+#download-button { top: 180px; left: 150px; width: 125px; opacity: 0; }
+@media all and (max-width: 680px) {
+#logo-container { width: 128px; height: 128px; }
+#logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
+#logo-spinner { left: 0; top: 0; width: 128px; height: 128px; }
+#logo-text { display: none; }
+#open-file-button { top: 180px; left: 0; }
+#download-button { top: 270px; left: 0; }
+}
+</style>
 </head>
 <body>
 <div id="welcome" class="background" style="display: block">
-    <a id="download-link" class="center" style="width: 640px; height: 128px;" href="https://github.com/lutzroeder/netron" target="_blank">
-        <svg class="absolute logo" style="left: -15px; top: -23px; width: 640px; height: 128px" viewbox="0 0 5120 1024">
+    <a id="logo-container" class="center" href="https://github.com/lutzroeder/netron" target="_blank">
+        <svg id="logo-text" class="absolute" viewbox="0 0 5120 1024">
             <g transform="scale(8.2) translate(0,-15)">
                 <g transform="matrix(100,0,0,100,60.9965,126)">
-                    <path class="glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                    <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
                 </g>
                 <g transform="matrix(100,0,0,100,164.341,126)">
-                    <path class="glyph" d="M0.089,0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                    <path class="logo-glyph" d="M0.089,0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,0L0.089,0Z" style="fill-rule:nonzero;"/>
                 </g>
                 <g transform="matrix(100,0,0,100,244.491,126)">
-                    <path class="glyph" d="M0.216,0L0.216,-0.654L0.019,-0.654L0.019,-0.715L0.478,-0.715L0.478,-0.654L0.281,-0.654L0.281,0L0.216,0Z" style="fill-rule:nonzero;"/>
+                    <path class="logo-glyph" d="M0.216,0L0.216,-0.654L0.019,-0.654L0.019,-0.715L0.478,-0.715L0.478,-0.654L0.281,-0.654L0.281,0L0.216,0Z" style="fill-rule:nonzero;"/>
                 </g>
                 <g transform="matrix(100,0,0,100,323.031,126)">
-                    <path class="glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,0L0.444,0L0.193,-0.341L0.154,-0.341L0.154,0L0.089,0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,0Z" style="fill-rule:nonzero;"/>
+                    <path class="logo-glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,0L0.444,0L0.193,-0.341L0.154,-0.341L0.154,0L0.089,0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,0Z" style="fill-rule:nonzero;"/>
                 </g>
                 <g transform="matrix(100,0,0,100,520.979,126)">
-                    <path class="glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                    <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
                 </g>
             </g>
         </svg>
-        <svg class="absolute logo" style="left: 392px; top: 0px; width: 106px; height: 106px;" viewbox="0 0 1024 1024">
-            <circle class="stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
-            <circle class="border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
-            <circle class="border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
+        <svg id="logo-icon" class="absolute" viewbox="0 0 1024 1024">
+            <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
+            <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
+            <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
             <g transform="translate(296, 392)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(296, 632)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 280)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 435)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 590)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 744)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(785, 512)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
         </svg>
-        <svg id="spinner" class="absolute logo spinner" style="left: 392px; top: 0px; width: 106px; height: 106px; display: none;" viewbox="0 0 1024 1024">
+        <svg id="logo-spinner" class="absolute logo-spinner" viewbox="0 0 1024 1024">
             <g transform="translate(512, 512)" style="opacity: 1">
-                <path class="stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
+                <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
             </g>
         </svg>
     </a>
-    <button id="open-file-button" class="center" style="top: 180px; left: -150px; width: 125px; opacity: 0;">Open Model&hellip;</button>
-    <button id="download-button" class="center" style="top: 180px; left: 150px; width: 125px; opacity: 0;">Download</button>
-    <input type="file" id="open-file-dialog" style="display:none" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .bin, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
+    <button id="open-file-button" class="center">Open Model&hellip;</button>
+    <button id="download-button" class="center">Download</button>
+    <input type="file" id="open-file-dialog" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .bin, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>

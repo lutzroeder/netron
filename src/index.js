@@ -150,7 +150,7 @@ host.BrowserHost = class {
             });
         }
         let downloadButton = this.document.getElementById('download-button');
-        let downloadLink = this.document.getElementById('download-link');
+        let downloadLink = this.document.getElementById('logo-container');
         if (downloadButton && downloadLink) {
             downloadButton.style.opacity = 1;
             downloadButton.addEventListener('click', () => {

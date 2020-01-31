@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -6,58 +7,64 @@
 <link rel="stylesheet" type="text/css" href="view-grapher.css">
 <link rel="stylesheet" type="text/css" href="view-sidebar.css">
 <link rel="stylesheet" type="text/css" href="view.css">
+<style>
+#logo-container { width: 128px; height: 128px; }
+#logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
+#logo-spinner { left: 0; top: 0px; width: 128px; height: 128px; display: none; }
+#open-file-button { top: 180px; left: 0; width: 125px; opacity: 0; }
+</style>
 </head>
 <body style="opacity: 0;">
 <div id="welcome" class="background" style="display: block">
-    <a id="download-link" class="center" style="width: 128px; height: 128px;" href="https://github.com/lutzroeder/netron" target="_blank">
-        <svg class="logo absolute" width="128" height="128" viewbox="0 0 1024 1024">
-            <circle class="stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
-            <circle class="border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
-            <circle class="border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
-            <line class="stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
-            <line class="stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
+    <a id="logo-container" class="center" href="https://github.com/lutzroeder/netron" target="_blank">
+        <svg id="logo-icon" class="absolute" width="128" height="128" viewbox="0 0 1024 1024">
+            <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
+            <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
+            <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
             <g transform="translate(296, 392)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(296, 632)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 280)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 435)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 590)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(540, 744)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
             <g transform="translate(785, 512)">
-                <circle class="fill" cx="0" cy="0" r="51"></circle>
-                <circle class="border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
             </g>
         </svg>
-        <svg id="spinner" class="spinner logo absolute" viewbox="0 0 1024 1024" style="display: none;">
+        <svg id="logo-spinner" class="absolute logo-spinner" viewbox="0 0 1024 1024">
             <g transform="translate(512, 512)" style="opacity: 1">
-                <path class="stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
+                <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
             </g>
         </svg>
     </a>

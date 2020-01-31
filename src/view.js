@@ -80,10 +80,10 @@ view.View = class {
         let welcomeElement = this._host.document.getElementById('welcome');
         let openFileButton = this._host.document.getElementById('open-file-button');
         let downloadButton = this._host.document.getElementById('download-button');
-        let spinnerElement = this._host.document.getElementById('spinner');
+        let spinnerElement = this._host.document.getElementById('logo-spinner');
         let graphElement = this._host.document.getElementById('graph');
         let toolbarElement = this._host.document.getElementById('toolbar');
-    
+
         if (page == 'Welcome') {
             this._host.document.body.style.cursor = 'default';
             welcomeElement.style.display = 'block';
@@ -103,9 +103,11 @@ view.View = class {
             this._host.document.body.style.cursor = 'wait';
             welcomeElement.style.display = 'block';
             spinnerElement.style.display = 'block';
-            openFileButton.style.display = 'block';
+            openFileButton.style.display = 'none';
+            openFileButton.style.opacity = 0;
             if (downloadButton) {
-                downloadButton.style.display = 'block';
+                downloadButton.style.display = 'none';
+                downloadButton.style.opacity = 0;
             }
             graphElement.style.display = 'block';
             graphElement.style.opacity = 0;
@@ -126,6 +128,8 @@ view.View = class {
             toolbarElement.style.display = 'block';
             this._host.document.body.style.cursor = 'default';
         }
+
+        this._host.document.documentElement.className = 'reset_' + (new Date()).getTime();
     }
 
     cut() {
