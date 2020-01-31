@@ -11176,6 +11176,10 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 10
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -11235,6 +11239,10 @@
       "attributes": [
         {
           "allowedValues": [
+            {
+              "type": "type",
+              "value": 10
+            },
             {
               "type": "type",
               "value": 1
