@@ -3757,6 +3757,13 @@
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
+    "type":   "openvino",
+    "target": "2019_R1_resnet50-binary-0001.bin,2019_R1_resnet50-binary-0001.xml",
+    "source": "https://download.01.org/opencv/2019/open_model_zoo/R1/models_bin/resnet50-binary-0001/resnet50-binary-0001.bin,https://download.01.org/opencv/2019/open_model_zoo/R1/models_bin/resnet50-binary-0001/resnet50-binary-0001.xml",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/opencv"
+  },
+  {
      "type":   "openvino",
      "target": "2019_R7_netron_issue372.xml",
      "source": "https://github.com/lutzroeder/netron/files/3846426/ir.xml.zip[ir.xml]",

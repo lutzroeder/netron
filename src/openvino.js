@@ -23,6 +23,11 @@ openvino.ModelFactory = class {
                 case 'v8_context_snapshot.bin':
                     return false;
             }
+            const buffer = context.buffer;
+            const signature = [ 0x21, 0xA8, 0xEF, 0xBE, 0xAD, 0xDE ];
+            if (buffer && buffer.length > 6 && signature.every((v, i) => v == buffer[i])) {
+                return false;
+            }
             return true;
         }
         return false;
@@ -887,6 +892,7 @@ openvino.TensorType = class {
             case 'I16':  this._dataType = 'int16'; break;
             case 'I32':  this._dataType = 'int32'; break;
             case 'I64':  this._dataType = 'int64'; break;
+            case 'U1':   this._dataType = 'boolean'; break;
             case 'U8':   this._dataType = 'uint8'; break;
             case 'U16':  this._dataType = 'uint16'; break;
             case 'U32':  this._dataType = 'uint32'; break;
