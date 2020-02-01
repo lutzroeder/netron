@@ -165,7 +165,7 @@ tflite.Node = class {
         this._inputs = [];
         this._outputs = [];
         if (node) {
-            const schema = this._metadata.getSchema(this.operator);
+            const schema = this._metadata.type(this.operator);
             let inputs = [];
             for (let i = 0; i < node.inputsLength(); i++) {
                 inputs.push(node.inputs(i));
@@ -305,7 +305,7 @@ tflite.Node = class {
         if (this._operator.custom) {
             return 'custom';
         }
-        const schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.type(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -353,7 +353,7 @@ tflite.Attribute = class {
             this._name += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
         }
 
-        const schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -705,12 +705,12 @@ tflite.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator];
     }
 
-    getAttributeSchema(operator, name) {
-        const schema = this.getSchema(operator);
+    attribute(operator, name) {
+        const schema = this.type(operator);
         if (schema) {
             let attributeMap = schema.attributeMap;
             if (!attributeMap) {

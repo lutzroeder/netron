@@ -26,8 +26,7 @@ chainer.ModelFactory = class {
     }
 
     open(context, host) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = context.identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'npz':
                 return this._openNumPy(context, host);
@@ -259,7 +258,8 @@ chainer.ModelFactory = class {
                             dataType: variable.type,
                             byteOrder: variable.littleEndian ? '<' : '>',
                             shape: variable.shape, 
-                            data: variable.data });
+                            data: variable.data
+                        });
                     }
                 }
 

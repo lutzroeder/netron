@@ -409,7 +409,7 @@ cntk.Node = class {
                         }
                     }
                     else {
-                        this._operator = this._metadata.getOperatorName(obj.op);
+                        this._operator = this._metadata.name(obj.op);
                         if (this._operator == null) {
                             this._operator = obj.op ? obj.op.toString() : '?';
                         }
@@ -441,7 +441,7 @@ cntk.Node = class {
         }
 
         let inputIndex = 0;
-        const schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        const schema = this._metadata.type(this._function ? ('Function:' + this._operator) : this._operator);
         if (schema && schema.inputs) {
             for (const inputSchema of schema.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
@@ -489,7 +489,7 @@ cntk.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
+        const schema = this._metadata.type(this._function ? ('Function:' + this._operator) : this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -532,7 +532,7 @@ cntk.Attribute = class {
             this._value = axis;
         }
 
-        const schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.attribute(operator, name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -817,20 +817,20 @@ cntk.Metadata = class {
         }
     }
 
-    getOperatorName(code) {
+    name(code) {
         // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
         return this._operatorMap[code] || null;
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            let schema = this.getSchema(operator);
+            let schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;

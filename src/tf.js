@@ -785,7 +785,7 @@ tf.Node = class {
                     this._attributes.push(new tf.Attribute(attributeName, node.attr[attributeName], this._operator, metadata));
                 }
             }
-            const schema = metadata.getSchema(this._operator);
+            const schema = metadata.type(this._operator);
             let inputIndex = 0;
             let inputs = node.input.filter(input => !input.startsWith('^'));
             if (schema && schema.inputs) {
@@ -891,7 +891,7 @@ tf.Node = class {
     }
 
     get documentation() {
-        let schema = this._graph.metadata.getSchema(this.operator);
+        let schema = this._graph.metadata.type(this.operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this.operator;
@@ -961,7 +961,7 @@ tf.Node = class {
     }
 
     get category() {
-        const schema = this._graph.metadata.getSchema(this.operator);
+        const schema = this._graph.metadata.type(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -988,7 +988,7 @@ tf.Attribute = class {
         this._name = name;
         this._value = null;
         this._type = null;
-        const schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.attribute(operator, name);
         if (Object.prototype.hasOwnProperty.call(value, 'tensor')) {
             this._type = 'tensor';
             this._value = new tf.Tensor(value.tensor);
@@ -1613,19 +1613,19 @@ tf.GraphMetadata = class {
         this._attributeCache = {};
     }
 
-    getSchema(operator) {
-        var schema = this._metadata.getSchema(operator);
+    type(operator) {
+        var schema = this._metadata.type(operator);
         if (!schema) {
             schema = this._map[operator];
         }
         return schema;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
@@ -1637,7 +1637,7 @@ tf.GraphMetadata = class {
     }
 
     getAttributeVisibleMap(operator) {
-        const schema = this.getSchema(operator);
+        const schema = this.type(operator);
         if (schema) {
             let map = schema.__visisbleAttributeMap__;
             if (!map) {
@@ -1734,7 +1734,7 @@ tf.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator];
     }
 };

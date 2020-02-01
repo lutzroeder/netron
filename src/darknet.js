@@ -754,7 +754,7 @@ darknet.Node = class {
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this._operator);
+        let schema = this._metadata.type(this._operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
@@ -795,7 +795,7 @@ darknet.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.type(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -821,7 +821,7 @@ darknet.Attribute = class {
     constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
-        const schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.attribute(operator, name);
         if (schema) {
             this._type = schema.type || '';
             switch (this._type) {
@@ -1070,15 +1070,15 @@ darknet.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map.get(operator) || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         const key = operator + ':' + name;
         if (!this._attributeMap.has(key)) {
             this._attributeMap.set(key, null);
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
                     this._attributeMap.set(operator + ':' + attribute.name, attribute);

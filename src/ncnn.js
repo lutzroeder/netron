@@ -311,7 +311,7 @@ ncnn.Node = class {
             this._operator = operator;
         }
 
-        const schema = metadata.getSchema(this._operator);
+        const schema = metadata.type(this._operator);
 
         let attributeMetadata = {};
         if (schema && schema.attributes) {
@@ -485,7 +485,7 @@ ncnn.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.type(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -768,15 +768,15 @@ ncnn.Metadata = class {
         return this._operatorMap[code] || null;
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;

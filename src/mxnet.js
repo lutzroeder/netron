@@ -616,7 +616,7 @@ mxnet.Node = class {
         }
 
         let initializer = null;
-        const schema = metadata.getSchema(this.operator);
+        const schema = metadata.type(this.operator);
         if (node.inputs) {
             let inputs = node.inputs;
             if (this._operator == 'RNN') {
@@ -749,12 +749,12 @@ mxnet.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator); 
+        const schema = this._metadata.type(this._operator); 
         return schema && schema.category ? schema.category : '';
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this._operator); 
+        let schema = this._metadata.type(this._operator); 
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
@@ -811,7 +811,7 @@ mxnet.Attribute = class {
         this._value = value;
 
         let number;
-        const schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.attribute(operator, name);
         if (schema && schema.type) {
             switch (schema.type) {
                 case 'boolean':
@@ -1125,15 +1125,15 @@ mxnet.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;

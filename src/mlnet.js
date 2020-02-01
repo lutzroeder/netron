@@ -237,12 +237,12 @@ mlnet.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator); 
+        const schema = this._metadata.type(this._operator); 
         return schema && schema.category ? schema.category : '';
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this._operator); 
+        let schema = this._metadata.type(this._operator); 
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
@@ -294,7 +294,7 @@ mlnet.Attribute = class {
         this._name = name;
         this._value = value;
 
-        const schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -437,15 +437,15 @@ mlnet.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator] || null;
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;

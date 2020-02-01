@@ -346,7 +346,7 @@ dl4j.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this._operator);
+        const schema = this._metadata.type(this._operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
@@ -399,7 +399,7 @@ dl4j.Attribute = class {
         this._name = name;
         this._value = value;
         this._visible = false;
-        const schema = metadata.getAttributeSchema(operator, name);
+        const schema = metadata.attribute(operator, name);
         if (schema) {
             if (schema.visible) {
                 this._visible = true;
@@ -513,15 +513,15 @@ dl4j.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator];
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;

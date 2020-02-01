@@ -593,12 +593,12 @@ coreml.Node = class {
     }
 
     get category() {
-        const schema = this._metadata.getSchema(this.operator);
+        const schema = this._metadata.type(this.operator);
         return (schema && schema.category) ? schema.category : '';
     }
 
     get documentation() {
-        let schema = this._metadata.getSchema(this.operator);
+        let schema = this._metadata.type(this.operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this.operator;
@@ -800,7 +800,7 @@ coreml.Attribute = class {
     constructor(metadata, operator, name, value) {
         this._name = name;
         this._value = value;
-        const schema = metadata.getAttributeSchema(operator, this._name);
+        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -1133,15 +1133,15 @@ coreml.Metadata = class {
         }
     }
 
-    getSchema(operator) {
+    type(operator) {
         return this._map[operator];
     }
 
-    getAttributeSchema(operator, name) {
+    attribute(operator, name) {
         let map = this._attributeCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
@@ -1156,7 +1156,7 @@ coreml.Metadata = class {
         let map = this._inputCache[operator];
         if (!map) {
             map = {};
-            const schema = this.getSchema(operator);
+            const schema = this.type(operator);
             if (schema && schema.inputs && schema.inputs.length > 0) {
                 for (const input of schema.inputs) {
                     map[input.name] = input;

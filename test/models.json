@@ -1307,36 +1307,6 @@
   },
   {
     "type":   "coreml",
-    "target": "FNS-Feathers.mlmodel",
-    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Feathers.mlmodel",
-    "link":   "https://github.com/ileafsolutions/StyleArt"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-La-Muse.mlmodel",
-    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-La-Muse.mlmodel",
-    "link":   "https://github.com/ileafsolutions/StyleArt"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Mosaic.mlmodel",
-    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Mosaic.mlmodel",
-    "link":   "https://github.com/ileafsolutions/StyleArt"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-The-Scream.mlmodel",
-    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-The-Scream.mlmodel",
-    "link":   "https://github.com/ileafsolutions/StyleArt"
-  },
-  {
-    "type":   "coreml",
-    "target": "FNS-Udnie.mlmodel",
-    "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Udnie.mlmodel",
-    "link":   "https://github.com/ileafsolutions/StyleArt"
-  },
-  {
-    "type":   "coreml",
     "target": "Food101.mlmodel",
     "source": "https://drive.google.com/uc?export=download&id=0B5TjkH3njRqnVjBPZGRZbkNITjA",
     "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
