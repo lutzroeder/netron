@@ -1674,10 +1674,35 @@ TFLITE.Tensor.prototype.sparsity = function(obj) {
 };
 
 /**
+ * @param {number} index
+ * @returns {number}
+ */
+TFLITE.Tensor.prototype.shapeSignature = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+TFLITE.Tensor.prototype.shapeSignatureLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+TFLITE.Tensor.prototype.shapeSignatureArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.Tensor.startTensor = function(builder) {
-  builder.startObject(7);
+  builder.startObject(8);
 };
 
 /**
@@ -1759,6 +1784,35 @@ TFLITE.Tensor.addSparsity = function(builder, sparsityOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} shapeSignatureOffset
+ */
+TFLITE.Tensor.addShapeSignature = function(builder, shapeSignatureOffset) {
+  builder.addFieldOffset(7, shapeSignatureOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Tensor.createShapeSignatureVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+TFLITE.Tensor.startShapeSignatureVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.Tensor.endTensor = function(builder) {
@@ -1775,9 +1829,10 @@ TFLITE.Tensor.endTensor = function(builder) {
  * @param {flatbuffers.Offset} quantizationOffset
  * @param {boolean} isVariable
  * @param {flatbuffers.Offset} sparsityOffset
+ * @param {flatbuffers.Offset} shapeSignatureOffset
  * @returns {flatbuffers.Offset}
  */
-TFLITE.Tensor.createTensor = function(builder, shapeOffset, type, buffer, nameOffset, quantizationOffset, isVariable, sparsityOffset) {
+TFLITE.Tensor.createTensor = function(builder, shapeOffset, type, buffer, nameOffset, quantizationOffset, isVariable, sparsityOffset, shapeSignatureOffset) {
   TFLITE.Tensor.startTensor(builder);
   TFLITE.Tensor.addShape(builder, shapeOffset);
   TFLITE.Tensor.addType(builder, type);
@@ -1786,6 +1841,7 @@ TFLITE.Tensor.createTensor = function(builder, shapeOffset, type, buffer, nameOf
   TFLITE.Tensor.addQuantization(builder, quantizationOffset);
   TFLITE.Tensor.addIsVariable(builder, isVariable);
   TFLITE.Tensor.addSparsity(builder, sparsityOffset);
+  TFLITE.Tensor.addShapeSignature(builder, shapeSignatureOffset);
   return TFLITE.Tensor.endTensor(builder);
 }
 
