@@ -3849,7 +3849,7 @@
     "type":   "pytorch",
     "target": "blitz_neural_networks_tutorial.pt",
     "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial.pt]",
-    "error":  "Unknown statement in 'blitz_neural_networks_tutorial.pt'.",
+    "error":  "Unknown statement 'for' in 'blitz_neural_networks_tutorial.pt'.",
     "format": "TorchScript v1.3",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
@@ -3879,13 +3879,6 @@
     "source": "https://raw.githubusercontent.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation/master/checkpoint/ckpt.t7",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation"
-  },
-  {
-    "type":   "pytorch",
-    "target": "coco_resnet_50_map_0_335.pt",
-    "source": "https://drive.google.com/uc?export=download&id=1hCtM35R_t6T8RJVSd74K4gB-A1MR-TxC",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://github.com/yhenon/pytorch-retinanet/issues/2"
   },
   {
     "type":   "pytorch",
@@ -3948,7 +3941,6 @@
     "type":   "pytorch",
     "target": "inception_v3.pt",
     "script": "./tools/pytorch sync install zoo",
-    "error":  "Unknown torch.mul expression type in 'inception_v3.pt'.",
     "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4026,7 +4018,6 @@
     "target": "mobilenet_quantization_scripted_quantized.pth",
     "source": "https://github.com/lutzroeder/netron/files/4111581/mobilenet_quantization_scripted_quantized.pth.zip[mobilenet_quantization_scripted_quantized.pth]",
     "format": "TorchScript v1.3",
-    "error":  "Unknown statement in 'mobilenet_quantization_scripted_quantized.pth'.",
     "link":   "https://github.com/lutzroeder/netron/issues/421"
   },
   {
@@ -4061,7 +4052,6 @@
     "type":   "pytorch",
     "target": "model-reddit16-f140225004_2.pt1",
     "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1?raw=true",
-    "error":  "Unknown function argument in 'model-reddit16-f140225004_2.pt1'.",
     "format": "TorchScript v1.3",
     "link":   "https://github.com/pytorch/android-demo-app"
   },
@@ -4232,13 +4222,6 @@
     "source": "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth",
     "format": "PyTorch v0.1.1",
     "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
-  },
-  {
-    "type":   "pytorch",
-    "target": "SiamRPNBIG.model",
-    "source": "https://drive.google.com/uc?export=download&id=1-vNVZxfbIplXHrqMHiJJYWXYWsOIvGsf",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://github.com/foolwood/DaSiamRPN"
   },
   {
     "type":   "pytorch",

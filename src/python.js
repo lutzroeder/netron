@@ -774,7 +774,7 @@ python.Parser = class {
                 continue;
             }
             if (this._tokenizer.eat(',')) {
-                list.push({});
+                // list.push({});
                 continue;
             }
             if (this._tokenizer.peek().value != ']') {

@@ -2046,16 +2046,21 @@
       "category": "Layer",
       "inputs": [
         {
-          "name": "data"
+          "name": "data",
+          "type": "T"
         },
         {
-          "name": "batch_sizes"
+          "name": "batch_sizes",
+          "option": "optional",
+          "type": "T"
         },
         {
-          "name": "hx"
+          "name": "hx",
+          "type": "T[]"
         },
         {
-          "name": "params"
+          "name": "params",
+          "type": "T[]"
         }
       ],
       "outputs": [
@@ -2389,6 +2394,28 @@
   {
     "name": "torch.index",
     "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._cast_Long",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
