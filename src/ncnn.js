@@ -130,9 +130,9 @@ ncnn.Graph = class {
  
         for (const layer of layers) {
             if (layer.type == 'Input') {
-                let dimensions = layer.attributes.map((a) => parseInt(a.value, 10));
-                let shape = new ncnn.TensorShape(dimensions);
-                let type = new ncnn.TensorType('float32', shape);
+                const dimensions = layer.attributes.map((a) => !isNaN(parseInt(a.value, 10)) ? parseInt(a.value, 10) : a.value);
+                const shape = new ncnn.TensorShape(dimensions);
+                const type = new ncnn.TensorType('float32', shape);
                 this._inputs.push(new ncnn.Parameter(layer.name, true, layer.outputs.map((output) => new ncnn.Argument(output, type, null))));
             }
             else {
@@ -383,7 +383,6 @@ ncnn.Node = class {
                 this._weight(blobReader, 'mean', [ channels ], 'float32');
                 this._weight(blobReader, 'variance', [ channels ], 'float32');
                 this._weight(blobReader, 'bias', [ channels ], 'float32');
-                blobReader.next();
                 break;
             }
             case 'InnerProduct': {
@@ -393,13 +392,11 @@ ncnn.Node = class {
                 if (layer.attr['1'] == '1') {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
-                blobReader.next();
                 break;
             }
             case 'Bias': {
                 bias_data_size = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
-                blobReader.next();
                 break;
             }
             case 'Embed': {
@@ -409,7 +406,6 @@ ncnn.Node = class {
                 if (layer.attr['2'] == '1') {
                     this._weight(blobReader, 'bias', [ num_output], 'float32');
                 }
-                blobReader.next();
                 break;
             }
             case 'Convolution':
@@ -424,7 +420,6 @@ ncnn.Node = class {
                 if (layer.attr['5'] == '1') {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
-                blobReader.next();
                 break;
             }
             case 'Dequantize': {
@@ -432,7 +427,6 @@ ncnn.Node = class {
                     bias_data_size = parseInt(layer.attr['2'] || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
-                blobReader.next();
                 break;
             }
             case 'Requantize': {
@@ -440,14 +434,12 @@ ncnn.Node = class {
                     bias_data_size = parseInt(layer.attr['3'] || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
-                blobReader.next();
                 break;
             }
             case 'InstanceNorm': {
                 channels = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'gamma', [ channels ], 'float32');
                 this._weight(blobReader, 'beta', [ channels ], 'float32');
-                blobReader.next();
                 break;
             }
             case 'Scale': {
@@ -457,20 +449,17 @@ ncnn.Node = class {
                     if (layer.attr['1'] == '1') {
                         this._weight(blobReader, 'bias', [ scale_data_size ], 'float32');
                     }
-                    blobReader.next();
                 }
                 break;
             }
             case 'Normalize': {
                 scale_data_size = parseInt(layer.attr['3'] || 0, 10);
                 this._weight(blobReader, 'scale', [ scale_data_size ], 'float32');
-                blobReader.next();
                 break;
             }
             case 'PReLU': {
                 const num_slope = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'slope', [ num_slope ], 'float32');
-                blobReader.next();
                 break;
             }
         }
@@ -506,22 +495,9 @@ ncnn.Node = class {
     }
 
     _weight(blobReader, name, dimensions, dataType) {
-        dimensions = dimensions || null;
-        let data = null;
-        if (dimensions) {
-            let size = 1;
-            for (const dimension of dimensions) {
-                size *= dimension;
-            }
-            if (!dataType) {
-                dataType = blobReader.dataType;
-            }
-            data = blobReader.read(size, dataType);
-        }
-        else {
-            dataType = dataType || '?';
-            blobReader.dispose();
-        }
+        const blob = blobReader.read(dimensions, dataType);
+        dataType = blob ? (blob.dataType || '?') : (dataType || '?');
+        const data = blob ? blob.data : null;
         this._inputs.push(new ncnn.Parameter(name, true, [
             new ncnn.Argument('', null, new ncnn.Tensor(new ncnn.TensorType(dataType, new ncnn.TensorShape(dimensions)), data))
         ]));
@@ -825,68 +801,77 @@ ncnn.BlobReader = class {
         this._position = 0;
     }
 
-    get dataType() {
-        if (!this._dataType && this._buffer && this._position + 4 < this._buffer.length) {
-            let f0 = this._buffer[this._position++];
-            let f1 = this._buffer[this._position++];
-            let f2 = this._buffer[this._position++];
-            let f3 = this._buffer[this._position++];
-            let type = f0 | f1 << 8 | f2 << 16 | f3 << 24;
-            switch (type) {
-                case 0x00000000:
-                    this._dataType = 'float32';
-                    break;
-                case 0x01306B47:
-                    this._dataType = 'float16';
-                    break;
-                case 0x000D4B38:
-                    this._dataType = 'int8';
-                    break;
-                case 0x00000001:
-                    this._dataType = 'qint8';
-                    break;
-                case 0x0002C056: // size * sizeof(float) - raw data with extra scaling
-                default:
-                    throw new ncnn.Error("Unknown weight type '" + type + "'.");
-            }
-        }
-        return this._dataType || '?';
-    }
-
-    read(size, dataType) {
+    read(shape, dataType) {
         if (this._buffer) {
-            dataType = dataType || this.dataType;
-            let position = this._position
-            switch (dataType) {
-                case 'float32': 
-                    size *= 4;
-                    this._position += size;
-                    return this._buffer.subarray(position, this._position);
-                case 'float16': 
-                    size *= 2;
-                    this._position += size;
-                    return this._buffer.subarray(position, this._position);
-                case 'int8': 
-                    this._position += size;
-                    return this._buffer.subarray(position, this._position);
-                case 'qint8':
-                    this._position += size + 1024;
-                    return null;
-                default:
-                    this.dispose();
-                    break;
+            if (!dataType) {
+                if (this._buffer && this._position + 4 < this._buffer.length) {
+                    let f0 = this._buffer[this._position++];
+                    let f1 = this._buffer[this._position++];
+                    let f2 = this._buffer[this._position++];
+                    let f3 = this._buffer[this._position++];
+                    let type = f0 | f1 << 8 | f2 << 16 | f3 << 24;
+                    switch (type) {
+                        case 0x00000000:
+                            dataType = 'float32';
+                            break;
+                        case 0x01306B47:
+                            dataType = 'float16';
+                            break;
+                        case 0x000D4B38:
+                            dataType = 'int8';
+                            break;
+                        case 0x00000001:
+                            dataType = 'qint8';
+                            break;
+                        case 0x0002C056: // size * sizeof(float) - raw data with extra scaling
+                        default:
+                            throw new ncnn.Error("Unknown weight type '" + type + "'.");
+                    }
+                }
+                else {
+                    this._buffer = null;
+                }
             }
+            let data = null;
+            let size = 1;
+            if (shape) {
+                for (const dimension of shape) {
+                    size *= dimension;
+                }
+            }
+            else {
+                this._buffer = null;
+            }
+            if (this._buffer) {
+                if (dataType) {
+                    let position = this._position
+                    switch (dataType) {
+                        case 'float32': 
+                            size *= 4;
+                            this._position += size;
+                            data = this._buffer.subarray(position, this._position);
+                            break;
+                        case 'float16': 
+                            size *= 2;
+                            this._position += size;
+                            data = this._buffer.subarray(position, this._position);
+                            break;
+                        case 'int8':
+                            this._position += size;
+                            data = this._buffer.subarray(position, this._position);
+                            break;
+                        case 'qint8':
+                            this._position += size + 1024;
+                            data = null;
+                            break;
+                        default:
+                            throw new ncnn.Error("Unknown weight type '" + dataType + "'.");
+                    }
+                }
+            }
+            return { dataType: dataType, data: data };
         }
         return null;
-    }
-
-    next() {
-        this._dataType = null;
-    }
-
-    dispose() {
-        this._dataType = null;
-        this._buffer = null;
     }
 }
 
