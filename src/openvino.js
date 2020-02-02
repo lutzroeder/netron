@@ -28,6 +28,13 @@ openvino.ModelFactory = class {
             if (buffer && buffer.length > 6 && signature.every((v, i) => v == buffer[i])) {
                 return false;
             }
+            if (buffer.length > 4) {
+                const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
+                if (signature === 0x00000000 || signature === 0x00000001 || 
+                    signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
+                    return false;
+                }
+            }
             return true;
         }
         return false;
@@ -106,7 +113,6 @@ openvino.Graph = class {
         this._batch = net.getAttribute('batch') || '';
         this._version = net.getAttribute('version') || '';
         this._nodes = [];
-        this._operators = {};
         this._inputs = [];
         this._outputs = [];
         this._arguments = {};
