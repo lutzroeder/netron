@@ -12994,6 +12994,84 @@ armnnSerializer.AnyLayer.createAnyLayer = function(builder, layerType, layerOffs
 /**
  * @constructor
  */
+armnnSerializer.FeatureCompatibilityVersions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.FeatureCompatibilityVersions}
+ */
+armnnSerializer.FeatureCompatibilityVersions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.FeatureCompatibilityVersions=} obj
+ * @returns {armnnSerializer.FeatureCompatibilityVersions}
+ */
+armnnSerializer.FeatureCompatibilityVersions.getRootAsFeatureCompatibilityVersions = function(bb, obj) {
+  return (obj || new armnnSerializer.FeatureCompatibilityVersions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.FeatureCompatibilityVersions.prototype.bindingIdsScheme = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.FeatureCompatibilityVersions.startFeatureCompatibilityVersions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} bindingIdsScheme
+ */
+armnnSerializer.FeatureCompatibilityVersions.addBindingIdsScheme = function(builder, bindingIdsScheme) {
+  builder.addFieldInt32(0, bindingIdsScheme, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.FeatureCompatibilityVersions.endFeatureCompatibilityVersions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} bindingIdsScheme
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.FeatureCompatibilityVersions.createFeatureCompatibilityVersions = function(builder, bindingIdsScheme) {
+  armnnSerializer.FeatureCompatibilityVersions.startFeatureCompatibilityVersions(builder);
+  armnnSerializer.FeatureCompatibilityVersions.addBindingIdsScheme(builder, bindingIdsScheme);
+  return armnnSerializer.FeatureCompatibilityVersions.endFeatureCompatibilityVersions(builder);
+}
+
+/**
+ * @constructor
+ */
 armnnSerializer.SerializedGraph = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -13058,7 +13136,7 @@ armnnSerializer.SerializedGraph.prototype.layersLength = function() {
  */
 armnnSerializer.SerializedGraph.prototype.inputIds = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.readUint32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
 /**
@@ -13070,11 +13148,11 @@ armnnSerializer.SerializedGraph.prototype.inputIdsLength = function() {
 };
 
 /**
- * @returns {Uint32Array}
+ * @returns {Int32Array}
  */
 armnnSerializer.SerializedGraph.prototype.inputIdsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Uint32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -13083,7 +13161,7 @@ armnnSerializer.SerializedGraph.prototype.inputIdsArray = function() {
  */
 armnnSerializer.SerializedGraph.prototype.outputIds = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? this.bb.readUint32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
 /**
@@ -13095,18 +13173,27 @@ armnnSerializer.SerializedGraph.prototype.outputIdsLength = function() {
 };
 
 /**
- * @returns {Uint32Array}
+ * @returns {Int32Array}
  */
 armnnSerializer.SerializedGraph.prototype.outputIdsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? new Uint32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {armnnSerializer.FeatureCompatibilityVersions=} obj
+ * @returns {armnnSerializer.FeatureCompatibilityVersions|null}
+ */
+armnnSerializer.SerializedGraph.prototype.featureVersions = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? (obj || new armnnSerializer.FeatureCompatibilityVersions).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
 armnnSerializer.SerializedGraph.startSerializedGraph = function(builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -13198,6 +13285,14 @@ armnnSerializer.SerializedGraph.startOutputIdsVector = function(builder, numElem
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} featureVersionsOffset
+ */
+armnnSerializer.SerializedGraph.addFeatureVersions = function(builder, featureVersionsOffset) {
+  builder.addFieldOffset(3, featureVersionsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 armnnSerializer.SerializedGraph.endSerializedGraph = function(builder) {
@@ -13218,13 +13313,15 @@ armnnSerializer.SerializedGraph.finishSerializedGraphBuffer = function(builder, 
  * @param {flatbuffers.Offset} layersOffset
  * @param {flatbuffers.Offset} inputIdsOffset
  * @param {flatbuffers.Offset} outputIdsOffset
+ * @param {flatbuffers.Offset} featureVersionsOffset
  * @returns {flatbuffers.Offset}
  */
-armnnSerializer.SerializedGraph.createSerializedGraph = function(builder, layersOffset, inputIdsOffset, outputIdsOffset) {
+armnnSerializer.SerializedGraph.createSerializedGraph = function(builder, layersOffset, inputIdsOffset, outputIdsOffset, featureVersionsOffset) {
   armnnSerializer.SerializedGraph.startSerializedGraph(builder);
   armnnSerializer.SerializedGraph.addLayers(builder, layersOffset);
   armnnSerializer.SerializedGraph.addInputIds(builder, inputIdsOffset);
   armnnSerializer.SerializedGraph.addOutputIds(builder, outputIdsOffset);
+  armnnSerializer.SerializedGraph.addFeatureVersions(builder, featureVersionsOffset);
   return armnnSerializer.SerializedGraph.endSerializedGraph(builder);
 }
 
