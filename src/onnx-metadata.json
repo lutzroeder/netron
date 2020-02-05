@@ -3731,13 +3731,17 @@
           "summary": "float_ones"
         },
         {
+          "code": "x = np.array([0, ]).astype(np.int64)\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.INT32,\n                                       [1], [0])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_int_shape_zero')",
+          "summary": "int32_shape_zero"
+        },
+        {
           "code": "x = np.array([10, 6]).astype(np.int64)\ntensor_value = onnx.helper.make_tensor(\"value\", onnx.TensorProto.INT32,\n                                       [1], [0])\nnode = onnx.helper.make_node(\n    'ConstantOfShape',\n    inputs=['x'],\n    outputs=['y'],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constantofshape_int_zeros')",
           "summary": "int32_zeros"
         }
       ],
       "inputs": [
         {
-          "description": "1D tensor. The shape of the expected output tensor. If empty tensor is given, the output would be a scalar.",
+          "description": "1D tensor. The shape of the expected output tensor. If empty tensor is given, the output would be a scalar. All values must be >= 0.",
           "name": "input",
           "type": "T1"
         }
