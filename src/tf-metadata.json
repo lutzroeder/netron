@@ -69397,6 +69397,137 @@
     }
   },
   {
+    "name": "StatelessRandomBinomial",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "S",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tseed",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 2
+          },
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        }
+      ],
+      "description": "Outputs random values from a binomial distribution.\n\nThe outputs are a deterministic function of `shape`, `seed`, `counts`, and `probs`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "S"
+        },
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        },
+        {
+          "description": "The counts of the binomial distribution. Must be broadcastable with `probs`,\nand broadcastable with the rightmost dimensions of `shape`.",
+          "name": "counts",
+          "typeAttr": "T"
+        },
+        {
+          "description": "The probability of success for the binomial distribution. Must be broadcastable\nwith `counts` and broadcastable with the rightmost dimensions of `shape`.",
+          "name": "probs",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random numbers from a binomial distribution."
+    }
+  },
+  {
     "name": "StatelessRandomNormal",
     "schema": {
       "attributes": [
