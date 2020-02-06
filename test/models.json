@@ -2299,6 +2299,13 @@
     "link":   "https://github.com/google/mediapipe"
   },
   {
+    "type":   "mediapipe",
+    "target": "hand_detection_mobile.pbtxt",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/hand_tracking/hand_detection_mobile.pbtxt",
+    "error":  "Unsupported file content for extension '.pbtxt' in 'hand_detection_mobile.pbtxt'.",
+    "link":   "https://github.com/google/mediapipe"
+  },
+  {
     "type":   "mlnet",
     "target": "BinaryClassification_AutoML_SentimentModel.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip?raw=true",
