@@ -84,21 +84,20 @@ sidebar.Sidebar = class {
             sidebarElement.innerHTML = '';
 
             let titleElement = this._host.document.createElement('h1');
-            titleElement.setAttribute('class', 'sidebar-title');
+            titleElement.classList.add('sidebar-title');
             titleElement.innerHTML = item.title ? item.title.toUpperCase() : '';
             sidebarElement.appendChild(titleElement);
 
             let closeButton = this._host.document.createElement('a');
-            closeButton.setAttribute('class', 'sidebar-closebutton');
+            closeButton.classList.add('sidebar-closebutton');
             closeButton.setAttribute('id', 'sidebar-closebutton');
             closeButton.setAttribute('href', 'javascript:void(0)');
             closeButton.innerHTML = '&times;'
             closeButton.addEventListener('click', this._closeSidebarHandler);
-            closeButton.style.color = '#818181';
             sidebarElement.appendChild(closeButton);
 
             let contentElement = this._host.document.createElement('div');
-            contentElement.setAttribute('class', 'sidebar-content');
+            contentElement.classList.add('sidebar-content');
             contentElement.setAttribute('id', 'sidebar-content');
             sidebarElement.appendChild(contentElement);
 
