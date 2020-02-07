@@ -69528,6 +69528,90 @@
     }
   },
   {
+    "name": "StatelessRandomGammaV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tseed",
+          "type": "type"
+        }
+      ],
+      "description": "Outputs random values from a gamma distribution.\n\nThe outputs are a deterministic function of `shape`, `seed`, and `alpha`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        },
+        {
+          "description": "The concentration of the gamma distribution. Shape must match the rightmost\ndimensions of `shape`.",
+          "name": "alpha",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random numbers from a gamma distribution."
+    }
+  },
+  {
     "name": "StatelessRandomNormal",
     "schema": {
       "attributes": [
@@ -74642,6 +74726,31 @@
         }
       ],
       "summary": "Provides the time since epoch in seconds."
+    }
+  },
+  {
+    "name": "ToBool",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Converts a tensor to a scalar predicate with the following rules:\n\n- For 0D tensors, truthiness is determined by comparing against a \"zero\"\n  value. For numerical types it is the obvious zero. For strings it is the\n  empty string.\n\n- For >0D tensors, truthiness is determined by looking at the number of\n  elements. If has zero elements, then the result is false. Otherwise the\n  result is true.\n\nThis matches the behavior of If and While for determining if a tensor counts\nas true/false for a branch condition.",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 10
+        }
+      ],
+      "summary": "Converts a tensor to a scalar predicate."
     }
   },
   {
