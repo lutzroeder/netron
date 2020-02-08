@@ -3575,6 +3575,7 @@
     
             function ResourceHandleProto(properties) {
                 this.dtypes_and_shapes = [];
+                this.allowed_devices = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -3587,6 +3588,7 @@
             ResourceHandleProto.prototype.hash_code = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
             ResourceHandleProto.prototype.maybe_type_name = "";
             ResourceHandleProto.prototype.dtypes_and_shapes = $util.emptyArray;
+            ResourceHandleProto.prototype.allowed_devices = $util.emptyArray;
     
             ResourceHandleProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -3614,6 +3616,11 @@
                         if (!(message.dtypes_and_shapes && message.dtypes_and_shapes.length))
                             message.dtypes_and_shapes = [];
                         message.dtypes_and_shapes.push($root.tensorflow.ResourceHandleProto.DtypeAndShape.decode(reader, reader.uint32()));
+                        break;
+                    case 7:
+                        if (!(message.allowed_devices && message.allowed_devices.length))
+                            message.allowed_devices = [];
+                        message.allowed_devices.push(reader.string());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3648,6 +3655,17 @@
                         if (!(message.dtypes_and_shapes && message.dtypes_and_shapes.length))
                             message.dtypes_and_shapes = [];
                         message.dtypes_and_shapes.push($root.tensorflow.ResourceHandleProto.DtypeAndShape.decodeText(reader, true));
+                        break;
+                    case "allowed_devices":
+                        if (!(message.allowed_devices && message.allowed_devices.length))
+                            message.allowed_devices = [];
+                        if (reader.first())
+                            while (!reader.last()) {
+                                message.allowed_devices.push(reader.string());
+                                reader.next();
+                            }
+                        else
+                            message.allowed_devices.push(reader.string());
                         break;
                     default:
                         reader.field(tag, message);
