@@ -8,76 +8,133 @@
 <link rel="stylesheet" type="text/css" href="view-sidebar.css">
 <link rel="stylesheet" type="text/css" href="view.css">
 <style>
-#logo-container { width: 128px; height: 128px; }
-#logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
-#logo-spinner { left: 0; top: 0px; width: 128px; height: 128px; display: none; }
-#open-file-button { top: 180px; left: 0; width: 125px; opacity: 0; }
+html { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-text-rendering: optimizeLegibility; -moz-text-rendering: optimizeLegibility; -ms-text-rendering: optimizeLegibility; -o-text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-font-smoothing: antialiased; -ms-font-smoothing: antialiased; -o-font-smoothing: antialiased; }
+body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 12px; text-rendering: geometricPrecision; }
+.center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
+.open-file-dialog { display: none; }
+.graph { overflow: hidden; width: 100%; height: 100%; }
+.canvas { display: block; position: absolute; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.toolbar-button { background: None; border-radius: 6px; border: 0; margin: 0; padding: 0; fill: None; stroke: #777; cursor: hand; width: 24px; height: 24px; }
+.toolbar button:focus { outline: 0; }
+.icon .border { stroke: #fff; }
+.icon .stroke { stroke: #808080; }
+.icon:hover .stroke { stroke: #000000; }
+.dropdown { display: none; position: absolute; min-width: 225px; z-index: 1; border-radius: 4px; background-color: #f6f6f6; border: 1px solid rgba(0,0,0,.15); padding-top: 2px; padding-bottom: 2px; margin-left: 2px; overflow: hidden; }
+.dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
+.dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
+.dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
+.welcome { background-color: #ececec; color: #242424; }
+.welcome .logo { width: 582px; height: 128px; }
+.welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
+.welcome .logo-icon { left: 0; top: 0; width: 128px; height: 128px; transition: 0.1s; }
+.welcome .logo-spinner { left: 0; top: 0; width: 128px; height: 128px; display: none; }
+.welcome .logo-stroke { stroke: #999999; }
+.welcome .logo-fill { fill: #999999; }
+.welcome .logo-border { stroke: #888888; }
+.welcome .logo-glyph { fill: #999999; }
+.welcome .logo-message { display: none; }
+.welcome .logo-github { display: none; }
+.welcome .logo button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #888888; background-color: #ececec; border: 1px solid #aaaaaa; }
+.welcome .logo button:hover { color: #ececec; background-color: #aaa; cursor: hand; transition: 0.2s; }
+.welcome .logo button:focus { outline: 0; }
+.welcome .logo .open-file-button { top: 200px; width: 125px; opacity: 1; display: block; }
+.welcome .graph { display: none; opacity: 0; }
+.welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
+.welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
+.welcome.spinner .open-file-button { opacity: 0; display: none; }
+.welcome.spinner .graph { display: block; opacity: 0; }
+.welcome .toolbar { display: none; }
+@-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
+@keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
+.default { background-color: #ffffff; }
+.default .logo { display: none; }
+.default .graph { display: block; opacity: 1; }
+.default .toolbar { display: block; }
+@media (prefers-color-scheme: dark) {
+.default { background-color: #404040; }
+.graph { background-color: #404040; }
+.welcome { background-color: #1e1e1e; color: #666666; }
+.welcome .logo-stroke { stroke: #666666; }
+.welcome .logo-fill { fill: #666666; }
+.welcome .logo-border { stroke: #000000; }
+.welcome .logo-glyph { fill: #555555; }
+.welcome .logo-spinner-stroke { stroke: #aaaaaa; }
+.welcome .logo button { color: #666666; background-color: #1e1e1e; border-color: #666666; }
+.welcome .logo button:hover { color: #1e1e1e; background-color: #666666; }
+.icon .border { stroke: #1d1d1d; }
+.icon .stroke { stroke: #aaaaaa; }
+.icon:hover .stroke { stroke: #dfdfdf; }
+.dropdown { background-color: #373737; border-color: #000000; }
+.dropdown button { color: #ffffff; }
+.dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
+.dropdown .separator { border-color: #5a5a5a; }
+}
 </style>
 </head>
-<body style="opacity: 0;">
-<div id="welcome" class="background" style="display: block">
-    <a id="logo-container" class="center" href="https://github.com/lutzroeder/netron" target="_blank">
-        <svg id="logo-icon" class="absolute" width="128" height="128" viewbox="0 0 1024 1024">
-            <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
-            <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
-            <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
-            <g transform="translate(296, 392)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(296, 632)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 280)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 435)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 590)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 744)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(785, 512)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-        </svg>
-        <svg id="logo-spinner" class="absolute logo-spinner" viewbox="0 0 1024 1024">
-            <g transform="translate(512, 512)" style="opacity: 1">
-                <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
-            </g>
-        </svg>
-    </a>
-    <button id="open-file-button" class="center" style="top: 200px; width: 125px; opacity: 0;">Open Model&hellip;</button>
+<body class="welcome">
+<div class="center logo">
+    <svg class="center logo-icon" viewbox="0 0 1024 1024">
+        <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
+        <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
+        <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
+        <g transform="translate(296, 392)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(296, 632)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 280)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 435)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 590)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 744)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(785, 512)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+    </svg>
+    <svg id="logo-spinner" class="center logo-spinner" viewbox="0 0 1024 1024">
+        <g transform="translate(512, 512)" style="opacity: 1">
+            <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
+        </g>
+    </svg>
+    <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
 </div>
-<div id="graph-container" class="graph-container" style="overflow: scroll; width: 100%; height: 100%">
-    <svg id="graph" class="graph" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
+<div id="graph" class="graph">
+    <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
-<div id="toolbar" class="toolbar" style="position: absolute; top: 10px; left: 10px; display: none;">
+<div id="toolbar" class="toolbar">
     <button id="menu-button" class="toolbar-button" title="Model Properties">
         <svg class="icon" viewbox="0 0 100 100">
             <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>

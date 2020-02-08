@@ -113,6 +113,13 @@ host.BrowserHost = class {
             this._menu.toggle();
             e.preventDefault();
         });
+        this._menu.add({});
+        this._menu.add({
+            label: 'About ' + this.document.title,
+            click: () => this._about()
+        });
+
+        this.document.getElementById('version').innerText = this.version;
 
         if (meta.file) {
             this._openModel(meta.file[0], null);
@@ -131,7 +138,7 @@ host.BrowserHost = class {
             return;
         }
 
-        this._view.show('Welcome');
+        this._view.show('welcome');
         let openFileButton = this.document.getElementById('open-file-button');
         let openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
@@ -150,7 +157,7 @@ host.BrowserHost = class {
             });
         }
         let downloadButton = this.document.getElementById('download-button');
-        let downloadLink = this.document.getElementById('logo-container');
+        let downloadLink = this.document.getElementById('logo-github');
         if (downloadButton && downloadLink) {
             downloadButton.style.opacity = 1;
             downloadButton.addEventListener('click', () => {
@@ -336,7 +343,7 @@ host.BrowserHost = class {
     }
 
     _openModel(url, identifier) {
-        this._view.show('Spinner');
+        this._view.show('welcome spinner');
         let request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
         request.onload = () => {
@@ -364,7 +371,7 @@ host.BrowserHost = class {
     }
 
     _open(file, files) {
-        this._view.show('Spinner');
+        this._view.show('welcome spinner');
         const context = new BrowserFileContext(file, files);
         context.open().then(() => {
             return this._view.open(context).then((model) => {
@@ -380,7 +387,7 @@ host.BrowserHost = class {
     }
 
     _openGist(gist) {
-        this._view.show('Spinner');
+        this._view.show('welcome spinner');
         const url = 'https://api.github.com/gists/' + gist;
         let request = new XMLHttpRequest();
         request.onload = () => {
@@ -421,6 +428,18 @@ host.BrowserHost = class {
         };
         request.open('GET', url, true);
         request.send();
+    }
+
+    _about() {
+        const self = this;
+        const eventHandler = (e) => {
+            window.removeEventListener('keydown', eventHandler);
+            self.document.body.removeEventListener('click', eventHandler);
+            self._view.show('default');
+        };
+        window.addEventListener('keydown', eventHandler);
+        this.document.body.addEventListener('click', eventHandler);
+        this._view.show('about');
     }
 };
 
@@ -658,8 +677,12 @@ host.Dropdown = class {
             if (Object.keys(item).length > 0) {
                 let button = this._document.createElement('button');
                 button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
-                button.addEventListener('click', item.click);
-                button.addEventListener('click', () => this.close());
+                button.addEventListener('click', () => { 
+                    this.close();
+                    setTimeout(() => {
+                        item.click();
+                    }, 10);
+                });
                 this._dropdown.appendChild(button);
                 if (item.accelerator) {
                     let accelerator = this._document.createElement('span');

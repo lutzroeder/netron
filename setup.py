@@ -116,7 +116,7 @@ setuptools.setup(
             'index.html', 'index.js',
             'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',
-            'view.js', 'view.css',
+            'view.js',
             'server.py'
         ]
     },

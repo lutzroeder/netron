@@ -28,8 +28,6 @@ view.View = class {
         this._showNames = false;
         this._searchText = '';
         this._modelFactoryService = new view.ModelFactoryService(this._host);
-        this._host.document.documentElement.style.overflow = 'hidden';
-        this._host.document.body.scroll = 'no';
         this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
             this.zoomIn();
         });
@@ -46,21 +44,21 @@ view.View = class {
             this.clearSelection();
         });
         if (this._host.environment('zoom') == 'scroll') {
-            this._host.document.getElementById('graph-container').addEventListener('mousewheel', (e) => {
+            this._host.document.getElementById('graph').addEventListener('mousewheel', (e) => {
                 this._mouseWheelHandler(e);
             });
-            this._host.document.getElementById('graph-container').addEventListener('scroll', (e) => {
+            this._host.document.getElementById('graph').addEventListener('scroll', (e) => {
                 this._scrollHandler(e);
             });
-            this._host.document.getElementById('graph-container').addEventListener('gesturestart', (e) => {
+            this._host.document.getElementById('graph').addEventListener('gesturestart', (e) => {
                 e.preventDefault();
                 this._gestureStartZoom = this._zoom;
             }, false);
-            this._host.document.getElementById('graph-container').addEventListener('gesturechange', (e) => {
+            this._host.document.getElementById('graph').addEventListener('gesturechange', (e) => {
                 e.preventDefault();
                 this._updateZoom(this._gestureStartZoom * e.scale, e);
             }, false);
-            this._host.document.getElementById('graph-container').addEventListener('gestureend', (e) => {
+            this._host.document.getElementById('graph').addEventListener('gestureend', (e) => {
                 e.preventDefault();
                 this._updateZoom(this._gestureStartZoom * e.scale, e);
             }, false);
@@ -70,66 +68,11 @@ view.View = class {
     show(page) {
 
         if (!page) {
-            page = (!this._model && !this._activeGraph) ? 'Welcome' : 'Graph';
+            page = (!this._model && !this._activeGraph) ? 'welcome' : 'default';
         }
-
         this._host.screen(page);
-
         this._sidebar.close();
-
-        let welcomeElement = this._host.document.getElementById('welcome');
-        let openFileButton = this._host.document.getElementById('open-file-button');
-        let downloadButton = this._host.document.getElementById('download-button');
-        let spinnerElement = this._host.document.getElementById('logo-spinner');
-        let graphElement = this._host.document.getElementById('graph');
-        let toolbarElement = this._host.document.getElementById('toolbar');
-
-        if (page == 'Welcome') {
-            this._host.document.body.style.cursor = 'default';
-            welcomeElement.style.display = 'block';
-            openFileButton.style.display = 'block';
-            openFileButton.style.opacity = 1;
-            if (downloadButton) {
-                downloadButton.style.display = 'block';
-                downloadButton.style.opacity = 1;    
-            }
-            spinnerElement.style.display = 'none';
-            graphElement.style.display = 'none';
-            graphElement.style.opacity = 0;
-            toolbarElement.style.display = 'none';
-        }
-
-        if (page == 'Spinner') {
-            this._host.document.body.style.cursor = 'wait';
-            welcomeElement.style.display = 'block';
-            spinnerElement.style.display = 'block';
-            openFileButton.style.display = 'none';
-            openFileButton.style.opacity = 0;
-            if (downloadButton) {
-                downloadButton.style.display = 'none';
-                downloadButton.style.opacity = 0;
-            }
-            graphElement.style.display = 'block';
-            graphElement.style.opacity = 0;
-            toolbarElement.style.display = 'none';
-        }
-
-        if (page == 'Graph') {
-            welcomeElement.style.display = 'none';
-            openFileButton.style.display = 'none';
-            openFileButton.style.opacity = 0;
-            if (downloadButton) {
-                downloadButton.style.display = 'none';
-                downloadButton.style.opacity = 0;
-            }
-            spinnerElement.style.display = 'none';
-            graphElement.style.display = 'block';
-            graphElement.style.opacity = 1;
-            toolbarElement.style.display = 'block';
-            this._host.document.body.style.cursor = 'default';
-        }
-
-        this._host.document.documentElement.className = 'reset_' + (new Date()).getTime();
+        this._host.document.body.setAttribute('class', page);
     }
 
     cut() {
@@ -151,7 +94,7 @@ view.View = class {
     find() {
         if (this._activeGraph) {
             this.clearSelection();
-            let graphElement = document.getElementById('graph');
+            let graphElement = document.getElementById('canvas');
             let view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
@@ -193,7 +136,7 @@ view.View = class {
     }
 
     _reload() {
-        this.show('Spinner');
+        this.show('welcome spinner');
         if (this._model && this._activeGraph) {
             this._updateGraph(this._model, this._activeGraph).catch((error) => {
                 if (error) {
@@ -216,7 +159,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph')), 1.2);
+                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('canvas')), 1.2);
                 }
                 break;
         }
@@ -229,7 +172,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph')), 0.8);
+                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('canvas')), 0.8);
                 }
                 break;
         }
@@ -242,7 +185,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleTo(d3.select(this._host.document.getElementById('graph')), 1);
+                    this._zoom.scaleTo(d3.select(this._host.document.getElementById('canvas')), 1);
                 }
                 break;
         }
@@ -256,7 +199,7 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        let container = this._host.document.getElementById('graph-container');
+        let container = this._host.document.getElementById('graph');
 
         let min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
 
@@ -272,7 +215,7 @@ view.View = class {
         x += scrollLeft;
         y += scrollTop;
 
-        let graph = this._host.document.getElementById('graph');
+        let graph = this._host.document.getElementById('canvas');
         graph.style.width = zoom * this._width;
         graph.style.height = zoom * this._height
 
@@ -306,7 +249,7 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            let graphElement = this._host.document.getElementById('graph');
+            let graphElement = this._host.document.getElementById('canvas');
             let graphRect = graphElement.getBoundingClientRect();
             let x = 0;
             let y = 0;
@@ -341,7 +284,7 @@ view.View = class {
         this._sidebar.close();
         this._host.exception(err, false);
         this._host.error(message, err.toString());
-        this.show('Welcome');
+        this.show('welcome');
     }
 
     accept(file) {
@@ -372,7 +315,7 @@ view.View = class {
             let model = this._model;
             let graph = model.graphs.filter(graph => name == graph.name).shift();
             if (graph) {
-                this.show('Spinner');
+                this.show('welcome spinner');
                 this._timeout(200).then(() => {
                     return this._updateGraph(model, graph).catch((error) => {
                         if (error) {
@@ -399,11 +342,11 @@ view.View = class {
             return this.renderGraph(model, graph).then(() => {
                 this._model = model;
                 this._activeGraph = graph;
-                this.show('Graph');
+                this.show('default');
                 return this._model;
             }).catch((error) => {
                 return this.renderGraph(this._model, this._activeGraph).then(() => {
-                    this.show('Graph');
+                    this.show('default');
                     throw error;
                 }).catch(() => {
                     throw error;
@@ -418,11 +361,11 @@ view.View = class {
                 return Promise.resolve();
             }
             else {
-                let graphElement = this._host.document.getElementById('graph');
+                let graphElement = this._host.document.getElementById('canvas');
                 while (graphElement.lastChild) {
                     graphElement.removeChild(graphElement.lastChild);
                 }
-    
+
                 switch (this._host.environment('zoom')) {
                     case 'scroll':
                         this._zoom = 0;
@@ -874,7 +817,7 @@ view.View = class {
         const lastIndex = file.lastIndexOf('.');
         const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
-            const graphElement = this._host.document.getElementById('graph');
+            const graphElement = this._host.document.getElementById('canvas');
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');

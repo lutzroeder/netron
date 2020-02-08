@@ -7,115 +7,125 @@
 <title>Netron</title>
 <link rel="stylesheet" type="text/css" href="view-grapher.css">
 <link rel="stylesheet" type="text/css" href="view-sidebar.css">
-<link rel="stylesheet" type="text/css" href="view.css">
-<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-<link rel="icon" type="image/png" href="icon.png" />
-<link rel="apple-touch-icon" type="image/png" href="icon.png" />
-<link rel="apple-touch-icon-precomposed" type="image/png" href="icon.png" />
-<link rel="fluid-icon" type="image/png" href="icon.png" />
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon-precomposed" type="image/png" href="icon.png">
+<link rel="fluid-icon" type="image/png" href="icon.png">
 <style>
-#logo-container { width: 640px; height: 128px; }
-#logo-icon { left: 392px; top: 0px; width: 106px; height: 106px; }
-#logo-spinner { left: 392px; top: 0px; width: 106px; height: 106px; display: none; }
-#logo-text { left: -15px; top: -23px; width: 640px; height: 128px; bottom: 0; right: 0; }
-#open-file-dialog { display: none; }
-#open-file-button { top: 180px; left: -150px; width: 125px; opacity: 0; }
-#download-button { top: 180px; left: 150px; width: 125px; opacity: 0; }
-@media all and (max-width: 680px) {
-#logo-container { width: 128px; height: 128px; }
-#logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
-#logo-spinner { left: 0; top: 0; width: 128px; height: 128px; }
-#logo-text { display: none; }
-#open-file-button { top: 180px; left: 0; }
-#download-button { top: 270px; left: 0; }
+html { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-text-rendering: optimizeLegibility; -moz-text-rendering: optimizeLegibility; -ms-text-rendering: optimizeLegibility; -o-text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-font-smoothing: antialiased; -ms-font-smoothing: antialiased; -o-font-smoothing: antialiased; }
+body { margin: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 12px; text-rendering: geometricPrecision; }
+.center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
+.open-file-dialog { display: none; }
+.transparent { width: 100vw; height: 100vh; background-color: #000000; display: none; opacity: 0; }
+.graph { overflow: hidden; width: 100%; height: 100%; }
+.canvas { display: block; position: absolute; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.toolbar-button { background: None; border-radius: 6px; border: 0; margin: 0; padding: 0; fill: None; stroke: #777; cursor: hand; width: 24px; height: 24px; }
+.toolbar button:focus { outline: 0; }
+.icon .border { stroke: #fff; }
+.icon .stroke { stroke: #808080; }
+.icon:hover .stroke { stroke: #000000; }
+.dropdown { display: none; position: absolute; min-width: 225px; z-index: 1; border-radius: 4px; background-color: #f6f6f6; border: 1px solid rgba(0,0,0,.15); padding-top: 2px; padding-bottom: 2px; margin-left: 2px; overflow: hidden; }
+.dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
+.dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
+.dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
+.about { background-color: #ffffff; }
+.about { overflow: hidden; }
+.about .logo { background-color: #ececec; color: #242424; width: 320px; height: 170px; padding: 40px; opacity: 1.0; border-radius: 5px; border: 0.5px solid #cccccc; }
+.about.desktop .logo { border: None; border-radius: 0px; }
+.about.desktop .graph { display: none; opacity: 0; }
+.about.desktop .transparent { display: none; opacity: 0; }
+.about.desktop .toolbar { display: none; opacity: 0; }
+.about .logo-text { top: -130px; width: 320px; }
+.about .logo-icon { left: 136px; top: -108px; width: 60px; height: 60px; }
+.about .logo-stroke { stroke: #242424; }
+.about .logo-fill { fill: #242424; }
+.about .logo-border { stroke: #242424; }
+.about .logo-glyph { fill: #242424; }
+.about .logo-message { top: 112px; padding-left: 40px; padding-right: 40px; }
+.about a { text-decoration: none; color: #242424; }
+.about a:visited { color: inherit; }
+.about a:hover { color: #242424; }
+.about .logo-github { top: 130px; width: 24px; height: 24px; }
+.about .open-file-button { display: none; }
+.about .download-button { display: none; }
+.about .graph { display: block; opacity: 1; }
+.about .toolbar { display: block; opacity: 1; }
+.about .transparent { display: block; opacity: 0.5; }
+.welcome { background-color: #ececec; color: #242424; }
+.welcome .logo { width: 582px; height: 128px; }
+.welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
+.welcome .logo-icon { left: 248px; top: -18px; width: 106px; height: 106px; transition: 0.1s; }
+.welcome .logo-spinner { left: 248px; top: -18px; width: 106px; height: 106px; display: none; }
+.welcome .logo-stroke { stroke: #999999; }
+.welcome .logo-fill { fill: #999999; }
+.welcome .logo-border { stroke: #888888; }
+.welcome .logo-glyph { fill: #999999; }
+.welcome .logo-message { display: none; }
+.welcome .logo-github { display: none; }
+.welcome button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #888888; background-color: #ececec; border: 1px solid #aaaaaa; }
+.welcome button:hover { color: #ececec; background-color: #aaa; cursor: hand; transition: 0.2s; }
+.welcome button:focus { outline: 0; }
+.welcome .open-file-button { top: 180px; left: -150px; width: 125px; opacity: 1; }
+.welcome .download-button { top: 180px; left: 150px; width: 125px; opacity: 1; }
+.welcome .graph { display: none; opacity: 0; }
+.welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
+@-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
+@keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
+.welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
+.welcome.spinner .open-file-button { opacity: 0; display: none; }
+.welcome.spinner .download-button { opacity: 0; display: none; }
+.welcome.spinner .graph { display: block; opacity: 0; }
+.welcome .toolbar { display: none; }
+.default { background-color: #ffffff; }
+.default .logo { display: none; }
+.default .graph { display: block; opacity: 1; }
+.default .toolbar { display: block; }
+@media (prefers-color-scheme: dark) {
+.default { background-color: #404040; }
+.about { background-color: #404040; }
+.about .logo { background-color: #2d2d2d; color: #dfdfdf; border-color: #000000; }
+.about a { color: #dfdfdf; }
+.about a:hover { color: #ffffff; }
+.about .logo-stroke { stroke: #dfdfdf; }
+.about .logo-fill { fill: #dfdfdf; }
+.about .logo-border { stroke: #dfdfdf; }
+.about .logo-glyph { fill: #dfdfdf; }
+.welcome { background-color: #1e1e1e; color: #666666; }
+.welcome .logo-stroke { stroke: #666666; }
+.welcome .logo-fill { fill: #666666; }
+.welcome .logo-border { stroke: #000000; }
+.welcome .logo-glyph { fill: #555555; }
+.welcome .logo-spinner-stroke { stroke: #aaaaaa; }
+.welcome .logo button { color: #666666; background-color: #1e1e1e; border-color: #666666; }
+.welcome .logo button:hover { color: #1e1e1e; background-color: #666666; }
+.icon .border { stroke: #1d1d1d; }
+.icon .stroke { stroke: #aaaaaa; }
+.icon:hover .stroke { stroke: #dfdfdf; }
+.dropdown { background-color: #373737; border-color: #000000; }
+.dropdown button { color: #ffffff; }
+.dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
+.dropdown .separator { border-color: #5a5a5a; }
+}
+@media all and (max-width: 640px) {
+.welcome .logo-text { opacity: 0; }
+.welcome .logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
+.welcome .logo-spinner { left: 0; top: 0; width: 128px; height: 128px; }
+.welcome .logo .open-file-button { top: 180px; left: 0; }
+.welcome .logo .download-button { top: 270px; left: 0; }
+}
+@media only screen and (max-device-width: 1024px) {
+.toolbar-button { width: 32px; height: 32px; }
 }
 </style>
 </head>
-<body>
-<div id="welcome" class="background" style="display: block">
-    <a id="logo-container" class="center" href="https://github.com/lutzroeder/netron" target="_blank">
-        <svg id="logo-text" class="absolute" viewbox="0 0 5120 1024">
-            <g transform="scale(8.2) translate(0,-15)">
-                <g transform="matrix(100,0,0,100,60.9965,126)">
-                    <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(100,0,0,100,164.341,126)">
-                    <path class="logo-glyph" d="M0.089,0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,0L0.089,0Z" style="fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(100,0,0,100,244.491,126)">
-                    <path class="logo-glyph" d="M0.216,0L0.216,-0.654L0.019,-0.654L0.019,-0.715L0.478,-0.715L0.478,-0.654L0.281,-0.654L0.281,0L0.216,0Z" style="fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(100,0,0,100,323.031,126)">
-                    <path class="logo-glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,0L0.444,0L0.193,-0.341L0.154,-0.341L0.154,0L0.089,0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,0Z" style="fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(100,0,0,100,520.979,126)">
-                    <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
-                </g>
-            </g>
-        </svg>
-        <svg id="logo-icon" class="absolute" viewbox="0 0 1024 1024">
-            <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
-            <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
-            <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
-            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
-            <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
-            <g transform="translate(296, 392)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(296, 632)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 280)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 435)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 590)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(540, 744)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-            <g transform="translate(785, 512)">
-                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-            </g>
-        </svg>
-        <svg id="logo-spinner" class="absolute logo-spinner" viewbox="0 0 1024 1024">
-            <g transform="translate(512, 512)" style="opacity: 1">
-                <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
-            </g>
-        </svg>
-    </a>
-    <button id="open-file-button" class="center">Open Model&hellip;</button>
-    <button id="download-button" class="center">Download</button>
-    <input type="file" id="open-file-dialog" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .bin, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
-    <!-- Preload fonts to workaround Chrome SVG layout issue -->
-    <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
-    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
-    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+<body class="welcome">
+<div id="graph" class="graph">
+    <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
-<div id="graph-container" class="graph-container" style="overflow: scroll; width: 100%; height: 100%">
-    <svg id="graph" class="graph" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
-</div>
-<div id="toolbar" class="toolbar" style="position: absolute; top: 10px; left: 10px; display: none;">
+<div id="toolbar" class="toolbar">
     <button id="menu-button" class="toolbar-button" title="Menu">
         <svg class="icon" viewbox="0 0 100 100">
             <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
@@ -153,6 +163,113 @@
     <div id="menu-dropdown" class="dropdown"></div>
 </div>
 <div id="sidebar" class="sidebar"></div>
+<div id="transparent" class="transparent"></div>
+<div class="center logo">
+    <svg class="center logo-text" viewbox="0 0 5120 1024">
+        <g transform="scale(9) translate(-44,-15)">
+            <g transform="matrix(100,0,0,100,60.9965,126)">
+                <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+            </g>
+            <g transform="matrix(100,0,0,100,164.341,126)">
+                <path class="logo-glyph" d="M0.089,0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,0L0.089,0Z" style="fill-rule:nonzero;"/>
+            </g>
+            <g transform="matrix(100,0,0,100,244.491,126)">
+                <path class="logo-glyph" d="M0.216,0L0.216,-0.654L0.019,-0.654L0.019,-0.715L0.478,-0.715L0.478,-0.654L0.281,-0.654L0.281,0L0.216,0Z" style="fill-rule:nonzero;"/>
+            </g>
+            <g transform="matrix(100,0,0,100,323.031,126)">
+                <path class="logo-glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,0L0.444,0L0.193,-0.341L0.154,-0.341L0.154,0L0.089,0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,0Z" style="fill-rule:nonzero;"/>
+            </g>
+            <g transform="matrix(100,0,0,100,520.979,126)">
+                <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+            </g>
+        </g>
+    </svg>
+    <svg class="center logo-icon" viewbox="0 0 1024 1024">
+        <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
+        <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
+        <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
+        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
+        <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
+        <g transform="translate(296, 392)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(296, 632)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 280)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 435)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 590)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(540, 744)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+        <g transform="translate(785, 512)">
+            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+        </g>
+    </svg>
+    <svg id="logo-spinner" class="center logo-spinner" viewbox="0 0 1024 1024">
+        <g transform="translate(512, 512)" style="opacity: 1">
+            <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
+        </g>
+    </svg>
+    <div class="center logo-message">
+        <center style="height: 30px;">Version <span id="version" class="select">{version}</span></center>
+        <center style="height: 30px;">Copyright &copy; <a href="https://www.lutzroeder.com" target="blank_">Lutz Roeder</a></center>
+    </div>
+    <a id="logo-github" class="center logo-github" href="https://github.com/lutzroeder/netron" target="blank_">
+        <svg viewbox="0 0 438.549 438.549">
+            <path class="logo-fill" d="M409.132,114.573c-19.608-33.596-46.205-60.194-79.798-79.8C295.736,15.166,259.057,5.365,219.271,5.365
+                c-39.781,0-76.472,9.804-110.063,29.408c-33.596,19.605-60.192,46.204-79.8,79.8C9.803,148.168,0,184.854,0,224.63
+                c0,47.78,13.94,90.745,41.827,128.906c27.884,38.164,63.906,64.572,108.063,79.227c5.14,0.954,8.945,0.283,11.419-1.996
+                c2.475-2.282,3.711-5.14,3.711-8.562c0-0.571-0.049-5.708-0.144-15.417c-0.098-9.709-0.144-18.179-0.144-25.406l-6.567,1.136
+                c-4.187,0.767-9.469,1.092-15.846,1c-6.374-0.089-12.991-0.757-19.842-1.999c-6.854-1.231-13.229-4.086-19.13-8.559
+                c-5.898-4.473-10.085-10.328-12.56-17.556l-2.855-6.57c-1.903-4.374-4.899-9.233-8.992-14.559
+                c-4.093-5.331-8.232-8.945-12.419-10.848l-1.999-1.431c-1.332-0.951-2.568-2.098-3.711-3.429c-1.142-1.331-1.997-2.663-2.568-3.997
+                c-0.572-1.335-0.098-2.43,1.427-3.289c1.525-0.859,4.281-1.276,8.28-1.276l5.708,0.853c3.807,0.763,8.516,3.042,14.133,6.851
+                c5.614,3.806,10.229,8.754,13.846,14.842c4.38,7.806,9.657,13.754,15.846,17.847c6.184,4.093,12.419,6.136,18.699,6.136
+                c6.28,0,11.704-0.476,16.274-1.423c4.565-0.952,8.848-2.383,12.847-4.285c1.713-12.758,6.377-22.559,13.988-29.41
+                c-10.848-1.14-20.601-2.857-29.264-5.14c-8.658-2.286-17.605-5.996-26.835-11.14c-9.235-5.137-16.896-11.516-22.985-19.126
+                c-6.09-7.614-11.088-17.61-14.987-29.979c-3.901-12.374-5.852-26.648-5.852-42.826c0-23.035,7.52-42.637,22.557-58.817
+                c-7.044-17.318-6.379-36.732,1.997-58.24c5.52-1.715,13.706-0.428,24.554,3.853c10.85,4.283,18.794,7.952,23.84,10.994
+                c5.046,3.041,9.089,5.618,12.135,7.708c17.705-4.947,35.976-7.421,54.818-7.421s37.117,2.474,54.823,7.421l10.849-6.849
+                c7.419-4.57,16.18-8.758,26.262-12.565c10.088-3.805,17.802-4.853,23.134-3.138c8.562,21.509,9.325,40.922,2.279,58.24
+                c15.036,16.18,22.559,35.787,22.559,58.817c0,16.178-1.958,30.497-5.853,42.966c-3.9,12.471-8.941,22.457-15.125,29.979
+                c-6.191,7.521-13.901,13.85-23.131,18.986c-9.232,5.14-18.182,8.85-26.84,11.136c-8.662,2.286-18.415,4.004-29.263,5.146
+                c9.894,8.562,14.842,22.077,14.842,40.539v60.237c0,3.422,1.19,6.279,3.572,8.562c2.379,2.279,6.136,2.95,11.276,1.995
+                c44.163-14.653,80.185-41.062,108.068-79.226c27.88-38.161,41.825-81.126,41.825-128.906
+                C438.536,184.851,428.728,148.168,409.132,114.573z"/>
+        </svg>
+    </a>
+    <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
+    <button id="download-button" class="center download-button">Download App</button>
+    <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .bin, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
+    <!-- Preload fonts to workaround Chrome SVG layout issue -->
+    <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+</div>
 <script type="text/javascript" src="https://www.google-analytics.com/analytics.js" async></script>
 <script type="text/javascript" src="d3.min.js"></script>
 <script type="text/javascript" src="dagre.min.js"></script>

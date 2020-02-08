@@ -44,7 +44,7 @@ host.ElectronHost = class {
 
     initialize(view) {
         this._view = view;
-        this._view.show('Welcome');
+        this._view.show('welcome');
 
         electron.ipcRenderer.on('open', (_, data) => {
             this._openFile(data.file);
@@ -290,7 +290,7 @@ host.ElectronHost = class {
 
     _openFile(file) {
         if (file) {
-            this._view.show('Spinner');
+            this._view.show('welcome spinner');
             this._readFile(file).then((buffer) => {
                 const context = new ElectonContext(this, path.dirname(file), path.basename(file), buffer);
                 this._view.open(context).then((model) => {
