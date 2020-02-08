@@ -69703,6 +69703,124 @@
     }
   },
   {
+    "name": "StatelessRandomPoisson",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Rtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tseed",
+          "type": "type"
+        }
+      ],
+      "description": "Outputs random values from a Poisson distribution.\n\nThe outputs are a deterministic function of `shape`, `seed`, and `lam`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        },
+        {
+          "description": "The rate of the Poisson distribution. Shape must match the rightmost dimensions\nof `shape`.",
+          "name": "lam",
+          "typeAttr": "Rtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random numbers from a Poisson distribution."
+    }
+  },
+  {
     "name": "StatelessRandomUniform",
     "schema": {
       "attributes": [
