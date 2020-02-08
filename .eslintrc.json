@@ -12,7 +12,7 @@
     "rules": {
         "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
         "indent": [ "error", 4 ],
-        "linebreak-style": [ "error", "unix" ]
+        "linebreak-style": "off"
     },
     "overrides": [
       { "files": ["src/*-proto.js"], "rules": { "brace-style": "off" } },
