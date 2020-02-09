@@ -267,7 +267,7 @@ class Application {
             minimizable: false,
             maximizable: false,
             useContentSize: true,
-            resizable: false,
+            resizable: true,
             fullscreenable: false,
             webPreferences: { nodeIntegration: true }
         };
@@ -283,7 +283,6 @@ class Application {
         }
         if (process.platform === 'win32') {
             options.type = 'toolbar';
-            options.height = 270;
         }
         if (!dialog) {
             dialog = new electron.BrowserWindow(options);
@@ -304,16 +303,17 @@ class Application {
             content = content.replace('<body class="welcome">', '<body class="about desktop">');
             content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
             content = content.replace(/<link.*>/gi, '');
-            dialog.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(content));
+            dialog.once('ready-to-show', () => {
+                dialog.resizable = false;
+                dialog.show();
+            });
             dialog.on('close', function() {
                 electron.globalShortcut.unregister('Escape');
                 Application._aboutDialog = null;
             });
+            dialog.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(content));
             electron.globalShortcut.register('Escape', function() {
                 dialog.close();
-            });
-            dialog.once('ready-to-show', () => {
-                dialog.show();
             });
         }
         else {
