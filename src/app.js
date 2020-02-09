@@ -18,6 +18,7 @@ class Application {
         this._openFileQueue = [];
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
+        electron.app.allowRendererProcessReuse = true;
 
         if (!electron.app.requestSingleInstanceLock()) {
             electron.app.quit();
