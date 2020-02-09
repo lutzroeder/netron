@@ -432,7 +432,7 @@ host.BrowserHost = class {
 
     _about() {
         const self = this;
-        const eventHandler = (e) => {
+        const eventHandler = () => {
             window.removeEventListener('keydown', eventHandler);
             self.document.body.removeEventListener('click', eventHandler);
             self._view.show('default');
