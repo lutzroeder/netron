@@ -4219,7 +4219,7 @@
           "type": "string"
         }
       ],
-      "description": "Supports many numeric types and boolean.\n\nFor Unicode, see the\n[https://www.tensorflow.org/tutorials/representation/unicode](Working with Unicode text)\ntutorial.",
+      "description": "Supports many numeric types and boolean.\n\nFor Unicode, see the\n[https://www.tensorflow.org/tutorials/representation/unicode](Working with Unicode text)\ntutorial.\n\nExamples:\n\n>>> tf.strings.as_string([3, 2])\n<tf.Tensor: shape=(2,), dtype=string, numpy=array([b'3', b'2'], dtype=object)>\n>>> tf.strings.as_string([3.1415926, 2.71828], precision=2).numpy()\narray([b'3.14', b'2.72'], dtype=object)",
       "inputs": [
         {
           "name": "input",
@@ -48743,7 +48743,7 @@
   {
     "name": "RegexFullMatch",
     "schema": {
-      "description": "The input is a string tensor of any shape. The pattern is a scalar\nstring tensor which is applied to every element of the input tensor.\nThe boolean values (True or False) of the output tensor indicate\nif the input matches the regex pattern provided.\n\nThe pattern follows the re2 syntax (https://github.com/google/re2/wiki/Syntax)",
+      "description": "The input is a string tensor of any shape. The pattern is a scalar\nstring tensor which is applied to every element of the input tensor.\nThe boolean values (True or False) of the output tensor indicate\nif the input matches the regex pattern provided.\n\nThe pattern follows the re2 syntax (https://github.com/google/re2/wiki/Syntax)\n\nExamples:\n\n>>> tf.strings.regex_full_match([\"TF lib\", \"lib TF\"], \".*lib$\")\n<tf.Tensor: shape=(2,), dtype=bool, numpy=array([ True, False])>\n>>> tf.strings.regex_full_match([\"TF lib\", \"lib TF\"], \".*TF$\")\n<tf.Tensor: shape=(2,), dtype=bool, numpy=array([False,  True])>",
       "inputs": [
         {
           "description": "A string tensor of the text to be processed.",
@@ -70616,7 +70616,7 @@
           "type": "string"
         }
       ],
-      "description": "with the given separator (default is an empty separator).",
+      "description": "with the given separator (default is an empty separator).\n\nExamples:\n\n>>> s = [\"hello\", \"world\", \"tensorflow\"]\n>>> tf.strings.join(s, \" \")\n<tf.Tensor: shape=(), dtype=string, numpy=b'hello world tensorflow'>",
       "inputs": [
         {
           "description": "A list of string tensors.  The tensors must all have the same shape,\nor be scalars.  Scalars may be mixed in; these will be broadcast to the shape\nof non-scalar inputs.",
@@ -70871,7 +70871,7 @@
       ],
       "outputs": [
         {
-          "description": "A string `Tensor` of the same shape as the input.",
+          "description": "A string `Tensor` of the same shape as the input.\n\nExamples:\n\n>>> tf.strings.strip([\"\\nTensorFlow\", \"     The python library    \"]).numpy()\narray([b'TensorFlow', b'The python library'], dtype=object)",
           "name": "output",
           "type": 7
         }
@@ -70918,7 +70918,7 @@
           "type": "int64"
         }
       ],
-      "description": "The hash function is deterministic on the content of the string within the\nprocess and will never change. However, it is not suitable for cryptography.\nThis function may be used when CPU time is scarce and inputs are trusted or\nunimportant. There is a risk of adversaries constructing inputs that all hash\nto the same bucket. To prevent this problem, use a strong hash function with\n`tf.string_to_hash_bucket_strong`.",
+      "description": "The hash function is deterministic on the content of the string within the\nprocess and will never change. However, it is not suitable for cryptography.\nThis function may be used when CPU time is scarce and inputs are trusted or\nunimportant. There is a risk of adversaries constructing inputs that all hash\nto the same bucket. To prevent this problem, use a strong hash function with\n`tf.string_to_hash_bucket_strong`.\n\nExamples:\n\n>>> tf.strings.to_hash_bucket_fast([\"Hello\", \"TensorFlow\", \"2.x\"], 3).numpy()\narray([0, 2, 2])",
       "inputs": [
         {
           "description": "The strings to assign a hash bucket.",
@@ -70952,7 +70952,7 @@
           "type": "int64[]"
         }
       ],
-      "description": "The hash function is deterministic on the content of the string within the\nprocess. The hash function is a keyed hash function, where attribute `key`\ndefines the key of the hash function. `key` is an array of 2 elements.\n\nA strong hash is important when inputs may be malicious, e.g. URLs with\nadditional components. Adversaries could try to make their inputs hash to the\nsame bucket for a denial-of-service attack or to skew the results. A strong\nhash can be used to make it difficult to find inputs with a skewed hash value\ndistribution over buckets. This requires that the hash function is\nseeded by a high-entropy (random) \"key\" unknown to the adversary.\n\nThe additional robustness comes at a cost of roughly 4x higher compute\ntime than `tf.string_to_hash_bucket_fast`.",
+      "description": "The hash function is deterministic on the content of the string within the\nprocess. The hash function is a keyed hash function, where attribute `key`\ndefines the key of the hash function. `key` is an array of 2 elements.\n\nA strong hash is important when inputs may be malicious, e.g. URLs with\nadditional components. Adversaries could try to make their inputs hash to the\nsame bucket for a denial-of-service attack or to skew the results. A strong\nhash can be used to make it difficult to find inputs with a skewed hash value\ndistribution over buckets. This requires that the hash function is\nseeded by a high-entropy (random) \"key\" unknown to the adversary.\n\nThe additional robustness comes at a cost of roughly 4x higher compute\ntime than `tf.string_to_hash_bucket_fast`.\n\nExamples:\n\n>>> tf.strings.to_hash_bucket_strong([\"Hello\", \"TF\"], 3, [1, 2]).numpy()\narray([2, 0])",
       "inputs": [
         {
           "description": "The strings to assign a hash bucket.",
@@ -75841,7 +75841,7 @@
   {
     "name": "UnicodeScript",
     "schema": {
-      "description": "This operation converts Unicode code points to script codes corresponding to\neach code point. Script codes correspond to International Components for\nUnicode (ICU) UScriptCode values. See http://icu-project.org/apiref/icu4c/uscript_8h.html.\nReturns -1 (USCRIPT_INVALID_CODE) for invalid codepoints. Output shape will\nmatch input shape.",
+      "description": "This operation converts Unicode code points to script codes corresponding to\neach code point. Script codes correspond to International Components for\nUnicode (ICU) UScriptCode values. See http://icu-project.org/apiref/icu4c/uscript_8h.html.\nReturns -1 (USCRIPT_INVALID_CODE) for invalid codepoints. Output shape will\nmatch input shape.\n\nExamples:\n\n>>> tf.strings.unicode_script([1, 31, 38])\n<tf.Tensor: shape=(3,), dtype=int32, numpy=array([0, 0, 0], dtype=int32)>",
       "inputs": [
         {
           "description": "A Tensor of int32 Unicode code points.",
@@ -75902,7 +75902,7 @@
           "type": "boolean"
         }
       ],
-      "description": "The input is a string tensor of any shape. The output is a string tensor of\nthe same shape containing the transcoded strings. Output strings are always\nvalid unicode. If the input contains invalid encoding positions, the\n`errors` attribute sets the policy for how to deal with them. If the default\nerror-handling policy is used, invalid formatting will be substituted in the\noutput by the `replacement_char`. If the errors policy is to `ignore`, any\ninvalid encoding positions in the input are skipped and not included in the\noutput. If it set to `strict` then any invalid formatting will result in an\nInvalidArgument error.\n\nThis operation can be used with `output_encoding = input_encoding` to enforce\ncorrect formatting for inputs even if they are already in the desired encoding.\n\nIf the input is prefixed by a Byte Order Mark needed to determine encoding\n(e.g. if the encoding is UTF-16 and the BOM indicates big-endian), then that\nBOM will be consumed and not emitted into the output. If the input encoding\nis marked with an explicit endianness (e.g. UTF-16-BE), then the BOM is\ninterpreted as a non-breaking-space and is preserved in the output (including\nalways for UTF-8).\n\nThe end result is that if the input is marked as an explicit endianness the\ntranscoding is faithful to all codepoints in the source. If it is not marked\nwith an explicit endianness, the BOM is not considered part of the string itself\nbut as metadata, and so is not preserved in the output.",
+      "description": "The input is a string tensor of any shape. The output is a string tensor of\nthe same shape containing the transcoded strings. Output strings are always\nvalid unicode. If the input contains invalid encoding positions, the\n`errors` attribute sets the policy for how to deal with them. If the default\nerror-handling policy is used, invalid formatting will be substituted in the\noutput by the `replacement_char`. If the errors policy is to `ignore`, any\ninvalid encoding positions in the input are skipped and not included in the\noutput. If it set to `strict` then any invalid formatting will result in an\nInvalidArgument error.\n\nThis operation can be used with `output_encoding = input_encoding` to enforce\ncorrect formatting for inputs even if they are already in the desired encoding.\n\nIf the input is prefixed by a Byte Order Mark needed to determine encoding\n(e.g. if the encoding is UTF-16 and the BOM indicates big-endian), then that\nBOM will be consumed and not emitted into the output. If the input encoding\nis marked with an explicit endianness (e.g. UTF-16-BE), then the BOM is\ninterpreted as a non-breaking-space and is preserved in the output (including\nalways for UTF-8).\n\nThe end result is that if the input is marked as an explicit endianness the\ntranscoding is faithful to all codepoints in the source. If it is not marked\nwith an explicit endianness, the BOM is not considered part of the string itself\nbut as metadata, and so is not preserved in the output.\n\nExamples:\n\n>>> tf.strings.unicode_transcode([\"Hello\", \"TensorFlow\", \"2.x\"], \"UTF-8\", \"UTF-16-BE\")\n<tf.Tensor: shape=(3,), dtype=string, numpy=\narray([b'\\x00H\\x00e\\x00l\\x00l\\x00o',\n       b'\\x00T\\x00e\\x00n\\x00s\\x00o\\x00r\\x00F\\x00l\\x00o\\x00w',\n       b'\\x002\\x00.\\x00x'], dtype=object)>\n>>> tf.strings.unicode_transcode([\"A\", \"B\", \"C\"], \"US ASCII\", \"UTF-8\").numpy()\narray([b'A', b'B', b'C'], dtype=object)",
       "inputs": [
         {
           "description": "The text to be processed. Can have any shape.",
