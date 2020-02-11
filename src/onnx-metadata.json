@@ -3851,6 +3851,105 @@
     }
   },
   {
+    "name": "Constant",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The value for the elements of the output tensor in sparse format.",
+          "name": "sparse_value",
+          "required": false
+        },
+        {
+          "description": "The value for the elements of the output tensor.",
+          "name": "value",
+          "required": false,
+          "type": "tensor"
+        },
+        {
+          "description": "The value for the sole element for the scalar, float32, output tensor.",
+          "name": "value_float",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "description": "The values for the elements for the 1D, float32, output tensor.",
+          "name": "value_floats",
+          "required": false,
+          "type": "float32[]"
+        },
+        {
+          "description": "The value for the sole element for the scalar, int64, output tensor.",
+          "name": "value_int",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "The values for the elements for the 1D, int64, output tensor.",
+          "name": "value_ints",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "The value for the sole element for the scalar, UTF-8 string, output tensor.",
+          "name": "value_string",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "The values for the elements for the 1D, UTF-8 string, output tensor.",
+          "name": "value_strings",
+          "required": false,
+          "type": "string[]"
+        }
+      ],
+      "category": "Constant",
+      "description": "This operator produces a constant tensor. Exactly one of the provided attributes, either value, sparse_value,\nor value_* must be specified.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "values = np.random.randn(5, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['values'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=values.shape,\n        vals=values.flatten().astype(float),\n    ),\n)\n\nexpect(node, inputs=[], outputs=[values],\n       name='test_constant')",
+          "summary": "constant"
+        }
+      ],
+      "max_input": 0,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor containing the same value of the provided tensor.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "ConstantOfShape",
     "schema": {
       "attributes": [
@@ -15438,7 +15537,7 @@
   {
     "name": "Range",
     "schema": {
-      "description": "Generate a tensor containing a sequence of numbers that begin at `start` and extends by increments of `delta` \nup to `limit` (exclusive).\n\nThe number of elements in the output of range is computed as below-\n\n`number_of_elements = max( ceil( (limit - start) / delta ) , 0 )`\n\nThe pseudocode determining the contents of the output is shown below-\n\n`for(int i=0; i<number_of_elements; ++i)`\n\n`{`\n   \n`    output[i] =  start + (i * delta);  ` \n\n`}`\t\n\n`Example 1`\nInputs: start = 3, limit = 9, delta = 3\nOutput: [3, 6]\n\n`Example 2`\nInputs: start = 10, limit = 4, delta = -2\nOutput: [10, 8, 6]\n\n",
+      "description": "Generate a tensor containing a sequence of numbers that begin at `start` and extends by increments of `delta`\nup to `limit` (exclusive).\n\nThe number of elements in the output of range is computed as below-\n\n`number_of_elements = max( ceil( (limit - start) / delta ) , 0 )`\n\nThe pseudocode determining the contents of the output is shown below-\n\n`for(int i=0; i<number_of_elements; ++i)`\n\n`{`\n\n`    output[i] =  start + (i * delta);  `\n\n`}`\n\n`Example 1`\nInputs: start = 3, limit = 9, delta = 3\nOutput: [3, 6]\n\n`Example 2`\nInputs: start = 10, limit = 4, delta = -2\nOutput: [10, 8, 6]\n\n",
       "domain": "ai.onnx",
       "examples": [
         {
