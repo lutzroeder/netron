@@ -151,21 +151,21 @@ class HTMLDocument {
     }
 
     createElement(/* name */) {
-        return new HTMLHtmlElement();
+        return new HTMLElement();
     }
 
     createElementNS(/* namespace, name */) {
-        return new HTMLHtmlElement();
+        return new HTMLElement();
     }
 
     createTextNode(/* text */) {
-        return new HTMLHtmlElement();
+        return new HTMLElement();
     }
 
     getElementById(id) {
         let element = this._elements[id];
         if (!element) {
-            element = new HTMLHtmlElement();
+            element = new HTMLElement();
             this._elements[id] = element;
         }
         return element;
@@ -178,18 +178,23 @@ class HTMLDocument {
     }
 }
 
-class HTMLHtmlElement {
+class HTMLElement {
 
     constructor() {
-        this._attributes = {};
-        this.style = new CSSStyleDeclaration();
+        this._attributes = new Map();
+        this._style = new CSSStyleDeclaration();
+    }
+
+    get style() {
+        return this._style;
+
     }
 
     appendChild(/* node */) {
     }
 
     setAttribute(name, value) {
-        this._attributes[name] = value;
+        this._attributes.set(name, value);
     }
 
     getBBox() {
@@ -211,24 +216,20 @@ class HTMLHtmlElement {
     }
 }
 
-class HTMLBodyElement {
+class HTMLHtmlElement extends HTMLElement {
+}
 
-    constructor() {
-        this.style = new CSSStyleDeclaration();
-    }
-
-    addEventListener(/* event, callback */) {
-    }
+class HTMLBodyElement extends HTMLElement{
 }
 
 class CSSStyleDeclaration {
 
     constructor() {
-        this._properties = {};
+        this._properties = new Map();
     }
 
     setProperty(name, value) {
-        this._properties[name] = value;
+        this._properties.set(name, value);
     }
 }
 
@@ -240,8 +241,7 @@ class DOMTokenList {
 
 function makeDir(dir) {
     if (!fs.existsSync(dir)){
-        makeDir(path.dirname(dir));
-        fs.mkdirSync(dir);
+        fs.mkdirSync(dir, { recursive: true });
     }
 }
 
