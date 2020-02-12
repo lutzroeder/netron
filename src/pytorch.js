@@ -1689,6 +1689,7 @@ pytorch.Execution = class {
             if (this.type(targetName)) {
                 return this.invoke(targetName, callArguments);
             }
+            throw new pytorch.Error("Unsupported function '" +  targetName + "'.");
         }
         const func = name ? callTarget[name] : callTarget;
         if (func.__class__ === this._context.scope.builtins.type) {
