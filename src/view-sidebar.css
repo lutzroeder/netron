@@ -3,7 +3,7 @@
 .sidebar-title { font-weight: bold; font-size: 12px; letter-spacing: 0.5px; height: 20px; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .sidebar-closebutton { padding: 8px 8px 8px 32px; text-decoration: none; font-size: 25px; color: #777777; opacity: 1.0; display: block; transition: 0.2s; position: absolute; top: 0; right: 15px; margin-left: 50px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .sidebar-closebutton:hover { color: #242424; }
-.sidebar-content { padding-left: 20px; padding-right: 20px; overflow-y: auto; }
+.sidebar-content { padding-left: 20px; padding-right: 20px; overflow-y: auto; height: calc(100vh - 60px); }
 
 .sidebar-view-title { font-weight: bold; font-size: 11px; line-height: 1.25; border-bottom: 1px solid #ececec; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; color: #333; user-select: none; -webkit-user-select: none; -moz-user-select: none; cursor: default; }
 .sidebar-view-title-button { display: inline-block; color: #888; text-align: center; vertical-align: middle; font-weight: bold; width: 12px; height: 12px; font-size: 10px; line-height: 12px; border-radius: 50%; transform: translateY(-1px); padding: 1px; background: transparent; border: 1px solid #aaa; text-decoration: none; cursor: hand; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
