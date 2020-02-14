@@ -37660,6 +37660,85 @@
     }
   },
   {
+    "name": "ParallelInterleaveDatasetV4",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A function mapping elements of `input_dataset`, concatenated with\n`other_arguments`, to a Dataset variant that contains elements matching\n`output_types` and `output_shapes`.",
+          "name": "f",
+          "type": "function"
+        },
+        {
+          "default": "default",
+          "description": "A string indicating the op-level determinism to use. Deterministic controls\nwhether the interleave is allowed to return elements out of order if the next\nelement to be returned isn't available, but a later element is. Options are\n\"true\", \"false\", and \"default\". \"default\" indicates that determinism should be\ndecided by the `experimental_deterministic` parameter of `tf.data.Options`.",
+          "name": "deterministic",
+          "type": "string"
+        },
+        {
+          "description": "Types of the elements of `other_arguments`.",
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "description": "The resulting dataset is similar to the `InterleaveDataset`, except that the\ndataset will fetch records from the interleaved datasets in parallel.\n\nThe `tf.data` Python API creates instances of this op from\n`Dataset.interleave()` when the `num_parallel_calls` parameter of that method\nis set to any value other than `None`.\n\nBy default, the output of this dataset will be deterministic, which may result\nin the dataset blocking if the next data item to be returned isn't available.\nIn order to avoid head-of-line blocking, one can either set the `deterministic`\nattribute to \"false\", or leave it as \"default\" and set the\n`experimental_deterministic` parameter of `tf.data.Options` to `False`.\nThis can improve performance at the expense of non-determinism.",
+      "inputs": [
+        {
+          "description": "Dataset that produces a stream of arguments for the function `f`.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "Additional arguments to pass to `f` beyond those produced by `input_dataset`.\nEvaluated once when the dataset is instantiated.",
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        },
+        {
+          "description": "Number of datasets (each created by applying `f` to the elements of\n`input_dataset`) among which the `ParallelInterleaveDatasetV2` will cycle in a\nround-robin fashion.",
+          "name": "cycle_length",
+          "type": 9
+        },
+        {
+          "description": "Number of elements at a time to produce from each interleaved invocation of a\ndataset returned by `f`.",
+          "name": "block_length",
+          "type": 9
+        },
+        {
+          "description": "The number of elements each iterator being interleaved should buffer (similar\nto the `.prefetch()` transformation for each interleaved iterator).",
+          "name": "buffer_output_elements",
+          "type": 9
+        },
+        {
+          "description": "Determines the number of iterators to prefetch, allowing buffers to warm up and\ndata to be pre-fetched without blocking the main thread.",
+          "name": "prefetch_input_elements",
+          "type": 9
+        },
+        {
+          "description": "Determines the number of threads that should be used for fetching data from\ninput datasets in parallel. The Python API `tf.data.experimental.AUTOTUNE`\nconstant can be used to indicate that the level of parallelism should be autotuned.",
+          "name": "num_parallel_calls",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that applies `f` to the outputs of `input_dataset`."
+    }
+  },
+  {
     "name": "ParallelMapDataset",
     "schema": {
       "attributes": [
@@ -37712,6 +37791,70 @@
           "description": "The number of concurrent invocations of `f` that process\nelements from `input_dataset` in parallel.",
           "name": "num_parallel_calls",
           "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that applies `f` to the outputs of `input_dataset`."
+    }
+  },
+  {
+    "name": "ParallelMapDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "f",
+          "type": "function"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": true,
+          "name": "use_inter_op_parallelism",
+          "type": "boolean"
+        },
+        {
+          "default": "default",
+          "name": "deterministic",
+          "type": "string"
+        },
+        {
+          "default": false,
+          "name": "preserve_cardinality",
+          "type": "boolean"
+        }
+      ],
+      "description": "Unlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `num_parallel_calls` copies of `f` in parallel.",
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        },
+        {
+          "description": "The number of concurrent invocations of `f` that process\nelements from `input_dataset` in parallel.",
+          "name": "num_parallel_calls",
+          "type": 9
         }
       ],
       "outputs": [
@@ -38005,6 +38148,153 @@
           "default": false,
           "name": "sloppy",
           "type": "boolean"
+        },
+        {
+          "default": [],
+          "minimum": 0,
+          "name": "ragged_keys",
+          "type": "string[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "ragged_value_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "ragged_split_types",
+          "type": "type[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "num_parallel_calls",
+          "type": 9
+        },
+        {
+          "description": "A dict mapping string keys to `Tensor`s.\nThe keys of the dict must match the dense_keys of the feature.",
+          "name": "dense_defaults",
+          "typeListAttr": "Tdense"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Transforms `input_dataset` containing `Example` protos as vectors of DT_STRING into a dataset of `Tensor` or `SparseTensor` objects representing the parsed features."
+    }
+  },
+  {
+    "name": "ParseExampleDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of string keys in the examples features.\nThe results for these keys will be returned as `SparseTensor` objects.",
+          "minimum": 0,
+          "name": "sparse_keys",
+          "type": "string[]"
+        },
+        {
+          "description": "A list of Ndense string Tensors (scalars).\nThe keys expected in the Examples features associated with dense values.",
+          "minimum": 0,
+          "name": "dense_keys",
+          "type": "string[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "description": "A list of `DTypes` of the same length as `sparse_keys`.\nOnly `tf.float32` (`FloatList`), `tf.int64` (`Int64List`),\nand `tf.string` (`BytesList`) are supported.",
+          "minimum": 0,
+          "name": "sparse_types",
+          "type": "type[]"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "description": "A list of DTypes of the same length as `dense_keys`.\nOnly `tf.float32` (`FloatList`), `tf.int64` (`Int64List`),\nand `tf.string` (`BytesList`) are supported.\n",
+          "minimum": 0,
+          "name": "Tdense",
+          "type": "type[]"
+        },
+        {
+          "description": "List of tuples with the same length as `dense_keys`.\nThe shape of the data for each dense feature referenced by `dense_keys`.\nRequired for any input tensors identified by `dense_keys`.  Must be\neither fully defined, or may contain an unknown first dimension.\nAn unknown first dimension means the feature is treated as having\na variable number of blocks, and the output shape along this dimension\nis considered unknown at graph build time.  Padding is applied for\nminibatch elements smaller than the maximum number of blocks for the\ngiven feature along this dimension.",
+          "minimum": 0,
+          "name": "dense_shapes",
+          "type": "shape[]"
+        },
+        {
+          "description": "The type list for the return values.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "description": "The list of shapes being produced.",
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": "default",
+          "description": "A string indicating the op-level determinism to use. Deterministic controls\nwhether the dataset is allowed to return elements out of order if the next\nelement to be returned isn't available, but a later element is. Options are\n\"true\", \"false\", and \"default\". \"default\" indicates that determinism should be\ndecided by the `experimental_deterministic` parameter of `tf.data.Options`.",
+          "name": "deterministic",
+          "type": "string"
         },
         {
           "default": [],
@@ -69909,6 +70199,105 @@
         }
       ],
       "summary": "Outputs deterministic pseudorandom random values from a uniform distribution."
+    }
+  },
+  {
+    "name": "StatelessRandomUniformFullInt",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 23
+          },
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tseed",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values are uniform integers covering the whole range of `dtype`.\n\nThe outputs are a deterministic function of `shape` and `seed`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random integers from a uniform distribution."
     }
   },
   {
