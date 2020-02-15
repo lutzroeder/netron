@@ -1805,6 +1805,7 @@
                 this.output = [];
                 this.attribute = [];
                 this.node = [];
+                this.opset_import = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -1819,6 +1820,7 @@
             FunctionProto.prototype.attribute = $util.emptyArray;
             FunctionProto.prototype.node = $util.emptyArray;
             FunctionProto.prototype.doc_string = "";
+            FunctionProto.prototype.opset_import = $util.emptyArray;
     
             FunctionProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -1858,6 +1860,11 @@
                         break;
                     case 8:
                         message.doc_string = reader.string();
+                        break;
+                    case 9:
+                        if (!(message.opset_import && message.opset_import.length))
+                            message.opset_import = [];
+                        message.opset_import.push($root.onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1922,6 +1929,11 @@
                         break;
                     case "doc_string":
                         message.doc_string = reader.string();
+                        break;
+                    case "opset_import":
+                        if (!(message.opset_import && message.opset_import.length))
+                            message.opset_import = [];
+                        message.opset_import.push($root.onnx.OperatorSetIdProto.decodeText(reader, true));
                         break;
                     default:
                         reader.field(tag, message);
