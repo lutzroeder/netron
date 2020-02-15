@@ -3856,7 +3856,7 @@
     "type":   "pytorch",
     "target": "blitz_neural_networks_tutorial.pt",
     "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial.pt]",
-    "error":  "Unknown statement 'for' in 'blitz_neural_networks_tutorial.pt'.",
+    "error":  "Unsupported 'for' statement in 'blitz_neural_networks_tutorial.pt'.",
     "format": "TorchScript v1.3",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },

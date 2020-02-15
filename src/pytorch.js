@@ -1486,6 +1486,9 @@ pytorch.Execution = class {
             }
             throw new pytorch.Error('Unknown torch.add expression type.');
         });
+        this._registerFunction('range', function(/* start, stop, step */) {
+            throw new pytorch.Error('Unsupported range function.');
+        });
         this._registerFunction('torch.__is__', function(left, right) {
             if (left === null && right === null) {
                 return true;
@@ -1812,6 +1815,14 @@ pytorch.Execution = class {
                     }
                     throw new pytorch.Error("Unknown condition.");
                 }
+                case 'for': {
+                    /*
+                    if (statement.target.length == 1) {
+                        const range = this.expression(statement.target[0], context);
+                    }
+                    */
+                    throw new pytorch.Error("Unsupported 'for' statement.");
+                }
                 case 'call': {
                     this.expression(statement, context);
                     break;
@@ -1929,9 +1940,6 @@ pytorch.Execution = class {
                     return this.call(expression.target.target, expression.target.member.value, expression.arguments, context);
                 }
                 return this.call(expression.target, null, expression.arguments, context);
-                // const target = this.expression(expression.target, context);
-                // const args = expression.arguments.map((argument) => this.expression(argument, context));
-                // return target.apply(self, args);
             }
             case 'id': {
                 switch (expression.value) {
@@ -3015,10 +3023,12 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         switch (type) {
                             case 'torch.cat': 
                             case 'torch.conv2d': 
+                            case 'torch.dropout':
                             case 'torch.flatten':
+                            case 'torch.max_pool2d': 
                             case 'torch.quantize_per_tensor':
                             case 'torch.relu_':
-                            case 'torch.dropout': {
+                            case 'torch.slice': {
                                 parameter.size = [ undefined, undefined, undefined, undefined ];
                                 break;
                             }

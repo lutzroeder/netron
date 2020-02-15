@@ -1900,7 +1900,7 @@
       ],
       "inputs": [
         {
-          "name": "input"
+          "name": "self"
         }
       ],
       "outputs": [
