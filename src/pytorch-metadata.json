@@ -834,7 +834,8 @@
           "name": "weight"
         },
         {
-          "name": "bias"
+          "name": "bias",
+          "option": "optional"
         }
       ],
       "outputs": [
@@ -1553,6 +1554,32 @@
     }
   },
   {
+    "name": "torch.feature_dropout",
+    "schema": {
+      "attributes": [
+        {
+          "name": "p",
+          "type": "float64"
+        },
+        {
+          "name": "train",
+          "type": "boolean"
+        }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.dropout_",
     "schema": {
       "attributes": [
@@ -1661,8 +1688,15 @@
     }
   },
   {
-    "name": "torch.mul_",
+    "name": "torch.add:Tensor",
     "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
@@ -1679,9 +1713,12 @@
     }
   },
   {
-    "name": "torch.add",
+    "name": "torch.add:Scalar",
     "schema": {
       "attributes": [
+        {
+          "name": "other"
+        },
         {
           "default": 1,
           "name": "alpha",
@@ -1691,9 +1728,6 @@
       "inputs": [
         {
           "name": "input"
-        },
-        {
-          "name": "other"
         }
       ],
       "outputs": [
@@ -1773,24 +1807,6 @@
       "inputs": [
         {
           "name": "input"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output"
-        }
-      ]
-    }
-  },
-  {
-    "name": "torch.mul",
-    "schema": {
-      "inputs": [
-        {
-          "name": "input"
-        },
-        {
-          "name": "other"
         }
       ],
       "outputs": [
@@ -1916,6 +1932,68 @@
       "inputs": [
         {
           "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.clone",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.expand",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "self"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.copy_",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "src"
         }
       ],
       "outputs": [
@@ -2419,6 +2497,291 @@
       "inputs": [
         {
           "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.norm",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim"
+        },
+        {
+          "name": "p"
+        },
+        {
+          "default": false,
+          "name": "keepdim",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.elu_",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha"
+        },
+        {
+          "default": 1,
+          "name": "scale"
+        },
+        {
+          "default": 1,
+          "name": "input_scale"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "self"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.pixel_shuffle",
+    "schema": {
+      "attributes": [
+        {
+          "name": "upscale_factor",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.nonzero",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.neg",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.grid_sampler",
+    "schema": {
+      "attributes": [
+        {
+          "name": "interpolation_mode",
+          "type": "int64"
+        },
+        {
+          "name": "padding_mode",
+          "type": "int64"
+        },
+        {
+          "name": "align_corners",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "grid"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.sort",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "dim",
+          "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "descending",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values"
+        },
+        {
+          "name": "indices"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.gt:Tensor",
+    "schema": {
+      "inputs": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.gt:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "self"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.mul:Tensor",
+    "schema": {
+      "inputs": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.mul:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "self"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.mul_:Tensor",
+    "schema": {
+      "inputs": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.mul_:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "self"
         }
       ],
       "outputs": [

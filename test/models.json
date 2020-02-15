@@ -3939,6 +3939,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "gcn2_tiny_320x240.pt",
+    "source": "https://github.com/jiexiong2016/GCNv2_SLAM/blob/master/GCN2/gcn2_tiny_320x240.pt?raw=true",
+    "format": "TorchScript v1.0",
+    "link":   "https://github.com/jiexiong2016/GCNv2_SLAM"
+  },
+  {
+    "type":   "pytorch",
     "target": "inception_v3.pkl.pth",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
@@ -4232,6 +4239,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "semantic_lstm_vehicle_model.pt",
+    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/semantic_lstm_vehicle_model.pt?raw=true",
+    "format": "TorchScript v1.1",
+    "link":   "https://github.com/ApolloAuto/apollo"
+  },
+  {
+    "type":   "pytorch",
     "target": "SiamFC_50_model.pth",
     "source": "https://raw.githubusercontent.com/HengLan/SiamFC-PyTorch/master/Train/model/SiamFC_50_model.pth",
     "format": "PyTorch v0.1.10",
@@ -4302,9 +4316,16 @@
   {
     "type":   "pytorch",
     "target": "superpoint_v1.pth",
-    "source": "https://raw.githubusercontent.com/MagicLeapResearch/SuperPointPretrainedNetwork/master/superpoint_v1.pth",
+    "source": "https://github.com/MagicLeapResearch/SuperPointPretrainedNetwork/blob/master/superpoint_v1.pth?raw=true",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/MagicLeapResearch/SuperPointPretrainedNetwork"
+  },
+  {
+    "type":   "pytorch",
+    "target": "superpoint.pt",
+    "source": "https://github.com/KinglittleQ/SuperPoint_SLAM/blob/master/superpoint.pt?raw=true",
+    "format": "TorchScript v1.0",
+    "link":   "https://github.com/KinglittleQ/SuperPoint_SLAM"
   },
   {
     "type":   "pytorch",
