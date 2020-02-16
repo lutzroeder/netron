@@ -1072,6 +1072,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.dropout.Dropout2d', function() {});
         this._registerConstructor('torch.nn.modules.dropout.Dropout3d', function() {});
         this._registerConstructor('torch.nn.modules.fold.Unfold', function() {});
+        this._registerConstructor('torch.nn.modules.flatten.Flatten', function() {});
         this._registerConstructor('torch.nn.modules.instancenorm.InstanceNorm1d', function() {});
         this._registerConstructor('torch.nn.modules.instancenorm.InstanceNorm2d', function() {});
         this._registerConstructor('torch.nn.modules.instancenorm.InstanceNorm3d', function() {});
