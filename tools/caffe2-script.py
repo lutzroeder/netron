@@ -11,6 +11,7 @@ import re
 import sys
 
 def get_support_level(dir):
+    dir = dir.replace('\\', '/')
     if 'caffe2/caffe2/operators' in dir:
         return 'core'
     if 'contrib' in dir.split('/'):
