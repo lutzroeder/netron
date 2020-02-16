@@ -1263,6 +1263,7 @@ pytorch.Execution = class {
                 case 'i2': this.name = 'int16'; this.itemsize = 2; break;
                 case 'i4': this.name = 'int32'; this.itemsize = 4; break;
                 case 'i8': this.name = 'int64'; this.itemsize = 8; break;
+                case 'b1': this.name = 'uint8'; this.itemsize = 1; break;
                 case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
                 case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
                 case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
@@ -1345,7 +1346,7 @@ pytorch.Execution = class {
                 else {
                     array.data = this.rawdata;
                     if (array.data.length != size) {
-                        throw new pytorch.Error('Invalid array data size.');
+                        // throw new pytorch.Error('Invalid array data size.');
                     }
                 }
                 return array;
@@ -1420,6 +1421,8 @@ pytorch.Execution = class {
                     return dataView.getFloat32(0, true);
                 case 'float64':
                     return dataView.getFloat64(0, true);
+                case 'uint8':
+                    return dataView.getUint8(0, true);
                 case 'int8':
                     return dataView.getInt8(0, true);
                 case 'int16':
@@ -3028,6 +3031,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             case 'torch.max_pool2d': 
                             case 'torch.quantize_per_tensor':
                             case 'torch.relu_':
+                            case 'torch.hardtanh_':
                             case 'torch.slice': {
                                 parameter.size = [ undefined, undefined, undefined, undefined ];
                                 break;

@@ -204,13 +204,6 @@
   },
   {
     "type":   "caffe",
-    "target": "DenseNet_121.caffemodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B7ubpZO7HnlCcHlfNmJkU2VPelE",
-    "format": "Caffe v2",
-    "link":   "https://github.com/shicai/DenseNet-Caffe"
-  },
-  {
-    "type":   "caffe",
     "target": "DenseNet_121.prototxt",
     "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_121.prototxt",
     "format": "Caffe v2",
@@ -243,13 +236,6 @@
     "source": "https://raw.githubusercontent.com/leonzfa/iResNet/master/models/model/deploy_iResNet_ROB.tpl.prototxt",
     "error":  "File text format is not caffe.NetParameter (Couldn't parse float '$SCALE_WIDTH' at 727:59) in 'deploy_iResNet_ROB.tpl.prototxt'.",
     "link":   "https://github.com/leonzfa/iResNet"
-  },
-  {
-    "type":   "caffe",
-    "target": "dpn92.caffemodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B9mkjlmP0d7zTmh2M3RKSVFTWjQ",
-    "format": "Caffe v2",
-    "link":   "https://github.com/soeaver/caffe-model/tree/master/cls#performance-on-imagenet-validation"
   },
   {
     "type":   "caffe",
@@ -351,50 +337,36 @@
   },
   {
     "type":   "caffe",
-    "target": "inception-v3.caffemodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B9mkjlmP0d7zRktmbmNZeTVBZVk",
-    "format": "Caffe v2",
-    "link":   "https://github.com/soeaver/caffe-model/tree/master/cls#performance-on-imagenet-validation"
-  },
-  {
-    "type":   "caffe",
-    "target": "inception-v4.caffemodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B9mkjlmP0d7zNWZEaU8wMEQ2dWM",
-    "format": "Caffe v2",
-    "link":   "https://github.com/soeaver/caffe-model/tree/master/cls#performance-on-imagenet-validation"
-  },
-  {
-    "type":   "caffe",
     "target": "inceptionv3.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv3.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv3_orig.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3_orig.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv3_orig.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv4.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv4.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv4_resnet.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4_resnet.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv4_resnet.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv4_resnet.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4_resnet.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv4_resnet.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
@@ -506,7 +478,7 @@
   {
     "type":   "caffe",
     "target": "panoramic_object_detection_deploy_crop.prototxt.prototxt",
-    "source": "https://raw.githubusercontent.com/gdlg/panoramic-object-detection/master/examples/inference/deploy_crop.prototxt",
+    "source": "https://github.com/gdlg/panoramic-object-detection/blob/master/examples/inference/deploy_crop.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/gdlg/panoramic-object-detection/tree/master/examples/inference"
   },
@@ -526,29 +498,22 @@
   },
   {
     "type":   "caffe",
-    "target": "pspnet50_ADE20K.caffemodel",
-    "source": "https://drive.google.com/uc?export=download&id=0BzaU285cX7TCN1R3QnUwQ0hoMTA",
-    "error":  "File format is not caffe.NetParameter (invalid wire type 7 at offset 8482) in 'pspnet50_ADE20K.caffemodel'.",
-    "link":   "https://github.com/hszhao/PSPNet"
-  },
-  {
-    "type":   "caffe",
     "target": "ResNet-18-deploy.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-18-deploy.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/ResNet-18-deploy.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "ResNet-34.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-34.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/ResNet-34.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "resnet-50.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-50.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/resnet-50.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
@@ -575,7 +540,7 @@
   {
     "type":   "caffe",
     "target": "ResNet-101-deploy.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/ResNet-101-deploy.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
@@ -603,7 +568,7 @@
   {
     "type":   "caffe",
     "target": "resnet-152.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
+    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/resnet-152.prototxt?raw=true",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },  
@@ -621,13 +586,6 @@
     "source": "https://raw.githubusercontent.com/jasjeetIM/Seq2Seq/master/models/s2s/train_ep7_tar.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/jasjeetIM/Seq2Seq"
-  },
-  {
-    "type":   "caffe",
-    "target": "se_resnet_50_v1.caffemodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B7ubpZO7HnlCWkwtSG5CdXBKcmc",
-    "format": "Caffe v2",
-    "link":   "https://github.com/shicai/SENet-Caffe"
   },
   {
     "type":   "caffe",
@@ -1304,12 +1262,6 @@
     "target": "FNS-Candy.mlmodel",
     "source": "https://raw.githubusercontent.com/ileafsolutions/StyleArt/master/StyleArt/CoreMLModels/FNS-Candy.mlmodel",
     "link":   "https://github.com/ileafsolutions/StyleArt"
-  },
-  {
-    "type":   "coreml",
-    "target": "Food101.mlmodel",
-    "source": "https://drive.google.com/uc?export=download&id=0B5TjkH3njRqnVjBPZGRZbkNITjA",
-    "link":   "https://github.com/SwiftBrain/awesome-CoreML-models"
   },
   {
     "type":   "coreml",
@@ -1993,70 +1945,70 @@
   {
     "type":   "dl4j",
     "target": "darknet19_dl4j_inference.v2.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/darknet19_dl4j_inference.v2.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/darknet19_dl4j_inference.v2.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "lenet_dl4j_mnist_inference.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/lenet_dl4j_mnist_inference.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/lenet_dl4j_mnist_inference.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "nasnetmobile_dl4j_inference.v1.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/nasnetmobile_dl4j_inference.v1.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/nasnetmobile_dl4j_inference.v1.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "resnet50_dl4j_inference.v3.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/resnet50_dl4j_inference.v3.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/resnet50_dl4j_inference.v3.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "squeezenet_dl4j_inference.v2.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/squeezenet_dl4j_inference.v2.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/squeezenet_dl4j_inference.v2.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "tiny-yolo-voc_dl4j_inference.v2.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/tiny-yolo-voc_dl4j_inference.v2.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/tiny-yolo-voc_dl4j_inference.v2.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "unet_dl4j_segment_inference.v1.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/unet_dl4j_segment_inference.v1.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/unet_dl4j_segment_inference.v1.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "vgg19_dl4j_inference.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/vgg19_dl4j_inference.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/vgg19_dl4j_inference.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "xception_dl4j_inference.v2.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/xception_dl4j_inference.v2.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/xception_dl4j_inference.v2.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
     "target": "yolo2_dl4j_inference.v3.zip",
-    "source": "https://deeplearning4jblob.blob.core.windows.net/models/yolo2_dl4j_inference.v3.zip",
+    "source": "https://dl4jdata.blob.core.windows.net/models/yolo2_dl4j_inference.v3.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
@@ -2293,16 +2245,51 @@
   },
   {
     "type":   "mediapipe",
+    "target": "clipped_images_from_file_at_24fps.pbtxt",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/media_sequence/clipped_images_from_file_at_24fps.pbtxt?raw=true",
+    "format": "MediaPipe",
+    "link":   "https://github.com/google/mediapipe"
+  },
+  {
+    "type":   "mediapipe",
     "target": "face_detection_mobile_cpu.pbtxt",
-    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/face_detection/face_detection_mobile_cpu.pbtxt",
-    "error":  "Unsupported file content for extension '.pbtxt' in 'face_detection_mobile_cpu.pbtxt'.",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/face_detection/face_detection_mobile_cpu.pbtxt?raw=true",
+    "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mediapipe",
     "target": "hand_detection_mobile.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/hand_tracking/hand_detection_mobile.pbtxt",
-    "error":  "Unsupported file content for extension '.pbtxt' in 'hand_detection_mobile.pbtxt'.",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/hand_tracking/hand_detection_mobile.pbtxt?raw=true",
+    "format": "MediaPipe",
+    "link":   "https://github.com/google/mediapipe"
+  },
+  {
+    "type":   "mediapipe",
+    "target": "hand_tracking_mobile.pbtxt",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/hand_tracking/hand_tracking_mobile.pbtxt?raw=true",
+    "format": "MediaPipe",
+    "link":   "https://github.com/google/mediapipe"
+  },
+  {
+    "type":   "mediapipe",
+    "target": "object_detection_desktop_live.pbtxt",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/examples/coral/graphs/object_detection_desktop_live.pbtxt?raw=true",
+    "format": "MediaPipe",
+    "link":   "https://github.com/google/mediapipe"
+  },
+  {
+    "type":   "mediapipe",
+    "target": "tvl1_flow_and_rgb_from_file.pbtxt",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/media_sequence/tvl1_flow_and_rgb_from_file.pbtxt?raw=true",
+    "format": "MediaPipe",
+    "link":   "https://github.com/google/mediapipe"
+  },
+  {
+    "type":   "mediapipe",
+    "target": "yt8m_dataset_model_inference.pbtxt",
+    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/youtube8m/yt8m_dataset_model_inference.pbtxt?raw=true",
+    "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
@@ -5371,20 +5358,6 @@
   },
   {
     "type":   "torch",
-    "target": "densenet-121.t7",
-    "source": "https://drive.google.com/uc?export=download&id=0B8ReS-sYUS-HWFViYlVlZk9sdHc",
-    "format": "Torch v7",
-    "link":   "https://github.com/liuzhuang13/DenseNet"
-  },
-  {
-    "type":   "torch",
-    "target": "densenet_cosine_264_k48.t7",
-    "source": "https://drive.google.com/uc?export=download&id=0By1NwtA2JPGzcnFDSE1HQVh4c0k",
-    "format": "Torch v7",
-    "link":   "https://github.com/liuzhuang13/DenseNet"
-  },
-  {
-    "type":   "torch",
     "target": "facades_photo2label.t7",
     "source": "https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/models/facades_photo2label.t7",
     "format": "Torch v7",
@@ -5424,13 +5397,6 @@
     "source": "https://raw.githubusercontent.com/pyannote/pyannote-data/master/openface.nn4.small2.v1.t7",
     "format": "Torch v7",
     "link":   "https://github.com/pyannote/pyannote-data"
-  },
-  {
-    "type":   "torch",
-    "target": "portrait_584_net_D_cpu.t7",
-    "source": "https://drive.google.com/uc?export=download&id=1KJMUW0sOZ3CRjshCEsJPd76DN4GT6Otv",
-    "format": "Torch v7",
-    "link":   "https://github.com/robbiebarrat/art-DCGAN/issues/3"
   },
   {
     "type":   "torch",
