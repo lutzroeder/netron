@@ -3045,6 +3045,59 @@
     }
   },
   {
+    "name": "Celu",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "The Alpha value in Celu formula which control the shape of the unit. The default value is 1.0.",
+          "name": "alpha",
+          "required": false,
+          "type": "float32"
+        }
+      ],
+      "description": "Continuously Differentiable Exponential Linear Units:\n       Perform the linear unit element-wise on the input tensor X\n       using formula: <br/> ``` max(0,x) + min(0,alpha*(exp(x/alpha)\u22121)) ```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Celu',\n    inputs=['X'],\n    outputs=['Y']\n)\n\ninput_data = np.array([[[[0.8439683], [0.5665144], [0.05836735]],\n    [[0.02916367], [0.12964272], [0.5060197]],\n    [[0.79538304], [0.9411346], [0.9546573]]],\n    [[[0.17730942], [0.46192095], [0.26480448]],\n    [[0.6746842], [0.01665257], [0.62473077]],\n    [[0.9240844], [0.9722341], [0.11965699]]],\n    [[[0.41356155], [0.9129373], [0.59330076]],\n    [[0.81929934], [0.7862604], [0.11799799]],\n    [[0.69248444], [0.54119414], [0.07513223]]]], dtype=np.float32)\n\nalpha = 2\n\n# Calculate expected output data\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = positive_input + negative_input\n\nexpect(node, inputs=[input_data], outputs=[expected_output],\n       name='test_celu')",
+          "summary": "celu"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to floating-point tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Clip",
     "schema": {
       "attributes": [
