@@ -2673,9 +2673,8 @@ pytorch.Container.Zip = class {
                         [ 'INT32', 'Int' ],
                         [ 'INT64', 'Long' ]
                     ]);
-                    const tensors = model.tensors;
-                    this._constants = tensors;
-                    for (const tensor of tensors) {
+                    this._constants = model.tensors || [];
+                    for (const tensor of this._constants) {
                         const key = this._prefix + tensor.data.key;
                         if (!tensorTypeMap.has(tensor.dataType)) {
                             throw new pytorch.Error("Unknown tensor data type '" + tensor.dataType + "'.");
@@ -2715,7 +2714,7 @@ pytorch.Container.Zip = class {
                             delete module.arguments;
                         }
                         for (const parameter of parameters) {
-                            const tensor = tensors[parameter.tensorId];
+                            const tensor = this._constants[parameter.tensorId];
                             module[parameter.name] = tensor;
                             if (!parameter.__module__ || !parameter.__name__) {
                                 parameter.__module__ = 'torch';
