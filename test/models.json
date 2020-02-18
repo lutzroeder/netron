@@ -2308,6 +2308,20 @@
   },
   {
     "type":   "mlnet",
+    "target": "ep_model1.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4216033/ep_model1.zip",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/170"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ep_model3.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4216304/ep_model3.zip",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/170"
+  },
+  {
+    "type":   "mlnet",
     "target": "FastTreeModel.zip",
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeModel.zip?raw=true",
     "format": "ML.NET v1.0.0.0",
@@ -2354,6 +2368,13 @@
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/ScalableSentimentAnalysisBlazorWebApp/BlazorSentimentAnalysis.Server/ML/MLSentimentModel.zip?raw=true",
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "ngram.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4216079/ngram.zip?raw=true",
+    "format": "ML.NET v3.10.29.504",
+    "link":   "https://github.com/lutzroeder/netron/issues/170"
   },
   {
     "type":   "mlnet",
@@ -2410,6 +2431,13 @@
     "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_AutoML/TaxiFarePrediction/MLModels/TaxiFareModel.zip?raw=true",
     "format": "ML.NET v1.0.27701.1",
     "link":   "https://github.com/dotnet/machinelearning-samples"
+  },
+  {
+    "type":   "mlnet",
+    "target": "termlookup_with_key.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4216237/termlookup_with_key.zip?raw=true",
+    "format": "ML.NET v1.0.0.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/170"
   },
   {
     "type":   "mlnet",
