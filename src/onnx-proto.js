@@ -18,7 +18,8 @@
             values[valuesById[3] = "IR_VERSION_2017_11_3"] = 3;
             values[valuesById[4] = "IR_VERSION_2019_1_22"] = 4;
             values[valuesById[5] = "IR_VERSION_2019_3_18"] = 5;
-            values[valuesById[6] = "IR_VERSION"] = 6;
+            values[valuesById[6] = "IR_VERSION_2019_9_19"] = 6;
+            values[valuesById[7] = "IR_VERSION"] = 7;
             return values;
         })();
     
@@ -433,11 +434,92 @@
             return NodeProto;
         })();
     
+        onnx.TrainingInfoProto = (function() {
+    
+            function TrainingInfoProto(properties) {
+                this.initialization_binding = [];
+                this.update_binding = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            TrainingInfoProto.prototype.initialization = null;
+            TrainingInfoProto.prototype.algorithm = null;
+            TrainingInfoProto.prototype.initialization_binding = $util.emptyArray;
+            TrainingInfoProto.prototype.update_binding = $util.emptyArray;
+    
+            TrainingInfoProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TrainingInfoProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.initialization = $root.onnx.GraphProto.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        message.algorithm = $root.onnx.GraphProto.decode(reader, reader.uint32());
+                        break;
+                    case 3:
+                        if (!(message.initialization_binding && message.initialization_binding.length))
+                            message.initialization_binding = [];
+                        message.initialization_binding.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                        break;
+                    case 4:
+                        if (!(message.update_binding && message.update_binding.length))
+                            message.update_binding = [];
+                        message.update_binding.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TrainingInfoProto.decodeText = function decodeText(reader) {
+                var message = new $root.onnx.TrainingInfoProto();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "initialization":
+                        message.initialization = $root.onnx.GraphProto.decodeText(reader, true);
+                        break;
+                    case "algorithm":
+                        message.algorithm = $root.onnx.GraphProto.decodeText(reader, true);
+                        break;
+                    case "initialization_binding":
+                        if (!(message.initialization_binding && message.initialization_binding.length))
+                            message.initialization_binding = [];
+                        message.initialization_binding.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
+                        break;
+                    case "update_binding":
+                        if (!(message.update_binding && message.update_binding.length))
+                            message.update_binding = [];
+                        message.update_binding.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return TrainingInfoProto;
+        })();
+    
         onnx.ModelProto = (function() {
     
             function ModelProto(properties) {
                 this.opset_import = [];
                 this.metadata_props = [];
+                this.training_info = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -453,6 +535,7 @@
             ModelProto.prototype.doc_string = "";
             ModelProto.prototype.graph = null;
             ModelProto.prototype.metadata_props = $util.emptyArray;
+            ModelProto.prototype.training_info = $util.emptyArray;
     
             ModelProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
@@ -491,6 +574,11 @@
                         if (!(message.metadata_props && message.metadata_props.length))
                             message.metadata_props = [];
                         message.metadata_props.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                        break;
+                    case 20:
+                        if (!(message.training_info && message.training_info.length))
+                            message.training_info = [];
+                        message.training_info.push($root.onnx.TrainingInfoProto.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -536,6 +624,11 @@
                         if (!(message.metadata_props && message.metadata_props.length))
                             message.metadata_props = [];
                         message.metadata_props.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
+                        break;
+                    case "training_info":
+                        if (!(message.training_info && message.training_info.length))
+                            message.training_info = [];
+                        message.training_info.push($root.onnx.TrainingInfoProto.decodeText(reader, true));
                         break;
                     default:
                         reader.field(tag, message);
