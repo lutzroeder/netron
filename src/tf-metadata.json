@@ -23580,6 +23580,11 @@
           "type": "float32"
         },
         {
+          "default": 1.0,
+          "name": "exponential_avg_factor",
+          "type": "float32"
+        },
+        {
           "allowedValues": [
             "NHWC",
             "NCHW"
@@ -24027,6 +24032,11 @@
           "type": "float32"
         },
         {
+          "default": 1.0,
+          "name": "exponential_avg_factor",
+          "type": "float32"
+        },
+        {
           "allowedValues": [
             "NHWC",
             "NCHW"
@@ -24139,6 +24149,11 @@
           "default": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
+          "type": "float32"
+        },
+        {
+          "default": 1.0,
+          "name": "exponential_avg_factor",
           "type": "float32"
         },
         {
