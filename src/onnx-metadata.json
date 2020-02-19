@@ -9460,6 +9460,62 @@
     }
   },
   {
+    "name": "Inverse",
+    "schema": {
+      "description": "Calculates inverse of a square matrix or batches of square matrices.\nInverse takes one input tensor of shape `[*, M, M]`, where `*` is zero or more batch dimensions,\nand the inner-most 2 dimensions form square matrices.\nThe output is a tensor of shape `[*, M, M]`, containing the individual inverses of all input submatrices.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Inverse',\n    inputs=['x'],\n    outputs=['y']\n)\n\nX = np.random.randn(4, 4)\nY = inverse_reference_implementation(X)\n\nexpect(node, inputs=[X], outputs=[Y], name='test_inverse')",
+          "summary": "inverse"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Inverse',\n    inputs=['x'],\n    outputs=['y']\n)\n\nX = np.random.randn(2, 3, 4, 4)\nY = inverse_reference_implementation(X)\n\nexpect(node, inputs=[X], outputs=[Y], name='test_inverse_batched')",
+          "summary": "inverse_batched"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor of the same type as input.",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to all numerical tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "IsInf",
     "schema": {
       "attributes": [
