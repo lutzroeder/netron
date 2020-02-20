@@ -312,6 +312,7 @@ onnx.Graph = class {
                 let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
                 this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
+            let unnamed_count = 0;
             for (const node of nodes) {
                 let inputs = [];
                 const schema = metadata.type(node.op_type);
@@ -360,7 +361,12 @@ onnx.Graph = class {
                         }));
                     }
                 }
-                this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
+                let name = node.name;
+                if (!name) {
+                    name = "anonymous_" + node.op_type + "_" + unnamed_count;
+                    unnamed_count++;
+                }
+                this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, name, node.doc_string, node.attribute, inputs, outputs));
             }
         }
 
