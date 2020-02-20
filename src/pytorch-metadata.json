@@ -1335,6 +1335,25 @@
     }
   },
   {
+    "name": "torch.prelu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.hardtanh_",
     "schema": {
       "attributes": [
@@ -1472,6 +1491,44 @@
         {
           "name": "dtype",
           "visible": false
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.tanh",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.leaky_relu",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.01,
+          "name": "negative_slope"
         }
       ],
       "category": "Activation",
@@ -1900,7 +1957,7 @@
       ],
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         }
       ],
       "outputs": [
@@ -1968,7 +2025,7 @@
       ],
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         }
       ],
       "outputs": [
@@ -1990,7 +2047,7 @@
       ],
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         },
         {
           "name": "src"
@@ -2147,6 +2204,61 @@
         },
         {
           "name": "?"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.gru",
+    "schema": {
+      "attributes": [
+        {
+          "name": "has_biases",
+          "type": "boolean"
+        },
+        {
+          "name": "num_layers",
+          "type": "int64"
+        },
+        {
+          "name": "dropout",
+          "type": "float64"
+        },
+        {
+          "name": "train",
+          "type": "boolean"
+        },
+        {
+          "name": "bidirectional",
+          "type": "boolean"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "name": "batch_sizes",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "name": "hx",
+          "type": "T[]"
+        },
+        {
+          "name": "params",
+          "type": "T[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
         },
         {
           "name": "?"
@@ -2554,7 +2666,7 @@
       "category": "Activation",
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         }
       ],
       "outputs": [
@@ -2682,7 +2794,7 @@
     "schema": {
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         },
         {
           "name": "other"
@@ -2705,7 +2817,7 @@
       ],
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         }
       ],
       "outputs": [
@@ -2720,7 +2832,7 @@
     "schema": {
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         },
         {
           "name": "other"
@@ -2743,7 +2855,7 @@
       ],
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         }
       ],
       "outputs": [
@@ -2758,7 +2870,7 @@
     "schema": {
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
         },
         {
           "name": "other"
@@ -2781,7 +2893,79 @@
       ],
       "inputs": [
         {
-          "name": "self"
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.bmm",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "mat2"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.constant_pad_nd",
+    "schema": {
+      "attributes": [
+        {
+          "name": "pad",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "value"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.ones",
+    "schema": {
+      "attributes": [
+        {
+          "name": "size",
+          "type": "int64[]"
+        },
+        {
+          "name": "dtype"
+        },
+        {
+          "name": "layout"
+        },
+        {
+          "name": "device"
+        },
+        {
+          "name": "pin_memory"
         }
       ],
       "outputs": [

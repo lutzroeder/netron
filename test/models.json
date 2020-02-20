@@ -4107,6 +4107,27 @@
   },
   {
     "type":   "pytorch",
+    "target": "netron_issue_432_activation.pth",
+    "source": "https://github.com/lutzroeder/netron/files/4226686/netron_issue_432_activation.pth.zip[netron_issue_432_activation.pth]",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/432"
+  },
+  {
+    "type":   "pytorch",
+    "target": "netron_issue_432_bmm.pth",
+    "source": "https://github.com/lutzroeder/netron/files/4226688/netron_issue_432_bmm.pth.zip[netron_issue_432_bmm.pth]",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/432"
+  },
+  {
+    "type":   "pytorch",
+    "target": "netron_issue_432_constant_pad_2d.pth",
+    "source": "https://github.com/lutzroeder/netron/files/4226690/netron_issue_432_constant_pad_2d.pth.zip[netron_issue_432_constant_pad_2d.pth]",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/432"
+  },
+  {
+    "type":   "pytorch",
     "target": "pedestrian_interaction_position_embedding.pt",
     "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt?raw=true",
     "format": "TorchScript v1.0",

@@ -2967,7 +2967,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         outputs: []
                     };
                     let next = false;
-                    const inputSchemas = Array.prototype.slice.call(schema.inputs);
+                    const inputSchemas = Array.prototype.slice.call(schema.inputs || []);
                     while (inputSchemas.length > 0) {
                         let inputSchema = inputSchemas.shift();
                         const argument = this.expression(callArgs.shift(), context);
