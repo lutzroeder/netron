@@ -12039,7 +12039,7 @@
   {
     "name": "FloatToFused8BitRowwiseQuantized",
     "schema": {
-      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, each row contains\nint8 elements for each quantized element, and the last 8 bytes\nof each row in the output matrix are a float storing the scale\nfollowed by another float containing the scale.)\n",
+      "description": "\nApplies 8-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 8-bit number between 0 and\n255. To later de-quantize values, the scale (range / 255) and offset\n(bias) are stored alongside the data. More precisely, each row contains\nint8 elements for each quantized element, and the last 8 bytes\nof each row in the output matrix are a float storing the scale\nfollowed by another float containing the scale.\nFor N-dimensional input tensor, the first N-1 dimensions are interpreted as\nrows and the last dimension is interpreted as a column. For example, an\ninput tensor with dimension 5x2x4 is interpreted as 10 rows and 4 columns.\n)\n",
       "inputs": [
         {
           "description": "Float32 input data",
