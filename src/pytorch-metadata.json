@@ -882,6 +882,7 @@
           "name": "zero_point"
         }
       ],
+      "category": "Layer",
       "inputs": [
         {
           "name": "input"
@@ -1795,7 +1796,57 @@
     }
   },
   {
-    "name": "torch.sub",
+    "name": "torch.sub:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        },
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.sub:Tensor",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.div:Tensor",
     "schema": {
       "inputs": [
         {
@@ -1813,14 +1864,16 @@
     }
   },
   {
-    "name": "torch.div",
+    "name": "torch.div:Scalar",
     "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
-        },
-        {
-          "name": "other"
         }
       ],
       "outputs": [
@@ -2154,7 +2207,7 @@
     }
   },
   {
-    "name": "torch.lstm",
+    "name": "torch.lstm:input",
     "schema": {
       "attributes": [
         {
@@ -2176,17 +2229,16 @@
         {
           "name": "bidirectional",
           "type": "boolean"
+        },
+        {
+          "name": "batch_first",
+          "type": "boolean"
         }
       ],
       "category": "Layer",
       "inputs": [
         {
-          "name": "data",
-          "type": "T"
-        },
-        {
-          "name": "batch_sizes",
-          "option": "optional",
+          "name": "input",
           "type": "T"
         },
         {
@@ -2212,7 +2264,7 @@
     }
   },
   {
-    "name": "torch.gru",
+    "name": "torch.lstm:data",
     "schema": {
       "attributes": [
         {
@@ -2244,12 +2296,122 @@
         },
         {
           "name": "batch_sizes",
-          "option": "optional",
           "type": "T"
         },
         {
           "name": "hx",
           "type": "T[]"
+        },
+        {
+          "name": "params",
+          "type": "T[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.gru:input",
+    "schema": {
+      "attributes": [
+        {
+          "name": "has_biases",
+          "type": "boolean"
+        },
+        {
+          "name": "num_layers",
+          "type": "int64"
+        },
+        {
+          "name": "dropout",
+          "type": "float64"
+        },
+        {
+          "name": "train",
+          "type": "boolean"
+        },
+        {
+          "name": "bidirectional",
+          "type": "boolean"
+        },
+        {
+          "name": "first_batch",
+          "type": "boolean"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "name": "hx",
+          "type": "T"
+        },
+        {
+          "name": "params",
+          "type": "T[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.gru:data",
+    "schema": {
+      "attributes": [
+        {
+          "name": "has_biases",
+          "type": "boolean"
+        },
+        {
+          "name": "num_layers",
+          "type": "int64"
+        },
+        {
+          "name": "dropout",
+          "type": "float64"
+        },
+        {
+          "name": "train",
+          "type": "boolean"
+        },
+        {
+          "name": "bidirectional",
+          "type": "boolean"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "name": "batch_sizes",
+          "type": "T"
+        },
+        {
+          "name": "hx",
+          "type": "T"
         },
         {
           "name": "params",
@@ -2365,7 +2527,8 @@
       "category": "Tensor",
       "inputs": [
         {
-          "name": "inputs"
+          "name": "inputs",
+          "type": "T[]"
         }
       ],
       "outputs": [
@@ -2728,6 +2891,21 @@
     }
   },
   {
+    "name": "torch.rsqrt",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.grid_sampler",
     "schema": {
       "attributes": [
@@ -2966,6 +3144,38 @@
         },
         {
           "name": "pin_memory"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.zeros",
+    "schema": {
+      "attributes": [
+        {
+          "name": "size",
+          "type": "int64[]"
+        },
+        {
+          "name": "dtype",
+          "option": "optional"
+        },
+        {
+          "name": "layout",
+          "option": "optional"
+        },
+        {
+          "name": "device",
+          "option": "optional"
+        },
+        {
+          "name": "pin_memory",
+          "option": "optional"
         }
       ],
       "outputs": [

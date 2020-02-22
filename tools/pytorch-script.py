@@ -45,11 +45,13 @@ def metadata():
             fout.write('\n')
 
 def download_torchvision_model(name, input):
+    print(name)
     folder = os.path.expandvars('${test}/data/pytorch')
     if not os.path.exists(folder):
         os.makedirs(folder)
-    base = folder + '/' + name
-    model = pydoc.locate('torchvision.models.' + name)(pretrained=True)
+    base = folder + '/' + name.split('.')[-1]
+    print(base)
+    model = pydoc.locate(name)(pretrained=True)
     import torch
     torch.save(model, base + '.pkl.pth', _use_new_zipfile_serialization=False);
     torch.save(model, base + '.zip.pth', _use_new_zipfile_serialization=True);
@@ -61,16 +63,17 @@ def download_torchvision_model(name, input):
 def zoo():
     if not os.environ.get('test'):
         os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
-    download_torchvision_model('alexnet', [ 1, 3, 299, 299 ])
-    download_torchvision_model('densenet161', [ 1, 3, 224, 224 ])
-    download_torchvision_model('inception_v3', [ 1, 3, 299, 299 ])
-    download_torchvision_model('mobilenet_v2', [ 1, 3, 224, 224 ])
-    download_torchvision_model('resnet18', [ 1, 3, 224, 224 ])
-    download_torchvision_model('resnet101', [ 1, 3, 224, 224 ])
-    download_torchvision_model('shufflenet_v2_x1_0', [ 1, 3, 224, 224 ])
-    download_torchvision_model('squeezenet1_1', [ 1, 3, 224, 224 ])
-    download_torchvision_model('vgg11_bn', [ 1, 3, 224, 224 ])
-    download_torchvision_model('vgg16', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.alexnet', [ 1, 3, 299, 299 ])
+    download_torchvision_model('torchvision.models.densenet161', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.inception_v3', [ 1, 3, 299, 299 ])
+    download_torchvision_model('torchvision.models.detection.maskrcnn_resnet50_fpn', [ 1, 3, 300, 400 ])
+    download_torchvision_model('torchvision.models.mobilenet_v2', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.resnet18', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.resnet101', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.shufflenet_v2_x1_0', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.squeezenet1_1', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.vgg11_bn', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.vgg16', [ 1, 3, 224, 224 ])
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }

@@ -3871,7 +3871,6 @@
     "type":   "pytorch",
     "target": "blitz_neural_networks_tutorial.pt",
     "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial.pt]",
-    "error":  "Unsupported 'for' statement in 'blitz_neural_networks_tutorial.pt'.",
     "format": "TorchScript v1.3",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
@@ -3975,6 +3974,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "inception_v3.zip.pth",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch v1.4"
+  },
+  {
+    "type":   "pytorch",
     "target": "inception_v3_traced.pt",
     "script": "./tools/pytorch sync install zoo",
     "format": "TorchScript v1.4",
@@ -4059,9 +4065,9 @@
   {
     "type":   "pytorch",
     "target": "mobilenet_v2.pkl.pth",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v0.1.10"
+    "format": "PyTorch v0.1.10",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",

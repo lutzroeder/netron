@@ -12,6 +12,7 @@ const url = require('url');
 class Application {
 
     constructor() {
+
         this._views = new ViewCollection();
         this._configuration = new ConfigurationService();
         this._menu = new MenuService();
