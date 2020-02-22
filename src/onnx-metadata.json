@@ -7566,12 +7566,16 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.float32)\nindices = np.array([[[0, 1]], [[1, 0]]], dtype=np.int64)\noutput = gather_nd_impl(data, indices)\nexpected_output = np.array([[[2, 3]], [[4, 5]]], dtype=np.float32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_float32')",
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.float32)\nindices = np.array([[[0, 1]], [[1, 0]]], dtype=np.int64)\noutput = gather_nd_impl(data, indices, 0)\nexpected_output = np.array([[[2, 3]], [[4, 5]]], dtype=np.float32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_float32')",
           "summary": "float32"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[0, 1], [2, 3]], dtype=np.int32)\nindices = np.array([[0, 0], [1, 1]], dtype=np.int64)\noutput = gather_nd_impl(data, indices)\nexpected_output = np.array([0, 3], dtype=np.int32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_int32')",
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[0, 1], [2, 3]], dtype=np.int32)\nindices = np.array([[0, 0], [1, 1]], dtype=np.int64)\noutput = gather_nd_impl(data, indices, 0)\nexpected_output = np.array([0, 3], dtype=np.int32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_int32')",
           "summary": "int32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n    batch_dims=1,\n)\n\ndata = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.int32)\nindices = np.array([[1], [0]], dtype=np.int64)\noutput = gather_nd_impl(data, indices, 1)\nexpected_output = np.array([[2, 3], [4, 5]], dtype=np.int32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_int32_batch_dim1')",
+          "summary": "int32_batchdim_1"
         }
       ],
       "inputs": [
@@ -7598,6 +7602,83 @@
         }
       ],
       "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to any tensor type.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "GatherND",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The number of batch dimensions. The gather of indexing starts from dimension of data[batch_dims:]",
+          "name": "batch_dims",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Given `data` tensor of rank `r` >= 1, `indices` tensor of rank `q` >= 1, and `batch_dims` integer `b`, this operator gathers \nslices of `data` into an output tensor of rank `q + r - indices_shape[-1] - 1 - b`.\n\n`indices` is an q-dimensional integer tensor, best thought of as a `(q-1)`-dimensional tensor of index-tuples into `data`, \nwhere each element defines a slice of `data`\n\n`batch_dims` (denoted as `b`) is an integer indicating the number of batch dimensions, i.e the leading `b` number of dimensions of \n`data` tensor and `indices` are representing the batches, and the gather starts from the `b+1` dimension. \n\nSome salient points about the inputs' rank and shape:\n \n1) r >= 1 and q >= 1 are to be honored. There is no dependency condition to be met between ranks `r` and `q`\n\n2) The first `b` dimensions of the shape of `indices` tensor and `data` tensor must be equal.\n\n3) b < min(q, r) is to be honored.\n\n4) The `indices_shape[-1]` should have a value between 1 (inclusive) and rank `r-b` (inclusive) \n\n5) All values in `indices` are expected to be within bounds [-s, s-1] along axis of size `s` (i.e.) `-data_shape[i] <= indices[...,i] <= data_shape[i] - 1`.\n   It is an error if any of the index values are out of bounds.\n\nThe output is computed as follows:\n\nThe output tensor is obtained by mapping each index-tuple in the `indices` tensor to the corresponding slice of the input `data`.\n \n1) If `indices_shape[-1] > r-b` => error condition\n\n2) If `indices_shape[-1] == r-b`, since the rank of `indices` is `q`, `indices` can be thought of as `N` `(q-b-1)`-dimensional tensors\n   containing 1-D tensors of dimension `r-b`, where `N` is an integer equals to the product of 1 and all the elements in the batch dimensions \n   of the indices_shape. Let us think of each such `r-b` ranked tensor as `indices_slice`. Each *scalar value* corresponding to `data[0:b-1,indices_slice]` \n   is filled into the corresponding location of the `(q-b-1)`-dimensional tensor to form the `output` tensor (Example 1 below)\n\n3) If `indices_shape[-1] < r-b`, since the rank of `indices` is `q`, `indices` can be thought of as `N` `(q-b-1)`-dimensional tensor\n   containing 1-D tensors of dimension `< r-b`. Let us think of each such tensors as `indices_slice`. Each *tensor slice* corresponding \n   to `data[0:b-1, indices_slice , :]` is filled into the corresponding location of the `(q-b-1)`-dimensional tensor \n   to form the `output` tensor (Examples 2, 3, 4 and 5 below)\n\nThis operator is the inverse of `ScatterND`.\n\n`Example 1`\n\n  batch_dims = 0\n\n  data    = [[0,1],[2,3]]   # data_shape = [2, 2]\n\n  indices = [[0,0],[1,1]]   # indices_shape = [2, 2]\n\n  output  = [0,3]           # output_shape = [2]\n\n`Example 2`\n\n  batch_dims = 0\n\n  data    = [[0,1],[2,3]]  # data_shape = [2, 2]\n\n  indices = [[1],[0]]      # indices_shape = [2, 1]\n\n  output  = [[2,3],[0,1]]  # output_shape = [2, 2]\n\n`Example 3`\n\n  batch_dims = 0\n\n  data    = [[[0,1],[2,3]],[[4,5],[6,7]]] # data_shape = [2, 2, 2]\n\n  indices = [[0,1],[1,0]]                 # indices_shape = [2, 2]\n\n  output  = [[2,3],[4,5]]                 # output_shape = [2, 2]   \n\n`Example 4`\n\n  batch_dims = 0\n\n  data    = [[[0,1],[2,3]],[[4,5],[6,7]]] # data_shape = [2, 2, 2]\n\n  indices = [[[0,1]],[[1,0]]]             # indices_shape = [2, 1, 2]\n\n  output  = [[[2,3]],[[4,5]]]             # output_shape = [2, 1, 2] \n\n`Example 5`\n\n  batch_dims = 1\n\n  data    = [[[0,1],[2,3]],[[4,5],[6,7]]] # data_shape = [2, 2, 2]\n\n  indices = [[1],[0]]             # indices_shape = [2, 1]\n\n  output  = [[2,3],[4,5]]             # output_shape = [2, 2] \n\n\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.float32)\nindices = np.array([[[0, 1]], [[1, 0]]], dtype=np.int64)\noutput = gather_nd_impl(data, indices, 0)\nexpected_output = np.array([[[2, 3]], [[4, 5]]], dtype=np.float32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_float32')",
+          "summary": "float32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n)\n\ndata = np.array([[0, 1], [2, 3]], dtype=np.int32)\nindices = np.array([[0, 0], [1, 1]], dtype=np.int64)\noutput = gather_nd_impl(data, indices, 0)\nexpected_output = np.array([0, 3], dtype=np.int32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_int32')",
+          "summary": "int32"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'GatherND',\n    inputs=['data', 'indices'],\n    outputs=['output'],\n    batch_dims=1,\n)\n\ndata = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.int32)\nindices = np.array([[1], [0]], dtype=np.int64)\noutput = gather_nd_impl(data, indices, 1)\nexpected_output = np.array([[2, 3], [4, 5]], dtype=np.int32)\nassert (np.array_equal(output, expected_output))\nexpect(node, inputs=[data, indices], outputs=[output],\n       name='test_gathernd_example_int32_batch_dim1')",
+          "summary": "int32_batchdim_1"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Tensor of rank q >= 1. All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds.",
+          "name": "indices",
+          "type": "tensor(int64)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank q + r - indices_shape[-1] - 1.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
       "support_level": "common",
       "type_constraints": [
         {
@@ -12789,6 +12870,90 @@
         }
       ],
       "since_version": 8,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "MeanSquaredDistance",
+    "schema": {
+      "attributes": [
+        {
+          "default": "mean",
+          "description": "Type of reduction to apply to loss: none, sum, mean(default). 'none': the output is the loss for each sample in the batch.'sum': the output will be summed into a scalar. 'mean': the output with the `reduction=sum` will be further divided by the the first dimension of `scores`",
+          "name": "reduction",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "description": "Loss function that measures the\nmean squared distance (squared L2 norm) between each element in the 'scores'\nand 'labels'.\n\nThe loss can be described as:\n    L = Pow(Sub(scores, labels), 2)\n\nscore and label are tensors of arbitrary shapes with total of N elements each,\nand are of the same shape.\n\nIf 'weights' is provided, it should be broadcastable to shape of 'L'.\n    L = Mul(weights, L)\n, where Mul is element-wise binary multiplication with Numpy-style broadcasting support.\n\nFinally, L is optionally reduced:\nL = ReduceSum(L), if reduction = 'sum';\n    ReduceMean(L), if reduction = 'mean';\n    L, if reduction = 'none';\n\n.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "# Define operator attributes.\nreduction = 'mean'\n\n# Create operator.\nnode = onnx.helper.make_node('MeanSquaredDistance',\n                             inputs=['R', 'T'],\n                             outputs=['X'],\n                             reduction=reduction\n                             )\n\n# Define operator inputs\nr = np.array([[1.2, 2.5, 3.1], [1.3, 2.3, 3.4]], dtype=np.float32)\nt = np.array([[1.1, 2.6, 3.2], [1.4, 2.2, 3.3]], dtype=np.float32)\n\n# Compute Mean Square Distance\nsq = np.square(r - t)\nmsd = np.mean(sq)\n\n# Check results\nexpect(node, inputs=[r, t], outputs=[msd], name='test_mean_square_distance_mean')",
+          "summary": "mean_square_distance_mean"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'mean'\n\n# Create operator.\nnode = onnx.helper.make_node('MeanSquaredDistance',\n                             inputs=['R', 'T'],\n                             outputs=['X'],\n                             reduction=reduction\n                             )\n\n# Define operator inputs\nr = np.array([[[1.2, 2.5], [3.1, 1.3]], [[2.3, 3.4], [1.1, 2.2]], [[3.6, 1.7], [2.5, 3.8]]], dtype=np.float32)\nt = np.array([[[1.1, 2.6], [3.2, 1.4]], [[2.2, 3.3], [1.2, 2.1]], [[3.5, 1.6], [2.5, 3.9]]], dtype=np.float32)\n\n# Compute Mean Square Distance\nmsd = mean_squared_distance(r, t, reduction='mean')\n\n# Check results\nexpect(node, inputs=[r, t], outputs=[msd], name='test_mean_square_distance_mean_3d')",
+          "summary": "mean_square_distance_mean_3d"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'mean'\n\n# Create operator.\nnode = onnx.helper.make_node('MeanSquaredDistance',\n                             inputs=['R', 'T'],\n                             outputs=['X'],\n                             reduction=reduction\n                             )\n\n# Define operator inputs\nnp.random.seed(0)\nr = np.random.rand(2, 4, 5, 7)\nt = np.random.rand(2, 4, 5, 7)\n\n# Compute Mean Square Distance\nmsd = mean_squared_distance(r, t, reduction='mean')\n\n# Check results\nexpect(node, inputs=[r, t], outputs=[msd], name='test_mean_square_distance_mean_4d')",
+          "summary": "mean_square_distance_mean_4d"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'none'\n\n# Create operator.\nnode = onnx.helper.make_node('MeanSquaredDistance',\n                             inputs=['R', 'T'],\n                             outputs=['X'],\n                             reduction=reduction\n                             )\n\n# Define operator inputs\nr = np.array([1.2, 2.5], dtype=np.float32)\nt = np.array([1.1, 2.6], dtype=np.float32)\n\n# Compute Mean Square Distance\nmsd = mean_squared_distance(r, t, reduction='none')\n\n# Check results\nexpect(node, inputs=[r, t], outputs=[msd], name='test_mean_square_distance_none')",
+          "summary": "mean_square_distance_none"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'none'\n\n# Create operator.\nnode = onnx.helper.make_node('MeanSquaredDistance',\n                             inputs=['R', 'T', 'W'],\n                             outputs=['X'],\n                             reduction=reduction\n                             )\n\n# Define operator inputs\nr = np.array([1.2, 2.5], dtype=np.float32)\nt = np.array([1.1, 2.6], dtype=np.float32)\nweights = np.array([0.8, 0.9], dtype=np.float32)\n\n# Compute Mean Square Distance\nmsd = mean_squared_distance(r, t, reduction='none', w=weights)\n\n# Check results\nexpect(node, inputs=[r, t, weights], outputs=[msd], name='test_mean_square_distance_none_weights')",
+          "summary": "mean_square_distance_none_weights"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'sum'\n\n# Create operator.\nnode = onnx.helper.make_node('MeanSquaredDistance',\n                             inputs=['R', 'T'],\n                             outputs=['X'],\n                             reduction=reduction\n                             )\n\n# Define operator inputs\nr = np.array([[1.2, 2.5, 3.1], [1.3, 2.3, 3.4]], dtype=np.float32)\nt = np.array([[1.1, 2.6, 3.2], [1.4, 2.2, 3.3]], dtype=np.float32)\n\n# Compute Mean Square Distance\nmsd = mean_squared_distance(r, t, reduction='sum')\n\n# Check results\nexpect(node, inputs=[r, t], outputs=[msd], name='test_mean_square_distance_sum')",
+          "summary": "mean_square_distance_sum"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The predicted outputs.",
+          "name": "scores",
+          "type": "T"
+        },
+        {
+          "description": "The ground truth output tensor, same dimensions as 'scores'.",
+          "name": "labels",
+          "type": "T"
+        },
+        {
+          "description": "Weights acts as a coefficient for the loss, it should be broadcastable to shape of 'scores'.",
+          "name": "weights",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Weighted loss float Tensor. If reduction is none, this has the shape of [batch_size]; otherwise, it is scalar.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
       "support_level": "common",
       "type_constraints": [
         {
