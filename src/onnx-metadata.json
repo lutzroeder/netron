@@ -8566,7 +8566,7 @@
           "summary": "gradient_scalar_add"
         },
         {
-          "code": "add_node = onnx.helper.make_node('Add',\n                                 ['a', 'b'], ['c'], name='my_add')\nmul_node = onnx.helper.make_node('Mul',\n                                 ['c', 'a'], ['d'], name='my_mul')\ngradient_node = onnx.helper.make_node(\n    'Gradient', ['a', 'b'],\n    ['dd_da', 'dd_db'], name='my_gradient',\n    domain='ai.onnx.training',\n    xs=['a', 'b'], y='d')\n\na = np.array(1.0).astype(np.float32)\nb = np.array(2.0).astype(np.float32)\nc = a + b\n# d = a * c = a * (a + b)\nd = a * c\n# dd / da = d(a*a+a*b) / da = 2 * a + b\ndd_da = 2 * a + b\n# dd / db = d(a*a+a*b) / db = a\ndd_db = a\n\ngraph = onnx.helper.make_graph(\n    nodes=[add_node, mul_node, gradient_node],\n    name='GradientOfTwoOperators',\n    inputs=[\n        onnx.helper.make_tensor_value_info('a', onnx.TensorProto.FLOAT,\n                                           []),\n        onnx.helper.make_tensor_value_info('b', onnx.TensorProto.FLOAT,\n                                           [])],\n    outputs=[\n        onnx.helper.make_tensor_value_info('d', onnx.TensorProto.FLOAT,\n                                           []),\n        onnx.helper.make_tensor_value_info('dd_da',\n                                           onnx.TensorProto.FLOAT, []),\n        onnx.helper.make_tensor_value_info('dd_db',\n                                           onnx.TensorProto.FLOAT, [])])\n\nopsets = [\n    onnx.helper.make_operatorsetid('', 12),\n    onnx.helper.make_operatorsetid('ai.onnx.training', 1)]\nmodel = onnx.helper.make_model(graph,\n    producer_name='backend-test',\n    opset_imports=opsets)\nexpect(model, inputs=[a, b], outputs=[d, dd_da, dd_db],\n       name='test_gradient_of_add_and_mul')",
+          "code": "add_node = onnx.helper.make_node('Add',\n                                 ['a', 'b'], ['c'], name='my_add')\nmul_node = onnx.helper.make_node('Mul',\n                                 ['c', 'a'], ['d'], name='my_mul')\ngradient_node = onnx.helper.make_node(\n    'Gradient', ['a', 'b'],\n    ['dd_da', 'dd_db'], name='my_gradient',\n    domain='ai.onnx.training',\n    xs=['a', 'b'], y='d')\n\na = np.array(1.0).astype(np.float32)\nb = np.array(2.0).astype(np.float32)\nc = a + b\n# d = a * c = a * (a + b)\nd = a * c\n# dd / da = d(a*a+a*b) / da = 2 * a + b\ndd_da = (2 * a + b).astype(np.float32)\n# dd / db = d(a*a+a*b) / db = a\ndd_db = a\n\ngraph = onnx.helper.make_graph(\n    nodes=[add_node, mul_node, gradient_node],\n    name='GradientOfTwoOperators',\n    inputs=[\n        onnx.helper.make_tensor_value_info('a', onnx.TensorProto.FLOAT,\n                                           []),\n        onnx.helper.make_tensor_value_info('b', onnx.TensorProto.FLOAT,\n                                           [])],\n    outputs=[\n        onnx.helper.make_tensor_value_info('d', onnx.TensorProto.FLOAT,\n                                           []),\n        onnx.helper.make_tensor_value_info('dd_da',\n                                           onnx.TensorProto.FLOAT, []),\n        onnx.helper.make_tensor_value_info('dd_db',\n                                           onnx.TensorProto.FLOAT, [])])\n\nopsets = [\n    onnx.helper.make_operatorsetid('', 12),\n    onnx.helper.make_operatorsetid('ai.onnx.training', 1)]\nmodel = onnx.helper.make_model(graph,\n    producer_name='backend-test',\n    opset_imports=opsets)\nexpect(model, inputs=[a, b], outputs=[d, dd_da, dd_db],\n       name='test_gradient_of_add_and_mul')",
           "summary": "gradient_scalar_add_and_mul"
         }
       ],
@@ -20907,6 +20907,96 @@
         }
       ],
       "since_version": 11,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SoftmaxCrossEntropyLoss",
+    "schema": {
+      "attributes": [
+        {
+          "default": "mean",
+          "description": "Type of reduction to apply to loss: none, sum, mean(default). 'none': no reduction will be applied, 'sum': the output will be summed. 'mean': the sum of the output will be divided by the number of elements in the output.",
+          "name": "reduction",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "description": "Loss function that measures the softmax cross entropy\nbetween 'scores' and 'labels'.\nThis operator first computes a loss tensor whose shape is identical to the labels input.\nIf the input is 2-D with shape (N, C), the loss tensor may be a N-element vector L = (l_1, l_2, ..., l_N).\nIf the input is N-D tensor with shape (N, C, D1, D2, ..., Dk),\nthe loss tensor L may have (N, D1, D2, ..., Dk) as its shape and L[i,][j_1][j_2]...[j_k] denotes a scalar element in L.\nAfter L is available, this operator can optionally do a reduction operator.\n\nshape(scores): (N, C) where C is the number of classes, or (N, C, D1, D2,..., Dk),\n        with K >= 1 in case of K-dimensional loss.\nshape(labels): (N) where each value is 0 <= labels[i] <= C-1, or (N, D1, D2,..., Dk),\n        with K >= 1 in case of K-dimensional loss.\n\nThe loss for one sample, l_i, can caculated as follows:\n    l[i][d1][d2]...[dk] = -y[i][c][d1][d2]..[dk], where i is the index of classes.\nor\n    l[i][d1][d2]...[dk] = -y[i][c][d1][d2]..[dk] * weights[c], if 'weights' is provided.\n\nwhere:\n    p = Softmax(scores)\n    y = Log(p)\n    c = labels[i][d1][d2]...[dk]\n\nFinally, L is optionally reduced:\nIf reduction = 'none', the output is L with shape (N, D1, D2, ..., Dk).\nIf reduction = 'sum', the output is scalar: Sum(L).\nIf reduction = 'mean', the output is scalar: ReduceMean(L), or if weight is provided: ReduceSum(L) / ReduceSum(W),\nwhere tensor W is of shape (N, D1, D2, ..., Dk) and W[n][d1][d2]...[dk] = weights[labels[i][d1][d2]...[dk]].\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "# Define operator attributes.\nreduction = 'mean'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels)\n\n# Check results\nexpect(node, inputs=[x, labels], outputs=[sce], name='test_softmax_cross_entropy_mean')",
+          "summary": "softmaxcrossentropy_mean"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'mean'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5, 2).astype(np.float32)\ny = np.random.randint(0, high=5, size=(3, 2))\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, y)\n\n# Check results\nexpect(node, inputs=[x, y], outputs=[sce], name='test_softmax_cross_entropy_mean_3d')",
+          "summary": "softmaxcrossentropy_mean_3d"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'mean'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y', 'w'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\nweights = np.array([0.9, 0.7, 0.8, 0.9, 0.9], dtype=np.float32)\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels, weight=weights)\n\n# Check results\nexpect(node, inputs=[x, labels, weights], outputs=[sce], name='test_softmax_cross_entropy_mean_weight')",
+          "summary": "softmaxcrossentropy_mean_weights"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'none'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels, reduction='none')\n\n# Check results\nexpect(node, inputs=[x, labels], outputs=[sce], name='test_softmax_cross_entropy_none')",
+          "summary": "softmaxcrossentropy_none"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'none'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y', 'w'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\nweights = np.array([0.9, 0.7, 0.8, 0.9, 0.9], dtype=np.float32)\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels, weight=weights, reduction='none')\n\n# Check results\nexpect(node, inputs=[x, labels, weights], outputs=[sce], name='test_softmax_cross_entropy_none_weights')",
+          "summary": "softmaxcrossentropy_none_weights"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'sum'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels, reduction='sum')\n\n# Check results\nexpect(node, inputs=[x, labels], outputs=[sce], name='test_softmax_cross_entropy_sum')",
+          "summary": "softmaxcrossentropy_sum"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The predicted outputs with shape [batch_size, class_size], or [batch_size, class_size, D1, D2 , ..., Dk], where K is the number of dimensions.",
+          "name": "scores",
+          "type": "T"
+        },
+        {
+          "description": "The ground truth output tensor, with shape [batch_size], or [batch_size, D1, D2, ..., Dk], where K is the number of dimensions.Usualy, it's a one-hot representation of ground-truth class.",
+          "name": "labels",
+          "type": "T"
+        },
+        {
+          "description": "A manual rescaling weight given to each class. If given, it has to be a 1D Tensor assigning weight to each of the classes. Otherwise, it is treated as if having all ones.",
+          "name": "weights",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 2,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Weighted loss float Tensor. If reduction is 'none', this has the shape of [batch_size], or [batch_size, D1, D2, ..., Dk] in case of K-dimensional loss. Otherwise, it is a scalar.",
+          "name": "output",
+          "type": "T"
+        },
+        {
+          "description": "Log probability tensor. If the output of softmax is prob, its value is log(prob).",
+          "name": "log_prob",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
       "support_level": "common",
       "type_constraints": [
         {
