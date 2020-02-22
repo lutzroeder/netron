@@ -73,6 +73,26 @@ TFLITE.DimensionTypeName = {
 /**
  * @enum {number}
  */
+TFLITE.SparseIndexVector = {
+  NONE: 0,
+  Int32Vector: 1,
+  Uint16Vector: 2,
+  Uint8Vector: 3
+};
+
+/**
+ * @enum {string}
+ */
+TFLITE.SparseIndexVectorName = {
+  0: 'NONE',
+  1: 'Int32Vector',
+  2: 'Uint16Vector',
+  3: 'Uint8Vector'
+};
+
+/**
+ * @enum {number}
+ */
 TFLITE.BuiltinOperator = {
   ADD: 0,
   AVERAGE_POOL_2D: 1,
@@ -1136,6 +1156,354 @@ TFLITE.QuantizationParameters.createQuantizationParameters = function(builder, m
 /**
  * @constructor
  */
+TFLITE.Int32Vector = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.Int32Vector}
+ */
+TFLITE.Int32Vector.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.Int32Vector=} obj
+ * @returns {TFLITE.Int32Vector}
+ */
+TFLITE.Int32Vector.getRootAsInt32Vector = function(bb, obj) {
+  return (obj || new TFLITE.Int32Vector).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+TFLITE.Int32Vector.prototype.values = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+TFLITE.Int32Vector.prototype.valuesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+TFLITE.Int32Vector.prototype.valuesArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.Int32Vector.startInt32Vector = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} valuesOffset
+ */
+TFLITE.Int32Vector.addValues = function(builder, valuesOffset) {
+  builder.addFieldOffset(0, valuesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Int32Vector.createValuesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+TFLITE.Int32Vector.startValuesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Int32Vector.endInt32Vector = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} valuesOffset
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Int32Vector.createInt32Vector = function(builder, valuesOffset) {
+  TFLITE.Int32Vector.startInt32Vector(builder);
+  TFLITE.Int32Vector.addValues(builder, valuesOffset);
+  return TFLITE.Int32Vector.endInt32Vector(builder);
+}
+
+/**
+ * @constructor
+ */
+TFLITE.Uint16Vector = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.Uint16Vector}
+ */
+TFLITE.Uint16Vector.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.Uint16Vector=} obj
+ * @returns {TFLITE.Uint16Vector}
+ */
+TFLITE.Uint16Vector.getRootAsUint16Vector = function(bb, obj) {
+  return (obj || new TFLITE.Uint16Vector).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+TFLITE.Uint16Vector.prototype.values = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readUint16(this.bb.__vector(this.bb_pos + offset) + index * 2) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+TFLITE.Uint16Vector.prototype.valuesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Uint16Array}
+ */
+TFLITE.Uint16Vector.prototype.valuesArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? new Uint16Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.Uint16Vector.startUint16Vector = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} valuesOffset
+ */
+TFLITE.Uint16Vector.addValues = function(builder, valuesOffset) {
+  builder.addFieldOffset(0, valuesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Uint16Vector.createValuesVector = function(builder, data) {
+  builder.startVector(2, data.length, 2);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt16(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+TFLITE.Uint16Vector.startValuesVector = function(builder, numElems) {
+  builder.startVector(2, numElems, 2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Uint16Vector.endUint16Vector = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} valuesOffset
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Uint16Vector.createUint16Vector = function(builder, valuesOffset) {
+  TFLITE.Uint16Vector.startUint16Vector(builder);
+  TFLITE.Uint16Vector.addValues(builder, valuesOffset);
+  return TFLITE.Uint16Vector.endUint16Vector(builder);
+}
+
+/**
+ * @constructor
+ */
+TFLITE.Uint8Vector = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.Uint8Vector}
+ */
+TFLITE.Uint8Vector.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.Uint8Vector=} obj
+ * @returns {TFLITE.Uint8Vector}
+ */
+TFLITE.Uint8Vector.getRootAsUint8Vector = function(bb, obj) {
+  return (obj || new TFLITE.Uint8Vector).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+TFLITE.Uint8Vector.prototype.values = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+TFLITE.Uint8Vector.prototype.valuesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Uint8Array}
+ */
+TFLITE.Uint8Vector.prototype.valuesArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.Uint8Vector.startUint8Vector = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} valuesOffset
+ */
+TFLITE.Uint8Vector.addValues = function(builder, valuesOffset) {
+  builder.addFieldOffset(0, valuesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Uint8Vector.createValuesVector = function(builder, data) {
+  builder.startVector(1, data.length, 1);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+TFLITE.Uint8Vector.startValuesVector = function(builder, numElems) {
+  builder.startVector(1, numElems, 1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Uint8Vector.endUint8Vector = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} valuesOffset
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.Uint8Vector.createUint8Vector = function(builder, valuesOffset) {
+  TFLITE.Uint8Vector.startUint8Vector(builder);
+  TFLITE.Uint8Vector.addValues(builder, valuesOffset);
+  return TFLITE.Uint8Vector.endUint8Vector(builder);
+}
+
+/**
+ * @constructor
+ */
 TFLITE.DimensionMetadata = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -1185,60 +1553,44 @@ TFLITE.DimensionMetadata.prototype.denseSize = function() {
 };
 
 /**
- * @param {number} index
- * @returns {number}
+ * @returns {TFLITE.SparseIndexVector}
  */
-TFLITE.DimensionMetadata.prototype.arraySegments = function(index) {
+TFLITE.DimensionMetadata.prototype.arraySegmentsType = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+  return offset ? /** @type {TFLITE.SparseIndexVector} */ (this.bb.readUint8(this.bb_pos + offset)) : TFLITE.SparseIndexVector.NONE;
 };
 
 /**
- * @returns {number}
+ * @param {flatbuffers.Table} obj
+ * @returns {?flatbuffers.Table}
  */
-TFLITE.DimensionMetadata.prototype.arraySegmentsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-TFLITE.DimensionMetadata.prototype.arraySegmentsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param {number} index
- * @returns {number}
- */
-TFLITE.DimensionMetadata.prototype.arrayIndices = function(index) {
+TFLITE.DimensionMetadata.prototype.arraySegments = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+  return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
 };
 
 /**
- * @returns {number}
+ * @returns {TFLITE.SparseIndexVector}
  */
-TFLITE.DimensionMetadata.prototype.arrayIndicesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+TFLITE.DimensionMetadata.prototype.arrayIndicesType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? /** @type {TFLITE.SparseIndexVector} */ (this.bb.readUint8(this.bb_pos + offset)) : TFLITE.SparseIndexVector.NONE;
 };
 
 /**
- * @returns {Int32Array}
+ * @param {flatbuffers.Table} obj
+ * @returns {?flatbuffers.Table}
  */
-TFLITE.DimensionMetadata.prototype.arrayIndicesArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+TFLITE.DimensionMetadata.prototype.arrayIndices = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.DimensionMetadata.startDimensionMetadata = function(builder) {
-  builder.startObject(4);
+  builder.startObject(6);
 };
 
 /**
@@ -1259,31 +1611,26 @@ TFLITE.DimensionMetadata.addDenseSize = function(builder, denseSize) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {TFLITE.SparseIndexVector} arraySegmentsType
+ */
+TFLITE.DimensionMetadata.addArraySegmentsType = function(builder, arraySegmentsType) {
+  builder.addFieldInt8(2, arraySegmentsType, TFLITE.SparseIndexVector.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} arraySegmentsOffset
  */
 TFLITE.DimensionMetadata.addArraySegments = function(builder, arraySegmentsOffset) {
-  builder.addFieldOffset(2, arraySegmentsOffset, 0);
+  builder.addFieldOffset(3, arraySegmentsOffset, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
+ * @param {TFLITE.SparseIndexVector} arrayIndicesType
  */
-TFLITE.DimensionMetadata.createArraySegmentsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-TFLITE.DimensionMetadata.startArraySegmentsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+TFLITE.DimensionMetadata.addArrayIndicesType = function(builder, arrayIndicesType) {
+  builder.addFieldInt8(4, arrayIndicesType, TFLITE.SparseIndexVector.NONE);
 };
 
 /**
@@ -1291,28 +1638,7 @@ TFLITE.DimensionMetadata.startArraySegmentsVector = function(builder, numElems) 
  * @param {flatbuffers.Offset} arrayIndicesOffset
  */
 TFLITE.DimensionMetadata.addArrayIndices = function(builder, arrayIndicesOffset) {
-  builder.addFieldOffset(3, arrayIndicesOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-TFLITE.DimensionMetadata.createArrayIndicesVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-TFLITE.DimensionMetadata.startArrayIndicesVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+  builder.addFieldOffset(5, arrayIndicesOffset, 0);
 };
 
 /**
@@ -1328,15 +1654,19 @@ TFLITE.DimensionMetadata.endDimensionMetadata = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {TFLITE.DimensionType} format
  * @param {number} denseSize
+ * @param {TFLITE.SparseIndexVector} arraySegmentsType
  * @param {flatbuffers.Offset} arraySegmentsOffset
+ * @param {TFLITE.SparseIndexVector} arrayIndicesType
  * @param {flatbuffers.Offset} arrayIndicesOffset
  * @returns {flatbuffers.Offset}
  */
-TFLITE.DimensionMetadata.createDimensionMetadata = function(builder, format, denseSize, arraySegmentsOffset, arrayIndicesOffset) {
+TFLITE.DimensionMetadata.createDimensionMetadata = function(builder, format, denseSize, arraySegmentsType, arraySegmentsOffset, arrayIndicesType, arrayIndicesOffset) {
   TFLITE.DimensionMetadata.startDimensionMetadata(builder);
   TFLITE.DimensionMetadata.addFormat(builder, format);
   TFLITE.DimensionMetadata.addDenseSize(builder, denseSize);
+  TFLITE.DimensionMetadata.addArraySegmentsType(builder, arraySegmentsType);
   TFLITE.DimensionMetadata.addArraySegments(builder, arraySegmentsOffset);
+  TFLITE.DimensionMetadata.addArrayIndicesType(builder, arrayIndicesType);
   TFLITE.DimensionMetadata.addArrayIndices(builder, arrayIndicesOffset);
   return TFLITE.DimensionMetadata.endDimensionMetadata(builder);
 }
