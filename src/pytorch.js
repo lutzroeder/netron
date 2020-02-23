@@ -2782,35 +2782,6 @@ pytorch.Container.Zip = class {
         return this._data;
     }
 
-    get body() {
-        if (this._body === undefined) {
-            this._body = null;
-            const data = this.data;
-            if (this._torchscriptArena) {
-                const program = this.execution.parse(this._torchscriptArena);
-                this._body = program.body;
-            }
-            else if (data) {
-                const type = this._type(data.__module__ + '.' + data.__name__);
-                if (type) {
-                    this._body = type.body.statements;
-                }
-            }
-        }
-        return this._body;
-    }
-
-    get attributes() {
-        if (this._attributes ===  undefined) {
-            this._attributes = null;
-            const entry = this._entry('attributes.pkl');
-            if (entry && entry.data) {
-                this._attributes = this._unpickle(entry.data, null);
-            }
-        }
-        return this._attributes;
-    }
-
     get constants() {
         if (this._constants === undefined) {
             this._constants = [];
