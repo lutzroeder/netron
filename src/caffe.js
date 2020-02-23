@@ -112,7 +112,7 @@ caffe.ModelFactory = class {
                     message[tag] = caffe.ModelFactory._decodeText(reader);
                     return;
                 }  
-                else if (message.constructor.name.endsWith('Parameter')) {
+                else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
                     if (message[tag]) {
                         if (!Array.isArray(message[tag])) {
                             message[tag] = [ message[tag] ];
