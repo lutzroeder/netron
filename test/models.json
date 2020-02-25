@@ -2,7 +2,7 @@
   {
     "type":   "armnn",
     "target": "ssd_mobilenet_v3_small_coco_2019_08_14.armnn",
-    "source": "https://github.com/ARM-software/armnn/blob/master/samples/serialized/ssd_mobilenet_v3_small_coco_2019_08_14.armnn?raw=true",
+    "source": "https://raw.githubusercontent.com/ARM-software/armnn/master/samples/serialized/ssd_mobilenet_v3_small_coco_2019_08_14.armnn",
     "format": "Arm NN",
     "link":   "https://github.com/ARM-software/armnn"
   },
@@ -240,7 +240,7 @@
   {
     "type":   "caffe",
     "target": "faster_rcnn_train_test_21cls.pt",
-    "source": "https://github.com/sanghoon/pva-faster-rcnn/raw/master/models/pvanet/pva9.1/faster_rcnn_train_test_21cls.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/sanghoon/pva-faster-rcnn/master/models/pvanet/pva9.1/faster_rcnn_train_test_21cls.pt",
     "format": "Caffe v2",
     "link":   "https://github.com/sanghoon/pva-faster-rcnn"
   },
@@ -338,35 +338,35 @@
   {
     "type":   "caffe",
     "target": "inceptionv3.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv3.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv3_orig.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv3_orig.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3_orig.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv4.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv4.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv4_resnet.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv4_resnet.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4_resnet.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "inceptionv4_resnet.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/inceptionv4_resnet.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4_resnet.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
@@ -471,14 +471,14 @@
   {
     "type":   "caffe",
     "target": "ORION_extended_trainval.prototxt",
-    "source": "https://github.com/lmb-freiburg/orion/blob/master/net_archs/modelnet10/ORION_extended_trainval.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/lmb-freiburg/orion/master/net_archs/modelnet10/ORION_extended_trainval.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/lmb-freiburg/orion"
   },
   {
     "type":   "caffe",
     "target": "panoramic_object_detection_deploy_crop.prototxt.prototxt",
-    "source": "https://github.com/gdlg/panoramic-object-detection/blob/master/examples/inference/deploy_crop.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/gdlg/panoramic-object-detection/master/examples/inference/deploy_crop.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/gdlg/panoramic-object-detection/tree/master/examples/inference"
   },
@@ -499,21 +499,21 @@
   {
     "type":   "caffe",
     "target": "ResNet-18-deploy.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/ResNet-18-deploy.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-18-deploy.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "ResNet-34.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/ResNet-34.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-34.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "type":   "caffe",
     "target": "resnet-50.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/resnet-50.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-50.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
@@ -540,7 +540,7 @@
   {
     "type":   "caffe",
     "target": "ResNet-101-deploy.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/ResNet-101-deploy.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },
@@ -568,7 +568,7 @@
   {
     "type":   "caffe",
     "target": "resnet-152.prototxt",
-    "source": "https://github.com/cwlacewe/netscope/blob/master/presets/resnet-152.prototxt?raw=true",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
   },  
@@ -884,7 +884,7 @@
   {
     "type":   "chainer",
     "target": "generator_model.h5",
-    "source": "https://github.com/mattya/chainer-DCGAN/blob/master/generator_model.h5?raw=true",
+    "source": "https://raw.githubusercontent.com/mattya/chainer-DCGAN/master/generator_model.h5",
     "format": "Chainer HDF5",
     "link":   "https://github.com/mattya/chainer-DCGAN"
   },
@@ -1190,7 +1190,7 @@
   {
     "type":   "coreml",
     "target": "CarClassifier.mlmodel",
-    "source": "https://github.com/PZ1Sharer05/CreateMLmodels/blob/master/CarClassifier.mlmodel?raw=true",
+    "source": "https://raw.githubusercontent.com/PZ1Sharer05/CreateMLmodels/master/CarClassifier.mlmodel",
     "format": "Core ML v1",
     "link":   "https://github.com/PZ1Sharer05/CreateMLmodels"
   },
@@ -1211,7 +1211,7 @@
   {
     "type":   "coreml",
     "target": "EnvSceneClassification.mlmodel",
-    "source": "https://github.com/anujdutt9/iOS-Audio-Classification/blob/cdf5b72dc351a83168369d0afbd0eeba9ecae448/RealTimeSoundClassifier/RealTimeSoundClassifier/EnvSceneClassification.mlmodel?raw=true",
+    "source": "https://raw.githubusercontent.com/anujdutt9/iOS-Audio-Classification/cdf5b72dc351a83168369d0afbd0eeba9ecae448/RealTimeSoundClassifier/RealTimeSoundClassifier/EnvSceneClassification.mlmodel",
     "format": "Core ML v3",
     "link":   "https://github.com/anujdutt9/iOS-Audio-Classification"
   },
@@ -1542,7 +1542,7 @@
   {
     "type":   "coreml",
     "target": "MovieRecommender.mlmodel",
-    "source": "https://github.com/anupamchugh/iowncode/blob/master/CoreMLRecommender/CoreMLRecommender/MovieRecommender.mlmodel?raw=true",
+    "source": "https://raw.githubusercontent.com/anupamchugh/iowncode/master/CoreMLRecommender/CoreMLRecommender/MovieRecommender.mlmodel",
     "format": "Core ML v4",
     "link":   "https://github.com/anupamchugh/iowncode/tree/master/CoreMLRecommender"
   },
@@ -1561,7 +1561,7 @@
   {
     "type":   "coreml",
     "target": "PoseEstimationForMobile.mlmodel",
-    "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.mlmodel?raw=true",
+    "source": "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.mlmodel",
     "format": "Core ML v1",
     "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
   },
@@ -1582,7 +1582,7 @@
   {
     "type":   "coreml",
     "target": "ReadTheRoom.mlmodel",
-    "source": "https://github.com/CapTechMobile/blogfest-coreml/blob/d8e8c15d33e9591c9e81cb18e5ea4b2fb6972503/ReadTheRoom/ReadTheRoom.mlmodel?raw=true",
+    "source": "https://raw.githubusercontent.com/CapTechMobile/blogfest-coreml/d8e8c15d33e9591c9e81cb18e5ea4b2fb6972503/ReadTheRoom/ReadTheRoom.mlmodel",
     "format": "Core ML v4",
     "link":   "https://github.com/CapTechMobile/blogfest-coreml"
   },
@@ -1770,14 +1770,14 @@
   {
     "type":   "darknet",
     "target": "alexnet.cfg,alexnet.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/alexnet.cfg?raw=true,https://pjreddie.com/media/files/alexnet.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg,https://pjreddie.com/media/files/alexnet.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
   {
     "type":   "darknet",
     "target": "csresnext50-panet-spp.cfg",
-    "source": "https://github.com/WongKinYiu/CrossStagePartialNetworks/blob/master/cfg/csresnext50-panet-spp.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/WongKinYiu/CrossStagePartialNetworks/master/cfg/csresnext50-panet-spp.cfg",
     "format": "Darknet",
     "link":   "https://github.com/lutzroeder/netron/issues/381"
   },
@@ -1791,63 +1791,63 @@
   {
     "type":   "darknet",
     "target": "darknet53_448.cfg,darknet53_448.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/darknet53_448.cfg?raw=true,https://pjreddie.com/media/files/darknet53_448.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg,https://pjreddie.com/media/files/darknet53_448.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
   {
     "type":   "darknet",
     "target": "enet-coco.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/enet-coco.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/enet-coco.cfg",
     "format": "Darknet",
     "link":   "https://github.com/lutzroeder/netron/issues/381"
   },
   {
     "type":   "darknet",
     "target": "face_small_3.cfg",
-    "source": "https://github.com/zlmo/Face-Detection/blob/master/cfg/face_small_3.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/zlmo/Face-Detection/master/cfg/face_small_3.cfg",
     "format": "Darknet",
     "link":   "https://github.com/zlmo/Face-Detection"
   },
   {
     "type":   "darknet",
     "target": "Gaussian_yolov3_BDD.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/Gaussian_yolov3_BDD.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/Gaussian_yolov3_BDD.cfg",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },
   {
     "type":   "darknet",
     "target": "go.cfg,go.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/go.cfg?raw=true,https://pjreddie.com/media/files/go.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/go.cfg,https://pjreddie.com/media/files/go.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/darkgo-go-in-darknet"
   },
   {
     "type":   "darknet",
     "target": "grrm.cfg,grrm.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/rnn.cfg?raw=true,https://pjreddie.com/media/files/grrm.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/rnn.cfg,https://pjreddie.com/media/files/grrm.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/rnns-in-darknet"
   },
   {
     "type":   "darknet",
     "target": "gru.cfg,gru.weights",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/gru.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/gru.cfg",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet"
   },
   {
     "type":   "darknet",
     "target": "jnet-conv.cfg,jnet-conv.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/jnet-conv.cfg?raw=true,https://pjreddie.com/media/files/jnet-conv.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/jnet-conv.cfg,https://pjreddie.com/media/files/jnet-conv.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/nightmare"
   },
   {
     "type":   "darknet",
     "target": "lstm.train.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/lstm.train.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/lstm.train.cfg",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },
@@ -1861,42 +1861,42 @@
   {
     "type":   "darknet",
     "target": "resnet18.cfg,resnet18.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/resnet18.cfg?raw=true,https://pjreddie.com/media/files/resnet18.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet18.cfg,https://pjreddie.com/media/files/resnet18.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
   {
     "type":   "darknet",
     "target": "resnet152.cfg,resnet152.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/resnet152.cfg?raw=true,https://pjreddie.com/media/files/resnet152.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet152.cfg,https://pjreddie.com/media/files/resnet152.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
   {
     "type":   "darknet",
     "target": "tiny.cfg,tiny.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/tiny.cfg?raw=true,https://pjreddie.com/media/files/tiny.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/tiny.cfg,https://pjreddie.com/media/files/tiny.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/tiny-darknet"
   },
   {
     "type":   "darknet",
     "target": "yolo-coco.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov1/yolo-coco.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov1/yolo-coco.cfg",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },
   {
     "type":   "darknet",
     "target": "yolo-voc.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo-voc.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo-voc.cfg",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },
   {
     "type":   "darknet",
     "target": "yolo.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo.cfg",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },
@@ -1910,21 +1910,21 @@
   {
     "type":   "darknet",
     "target": "yolov3-openimages.cfg,yolov3-openimages.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/yolov3-openimages.cfg?raw=true,https://pjreddie.com/media/files/yolov3-openimages.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-openimages.cfg,https://pjreddie.com/media/files/yolov3-openimages.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/yolo"
   },
   {
     "type":   "darknet",
     "target": "yolov3-spp.cfg,yolov3-spp.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/yolov3-spp.cfg?raw=true,https://pjreddie.com/media/files/yolov3-spp.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/yolo"
   },
   {
     "type":   "darknet",
     "target": "yolov3-tiny.cfg,yolov3-tiny.weights",
-    "source": "https://github.com/pjreddie/darknet/blob/master/cfg/yolov3-tiny.cfg?raw=true,https://pjreddie.com/media/files/yolov3-tiny.weights",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-tiny.cfg,https://pjreddie.com/media/files/yolov3-tiny.weights",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },
@@ -1938,7 +1938,7 @@
   {
     "type":   "darknet",
     "target": "yolo9000.cfg",
-    "source": "https://github.com/AlexeyAB/darknet/blob/master/cfg/yolo9000.cfg?raw=true",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo9000.cfg",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
   },
@@ -2212,7 +2212,7 @@
   {
     "type":   "keras",
     "target": "snapshot_parent_0097.h5",
-    "source": "https://github.com/uber-research/deep-neuroevolution/blob/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5?raw=true",
+    "source": "https://raw.githubusercontent.com/uber-research/deep-neuroevolution/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5",
     "error":  "File format is not Keras HDF5 in 'snapshot_parent_0097.h5'.\nFile format is not Chainer HDF5 in 'snapshot_parent_0097.h5'.",
     "link":   "https://github.com/uber-research/deep-neuroevolution"
   },
@@ -2246,56 +2246,56 @@
   {
     "type":   "mediapipe",
     "target": "clipped_images_from_file_at_24fps.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/media_sequence/clipped_images_from_file_at_24fps.pbtxt?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/media_sequence/clipped_images_from_file_at_24fps.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mediapipe",
     "target": "face_detection_mobile_cpu.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/face_detection/face_detection_mobile_cpu.pbtxt?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/face_detection/face_detection_mobile_cpu.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mediapipe",
     "target": "hand_detection_mobile.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/hand_tracking/hand_detection_mobile.pbtxt?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/hand_tracking/hand_detection_mobile.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mediapipe",
     "target": "hand_tracking_mobile.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/hand_tracking/hand_tracking_mobile.pbtxt?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/hand_tracking/hand_tracking_mobile.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mediapipe",
     "target": "object_detection_desktop_live.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/examples/coral/graphs/object_detection_desktop_live.pbtxt?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/examples/coral/graphs/object_detection_desktop_live.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mediapipe",
     "target": "tvl1_flow_and_rgb_from_file.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/media_sequence/tvl1_flow_and_rgb_from_file.pbtxt?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/media_sequence/tvl1_flow_and_rgb_from_file.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mediapipe",
     "target": "yt8m_dataset_model_inference.pbtxt",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/graphs/youtube8m/yt8m_dataset_model_inference.pbtxt?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/youtube8m/yt8m_dataset_model_inference.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
   },
   {
     "type":   "mlnet",
     "target": "BinaryClassification_AutoML_SentimentModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip",
     "format": "ML.NET v1.0.27701.1",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
@@ -2323,49 +2323,49 @@
   {
     "type":   "mlnet",
     "target": "FastTreeModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeModel.zip",
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "FastTreeTweedieModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeTweedieModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/FastTreeTweedieModel.zip",
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "GitHubLabelerModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/MulticlassClassification-GitHubLabeler/GitHubLabeler/MLModels/GitHubLabelerModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/MulticlassClassification-GitHubLabeler/GitHubLabeler/MLModels/GitHubLabelerModel.zip",
     "format": "ML.NET v1.0.27701.1",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "ImageClassification.Predict.imageClassifier.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Predict/assets/inputs/MLNETModel/imageClassifier.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/DeepLearning_TensorFlowEstimator/ImageClassification.Predict/assets/inputs/MLNETModel/imageClassifier.zip",
     "format": "ML.NET v1.4.28230.4",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "IrisClassificationModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/MulticlassClassification_Iris/IrisClassification/MLModels/IrisClassificationModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/MulticlassClassification_Iris/IrisClassification/MLModels/IrisClassificationModel.zip",
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "MovieRecommender_Model.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Recommendation-MovieRecommender/MovieRecommender_Model/Model/model.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/Recommendation-MovieRecommender/MovieRecommender_Model/Model/model.zip",
     "format": "ML.NET v1.4.28230.4",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "MLSentimentModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/ScalableSentimentAnalysisBlazorWebApp/BlazorSentimentAnalysis.Server/ML/MLSentimentModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/ScalableSentimentAnalysisBlazorWebApp/BlazorSentimentAnalysis.Server/ML/MLSentimentModel.zip",
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
@@ -2379,56 +2379,56 @@
   {
     "type":   "mlnet",
     "target": "PoissonModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/PoissonModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/PoissonModel.zip",
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "product_month_fastTreeTweedie.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/Forecasting-Sales/src/eShopDashboard/Forecast/ModelFiles/product_month_fastTreeTweedie.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/Forecasting-Sales/src/eShopDashboard/Forecast/ModelFiles/product_month_fastTreeTweedie.zip",
     "format": "ML.NET v1.3.28006.10",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "ProductSalesChangePointModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesChangePointModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesChangePointModel.zip",
     "format": "ML.NET v1.4.28305.1",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "ProductSalesSpikeModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesSpikeModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/AnomalyDetection-Sales/SpikeDetectionE2EApp/MLModels/ProductSalesSpikeModel.zip",
     "format": "ML.NET v1.4.28305.1",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "randomizedPca.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/AnomalyDetection_CreditCardFraudDetection/CreditCardFraudDetection.Predictor/assets/input/randomizedPca.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/AnomalyDetection_CreditCardFraudDetection/CreditCardFraudDetection.Predictor/assets/input/randomizedPca.zip",
     "format": "ML.NET v1.2.27902.10",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "retailClustering.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Clustering_CustomerSegmentation/CustomerSegmentation.Train/assets/outputs/retailClustering.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/Clustering_CustomerSegmentation/CustomerSegmentation.Train/assets/outputs/retailClustering.zip",
     "format": "ML.NET v1.0.27701.1",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "SDCAModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/SDCAModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/Regression_BikeSharingDemand/BikeSharingDemand/MLModels/SDCAModel.zip",
     "format": "ML.NET v1.0.0.0",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
     "type":   "mlnet",
     "target": "TaxiFareModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/master/samples/csharp/getting-started/Regression_AutoML/TaxiFarePrediction/MLModels/TaxiFareModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/Regression_AutoML/TaxiFarePrediction/MLModels/TaxiFareModel.zip",
     "format": "ML.NET v1.0.27701.1",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
@@ -2442,34 +2442,34 @@
   {
     "type":   "mlnet",
     "target": "TinyYoloModel.zip",
-    "source": "https://github.com/dotnet/machinelearning-samples/blob/61b428c746f39069a9d1d92f9e0f819e6beb30f3/samples/csharp/end-to-end-apps/DeepLearning_ObjectDetection_Onnx/OnnxObjectDetectionE2EAPP/ML/MLNETModel/TinyYoloModel.zip?raw=true",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/61b428c746f39069a9d1d92f9e0f819e6beb30f3/samples/csharp/end-to-end-apps/DeepLearning_ObjectDetection_Onnx/OnnxObjectDetectionE2EAPP/ML/MLNETModel/TinyYoloModel.zip",
     "format": "ML.NET v1.0.27701.1"
   },
   {
     "type":   "mnn",
     "target": "inception-v3.mnn",
-    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/inception-v3.mnn?raw=true",
+    "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/inception-v3.mnn",
     "format": "MNN v2",
     "link":   "https://github.com/alibaba/MNN"
   },
   {
     "type":   "mnn",
     "target": "mobilenet-v1-1.0.mnn",
-    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/mobilenet-v1-1.0.mnn?raw=true",
+    "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/mobilenet-v1-1.0.mnn",
     "format": "MNN v2",
     "link":   "https://github.com/alibaba/MNN"
   },
   {
     "type":   "mnn",
     "target": "MobileNetV2_224.mnn",
-    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/MobileNetV2_224.mnn?raw=true",
+    "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/MobileNetV2_224.mnn",
     "format": "MNN v2",
     "link":   "https://github.com/alibaba/MNN"
   },
   {
     "type":   "mnn",
     "target": "resnet-v2-50.mnn",
-    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/resnet-v2-50.mnn?raw=true",
+    "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/resnet-v2-50.mnn",
     "format": "MNN v2",
     "link":   "https://github.com/alibaba/MNN"
   },
@@ -2483,7 +2483,7 @@
   {
     "type":   "mnn",
     "target": "SqueezeNetV1.0.mnn",
-    "source": "https://github.com/alibaba/MNN/blob/master/benchmark/models/SqueezeNetV1.0.mnn?raw=true",
+    "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/SqueezeNetV1.0.mnn",
     "format": "MNN v2",
     "link":   "https://github.com/alibaba/MNN"
   },
@@ -2763,7 +2763,7 @@
   {
     "type":   "ncnn",
     "target": "centerface.param,centerface.bin",
-    "source": "https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param?raw=true,https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin?raw=true",
+    "source": "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
     "format": "ncnn",
     "link":   "https://github.com/MirrorYuChen/ncnn_example"
   },
@@ -2784,42 +2784,42 @@
   {
     "type":   "ncnn",
     "target": "googlenet.param",
-    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/googlenet.param?raw=true",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/googlenet.param",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "mnet-opt.param,mnet-opt.bin",
-    "source": "https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.param?raw=true,https://github.com/MirrorYuChen/ncnn_example/blob/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.bin?raw=true",
+    "source": "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.bin",
     "format": "ncnn",
     "link":   "https://github.com/MirrorYuChen/ncnn_example"
   },
   {
     "type":   "ncnn",
     "target": "mobilefacenet.bin,mobilefacenet.param",
-    "source": "https://github.com/GRAYKEY/mobilefacenet_ncnn/blob/master/models/mobilefacenet.bin?raw=true,https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.param",
+    "source": "https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.bin,https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.param",
     "format": "ncnn",
     "link":   "https://github.com/GRAYKEY/mobilefacenet_ncnn"
   },
   {
     "type":   "ncnn",
     "target": "mobilenetv2_yolov3.param",
-    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/mobilenetv2_yolov3.param?raw=true",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenetv2_yolov3.param",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "MobileNetSSD_deploy.param.bin,MobileNetSSD_deploy.bin",
-    "source": "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/blob/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin?raw=true,https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/blob/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin?raw=true",
+    "source": "https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin,https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin",
     "format": "ncnn",
     "link":   "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd"
   },
   {
     "type":   "ncnn",
     "target": "ncnn_yolo2_det3.bin,ncnn_yolo2_det3.param",
-    "source": "https://github.com/kyo055/ncnn_yolo2/blob/master/models/det3.bin?raw=true,https://github.com/kyo055/ncnn_yolo2/blob/master/models/det3.param?raw=true",
+    "source": "https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.bin,https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.param",
     "format": "ncnn",
     "link":   "https://github.com/kyo055/ncnn_yolo2"
   },
@@ -2833,28 +2833,28 @@
   {
     "type":   "ncnn",
     "target": "proxylessnasnet.param",
-    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/proxylessnasnet.param?raw=true",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/proxylessnasnet.param",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "resnet18_int8.param",
-    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/resnet18_int8.param?raw=true",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/resnet18_int8.param",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "shufflenet.param",
-    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/shufflenet.param?raw=true",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/shufflenet.param",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "squeezenet.param",
-    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/squeezenet.param?raw=true",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/squeezenet.param",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
@@ -2868,21 +2868,21 @@
   {
     "type":   "ncnn",
     "target": "squeezenet_v1.1.param.bin,squeezenet_v1.1.bin",
-    "source": "https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.param.bin?raw=true,https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.bin?raw=true",
+    "source": "https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.param.bin,https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.bin",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "squeezenet_v1.1.bin",
-    "source": "https://github.com/nihui/ncnn-android-squeezenet/blob/master/app/src/main/assets/squeezenet_v1.1.bin?raw=true",
+    "source": "https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.bin",
     "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
     "type":   "ncnn",
     "target": "vgg16.param",
-    "source": "https://github.com/Tencent/ncnn/blob/master/benchmark/vgg16.param?raw=true",
+    "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/vgg16.param",
     "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
@@ -3904,14 +3904,14 @@
   {
     "type":   "pytorch",
     "target": "cruise_cutin_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_cutin_vehicle_model.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/cruise_cutin_vehicle_model.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "cruise_go_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/cruise_go_vehicle_model.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/cruise_go_vehicle_model.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
@@ -3954,7 +3954,7 @@
   {
     "type":   "pytorch",
     "target": "gcn2_tiny_320x240.pt",
-    "source": "https://github.com/jiexiong2016/GCNv2_SLAM/blob/master/GCN2/gcn2_tiny_320x240.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/jiexiong2016/GCNv2_SLAM/master/GCN2/gcn2_tiny_320x240.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/jiexiong2016/GCNv2_SLAM"
   },
@@ -3995,21 +3995,21 @@
   {
     "type":   "pytorch",
     "target": "junction_mlp_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/junction_mlp_vehicle_model.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/junction_mlp_vehicle_model.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "lane_scanning_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/lane_scanning_vehicle_model.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/lane_scanning_vehicle_model.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "mask_r_cnn.pth",
-    "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/mask_r_cnn.pth?raw=true",
+    "source": "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/mask_r_cnn.pth",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
   },
@@ -4058,7 +4058,7 @@
   {
     "type":   "pytorch",
     "target": "mobilenet_quantized_scripted_925.pt",
-    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/pytorch/android-demo-app/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt",
     "format": "TorchScript v1.3",
     "link":   "https://github.com/pytorch/android-demo-app"
   },
@@ -4086,7 +4086,7 @@
   {
     "type":   "pytorch",
     "target": "model-reddit16-f140225004_2.pt1",
-    "source": "https://github.com/pytorch/android-demo-app/blob/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1?raw=true",
+    "source": "https://raw.githubusercontent.com/pytorch/android-demo-app/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1",
     "format": "TorchScript v1.3",
     "link":   "https://github.com/pytorch/android-demo-app"
   },
@@ -4135,28 +4135,28 @@
   {
     "type":   "pytorch",
     "target": "pedestrian_interaction_position_embedding.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "pedestrian_interaction_prediction_layer.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_prediction_layer.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_prediction_layer.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "pedestrian_interaction_single_lstm.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_single_lstm.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_single_lstm.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "pedestrian_interaction_social_embedding.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/pedestrian_interaction_social_embedding.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_social_embedding.pt",
     "format": "TorchScript v1.1",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
@@ -4212,7 +4212,7 @@
   {
     "type":   "pytorch",
     "target": "resnet18_large_blocks.pth",
-    "source": "https://github.com/facebookresearch/kill-the-bits/blob/master/src/models/compressed/resnet18_large_blocks.pth?raw=true",
+    "source": "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/resnet18_large_blocks.pth",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
   },
@@ -4282,7 +4282,7 @@
   {
     "type":   "pytorch",
     "target": "semantic_lstm_vehicle_model.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/semantic_lstm_vehicle_model.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/semantic_lstm_vehicle_model.pt",
     "format": "TorchScript v1.1",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
@@ -4358,35 +4358,35 @@
   {
     "type":   "pytorch",
     "target": "superpoint_v1.pth",
-    "source": "https://github.com/MagicLeapResearch/SuperPointPretrainedNetwork/blob/master/superpoint_v1.pth?raw=true",
+    "source": "https://raw.githubusercontent.com/MagicLeapResearch/SuperPointPretrainedNetwork/master/superpoint_v1.pth",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/MagicLeapResearch/SuperPointPretrainedNetwork"
   },
   {
     "type":   "pytorch",
     "target": "superpoint.pt",
-    "source": "https://github.com/KinglittleQ/SuperPoint_SLAM/blob/master/superpoint.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/KinglittleQ/SuperPoint_SLAM/master/superpoint.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/KinglittleQ/SuperPoint_SLAM"
   },
   {
     "type":   "pytorch",
     "target": "traced_online_lane_enc.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_lane_enc.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_lane_enc.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "traced_online_obs_enc.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_obs_enc.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_obs_enc.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
   {
     "type":   "pytorch",
     "target": "traced_online_pred_layer.pt",
-    "source": "https://github.com/ApolloAuto/apollo/blob/master/modules/prediction/data/traced_online_pred_layer.pt?raw=true",
+    "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_pred_layer.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/ApolloAuto/apollo"
   },
@@ -4518,14 +4518,14 @@
   {
     "type":   "sklearn",
     "target": "LDA_model.pkl",
-    "source": "https://github.com/rainer85ah/DCS/blob/master/Output/LDA_model.pkl?raw=true",
+    "source": "https://raw.githubusercontent.com/rainer85ah/DCS/master/Output/LDA_model.pkl",
     "format": "scikit-learn",
     "link":   "https://github.com/rainer85ah/DCS"
   },
   {
     "type":   "sklearn",
     "target": "phoenix_ml_classifier.pkl",
-    "source": "https://github.com/imeraj/Phoenix_Playground/blob/master/1.4/phoenix_ml/lib/phoenix_ml/model/classifier.pkl?raw=true",
+    "source": "https://raw.githubusercontent.com/imeraj/Phoenix_Playground/master/1.4/phoenix_ml/lib/phoenix_ml/model/classifier.pkl",
     "format": "scikit-learn 0.19.1",
     "link":   "https://github.com/imeraj/Phoenix_Playground/tree/master/1.4/phoenix_ml/lib/phoenix_ml/model"
   },
@@ -4560,7 +4560,7 @@
   {
     "type":   "sklearn",
     "target": "net2.pkl",
-    "source": "https://github.com/Aabglov/LasaganeTest/blob/master/results/net2.pkl?raw=true",
+    "source": "https://raw.githubusercontent.com/Aabglov/LasaganeTest/master/results/net2.pkl",
     "format": "scikit-learn",
     "link":   "https://github.com/Aabglov/LasaganeTest"
   },
@@ -4581,7 +4581,7 @@
   {
     "type":   "sklearn",
     "target": "robinhood-portfolio_data_user.pkl.pkl",
-    "source": "https://github.com/omdv/robinhood-portfolio/blob/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl?raw=true",
+    "source": "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
     "error":  "Root object has no type in 'robinhood-portfolio_data_user.pkl.pkl'.",
     "link":   "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
@@ -4966,7 +4966,7 @@
   {
     "type":   "tf",
     "target": "pose_estimation_for_mobile.pb",
-    "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.pb?raw=true",
+    "source": "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.pb",
     "format": "TensorFlow Graph",
     "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
   },
@@ -4987,7 +4987,7 @@
   {
     "type":   "tf",
     "target": "resnet_v1_50.ckpt",
-    "source": "https://github.com/serre-lab/deeplabcut_mgh/blob/master/deeplabcut/pose_estimation_tensorflow/models/pretrained/resnet_v1_50.ckpt?raw=true",
+    "source": "https://raw.githubusercontent.com/serre-lab/deeplabcut_mgh/master/deeplabcut/pose_estimation_tensorflow/models/pretrained/resnet_v1_50.ckpt",
     "format": "TensorFlow Tensor Bundle v1",
     "link":   "https://github.com/lutzroeder/netron/issues/405"
   },
@@ -5148,7 +5148,7 @@
   {
     "type":   "tflite",
     "target": "hair_segmentation.tflite",
-    "source": "https://github.com/google/mediapipe/blob/master/mediapipe/models/hair_segmentation.tflite?raw=true",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/models/hair_segmentation.tflite",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/google/mediapipe"
   },
@@ -5274,7 +5274,7 @@
   {
     "type":   "tflite",
     "target": "pose_estimation_for_mobile.tflite",
-    "source": "https://github.com/edvardHua/PoseEstimationForMobile/blob/master/release/cpm_model/model.tflite?raw=true",
+    "source": "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.tflite",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
   },
@@ -5344,7 +5344,7 @@
   {
     "type":   "tflite",
     "target": "two_subgraphs.bin",
-    "source": "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/testdata/two_subgraphs.bin?raw=true",
+    "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/testdata/two_subgraphs.bin",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/tensorflow/tensorflow"
   },
@@ -5491,7 +5491,7 @@
   {
     "type":   "torch",
     "target": "rnnTracker_r300_l1_n1_m1_d4.t7",
-    "source": "https://github.com/aghagol/minimal_rnntracking_deploy/blob/master/bin/rnnTracker_r300_l1_n1_m1_d4.t7?raw=true",
+    "source": "https://raw.githubusercontent.com/aghagol/minimal_rnntracking_deploy/master/bin/rnnTracker_r300_l1_n1_m1_d4.t7",
     "format": "Torch v7",
     "link":   "https://github.com/aghagol"
   },

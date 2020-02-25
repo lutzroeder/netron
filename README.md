@@ -21,14 +21,16 @@ Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch**
 
 **Python Server**: Run `pip install netron` and `netron [FILE]` or `import netron; netron.start('[FILE]')`.
 
-## Download Models
+## Models
 
-Sample model files to download and open:
+Sample model files to download or open using the browser version:
 
- * **ONNX**: [resnet-18](https://s3.amazonaws.com/onnx-model-zoo/resnet/resnet18v1/resnet18v1.onnx)
- * **Keras**: [tiny-yolo-voc](https://github.com/hollance/YOLO-CoreML-MPSNNGraph/raw/master/Convert/yad2k/model_data/tiny-yolo-voc.h5)
- * **CoreML**: [faces_model](https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/files/1526806/faces_model.mlmodel.zip) 
- * **TensorFlow Lite**: [smartreply](https://storage.googleapis.com/download.tensorflow.org/models/tflite/smartreply_1.0_2017_11_01.zip)
- * **MXNet**: [inception_v1](https://s3.amazonaws.com/model-server/models/onnx-inception_v1/inception_v1.model)
- * **Caffe**: [mobilenet_v2](https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2.caffemodel)
- * **TensorFlow**: [inception_v3](https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz)
+ * **ONNX**: [squeezenet](https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx)]
+ * **CoreML**: [exermote](https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel)]
+ * **Darknet**: [yolo](https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo.cfg) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo.cfg)]
+ * **Keras**: [mobilenet](https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5)]
+ * **MXNet**: [inception_v3](https://raw.githubusercontent.com/soeaver/mxnet-model/master/cls/inception/inception_v3-symbol.json) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/soeaver/mxnet-model/master/cls/inception/inception_v3-symbol.json)]
+ * **TensorFlow**: [chessbot](https://raw.githubusercontent.com/srom/chessbot/master/model/chessbot.pb) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/srom/chessbot/master/model/chessbot.pb)]
+ * **TensorFlow Lite**: [hair_segmentation](https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/models/hair_segmentation.tflite) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/models/hair_segmentation.tflite)]
+ * **TorchScript**: [traced_online_pred_layer](https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_pred_layer.pt) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_pred_layer.pt)]
+ * **Caffe**: [mobilenet_v2](https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2.caffemodel) [[open](https://lutzroeder.github.io/netron?url=https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2.caffemodel)]

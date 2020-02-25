@@ -66,7 +66,6 @@ def zoo():
     download_torchvision_model('torchvision.models.alexnet', [ 1, 3, 299, 299 ])
     download_torchvision_model('torchvision.models.densenet161', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.inception_v3', [ 1, 3, 299, 299 ])
-    download_torchvision_model('torchvision.models.detection.maskrcnn_resnet50_fpn', [ 1, 3, 300, 400 ])
     download_torchvision_model('torchvision.models.mobilenet_v2', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.resnet18', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.resnet101', [ 1, 3, 224, 224 ])

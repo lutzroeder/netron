@@ -126,15 +126,18 @@ host.BrowserHost = class {
             return;
         }
 
-        const urlParam = this._getQueryParameter('url');
-        if (urlParam) {
-            this._openModel(urlParam, this._getQueryParameter('identifier') || null);
+        let url = this._getQueryParameter('url');
+        if (url) {
+            const identifier = this._getQueryParameter('identifier') || null;
+            const githubRegExp = new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$');
+            url = url.replace(githubRegExp, 'https://raw.githubusercontent.com/$1/$2');
+            this._openModel(url, identifier);
             return;
         }
 
-        const gistParam = this._getQueryParameter('gist');
-        if (gistParam) {
-            this._openGist(gistParam);
+        const gist = this._getQueryParameter('gist');
+        if (gist) {
+            this._openGist(gist);
             return;
         }
 
